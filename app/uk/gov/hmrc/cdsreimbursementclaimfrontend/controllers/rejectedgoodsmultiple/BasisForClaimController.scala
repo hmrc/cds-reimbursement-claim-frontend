@@ -53,7 +53,7 @@ class BasisForClaimController @Inject() (
       basisForClaimPage(
         form,
         BasisOfRejectedGoodsClaim.values,
-        routes.BasisForClaimController.submit()
+        routes.BasisForClaimController.submit
       )
     ).asFuture
   }
@@ -69,7 +69,7 @@ class BasisForClaimController @Inject() (
               basisForClaimPage(
                 formWithErrors,
                 BasisOfRejectedGoodsClaim.values,
-                routes.BasisForClaimController.submit()
+                routes.BasisForClaimController.submit
               )
             )
           ).asFuture,
@@ -79,9 +79,9 @@ class BasisForClaimController @Inject() (
             basisOfClaim match {
               case SpecialCircumstances =>
                 Redirect(
-                  routes.EnterSpecialCircumstancesController.show()
+                  routes.EnterSpecialCircumstancesController.show
                 )
-              case _                    => Redirect(routes.DisposalMethodController.show())
+              case _                    => Redirect(routes.DisposalMethodController.show)
             }
           ).asFuture
       )

@@ -41,12 +41,12 @@ class ChoosePayeeTypeController @Inject() (
   final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
   final def nextPage(journey: Journey): Call =
     if (journey.isSubsidyOnlyJourney)
-      routes.UploadFilesController.show()
+      routes.UploadFilesController.show
     else if (journey.isAllSelectedDutiesAreCMAEligible)
-      routes.ChooseRepaymentMethodController.show()
+      routes.ChooseRepaymentMethodController.show
     else if (journey.needsBanksAccountDetailsSubmission)
-      routes.CheckBankDetailsController.show()
+      routes.CheckBankDetailsController.show
     else
-      routes.UploadFilesController.show()
+      routes.UploadFilesController.show
 
 }

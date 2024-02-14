@@ -46,18 +46,21 @@ class CheckBankDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
+  final override val postAction: Call =
+    routes.CheckBankDetailsController.submit
+
   final override def continueRoute(journey: Journey): Call =
     if (journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection) {
-      routes.ChooseFileTypeController.show()
+      routes.ChooseFileTypeController.show
     } else {
-      routes.UploadFilesController.show()
+      routes.UploadFilesController.show
     }
 
   final override val chooseBankAccountTypeRoute: Call =
-    routes.ChooseBankAccountTypeController.show()
+    routes.ChooseBankAccountTypeController.show
 
   final override val changeBankAccountDetailsRoute: Call =
-    routes.BankDetailsChangeLetterOfAuthorityController.show()
+    routes.BankDetailsChangeLetterOfAuthorityController.show
 
   final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
     journey.submitBankAccountDetails(bankAccountDetails)

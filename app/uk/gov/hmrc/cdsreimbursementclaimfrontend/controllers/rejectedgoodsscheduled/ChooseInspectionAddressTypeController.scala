@@ -46,10 +46,10 @@ class ChooseInspectionAddressTypeController @Inject() (
     routes.ChoosePayeeTypeController.show
 
   override val postAction: Call =
-    routes.ChooseInspectionAddressTypeController.submit()
+    routes.ChooseInspectionAddressTypeController.submit
 
   override val problemWithAddressPage: Call =
-    routes.ProblemWithAddressController.show()
+    routes.ProblemWithAddressController.show
 
   override val startAddressLookup: Call =
     routes.ChooseInspectionAddressTypeController.redirectToALF()

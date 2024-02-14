@@ -22,15 +22,22 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
+import play.api.data.Form
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 
 trait CheckBankDetailsMixin extends JourneyBaseController {
 
+  val postAction: Call
   def continueRoute(journey: Journey): Call
   val chooseBankAccountTypeRoute: Call
   val changeBankAccountDetailsRoute: Call
   val checkBankAccountDetailsPage: check_bank_account_details
 
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
+
+  final val bankDetailsAreYouSureForm: Form[YesNo] =
+    YesOrNoQuestionForm("bank-details-yes-no")
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -44,8 +51,9 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                   journeyWithBankDetails,
                   Ok(
                     checkBankAccountDetailsPage(
+                      bankDetailsAreYouSureForm,
                       bankAccountDetails.masked,
-                      continueRoute(journey),
+                      postAction,
                       changeBankAccountDetailsRoute
                     )
                   )
@@ -64,5 +72,37 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
           )
         }
         .asFuture
+    }
+
+  final val submit: Action[AnyContent] =
+    simpleActionReadWriteJourney { implicit request => journey =>
+      bankDetailsAreYouSureForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              journey.answers.bankAccountDetails
+                .map { bankAccountDetails =>
+                  BadRequest(
+                    checkBankAccountDetailsPage(
+                      formWithErrors,
+                      bankAccountDetails.masked,
+                      postAction,
+                      changeBankAccountDetailsRoute
+                    )
+                  )
+                }
+                .getOrElse(InternalServerError)
+            ),
+          answer =>
+            (
+              journey,
+              Redirect(answer match {
+                case YesNo.Yes => continueRoute(journey)
+                case YesNo.No  => changeBankAccountDetailsRoute
+              })
+            )
+        )
     }
 }

@@ -23,7 +23,10 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.BankAccountDetailsSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import play.api.data.Form
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,12 +36,14 @@
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
+    warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(bankAccount: BankAccountDetails, continueAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo],    bankAccount: BankAccountDetails, postAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"bank-details"}
 @title = @{messages(s"bank-details.title")}
 
 @layout(pageTitle = Some(s"$title")) {
@@ -62,8 +67,31 @@
             )
         ))
 
-    @summary(BankAccountDetailsSummary(bankAccount, key, Some(changeAction)))
+    @summary(BankAccountDetailsSummary(bankAccount, "bank-details", Some(changeAction)))
 
-    @buttonLink("button.continue", Some(continueAction.url))
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @radios(
+            form = form,
+            name = "bank-details-yes-no",
+            legend = messages(s"bank-details.are-you-sure"),
+            hintKey = None,
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages(s"bank-details.yes")),
+                    checked = false
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages(s"bank-details.no")),
+                    checked = false
+                )
+            ),
+            id = "bank-details-yes-no"
+        )
+
+        @submitButton("button.continue")
+    }
 
 }

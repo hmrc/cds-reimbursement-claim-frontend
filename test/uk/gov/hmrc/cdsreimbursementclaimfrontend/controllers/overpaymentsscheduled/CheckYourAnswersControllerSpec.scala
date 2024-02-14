@@ -177,7 +177,7 @@ class CheckYourAnswersControllerSpec
 
     "Show check your answers page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -260,7 +260,7 @@ class CheckYourAnswersControllerSpec
 
     "Submitted the valid claim" must {
 
-      def performAction(): Future[Result] = controller.submit()(FakeRequest())
+      def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "redirect to the confirmation page if success" in {
         forAll(completeJourneyGen) { journey =>

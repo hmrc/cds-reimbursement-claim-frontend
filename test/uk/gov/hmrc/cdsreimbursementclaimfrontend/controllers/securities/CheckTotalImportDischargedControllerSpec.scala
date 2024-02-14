@@ -105,7 +105,7 @@ class CheckTotalImportDischargedControllerSpec
 
   "CheckTotalImportDischargedController" when {
     "show page" must {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -133,7 +133,7 @@ class CheckTotalImportDischargedControllerSpec
 
     "submit page" must {
       def performAction(discharged: Option[Boolean]): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest()
             .withFormUrlEncodedBody("check-total-import-discharged" -> discharged.map(_.toString).getOrElse(""))
         )
@@ -156,7 +156,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischarge3Controller.show()
+          routes.BillOfDischarge3Controller.show
         )
       }
 
@@ -173,7 +173,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischarge4Controller.show()
+          routes.BillOfDischarge4Controller.show
         )
       }
 
@@ -190,7 +190,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(false)),
-          routes.ClaimInvalidNotExportedAllController.show()
+          routes.ClaimInvalidNotExportedAllController.show
         )
       }
 

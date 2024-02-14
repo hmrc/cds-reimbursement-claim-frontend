@@ -92,7 +92,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "not find the page if rejected goods feature is disabled" in {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       featureSwitch.disable(Feature.RejectedGoods)
 
@@ -101,7 +101,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "display the page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "the user has not answered this question before" in {
         inSequence {
@@ -163,7 +163,7 @@ class EnterBankAccountDetailsControllerSpec
         ) { bankDetails =>
           checkIsRedirect(
             validatedResult(bankDetails),
-            routes.ChooseBankAccountTypeController.show()
+            routes.ChooseBankAccountTypeController.show
           )
         }
 
@@ -187,7 +187,7 @@ class EnterBankAccountDetailsControllerSpec
 
             checkIsRedirect(
               validatedResult(bankDetails, Some(BankAccountType.Personal), postCode),
-              routes.CheckBankDetailsController.show()
+              routes.CheckBankDetailsController.show
             )
           }
 
@@ -361,7 +361,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            routes.CheckBankDetailsController.show()
+            routes.CheckBankDetailsController.show
           )
         }
 
@@ -492,7 +492,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  =
@@ -524,7 +524,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          routes.CheckBankDetailsController.show()
+          routes.CheckBankDetailsController.show
         )
 
       }
@@ -541,7 +541,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          routes.ChooseBankAccountTypeController.show()
+          routes.ChooseBankAccountTypeController.show
         )
       }
 
@@ -575,7 +575,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          commonRoutes.BankAccountVerificationUnavailable.show()
+          commonRoutes.BankAccountVerificationUnavailable.show
         )
 
       }

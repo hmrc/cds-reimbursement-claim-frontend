@@ -44,6 +44,7 @@ GET         /overpayments/single/choose-payee-type                              
 POST        /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.submit
 
 GET         /overpayments/single/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.show
+POST        /overpayments/single/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.submit
 
 GET         /overpayments/single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterBankAccountDetailsController.show
 POST        /overpayments/single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterBankAccountDetailsController.submit

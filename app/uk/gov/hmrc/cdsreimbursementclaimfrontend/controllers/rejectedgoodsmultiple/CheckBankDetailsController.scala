@@ -42,12 +42,15 @@ class CheckBankDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
+  final override val postAction: Call =
+    routes.CheckBankDetailsController.submit
+
   final override def continueRoute(journey: Journey): Call =
     if (journey.userHasSeenCYAPage) checkYourAnswers
-    else routes.ChooseFileTypeController.show()
+    else routes.ChooseFileTypeController.show
 
   final override val chooseBankAccountTypeRoute: Call =
-    routes.ChooseBankAccountTypeController.show()
+    routes.ChooseBankAccountTypeController.show
 
   final override val changeBankAccountDetailsRoute: Call =
     chooseBankAccountTypeRoute

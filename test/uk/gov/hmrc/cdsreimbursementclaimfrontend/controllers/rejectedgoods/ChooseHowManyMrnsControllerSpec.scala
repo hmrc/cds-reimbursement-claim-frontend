@@ -102,7 +102,7 @@ class ChooseHowManyMrnsControllerSpec
 
   "ChooseHowManyMrnsController" must {
 
-    def performAction(): Future[Result] = controller.show()(FakeRequest())
+    def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
       inSequence {
@@ -193,7 +193,7 @@ class ChooseHowManyMrnsControllerSpec
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
 
@@ -206,7 +206,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Individual.toString))
-        checkIsRedirect(result, rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show())
+        checkIsRedirect(result, rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show)
       }
 
       "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
@@ -233,7 +233,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Scheduled.toString))
-        checkIsRedirect(result, rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show())
+        checkIsRedirect(result, rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show)
       }
 
       "Show error message when no data selected" in {

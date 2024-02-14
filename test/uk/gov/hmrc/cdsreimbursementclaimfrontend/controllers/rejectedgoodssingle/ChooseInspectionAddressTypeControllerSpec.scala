@@ -89,10 +89,10 @@ class ChooseInspectionAddressTypeControllerSpec
   "Choose Inspection Address Type Controller" should {
 
     def showPage(): Future[Result] =
-      controller.show()(FakeRequest())
+      controller.show(FakeRequest())
 
     def submitAddress(data: (String, String)*): Future[Result] =
-      controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
       controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
@@ -389,7 +389,7 @@ class ChooseInspectionAddressTypeControllerSpec
           if (journey.needsBanksAccountDetailsSubmission)
             checkIsRedirect(
               submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
-              routes.CheckYourAnswersController.show()
+              routes.CheckYourAnswersController.show
             )
           else
             checkIsRedirect(

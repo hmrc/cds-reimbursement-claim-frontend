@@ -49,13 +49,13 @@ class BillOfDischarge3Controller @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  private val submitRoute = routes.BillOfDischarge3Controller.submit()
+  private val submitRoute = routes.BillOfDischarge3Controller.submit
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitRoute, BOD3)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def submit: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     selectBillOfDischargeForm
       .bindFromRequest()
       .fold(

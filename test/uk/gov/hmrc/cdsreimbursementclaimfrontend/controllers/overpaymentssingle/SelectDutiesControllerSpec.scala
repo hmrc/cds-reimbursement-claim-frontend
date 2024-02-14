@@ -105,7 +105,7 @@ class SelectDutiesControllerSpec
 
     "Show select duties page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -162,7 +162,7 @@ class SelectDutiesControllerSpec
 
     "Submit Select Duties page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -225,7 +225,7 @@ class SelectDutiesControllerSpec
     }
 
     "have CMA Eligible flag/Duties hint text" should {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "Acc14 excise code where the CMA eligible flag is true" in {
 

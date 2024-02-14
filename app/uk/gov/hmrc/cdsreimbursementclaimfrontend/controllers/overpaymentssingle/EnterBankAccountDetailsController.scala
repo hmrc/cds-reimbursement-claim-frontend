@@ -51,7 +51,7 @@ class EnterBankAccountDetailsController @Inject() (
 object EnterBankAccountDetailsController {
 
   val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
-    errorPath = commonRoutes.BankAccountVerificationUnavailable.show(),
+    errorPath = commonRoutes.BankAccountVerificationUnavailable.show,
     retryPath = routes.EnterBankAccountDetailsController.show,
     successPath = routes.CheckBankDetailsController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit,

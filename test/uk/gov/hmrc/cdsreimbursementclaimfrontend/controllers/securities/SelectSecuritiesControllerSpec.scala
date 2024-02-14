@@ -242,7 +242,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(lastDepositId, "select-securities" -> "true"),
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           )
         }
       }
@@ -266,7 +266,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(lastDepositId, "select-securities" -> "false"),
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           )
         }
       }
@@ -290,7 +290,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(firstDepositId, "select-securities" -> "true"),
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           )
         }
 
@@ -315,7 +315,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(depositId, "select-securities" -> "false"),
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           )
         }
 
@@ -335,7 +335,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(depositId, "select-securities" -> "false"),
-            routes.CheckYourAnswersController.show()
+            routes.CheckYourAnswersController.show
           )
         }
       }
@@ -354,7 +354,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(depositId, "select-securities" -> "true"),
-            routes.CheckYourAnswersController.show()
+            routes.CheckYourAnswersController.show
           )
         }
       }
@@ -380,7 +380,7 @@ class SelectSecuritiesControllerSpec
 
           checkIsRedirect(
             performAction(depositId, "select-securities" -> "true"),
-            routes.CheckYourAnswersController.show()
+            routes.CheckYourAnswersController.show
           )
         }
       }

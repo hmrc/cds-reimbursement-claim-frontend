@@ -32,7 +32,7 @@ class ServiceUnavailableControllerSpec extends ControllerSpec {
 
       "display the page" in {
         checkPageIsDisplayed(
-          controller.show()(FakeRequest()),
+          controller.show(FakeRequest()),
           messageFromMessageKey("bank-service-unavailable.title")
         )
       }

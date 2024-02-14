@@ -98,7 +98,7 @@ class ChooseExportMethodControllerTests
   "ChooseExportMethodController" when {
 
     "show page" must {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -127,7 +127,7 @@ class ChooseExportMethodControllerTests
 
     "submit page" must {
       def performAction(methodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal]): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest()
             .withFormUrlEncodedBody(messagesKey -> methodOfDisposal.map(_.toString).getOrElse(""))
         )
@@ -164,7 +164,7 @@ class ChooseExportMethodControllerTests
 
         checkIsRedirect(
           performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)),
-          routes.EnterExportMovementReferenceNumberController.show()
+          routes.EnterExportMovementReferenceNumberController.show
         )
       }
 
@@ -182,7 +182,7 @@ class ChooseExportMethodControllerTests
 
         checkIsRedirect(
           performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)),
-          routes.EnterExportMovementReferenceNumberController.show()
+          routes.EnterExportMovementReferenceNumberController.show
         )
       }
 
@@ -200,7 +200,7 @@ class ChooseExportMethodControllerTests
 
         checkIsRedirect(
           performAction(Some(methodOfDisposal)),
-          routes.CheckClaimantDetailsController.show()
+          routes.CheckClaimantDetailsController.show
         )
       }
     }

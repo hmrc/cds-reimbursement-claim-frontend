@@ -74,10 +74,10 @@ class EnterInspectionDateControllerSpec
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
   def showPage(): Future[Result] =
-    controller.show()(FakeRequest())
+    controller.show(FakeRequest())
 
   def submitInspectionDate(data: (String, String)*): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -118,7 +118,7 @@ class EnterInspectionDateControllerSpec
             doc
               .select("main p")
               .html()          shouldBe messageFromMessageKey(s"$messagesKey.help-text")
-            formAction(doc)    shouldBe routes.EnterInspectionDateController.submit().url
+            formAction(doc)    shouldBe routes.EnterInspectionDateController.submit.url
             selectedInput(doc) shouldBe empty
           }
         )
@@ -210,7 +210,7 @@ class EnterInspectionDateControllerSpec
                 s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
                 s"${controller.formKey}.year"  -> date.value.getYear.toString
               ),
-              routes.ChooseInspectionAddressTypeController.show()
+              routes.ChooseInspectionAddressTypeController.show
             )
           }
       }
@@ -270,7 +270,7 @@ class EnterInspectionDateControllerSpec
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
           ),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

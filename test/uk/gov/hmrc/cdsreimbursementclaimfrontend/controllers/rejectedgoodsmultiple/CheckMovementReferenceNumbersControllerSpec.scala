@@ -105,7 +105,7 @@ class CheckMovementReferenceNumbersControllerSpec
     "Show Check Movement Reference Numbers page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
         //TODO: Get correct URL
@@ -183,7 +183,7 @@ class CheckMovementReferenceNumbersControllerSpec
             messageFromMessageKey(s"$formKey.title"),
             doc => {
               getErrorSummary(doc) shouldBe ""
-              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
+              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
               lines.size                                                  shouldBe 2
               validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
@@ -216,7 +216,7 @@ class CheckMovementReferenceNumbersControllerSpec
             messageFromMessageKey(s"$formKey.title"),
             doc => {
               getErrorSummary(doc) shouldBe ""
-              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit().url
+              formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
               lines.size                                                  shouldBe acc14Declarations.size
               validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
@@ -230,7 +230,7 @@ class CheckMovementReferenceNumbersControllerSpec
     "Submit Check Movement Reference Numbers page" should {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -303,7 +303,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckClaimantDetailsController.show
           )
         }
       }
@@ -358,7 +358,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
             checkIsRedirect(
               performAction(mrn),
-              routes.CheckMovementReferenceNumbersController.show()
+              routes.CheckMovementReferenceNumbersController.show
             )
           }
       }

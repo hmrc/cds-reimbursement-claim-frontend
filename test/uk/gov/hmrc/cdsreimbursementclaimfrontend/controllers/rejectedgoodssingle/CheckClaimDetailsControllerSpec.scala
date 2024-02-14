@@ -73,7 +73,7 @@ class CheckClaimDetailsControllerSpec
   "Check Claim Details Controller" when {
     "Show Check Claim Details page" must {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -102,7 +102,7 @@ class CheckClaimDetailsControllerSpec
     "Submit Enter Claim  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -134,7 +134,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-claim.rejected-goods" -> "true"),
-          routes.EnterInspectionDateController.show()
+          routes.EnterInspectionDateController.show
         )
       }
 
@@ -147,7 +147,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-claim.rejected-goods" -> "false"),
-          routes.SelectDutiesController.show()
+          routes.SelectDutiesController.show
         )
       }
     }

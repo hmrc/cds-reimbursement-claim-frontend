@@ -46,14 +46,14 @@ class UploadMrnListController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show()
-  final val callbackAction: Call = routes.UploadMrnListController.submit()
+  final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show
+  final val callbackAction: Call = routes.UploadMrnListController.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val continueUrl: Call =
       if (journey.hasCompleteAnswers) checkYourAnswers
-      else routes.CheckClaimantDetailsController.show()
+      else routes.CheckClaimantDetailsController.show
 
     val isSubsidy = journey.isSubsidyOnlyJourney
 

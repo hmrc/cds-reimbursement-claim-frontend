@@ -47,7 +47,7 @@
     @heading(Html(title))
 
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number", subKey, if (isSubsidy) "h2-subsidy" else "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show())))
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
@@ -55,38 +55,38 @@
     } 
 
     @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.CheckClaimantDetailsController.show(), Some(routes.CheckClaimantDetailsController.show())))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.CheckClaimantDetailsController.show, Some(routes.CheckClaimantDetailsController.show)))
 
     @subHeading(Html(messages(s"check-your-answers.basis.h2")))
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"check-your-answers.basis", subKey, routes.BasisForClaimController.show()))
+    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"check-your-answers.basis", subKey, routes.BasisForClaimController.show))
 
     @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
         @subHeading(Html(messages(s"check-your-answers.special-circumstances.h2")))
-        @summary(SpecialCircumstancesSummary(specialCircumstances,s"check-your-answers.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show()))
+        @summary(SpecialCircumstancesSummary(specialCircumstances,s"check-your-answers.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show))
     }
 
     @subHeading(Html(messages(s"check-your-answers.disposal-method.h2")))
-    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"check-your-answers.disposal-method", subKey, routes.DisposalMethodController.show()))
+    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"check-your-answers.disposal-method", subKey, routes.DisposalMethodController.show))
 
     @subHeading(Html(messages(s"check-your-answers.details-rejected-goods.h2")))
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"check-your-answers.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show()))
+    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"check-your-answers.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show))
     
     @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-    @summary(ReimbursementsClaimsSummary.singleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", Some(routes.CheckClaimDetailsController.show())))
+    @summary(ReimbursementsClaimsSummary.singleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", Some(routes.CheckClaimDetailsController.show)))
 
     @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show(), routes.ChooseInspectionAddressTypeController.show()))
+    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show))
 
     @subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
     @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"check-your-answers.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.CheckBankDetailsController.show())))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.CheckBankDetailsController.show)))
     }
     
     @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", Some(routes.UploadFilesController.summary())))
+    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", Some(routes.UploadFilesController.summary)))
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

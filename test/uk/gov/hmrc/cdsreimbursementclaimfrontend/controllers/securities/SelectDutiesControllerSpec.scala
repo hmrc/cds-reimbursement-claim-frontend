@@ -271,7 +271,7 @@ class SelectDutiesControllerSpec
                 securityId,
                 selectedDuties.map(taxCode => "select-duties[]" -> taxCode.value)
               ),
-              routes.CheckYourAnswersController.show()
+              routes.CheckYourAnswersController.show
             )
           }
         }
@@ -294,7 +294,7 @@ class SelectDutiesControllerSpec
                 securityId,
                 selectedDuties.halfNonEmpty.map(taxCode => "select-duties[]" -> taxCode.value)
               ),
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             )
           }
         }
@@ -322,7 +322,7 @@ class SelectDutiesControllerSpec
                   securityId,
                   (selectedDuties + taxCode).toSeq.map(tc => "select-duties[]" -> tc.value)
                 ),
-                routes.CheckClaimDetailsController.show()
+                routes.CheckClaimDetailsController.show
               )
             }
           }

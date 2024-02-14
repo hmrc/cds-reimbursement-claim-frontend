@@ -81,7 +81,7 @@ class EnterInspectionDateControllerSpec
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -98,7 +98,7 @@ class EnterInspectionDateControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            formAction(doc)                                                     shouldBe routes.EnterInspectionDateController.submit().url
+            formAction(doc)                                                     shouldBe routes.EnterInspectionDateController.submit.url
             selectedInputBox(doc, "enter-inspection-date.rejected-goods.day")   shouldBe Some("")
             selectedInputBox(doc, "enter-inspection-date.rejected-goods.month") shouldBe Some("")
             selectedInputBox(doc, "enter-inspection-date.rejected-goods.year")  shouldBe Some("")
@@ -135,7 +135,7 @@ class EnterInspectionDateControllerSpec
 
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -211,7 +211,7 @@ class EnterInspectionDateControllerSpec
                 s"$messagesKey.month" -> date.value.getMonthValue.toString,
                 s"$messagesKey.year"  -> date.value.getYear.toString
               ),
-              routes.ChooseInspectionAddressTypeController.show()
+              routes.ChooseInspectionAddressTypeController.show
             )
           }
       }
@@ -269,7 +269,7 @@ class EnterInspectionDateControllerSpec
             s"${controller.formKey}.month" -> date.value.getMonthValue.toString,
             s"${controller.formKey}.year"  -> date.value.getYear.toString
           ),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

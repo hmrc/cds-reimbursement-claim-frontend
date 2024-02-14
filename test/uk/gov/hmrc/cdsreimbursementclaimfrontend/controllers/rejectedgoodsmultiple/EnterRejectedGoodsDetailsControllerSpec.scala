@@ -76,7 +76,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          controller.show()(FakeRequest()),
+          controller.show(FakeRequest()),
           messageFromMessageKey(s"$messagesKey.title")
         )
       }
@@ -95,7 +95,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkIsRedirect(
-          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> exampleRejectedGoodsDetails)),
+          controller.submit(FakeRequest().withFormUrlEncodedBody(formKey -> exampleRejectedGoodsDetails)),
           routes.SelectDutiesController.showFirst
         )
       }
@@ -110,7 +110,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> "")),
+          controller.submit(FakeRequest().withFormUrlEncodedBody(formKey -> "")),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -129,7 +129,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          controller.submit()(FakeRequest().withFormUrlEncodedBody(formKey -> answer)),
+          controller.submit(FakeRequest().withFormUrlEncodedBody(formKey -> answer)),
           messageFromMessageKey(s"$messagesKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(

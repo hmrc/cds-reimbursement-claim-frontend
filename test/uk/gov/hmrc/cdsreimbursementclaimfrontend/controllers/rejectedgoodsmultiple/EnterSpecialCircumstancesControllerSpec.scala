@@ -72,10 +72,10 @@ class EnterSpecialCircumstancesControllerSpec
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   def showPage(): Future[Result] =
-    controller.show()(FakeRequest())
+    controller.show(FakeRequest())
 
   def submitSpecialCircumstances(data: (String, String)*): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   "Enter Special Circumstances Controller" must {
     "not find the page if rejected goods feature is disabled" in {
@@ -134,7 +134,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
-          routes.DisposalMethodController.show()
+          routes.DisposalMethodController.show
         )
       }
 
@@ -160,7 +160,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

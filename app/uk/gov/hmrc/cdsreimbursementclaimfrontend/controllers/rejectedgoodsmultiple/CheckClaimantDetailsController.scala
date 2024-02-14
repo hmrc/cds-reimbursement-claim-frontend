@@ -54,7 +54,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterContactDetailsController.show(confirmContactDetails = false)
 
   val postAction: Call =
-    routes.CheckClaimantDetailsController.submit()
+    routes.CheckClaimantDetailsController.submit
 
   override def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable =
     cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
@@ -66,9 +66,9 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterContactDetailsController.show(confirmContactDetails = true)
 
   override val nextPageInTheJourney: Call =
-    routes.BasisForClaimController.show()
+    routes.BasisForClaimController.show
 
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
@@ -80,5 +80,5 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) =
-    (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+    (journey, Redirect(routes.CheckClaimantDetailsController.show))
 }

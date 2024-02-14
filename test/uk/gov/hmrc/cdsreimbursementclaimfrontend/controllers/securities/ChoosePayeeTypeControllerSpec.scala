@@ -104,10 +104,10 @@ class ChoosePayeeTypeControllerSpec
   "Choose Payee Type Controller" should {
 
     def showPage(): Future[Result] =
-      controller.show()(FakeRequest())
+      controller.show(FakeRequest())
 
     def submitPayeeType(data: (String, String)*): Future[Result] =
-      controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "display page" in forAll { maybePayeeType: Option[PayeeType] =>
       inSequence {
@@ -160,7 +160,7 @@ class ChoosePayeeTypeControllerSpec
 
         checkIsRedirect(
           submitPayeeType(formKey -> payeeType.toString),
-          routes.CheckBankDetailsController.show()
+          routes.CheckBankDetailsController.show
         )
       }
 
@@ -177,7 +177,7 @@ class ChoosePayeeTypeControllerSpec
 
         checkIsRedirect(
           submitPayeeType(formKey -> payeeType.toString),
-          routes.CheckBankDetailsController.show()
+          routes.CheckBankDetailsController.show
         )
       }
     }

@@ -55,7 +55,7 @@ class EnterClaimController @Inject() (
     simpleActionReadJourney(journey =>
       journey.getSelectedDuties.flatMap(_.headOption) match {
         case None =>
-          Redirect(routes.SelectDutiesController.show())
+          Redirect(routes.SelectDutiesController.show)
 
         case Some(taxCode) =>
           Redirect(routes.EnterClaimController.show(taxCode))
@@ -69,7 +69,7 @@ class EnterClaimController @Inject() (
       ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
       journey.getSelectedDuties match {
         case None =>
-          Redirect(routes.SelectDutiesController.show()).asFuture
+          Redirect(routes.SelectDutiesController.show).asFuture
 
         case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
           journey.getNdrcDetailsFor(taxCode) match {
@@ -111,7 +111,7 @@ class EnterClaimController @Inject() (
         ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
         journey.getSelectedDuties match {
           case None =>
-            (journey, Redirect(routes.SelectDutiesController.show())).asFuture
+            (journey, Redirect(routes.SelectDutiesController.show)).asFuture
 
           case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
             journey.getNdrcDetailsFor(taxCode) match {
@@ -159,7 +159,7 @@ class EnterClaimController @Inject() (
 
               case None =>
                 logger.error("Attempting to claim a reimbursement before selecting an MRN")
-                Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show())))
+                Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show)))
             }
 
           case _ =>
@@ -172,26 +172,26 @@ class EnterClaimController @Inject() (
   private def redirectWhenInvalidTaxCode(journey: Journey): Result =
     Redirect {
       if (journey.hasCompleteReimbursementClaims)
-        routes.CheckClaimDetailsController.show()
+        routes.CheckClaimDetailsController.show
       else
-        routes.SelectDutiesController.show()
+        routes.SelectDutiesController.show
     }
 
   private def redirectToNextPage(journey: Journey, taxCode: TaxCode): Result =
     Redirect {
       if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
-        routes.CheckClaimDetailsController.show()
+        routes.CheckClaimDetailsController.show
       else {
         val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)
         selectedTaxCodes.indexOf(taxCode) match {
           case -1 => // invalid tax code
-            routes.SelectDutiesController.show()
+            routes.SelectDutiesController.show
 
           case n if n < selectedTaxCodes.size - 1 =>
             routes.EnterClaimController.show(selectedTaxCodes(n + 1))
 
           case _ =>
-            routes.CheckClaimDetailsController.show()
+            routes.CheckClaimDetailsController.show
         }
       }
     }

@@ -41,10 +41,10 @@ class ChooseBankAccountTypeController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override val postAction: Call =
-    routes.ChooseBankAccountTypeController.submit()
+    routes.ChooseBankAccountTypeController.submit
 
   final override val enterBankAccountDetailsRoute: Call =
-    routes.EnterBankAccountDetailsController.show()
+    routes.EnterBankAccountDetailsController.show
 
   final override def modifyJourney(
     journey: Journey,

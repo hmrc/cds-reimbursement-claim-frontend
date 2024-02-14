@@ -118,9 +118,9 @@ class CheckBankDetailsControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.show()(request)
+        val result  = controller.show(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
 
       }
 
@@ -133,8 +133,8 @@ class CheckBankDetailsControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.show()(request)
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        val result  = controller.show(request)
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Redirect when BankDetails are not required" in {
@@ -146,8 +146,8 @@ class CheckBankDetailsControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.show()(request)
-        checkIsRedirect(result, routes.ChooseFileTypeController.show())
+        val result  = controller.show(request)
+        checkIsRedirect(result, routes.ChooseFileTypeController.show)
       }
 
       "Ok when BankDetails has consigneeBankDetails and payeeType is Importer (Consignee)" in forAll(
@@ -162,7 +162,7 @@ class CheckBankDetailsControllerSpec
           mockStoreSession(modifiedSession)(Right(()))
         }
         val request         = FakeRequest()
-        val result          = controller.show()(request)
+        val result          = controller.show(request)
 
         checkPageIsDisplayed(
           result,
@@ -185,9 +185,9 @@ class CheckBankDetailsControllerSpec
             mockGetSession(session)
           }
           val request     = FakeRequest()
-          val result      = controller.show()(request)
+          val result      = controller.show(request)
 
-          checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+          checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Ok when BankDetails has declarantBankDetails  and payeeType is Declarant" in forAll(genBankAccountDetails) {
@@ -201,7 +201,7 @@ class CheckBankDetailsControllerSpec
             mockStoreSession(modifiedSession)(Right(()))
           }
           val request         = FakeRequest()
-          val result          = controller.show()(request)
+          val result          = controller.show(request)
 
           checkPageIsDisplayed(
             result,
@@ -225,9 +225,9 @@ class CheckBankDetailsControllerSpec
           mockGetSession(session)
         }
         val request     = FakeRequest()
-        val result      = controller.show()(request)
+        val result      = controller.show(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Ok when in change mode" in forAll(
@@ -240,7 +240,7 @@ class CheckBankDetailsControllerSpec
           mockGetSession(session)
         }
         val request            = FakeRequest()
-        val result             = controller.show()(request)
+        val result             = controller.show(request)
 
         checkPageIsDisplayed(
           result,

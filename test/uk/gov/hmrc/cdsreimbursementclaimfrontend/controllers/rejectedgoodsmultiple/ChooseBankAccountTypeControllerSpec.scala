@@ -73,10 +73,10 @@ class ChooseBankAccountTypeControllerSpec
   "Choose Bank Account Type Controller" should {
 
     def showPage(): Future[Result] =
-      controller.show()(FakeRequest())
+      controller.show(FakeRequest())
 
     def submitBankAccountType(data: (String, String)*): Future[Result] =
-      controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "display page" in forAll { maybeBankAccountType: Option[BankAccountType] =>
       inSequence {
@@ -131,7 +131,7 @@ class ChooseBankAccountTypeControllerSpec
 
           checkIsRedirect(
             submitBankAccountType(formKey -> bankAccountType.toString),
-            routes.EnterBankAccountDetailsController.show()
+            routes.EnterBankAccountDetailsController.show
           )
         }
       }

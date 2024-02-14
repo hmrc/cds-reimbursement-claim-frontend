@@ -44,10 +44,10 @@ class EnterImporterEoriNumberController @Inject() (
     Some(hasMRNAndDisplayDeclarationAndRfS)
 
   final override val postAction: Call =
-    routes.EnterImporterEoriNumberController.submit()
+    routes.EnterImporterEoriNumberController.submit
 
   final override val continueAction: Call =
-    routes.EnterDeclarantEoriNumberController.show()
+    routes.EnterDeclarantEoriNumberController.show
 
   final override val whenEoriInputNotRequiredAction: Call =
     routes.SelectSecuritiesController.showFirst()

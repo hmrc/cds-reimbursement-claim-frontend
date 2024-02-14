@@ -93,7 +93,7 @@ class CheckBankDetailsControllerSpec
     session.rejectedGoodsMultipleJourney.flatMap(_.submitBankAccountDetails(bankAccountDetails).toOption)
   )
 
-  def performAction(): Future[Result] = controller.show()(FakeRequest())
+  def performAction(): Future[Result] = controller.show(FakeRequest())
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
@@ -197,7 +197,7 @@ class CheckBankDetailsControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.ChooseBankAccountTypeController.show()
+        routes.ChooseBankAccountTypeController.show
       )
     }
 
@@ -215,7 +215,7 @@ class CheckBankDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.ChooseFileTypeController.show()
+          routes.ChooseFileTypeController.show
         )
       }
     }

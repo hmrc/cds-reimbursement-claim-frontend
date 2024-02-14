@@ -64,7 +64,7 @@ class ChooseReasonForSecurityController @Inject() (
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(SecuritiesJourney.Checks.hasMovementReferenceNumber)
 
-  private val postAction: Call = routes.ChooseReasonForSecurityController.submit()
+  private val postAction: Call = routes.ChooseReasonForSecurityController.submit
 
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
@@ -72,11 +72,11 @@ class ChooseReasonForSecurityController @Inject() (
 
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
-    Redirect(routes.EnterImporterEoriNumberController.show())
+    Redirect(routes.EnterImporterEoriNumberController.show)
 
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(routes.ClaimInvalidTPI04Controller.show())
+    Redirect(routes.ClaimInvalidTPI04Controller.show)
 
   private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
 
@@ -110,7 +110,7 @@ class ChooseReasonForSecurityController @Inject() (
             (
               journey,
               if (journey.answers.checkDeclarationDetailsChangeMode)
-                Redirect(routes.CheckDeclarationDetailsController.show())
+                Redirect(routes.CheckDeclarationDetailsController.show)
               else
                 successResultSelectSecurities
             ).asFuture
@@ -152,7 +152,7 @@ class ChooseReasonForSecurityController @Inject() (
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
       journey.getLeadMovementReferenceNumber,
-      Redirect(routes.EnterMovementReferenceNumberController.show())
+      Redirect(routes.EnterMovementReferenceNumberController.show)
     )
 
   private def lookupDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
@@ -163,15 +163,15 @@ class ChooseReasonForSecurityController @Inject() (
     claimService
       .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
       .leftMap {
-        case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show())
-        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show())
+        case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show)
+        case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show)
         case _                                            => errorHandler.errorResult()
       }
 
   private def checkIfDeclarationHaveSecurityDeposits(declaration: DisplayDeclaration): EitherT[Future, Result, String] =
     EitherT.fromOption[Future](
       declaration.getSecurityDepositIds.flatMap(_.headOption),
-      Redirect(routes.ChooseReasonForSecurityController.show())
+      Redirect(routes.ChooseReasonForSecurityController.show)
     )
 
   private def submitReasonForSecurityAndDeclaration(
@@ -226,7 +226,7 @@ class ChooseReasonForSecurityController @Inject() (
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
             } else if (journeyWithUpdatedStatus.requiresBillOfDischargeForm) {
-              Redirect(routes.CheckTotalImportDischargedController.show())
+              Redirect(routes.CheckTotalImportDischargedController.show)
             } else
               successResultSelectSecurities
           )

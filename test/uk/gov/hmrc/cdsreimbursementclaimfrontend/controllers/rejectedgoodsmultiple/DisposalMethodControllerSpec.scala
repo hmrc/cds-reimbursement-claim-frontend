@@ -71,7 +71,7 @@ class DisposalMethodControllerSpec
   "Disposal Method Controller" when {
     "Disposal Method page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -102,7 +102,7 @@ class DisposalMethodControllerSpec
     "Disposal Method page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "reject an empty disposal method" in {
         inSequence {
@@ -134,7 +134,7 @@ class DisposalMethodControllerSpec
 
         checkIsRedirect(
           performAction("select-method-of-disposal.rejected-goods" -> methodOfDisposal.toString),
-          routes.EnterRejectedGoodsDetailsController.show()
+          routes.EnterRejectedGoodsDetailsController.show
         )
       }
 
@@ -152,7 +152,7 @@ class DisposalMethodControllerSpec
               "select-method-of-disposal.rejected-goods" ->
                 journey.answers.methodOfDisposal.map(_.toString).value
             ),
-            routes.CheckYourAnswersController.show()
+            routes.CheckYourAnswersController.show
           )
         }
       }

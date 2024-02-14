@@ -40,7 +40,7 @@ class EnterInspectionDateController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"
-  private val postAction: Call = routes.EnterInspectionDateController.submit()
+  private val postAction: Call = routes.EnterInspectionDateController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
@@ -72,7 +72,7 @@ class EnterInspectionDateController @Inject() (
             (
               journey.submitInspectionDate(date),
               if (journey.needsDeclarantAndConsigneePostCode)
-                Redirect(routes.ChooseInspectionAddressTypeController.show())
+                Redirect(routes.ChooseInspectionAddressTypeController.show)
               else {
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
               }

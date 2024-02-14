@@ -32,7 +32,7 @@ class ClaimInvalidNotExportedAllController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(claimInvalidNotExportedAll(routes.EnterMovementReferenceNumberController.start.url)).asFuture
   }
 }

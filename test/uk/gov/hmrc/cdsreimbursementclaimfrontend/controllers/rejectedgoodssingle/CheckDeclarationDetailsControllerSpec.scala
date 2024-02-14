@@ -77,7 +77,7 @@ class CheckDeclarationDetailsControllerSpec
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "does not find the page if the rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -180,7 +180,7 @@ class CheckDeclarationDetailsControllerSpec
     "Submit Check Declaration Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -213,7 +213,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.CheckClaimantDetailsController.show()
+          routes.CheckClaimantDetailsController.show
         )
       }
 
@@ -225,7 +225,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "false"),
-          routes.EnterMovementReferenceNumberController.submit()
+          routes.EnterMovementReferenceNumberController.submit
         )
 
       }

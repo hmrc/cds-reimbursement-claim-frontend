@@ -159,7 +159,7 @@ class SelectDutiesController @Inject() (
                       routes.EnterClaimController.show(depositId, taxCode)
 
                     case None =>
-                      routes.CheckClaimDetailsController.show()
+                      routes.CheckClaimDetailsController.show
                   }
                 else
                   routes.EnterClaimController.showFirst(securityId)

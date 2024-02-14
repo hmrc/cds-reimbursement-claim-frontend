@@ -138,7 +138,7 @@ class CheckClaimDetailsControllerSpec
     "Submit Enter Claim  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 

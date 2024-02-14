@@ -38,8 +38,8 @@ trait RejectedGoodsScheduledJourneyBaseController
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
-  final override val checkYourAnswers: Call            = routes.CheckYourAnswersController.show()
-  final override val claimSubmissionConfirmation: Call = routes.CheckYourAnswersController.showConfirmation()
+  final override val checkYourAnswers: Call            = routes.CheckYourAnswersController.show
+  final override val claimSubmissionConfirmation: Call = routes.CheckYourAnswersController.showConfirmation
 
   final override def getJourney(sessionData: SessionData): Option[RejectedGoodsScheduledJourney] =
     sessionData.rejectedGoodsScheduledJourney

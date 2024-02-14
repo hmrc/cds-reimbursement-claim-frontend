@@ -41,14 +41,14 @@ class EnterMovementReferenceNumberController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   final val start: Action[AnyContent] =
-    Action(Redirect(routes.EnterMovementReferenceNumberController.show()))
+    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       Ok(
         enterMovementReferenceNumberPage(
           movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
-          routes.EnterMovementReferenceNumberController.submit()
+          routes.EnterMovementReferenceNumberController.submit
         )
       ).asFuture
     }
@@ -64,7 +64,7 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors.copy(data = Map.empty),
-                  routes.EnterMovementReferenceNumberController.submit()
+                  routes.EnterMovementReferenceNumberController.submit
                 )
               )
             ).asFuture,
@@ -76,9 +76,9 @@ class EnterMovementReferenceNumberController @Inject() (
                   journey.getLeadMovementReferenceNumber.contains(mrn) &&
                   journey.answers.checkDeclarationDetailsChangeMode
                 )
-                  routes.CheckDeclarationDetailsController.show()
+                  routes.CheckDeclarationDetailsController.show
                 else
-                  routes.ChooseReasonForSecurityController.show()
+                  routes.ChooseReasonForSecurityController.show
               )
             ).asFuture
         )

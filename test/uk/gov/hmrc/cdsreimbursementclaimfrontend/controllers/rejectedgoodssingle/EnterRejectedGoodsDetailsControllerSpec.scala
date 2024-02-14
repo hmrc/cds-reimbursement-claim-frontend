@@ -80,7 +80,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "not find the page if rejected goods feature is disabled" in {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       featureSwitch.disable(Feature.RejectedGoods)
 
@@ -89,7 +89,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "display the page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "the user has not answered this question before" in {
         inSequence {
@@ -107,7 +107,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "handle submit requests" must {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user has entered some details" in {
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
@@ -122,7 +122,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> exampleRejectedGoodsDetails),
-          routes.SelectDutiesController.show()
+          routes.SelectDutiesController.show
         )
       }
 
@@ -130,7 +130,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "show an error summary" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user submits empty details" in {
 

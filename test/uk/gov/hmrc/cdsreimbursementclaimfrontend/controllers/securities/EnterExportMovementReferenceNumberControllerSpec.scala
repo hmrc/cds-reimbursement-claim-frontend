@@ -125,7 +125,7 @@ class EnterExportMovementReferenceNumberControllerSpec
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -176,7 +176,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -203,7 +203,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show()
+          routes.CheckClaimantDetailsController.show
         )
       }
 
@@ -226,7 +226,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show()
+          routes.CheckClaimantDetailsController.show
         )
       }
 

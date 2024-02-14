@@ -271,7 +271,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -297,7 +297,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
-          routes.EnterImporterEoriNumberController.show()
+          routes.EnterImporterEoriNumberController.show
         )
       }
 
@@ -325,7 +325,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
-          routes.EnterImporterEoriNumberController.show()
+          routes.EnterImporterEoriNumberController.show
         )
       }
 
@@ -353,7 +353,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -378,7 +378,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> secondMrn.value)(2),
-          routes.CheckMovementReferenceNumbersController.show()
+          routes.CheckMovementReferenceNumbersController.show
         )
       }
 

@@ -49,8 +49,8 @@ class CheckYourAnswersController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 
-  private val postAction: Call             = routes.CheckYourAnswersController.submit()
-  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
+  private val postAction: Call             = routes.CheckYourAnswersController.submit
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =

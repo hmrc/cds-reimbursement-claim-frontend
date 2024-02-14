@@ -41,19 +41,19 @@ class ChooseRepaymentMethodController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController {
 
   private val form                 = reimbursementMethodForm("choose-payment-method.rejected-goods.single")
-  private val postAction           = routes.ChooseRepaymentMethodController.submit()
-  private val chooseFileTypeAction = routes.ChooseFileTypeController.show()
+  private val postAction           = routes.ChooseRepaymentMethodController.submit
+  private val chooseFileTypeAction = routes.ChooseFileTypeController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val filledForm = form.withDefault(journey.answers.reimbursementMethod)
     Ok(chooseReimbursementMethod(filledForm, postAction)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney(
+  def submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
       form
         .bindFromRequest()
@@ -64,7 +64,7 @@ class ChooseRepaymentMethodController @Inject() (
               case (Right(updatedJourney), BankAccountTransfer) =>
                 if (journey.userHasSeenCYAPage && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
                   (updatedJourney, Redirect(checkYourAnswers))
-                else (updatedJourney, Redirect(routes.CheckBankDetailsController.show()))
+                else (updatedJourney, Redirect(routes.CheckBankDetailsController.show))
               case (Right(updatedJourney), _)                   =>
                 if (journey.userHasSeenCYAPage) (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(chooseFileTypeAction))
@@ -78,7 +78,7 @@ class ChooseRepaymentMethodController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def reset(): Action[AnyContent] = actionReadWriteJourney { _ => journey =>
+  def reset: Action[AnyContent] = actionReadWriteJourney { _ => journey =>
     val updatedJourney =
       if (!journey.isAllSelectedDutiesAreCMAEligible) journey.resetReimbursementMethod()
       else journey

@@ -65,7 +65,7 @@ class EnterMovementReferenceNumberController @Inject() (
         enterMovementReferenceNumberPage(
           form,
           Some("rejected-goods.single"),
-          routes.EnterMovementReferenceNumberController.submit()
+          routes.EnterMovementReferenceNumberController.submit
         )
 
   override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
@@ -76,9 +76,9 @@ class EnterMovementReferenceNumberController @Inject() (
 
   override def afterSuccessfullSubmit(journey: RejectedGoodsSingleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      Redirect(routes.EnterImporterEoriNumberController.show())
+      Redirect(routes.EnterImporterEoriNumberController.show)
     } else {
-      Redirect(routes.CheckDeclarationDetailsController.show())
+      Redirect(routes.CheckDeclarationDetailsController.show)
     }
 
 }

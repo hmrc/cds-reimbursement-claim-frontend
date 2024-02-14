@@ -46,7 +46,7 @@ class CheckDeclarationDetailsController @Inject() (
   final override def continueRoute(journey: Journey): Call = {
     val numOfMRNs = journey.countOfMovementReferenceNumbers
     if (numOfMRNs > 1)
-      routes.CheckMovementReferenceNumbersController.show()
+      routes.CheckMovementReferenceNumbersController.show
     else
       routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
   }
@@ -55,7 +55,7 @@ class CheckDeclarationDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.showFirst()
 
   private val postAction: Call =
-    routes.CheckDeclarationDetailsController.submit()
+    routes.CheckDeclarationDetailsController.submit
 
   override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
     case (decl, form, journey: Journey) =>

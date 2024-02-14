@@ -73,7 +73,7 @@
     @summary(SummaryList(SecuritiesCdsDisplayDeclarationImportMrnSummary(
         displayDeclaration,
         key,
-        routes.EnterMovementReferenceNumberController.show(),
+        routes.EnterMovementReferenceNumberController.show,
     ).rows))
 
     @subHeading(Html(messages(s"check-declaration-details.details.contact-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
@@ -86,7 +86,7 @@
     @summary(SummaryList(SecuritiesCdsDisplayDeclarationClaimDetailsSummary(
         displayDeclaration,
         key,
-        routes.ChooseReasonForSecurityController.show()
+        routes.ChooseReasonForSecurityController.show
     ).rows ++
             SecuritiesSelectionSummary(
                 correctedAmounts,

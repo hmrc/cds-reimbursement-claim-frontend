@@ -129,7 +129,7 @@ class ChooseClaimTypeControllerSpec
 
   "ChooseClaimTypeController" must {
 
-    def performAction(): Future[Result] = controller.show()(FakeRequest())
+    def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
       inSequence {
@@ -188,7 +188,7 @@ class ChooseClaimTypeControllerSpec
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "Redirect to SelectNumberOfClaims if user chooses C285" in {
         inSequence {
@@ -197,7 +197,7 @@ class ChooseClaimTypeControllerSpec
         }
 
         val result = performAction(Seq(dataKey -> C285.toString))
-        checkIsRedirect(result, overpaymentsRoutes.ChooseHowManyMrnsController.show())
+        checkIsRedirect(result, overpaymentsRoutes.ChooseHowManyMrnsController.show)
       }
 
       "Redirect to View Upload if user chooses ViewUpload" in {
@@ -219,7 +219,7 @@ class ChooseClaimTypeControllerSpec
         val result = performAction(Seq(dataKey -> RejectedGoods.toString))
         checkIsRedirect(
           result,
-          rejectedGoodsRoutes.ChooseHowManyMrnsController.show()
+          rejectedGoodsRoutes.ChooseHowManyMrnsController.show
         )
       }
 
@@ -240,7 +240,7 @@ class ChooseClaimTypeControllerSpec
         val result = performAction(Seq(dataKey -> Securities.toString))
         checkIsRedirect(
           result,
-          securitiesRoutes.EnterMovementReferenceNumberController.show()
+          securitiesRoutes.EnterMovementReferenceNumberController.show
         )
       }
 

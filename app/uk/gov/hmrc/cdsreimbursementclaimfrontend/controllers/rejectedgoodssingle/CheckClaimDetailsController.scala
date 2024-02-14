@@ -59,7 +59,7 @@ class CheckClaimDetailsController @Inject() (
         journey.withDutiesChangeMode(false),
         journey.answers.movementReferenceNumber match {
           case None                                                =>
-            Redirect(routes.EnterMovementReferenceNumberController.show())
+            Redirect(routes.EnterMovementReferenceNumberController.show)
           case Some(mrn) if journey.hasCompleteReimbursementClaims =>
             Ok(
               checkClaimDetails(
@@ -67,7 +67,7 @@ class CheckClaimDetailsController @Inject() (
                 mrn,
                 journey.getReimbursementClaims.toSeq,
                 enterClaimAction,
-                routes.CheckClaimDetailsController.submit()
+                routes.CheckClaimDetailsController.submit
               )
             )
 
@@ -94,7 +94,7 @@ class CheckClaimDetailsController @Inject() (
                         mrn,
                         journey.getReimbursementClaims.toSeq,
                         enterClaimAction,
-                        routes.CheckClaimDetailsController.submit()
+                        routes.CheckClaimDetailsController.submit
                       )
                     )
                   ).asFuture,
@@ -104,13 +104,13 @@ class CheckClaimDetailsController @Inject() (
                       journey,
                       Redirect(
                         if (journey.userHasSeenCYAPage) checkYourAnswers
-                        else routes.EnterInspectionDateController.show()
+                        else routes.EnterInspectionDateController.show
                       )
                     ).asFuture
                   case No  =>
                     (
                       journey.withDutiesChangeMode(true),
-                      Redirect(routes.SelectDutiesController.show())
+                      Redirect(routes.SelectDutiesController.show)
                     ).asFuture
                 }
               )

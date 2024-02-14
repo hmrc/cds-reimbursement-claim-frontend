@@ -90,7 +90,7 @@ else
 
  @errorSummary(form.errors)
 
- @formWithCSRF(routes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
+ @formWithCSRF(routes.ChooseClaimTypeController.submit, 'novalidate -> "novalidate") {
 
 
   @radios(

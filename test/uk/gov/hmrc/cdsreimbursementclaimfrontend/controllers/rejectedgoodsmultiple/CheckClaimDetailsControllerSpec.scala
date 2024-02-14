@@ -95,7 +95,7 @@ class CheckClaimDetailsControllerSpec
     "Show claim summary" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -122,7 +122,7 @@ class CheckClaimDetailsControllerSpec
     "Submit" must {
 
       def performAction(value: String): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest()
             .withFormUrlEncodedBody("check-claim.rejected-goods" -> value)
         )

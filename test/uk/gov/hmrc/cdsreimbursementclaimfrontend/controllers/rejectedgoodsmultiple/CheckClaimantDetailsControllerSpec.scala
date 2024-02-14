@@ -91,7 +91,7 @@ class CheckClaimantDetailsControllerSpec
     "Show Check Claimant Details page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -111,7 +111,7 @@ class CheckClaimantDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claimant-details.title"),
-            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit().url
+            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit.url
           )
         }
       }
@@ -140,7 +140,7 @@ class CheckClaimantDetailsControllerSpec
     "Submit Check Claimant Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -180,7 +180,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show()
+              routes.BasisForClaimController.show
             )
         }
       }
@@ -222,7 +222,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show()
+              routes.BasisForClaimController.show
             )
         }
       }
@@ -255,7 +255,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show()
+            routes.BasisForClaimController.show
           )
         }
       }
@@ -292,7 +292,7 @@ class CheckClaimantDetailsControllerSpec
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
-        routes.CheckClaimantDetailsController.show()
+        routes.CheckClaimantDetailsController.show
       )
     }
 

@@ -34,8 +34,8 @@ class InvalidReasonForSecurityController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  val enterMRN: Call                 = routes.EnterMovementReferenceNumberController.show()
-  val reasonForSecurityDeposit: Call = routes.ChooseReasonForSecurityController.show()
+  val enterMRN: Call                 = routes.EnterMovementReferenceNumberController.show
+  val reasonForSecurityDeposit: Call = routes.ChooseReasonForSecurityController.show
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(invalidReasonForSecurity(enterMRN, reasonForSecurityDeposit)).asFuture

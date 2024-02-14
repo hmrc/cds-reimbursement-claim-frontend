@@ -77,7 +77,7 @@ class EnterMovementReferenceNumberControllerSpec
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -96,7 +96,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
           doc => {
             doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
-            doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController.submit().url
+            doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController.submit.url
           }
         )
       }
@@ -127,7 +127,7 @@ class EnterMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -146,7 +146,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
-          routes.ChooseReasonForSecurityController.show()
+          routes.ChooseReasonForSecurityController.show
         )
       }
 
@@ -162,7 +162,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
-          routes.ChooseReasonForSecurityController.show()
+          routes.ChooseReasonForSecurityController.show
         )
       }
 
@@ -179,7 +179,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> exampleMrnAsString),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 

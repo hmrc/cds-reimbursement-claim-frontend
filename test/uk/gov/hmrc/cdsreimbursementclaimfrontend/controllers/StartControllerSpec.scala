@@ -105,7 +105,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show)
 
         }
       }
@@ -133,7 +133,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show())
+          checkIsRedirect(result, commonRoutes.CheckEoriDetailsController.show)
         }
       }
 

@@ -40,7 +40,7 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  private val submitRoute: Call = routes.BankDetailsChangeLetterOfAuthorityController.submit()
+  private val submitRoute: Call = routes.BankDetailsChangeLetterOfAuthorityController.submit
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -52,19 +52,19 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
     Ok(bankAccountLetterOfAuthority(bankAccountLetterOfAuthorityForm, submitRoute)).asFuture
   }
 
-  def submit(): Action[AnyContent] =
+  def submit: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       bankAccountLetterOfAuthorityForm
         .bindFromRequest()
         .fold(
           formWithError => BadRequest(bankAccountLetterOfAuthority(formWithError, submitRoute)),
           {
-            case Yes => Redirect(routes.ChooseBankAccountTypeController.show())
+            case Yes => Redirect(routes.ChooseBankAccountTypeController.show)
             case No  =>
               if (journey.userHasSeenCYAPage) {
-                Redirect(routes.CheckYourAnswersController.show())
+                Redirect(routes.CheckYourAnswersController.show)
               } else {
-                Redirect(routes.CheckBankDetailsController.show())
+                Redirect(routes.CheckBankDetailsController.show)
               }
           }
         )

@@ -119,7 +119,7 @@ class EnterMovementReferenceNumberControllerSpec
   "MRN Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -143,9 +143,7 @@ class EnterMovementReferenceNumberControllerSpec
               s"$messageKey.scheduled.help"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
-            doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
-              .submit()
-              .url
+            doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController.submit.url
           }
         )
       }
@@ -179,7 +177,7 @@ class EnterMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -256,7 +254,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -289,7 +287,7 @@ class EnterMovementReferenceNumberControllerSpec
 
             checkIsRedirect(
               performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
-              routes.EnterImporterEoriNumberController.show()
+              routes.EnterImporterEoriNumberController.show
             )
           }
       }
@@ -330,7 +328,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
-          routes.CheckDeclarationDetailsController.show()
+          routes.CheckDeclarationDetailsController.show
         )
       }
 
@@ -370,7 +368,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
-          routes.EnterImporterEoriNumberController.show()
+          routes.EnterImporterEoriNumberController.show
         )
       }
 

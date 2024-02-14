@@ -50,8 +50,8 @@ class UploadFilesController @Inject() (
     extends RejectedGoodsScheduledJourneyBaseController
     with UploadFilesMixin {
 
-  final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show()
-  final val callbackAction: Call               = routes.UploadFilesController.submit()
+  final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show
+  final val callbackAction: Call               = routes.UploadFilesController.submit
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
     documentType => messages => upload_files_description(documentType)(messages)

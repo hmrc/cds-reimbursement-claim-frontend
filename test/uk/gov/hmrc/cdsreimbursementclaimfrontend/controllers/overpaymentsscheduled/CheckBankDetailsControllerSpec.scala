@@ -108,7 +108,7 @@ class CheckBankDetailsControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.show()(request)
+        val result  = controller.show(request)
 
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
 
@@ -123,7 +123,7 @@ class CheckBankDetailsControllerSpec
         }
 
         val request = FakeRequest()
-        val result  = controller.show()(request)
+        val result  = controller.show(request)
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
@@ -139,7 +139,7 @@ class CheckBankDetailsControllerSpec
           mockStoreSession(modifiedSession)(Right(()))
         }
         val request         = FakeRequest()
-        val result          = controller.show()(request)
+        val result          = controller.show(request)
 
         checkPageIsDisplayed(
           result,
@@ -162,7 +162,7 @@ class CheckBankDetailsControllerSpec
             mockGetSession(session)
           }
           val request     = FakeRequest()
-          val result      = controller.show()(request)
+          val result      = controller.show(request)
 
           checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
@@ -178,7 +178,7 @@ class CheckBankDetailsControllerSpec
             mockStoreSession(modifiedSession)(Right(()))
           }
           val request         = FakeRequest()
-          val result          = controller.show()(request)
+          val result          = controller.show(request)
 
           checkPageIsDisplayed(
             result,
@@ -202,7 +202,7 @@ class CheckBankDetailsControllerSpec
           mockGetSession(session)
         }
         val request     = FakeRequest()
-        val result      = controller.show()(request)
+        val result      = controller.show(request)
 
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
@@ -215,7 +215,7 @@ class CheckBankDetailsControllerSpec
           mockGetSession(session)
         }
         val request            = FakeRequest()
-        val result             = controller.show()(request)
+        val result             = controller.show(request)
 
         checkPageIsDisplayed(
           result,

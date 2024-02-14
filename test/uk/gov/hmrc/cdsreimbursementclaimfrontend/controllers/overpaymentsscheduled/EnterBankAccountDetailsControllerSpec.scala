@@ -95,7 +95,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "not find the page if overpayment v2 feature is disabled" in {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       featureSwitch.disable(Feature.Overpayments_v2)
 
@@ -104,7 +104,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "display the page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "the user has not answered this question before" in {
         inSequence {
@@ -650,7 +650,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
@@ -723,7 +723,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          commonRoutes.BankAccountVerificationUnavailable.show()
+          commonRoutes.BankAccountVerificationUnavailable.show
         )
 
       }

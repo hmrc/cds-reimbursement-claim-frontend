@@ -37,7 +37,7 @@ class CheckDeclarationDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  private val postAction: Call = routes.CheckDeclarationDetailsController.submit()
+  private val postAction: Call = routes.CheckDeclarationDetailsController.submit
 
   import SecuritiesJourney.Checks._
 
@@ -54,7 +54,7 @@ class CheckDeclarationDetailsController @Inject() (
       (
         updatedJourney,
         journey.getLeadDisplayDeclaration
-          .fold(Redirect(routes.EnterMovementReferenceNumberController.show()))(declaration =>
+          .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
             Ok(checkDeclarationDetailsPage(declaration, journey.getSecuritiesReclaims, postAction))
           )
       )
@@ -67,13 +67,13 @@ class CheckDeclarationDetailsController @Inject() (
         updatedJourney,
         Redirect(
           if (journey.getSelectedDepositIds.isEmpty)
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           else if (journey.userHasSeenCYAPage)
-            routes.CheckYourAnswersController.show()
+            routes.CheckYourAnswersController.show
           else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
-            routes.ChooseExportMethodController.show()
+            routes.ChooseExportMethodController.show
           else
-            routes.CheckClaimantDetailsController.show()
+            routes.CheckClaimantDetailsController.show
         )
       )
     }

@@ -5,19 +5,23 @@ address-lookup.edit.title=Enter your address
 address-lookup.lookup.title=Find your UK address
 address-lookup.select.title=Choose your address
 
-bank-details.account-name.label=Name on the account
 bank-details.account-name.label.hidden=bank details
+bank-details.account-name.label=Name on the account
 bank-details.account-number.label=Account number
+bank-details.are-you-sure=Are you sure these bank details are correct?
 bank-details.change=Change
 bank-details.details.bullet1=a letter of authority from the company you represent that proves you are their representative
 bank-details.details.bullet2=a letter from the company you represent to their bank, confirming what the bank details should be changed to
 bank-details.details.heading=How to change bank details if you are a representative
 bank-details.details.p1=If you are a representative and want to change these bank details, you will need to provide:
 bank-details.different-details-link=<a href="{0}" class="govuk-link">Enter different bank details</a>
+bank-details.no=No
 bank-details.p1=These are the details of where your repayments will be made in the UK based on our records.
 bank-details.sort-code.label=Sort code
 bank-details.title=Check these bank details are correct
 bank-details.warning=We have been unable to check the details of this bank account. You should check the details that you have entered are correct before continuing
+bank-details.yes=Yes
+bank-details-yes-no.error.required=Select yes to continue with this bank account
 
 bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 bank-service-unavailable.title=Sorry, the service is unavailable

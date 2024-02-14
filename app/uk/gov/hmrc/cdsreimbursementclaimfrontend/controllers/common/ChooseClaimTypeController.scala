@@ -83,10 +83,10 @@ class ChooseClaimTypeController @Inject() (
           },
           {
             case C285 =>
-              Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show()))
+              Future.successful(Redirect(overpaymentsRoutes.ChooseHowManyMrnsController.show))
 
             case RejectedGoods =>
-              Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show()))
+              Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show))
 
             case Securities =>
               request.authenticatedRequest.journeyUserType.eoriOpt
@@ -96,7 +96,7 @@ class ChooseClaimTypeController @Inject() (
                       SessionData(SecuritiesJourney.empty(eori, Nonce.random))
                         .withExistingUserData(request.sessionData)
                     )
-                    .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show()))
+                    .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show))
                 }
             case ViewUpload =>
               if (featureSwitchService.isEnabled(Feature.ViewUpload))

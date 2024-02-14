@@ -88,7 +88,7 @@ class ChooseFileTypeControllerSpec
 
     "Show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -128,7 +128,7 @@ class ChooseFileTypeControllerSpec
     "submitted the document type" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not succeed if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -147,7 +147,7 @@ class ChooseFileTypeControllerSpec
         }
         checkIsRedirect(
           performAction("choose-file-type" -> "AdditionalSupportingDocuments"),
-          routes.UploadFilesController.show()
+          routes.UploadFilesController.show
         )
       }
 
@@ -184,7 +184,7 @@ class ChooseFileTypeControllerSpec
         }
         checkIsRedirect(
           performAction("choose-file-type" -> "none"),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
 

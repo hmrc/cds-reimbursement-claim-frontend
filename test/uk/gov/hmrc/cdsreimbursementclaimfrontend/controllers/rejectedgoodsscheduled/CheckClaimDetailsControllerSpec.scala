@@ -66,10 +66,10 @@ class CheckClaimDetailsControllerSpec
 
   "Check Claim Details Controller" should {
     def performActionShow(): Future[Result] =
-      controller.show()(FakeRequest())
+      controller.show(FakeRequest())
 
     def performActionSubmit(value: String): Future[Result] =
-      controller.submit()(
+      controller.submit(
         FakeRequest()
           .withFormUrlEncodedBody(checkClaimDetailsKey -> value)
       )
@@ -77,7 +77,7 @@ class CheckClaimDetailsControllerSpec
     "not find the page if rejected goods feature is disabled" in {
       featureSwitch.disable(Feature.RejectedGoods)
 
-      status(controller.show()(FakeRequest())) shouldBe NOT_FOUND
+      status(controller.show(FakeRequest())) shouldBe NOT_FOUND
 
     }
 
@@ -88,7 +88,7 @@ class CheckClaimDetailsControllerSpec
           mockGetSession(session)
         }
 
-        checkIsRedirect(performActionShow(), routes.SelectDutyTypesController.show())
+        checkIsRedirect(performActionShow(), routes.SelectDutyTypesController.show)
 
       }
 
@@ -106,7 +106,7 @@ class CheckClaimDetailsControllerSpec
           checkPageIsDisplayed(
             performActionShow(),
             messageFromMessageKey(messageKey = s"$checkClaimDetailsKey.scheduled.title"),
-            doc => formAction(doc) shouldBe routes.CheckClaimDetailsController.submit().url
+            doc => formAction(doc) shouldBe routes.CheckClaimDetailsController.submit.url
           )
         }
       }
@@ -129,7 +129,7 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(incompleteJourney))
           }
 
-          checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show())
+          checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show)
         }
 
       "redirect to the check your answers page if the answer is yes if all of the questions have been answered" in {
@@ -141,7 +141,7 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          checkIsRedirect(performActionSubmit("true"), routes.CheckYourAnswersController.show())
+          checkIsRedirect(performActionSubmit("true"), routes.CheckYourAnswersController.show)
         }
       }
 
@@ -155,7 +155,7 @@ class CheckClaimDetailsControllerSpec
             mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }
 
-          checkIsRedirect(performActionSubmit("false"), routes.SelectDutyTypesController.show())
+          checkIsRedirect(performActionSubmit("false"), routes.SelectDutyTypesController.show)
 
         }
       }

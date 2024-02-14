@@ -71,7 +71,7 @@ class ChooseHowManyMrnsController @Inject() (
     with Logging {
 
   private val form: Form[OverpaymentsJourneyType] = Forms.overpaymentsChooseHowManyMrnsForm
-  private val postAction: Call                    = routes.ChooseHowManyMrnsController.submit()
+  private val postAction: Call                    = routes.ChooseHowManyMrnsController.submit
 
   private def overpaymentsSingleJourneyFeatures(implicit
     hc: HeaderCarrier
@@ -122,7 +122,7 @@ class ChooseHowManyMrnsController @Inject() (
   }
 
   final val start: Action[AnyContent] =
-    Action(Redirect(routes.ChooseHowManyMrnsController.show()))
+    Action(Redirect(routes.ChooseHowManyMrnsController.show))
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>

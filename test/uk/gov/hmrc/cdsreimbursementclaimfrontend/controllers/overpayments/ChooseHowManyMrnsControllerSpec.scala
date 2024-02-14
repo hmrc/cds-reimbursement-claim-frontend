@@ -102,7 +102,7 @@ class ChooseHowManyMrnsControllerSpec
 
   "ChooseHowManyMrnsController" must {
 
-    def performAction(): Future[Result] = controller.show()(FakeRequest())
+    def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
       inSequence {
@@ -131,7 +131,7 @@ class ChooseHowManyMrnsControllerSpec
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
 

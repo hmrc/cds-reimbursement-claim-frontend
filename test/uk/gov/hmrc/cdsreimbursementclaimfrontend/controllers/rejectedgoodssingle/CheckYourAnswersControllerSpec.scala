@@ -196,7 +196,7 @@ class CheckYourAnswersControllerSpec
 
     "Show check your answers page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -302,7 +302,7 @@ class CheckYourAnswersControllerSpec
             mockGetSession(updatedSession)
           }
 
-          checkIsRedirect(performAction(), routes.CheckYourAnswersController.showConfirmation())
+          checkIsRedirect(performAction(), routes.CheckYourAnswersController.showConfirmation)
         }
 
       }
@@ -310,7 +310,7 @@ class CheckYourAnswersControllerSpec
 
     "Submitted the valid claim" must {
 
-      def performAction(): Future[Result] = controller.submit()(FakeRequest())
+      def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "redirect to the confirmation page if success" in {
         forAll(completeJourneyGen) { journey =>
@@ -330,7 +330,7 @@ class CheckYourAnswersControllerSpec
             )(Right(()))
           }
           val result         = performAction()
-          checkIsRedirect(result, routes.CheckYourAnswersController.showConfirmation())
+          checkIsRedirect(result, routes.CheckYourAnswersController.showConfirmation)
         }
       }
 
@@ -355,7 +355,7 @@ class CheckYourAnswersControllerSpec
 
     "Show confirmation page" must {
 
-      def performAction(): Future[Result] = controller.showConfirmation()(FakeRequest())
+      def performAction(): Future[Result] = controller.showConfirmation(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -387,7 +387,7 @@ class CheckYourAnswersControllerSpec
             mockGetSession(updatedSession)
           }
 
-          checkIsRedirect(performAction(), routes.CheckYourAnswersController.show())
+          checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)
         }
 
       }

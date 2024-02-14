@@ -72,7 +72,7 @@ class ChooseHowManyMrnsController @Inject() (
 
   val dataKey: String                      = "rejected-goods.choose-how-many-mrns"
   val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
-  private val postAction: Call             = routes.ChooseHowManyMrnsController.submit()
+  private val postAction: Call             = routes.ChooseHowManyMrnsController.submit
 
   private def rejectedGoodsSingleJourneyFeatures(implicit
     hc: HeaderCarrier
@@ -123,7 +123,7 @@ class ChooseHowManyMrnsController @Inject() (
   }
 
   final val start: Action[AnyContent] =
-    Action(Redirect(routes.ChooseHowManyMrnsController.show()))
+    Action(Redirect(routes.ChooseHowManyMrnsController.show))
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
@@ -155,7 +155,7 @@ class ChooseHowManyMrnsController @Inject() (
                      )
                    else
                      Future.successful(Right(())))
-                    .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()))
+                    .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
                   (if (request.sessionData.rejectedGoodsMultipleJourney.isEmpty)
@@ -177,7 +177,7 @@ class ChooseHowManyMrnsController @Inject() (
                      )
                    else
                      Future.successful(Right(())))
-                    .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show()))
+                    .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show))
 
               }
             )
