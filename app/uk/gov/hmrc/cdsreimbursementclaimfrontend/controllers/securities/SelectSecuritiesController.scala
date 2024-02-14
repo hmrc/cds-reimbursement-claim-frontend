@@ -57,7 +57,7 @@ class SelectSecuritiesController @Inject() (
 
   final val showFirst: Action[AnyContent] = simpleActionReadJourney { journey =>
     Redirect(
-      journey.getSecurityDepositIds.headOption.fold(routes.ChooseReasonForSecurityController.show())(firstDepositId =>
+      journey.getSecurityDepositIds.headOption.fold(routes.ChooseReasonForSecurityController.show)(firstDepositId =>
         routes.SelectSecuritiesController.show(firstDepositId)
       )
     )
@@ -125,12 +125,12 @@ class SelectSecuritiesController @Inject() (
 
   private def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
     if (journey.userHasSeenCYAPage)
-      routes.CheckYourAnswersController.show()
+      routes.CheckYourAnswersController.show
     else if (journey.answers.checkDeclarationDetailsChangeMode)
-      routes.CheckDeclarationDetailsController.show()
+      routes.CheckDeclarationDetailsController.show
     else
       journey.getSecurityDepositIds
         .nextAfter(securityDepositId)
-        .fold(routes.CheckDeclarationDetailsController.show())(routes.SelectSecuritiesController.show(_))
+        .fold(routes.CheckDeclarationDetailsController.show)(routes.SelectSecuritiesController.show(_))
 
 }

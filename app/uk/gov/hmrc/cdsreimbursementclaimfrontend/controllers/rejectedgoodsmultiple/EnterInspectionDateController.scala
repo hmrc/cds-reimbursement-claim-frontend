@@ -36,7 +36,7 @@ class EnterInspectionDateController @Inject() (
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"
-  private val postAction: Call = routes.EnterInspectionDateController.submit()
+  private val postAction: Call = routes.EnterInspectionDateController.submit
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Ok(
@@ -54,7 +54,7 @@ class EnterInspectionDateController @Inject() (
           (
             updatedJourney,
             if (updatedJourney.needsDeclarantAndConsigneePostCode)
-              Redirect(routes.ChooseInspectionAddressTypeController.show())
+              Redirect(routes.ChooseInspectionAddressTypeController.show)
             else
               Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
           )

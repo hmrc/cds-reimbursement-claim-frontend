@@ -93,7 +93,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
   "Check Duplicate Declaration Details Controller" when {
     "Check Duplicate Declaration Details page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "does not find the page if the overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -190,7 +190,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     "Submit Check Duplicate Declaration Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

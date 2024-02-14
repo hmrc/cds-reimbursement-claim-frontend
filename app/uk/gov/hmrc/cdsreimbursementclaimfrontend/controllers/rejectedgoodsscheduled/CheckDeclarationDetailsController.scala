@@ -43,13 +43,13 @@ class CheckDeclarationDetailsController @Inject() (
     journey.getLeadDisplayDeclaration
 
   final override def continueRoute(journey: Journey): Call =
-    routes.UploadMrnListController.show()
+    routes.UploadMrnListController.show
 
   final override val enterMovementReferenceNumberRoute: Call =
-    routes.EnterMovementReferenceNumberController.submit()
+    routes.EnterMovementReferenceNumberController.submit
 
   private val postAction: Call =
-    routes.CheckDeclarationDetailsController.submit()
+    routes.CheckDeclarationDetailsController.submit
 
   override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
     case (decl, form, journey) =>

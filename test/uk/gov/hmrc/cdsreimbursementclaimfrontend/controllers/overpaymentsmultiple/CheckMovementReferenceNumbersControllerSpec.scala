@@ -106,7 +106,7 @@ class CheckMovementReferenceNumbersControllerSpec
     "Show Check Movement Reference Numbers page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
         //TODO: Get correct URL
@@ -231,7 +231,7 @@ class CheckMovementReferenceNumbersControllerSpec
     "Submit Check Movement Reference Numbers page" should {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 

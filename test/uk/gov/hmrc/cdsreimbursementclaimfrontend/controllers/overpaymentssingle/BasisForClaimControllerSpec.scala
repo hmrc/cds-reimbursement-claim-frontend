@@ -99,7 +99,7 @@ class BasisForClaimControllerSpec
   "Basis For Claim Controller" when {
     "Basis For Claim page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -164,7 +164,7 @@ class BasisForClaimControllerSpec
     "Submit Basis For Claim" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

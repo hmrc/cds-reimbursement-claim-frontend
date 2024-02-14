@@ -87,7 +87,7 @@ class ChooseInspectionAddressTypeControllerSpec
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -124,7 +124,7 @@ class ChooseInspectionAddressTypeControllerSpec
               doc.select("input[value=Other]").isEmpty     shouldBe false
               doc.select("input[value=Declarant]").isEmpty shouldBe false
               doc.select("input[value=Importer]").isEmpty  shouldBe true
-              formAction(doc)                              shouldBe routes.ChooseInspectionAddressTypeController.submit().url
+              formAction(doc)                              shouldBe routes.ChooseInspectionAddressTypeController.submit.url
             }
           )
       }
@@ -218,7 +218,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -318,7 +318,7 @@ class ChooseInspectionAddressTypeControllerSpec
           controller.redirectToTheNextPage(journey) shouldBe (
             (
               journey,
-              Redirect(routes.CheckYourAnswersController.show())
+              Redirect(routes.CheckYourAnswersController.show)
             )
           )
         }

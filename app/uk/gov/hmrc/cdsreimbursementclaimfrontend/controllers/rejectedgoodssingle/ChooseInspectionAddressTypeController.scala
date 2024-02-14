@@ -49,9 +49,9 @@ class ChooseInspectionAddressTypeController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   override val postAction: Call =
-    routes.ChooseInspectionAddressTypeController.submit()
+    routes.ChooseInspectionAddressTypeController.submit
 
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 
   override val startAddressLookup: Call =
     routes.ChooseInspectionAddressTypeController.redirectToALF()

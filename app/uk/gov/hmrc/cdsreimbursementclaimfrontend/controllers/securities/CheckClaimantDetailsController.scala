@@ -50,9 +50,9 @@ class CheckClaimantDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show()
+  override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 
-  val postAction: Call = routes.CheckClaimantDetailsController.submit()
+  val postAction: Call = routes.CheckClaimantDetailsController.submit
   val changeCd: Call   = routes.EnterContactDetailsController.show(confirmContactDetails = false)
 
   override val retrieveLookupAddress: Call =
@@ -64,7 +64,7 @@ class CheckClaimantDetailsController @Inject() (
     cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
 
   override val redirectWhenNoAddressDetailsFound: Call =
-    routes.EnterMovementReferenceNumberController.show()
+    routes.EnterMovementReferenceNumberController.show
 
   override val confirmEmailRoute: Call =
     routes.EnterContactDetailsController.show(confirmContactDetails = true)
@@ -80,9 +80,9 @@ class CheckClaimantDetailsController @Inject() (
 
   override def redirectToTheNextPage(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
     if (journey.hasCompleteAnswers) {
-      (journey, Redirect(routes.CheckYourAnswersController.show()))
+      (journey, Redirect(routes.CheckYourAnswersController.show))
     } else {
-      (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+      (journey, Redirect(routes.CheckClaimantDetailsController.show))
     }
 }
 

@@ -43,13 +43,13 @@ class EnterImporterEoriNumberController @Inject() (
     Some(hasMRNAndDisplayDeclaration)
 
   final override val postAction: Call =
-    routes.EnterImporterEoriNumberController.submit()
+    routes.EnterImporterEoriNumberController.submit
 
   final override val continueAction: Call =
-    routes.EnterDeclarantEoriNumberController.show()
+    routes.EnterDeclarantEoriNumberController.show
 
   final override val whenEoriInputNotRequiredAction: Call =
-    routes.BasisForClaimController.show()
+    routes.BasisForClaimController.show
 
   final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
     journey.submitConsigneeEoriNumber(eori)

@@ -42,7 +42,7 @@ class SelectDutiesController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()
+  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =

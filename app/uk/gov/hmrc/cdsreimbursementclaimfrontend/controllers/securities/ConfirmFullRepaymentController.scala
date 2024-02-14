@@ -62,7 +62,7 @@ class ConfirmFullRepaymentController @Inject() (
   def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.getSelectedDepositIds.headOption
       .fold(
-        Redirect(routes.CheckDeclarationDetailsController.show()).asFuture
+        Redirect(routes.CheckDeclarationDetailsController.show).asFuture
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
 
@@ -150,11 +150,11 @@ class ConfirmFullRepaymentController @Inject() (
         { updatedJourney =>
           val nextRoute =
             if (journey.answers.checkClaimDetailsChangeMode)
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             else
               journey.getSelectedDepositIds
                 .nextAfter(securityId)
-                .fold(routes.CheckClaimDetailsController.show()) { nextSecurityId =>
+                .fold(routes.CheckClaimDetailsController.show) { nextSecurityId =>
                   routes.ConfirmFullRepaymentController.show(nextSecurityId)
                 }
           (updatedJourney, Redirect(nextRoute))
@@ -171,6 +171,6 @@ class ConfirmFullRepaymentController @Inject() (
      else
        (
          journey,
-         Redirect(routes.CheckClaimDetailsController.show())
+         Redirect(routes.CheckClaimDetailsController.show)
        )).asFuture
 }

@@ -68,7 +68,7 @@ class EnterMovementReferenceNumberController @Inject() (
           form,
           Some("scheduled"),
           1,
-          routes.EnterMovementReferenceNumberController.submit()
+          routes.EnterMovementReferenceNumberController.submit
         )
 
   override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
@@ -80,9 +80,9 @@ class EnterMovementReferenceNumberController @Inject() (
   override def afterSuccessfullSubmit(updatedJourney: RejectedGoodsScheduledJourney): Result =
     Redirect(
       if (updatedJourney.needsDeclarantAndConsigneeEoriSubmission) {
-        routes.EnterImporterEoriNumberController.show()
+        routes.EnterImporterEoriNumberController.show
       } else {
-        routes.CheckDeclarationDetailsController.show()
+        routes.CheckDeclarationDetailsController.show
       }
     )
 }

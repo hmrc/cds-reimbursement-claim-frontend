@@ -118,7 +118,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
       .fold(
         {
           case "submitExportMovementReferenceNumber.unexpected" =>
-            (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+            (journey, Redirect(routes.CheckClaimantDetailsController.show))
           case _                                                =>
             val formErrorKey =
               if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
@@ -131,9 +131,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
         },
         updatedJourney =>
           if (updatedJourney.userHasSeenCYAPage) {
-            (updatedJourney, Redirect(routes.CheckYourAnswersController.show()))
+            (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
           } else {
-            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show))
           }
       )
 
@@ -146,11 +146,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
       case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && isExportedMod(mod)  =>
         body
       case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && !isExportedMod(mod) =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
       case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                             =>
-        (journey, Redirect(routes.ChooseExportMethodController.show())).asFuture
+        (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _)                                                                       =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show())).asFuture
+        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
     }
 
   private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
@@ -178,14 +178,14 @@ class EnterExportMovementReferenceNumberController @Inject() (
             method(
               enterExportMovementReferenceNumberSinglePage(
                 form,
-                routes.EnterExportMovementReferenceNumberController.submit()
+                routes.EnterExportMovementReferenceNumberController.submit
               )
             )
           case ExportedInMultipleShipments =>
             method(
               enterExportMovementReferenceNumberMultiplePage(
                 form,
-                routes.EnterExportMovementReferenceNumberController.submit()
+                routes.EnterExportMovementReferenceNumberController.submit
               )
             )
           case _                           =>

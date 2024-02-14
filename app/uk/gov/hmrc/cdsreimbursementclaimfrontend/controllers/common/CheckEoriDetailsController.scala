@@ -81,7 +81,7 @@ class CheckEoriDetailsController @Inject() (
     eori,
     name.map(_.toFullName).getOrElse("No name"),
     form,
-    routes.CheckEoriDetailsController.submit()
+    routes.CheckEoriDetailsController.submit
   )
 
   final val show: Action[AnyContent] =
@@ -108,7 +108,7 @@ class CheckEoriDetailsController @Inject() (
                   case Right(None)    =>
                     Redirect(viewConfig.customsEmailFrontendUrl)
                   case Right(Some(_)) =>
-                    Redirect(commonRoutes.ChooseClaimTypeController.show())
+                    Redirect(commonRoutes.ChooseClaimTypeController.show)
                 }
             case No  =>
               Future.successful(Redirect(baseRoutes.StartController.start()).withNewSession)

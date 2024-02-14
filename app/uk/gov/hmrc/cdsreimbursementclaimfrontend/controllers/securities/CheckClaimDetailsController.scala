@@ -39,7 +39,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  private val postAction: Call = routes.CheckClaimDetailsController.submit()
+  private val postAction: Call = routes.CheckClaimDetailsController.submit
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -51,7 +51,7 @@ class CheckClaimDetailsController @Inject() (
     actionReadWriteJourney { implicit request => journey =>
       checkIfAllReclaimsProvided(journey) {
         journey.getLeadDisplayDeclaration
-          .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show()))) { displayDeclaration =>
+          .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
             (
               journey
                 .submitCheckClaimDetailsChangeMode(true)
@@ -76,7 +76,7 @@ class CheckClaimDetailsController @Inject() (
   )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
     (
       if (journey.answers.correctedAmounts.noneIfEmpty.isEmpty)
-        (journey, Redirect(routes.CheckDeclarationDetailsController.show()))
+        (journey, Redirect(routes.CheckDeclarationDetailsController.show))
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
@@ -92,6 +92,6 @@ class CheckClaimDetailsController @Inject() (
 
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if (journey.userHasSeenCYAPage)
-      Redirect(routes.CheckYourAnswersController.show())
+      Redirect(routes.CheckYourAnswersController.show)
     else Redirect(routes.ChoosePayeeTypeController.show)
 }

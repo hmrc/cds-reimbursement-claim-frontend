@@ -53,21 +53,21 @@ class ChooseExportMethodController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmission(journey) {
       (
         journey,
         Ok(
           chooseExportMethodPage(
             chooseExportMethodForm,
-            routes.ChooseExportMethodController.submit()
+            routes.ChooseExportMethodController.submit
           )
         )
       )
     }
   }
 
-  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmission(journey) {
       form
         .bindFromRequest()
@@ -78,7 +78,7 @@ class ChooseExportMethodController @Inject() (
               BadRequest(
                 chooseExportMethodPage(
                   formWithErrors,
-                  routes.ChooseExportMethodController.submit()
+                  routes.ChooseExportMethodController.submit
                 )
               )
             ),
@@ -99,9 +99,9 @@ class ChooseExportMethodController @Inject() (
                     methodOfDisposal match {
                       case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
                           TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
-                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show()))
+                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show))
                       case _ =>
-                        (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show()))
+                        (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show))
                     }
                 )
           }
@@ -115,7 +115,7 @@ class ChooseExportMethodController @Inject() (
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
-        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show()))
+        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
       }
       .asFuture
 }

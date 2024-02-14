@@ -53,23 +53,23 @@ class CheckTotalImportDischargedController @Inject() (
 
   //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
-    Redirect(routes.BillOfDischarge3Controller.show())
+    Redirect(routes.BillOfDischarge3Controller.show)
 
   //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
-    Redirect(routes.BillOfDischarge4Controller.show())
+    Redirect(routes.BillOfDischarge4Controller.show)
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit())).asFuture
+  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
   }
 
-  def submit(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
           BadRequest(
-            checkTotalImportDischargedPage(formWithErrors, routes.CheckTotalImportDischargedController.submit())
+            checkTotalImportDischargedPage(formWithErrors, routes.CheckTotalImportDischargedController.submit)
           ).asFuture,
         {
           case Yes =>
@@ -83,7 +83,7 @@ class CheckTotalImportDischargedController @Inject() (
                 )
               }
             }.asFuture
-          case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show()).asFuture
+          case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show).asFuture
         }
       )
 

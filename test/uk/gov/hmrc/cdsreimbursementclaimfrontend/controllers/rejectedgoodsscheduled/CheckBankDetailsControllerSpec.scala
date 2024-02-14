@@ -90,7 +90,7 @@ class CheckBankDetailsControllerSpec
     session.rejectedGoodsScheduledJourney.flatMap(_.submitBankAccountDetails(bankAccountDetails).toOption)
   )
 
-  def performAction(): Future[Result] = controller.show()(FakeRequest())
+  def performAction(): Future[Result] = controller.show(FakeRequest())
 
   "Check Bank Details Controller" must {
 
@@ -135,9 +135,9 @@ class CheckBankDetailsControllerSpec
           mockGetSession(session)
         }
         val request         = FakeRequest()
-        val result          = controller.show()(request)
+        val result          = controller.show(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
     }
 
     "display the page using declarant bank details from Acc14 and payeeType is Declarant" in forAll(
@@ -177,9 +177,9 @@ class CheckBankDetailsControllerSpec
         mockGetSession(session)
       }
       val request         = FakeRequest()
-      val result          = controller.show()(request)
+      val result          = controller.show(request)
 
-      checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+      checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
     }
 
     "display the page with submitted bank details" in forAll(genBankAccountDetails) { bankDetails: BankAccountDetails =>
@@ -225,7 +225,7 @@ class CheckBankDetailsControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.ChooseBankAccountTypeController.show()
+        routes.ChooseBankAccountTypeController.show
       )
     }
 

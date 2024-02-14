@@ -71,7 +71,7 @@ class ChooseBankAccountTypeControllerSpec
 
     "show page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if Overpayments v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -116,7 +116,7 @@ class ChooseBankAccountTypeControllerSpec
     "submit page" when {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if Overpayments V2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

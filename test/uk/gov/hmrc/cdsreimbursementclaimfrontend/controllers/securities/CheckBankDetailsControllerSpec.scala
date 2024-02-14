@@ -106,9 +106,9 @@ class CheckBankDetailsControllerSpec
           mockGetSession(SessionData(journey))
         }
 
-        val result = controller.show()(FakeRequest())
+        val result = controller.show(FakeRequest())
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Redirect when BankDetails is None and required" in {
@@ -119,8 +119,8 @@ class CheckBankDetailsControllerSpec
           mockGetSession(SessionData(journey))
         }
 
-        val result = controller.show()(FakeRequest())
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show())
+        val result = controller.show(FakeRequest())
+        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
       "Redirect when BankDetails is None and not required" in {
@@ -131,8 +131,8 @@ class CheckBankDetailsControllerSpec
           mockGetSession(SessionData(journey))
         }
 
-        val result = controller.show()(FakeRequest())
-        checkIsRedirect(result, routes.ChooseFileTypeController.show())
+        val result = controller.show(FakeRequest())
+        checkIsRedirect(result, routes.ChooseFileTypeController.show)
       }
 
       "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
@@ -146,7 +146,7 @@ class CheckBankDetailsControllerSpec
             mockStoreSession(SessionData(journey.submitBankAccountDetails(consigneeBankDetails).getOrFail))(Right(()))
           }
 
-          val result = controller.show()(FakeRequest())
+          val result = controller.show(FakeRequest())
 
           checkPageIsDisplayed(result, "Check these bank details are correct")
       }
@@ -162,7 +162,7 @@ class CheckBankDetailsControllerSpec
             mockStoreSession(SessionData(journey.submitBankAccountDetails(declarantBankDetails).getOrFail))(Right(()))
           }
 
-          val result = controller.show()(FakeRequest())
+          val result = controller.show(FakeRequest())
 
           checkPageIsDisplayed(result, "Check these bank details are correct")
       }

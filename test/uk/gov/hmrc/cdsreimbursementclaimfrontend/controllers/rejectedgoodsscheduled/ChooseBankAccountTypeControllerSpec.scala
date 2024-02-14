@@ -71,7 +71,7 @@ class ChooseBankAccountTypeControllerSpec
 
     "show page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -90,7 +90,7 @@ class ChooseBankAccountTypeControllerSpec
           messageFromMessageKey(s"$formKey.title"),
           doc => {
             selectedRadioValue(doc) shouldBe None
-            formAction(doc)         shouldBe routes.ChooseBankAccountTypeController.submit().url
+            formAction(doc)         shouldBe routes.ChooseBankAccountTypeController.submit.url
           }
         )
       }
@@ -107,7 +107,7 @@ class ChooseBankAccountTypeControllerSpec
           messageFromMessageKey(s"$formKey.title"),
           doc => {
             selectedRadioValue(doc) shouldBe Some(s"$bankAccountType")
-            formAction(doc)         shouldBe routes.ChooseBankAccountTypeController.submit().url
+            formAction(doc)         shouldBe routes.ChooseBankAccountTypeController.submit.url
           }
         )
       }
@@ -116,7 +116,7 @@ class ChooseBankAccountTypeControllerSpec
     "submit page" when {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -150,7 +150,7 @@ class ChooseBankAccountTypeControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> s"$bankAccountType"),
-          routes.EnterBankAccountDetailsController.show()
+          routes.EnterBankAccountDetailsController.show
         )
       }
     }

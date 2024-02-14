@@ -137,7 +137,7 @@ class EnterBankAccountDetailsControllerSpec
     "Submit Enter Bank Account Details page" must {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -162,7 +162,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                routes.ChooseBankAccountTypeController.show()
+                routes.ChooseBankAccountTypeController.show
               )
             } { bankAccountType =>
               inSequence {
@@ -177,7 +177,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                commonRoutes.BankAccountVerificationUnavailable.show()
+                commonRoutes.BankAccountVerificationUnavailable.show
               )
             }
         }
@@ -199,7 +199,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                routes.ChooseBankAccountTypeController.show()
+                routes.ChooseBankAccountTypeController.show
               )
             } { bankAccountType =>
               inSequence {
@@ -217,7 +217,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                routes.CheckBankDetailsController.show()
+                routes.CheckBankDetailsController.show
               )
             }
         }

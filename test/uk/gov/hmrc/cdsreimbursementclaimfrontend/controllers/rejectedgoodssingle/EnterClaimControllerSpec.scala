@@ -196,7 +196,7 @@ class EnterClaimControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.SelectDutiesController.show()
+            routes.SelectDutiesController.show
           )
       }
     }
@@ -303,7 +303,7 @@ class EnterClaimControllerSpec
                 ndrcDetails1.taxType,
                 "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
               ),
-              routes.SelectDutiesController.show()
+              routes.SelectDutiesController.show
             )
           }
       }
@@ -328,7 +328,7 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               result,
-              routes.EnterMovementReferenceNumberController.show()
+              routes.EnterMovementReferenceNumberController.show
             )
 
           }
@@ -358,7 +358,7 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               result,
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             )
 
           }
@@ -387,7 +387,7 @@ class EnterClaimControllerSpec
 
             checkIsRedirect(
               result,
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             )
 
           }

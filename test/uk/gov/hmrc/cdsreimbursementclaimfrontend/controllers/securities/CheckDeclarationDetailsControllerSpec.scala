@@ -162,7 +162,7 @@ class CheckDeclarationDetailsControllerSpec
 
     "show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -179,7 +179,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterMovementReferenceNumberController.show()
+          routes.EnterMovementReferenceNumberController.show
         )
       }
 
@@ -201,7 +201,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.EnterDeclarantEoriNumberController.show()
+              routes.EnterDeclarantEoriNumberController.show
             )
           }
         }
@@ -261,7 +261,7 @@ class CheckDeclarationDetailsControllerSpec
     "submit" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -294,7 +294,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.CheckClaimantDetailsController.show()
+              routes.CheckClaimantDetailsController.show
             )
           }
         }
@@ -325,7 +325,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.ChooseExportMethodController.show()
+              routes.ChooseExportMethodController.show
             )
           }
         }
@@ -351,7 +351,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.CheckDeclarationDetailsController.show()
+              routes.CheckDeclarationDetailsController.show
             )
           }
         }
@@ -365,7 +365,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

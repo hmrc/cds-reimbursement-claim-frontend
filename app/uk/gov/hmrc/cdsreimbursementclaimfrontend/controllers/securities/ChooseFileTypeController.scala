@@ -50,12 +50,12 @@ class ChooseFileTypeController @Inject() (
     )
 
   final override val uploadFilesRoute: Call =
-    routes.UploadFilesController.show()
+    routes.UploadFilesController.show
 
   final override def viewTemplate
     : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable =
     (form, documentTypes, _) =>
-      implicit request => chooseFileTypePage(form, documentTypes, routes.ChooseFileTypeController.submit())
+      implicit request => chooseFileTypePage(form, documentTypes, routes.ChooseFileTypeController.submit)
 
   final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
     journey

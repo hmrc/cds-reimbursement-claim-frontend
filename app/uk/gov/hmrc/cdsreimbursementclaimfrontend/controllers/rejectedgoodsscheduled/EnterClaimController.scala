@@ -64,8 +64,8 @@ object EnterClaimController {
   val routesPack = EnterScheduledClaimMixin.RoutesPack(
     showAction = routes.EnterClaimController.show,
     postAction = routes.EnterClaimController.submit,
-    showSelectDutyTypes = routes.SelectDutyTypesController.show(),
+    showSelectDutyTypes = routes.SelectDutyTypesController.show,
     showSelectDuties = routes.SelectDutiesController.show,
-    showCheckClaimDetails = routes.CheckClaimDetailsController.show()
+    showCheckClaimDetails = routes.CheckClaimDetailsController.show
   )
 }

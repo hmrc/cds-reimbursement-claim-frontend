@@ -70,7 +70,7 @@ class SelectDutyTypesControllerSpec
 
     "Show select duty types page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if overpayments v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -117,7 +117,7 @@ class SelectDutyTypesControllerSpec
 
     "Submit Select Duty Types page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if Overpayments v2 feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

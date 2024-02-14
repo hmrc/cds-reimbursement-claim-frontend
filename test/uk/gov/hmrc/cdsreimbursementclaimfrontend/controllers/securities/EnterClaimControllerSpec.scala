@@ -354,7 +354,7 @@ class EnterClaimControllerSpec
 
           val expectedNextRoute: Call = next match {
             case None =>
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
 
             case Some((secondDepositId, secondTaxCode)) =>
               if (secondDepositId == depositId)
@@ -408,7 +408,7 @@ class EnterClaimControllerSpec
               routes.EnterClaimController.show(depositId, taxCode)
 
             case None =>
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
           }
 
           checkIsRedirect(
@@ -530,7 +530,7 @@ class EnterClaimControllerSpec
                 taxCode,
                 "enter-claim.securities.claim-amount" -> claimAmount.doubleValue.toString()
               ),
-              routes.CheckYourAnswersController.show()
+              routes.CheckYourAnswersController.show
             )
           }
         }
@@ -556,7 +556,7 @@ class EnterClaimControllerSpec
                   taxCode,
                   "enter-claim.securities.claim-amount" -> "0.01"
                 ),
-                routes.CheckClaimDetailsController.show()
+                routes.CheckClaimDetailsController.show
               )
             }
           }

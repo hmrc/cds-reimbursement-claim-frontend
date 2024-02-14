@@ -198,7 +198,7 @@ class EnterClaimController @Inject() (
   ): Call =
     if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode) {
       if (journey.userHasSeenCYAPage && !amountHasChanged)
-        routes.CheckYourAnswersController.show()
+        routes.CheckYourAnswersController.show
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
@@ -208,7 +208,7 @@ class EnterClaimController @Inject() (
             routes.EnterClaimController.show(depositId, taxCode)
 
           case None =>
-            routes.CheckClaimDetailsController.show()
+            routes.CheckClaimDetailsController.show
         }
     } else
       journey
@@ -222,12 +222,12 @@ class EnterClaimController @Inject() (
           journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
             case Some(nextSecurityDepositId) =>
               if (journey.answers.checkClaimDetailsChangeMode && !journey.answers.claimFullAmountMode)
-                routes.CheckClaimDetailsController.show()
+                routes.CheckClaimDetailsController.show
               else
                 routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
           }
       }
 

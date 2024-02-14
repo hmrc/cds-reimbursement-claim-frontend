@@ -49,7 +49,7 @@ class EnterClaimController @Inject() (
 
   val subKey: Option[String] = Some("multiple")
 
-  val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show()
+  val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show
   val selectDutiesAction: Int => Call           = routes.SelectDutiesController.show
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit

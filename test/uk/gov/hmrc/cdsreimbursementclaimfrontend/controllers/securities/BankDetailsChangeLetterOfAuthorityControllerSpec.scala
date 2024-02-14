@@ -67,7 +67,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
   private val confirmBodMessagesKey: String = "bank_account_letter_of_authority"
 
-  private def letterOfAuthorityPage: Future[Result] = controller.show()(FakeRequest())
+  private def letterOfAuthorityPage: Future[Result] = controller.show(FakeRequest())
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
@@ -108,7 +108,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
     "submitting Yes/No form" must {
 
       def submitLetterOfAuthorityAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "select 'Yes' should redirect to choose bank account type page" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
@@ -120,7 +120,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
         checkIsRedirect(
           submitLetterOfAuthorityAction(confirmBodMessagesKey -> "true"),
-          routes.ChooseBankAccountTypeController.show()
+          routes.ChooseBankAccountTypeController.show
         )
       }
 
@@ -134,7 +134,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
         checkIsRedirect(
           submitLetterOfAuthorityAction(confirmBodMessagesKey -> "false"),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

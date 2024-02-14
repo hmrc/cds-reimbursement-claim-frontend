@@ -119,7 +119,7 @@ class CheckClaimDetailsControllerSpec
 
   "CheckClaimDetailsController" when {
     "show page" must {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -148,7 +148,7 @@ class CheckClaimDetailsControllerSpec
     }
 
     "submit page" must {
-      def performAction(): Future[Result] = controller.submit()(FakeRequest())
+      def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -180,7 +180,7 @@ class CheckClaimDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.CheckYourAnswersController.show()
+          routes.CheckYourAnswersController.show
         )
       }
     }

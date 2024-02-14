@@ -63,7 +63,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
-       Redirect(routes.CheckMovementReferenceNumbersController.show())
+       Redirect(routes.CheckMovementReferenceNumbersController.show)
      else {
        val mrnIndex: Int = pageIndex - 1
 
@@ -84,7 +84,7 @@ class EnterMovementReferenceNumberController @Inject() (
     if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
       (
         journey,
-        Redirect(routes.CheckMovementReferenceNumbersController.show())
+        Redirect(routes.CheckMovementReferenceNumbersController.show)
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
@@ -211,12 +211,12 @@ class EnterMovementReferenceNumberController @Inject() (
   ): Result =
     Redirect(
       if (updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
-        routes.EnterImporterEoriNumberController.show()
+        routes.EnterImporterEoriNumberController.show
       } else {
-        if (pageIndex === 1) routes.CheckDeclarationDetailsController.show()
+        if (pageIndex === 1) routes.CheckDeclarationDetailsController.show
         else if (journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty)
           routes.SelectDutiesController.show(pageIndex)
-        else routes.CheckMovementReferenceNumbersController.show()
+        else routes.CheckMovementReferenceNumbersController.show
       }
     )
 

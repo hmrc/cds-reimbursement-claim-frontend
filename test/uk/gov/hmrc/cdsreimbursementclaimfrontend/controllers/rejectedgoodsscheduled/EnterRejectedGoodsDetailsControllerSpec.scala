@@ -71,7 +71,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "show page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -89,7 +89,7 @@ class EnterRejectedGoodsDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$formKey.title"),
           doc => {
-            formAction(doc)           shouldBe routes.EnterRejectedGoodsDetailsController.submit().url
+            formAction(doc)           shouldBe routes.EnterRejectedGoodsDetailsController.submit.url
             selectedTextArea(doc).get shouldBe ""
           }
         )
@@ -107,7 +107,7 @@ class EnterRejectedGoodsDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$formKey.title"),
           doc => {
-            formAction(doc)           shouldBe routes.EnterRejectedGoodsDetailsController.submit().url
+            formAction(doc)           shouldBe routes.EnterRejectedGoodsDetailsController.submit.url
             selectedTextArea(doc).get shouldBe details
           }
         )
@@ -116,7 +116,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "submit page" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -164,7 +164,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
         checkIsRedirect(
           performAction(formKey -> details),
-          routes.SelectDutyTypesController.show()
+          routes.SelectDutyTypesController.show
         )
       }
     }

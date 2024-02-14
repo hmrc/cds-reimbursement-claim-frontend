@@ -44,7 +44,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"
   private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
-  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit()
+  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
@@ -52,7 +52,7 @@ class CheckMovementReferenceNumbersController @Inject() (
         .map { mrns =>
           if (journey.hasCompleteMovementReferenceNumbers)
             if (journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori) {
-              Redirect(routes.EnterImporterEoriNumberController.show())
+              Redirect(routes.EnterImporterEoriNumberController.show)
             } else
               Ok(
                 checkMovementReferenceNumbers(
@@ -94,7 +94,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                       routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
                     case No  =>
                       if (shouldForwardToCYA(journey)) checkYourAnswers
-                      else routes.CheckClaimantDetailsController.show()
+                      else routes.CheckClaimantDetailsController.show
                   }
                 )
             )
@@ -122,7 +122,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   private def nextPageOnDelete(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) = (
     journey,
-    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show())
-    else Redirect(routes.CheckMovementReferenceNumbersController.show())
+    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show)
+    else Redirect(routes.CheckMovementReferenceNumbersController.show)
   )
 }

@@ -89,7 +89,7 @@ class CheckClaimantDetailsControllerSpec
     "Show Check Claimant Details page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -138,7 +138,7 @@ class CheckClaimantDetailsControllerSpec
     "Submit Check Claimant Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(
+        controller.submit(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 

@@ -94,7 +94,7 @@ class EnterImporterEoriNumberControllerSpec
     "Enter Importer Eori page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -116,7 +116,7 @@ class EnterImporterEoriNumberControllerSpec
               .select("form div#enter-importer-eori-number-hint")
               .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
             doc.select("#enter-importer-eori-number").`val`() shouldBe ""
-            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
+            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit.url
           }
         )
       }
@@ -152,7 +152,7 @@ class EnterImporterEoriNumberControllerSpec
               .select("form div#enter-importer-eori-number-hint")
               .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
             doc.select("#enter-importer-eori-number").`val`() shouldBe ""
-            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
+            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit.url
           }
         )
       }
@@ -192,7 +192,7 @@ class EnterImporterEoriNumberControllerSpec
     "Submit Importer Eori  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -266,7 +266,7 @@ class EnterImporterEoriNumberControllerSpec
 
           checkIsRedirect(
             performAction(controller.eoriNumberFormKey -> eori.value),
-            routes.EnterDeclarantEoriNumberController.show()
+            routes.EnterDeclarantEoriNumberController.show
           )
       }
 

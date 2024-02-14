@@ -141,7 +141,7 @@ class ChooseReasonForSecurityControllerSpec
 
     "show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -167,7 +167,7 @@ class ChooseReasonForSecurityControllerSpec
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not succeed if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -300,7 +300,7 @@ class ChooseReasonForSecurityControllerSpec
               performAction(
                 Seq("choose-reason-for-security.securities" -> rfs.toString)
               ),
-              routes.EnterImporterEoriNumberController.show()
+              routes.EnterImporterEoriNumberController.show
             )
           }
         }
@@ -344,7 +344,7 @@ class ChooseReasonForSecurityControllerSpec
               performAction(
                 Seq("choose-reason-for-security.securities" -> rfs.toString)
               ),
-              routes.EnterImporterEoriNumberController.show()
+              routes.EnterImporterEoriNumberController.show
             )
           }
         }
@@ -399,7 +399,7 @@ class ChooseReasonForSecurityControllerSpec
               performAction(
                 Seq("choose-reason-for-security.securities" -> rfs.get.toString)
               ),
-              routes.CheckDeclarationDetailsController.show()
+              routes.CheckDeclarationDetailsController.show
             )
           }
         }
@@ -439,7 +439,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.CheckTotalImportDischargedController.show()
+            routes.CheckTotalImportDischargedController.show
           )
         }
       }
@@ -478,7 +478,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.CheckTotalImportDischargedController.show()
+            routes.CheckTotalImportDischargedController.show
           )
         }
       }
@@ -507,7 +507,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
             ),
-            routes.EnterImporterEoriNumberController.show()
+            routes.EnterImporterEoriNumberController.show
           )
         }
 
@@ -539,7 +539,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
             ),
-            routes.ClaimInvalidTPI04Controller.show()
+            routes.ClaimInvalidTPI04Controller.show
           )
         }
       }
@@ -564,7 +564,7 @@ class ChooseReasonForSecurityControllerSpec
           performAction(
             Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
           ),
-          routes.InvalidReasonForSecurityController.show()
+          routes.InvalidReasonForSecurityController.show
         )
       }
 
@@ -589,7 +589,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfsToSelect.toString)
             ),
-            routes.DeclarationNotFoundController.show()
+            routes.DeclarationNotFoundController.show
           )
       }
     }

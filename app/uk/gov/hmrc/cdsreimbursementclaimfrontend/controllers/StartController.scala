@@ -57,7 +57,7 @@ class StartController @Inject() (
       request.whenAuthorisedUser((_, _) =>
         Future.successful(
           Redirect(
-            controllers.common.routes.CheckEoriDetailsController.show()
+            controllers.common.routes.CheckEoriDetailsController.show
           )
         )
       )(resultIfUnsupportedUser = Redirect(routes.StartController.weOnlySupportGG()))

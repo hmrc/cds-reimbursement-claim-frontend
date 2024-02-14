@@ -92,7 +92,7 @@ class SelectDutiesControllerSpec
 
     "Show select tax codes page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -143,7 +143,7 @@ class SelectDutiesControllerSpec
 
     "Submit Select Tax Codes page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -206,7 +206,7 @@ class SelectDutiesControllerSpec
     }
 
     "have CMA Eligible flag/Duties hint text" should {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "Acc14 excise code where the CMA eligible flag is true" in {
 

@@ -95,7 +95,7 @@ class EnterClaimControllerSpec
 
         checkIsRedirect(
           controller.showFirst()(FakeRequest()),
-          routes.SelectDutyTypesController.show()
+          routes.SelectDutyTypesController.show
         )
       }
     }
@@ -179,7 +179,7 @@ class EnterClaimControllerSpec
                     case None                              =>
                       updatedJourney.findNextSelectedDutyAfter(dutyType) match {
                         case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
-                        case None               => routes.CheckClaimDetailsController.show()
+                        case None               => routes.CheckClaimDetailsController.show
                       }
 
                   }
@@ -221,7 +221,7 @@ class EnterClaimControllerSpec
                 }
 
                 val expectedRoute: Call =
-                  routes.CheckClaimDetailsController.show()
+                  routes.CheckClaimDetailsController.show
 
                 checkIsRedirect(
                   performAction(

@@ -42,6 +42,9 @@ class CheckBankDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
+  final override val postAction: Call =
+    routes.CheckBankDetailsController.submit
+
   final override def continueRoute(journey: Journey): Call =
     if (journey.userHasSeenCYAPage) checkYourAnswers
     else routes.ChooseFileTypeController.show

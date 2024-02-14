@@ -83,7 +83,7 @@ class EnterDeclarantEoriNumberControllerSpec
   "Movement Reference Number Controller" when {
     "Enter Declarant EORI number page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -102,7 +102,7 @@ class EnterDeclarantEoriNumberControllerSpec
           messageFromMessageKey("enter-declarant-eori-number.title"),
           doc => {
             doc.select(s"#$enterDeclarantEoriNumberKey").`val`() shouldBe ""
-            doc.select("form").attr("action")                    shouldBe routes.EnterDeclarantEoriNumberController.submit().url
+            doc.select("form").attr("action")                    shouldBe routes.EnterDeclarantEoriNumberController.submit.url
           }
         )
       }
@@ -157,7 +157,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BillOfDischarge3Controller.show()
+          routes.BillOfDischarge3Controller.show
         )
       }
 
@@ -184,7 +184,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BillOfDischarge4Controller.show()
+          routes.BillOfDischarge4Controller.show
         )
       }
 
@@ -213,7 +213,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterImporterEoriNumberController.show()
+          routes.EnterImporterEoriNumberController.show
         )
       }
     }
@@ -221,7 +221,7 @@ class EnterDeclarantEoriNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -296,7 +296,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
-          routes.BillOfDischarge3Controller.show()
+          routes.BillOfDischarge3Controller.show
         )
       }
 
@@ -325,7 +325,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
-          routes.BillOfDischarge4Controller.show()
+          routes.BillOfDischarge4Controller.show
         )
       }
     }

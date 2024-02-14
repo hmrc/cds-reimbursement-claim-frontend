@@ -82,10 +82,10 @@ class ChooseInspectionAddressTypeControllerSpec
   override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
 
   def showPage(): Future[Result] =
-    controller.show()(FakeRequest())
+    controller.show(FakeRequest())
 
   def submitAddress(data: (String, String)*): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
     controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
@@ -354,7 +354,7 @@ class ChooseInspectionAddressTypeControllerSpec
         controller.redirectToTheNextPage(journey) shouldBe (
           (
             journey,
-            Redirect(routes.CheckYourAnswersController.show())
+            Redirect(routes.CheckYourAnswersController.show)
           )
         )
       }

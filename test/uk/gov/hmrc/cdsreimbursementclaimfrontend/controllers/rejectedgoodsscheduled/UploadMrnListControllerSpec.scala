@@ -76,7 +76,7 @@ class UploadMrnListControllerSpec
 
     "Show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -131,7 +131,7 @@ class UploadMrnListControllerSpec
     "'Upload Mrn List' submitted the callback" must {
 
       def performAction(callback: UploadMrnListCallback): Future[Result] =
-        controller.submit()(FakeRequest().withJsonBody(Json.toJson(callback)))
+        controller.submit(FakeRequest().withJsonBody(Json.toJson(callback)))
 
       val callbackPayload: UploadMrnListCallback =
         UploadMrnListCallback(
@@ -176,7 +176,7 @@ class UploadMrnListControllerSpec
             SessionData(journey)
           )
         }
-        val result  = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
+        val result  = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400
       }
 

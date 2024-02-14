@@ -67,8 +67,8 @@
         @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
             displayDeclaration,
             s"check-your-answers.declaration-details",
-            routes.EnterMovementReferenceNumberController.show(),
-            routes.ChooseReasonForSecurityController.show()
+            routes.EnterMovementReferenceNumberController.show,
+            routes.ChooseReasonForSecurityController.show
         ).rows ++
                 SecuritiesSelectionSummary(
                     claim.securitiesReclaims,
@@ -109,7 +109,7 @@
             value = Value(Text(exportDeclarationMrn.value)),
             actions = Some(Actions(
                 items = Seq(ActionItem(
-                    href = routes.EnterExportMovementReferenceNumberController.show().url,
+                    href = routes.EnterExportMovementReferenceNumberController.show.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"check-your-answers.export-declaration-details.mrn"))
                 ))))
@@ -141,11 +141,11 @@
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.BankDetailsChangeLetterOfAuthorityController.show())))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.BankDetailsChangeLetterOfAuthorityController.show)))
     }
 
     @subHeading(Html(messages(s"check-your-answers.documents.h2")))
-    @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"check-your-answers.documents", routes.UploadFilesController.summary()))
+    @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"check-your-answers.documents", routes.UploadFilesController.summary))
 
     @{
         if(hasSupportingEvidence)
@@ -158,7 +158,7 @@
     @paragraph(Html(messages(s"check-your-answers.$key2-p2")))
 
     <a href="@{
-        routes.UploadFilesController.summary().url
+        routes.UploadFilesController.summary.url
     }" class="govuk-link" role="button">
         <b style="font-size: larger">@messages(s"check-your-answers.$key2-link-text")</b>
     </a>

@@ -39,7 +39,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
 
-  private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit()
+  private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
@@ -84,7 +84,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
                 )
 
             } else {
-              (updatedJourney, Redirect(routes.SelectDutyTypesController.show()))
+              (updatedJourney, Redirect(routes.SelectDutyTypesController.show))
             }
 
           }

@@ -46,8 +46,8 @@ class CheckClaimDetailsController @Inject() (
 
   implicit val subKey: Option[String] = Some("scheduled")
 
-  private val postAction: Call         = routes.CheckClaimDetailsController.submit()
-  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show()
+  private val postAction: Call         = routes.CheckClaimDetailsController.submit
+  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
@@ -102,7 +102,7 @@ class CheckClaimDetailsController @Inject() (
                     if (journey.hasCompleteAnswers)
                       checkYourAnswers
                     else
-                      routes.EnterInspectionDateController.show()
+                      routes.EnterInspectionDateController.show
                   )
                 )
               case No  =>

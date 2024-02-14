@@ -70,7 +70,7 @@ class EnterSpecialCircumstancesControllerSpec
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -87,7 +87,7 @@ class EnterSpecialCircumstancesControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            formAction(doc)       shouldBe routes.EnterSpecialCircumstancesController.submit().url
+            formAction(doc)       shouldBe routes.EnterSpecialCircumstancesController.submit.url
             selectedTextArea(doc) shouldBe Some("")
           }
         )
@@ -103,7 +103,7 @@ class EnterSpecialCircumstancesControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            formAction(doc)       shouldBe routes.EnterSpecialCircumstancesController.submit().url
+            formAction(doc)       shouldBe routes.EnterSpecialCircumstancesController.submit.url
             selectedTextArea(doc) shouldBe journey.answers.basisOfClaimSpecialCircumstances
           }
         )
@@ -112,7 +112,7 @@ class EnterSpecialCircumstancesControllerSpec
 
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

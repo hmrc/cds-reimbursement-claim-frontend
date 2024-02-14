@@ -38,7 +38,7 @@ class ServiceUnavailableControllerSpec extends ControllerSpec {
 
   "Service Unavailable Controller" must {
 
-    def performAction(): Future[Result] = controller.show()(FakeRequest())
+    def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
 

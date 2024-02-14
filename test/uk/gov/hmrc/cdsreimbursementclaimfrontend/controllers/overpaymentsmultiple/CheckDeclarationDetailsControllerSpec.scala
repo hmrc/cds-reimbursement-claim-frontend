@@ -74,12 +74,12 @@ class CheckDeclarationDetailsControllerSpec
   val messagesKey: String = "check-declaration-details"
 
   def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
-    controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "does not find the page if the rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

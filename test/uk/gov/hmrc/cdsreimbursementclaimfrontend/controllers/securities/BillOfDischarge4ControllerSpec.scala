@@ -78,7 +78,7 @@ class BillOfDischarge4ControllerSpec
         .head
 
     "show page" must {
-      def showBod4Page: Future[Result] = controller.show()(FakeRequest())
+      def showBod4Page: Future[Result] = controller.show(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -107,7 +107,7 @@ class BillOfDischarge4ControllerSpec
     "submitting Yes/No form" must {
 
       def submitBod4Action(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "select 'Yes' should redirect to select securities page (BOD4)" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))

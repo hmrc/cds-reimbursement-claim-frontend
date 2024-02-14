@@ -40,7 +40,7 @@ class EnterSpecialCircumstancesController @Inject() (
     extends RejectedGoodsMultipleJourneyBaseController {
 
   val formKey: String          = "enter-special-circumstances.rejected-goods"
-  private val postAction: Call = routes.EnterSpecialCircumstancesController.submit()
+  private val postAction: Call = routes.EnterSpecialCircumstancesController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
@@ -74,7 +74,7 @@ class EnterSpecialCircumstancesController @Inject() (
                 logger.error(s"unable to match basis of claim - $errors")
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
               },
-              updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show())).asFuture
+              updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show)).asFuture
             )
       )
   }

@@ -92,7 +92,7 @@ class ChooseRepaymentMethodControllerSpec
     "Show Choose Payment Method page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -111,7 +111,7 @@ class ChooseRepaymentMethodControllerSpec
           messageFromMessageKey(s"$formKey.title"),
           doc => {
             doc.select(s"input[name='$formKey'][checked]").size() shouldBe 0
-            doc.select("form").attr("action")                     shouldBe routes.ChooseRepaymentMethodController.submit().url
+            doc.select("form").attr("action")                     shouldBe routes.ChooseRepaymentMethodController.submit.url
           }
         )
       }
@@ -144,7 +144,7 @@ class ChooseRepaymentMethodControllerSpec
     "Submit Choose Payment Method page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -217,7 +217,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "0"),
-              routes.ChooseFileTypeController.show()
+              routes.ChooseFileTypeController.show
             )
           }
         }
@@ -239,7 +239,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "1"),
-              routes.CheckBankDetailsController.show()
+              routes.CheckBankDetailsController.show
             )
           }
         }

@@ -90,7 +90,7 @@ class ChooseFileTypeControllerSpec
 
     "Show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)
@@ -130,7 +130,7 @@ class ChooseFileTypeControllerSpec
     "submitted the document type" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "not succeed if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

@@ -226,7 +226,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             )
           }
         }
@@ -267,7 +267,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
-              routes.ChooseFileTypeController.show()
+              routes.ChooseFileTypeController.show
             )
           }
         }
@@ -318,7 +318,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
-              routes.UploadFilesController.show()
+              routes.UploadFilesController.show
             )
           }
         }
@@ -439,7 +439,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               result,
-              routes.CheckClaimDetailsController.show()
+              routes.CheckClaimDetailsController.show
             )
           }
         }
@@ -457,7 +457,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               result,
-              routes.CheckYourAnswersController.show()
+              routes.CheckYourAnswersController.show
             )
           }
         }
@@ -475,7 +475,7 @@ class ConfirmFullRepaymentControllerSpec
 
             checkIsRedirect(
               result,
-              routes.CheckYourAnswersController.show()
+              routes.CheckYourAnswersController.show
             )
           }
         }

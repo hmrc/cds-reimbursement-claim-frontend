@@ -41,7 +41,7 @@ class DisposalMethodController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 
-  private def postAction: Call = routes.DisposalMethodController.submit()
+  private def postAction: Call = routes.DisposalMethodController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
@@ -75,7 +75,7 @@ class DisposalMethodController @Inject() (
             Future.successful(
               (
                 updatedJourney,
-                Redirect(routes.EnterRejectedGoodsDetailsController.show())
+                Redirect(routes.EnterRejectedGoodsDetailsController.show)
               )
             )
           }

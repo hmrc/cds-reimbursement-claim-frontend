@@ -77,7 +77,7 @@ class UploadFilesControllerSpec
 
     "Show page" must {
 
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -161,7 +161,7 @@ class UploadFilesControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.show()
+            routes.ChooseFileTypeController.show
           )
         }
       }
@@ -171,7 +171,7 @@ class UploadFilesControllerSpec
     "'Upload Documents' submitted the callback" must {
 
       def performAction(callback: UploadDocumentsCallback): Future[Result] =
-        controller.submit()(FakeRequest().withJsonBody(Json.toJson(callback)))
+        controller.submit(FakeRequest().withJsonBody(Json.toJson(callback)))
 
       val callbackPayload: UploadDocumentsCallback =
         UploadDocumentsCallback(
@@ -215,7 +215,7 @@ class UploadFilesControllerSpec
             SessionData(journeyWithMrnAndDeclaration)
           )
         }
-        val result = controller.submit()(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
+        val result = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400
       }
 

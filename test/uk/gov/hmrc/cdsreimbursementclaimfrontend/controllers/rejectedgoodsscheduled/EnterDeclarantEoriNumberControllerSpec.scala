@@ -86,7 +86,7 @@ class EnterDeclarantEoriNumberControllerSpec
     "Enter Declarant Eori page" must {
 
       def performAction(): Future[Result] =
-        controller.show()(FakeRequest())
+        controller.show(FakeRequest())
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -108,7 +108,7 @@ class EnterDeclarantEoriNumberControllerSpec
               "enter-declarant-eori-number.help-text"
             )
             doc.select("#enter-declarant-eori-number").`val`()             shouldBe ""
-            doc.select("form").attr("action")                              shouldBe routes.EnterDeclarantEoriNumberController.submit().url
+            doc.select("form").attr("action")                              shouldBe routes.EnterDeclarantEoriNumberController.submit.url
           }
         )
       }
@@ -131,7 +131,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.UploadMrnListController.show()
+          routes.UploadMrnListController.show
         )
       }
 
@@ -165,7 +165,7 @@ class EnterDeclarantEoriNumberControllerSpec
     "Submit Declarant Eori  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -232,7 +232,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
           checkIsRedirect(
             performAction(controller.eoriNumberFormKey -> eori.value),
-            routes.CheckDeclarationDetailsController.show()
+            routes.CheckDeclarationDetailsController.show
           )
       }
 

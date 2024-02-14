@@ -105,7 +105,7 @@ class CheckEoriDetailsControllerSpec
   "Check Eori Details Controller" must {
 
     "redirect to the start of the journey" when {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "user does not have CDS enrolment" in {
         inSequence {
@@ -121,7 +121,7 @@ class CheckEoriDetailsControllerSpec
     }
 
     "Render the page" when {
-      def performAction(): Future[Result] = controller.show()(FakeRequest())
+      def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "The user is logged with CDS enrolment" in forAll { (eori: Eori, name: contactdetails.Name) =>
         inSequence {
@@ -178,7 +178,7 @@ class CheckEoriDetailsControllerSpec
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       val verifiedEmail = "foo@bar.com"
 
@@ -195,7 +195,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
-        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show())
+        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show)
       }
 
       "Redirect to the email frontend if user says details are correct but email address not verified" in {

@@ -51,7 +51,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   val formKey: String  = "enter-declarant-eori-number"
-  val postAction: Call = routes.EnterDeclarantEoriNumberController.submit()
+  val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
 
   //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
@@ -59,11 +59,11 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
-    Redirect(routes.BillOfDischarge3Controller.show())
+    Redirect(routes.BillOfDischarge3Controller.show)
 
   //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
-    Redirect(routes.BillOfDischarge4Controller.show())
+    Redirect(routes.BillOfDischarge4Controller.show)
 
   //Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
@@ -79,7 +79,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     (
       if (!journey.needsDeclarantAndConsigneeEoriSubmission) nextPage(journey)
       else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
-        Redirect(routes.EnterImporterEoriNumberController.show())
+        Redirect(routes.EnterImporterEoriNumberController.show)
       else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
     ).asFuture
   }
@@ -87,7 +87,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     if (!journey.needsDeclarantAndConsigneeEoriSubmission) (journey, nextPage(journey)).asFuture
     else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
-      (journey, Redirect(routes.EnterImporterEoriNumberController.show())).asFuture
+      (journey, Redirect(routes.EnterImporterEoriNumberController.show)).asFuture
     else
       eoriNumberForm(formKey)
         .bindFromRequest()
@@ -122,13 +122,13 @@ class EnterDeclarantEoriNumberController @Inject() (
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
       journey.getLeadMovementReferenceNumber,
-      Redirect(routes.EnterMovementReferenceNumberController.show())
+      Redirect(routes.EnterMovementReferenceNumberController.show)
     )
 
   private def getReasonForSecurity(journey: SecuritiesJourney): EitherT[Future, Result, ReasonForSecurity] =
     EitherT.fromOption[Future](
       journey.getReasonForSecurity,
-      Redirect(routes.ChooseReasonForSecurityController.show())
+      Redirect(routes.ChooseReasonForSecurityController.show)
     )
 
   private def checkIfClaimIsDuplicated(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit

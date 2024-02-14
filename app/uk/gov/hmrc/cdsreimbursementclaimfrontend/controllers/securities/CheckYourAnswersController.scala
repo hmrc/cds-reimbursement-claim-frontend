@@ -47,8 +47,8 @@ class CheckYourAnswersController @Inject() (
     extends SecuritiesJourneyBaseController
     with Logging {
 
-  private val postAction: Call             = routes.CheckYourAnswersController.submit()
-  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation()
+  private val postAction: Call             = routes.CheckYourAnswersController.submit
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
