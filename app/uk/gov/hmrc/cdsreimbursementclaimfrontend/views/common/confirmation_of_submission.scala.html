@@ -18,60 +18,64 @@
 @import play.api.mvc.Request
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
 
-@(totalReimbursementAmount: BigDecimal, caseNumber: String, subKey: Option[String] = None)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(totalReimbursementAmount: BigDecimal, caseNumber: String, maybeMrn: Option[String] = None, subKey: Option[String] = None)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
-    @key=@{"confirmation-of-submission" + subKey.map(k => s".$k").getOrElse("")}
-    @title = @{ messages(s"$key.title") }
+    @key=@{"confirmation-of-submission"}
+    @title = @{ messages(s"confirmation-of-submission.title") }
 
     @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
         <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
             <h1 class="govuk-panel__title">@title</h1>
-            <div class="govuk-panel__body">
-                <span>@messages(s"$key.reimbursement-amount")</span><br>
-                <strong>@{totalReimbursementAmount.toPoundSterlingString}</strong>
-            </div>
-            <br>
-            <div class="govuk-panel__body">
-                <span>@messages(s"$key.claim-reference")</span><br>
-                <strong class="cds-wrap-content--forced">@caseNumber</strong>
-            </div>
         </div>
 
-        @paragraph(Html(messages(s"$key.email-sent")))
+        @summary(
+            ConfirmationOfSubmissionClaimDetailsSummary (
+                key,
+                totalReimbursementAmount,
+                caseNumber,
+                maybeMrn,
+                subKey
+            )
+        )
 
-        @subHeading(Html(messages(s"$key.whatNext")), classes = "govuk-heading-m")
+        @paragraph(Html(messages(s"confirmation-of-submission.email-sent")))
 
-        @paragraph(Html(messages(s"$key.what-next.p1")))
+        @subHeading(Html(messages(s"confirmation-of-submission.whatNext")), classes = "govuk-heading-m")
+
+        @paragraph(Html(messages(s"confirmation-of-submission.what-next.p1")))
         
-        @paragraph(Html(messages(s"$key.what-next.p2")))
+        @paragraph(Html(messages(s"confirmation-of-submission.what-next.p2")))
 
         @bulletList(
             Seq(
-                Html(messages(s"$key.what-next.l1")),
-                Html(messages(s"$key.what-next.l2")),
-                Html(messages(s"$key.what-next.l3"))
+                Html(messages(s"confirmation-of-submission.what-next.l1")),
+                Html(messages(s"confirmation-of-submission.what-next.l2")),
+                Html(messages(s"confirmation-of-submission.what-next.l3"))
             )
         )
 
-        @subHeading(Html(messages(s"$key.next-steps")), classes = "govuk-heading-s")
+        @subHeading(Html(messages(s"confirmation-of-submission.next-steps")), classes = "govuk-heading-s")
         @bulletList(
             Seq(
-                Html(messages(s"$key.view-upload", viewConfig.viewUploadUrl)),
-                Html(messages(s"$key.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)),
+                Html(messages(s"confirmation-of-submission.view-upload", viewConfig.viewUploadUrl)),
+                Html(messages(s"confirmation-of-submission.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)),
             )
         )
 
-        <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-5"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"$key.feedback-link")</a></p>
+        <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-5"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"confirmation-of-submission.feedback-link")</a></p>
 
 }
