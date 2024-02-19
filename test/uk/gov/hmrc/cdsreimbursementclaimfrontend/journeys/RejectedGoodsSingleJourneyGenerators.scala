@@ -31,6 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -213,9 +215,9 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
       taxCodes                    <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      reimbursementAmount         <-
+      correctAmount               <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
+          paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
@@ -237,15 +239,15 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]       =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val reimbursementClaims: Map[TaxCode, Option[BigDecimal]] =
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
-          .zip(reimbursementAmount)
+          .zip(correctAmount)
           .map { case (t, a) =>
-            (t, Option(a))
+            (t, Some(DefaultMethodReimbursementClaim(a)))
           }
           .toMap
 
@@ -291,7 +293,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
             else None,
           methodOfDisposal = Some(methodOfDisposal),
           detailsOfRejectedGoods = Some("rejected goods details"),
-          reimbursementClaims = Some(reimbursementClaims),
+          correctedAmounts = Some(correctedAmounts),
           inspectionDate = Some(exampleInspectionDate),
           inspectionAddress = Some(exampleInspectionAddress),
           selectedDocumentType = None,
@@ -315,6 +317,250 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
         )
 
       RejectedGoodsSingleJourney.tryBuildFrom(answers, features)
+    }
+
+  def buildJourneyFromAnswersGen(
+    answersGen: Gen[RejectedGoodsSingleJourney.Answers],
+    features: Option[RejectedGoodsSingleJourney.Features] = None
+  ): Gen[RejectedGoodsSingleJourney] =
+    answersGen.map(
+      RejectedGoodsSingleJourney
+        .tryBuildFrom(_, features)
+        .fold(e => throw new Exception(e), identity)
+    )
+
+  def answersUpToBasisForClaimGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[RejectedGoodsSingleJourney.Answers] =
+    for {
+      userEoriNumber   <- IdGen.genEori
+      mrn              <- IdGen.genMRN
+      declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      numberOfTaxCodes <- Gen.choose(1, 5)
+      taxCodes         <- Gen
+                            .pick(
+                              numberOfTaxCodes,
+                              taxCodes
+                            )
+                            .map(_ ++ forcedTaxCodes)
+      paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
+
+      val displayDeclaration: DisplayDeclaration          =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
+      val answers =
+        RejectedGoodsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          eoriNumbersVerification = eoriNumbersVerification,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          checkYourAnswersChangeMode = false
+        )
+
+      answers
+    }
+
+  def answersWithDutiesSelectedGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[RejectedGoodsSingleJourney.Answers] =
+    for {
+      userEoriNumber           <- IdGen.genEori
+      mrn                      <- IdGen.genMRN
+      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      numberOfTaxCodes         <- Gen.choose(1, 5)
+      taxCodes                 <- Gen
+                                    .pick(
+                                      numberOfTaxCodes,
+                                      taxCodes
+                                    )
+                                    .map(_ ++ forcedTaxCodes)
+      paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      basisOfClaim             <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
+      methodOfDisposal         <- Gen.oneOf(MethodOfDisposal.values)
+      numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+      consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
+
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
+        taxCodes
+          .take(numberOfSelectedTaxCodes)
+          .map { t =>
+            (t, None)
+          }
+          .toMap
+
+      val displayDeclaration: DisplayDeclaration =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
+      val answers =
+        RejectedGoodsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          eoriNumbersVerification = eoriNumbersVerification,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          methodOfDisposal = Some(methodOfDisposal),
+          correctedAmounts = Some(correctedAmounts),
+          checkYourAnswersChangeMode = false
+        )
+
+      answers
+    }
+
+  def answersWithAllAmountsProvidedGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+  ): Gen[RejectedGoodsSingleJourney.Answers] =
+    for {
+      userEoriNumber           <- IdGen.genEori
+      mrn                      <- IdGen.genMRN
+      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      numberOfTaxCodes         <- Gen.choose(1, 5)
+      taxCodes                 <- Gen
+                                    .pick(
+                                      numberOfTaxCodes,
+                                      taxCodes
+                                    )
+                                    .map(_ ++ forcedTaxCodes)
+      paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
+      correctAmount            <-
+        Gen.sequence[Seq[BigDecimal], BigDecimal](
+          paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
+        )
+      basisOfClaim             <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
+      methodOfDisposal         <- Gen.oneOf(MethodOfDisposal.values)
+      numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+      consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
+    } yield {
+
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
+
+      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
+        taxCodes
+          .take(numberOfSelectedTaxCodes)
+          .zip(correctAmount)
+          .map { case (t, a) =>
+            (t, Some(DefaultMethodReimbursementClaim(a)))
+          }
+          .toMap
+
+      val displayDeclaration: DisplayDeclaration =
+        buildDisplayDeclaration(
+          mrn.value,
+          declarantEORI,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          paidDuties,
+          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact = declarantContact
+        )
+
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
+      val eoriNumbersVerification: Option[EoriNumbersVerification] =
+        if (submitConsigneeDetails && !hasMatchingEori) {
+          if (submitDeclarantDetails)
+            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else
+            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        } else None
+
+      val answers =
+        RejectedGoodsSingleJourney.Answers(
+          nonce = Nonce.random,
+          userEoriNumber = userEoriNumber,
+          movementReferenceNumber = Some(mrn),
+          displayDeclaration = Some(displayDeclaration),
+          eoriNumbersVerification = eoriNumbersVerification,
+          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          basisOfClaim = Some(basisOfClaim),
+          methodOfDisposal = Some(methodOfDisposal),
+          correctedAmounts = Some(correctedAmounts),
+          checkYourAnswersChangeMode = false
+        )
+
+      answers
     }
 
 }

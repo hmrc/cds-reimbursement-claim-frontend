@@ -20,7 +20,6 @@ import cats.Eq
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -49,6 +48,7 @@ final class RejectedGoodsSingleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsSingleJourney]
     with RejectedGoodsJourneyProperties
+    with SingleVariantProperties
     with HaveInspectionDetails
     with JourneyAnalytics {
 
@@ -64,72 +64,8 @@ final class RejectedGoodsSingleJourney private (
   ): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(newAnswers, caseNumber, features)
 
-  /** Check if all the selected duties have reimbursement amount provided. */
-  def hasCompleteReimbursementClaims: Boolean =
-    answers.reimbursementClaims.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
-
-  def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumber
-
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
-
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !isSubsidyOnlyJourney &&
-      answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
-
-  def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
-
-  def getAvailableDuties: Seq[(TaxCode, Boolean)] =
-    getNdrcDetails
-      .flatMap { ndrcs =>
-        val taxCodes = ndrcs
-          .map(ndrc =>
-            TaxCodes
-              .find(ndrc.taxType)
-              .map(taxCode => (taxCode, ndrc.isCmaEligible))
-          )
-          .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
-      }
-      .getOrElse(Seq.empty)
-
-  def getSelectedDuties: Option[Seq[TaxCode]] =
-    answers.reimbursementClaims.map(_.keys.toSeq)
-
-  def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.reimbursementClaims
-      .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
-      .exists(_.forall(_.isCmaEligible))
-
-  def isAllSelectedDutiesAreCMAEligible(amounts: RejectedGoodsSingleJourney.ReimbursementClaims): Boolean =
-    amounts.keySet
-      .map(getNdrcDetailsFor)
-      .collect { case Some(d) => d }
-      .forall(_.isCmaEligible)
-
-  def getReimbursementClaims: Map[TaxCode, BigDecimal] =
-    answers.reimbursementClaims
-      .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
-      .getOrElse(Map.empty)
-
-  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.reimbursementClaims
-      .flatMap(
-        _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
-      )
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.toSeq.map(_._2).sum
-
-  def hasCmaReimbursementMethod: Boolean =
-    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
+  override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] =
+    duties
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
     this.copy(answers.copy(dutiesChangeMode = enabled))
@@ -292,10 +228,9 @@ final class RejectedGoodsSingleJourney private (
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
             if (allTaxCodesExistInACC14) {
-              val newReimbursementClaims = answers.reimbursementClaims match {
+              val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
                   Map(taxCodes.map(taxCode => taxCode -> None): _*)
-
                 case Some(reimbursementClaims) =>
                   Map(taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
@@ -304,10 +239,10 @@ final class RejectedGoodsSingleJourney private (
 
               Right(
                 this.copy(
-                  if (!isAllSelectedDutiesAreCMAEligible(newReimbursementClaims))
-                    answers.copy(reimbursementClaims = Some(newReimbursementClaims), reimbursementMethod = None)
+                  if (!isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
+                    answers.copy(correctedAmounts = Some(newCorrectedAmounts), reimbursementMethod = None)
                   else
-                    answers.copy(reimbursementClaims = Some(newReimbursementClaims))
+                    answers.copy(correctedAmounts = Some(newCorrectedAmounts))
                 )
               )
             } else
@@ -316,35 +251,36 @@ final class RejectedGoodsSingleJourney private (
       }
     }
 
-  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  def submitAmountForReimbursement(
+  def submitCorrectAmount(
     taxCode: TaxCode,
-    reimbursementAmount: BigDecimal
+    correctAmount: ReimbursementClaim
   ): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
         case None =>
-          Left("submitAmountForReimbursement.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingDisplayDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(taxCode) match {
             case None =>
-              Left("submitAmountForReimbursement.taxCodeNotInACC14")
+              Left("submitCorrectAmount.taxCodeNotInACC14")
 
-            case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
+            case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
-                val newReimbursementClaims = answers.reimbursementClaims match {
-                  case None                      => Map(taxCode -> Some(reimbursementAmount))
-                  case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+                val newCorrectedAmounts = answers.correctedAmounts match {
+                  case None                   => Map(taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) =>
+                    correctedAmounts + (taxCode -> Some(correctAmount))
                 }
-                Right(this.copy(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+                Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
-                Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
-              Left("submitAmountForReimbursement.invalidReimbursementAmount")
+              Left("submitCorrectAmount.invalidAmount")
           }
       }
     }
@@ -523,7 +459,7 @@ final class RejectedGoodsSingleJourney private (
           detailsOfRejectedGoods = detailsOfRejectedGoods,
           inspectionDate = inspectionDate,
           inspectionAddress = inspectionAddress,
-          reimbursementClaims = getReimbursementClaims,
+          reimbursements = getReimbursements,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
@@ -549,7 +485,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   ): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
 
-  type ReimbursementClaims = Map[TaxCode, Option[BigDecimal]]
+  type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
@@ -570,7 +506,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     basisOfClaimSpecialCircumstances: Option[String] = None,
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
-    reimbursementClaims: Option[ReimbursementClaims] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
     inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
@@ -581,6 +517,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     checkYourAnswersChangeMode: Boolean = false,
     dutiesChangeMode: Boolean = false
   ) extends RejectedGoodsAnswers
+      with SingleVariantAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
@@ -594,7 +531,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     detailsOfRejectedGoods: String,
     inspectionDate: InspectionDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[TaxCode, BigDecimal],
+    reimbursements: Seq[Reimbursement],
     reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
@@ -703,10 +640,10 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       )
       .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
       .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
-      .flatMapWhenDefined(answers.reimbursementClaims.map(_.keySet.toSeq))(
+      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
-      .flatMapEachWhenDefinedAndMappingDefined(answers.reimbursementClaims)(_.submitAmountForReimbursement)
+      .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)

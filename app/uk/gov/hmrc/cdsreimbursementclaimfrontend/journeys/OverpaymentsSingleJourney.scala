@@ -19,9 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.CorrectedAmounts
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -30,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 /** An encapsulated C285 single MRN journey logic.
@@ -47,6 +45,7 @@ final class OverpaymentsSingleJourney private (
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsSingleJourney]
     with OverpaymentsJourneyProperties
+    with SingleVariantProperties
     with JourneyAnalytics {
 
   type Type = OverpaymentsSingleJourney
@@ -61,20 +60,22 @@ final class OverpaymentsSingleJourney private (
   ): OverpaymentsSingleJourney =
     new OverpaymentsSingleJourney(newAnswers, caseNumber, features)
 
-  /** Check if all the selected duties have correct amounts provided. */
-  def hasCompleteReimbursementClaims: Boolean =
-    answers.correctedAmounts.exists(rc => rc.nonEmpty && rc.forall(_._2.isDefined))
+  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+    BasisOfOverpaymentClaim
+      .excludeNorthernIrelandClaims(true, answers.displayDeclaration)
 
-  def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumber
+  override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] = {
+    val wasIncorrectExciseCodeSelected: Boolean =
+      answers.basisOfClaim.exists(_ === BasisOfOverpaymentClaim.IncorrectExciseValue)
 
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
-
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !isSubsidyOnlyJourney &&
-      answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
+    if (wasIncorrectExciseCodeSelected) {
+      duties.filter { case (duty, _) =>
+        TaxCodes.exciseTaxCodeSet.contains(duty)
+      }
+    } else {
+      duties
+    }
+  }
 
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
@@ -110,134 +111,8 @@ final class OverpaymentsSingleJourney private (
       getDuplicateDisplayDeclaration.exists(_.containsXiEori) &&
       answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
 
-  def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
-
-  def getAvailableDuties: Seq[(TaxCode, Boolean)] = {
-
-    val duties = getNdrcDetails
-      .flatMap { ndrcs =>
-        val taxCodes = ndrcs
-          .map(ndrc =>
-            TaxCodes
-              .find(ndrc.taxType)
-              .map(taxCode => (taxCode, ndrc.isCmaEligible))
-          )
-          .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
-      }
-      .getOrElse(Seq.empty)
-
-    val wasIncorrectExciseCodeSelected: Boolean =
-      answers.basisOfClaim.exists(_ === BasisOfOverpaymentClaim.IncorrectExciseValue)
-
-    if (wasIncorrectExciseCodeSelected) {
-      duties.filter { case (duty, _) =>
-        TaxCodes.exciseTaxCodeSet.contains(duty)
-      }
-    } else {
-      duties
-    }
-  }
-
-  def getSelectedDuties: Option[Seq[TaxCode]] =
-    answers.correctedAmounts.map(_.keys.toSeq)
-
-  def isTaxCodeSelected(taxCode: TaxCode): Boolean =
-    answers.correctedAmounts.exists(_.contains(taxCode))
-
-  def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.correctedAmounts.exists(isAllSelectedDutiesAreCMAEligible)
-
-  def isAllSelectedDutiesAreCMAEligible(amounts: CorrectedAmounts): Boolean =
-    amounts.keySet
-      .map(getNdrcDetailsFor)
-      .collect { case Some(d) => d }
-      .forall(_.isCmaEligible)
-
-  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.correctedAmounts
-      .flatMap(
-        _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
-      )
-
-  def getSelectedTaxCodesWithCorrectAmount: Seq[(TaxCode, BigDecimal)] =
-    answers.correctedAmounts
-      .map(
-        _.collect { case (taxCode, Some(correctAmount)) => (taxCode, correctAmount.getAmount) }.toSeq
-      )
-      .getOrElse(Seq.empty)
-
-  def getAvailableTaxCodesWithPaidAmounts: Seq[(TaxCode, BigDecimal)] =
-    getLeadDisplayDeclaration
-      .flatMap(_.getNdrcDutiesWithAmount)
-      .getOrElse(Seq.empty)
-
-  def getReimbursements: Seq[Reimbursement] = {
-    val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
-      getAvailableTaxCodesWithPaidAmounts.toMap
-
-    answers.correctedAmounts
-      .map(
-        _.toSeq
-          .flatMap {
-            case (taxCode, Some(reimbursementClaim)) =>
-              taxCodesWithPaidAmounts.get(taxCode) match {
-                case Some(paidAmount) =>
-                  Reimbursement.fromCorrectedAmount(
-                    taxCode,
-                    reimbursementClaim,
-                    getDefaultReimbursementMethod,
-                    paidAmount
-                  )
-
-                case None => Seq.empty
-              }
-
-            case _ => Seq.empty
-          }
-      )
-      .getOrElse(Seq.empty)
-  }
-
-  def getDefaultReimbursementMethod: ReimbursementMethod =
-    if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
-    else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
-
-  def getUKDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
-
-  def getEUDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
-
-  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
-
-  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
-    getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _)) =>
-      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
-      else a
-    }
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursements.map(_.amount).sum
-
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleJourney =
     this.copy(answers.copy(dutiesChangeMode = enabled))
-
-  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
-    Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
-
-  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
-    BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(true, answers.displayDeclaration)
-
-  def hasCmaReimbursementMethod =
-    answers.reimbursementMethod.contains(CurrentMonthAdjustment)
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -742,6 +617,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     checkYourAnswersChangeMode: Boolean = false,
     dutiesChangeMode: Boolean = false
   ) extends OverpaymentsAnswers
+      with SingleVariantAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(

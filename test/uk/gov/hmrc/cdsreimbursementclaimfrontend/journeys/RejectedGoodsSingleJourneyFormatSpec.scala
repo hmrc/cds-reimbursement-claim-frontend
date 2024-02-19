@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
@@ -42,16 +43,20 @@ class RejectedGoodsSingleJourneyFormatSpec
         Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")))))
+        Answers(
+          userEoriNumber = exampleEori,
+          correctedAmounts = Some(Map(TaxCode.A00 -> Some(DefaultMethodReimbursementClaim(BigDecimal("12.99")))))
+        )
       )
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
+          correctedAmounts =
+            Some(Map(TaxCode.A00 -> Some(DefaultMethodReimbursementClaim(BigDecimal("12.99"))), TaxCode.A40 -> None))
         )
       )
       validateCanReadAndWriteJson(
-        Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map()))
+        Answers(userEoriNumber = exampleEori, correctedAmounts = Some(Map()))
       )
 
       validateCanReadAndWriteJson(

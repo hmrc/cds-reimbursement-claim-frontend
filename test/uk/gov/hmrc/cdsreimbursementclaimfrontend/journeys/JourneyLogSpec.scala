@@ -233,10 +233,22 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           detailsOfRejectedGoods = "foo bar",
           inspectionDate = InspectionDate(LocalDate.now()),
           inspectionAddress = exampleInspectionAddress,
-          reimbursementClaims = Map(
-            TaxCode.A00 -> BigDecimal("1234.56"),
-            TaxCode.A90 -> BigDecimal("12.34"),
-            TaxCode.A20 -> BigDecimal("1234789")
+          reimbursements = Seq(
+            Reimbursement(
+              TaxCode.A00,
+              BigDecimal("1234.56"),
+              ReimbursementMethod.CurrentMonthAdjustment
+            ),
+            Reimbursement(
+              TaxCode.A20,
+              BigDecimal("12.34"),
+              ReimbursementMethod.CurrentMonthAdjustment
+            ),
+            Reimbursement(
+              TaxCode.A90,
+              BigDecimal("12.345"),
+              ReimbursementMethod.CurrentMonthAdjustment
+            )
           ),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = Some(exampleBankAccountDetails),
@@ -258,7 +270,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.reasonForSecurity                     shouldBe None
       log.temporaryAdmissionMethodOfDisposal    shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
-      log.claimedAmountThreshold                shouldBe "7"
+      log.claimedAmountThreshold                shouldBe "4"
       log.claimedDuties                         shouldBe Seq("A00", "A20", "A90")
       log.numberOfClaimedDuties                 shouldBe 3
       log.uploads.numberOfEvidenceFilesAttached shouldBe 2

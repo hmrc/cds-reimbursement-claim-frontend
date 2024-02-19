@@ -289,16 +289,6 @@ object Forms {
       )(identity)(Some.apply)
     )
 
-  def rejectedClaimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
-    Form(
-      mapping(
-        s"$key.claim-amount" -> moneyMapping(
-          errorMsg = "error.invalid-text",
-          allowZero = true
-        ).verifying("error.invalid-amount-less-only", _ < paidAmount)
-      )(identity)(Some.apply)
-    )
-
   def actualAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
     Form(
       mapping(

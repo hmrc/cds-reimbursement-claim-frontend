@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_claim_details_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_single
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,7 +49,7 @@ class CheckClaimDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val whetherClaimDetailsCorrect: Form[YesNo] =
-    YesOrNoQuestionForm("check-claim.rejected-goods")
+    YesOrNoQuestionForm("check-claim-summary")
 
   final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 
@@ -65,7 +65,7 @@ class CheckClaimDetailsController @Inject() (
               checkClaimDetails(
                 whetherClaimDetailsCorrect,
                 mrn,
-                journey.getReimbursementClaims.toSeq,
+                journey.getReimbursements,
                 enterClaimAction,
                 routes.CheckClaimDetailsController.submit
               )
@@ -92,7 +92,7 @@ class CheckClaimDetailsController @Inject() (
                       checkClaimDetails(
                         formWithErrors,
                         mrn,
-                        journey.getReimbursementClaims.toSeq,
+                        journey.getReimbursements,
                         enterClaimAction,
                         routes.CheckClaimDetailsController.submit
                       )
