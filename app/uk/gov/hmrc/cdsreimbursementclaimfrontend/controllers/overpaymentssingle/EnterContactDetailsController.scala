@@ -46,7 +46,7 @@ class EnterContactDetailsController @Inject() (
     routes.EnterContactDetailsController.submit(confirmContactDetails)
 
   final override val continueRoute: Call =
-    routes.CheckClaimantDetailsController.show
+    routes.CheckClaimantDetailsController.redirectToALF
 
   final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
     journey.submitContactDetails(contactDetails)
