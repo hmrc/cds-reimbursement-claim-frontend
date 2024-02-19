@@ -47,6 +47,7 @@
     else
         messages(s"enter-scheduled-claim.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), messages(s"duty-type.${dutyType.repr}"), taxCode.value)
 }
+
 @caption = @{messages(s"enter-claim.title.caption")}
 @hintText = @{Html(messages(s"enter-scheduled-claim.actual-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

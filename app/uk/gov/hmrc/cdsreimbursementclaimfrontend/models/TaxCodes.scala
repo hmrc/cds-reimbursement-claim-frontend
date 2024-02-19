@@ -93,6 +93,8 @@ object TaxCodes {
     NI99D
   )
 
+  val custom = TaxCodes.ukTaxCodeSet ++ TaxCodes.euTaxCodeSet
+
   val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
 
   def findTaxType(taxCode: TaxCode): String =
@@ -105,6 +107,17 @@ object TaxCodes {
     } else if (vatTaxCodeSet.contains(taxCode)) {
       "VAT"
     } else ""
+
+  def categoryOf(taxCode: TaxCode): String =
+    if (ukTaxCodeSet.contains(taxCode)) {
+      "uk-duty"
+    } else if (euTaxCodeSet.contains(taxCode)) {
+      "eu-duty"
+    } else if (excise.contains(taxCode)) {
+      "excise-duty"
+    } else if (vatTaxCodeSet.contains(taxCode)) {
+      "vat-duty"
+    } else "unknown-duty"
 
   val vatTaxCodes: Seq[TaxCode] = List(B00, B05)
 

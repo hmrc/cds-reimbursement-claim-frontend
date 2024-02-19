@@ -845,40 +845,43 @@ enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.sort-code.label=Sort code
 enter-bank-account-details.title=Enter your bank account details
 
-enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.
+enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
-enter-claim.inset-text=HMRC does not refund agents’ fees.
+enter-claim.help-text.excise=Include {0} duty details ({1}).
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
+enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 enter-claim.mrn=MRN:
-enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
+enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
-enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
-enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
+enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
+enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be more than zero
 enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than the amount paid.
+enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
 enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
-enter-claim.securities.claim-amount=How much should have been paid, in pounds?
 enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 enter-claim.securities.claim-amount.hint=The claim amount must be lower than the amount paid.
+enter-claim.securities.claim-amount=How much should have been paid, in pounds?
 enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
-enter-claim.securities.title={0} - {1}
 enter-claim.securities.securityIdLabel=Security ID: 
-enter-claim.title={0} - {1}
+enter-claim.securities.title={0} - {1}
 enter-claim.title.caption=Claim details
+enter-claim.title.excise={0} - {1} {2}
+enter-claim.title={0} - {1}
 
 enter-contact-details.add.title=Add contact details
 enter-contact-details.change.title=Change contact details

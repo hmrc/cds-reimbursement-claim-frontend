@@ -61,8 +61,6 @@ class EnterClaimControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "enter-claim"
-
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
@@ -120,12 +118,19 @@ class EnterClaimControllerSpec
 
               checkPageIsDisplayed(
                 performAction(pageIndex, taxCode),
-                messageFromMessageKey(
-                  s"$messagesKey.title",
-                  taxCode,
-                  messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumeral(pageIndex)
-                ),
+                if (TaxCodes.custom.contains(taxCode))
+                  messageFromMessageKey(
+                    "enter-claim.title",
+                    taxCode.value,
+                    messageFromMessageKey(s"select-duties.duty.$taxCode")
+                  )
+                else
+                  messageFromMessageKey(
+                    "enter-claim.title.excise",
+                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    taxCode.value
+                  ),
                 doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, None)
               )
             }
@@ -151,12 +156,19 @@ class EnterClaimControllerSpec
 
               checkPageIsDisplayed(
                 performAction(pageIndex, taxCode),
-                messageFromMessageKey(
-                  s"$messagesKey.title",
-                  taxCode,
-                  messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumeral(pageIndex)
-                ),
+                if (TaxCodes.custom.contains(taxCode))
+                  messageFromMessageKey(
+                    "enter-claim.title",
+                    taxCode.value,
+                    messageFromMessageKey(s"select-duties.duty.$taxCode")
+                  )
+                else
+                  messageFromMessageKey(
+                    "enter-claim.title.excise",
+                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    taxCode.value
+                  ),
                 doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
               )
             }
@@ -183,12 +195,19 @@ class EnterClaimControllerSpec
 
                 checkPageIsDisplayed(
                   performAction(pageIndex, taxCode),
-                  messageFromMessageKey(
-                    s"$messagesKey.title",
-                    taxCode,
-                    messages(s"select-duties.duty.$taxCode"),
-                    OrdinalNumeral(pageIndex)
-                  ),
+                  if (TaxCodes.custom.contains(taxCode))
+                    messageFromMessageKey(
+                      "enter-claim.title",
+                      taxCode.value,
+                      messageFromMessageKey(s"select-duties.duty.$taxCode")
+                    )
+                  else
+                    messageFromMessageKey(
+                      "enter-claim.title.excise",
+                      messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                      messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                      taxCode.value
+                    ),
                   doc =>
                     validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
                 )
@@ -279,12 +298,19 @@ class EnterClaimControllerSpec
                   taxCode,
                   Seq("enter-claim" -> paidAmount.toPoundSterlingString.drop(1))
                 ),
-                messageFromMessageKey(
-                  s"$messagesKey.title",
-                  taxCode,
-                  messages(s"select-duties.duty.$taxCode"),
-                  OrdinalNumeral(pageIndex)
-                ),
+                if (TaxCodes.custom.contains(taxCode))
+                  messageFromMessageKey(
+                    "enter-claim.title",
+                    taxCode.value,
+                    messageFromMessageKey(s"select-duties.duty.$taxCode")
+                  )
+                else
+                  messageFromMessageKey(
+                    "enter-claim.title.excise",
+                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    taxCode.value
+                  ),
                 doc => {
                   validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount))
                   assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))

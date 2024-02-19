@@ -21,6 +21,8 @@
 @import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -42,7 +44,12 @@
 
 @(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@title = @{messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"), OrdinalNumeral(mrnIndex))}
+@title = @{
+    if(TaxCodes.custom.contains(taxCode))
+        messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"))
+    else
+        messages(s"enter-claim.title.excise", messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"), messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), taxCode.value)
+    }
 @caption = @{messages(s"enter-claim.title.caption")}
 @hintText = @{Html(messages(s"enter-claim.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 
@@ -70,10 +77,19 @@
 
     @insetText(content = HtmlContent(inset))
 
+    @if(!TaxCodes.custom.contains(taxCode)){
+        @paragraph(Html(messages(s"enter-claim.help-text.excise",  messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), messages(s"tax-code.${taxCode}"))))
+    }
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(paidAmountLabel, paidAmount.toPoundSterlingString, taxCode, messages(s"select-duties.duty.${taxCode}"))), Some("govuk-body-l govuk-!-font-weight-bold"))
-
+        @paragraph(Html(
+            if(!TaxCodes.custom.contains(taxCode))
+                messages(s"enter-claim.paid-amount-label.excise", paidAmount.toPoundSterlingString, messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), taxCode.value)
+            else 
+                messages(paidAmountLabel, paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))
+        ), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")
+        
         @inputText(
             form = form,
             id = s"enter-claim",

@@ -46,10 +46,16 @@ object DutyTypes {
       case _               => "excise-duty"
     }
 
-  private val dutyTypesStringMap           =
+  def dutyTypeOf(taxCode: TaxCode): DutyType =
+    taxCode2DutyTypeMap(taxCode)
+
+  private val taxCode2DutyTypeMap: Map[TaxCode, DutyType] =
+    all.flatMap(dt => dt.taxCodes.map(tc => (tc, dt))).toMap
+
+  private val dutyTypesStringMap: Map[String, DutyType] =
     all.map(dutyType => dutyType.repr -> dutyType).toMap
 
-  def has(representation: String): Boolean =
+  def has(representation: String): Boolean              =
     all.exists(_.repr === representation)
 
   def find(representation: String): Option[DutyType] =
