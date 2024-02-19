@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -36,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
@@ -175,8 +177,21 @@ class CheckYourAnswersControllerSpec
 
   }
 
-  def validateConfirmationPage(doc: Document, caseNumber: String) =
-    doc.select(".cds-wrap-content--forced").text shouldBe caseNumber
+  def validateConfirmationPage(doc: Document, journey: OverpaymentsMultipleJourney, caseNumber: String): Assertion = {
+
+    val mrn = journey.getLeadMovementReferenceNumber.get.value
+    mrn.isEmpty shouldBe false
+
+    val claimAmount = journey.getTotalReimbursementAmount.toPoundSterlingString
+
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(
+        messages(s"confirmation-of-submission.reimbursement-amount") -> claimAmount,
+        messages(s"confirmation-of-submission.multiple.mrn")         -> mrn,
+        messages(s"confirmation-of-submission.claim-reference")      -> caseNumber
+      )
+    )
+  }
 
   "Check Your Answers Controller" when {
 
@@ -329,7 +344,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("confirmation-of-submission.title"),
-            doc => validateConfirmationPage(doc, caseNumber)
+            doc => validateConfirmationPage(doc, journey, caseNumber)
           )
         }
       }

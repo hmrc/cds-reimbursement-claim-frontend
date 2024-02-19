@@ -130,12 +130,22 @@ class CheckYourAnswersController @Inject() (
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)
-          .map(journey =>
+          .map { journey =>
+            val maybeMrn = journey.getLeadMovementReferenceNumber.map(_.value)
             (journey.caseNumber match {
-              case Some(caseNumber) => Ok(confirmationOfSubmissionPage(journey.getTotalReimbursementAmount, caseNumber))
+
+              case Some(caseNumber) =>
+                Ok(
+                  confirmationOfSubmissionPage(
+                    journey.getTotalReimbursementAmount,
+                    caseNumber,
+                    maybeMrn = maybeMrn,
+                    subKey = Some("scheduled")
+                  )
+                )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
-          )
+          }
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 }

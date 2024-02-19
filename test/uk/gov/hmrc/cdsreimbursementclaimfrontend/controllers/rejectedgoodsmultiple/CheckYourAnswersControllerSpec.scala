@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -176,8 +177,21 @@ class CheckYourAnswersControllerSpec
     }
   }
 
-  def validateConfirmationPage(doc: Document, caseNumber: String) =
-    doc.select(".cds-wrap-content--forced").text shouldBe caseNumber
+  def validateConfirmationPage(doc: Document, journey: RejectedGoodsMultipleJourney, caseNumber: String): Assertion = {
+
+    val mrn = journey.getLeadMovementReferenceNumber.get.value
+    mrn.isEmpty shouldBe false
+
+    val claimAmount = journey.getTotalReimbursementAmount.toPoundSterlingString
+
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(
+        messages(s"confirmation-of-submission.reimbursement-amount") -> claimAmount,
+        messages(s"confirmation-of-submission.multiple.mrn")         -> mrn,
+        messages(s"confirmation-of-submission.claim-reference")      -> caseNumber
+      )
+    )
+  }
 
   "Check Your Answers Controller" when {
 
@@ -330,7 +344,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("confirmation-of-submission.title"),
-            doc => validateConfirmationPage(doc, caseNumber)
+            doc => validateConfirmationPage(doc, journey, caseNumber)
           )
         }
       }
