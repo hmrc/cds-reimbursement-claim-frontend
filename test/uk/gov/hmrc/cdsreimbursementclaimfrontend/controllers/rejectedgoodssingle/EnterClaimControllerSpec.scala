@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.implicits.catsSyntaxEq
+import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -34,17 +35,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -68,360 +67,290 @@ class EnterClaimControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration): SessionData = {
-    val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-    val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-    val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
-    val journey   = RejectedGoodsSingleJourney
-      .empty(displayDeclaration.getDeclarantEori)
-      .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
-      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
-      .getOrFail
-    SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+  def assertPageContent(
+    doc: Document,
+    journey: RejectedGoodsSingleJourney,
+    taxCode: TaxCode,
+    actualAmountOpt: Option[BigDecimal]
+  ): Unit = {
+    val paidAmount: BigDecimal =
+      journey
+        .getNdrcDetailsFor(taxCode)
+        .map(_.amount)
+        .map(BigDecimal.apply)
+        .getOrElse(fail(s"Missing paid amount for $taxCode"))
+
+    assertPageElementsByIdAndExpectedHtml(doc)(
+      "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
+      "enter-claim-how-much-was-paid"     -> m(
+        "enter-claim.paid-amount-label",
+        paidAmount.toPoundSterlingString,
+        taxCode,
+        m(s"select-duties.duty.$taxCode")
+      ),
+      "enter-claim-label"                 -> m("enter-claim.actual-amount"),
+      "enter-claim-hint"                  -> m("enter-claim.actual-amount.hint", taxCode, m(s"select-duties.duty.$taxCode"))
+    )
+    assertPageInputsByIdAndExpectedValue(doc)(
+      "enter-claim"                       ->
+        actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
+    )
   }
 
+  val journeyGen: Gen[RejectedGoodsSingleJourney] =
+    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
+
   "Enter Claim Controller" when {
-    "Enter Claim page" must {
 
-      def performAction(taxCode: Option[TaxCode] = None): Future[Result] =
-        taxCode.fold(controller.showFirst)(controller.show(_))(FakeRequest())
+    "Show first enter claim page" must {
 
-      "do not find the page if rejected goods feature is disabled" in {
+      def performAction(): Future[Result] =
+        controller.showFirst()(FakeRequest())
+
+      "not find the page if rejectedgoods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the first enter claim page on a new journey" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          val session = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
+      "display the page" in forAll(journeyGen) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
 
+        val expectedTaxCode: TaxCode =
+          journey.getSelectedDuties.get.head
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterClaimController.show(expectedTaxCode)
+        )
+      }
+
+      "display the page back in the change mode" in
+        forAll(completeJourneyGen) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
           }
 
-          val taxCode: TaxCode = TaxCode(ndrcDetails.taxType)
-
-          val result = performAction()
+          val expectedTaxCode: TaxCode =
+            journey.getSelectedDuties.get.head
 
           checkIsRedirect(
-            result,
-            routes.EnterClaimController.show(taxCode)
+            performAction(),
+            routes.EnterClaimController.show(expectedTaxCode)
           )
-      }
+        }
 
-      "display the enter claim page on a new journey" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-          val paidAmount         = BigDecimal(ndrcDetails.amount)
-          val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-
+      "redirect to select duties page if no claims selected" in
+        forAll(buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          val taxCode: TaxCode = TaxCode(ndrcDetails.taxType)
-
-          val result = performAction(Some(taxCode))
-
-          checkPageIsDisplayed(
-            result,
-            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
-            doc => {
-              doc
-                .select("p.govuk-inset-text")
-                .html()                                                                   shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-              doc.select("#paid-amount").text()                                           shouldBe paidAmount.toPoundSterlingString
-              doc.select("input[name='enter-claim.rejected-goods.claim-amount']").`val`() shouldBe ""
-              doc.select("form").attr("action")                                           shouldBe routes.EnterClaimController.submit(taxCode).url
-            }
-          )
-      }
-
-      "display the page when trying to amend a specific tax code" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(BigDecimal(ndrcDetails.amount) > 12) {
-            val drd                = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
-            val updatedDd          = displayDeclaration.copy(displayResponseDetail = drd)
-            val taxCode            = TaxCode(ndrcDetails.taxType)
-            val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-            val paidAmount         = BigDecimal(ndrcDetails.amount)
-            val amountClaimed      = BigDecimal(ndrcDetails.amount) - 10
-            val journey            = RejectedGoodsSingleJourney
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
-              .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(List(taxCode)))
-              .flatMap(_.submitAmountForReimbursement(taxCode, amountClaimed))
-              .getOrFail
-            val session            = SessionData(journey)
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-            }
-
-            val result = performAction(Some(taxCode))
-
-            checkPageIsDisplayed(
-              result,
-              messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
-              doc => {
-                doc
-                  .select("p.govuk-inset-text")
-                  .html()                         shouldBe messageFromMessageKey("enter-claim.rejected-goods.inset-text")
-                doc.select("#paid-amount").text() shouldBe paidAmount.toPoundSterlingString
-                doc
-                  .select("input[name='enter-claim.rejected-goods.claim-amount']")
-                  .`val`()                        shouldBe f"$amountClaimed%1.2f"
-                doc.select("form").attr("action") shouldBe routes.EnterClaimController.submit(taxCode).url
-              }
-            )
-          }
-      }
-
-      "redirect to the select tax codes page if none have been specified" in forAll {
-        (displayDeclaration: DisplayDeclaration) =>
-          val journey = RejectedGoodsSingleJourney
-            .empty(displayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-            .getOrFail
-          val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
           }
 
           checkIsRedirect(
             performAction(),
             routes.SelectDutiesController.show
           )
-      }
-    }
-
-    "Submit Enter Claim  page" must {
-
-      def performAction(taxCode: String, data: (String, String)*): Future[Result] =
-        controller.submit(TaxCode(taxCode))(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
-        )
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction("A95")) shouldBe NOT_FOUND
-      }
-
-      "reject an empty Claim Amount" in forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-        val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-        val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
         }
 
-        checkPageIsDisplayed(
-          performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> ""),
-          messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-claim.rejected-goods.claim-amount.error.required"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
+    }
+
+    "Show enter claim page by tax code" must {
+
+      def performAction(taxCode: TaxCode): Future[Result] =
+        controller.show(taxCode)(FakeRequest())
+
+      "not find the page if rejectedgoods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction(TaxCode.A00)) shouldBe NOT_FOUND
       }
 
-      "reject a Claim Amount that is higher than the amount paid" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-          val amountToClaim      = BigDecimal(ndrcDetails.amount) + 10
-          val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-
+      "display the page" in forAll(journeyGen) { journey =>
+        journey.getSelectedDuties.get.foreach { taxCode =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
-            performAction(
-              ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
+            performAction(taxCode),
+            messageFromMessageKey(
+              "enter-claim.title",
+              taxCode.value,
+              messageFromMessageKey(s"select-duties.duty.$taxCode")
             ),
-            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only"
-              ),
-            expectedStatus = BAD_REQUEST
+            assertPageContent(_, journey, taxCode, None)
           )
+        }
       }
 
-      "reject a Claim Amount that contains invalid characters" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          val taxCodeDescription = messageFromMessageKey(s"select-duties.duty.${ndrcDetails.taxType}")
-          val session            = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
+      "display the page back in the change mode" in
+        forAll(completeJourneyGen) { journey =>
+          journey.getSelectedDuties.get.foreach { taxCode =>
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(SessionData(journey))
+            }
 
+            val actualAmountOpt: Option[BigDecimal] =
+              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
+
+            checkPageIsDisplayed(
+              performAction(taxCode),
+              messageFromMessageKey(
+                "enter-claim.title",
+                taxCode.value,
+                messageFromMessageKey(s"select-duties.duty.$taxCode")
+              ),
+              assertPageContent(_, journey, taxCode, actualAmountOpt)
+            )
+          }
+        }
+
+      "when wrong code, redirect to select duties page" in
+        forAll(journeyGen) { journey =>
+          val selected = journey.getSelectedDuties.get
+          val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
           }
+
+          checkIsRedirect(
+            performAction(stranger),
+            routes.SelectDutiesController.show
+          )
+        }
+
+      "when wrong code, redirect to check claims if all amounts provided already" in
+        forAll(buildJourneyFromAnswersGen(answersWithAllAmountsProvidedGen())) { journey =>
+          val selected = journey.getSelectedDuties.get
+          val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(stranger),
+            routes.CheckClaimDetailsController.show
+          )
+        }
+
+    }
+
+    "Submit Enter Claim page" must {
+      def performAction(taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
+        controller.submit(taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "not find the page if rejectedgoods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction(TaxCode.A00)) shouldBe NOT_FOUND
+      }
+
+      "accept valid amount and redirect to the next claim" in
+        forAll(journeyGen) { journey =>
+          val selected =
+            journey.getSelectedDuties.get
+
+          val selectedTaxCodesWithNext: Seq[(TaxCode, TaxCode)] =
+            selected.dropRight(1).zip(selected.drop(1))
+
+          selectedTaxCodesWithNext
+            .foreach { case (taxCode, nextTaxCode) =>
+              val paidAmount: BigDecimal =
+                BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+
+              for (
+                actualAmount <-
+                  Seq(paidAmount - BigDecimal("0.01"), BigDecimal("0.01"), ZERO)
+              ) {
+                inSequence {
+                  mockAuthWithNoRetrievals()
+                  mockGetSession(SessionData(journey))
+                  mockStoreSession(
+                    SessionData(
+                      journey
+                        .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(actualAmount))
+                        .getOrFail
+                    )
+                  )(
+                    Right(())
+                  )
+                }
+
+                withClue(s"taxCode=$taxCode next=$nextTaxCode paid=$paidAmount amount=$actualAmount") {
+                  checkIsRedirect(
+                    performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
+                    routes.EnterClaimController.show(nextTaxCode)
+                  )
+                }
+              }
+            }
+        }
+
+      "reject invalid amount and display error" in
+        forAll(journeyGen) { journey =>
+          journey.getSelectedDuties.get
+            .foreach { taxCode =>
+              val paidAmount: BigDecimal =
+                BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+
+              for (actualAmount <- Seq(paidAmount, paidAmount + BigDecimal("0.01"), paidAmount * 2, -paidAmount)) {
+                inSequence {
+                  mockAuthWithNoRetrievals()
+                  mockGetSession(SessionData(journey))
+                }
+
+                withClue(s"taxCode=$taxCode paid=$paidAmount amount=$actualAmount") {
+                  checkPageIsDisplayed(
+                    performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
+                    messageFromMessageKey(
+                      "enter-claim.title",
+                      taxCode.value,
+                      messageFromMessageKey(s"select-duties.duty.$taxCode")
+                    ),
+                    doc => {
+                      assertPageContent(doc, journey, taxCode, Some(actualAmount))
+                      assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))
+                    },
+                    expectedStatus = BAD_REQUEST
+                  )
+                }
+              }
+            }
+        }
+
+      "reject empty amount and display error" in
+        forAll(journeyGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          val taxCode: TaxCode =
+            journey.getSelectedDuties.get.head
 
           checkPageIsDisplayed(
-            performAction(ndrcDetails.taxType, "enter-claim.rejected-goods.claim-amount" -> "invalid"),
-            messageFromMessageKey("enter-claim.title", ndrcDetails.taxType, taxCodeDescription),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-claim.rejected-goods.claim-amount.error.invalid-text"
-              ),
+            performAction(taxCode, Seq("enter-claim" -> "")),
+            messageFromMessageKey(
+              "enter-claim.title",
+              taxCode.value,
+              messageFromMessageKey(s"select-duties.duty.$taxCode")
+            ),
+            doc => {
+              assertPageContent(doc, journey, taxCode, None)
+              assertShowsInputError(doc, Some(m("enter-claim.error.required")))
+            },
             expectedStatus = BAD_REQUEST
           )
-      }
-
-      "reject a Claim Amount when no tax codes selected and show the enter claim amount page" in forAll {
-        (ndrcDetails1: NdrcDetails, ndrcDetails2: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails1.amount.toInt > 11 && ndrcDetails1.taxType =!= ndrcDetails2.taxType) {
-            val drd           =
-              displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails1, ndrcDetails2)))
-            val updatedDd     = displayDeclaration.copy(displayResponseDetail = drd)
-            val journey       = RejectedGoodsSingleJourney
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
-              .getOrFail
-            val session       = SessionData(journey)
-            val amountToClaim = BigDecimal(ndrcDetails1.amount) - 10
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-            }
-
-            checkIsRedirect(
-              performAction(
-                ndrcDetails1.taxType,
-                "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
-              ),
-              routes.SelectDutiesController.show
-            )
-          }
-      }
-
-      "reject a Claim Amount when mrn has been selected and show the enter mrn page" in forAll {
-        (ndrcDetails: NdrcDetails) =>
-          whenever(ndrcDetails.amount.toInt > 11) {
-            val journey       = RejectedGoodsSingleJourney
-              .empty(exampleEori)
-            val session       = SessionData(journey)
-            val amountToClaim = BigDecimal(ndrcDetails.amount) - 10
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-            }
-
-            val result = performAction(
-              ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> amountToClaim.toString()
-            )
-
-            checkIsRedirect(
-              result,
-              routes.EnterMovementReferenceNumberController.show
-            )
-
-          }
-      }
-
-      "accept claim amount when only a single claim is present and move on to total reimbursement page" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails.amount.toInt > 11) {
-            val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-            val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
-            val ndrcAmount     = BigDecimal(ndrcDetails.amount)
-            val amountToClaim  = ndrcAmount - 10
-            val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            val result = performAction(
-              ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> (ndrcAmount - amountToClaim).toString()
-            )
-
-            checkIsRedirect(
-              result,
-              routes.CheckClaimDetailsController.show
-            )
-
-          }
-      }
-
-      "accept claim amount, for the full amount, when only a single claim is present and move on to total reimbursement page" in forAll {
-        (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails.amount.toInt > 11) {
-            val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-            val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
-            val amountToClaim  = BigDecimal(ndrcDetails.amount)
-            val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails.taxType), amountToClaim).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            val result = performAction(
-              ndrcDetails.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> (amountToClaim - amountToClaim).toString()
-            )
-
-            checkIsRedirect(
-              result,
-              routes.CheckClaimDetailsController.show
-            )
-
-          }
-      }
-
-      "accept claim amount when multiple claim is present and not all have been claimed" in forAll {
-        (ndrcDetails1: NdrcDetails, ndrcDetails2: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails1.amount.toInt > 11 && ndrcDetails1.taxType =!= ndrcDetails2.taxType) {
-            val session        = sessionWithNdrcDetails(List(ndrcDetails1, ndrcDetails2), displayDeclaration)
-            val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No journey present"))
-            val ndrcAmount1    = BigDecimal(ndrcDetails1.amount)
-            val amountToClaim  = ndrcAmount1 - 10
-            val updatedJourney =
-              journey.submitAmountForReimbursement(TaxCode(ndrcDetails1.taxType), amountToClaim).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            val result = performAction(
-              ndrcDetails1.taxType,
-              "enter-claim.rejected-goods.claim-amount" -> (ndrcAmount1 - amountToClaim).toString()
-            )
-
-            checkIsRedirect(
-              result,
-              routes.EnterClaimController.show(TaxCode(ndrcDetails2.taxType))
-            )
-
-          }
-      }
+        }
     }
   }
 }

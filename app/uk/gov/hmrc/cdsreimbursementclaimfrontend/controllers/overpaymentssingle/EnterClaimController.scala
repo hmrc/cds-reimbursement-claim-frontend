@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_single_claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -130,16 +130,22 @@ class EnterClaimController @Inject() (
                       ),
                     reimbursementAmount =>
                       journey
-                        .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
-                        .fold(
-                          error =>
-                            Future.failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
-                          updatedJourney =>
-                            (
-                              updatedJourney,
-                              redirectToNextPage(updatedJourney, taxCode)
-                            ).asFuture
-                        )
+                        .getNdrcDetailsFor(taxCode) match {
+                        case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
+                        case Some(_) =>
+                          journey
+                            .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
+                            .fold(
+                              error =>
+                                Future
+                                  .failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
+                              updatedJourney =>
+                                (
+                                  updatedJourney,
+                                  redirectToNextPage(updatedJourney, taxCode)
+                                ).asFuture
+                            )
+                      }
                   )
 
               case None =>

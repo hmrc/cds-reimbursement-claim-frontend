@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 object ReimbursementsClaimsSummary {
 
@@ -65,6 +66,13 @@ object ReimbursementsClaimsSummary {
         )
       )
     )
+
+  def singleForCYA(
+    reimbursements: Seq[Reimbursement],
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit messages: Messages): SummaryList =
+    singleForCYA(reimbursements.map(r => (r.taxCode, r.amount)).toMap, key, changeCallOpt)
 
   def singleForCYA(
     reimbursementClaims: Map[TaxCode, BigDecimal],

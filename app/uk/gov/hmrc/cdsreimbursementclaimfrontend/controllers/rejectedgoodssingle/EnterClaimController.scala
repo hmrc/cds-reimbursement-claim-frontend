@@ -25,21 +25,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  featureSwitchService: FeatureSwitchService,
-  enterClaim: enter_claim
+  enterClaim: enter_single_claim
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
@@ -47,8 +45,7 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[Journey]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val key: String                 = "enter-claim.rejected-goods"
-  final val subKey: Some[String]        = Some("single")
+  final val key: String                 = "enter-claim"
   final val postAction: TaxCode => Call = routes.EnterClaimController.submit
 
   final val showFirst: Action[AnyContent] =
@@ -64,9 +61,7 @@ class EnterClaimController @Inject() (
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      val isSubsidy = featureSwitchService.isEnabled(
-        Feature.SubsidiesForRejectedGoods
-      ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
+      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show).asFuture
@@ -77,23 +72,21 @@ class EnterClaimController @Inject() (
               redirectWhenInvalidTaxCode(journey).asFuture
 
             case Some(ndrcDetails) =>
-              val claimedAmount: Option[BigDecimal] =
-                journey.answers.reimbursementClaims.flatMap(_.get(taxCode).flatten)
-              val amountPaid                        =
+              val actualAmount: Option[BigDecimal] =
+                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
+              val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
-              val form                              =
-                Forms.rejectedClaimAmountForm(key, amountPaid).withDefault(claimedAmount)
-              val maybeMRN                          = journey.getLeadMovementReferenceNumber.map(_.value)
+              val form                             =
+                Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
+              val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
               Ok(
                 enterClaim(
                   form,
+                  maybeMRN,
                   TaxCode(ndrcDetails.taxType),
-                  None,
                   amountPaid,
-                  subKey,
-                  postAction(taxCode),
-                  maybeMRN = maybeMRN,
-                  isSubsidy = isSubsidy
+                  isSubsidyOnly,
+                  postAction(taxCode)
                 )
               ).asFuture
           }
@@ -106,18 +99,18 @@ class EnterClaimController @Inject() (
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
       { implicit request => journey =>
-        val isSubsidy = featureSwitchService.isEnabled(
-          Feature.SubsidiesForRejectedGoods
-        ) && journey.getLeadDisplayDeclaration.exists(_.hasOnlySubsidyPayments)
+        val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
         journey.getSelectedDuties match {
           case None =>
             (journey, Redirect(routes.SelectDutiesController.show)).asFuture
 
           case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
+            val maybeMRN =
+              journey.getLeadMovementReferenceNumber.map(_.value)
             journey.getNdrcDetailsFor(taxCode) match {
               case Some(ndrcDetails) =>
                 Forms
-                  .rejectedClaimAmountForm(key, BigDecimal(ndrcDetails.amount))
+                  .actualAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -127,12 +120,11 @@ class EnterClaimController @Inject() (
                           BadRequest(
                             enterClaim(
                               formWithErrors,
+                              maybeMRN,
                               TaxCode(ndrcDetails.taxType),
-                              None,
                               BigDecimal(ndrcDetails.amount),
-                              subKey,
-                              postAction(taxCode),
-                              isSubsidy = isSubsidy
+                              isSubsidyOnly,
+                              postAction(taxCode)
                             )
                           )
                         )
@@ -140,10 +132,10 @@ class EnterClaimController @Inject() (
                     reimbursementAmount =>
                       journey
                         .getNdrcDetailsFor(taxCode) match {
-                        case None       => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
-                        case Some(ndrc) =>
+                        case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
+                        case Some(_) =>
                           journey
-                            .submitAmountForReimbursement(taxCode, BigDecimal(ndrc.amount) - reimbursementAmount)
+                            .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
                             .fold(
                               error =>
                                 Future

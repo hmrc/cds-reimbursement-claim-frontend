@@ -26,7 +26,8 @@ lazy val wartremoverSettings =
       Wart.StringPlusAny,
       Wart.Any,
       Wart.SeqApply,
-      Wart.CaseClassPrivateApply
+      Wart.CaseClassPrivateApply,
+      Wart.TripleQuestionMark
     ),
     WartRemover.autoImport.wartremoverExcluded += target.value,
     Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
