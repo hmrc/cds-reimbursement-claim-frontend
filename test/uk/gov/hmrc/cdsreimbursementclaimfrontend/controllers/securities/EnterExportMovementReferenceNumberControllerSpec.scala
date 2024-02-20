@@ -67,7 +67,7 @@ class EnterExportMovementReferenceNumberControllerSpec
   val enterExportMovementReferenceNumberSingleKeyAndSubKey: String =
     s"$enterExportMovementReferenceNumberSingleKey.securities"
 
-  val enterExportMovementReferenceNumberMultipleKey: String          = "enter-export-movement-reference-number-multiple"
+  val enterExportMovementReferenceNumberMultipleKey: String          = "enter-export-movement-reference-number.multiple"
   val enterExportMovementReferenceNumberMultipleKeyAndSubKey: String =
     s"$enterExportMovementReferenceNumberMultipleKey.securities"
 

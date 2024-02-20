@@ -50,7 +50,7 @@ class CheckClaimDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val whetherClaimDetailsCorrect: Form[YesNo] =
-    YesOrNoQuestionForm("check-claim-summary")
+    YesOrNoQuestionForm("check-claim")
 
   final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 

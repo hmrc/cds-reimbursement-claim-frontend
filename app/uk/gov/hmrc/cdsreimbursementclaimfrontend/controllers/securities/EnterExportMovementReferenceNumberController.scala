@@ -203,7 +203,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
 object EnterExportMovementReferenceNumberController {
   val enterExportMovementReferenceNumberSingleKey: String   = "enter-export-movement-reference-number"
-  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number-multiple"
+  val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number.multiple"
 
   val exportMovementReferenceNumberSingleForm: Form[MRN] =
     Form(

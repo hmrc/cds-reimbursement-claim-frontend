@@ -93,7 +93,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.title")
+            messageFromMessageKey("check-claim.title")
           )
         }
       }
@@ -120,8 +120,8 @@ class CheckClaimDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("check-claim-summary.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim-summary.error.invalid"),
+          messageFromMessageKey("check-claim.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim.error.invalid"),
           BAD_REQUEST
         )
       }
@@ -133,7 +133,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-claim-summary" -> "true"),
+          performAction("check-claim" -> "true"),
           routes.EnterInspectionDateController.show
         )
       }
@@ -146,7 +146,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-claim-summary" -> "false"),
+          performAction("check-claim" -> "false"),
           routes.SelectDutiesController.show
         )
       }
