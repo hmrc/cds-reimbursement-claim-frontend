@@ -260,7 +260,7 @@ object Forms {
     )
 
   val enterScheduledClaimForm: Form[AmountPaidWithCorrect] = Form(
-    "enter-scheduled-claim" ->
+    "enter-claim.scheduled" ->
       mapping(
         "paid-amount"   -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
         "actual-amount" -> moneyMapping("error.invalid", allowZero = true)
