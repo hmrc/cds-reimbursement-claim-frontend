@@ -37,7 +37,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
 
   final val bankDetailsAreYouSureForm: Form[YesNo] =
-    YesOrNoQuestionForm("bank-details-yes-no")
+    YesOrNoQuestionForm("bank-details")
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
