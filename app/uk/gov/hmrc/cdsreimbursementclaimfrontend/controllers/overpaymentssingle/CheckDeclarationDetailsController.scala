@@ -50,7 +50,7 @@ class CheckDeclarationDetailsController @Inject() (
     journey.getLeadDisplayDeclaration
 
   final override def continueRoute(journey: Journey): Call =
-    routes.EnterContactDetailsController.show(confirmContactDetails = false)
+    routes.EnterContactDetailsController.show(confirmContactDetails = true)
 
   final override val enterMovementReferenceNumberRoute: Call =
     routes.EnterMovementReferenceNumberController.submit

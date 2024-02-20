@@ -912,7 +912,7 @@ enter-claim.title={0} - {1}
 
 enter-contact-details.add.title=Add contact details
 enter-contact-details.change.title=Change contact details
-enter-contact-details.confirm.title=Confirm contact details
+enter-contact-details.confirm.title=Provide the contact details for this claim
 enter-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
 enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
@@ -923,7 +923,8 @@ enter-contact-details.contact-name.label=Full name
 enter-contact-details.contact-phone-number.error.maxLength=Phone number must be 30 characters or less
 enter-contact-details.contact-phone-number.error.required=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 enter-contact-details.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
-enter-contact-details.contact-phone-number.label=Telephone
+enter-contact-details.contact-phone-number.label=Telephone (Optional)
+enter-contact-details.inset-text=We will only use this to contact you regarding this claim.
 
 enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.error.maxLength=EORI number must be 17 characters or less

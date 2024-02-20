@@ -21,6 +21,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
@@ -37,15 +38,27 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   final def show(confirmContactDetails: Boolean = false): Action[AnyContent] =
     actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-            postAction(confirmContactDetails),
-            confirmContactDetails
+      if (confirmContactDetails) {
+        Future.successful(
+          Ok(
+            enterOrChangeContactDetailsPage(
+              Forms.mrnContactDetailsForm,
+              postAction(confirmContactDetails),
+              confirmContactDetails
+            )
           )
         )
-      )
+      } else {
+        Future.successful(
+          Ok(
+            enterOrChangeContactDetailsPage(
+              Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
+              postAction(confirmContactDetails),
+              confirmContactDetails
+            )
+          )
+        )
+      }
     }
 
   final def submit(confirmContactDetails: Boolean = false): Action[AnyContent] =
