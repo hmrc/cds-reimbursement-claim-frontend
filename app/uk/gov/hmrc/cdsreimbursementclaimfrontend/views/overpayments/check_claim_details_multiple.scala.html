@@ -46,8 +46,8 @@
 )(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 
-@key = @{"multiple-check-claim-summary"}
-@title = @{messages(s"multiple-check-claim-summary.title")}
+@key = @{"check-claim.multiple"}
+@title = @{messages(s"check-claim.multiple.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -57,29 +57,29 @@
     @heading(Html(title))
 
     @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"multiple-check-claim-summary.duty.label", OrdinalNumber.label(index).capitalize, mrn.value)), id = s"summary-mrn-$index")
+        @subHeading(Html(messages(s"check-claim.multiple.duty.label", OrdinalNumber.label(index).capitalize, mrn.value)), id = s"summary-mrn-$index")
         @summary(SummaryList(MultipleClaimSummaryHelper.makeClaimSummaryRows(index,claim,enterClaimAction)))
     }
 
-    @subHeading(Html(messages(s"multiple-check-claim-summary.overall-total.header")))
+    @subHeading(Html(messages(s"check-claim.multiple.overall-total.header")))
     @summary(SummaryList(List(MultipleClaimSummaryHelper.makeOverallTotalRow(claims)), classes = "govuk-!-margin-bottom-9"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
-            legend = messages(s"multiple-check-claim-summary.are-duties-correct"),
+            legend = messages(s"check-claim.multiple.are-duties-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"multiple-check-claim-summary.yes")),
+                    content = Text(messages(s"check-claim.multiple.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"multiple-check-claim-summary.no")),
+                    content = Text(messages(s"check-claim.multiple.no")),
                     checked = false
                 )
             )

@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -82,17 +83,27 @@ class EnterClaimControllerSpec
 
     assertPageElementsByIdAndExpectedHtml(doc)(
       "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
-      "enter-claim-how-much-was-paid"     -> m(
-        "enter-claim.paid-amount-label",
-        paidAmount.toPoundSterlingString,
-        taxCode,
-        m(s"select-duties.duty.$taxCode")
-      ),
+      "enter-claim-how-much-was-paid"     ->
+        (if (TaxCodes.custom.contains(taxCode))
+           m(
+             "enter-claim.paid-amount-label",
+             paidAmount.toPoundSterlingString,
+             taxCode,
+             m(s"select-duties.duty.$taxCode")
+           )
+         else
+           m(
+             s"enter-claim.paid-amount-label.excise",
+             paidAmount.toPoundSterlingString,
+             messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+             taxCode.value
+           )),
       "enter-claim-label"                 -> m("enter-claim.actual-amount"),
       "enter-claim-hint"                  -> m("enter-claim.actual-amount.hint", taxCode, m(s"select-duties.duty.$taxCode"))
     )
+
     assertPageInputsByIdAndExpectedValue(doc)(
-      "enter-claim"                       ->
+      "enter-claim" ->
         actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
     )
   }
@@ -179,11 +190,19 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(taxCode),
-            messageFromMessageKey(
-              "enter-claim.title",
-              taxCode.value,
-              messageFromMessageKey(s"select-duties.duty.$taxCode")
-            ),
+            if (TaxCodes.custom.contains(taxCode))
+              messageFromMessageKey(
+                "enter-claim.title",
+                taxCode.value,
+                messageFromMessageKey(s"select-duties.duty.$taxCode")
+              )
+            else
+              messageFromMessageKey(
+                "enter-claim.title.excise",
+                messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                taxCode.value
+              ),
             assertPageContent(_, journey, taxCode, None)
           )
         }
@@ -202,11 +221,19 @@ class EnterClaimControllerSpec
 
             checkPageIsDisplayed(
               performAction(taxCode),
-              messageFromMessageKey(
-                "enter-claim.title",
-                taxCode.value,
-                messageFromMessageKey(s"select-duties.duty.$taxCode")
-              ),
+              if (TaxCodes.custom.contains(taxCode))
+                messageFromMessageKey(
+                  "enter-claim.title",
+                  taxCode.value,
+                  messageFromMessageKey(s"select-duties.duty.$taxCode")
+                )
+              else
+                messageFromMessageKey(
+                  "enter-claim.title.excise",
+                  messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                  messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                  taxCode.value
+                ),
               assertPageContent(_, journey, taxCode, actualAmountOpt)
             )
           }
@@ -311,11 +338,19 @@ class EnterClaimControllerSpec
                 withClue(s"taxCode=$taxCode paid=$paidAmount amount=$actualAmount") {
                   checkPageIsDisplayed(
                     performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
-                    messageFromMessageKey(
-                      "enter-claim.title",
-                      taxCode.value,
-                      messageFromMessageKey(s"select-duties.duty.$taxCode")
-                    ),
+                    if (TaxCodes.custom.contains(taxCode))
+                      messageFromMessageKey(
+                        "enter-claim.title",
+                        taxCode.value,
+                        messageFromMessageKey(s"select-duties.duty.$taxCode")
+                      )
+                    else
+                      messageFromMessageKey(
+                        "enter-claim.title.excise",
+                        messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                        messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                        taxCode.value
+                      ),
                     doc => {
                       assertPageContent(doc, journey, taxCode, Some(actualAmount))
                       assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))
@@ -339,11 +374,19 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(taxCode, Seq("enter-claim" -> "")),
-            messageFromMessageKey(
-              "enter-claim.title",
-              taxCode.value,
-              messageFromMessageKey(s"select-duties.duty.$taxCode")
-            ),
+            if (TaxCodes.custom.contains(taxCode))
+              messageFromMessageKey(
+                "enter-claim.title",
+                taxCode.value,
+                messageFromMessageKey(s"select-duties.duty.$taxCode")
+              )
+            else
+              messageFromMessageKey(
+                "enter-claim.title.excise",
+                messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
+                messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                taxCode.value
+              ),
             doc => {
               assertPageContent(doc, journey, taxCode, None)
               assertShowsInputError(doc, Some(m("enter-claim.error.required")))

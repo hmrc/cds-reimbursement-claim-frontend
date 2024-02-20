@@ -59,7 +59,7 @@ class EnterClaimControllerSpec
     )
 
   val controller: EnterClaimController = instanceOf[EnterClaimController]
-  val enterClaimKey: String            = "enter-scheduled-claim"
+  val enterClaimKey: String            = "enter-claim.scheduled"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -134,14 +134,14 @@ class EnterClaimControllerSpec
           controller.show(dutyType, taxCode)(FakeRequest()),
           if (DutyTypes.custom.contains(dutyType))
             messageFromMessageKey(
-              s"enter-scheduled-claim.title",
+              s"enter-claim.scheduled.title",
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
               taxCode.value,
               messages(s"select-duties.duty.$taxCode")
             )
           else
             messageFromMessageKey(
-              s"enter-scheduled-claim.title.excise",
+              s"enter-claim.scheduled.title.excise",
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
               messages(s"duty-type.${dutyType.repr}"),
               taxCode.value
@@ -198,8 +198,8 @@ class EnterClaimControllerSpec
                     dutyType,
                     taxCode,
                     Seq(
-                      "enter-scheduled-claim.paid-amount"   -> paidAmount.toString,
-                      "enter-scheduled-claim.actual-amount" -> correctAmount.toString
+                      "enter-claim.scheduled.paid-amount"   -> paidAmount.toString,
+                      "enter-claim.scheduled.actual-amount" -> correctAmount.toString
                     )
                   ),
                   expectedRoute
@@ -237,8 +237,8 @@ class EnterClaimControllerSpec
                     dutyType,
                     taxCode,
                     Seq(
-                      "enter-scheduled-claim.paid-amount"   -> paidAmount.toString,
-                      "enter-scheduled-claim.actual-amount" -> correctAmount.toString
+                      "enter-claim.scheduled.paid-amount"   -> paidAmount.toString,
+                      "enter-claim.scheduled.actual-amount" -> correctAmount.toString
                     )
                   ),
                   expectedRoute
@@ -261,21 +261,21 @@ class EnterClaimControllerSpec
                 controller.submit(dutyType, taxCode)(
                   FakeRequest().withFormUrlEncodedBody(
                     Seq(
-                      "enter-scheduled-claim.paid-amount"   -> "",
-                      "enter-scheduled-claim.actual-amount" -> "bad"
+                      "enter-claim.scheduled.paid-amount"   -> "",
+                      "enter-claim.scheduled.actual-amount" -> "bad"
                     ): _*
                   )
                 ),
                 if (DutyTypes.custom.contains(dutyType))
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title",
+                    s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title.excise",
+                    s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value
@@ -283,10 +283,10 @@ class EnterClaimControllerSpec
                 doc => {
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                    .text() shouldBe messageFromMessageKey("enter-scheduled-claim.paid-amount.error.required")
+                    .text() shouldBe messageFromMessageKey("enter-claim.scheduled.paid-amount.error.required")
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                    .text() shouldBe messageFromMessageKey("enter-scheduled-claim.actual-amount.error.invalid")
+                    .text() shouldBe messageFromMessageKey("enter-claim.scheduled.actual-amount.error.invalid")
                 },
                 BAD_REQUEST
               )
@@ -307,14 +307,14 @@ class EnterClaimControllerSpec
                 ),
                 if (DutyTypes.custom.contains(dutyType))
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title",
+                    s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title.excise",
+                    s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value
@@ -342,14 +342,14 @@ class EnterClaimControllerSpec
                 ),
                 if (DutyTypes.custom.contains(dutyType))
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title",
+                    s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
-                    s"enter-scheduled-claim.title.excise",
+                    s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value

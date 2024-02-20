@@ -685,18 +685,18 @@ enter-claim.invalid.claim=Nodwch swm hawliad sy’n llai na’r swm a dalwyd neu
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=
-check-claim-summary.uk-duty.label=
-check-claim-summary.eu-duty.label=
-check-claim-summary.excise-duty.label=
-check-claim-summary.overall-total.label=
-check-claim-summary.change-amount=
-check-claim-summary.total=
-check-claim-summary.are-duties-correct=
-check-claim-summary.yes=
-check-claim-summary.no=
-check-claim-summary.error.required=
-check-claim-summary.error.invalid=
+check-claim.title=
+check-claim.uk-duty.label=
+check-claim.eu-duty.label=
+check-claim.excise-duty.label=
+check-claim.overall-total.label=
+check-claim.change-amount=
+check-claim.total=
+check-claim.are-duties-correct=
+check-claim.yes=
+check-claim.no=
+check-claim.error.required=
+check-claim.error.invalid=
 
 
 #===================================================

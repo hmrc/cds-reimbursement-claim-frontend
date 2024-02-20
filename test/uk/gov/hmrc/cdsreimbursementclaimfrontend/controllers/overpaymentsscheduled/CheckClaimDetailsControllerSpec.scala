@@ -77,12 +77,12 @@ class CheckClaimDetailsControllerSpec
     val claims = journey.getReimbursementClaims
 
     assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-summary-yes-no" -> s"${m(s"check-claim-summary.are-duties-correct")} ${m(s"check-claim-summary.yes")} ${m(s"check-claim-summary.no")}"
+      s"check-claim-yes-no" -> s"${m(s"check-claim.are-duties-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
     )
 
     claims.map { claim =>
       assertPageElementsByIdAndExpectedText(doc)(
-        s"check-claim-summary-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
+        s"check-claim-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
       )
     }
 
@@ -92,7 +92,7 @@ class CheckClaimDetailsControllerSpec
         .flatMap(
           _.map { case (taxCode, amount: AmountPaidWithCorrect) =>
             (
-              m(s"check-claim-summary.duty-code.row.key", m(s"tax-code.$taxCode")),
+              m(s"check-claim.duty-code.row.key", m(s"tax-code.$taxCode")),
               amount.refundAmount.toPoundSterlingString
             )
           }
@@ -101,14 +101,14 @@ class CheckClaimDetailsControllerSpec
           .filter(claim => claim._2.size > 1)
           .map { (claim: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])) =>
             (
-              s"${m(s"check-claim-summary.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
+              s"${m(s"check-claim.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
               journey
                 .getTaxCodesSubtotal(claim._2)
                 .toPoundSterlingString
             )
           }
           .toSeq ++ Seq(
-          (m(s"check-claim-summary.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
+          (m(s"check-claim.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
         )
     )
   }
@@ -145,7 +145,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.scheduled.title"),
+            messageFromMessageKey("check-claim.scheduled.title"),
             assertPageContent(_, journey)
           )
         }
@@ -159,7 +159,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.scheduled.title"),
+            messageFromMessageKey("check-claim.scheduled.title"),
             assertPageContent(_, journey)
           )
         }
@@ -186,7 +186,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim-summary" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.ChoosePayeeTypeController.show
           )
         }
@@ -199,7 +199,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim-summary" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.CheckYourAnswersController.show
           )
         }
@@ -213,7 +213,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-claim-summary" -> "false"),
+          performAction("check-claim" -> "false"),
           routes.SelectDutyTypesController.show
         )
       }

@@ -71,14 +71,14 @@ class CheckClaimDetailsControllerSpec
   ): Unit = {
     val mrn = journey.getLeadMovementReferenceNumber.get.value
     assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-summary-section-$mrn" -> m("check-claim-summary.duty.label", mrn),
-      "check-claim-summary-yes-no"        -> s"${m("check-claim-summary.are-duties-correct")} ${m("check-claim-summary.yes")} ${m("check-claim-summary.no")}"
+      s"check-claim-section-$mrn" -> m("check-claim.duty.label", mrn),
+      "check-claim-yes-no"        -> s"${m("check-claim.are-duties-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
     )
-    summaryKeyValueList(doc)          should containOnlyPairsOf(
+    summaryKeyValueList(doc)  should containOnlyPairsOf(
       journey.getReimbursements.map { case Reimbursement(taxCode, amount, _) =>
         (s"$taxCode - ${m(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
       } ++
-        Seq(m("check-claim-summary.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+        Seq(m("check-claim.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
     )
   }
 
@@ -115,7 +115,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.title"),
+            messageFromMessageKey("check-claim.title"),
             assertPageContent(_, journey)
           )
         }
@@ -129,7 +129,7 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim-summary.title"),
+            messageFromMessageKey("check-claim.title"),
             assertPageContent(_, journey)
           )
         }
@@ -156,7 +156,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim-summary" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.ChoosePayeeTypeController.show
 //            if (journey.isAllSelectedDutiesAreCMAEligible)
 //              routes.ReimbursementMethodController.show
@@ -173,7 +173,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim-summary" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.CheckYourAnswersController.show
           )
         }
@@ -187,7 +187,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-claim-summary" -> "false"),
+          performAction("check-claim" -> "false"),
           routes.SelectDutiesController.show
         )
       }

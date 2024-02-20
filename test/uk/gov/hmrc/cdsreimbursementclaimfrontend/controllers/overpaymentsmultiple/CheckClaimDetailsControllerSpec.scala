@@ -65,7 +65,7 @@ class CheckClaimDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val messagesKey: String = "multiple-check-claim-summary"
+  private val messagesKey: String = "check-claim.multiple"
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
@@ -87,10 +87,10 @@ class CheckClaimDetailsControllerSpec
             (s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
           }
         ) ++ claims.values
-        .map(r => (messages("multiple-check-claim-summary.total"), r.values.sum.toPoundSterlingString)) ++
+        .map(r => (messages("check-claim.multiple.total"), r.values.sum.toPoundSterlingString)) ++
         Seq(
           (
-            messages("multiple-check-claim-summary.overall-total.label"),
+            messages("check-claim.multiple.overall-total.label"),
             claims.values.map(_.values.sum).sum.toPoundSterlingString
           )
         )
@@ -149,7 +149,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("multiple-check-claim-summary" -> "true"),
+            performAction("check-claim.multiple" -> "true"),
             routes.ChoosePayeeTypeController.show
           )
         }
@@ -162,7 +162,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("multiple-check-claim-summary" -> "true"),
+            performAction("check-claim.multiple" -> "true"),
             routes.CheckYourAnswersController.show
           )
         }
@@ -176,7 +176,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("multiple-check-claim-summary" -> "false"),
+          performAction("check-claim.multiple" -> "false"),
           routes.SelectDutiesController.showFirst
         )
       }

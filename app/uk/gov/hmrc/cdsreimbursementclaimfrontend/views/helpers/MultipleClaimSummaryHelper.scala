@@ -30,7 +30,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 object MultipleClaimSummaryHelper {
 
-  private val key = "multiple-check-claim-summary"
+  private val key = "check-claim.multiple"
 
   def makeClaimSummaryRows(
     mrnIndex: Int,

@@ -120,5 +120,5 @@ class CheckClaimDetailsController @Inject() (
 }
 
 object CheckClaimDetailsController {
-  val checkClaimDetailsKey: String = "check-claim-summary"
+  val checkClaimDetailsKey: String = "check-claim"
 }

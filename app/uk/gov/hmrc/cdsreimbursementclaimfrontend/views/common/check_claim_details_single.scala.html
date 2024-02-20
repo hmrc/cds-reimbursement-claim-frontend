@@ -43,8 +43,8 @@
 
 @(form: Form[YesNo], mrn: MRN, claims: Seq[Reimbursement], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-claim-summary"}
-@title = @{messages(s"check-claim-summary.title")}
+@key = @{"check-claim"}
+@title = @{messages(s"check-claim.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -54,7 +54,7 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(s"check-claim-summary.duty.label",mrn.value)), classes = "govuk-heading-m", id = s"check-claim-summary-section-${mrn.value}")
+    @subHeading(Html(messages(s"check-claim.duty.label",mrn.value)), classes = "govuk-heading-m", id = s"check-claim-section-${mrn.value}")
 
     @summary(SummaryList(ClaimSummaryHelper.makeClaimSummary(claims, enterClaimAction)))
 
@@ -62,22 +62,22 @@
         @radios(
             form = form,
             name = key,
-            legend = messages(s"check-claim-summary.are-duties-correct"),
+            legend = messages(s"check-claim.are-duties-correct"),
             hintKey = None,
             inline = true,
             items = Seq(
                 RadioItem(
                     value = Some("true"),
-                    content = Text(messages(s"check-claim-summary.yes")),
+                    content = Text(messages(s"check-claim.yes")),
                     checked = false
                 ),
                 RadioItem(
                     value = Some("false"),
-                    content = Text(messages(s"check-claim-summary.no")),
+                    content = Text(messages(s"check-claim.no")),
                     checked = false
                 )
             ),
-            id = s"check-claim-summary-yes-no"
+            id = s"check-claim-yes-no"
         )
 
         @submitButton("button.continue")

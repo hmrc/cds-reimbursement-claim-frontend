@@ -45,7 +45,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsMultipleJourneyBaseController {
 
-  val form: Form[YesNo] = YesOrNoQuestionForm("multiple-check-claim-summary")
+  val form: Form[YesNo] = YesOrNoQuestionForm("check-claim.multiple")
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst

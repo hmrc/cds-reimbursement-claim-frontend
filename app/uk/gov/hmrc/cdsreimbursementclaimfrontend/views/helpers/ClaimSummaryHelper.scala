@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 object ClaimSummaryHelper {
 
-  private val key = "check-claim-summary"
+  private val key = "check-claim"
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): Seq[SummaryListRow] = {

@@ -45,7 +45,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 
-  final val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm("check-claim-summary")
+  final val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm("check-claim")
 
   implicit val subKey: Option[String] = Some("scheduled")
 
