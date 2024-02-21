@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesJourneyModes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
@@ -435,9 +436,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
             if (submitBankAccountType && (!allDutiesGuaranteeEligible))
               Some(bankAccountType)
             else None,
-          checkDeclarationDetailsChangeMode = false,
-          checkClaimDetailsChangeMode = true,
-          checkYourAnswersChangeMode = true
+          modes = SecuritiesJourneyModes(
+            checkDeclarationDetailsChangeMode = false,
+            checkClaimDetailsChangeMode = true,
+            checkYourAnswersChangeMode = true
+          )
         )
 
       SecuritiesJourney.tryBuildFrom(answers)

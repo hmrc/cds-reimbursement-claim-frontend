@@ -196,7 +196,7 @@ class EnterClaimController @Inject() (
     taxCode: TaxCode,
     amountHasChanged: Boolean
   ): Call =
-    if (journey.answers.checkClaimDetailsChangeMode && journey.answers.claimFullAmountMode) {
+    if (journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode) {
       if (journey.userHasSeenCYAPage && !amountHasChanged)
         routes.CheckYourAnswersController.show
       else
@@ -221,7 +221,7 @@ class EnterClaimController @Inject() (
         case None =>
           journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
             case Some(nextSecurityDepositId) =>
-              if (journey.answers.checkClaimDetailsChangeMode && !journey.answers.claimFullAmountMode)
+              if (journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode)
                 routes.CheckClaimDetailsController.show
               else
                 routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)

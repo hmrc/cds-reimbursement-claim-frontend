@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 import scala.jdk.CollectionConverters._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of RejectedGoodsMultipleJourney. */
 object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -423,7 +424,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
           bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
-          checkYourAnswersChangeMode = true
+          modes = JourneyModes(checkYourAnswersChangeMode = true)
         )
 
       RejectedGoodsMultipleJourney.tryBuildFrom(answers, features)

@@ -327,7 +327,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           reimbursementMethod =
             if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)
             else None,
-          checkYourAnswersChangeMode = checkYourAnswersChangeMode
+          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode)
         )
 
       answers
@@ -398,7 +398,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        checkYourAnswersChangeMode = false
+        modes = JourneyModes(checkYourAnswersChangeMode = false)
       )
     }
 
@@ -480,7 +480,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers
@@ -569,7 +569,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers

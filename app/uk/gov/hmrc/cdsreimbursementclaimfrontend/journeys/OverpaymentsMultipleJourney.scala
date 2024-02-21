@@ -233,7 +233,7 @@ final class OverpaymentsMultipleJourney private (
     answers.correctedAmounts.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(ZERO)
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -643,7 +643,7 @@ final class OverpaymentsMultipleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -738,8 +738,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    checkYourAnswersChangeMode: Boolean = false,
-    dutiesChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
