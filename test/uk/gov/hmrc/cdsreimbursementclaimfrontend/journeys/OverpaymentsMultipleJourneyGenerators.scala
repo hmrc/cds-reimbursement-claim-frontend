@@ -33,6 +33,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.Random
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of OverpaymentsMultipleJourney. */
 object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -286,7 +287,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
           bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
-          checkYourAnswersChangeMode = true
+          modes = JourneyModes(checkYourAnswersChangeMode = true)
         )
 
       answers
@@ -415,7 +416,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        checkYourAnswersChangeMode = false
+        modes = JourneyModes(checkYourAnswersChangeMode = false)
       )
     }
 

@@ -324,7 +324,7 @@ final class OverpaymentsScheduledJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -345,7 +345,7 @@ final class OverpaymentsScheduledJourney private (
     }
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsScheduledJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
@@ -442,8 +442,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    dutiesChangeMode: Boolean = false,
-    checkYourAnswersChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with ScheduledVariantAnswers
 

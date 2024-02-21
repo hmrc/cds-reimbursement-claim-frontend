@@ -129,7 +129,7 @@ final class SecuritiesJourney private (
 
   def getSecuritySelectionStatus(securityDepositId: String): Option[YesNo] =
     if (isSelectedDepositId(securityDepositId)) Some(YesNo.Yes)
-    else if (answers.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode) Some(YesNo.No)
+    else if (answers.modes.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode) Some(YesNo.No)
     else None
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
@@ -738,22 +738,22 @@ final class SecuritiesJourney private (
 
   def submitCheckDeclarationDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      this.copy(answers.copy(checkDeclarationDetailsChangeMode = enabled))
+      this.copy(answers.copy(modes = answers.modes.copy(checkDeclarationDetailsChangeMode = enabled)))
     }
 
   def submitClaimFullAmountMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      this.copy(answers.copy(claimFullAmountMode = enabled))
+      this.copy(answers.copy(modes = answers.modes.copy(claimFullAmountMode = enabled)))
     }
 
   def resetClaimFullAmountMode(): SecuritiesJourney =
     whileClaimIsAmendable {
-      this.copy(answers.copy(claimFullAmountMode = true))
+      this.copy(answers.copy(modes = answers.modes.copy(claimFullAmountMode = true)))
     }
 
   def submitCheckClaimDetailsChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
-      this.copy(answers.copy(checkClaimDetailsChangeMode = enabled))
+      this.copy(answers.copy(modes = answers.modes.copy(checkClaimDetailsChangeMode = enabled)))
     }
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
@@ -763,9 +763,11 @@ final class SecuritiesJourney private (
           _ => this,
           _ =>
             this.copy(
-              answers.copy(
-                checkYourAnswersChangeMode = enabled,
-                claimFullAmountMode = true
+              answers.copy(modes =
+                answers.modes.copy(
+                  checkYourAnswersChangeMode = enabled,
+                  claimFullAmountMode = true
+                )
               )
             )
         )
@@ -858,11 +860,12 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
-    checkYourAnswersChangeMode: Boolean = false,
-    checkDeclarationDetailsChangeMode: Boolean = false,
-    checkClaimDetailsChangeMode: Boolean = false,
-    claimFullAmountMode: Boolean = true
-  ) extends CommonAnswers
+    modes: SecuritiesJourneyModes = SecuritiesJourneyModes()
+  ) extends CommonAnswers {
+
+    final override def checkYourAnswersChangeMode: Boolean =
+      modes.checkYourAnswersChangeMode
+  }
 
   final case class Output(
     movementReferenceNumber: MRN,
@@ -982,7 +985,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       .flatMapEachWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectSecurityDepositId
       )
-      .map(_.submitCheckDeclarationDetailsChangeMode(answers.checkDeclarationDetailsChangeMode))
+      .map(_.submitCheckDeclarationDetailsChangeMode(answers.modes.checkDeclarationDetailsChangeMode))
       .flatMapEachWhenDefined(answers.correctedAmounts)((journey: SecuritiesJourney) => {
         case (depositId: String, reclaims: SortedMap[TaxCode, Option[BigDecimal]]) =>
           journey
@@ -993,8 +996,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
               }
             )
       })
-      .map(_.submitClaimFullAmountMode(answers.claimFullAmountMode))
-      .map(_.submitCheckClaimDetailsChangeMode(answers.checkClaimDetailsChangeMode))
+      .map(_.submitClaimFullAmountMode(answers.modes.claimFullAmountMode))
+      .map(_.submitCheckClaimDetailsChangeMode(answers.modes.checkClaimDetailsChangeMode))
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)

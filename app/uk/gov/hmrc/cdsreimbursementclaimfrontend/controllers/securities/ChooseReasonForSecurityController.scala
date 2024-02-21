@@ -109,7 +109,7 @@ class ChooseReasonForSecurityController @Inject() (
           if (journey.getReasonForSecurity.contains(reasonForSecurity))
             (
               journey,
-              if (journey.answers.checkDeclarationDetailsChangeMode)
+              if (journey.answers.modes.checkDeclarationDetailsChangeMode)
                 Redirect(routes.CheckDeclarationDetailsController.show)
               else
                 successResultSelectSecurities

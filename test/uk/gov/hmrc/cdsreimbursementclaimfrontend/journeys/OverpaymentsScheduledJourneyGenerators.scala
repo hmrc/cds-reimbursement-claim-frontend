@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators with JourneyTestData {
@@ -301,7 +302,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
             if (submitBankAccountType)
               Some(bankAccountType)
             else None,
-          checkYourAnswersChangeMode = checkYourAnswersChangeMode
+          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode)
         )
 
       answers
@@ -372,7 +373,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        checkYourAnswersChangeMode = false
+        modes = JourneyModes(checkYourAnswersChangeMode = false)
       )
     }
 
@@ -450,7 +451,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
           basisOfClaim = Some(basisOfClaim),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers

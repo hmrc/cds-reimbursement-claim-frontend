@@ -149,7 +149,7 @@ class ConfirmFullRepaymentController @Inject() (
         },
         { updatedJourney =>
           val nextRoute =
-            if (journey.answers.checkClaimDetailsChangeMode)
+            if (journey.answers.modes.checkClaimDetailsChangeMode)
               routes.CheckClaimDetailsController.show
             else
               journey.getSelectedDepositIds

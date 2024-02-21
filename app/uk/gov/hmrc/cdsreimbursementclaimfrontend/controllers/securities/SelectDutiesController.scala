@@ -150,7 +150,9 @@ class SelectDutiesController @Inject() (
             (
               updatedJourney,
               Redirect(
-                if (updatedJourney.answers.checkClaimDetailsChangeMode && updatedJourney.answers.claimFullAmountMode)
+                if (
+                  updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
+                )
                   journey.getNextDepositIdAndTaxCodeToClaim match {
                     case Some(Left(depositId)) =>
                       routes.ConfirmFullRepaymentController.show(depositId)

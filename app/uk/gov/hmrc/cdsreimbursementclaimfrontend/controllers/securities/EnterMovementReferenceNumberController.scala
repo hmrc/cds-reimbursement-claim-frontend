@@ -74,7 +74,7 @@ class EnterMovementReferenceNumberController @Inject() (
               Redirect(
                 if (
                   journey.getLeadMovementReferenceNumber.contains(mrn) &&
-                  journey.answers.checkDeclarationDetailsChangeMode
+                  journey.answers.modes.checkDeclarationDetailsChangeMode
                 )
                   routes.CheckDeclarationDetailsController.show
                 else
