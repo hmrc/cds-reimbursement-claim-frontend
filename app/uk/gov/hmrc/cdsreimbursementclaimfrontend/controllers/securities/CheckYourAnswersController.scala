@@ -127,7 +127,8 @@ class CheckYourAnswersController @Inject() (
         request.sessionData
           .flatMap(getJourney)
           .map { journey =>
-            val maybeMrn = journey.getLeadMovementReferenceNumber.map(_.value)
+            val maybeMrn   = journey.getLeadMovementReferenceNumber.map(_.value)
+            val maybeEmail = journey.answers.contactDetails.flatMap(_.emailAddress).map(_.value)
             (journey.caseNumber match {
 
               case Some(caseNumber) =>
@@ -136,7 +137,8 @@ class CheckYourAnswersController @Inject() (
                     journey.getTotalReclaimAmount,
                     caseNumber,
                     maybeMrn = maybeMrn,
-                    subKey = Some("securities")
+                    maybeEmail = maybeEmail,
+                    subKey = Some("scheduled")
                   )
                 )
               case None             => Redirect(checkYourAnswers)
