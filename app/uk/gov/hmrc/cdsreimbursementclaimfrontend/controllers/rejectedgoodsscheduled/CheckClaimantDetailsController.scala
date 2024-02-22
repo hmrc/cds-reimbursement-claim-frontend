@@ -52,6 +52,9 @@ class CheckClaimantDetailsController @Inject() (
   val changeCd: Call =
     routes.EnterContactDetailsController.show(confirmContactDetails = false)
 
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
+
   val postAction: Call =
     routes.CheckClaimantDetailsController.submit
 

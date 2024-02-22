@@ -21,7 +21,8 @@ import play.api.libs.json.Format
 
 final case class JourneyModes(
   checkYourAnswersChangeMode: Boolean = false,
-  dutiesChangeMode: Boolean = false
+  dutiesChangeMode: Boolean = false,
+  enterContactDetailsMode: Boolean = false
 )
 
 object JourneyModes {

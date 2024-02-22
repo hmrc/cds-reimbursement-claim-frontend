@@ -235,6 +235,9 @@ final class OverpaymentsMultipleJourney private (
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsMultipleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
@@ -829,6 +832,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapEachWhenDefined(answers.correctedAmounts)(j => {

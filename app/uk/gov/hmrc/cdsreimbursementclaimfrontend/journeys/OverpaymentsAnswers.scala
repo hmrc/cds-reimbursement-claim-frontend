@@ -31,4 +31,7 @@ trait OverpaymentsAnswers extends CommonAnswers {
 
   final def dutiesChangeMode: Boolean =
     modes.dutiesChangeMode
+
+  final override def enterContactDetailsMode: Boolean =
+    modes.enterContactDetailsMode
 }

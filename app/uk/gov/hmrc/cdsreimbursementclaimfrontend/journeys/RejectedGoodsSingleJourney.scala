@@ -70,6 +70,9 @@ final class RejectedGoodsSingleJourney private (
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsSingleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsSingleDocumentTypes)
 
@@ -634,6 +637,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails
       )

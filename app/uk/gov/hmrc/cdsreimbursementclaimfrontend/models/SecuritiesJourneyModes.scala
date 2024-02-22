@@ -23,7 +23,8 @@ final case class SecuritiesJourneyModes(
   checkYourAnswersChangeMode: Boolean = false,
   checkDeclarationDetailsChangeMode: Boolean = false,
   checkClaimDetailsChangeMode: Boolean = false,
-  claimFullAmountMode: Boolean = true
+  claimFullAmountMode: Boolean = true,
+  enterContactDetailsMode: Boolean = false
 )
 
 object SecuritiesJourneyModes {

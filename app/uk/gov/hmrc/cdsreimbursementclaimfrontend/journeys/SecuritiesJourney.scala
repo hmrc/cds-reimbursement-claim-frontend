@@ -865,6 +865,9 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
     final override def checkYourAnswersChangeMode: Boolean =
       modes.checkYourAnswersChangeMode
+
+    final override def enterContactDetailsMode: Boolean =
+      modes.enterContactDetailsMode
   }
 
   final case class Output(

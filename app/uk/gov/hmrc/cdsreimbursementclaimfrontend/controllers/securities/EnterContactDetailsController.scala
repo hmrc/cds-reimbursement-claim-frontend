@@ -48,7 +48,10 @@ class EnterContactDetailsController @Inject() (
   final override def postAction(confirmContactDetails: Boolean = false): Call =
     routes.EnterContactDetailsController.submit(confirmContactDetails)
 
-  final override val continueRoute: Call =
+  final override val continueRouteEnterAddress: Call =
+    routes.CheckClaimantDetailsController.redirectToALF
+
+  final override val continueRouteChangeDetails: Call =
     routes.CheckClaimantDetailsController.show
 
   final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =

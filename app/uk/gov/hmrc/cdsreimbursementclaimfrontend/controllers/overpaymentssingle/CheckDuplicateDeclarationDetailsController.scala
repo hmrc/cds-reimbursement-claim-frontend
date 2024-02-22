@@ -54,6 +54,9 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
     journey.answers.duplicateDeclaration.map(_.displayDeclaration)
 
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
+
   final override def continueRoute(journey: Journey): Call =
     routes.EnterAdditionalDetailsController.show
 

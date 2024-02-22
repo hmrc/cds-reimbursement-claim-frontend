@@ -67,6 +67,9 @@ final class RejectedGoodsScheduledJourney private (
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsScheduledJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
 
@@ -614,6 +617,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(

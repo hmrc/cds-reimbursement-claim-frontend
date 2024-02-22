@@ -52,6 +52,9 @@ class CheckClaimantDetailsController @Inject() (
   val startAddressLookup: Call =
     routes.CheckClaimantDetailsController.redirectToALF
 
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
+
   val changeCd: Call =
     routes.EnterContactDetailsController.show(confirmContactDetails = false)
 

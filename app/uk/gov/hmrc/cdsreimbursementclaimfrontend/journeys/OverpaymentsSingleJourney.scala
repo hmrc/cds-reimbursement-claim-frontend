@@ -114,6 +114,9 @@ final class OverpaymentsSingleJourney private (
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsSingleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
@@ -795,6 +798,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(
         answers.duplicateDeclaration
