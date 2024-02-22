@@ -141,6 +141,12 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              overpaymentsScheduledJourney =
+                session.overpaymentsScheduledJourney.map(_.withEnterContactDetailsMode(true))
+            )
+          )(Right(()))
         }
 
         checkIsRedirect(

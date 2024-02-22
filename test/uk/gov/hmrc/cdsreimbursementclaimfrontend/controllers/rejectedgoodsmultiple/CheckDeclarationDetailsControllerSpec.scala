@@ -183,6 +183,12 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              rejectedGoodsMultipleJourney =
+                session.rejectedGoodsMultipleJourney.map(_.withEnterContactDetailsMode(true))
+            )
+          )(Right(()))
         }
 
         checkIsRedirect(
