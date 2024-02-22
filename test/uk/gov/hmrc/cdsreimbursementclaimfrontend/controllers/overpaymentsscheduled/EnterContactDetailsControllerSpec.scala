@@ -95,7 +95,7 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
+            messageFromMessageKey("enter-contact-details.title"),
             doc => {
               doc
                 .select("form input[name='enter-contact-details.contact-name']")
@@ -131,12 +131,12 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
+            messageFromMessageKey("enter-contact-details.title")
           )
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
+            messageFromMessageKey("enter-contact-details.title"),
             doc => {
               getErrorSummary(doc) contains messageFromMessageKey(
                 "enter-contact-details.contact-name.error.required"
@@ -181,7 +181,7 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
+            messageFromMessageKey("enter-contact-details.title")
           )
 
           checkIsRedirect(

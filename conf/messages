@@ -910,9 +910,7 @@ enter-claim.title.caption=Claim details
 enter-claim.title.excise={0} - {1} {2}
 enter-claim.title={0} - {1}
 
-enter-contact-details.add.title=Add contact details
-enter-contact-details.change.title=Change contact details
-enter-contact-details.confirm.title=Provide the contact details for this claim
+enter-contact-details.title=Provide the contact details for this claim
 enter-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
 enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
