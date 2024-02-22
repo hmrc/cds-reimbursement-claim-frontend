@@ -27,10 +27,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
@@ -43,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Authenticated
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -93,60 +89,46 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen, genEmail, genName) { case ((mrn, rfs, decl), email, name) =>
-          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-          whenever(depositIds.nonEmpty) {
-            val journey = SecuritiesJourney
-              .empty(exampleEori)
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.selectSecurityDepositId(depositIds.head))
-              .getOrFail
+        forAll(mrnWithtRfsWithDisplayDeclarationGen, genMrnContactDetails, genContactAddress) {
+          case ((mrn, rfs, decl), contactDeatils, address) =>
+            val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+            whenever(depositIds.nonEmpty) {
+              val journey = SecuritiesJourney
+                .empty(exampleEori)
+                .submitMovementReferenceNumber(mrn)
+                .submitReasonForSecurityAndDeclaration(rfs, decl)
+                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+                .flatMap(_.selectSecurityDepositId(depositIds.head))
+                .map(_.submitContactDetails(Some(contactDeatils)))
+                .map(_.submitContactAddress(address))
+                .getOrFail
 
-            val session = SessionData(journey)
+              val session = SessionData(journey)
 
-            inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(
-                  Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-                ),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(session)
+              }
+
+              checkPageIsDisplayed(
+                performAction(),
+                messageFromMessageKey("check-claimant-details.title"),
+                doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit.url
               )
-              mockGetSession(session)
             }
-
-            checkPageIsDisplayed(
-              performAction(),
-              messageFromMessageKey("check-claimant-details.title"),
-              doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit.url
-            )
-          }
         }
       }
 
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
-        forAll(genEmail, genName, genEori) { (email, name, eori) =>
-          inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(Enrolment(EoriEnrolment.key).withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
-            mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
-          }
-
-          checkIsRedirect(
-            performAction(),
-            routes.EnterMovementReferenceNumberController.show
-          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
         }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterMovementReferenceNumberController.show
+        )
       }
     }
 
@@ -166,11 +148,9 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the first confirm full repayment page and do not update the contact/address details if they are already present" in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
-          genEmail,
-          genName,
           genMrnContactDetails,
           genContactAddress
-        ) { case ((mrn, rfs, decl), email, name, contactDeatils, address) =>
+        ) { case ((mrn, rfs, decl), contactDeatils, address) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
             val journey = SecuritiesJourney
@@ -186,16 +166,7 @@ class CheckClaimantDetailsControllerSpec
             val session = SessionData(journey)
 
             inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(
-                  Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-                ),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
-              )
+              mockAuthWithNoRetrievals()
               mockGetSession(session)
             }
 
@@ -210,12 +181,10 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the first confirm full repayment page and update the contact/address details if the journey does not already contain them." in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
-          genEmail,
-          genName,
           individualGen,
           genConsigneeDetails,
           genDeclarantDetails
-        ) { case ((mrn, rfs, decl), email, name, individual, consignee, declarant) =>
+        ) { case ((mrn, rfs, decl), individual, consignee, declarant) =>
           val eori               = exampleEori
           val drd                = decl.displayResponseDetail.copy(
             declarantDetails = declarant.copy(declarantEORI = eori.value),
@@ -240,13 +209,7 @@ class CheckClaimantDetailsControllerSpec
           val updatedSession         = session.copy(securitiesJourney = Some(expectedJourney))
 
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(Enrolment(EoriEnrolment.key).withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -259,45 +222,35 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the basis for claims page and update the contact/address details if third party user" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen, genEmail, genName, genEori) {
-          case ((mrn, rfs, decl), email, name, userEori) =>
-            val declarationWithoutContactDetails =
-              decl.copy(displayResponseDetail =
-                decl.displayResponseDetail.copy(
-                  declarantDetails = decl.displayResponseDetail.declarantDetails.copy(contactDetails = None),
-                  consigneeDetails = None
-                )
+        forAll(mrnWithtRfsWithDisplayDeclarationGen, genEori) { case ((mrn, rfs, decl), userEori) =>
+          val declarationWithoutContactDetails =
+            decl.copy(displayResponseDetail =
+              decl.displayResponseDetail.copy(
+                declarantDetails = decl.displayResponseDetail.declarantDetails.copy(contactDetails = None),
+                consigneeDetails = None
               )
-
-            val journey = SecuritiesJourney
-              .empty(userEori)
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, declarationWithoutContactDetails)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.submitDeclarantEoriNumber(declarationWithoutContactDetails.getDeclarantEori))
-              .getOrFail
-
-            val session = SessionData(journey)
-
-            inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(
-                  Enrolment(EoriEnrolment.key)
-                    .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, userEori.value)
-                ),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
-              )
-              mockGetSession(session)
-              mockStoreSession(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.ConfirmFullRepaymentController.showFirst
             )
+
+          val journey = SecuritiesJourney
+            .empty(userEori)
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, declarationWithoutContactDetails)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.submitDeclarantEoriNumber(declarationWithoutContactDetails.getDeclarantEori))
+            .getOrFail
+
+          val session = SessionData(journey)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.ConfirmFullRepaymentController.showFirst
+          )
 
         }
       }
