@@ -28,7 +28,8 @@ import scala.concurrent.Future
 
 trait EnterContactDetailsMixin extends JourneyBaseController {
 
-  def postAction(confirmContactDetails: Boolean = false): Call
+  val postAction: Call
+
   val continueRouteEnterAddress: Call
 
   val continueRouteChangeDetails: Call
@@ -37,21 +38,32 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
-  final def show(confirmContactDetails: Boolean = false): Action[AnyContent] =
+  final def show: Action[AnyContent] =
     actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
-
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-            postAction(confirmContactDetails),
-            confirmContactDetails
+      if (journey.answers.enterContactDetailsMode) {
+        Future.successful(
+          Ok(
+            enterOrChangeContactDetailsPage(
+              Forms.mrnContactDetailsForm,
+              postAction,
+              journey.answers.enterContactDetailsMode
+            )
           )
         )
-      )
+      } else {
+        Future.successful(
+          Ok(
+            enterOrChangeContactDetailsPage(
+              Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
+              postAction,
+              journey.answers.enterContactDetailsMode
+            )
+          )
+        )
+      }
     }
 
-  final def submit(confirmContactDetails: Boolean = false): Action[AnyContent] =
+  final def submit: Action[AnyContent] =
     actionReadWriteJourneyAndUser(
       { implicit request => journey => userType => verifiedEmailOpt =>
         Forms.mrnContactDetailsForm
@@ -64,8 +76,8 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
                   BadRequest(
                     enterOrChangeContactDetailsPage(
                       formWithErrors,
-                      postAction(confirmContactDetails),
-                      confirmContactDetails
+                      postAction,
+                      journey.answers.enterContactDetailsMode
                     )
                   )
                 )

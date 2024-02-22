@@ -43,8 +43,8 @@ class EnterContactDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final override def postAction(confirmContactDetails: Boolean = false): Call =
-    routes.EnterContactDetailsController.submit(confirmContactDetails)
+  final override val postAction: Call =
+    routes.EnterContactDetailsController.submit
 
   final override val continueRouteEnterAddress: Call =
     routes.CheckClaimantDetailsController.redirectToALF

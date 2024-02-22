@@ -55,7 +55,7 @@ class CheckClaimantDetailsController @Inject() (
     journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
 
   val changeCd: Call =
-    routes.EnterContactDetailsController.show(confirmContactDetails = false)
+    routes.EnterContactDetailsController.show
 
   val postAction: Call =
     routes.CheckClaimantDetailsController.submit
@@ -67,7 +67,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.show
 
   override val confirmEmailRoute: Call =
-    routes.EnterContactDetailsController.show(confirmContactDetails = true)
+    routes.EnterContactDetailsController.show
 
   override val nextPageInTheJourney: Call =
     routes.BasisForClaimController.show
