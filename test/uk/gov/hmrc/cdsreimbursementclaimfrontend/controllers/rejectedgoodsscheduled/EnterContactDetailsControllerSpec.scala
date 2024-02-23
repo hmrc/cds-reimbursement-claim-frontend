@@ -93,7 +93,7 @@ class EnterContactDetailsControllerSpec
       "display the page" in {
         forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
           mockCompleteJourney(journey, email, name)
-          val contactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
+          val contactDetails = journey.answers.contactDetails
 
           checkPageIsDisplayed(
             performAction(),
@@ -164,14 +164,7 @@ class EnterContactDetailsControllerSpec
                   journey.submitContactDetails(
                     Some(
                       MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
-                        Some(
-                          journey
-                            .getInitialContactDetailsFromDeclarationAndCurrentUser(
-                              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
-                                .Individual(Some(email), journey.getClaimantEori, Some(name)),
-                              None
-                            )
-                        )
+                        journey.answers.contactDetails
                       )
                     )
                   )

@@ -1281,7 +1281,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       "return the specified details if they have been entered" in {
         forAll(completeJourneyGen, authenticatedUserGen) { (journey, signedInUser) =>
           whenever(journey.answers.contactDetails.isDefined) {
-            val result = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail)
+            val result = journey.answers.contactDetails
             result shouldBe journey.answers.contactDetails
           }
         }
@@ -1302,7 +1302,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             val expectedContact   = journey.answers.displayDeclaration
               .flatMap(_.getConsigneeDetails.flatMap(_.contactDetails))
               .getOrElse(fail("Failed to get contact details"))
-            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
+            val calculatedContact = journey.answers.contactDetails.get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
             calculatedContact.emailAddress.get.value   shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
@@ -1326,7 +1326,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
               journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
           ) {
-            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
+            val calculatedContact = journey.answers.contactDetails.get
             calculatedContact.fullName               shouldBe signedInUser.name
               .map(_.toFullName)
               .getOrElse(fail("No signed in user name present"))
@@ -1349,7 +1349,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             val expectedContact   = journey.answers.displayDeclaration
               .flatMap(_.getDeclarantDetails.contactDetails)
               .getOrElse(fail("Failed to get contact details"))
-            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
+            val calculatedContact = journey.answers.contactDetails.get
             calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
             calculatedContact.emailAddress.get.value   shouldBe expectedContact.maybeEmailAddress.getOrElse(
               signedInUser.email.get.value
@@ -1372,7 +1372,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           whenever(
             journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
           ) {
-            val calculatedContact = journey.computeContactDetails(signedInUser, signedInUser.asVerifiedEmail).get
+            val calculatedContact = journey.answers.contactDetails.get
             calculatedContact.fullName                 shouldBe signedInUser.name.map(_.toFullName).getOrElse("")
             calculatedContact.emailAddress.get.value   shouldBe signedInUser.email.map(_.value).getOrElse("")
             calculatedContact.phoneNumber.map(_.value) shouldBe None

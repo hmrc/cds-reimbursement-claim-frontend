@@ -180,7 +180,7 @@ class CheckClaimantDetailsControllerSpec
               overpaymentsSingleJourney = Some(journey)
             )
 
-            val expectedContactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
+            val expectedContactDetails = journey.answers.contactDetails
             val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
               journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
