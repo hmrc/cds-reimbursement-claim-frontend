@@ -53,7 +53,7 @@ class CheckDeclarationDetailsController @Inject() (
     journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
 
   final override def continueRoute(journey: Journey): Call =
-    routes.CheckClaimantDetailsController.show
+    routes.EnterContactDetailsController.show
 
   final override val enterMovementReferenceNumberRoute: Call =
     routes.EnterMovementReferenceNumberController.submit

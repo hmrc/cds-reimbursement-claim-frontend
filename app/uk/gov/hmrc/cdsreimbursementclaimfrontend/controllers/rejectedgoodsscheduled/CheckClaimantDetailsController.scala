@@ -65,7 +65,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.show
 
   override val nextPageInTheJourney: Call =
-    routes.BasisForClaimController.show
+    routes.UploadMrnListController.show
 
   override val confirmEmailRoute: Call =
     routes.EnterContactDetailsController.show

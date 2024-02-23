@@ -54,7 +54,7 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
         Future.successful(
           Ok(
             enterOrChangeContactDetailsPage(
-              Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
+              Forms.mrnContactDetailsForm.withDefault(journey.answers.contactDetails),
               postAction,
               journey.answers.enterContactDetailsMode
             )
@@ -84,12 +84,12 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
               ),
             contactDetails => {
               val previousDetails =
-                journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)
+                journey.answers.contactDetails
               val updatedJourney  = modifyJourney(
                 journey,
                 Some(
                   contactDetails
-                    .computeChanges(Some(previousDetails))
+                    .computeChanges(previousDetails)
                 )
               )
               if (journey.answers.enterContactDetailsMode) {

@@ -36,7 +36,7 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
 
   final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
     val (maybeContactDetails, maybeAddressDetails) =
-      (journey.answers.contactDetails, journey.computeAddressDetails)
+      (journey.answers.contactDetails, journey.answers.contactAddress)
     (maybeContactDetails, maybeAddressDetails) match {
       case (Some(cd), Some(ca)) =>
         (modifyJourney(journey, enterContactDetailsMode = false), Ok(viewTemplate(cd)(ca)(request)))
