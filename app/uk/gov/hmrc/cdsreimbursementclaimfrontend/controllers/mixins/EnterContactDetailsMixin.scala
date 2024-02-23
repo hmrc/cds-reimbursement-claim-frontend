@@ -39,7 +39,7 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
   final def show: Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
+    actionReadJourney { implicit request => journey =>
       if (journey.answers.enterContactDetailsMode) {
         Future.successful(
           Ok(
@@ -64,8 +64,8 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
     }
 
   final def submit: Action[AnyContent] =
-    actionReadWriteJourneyAndUser(
-      { implicit request => journey => userType => verifiedEmailOpt =>
+    actionReadWriteJourney(
+      { implicit request => journey =>
         Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(

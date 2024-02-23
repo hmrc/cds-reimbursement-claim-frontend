@@ -151,7 +151,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.UploadMrnListController.show
+          routes.EnterContactDetailsController.show
         )
       }
 

@@ -295,7 +295,8 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+          val sessionToAmend =
+            session.copy(overpaymentsMultipleJourney = Some(journey.withEnterContactDetailsMode(true)))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -304,7 +305,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.CheckClaimantDetailsController.show
+            routes.EnterContactDetailsController.show
           )
         }
       }

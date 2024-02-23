@@ -89,21 +89,16 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
-          mockCompleteJourney(journey, email, name)
-          val contactDetails = journey.answers.contactDetails
+        forAll(buildCompleteJourneyGen()) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+          }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("enter-contact-details.change.title"),
-            doc => {
-              doc
-                .select("form input[name='enter-contact-details.contact-name']")
-                .`val`() shouldBe contactDetails.get.fullName
-              doc
-                .select("form input[name='enter-contact-details.contact-email']")
-                .`val`() shouldBe contactDetails.get.emailAddress.get.value
-            }
+            doc => doc.select("form").attr("action") shouldBe routes.EnterContactDetailsController.submit.url
           )
         }
       }
@@ -120,70 +115,57 @@ class EnterContactDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey.submitContactDetails(None))))
-          }
+      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
-          )
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
-            doc => {
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-name.error.required"
-              )
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-email.error.required"
-              )
-            },
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-contact-details.change.title"),
+          doc => {
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-name.error.required"
+            )
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-email.error.required"
+            )
+          },
+          expectedStatus = BAD_REQUEST
+        )
       }
 
-      "submit a valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockStoreSession(
-              session.copy(overpaymentsScheduledJourney =
-                Some(
-                  journey.submitContactDetails(
-                    Some(
-                      MrnContactDetails(name.toFullName, Some(email), None)
-                        .computeChanges(
-                          journey.answers.contactDetails
-                        )
-                    )
-                  )
-                )
-              )
-            )(Right(()))
-          }
+      "submit valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey.withEnterContactDetailsMode(true))))
+          mockStoreSession(Right(()))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
-          )
+        checkIsRedirect(
+          performAction(
+            "enter-contact-details.contact-name"  -> name.toFullName,
+            "enter-contact-details.contact-email" -> email.value
+          ),
+          routes.CheckClaimantDetailsController.redirectToALF
+        )
+      }
 
-          checkIsRedirect(
-            performAction(
-              "enter-contact-details.contact-name"  -> name.toFullName,
-              "enter-contact-details.contact-email" -> email.value
-            ),
-            routes.CheckClaimantDetailsController.show
-          )
+      "change valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            "enter-contact-details.contact-name"  -> name.toFullName,
+            "enter-contact-details.contact-email" -> email.value
+          ),
+          routes.CheckClaimantDetailsController.show
+        )
       }
     }
   }

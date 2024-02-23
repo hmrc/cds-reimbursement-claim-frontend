@@ -50,8 +50,8 @@ class CheckClaimantDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
-    journey
+  final override def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(enterContactDetailsMode)
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 

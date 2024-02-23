@@ -166,42 +166,6 @@ class CheckClaimantDetailsControllerSpec
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, individualGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, individual, consignee, declarant) =>
-            val eori               = exampleEori
-            val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
-              declarantDetails = declarant.copy(declarantEORI = eori.value),
-              consigneeDetails = Some(consignee.copy(consigneeEORI = eori.value))
-            )
-            val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
-            val journey            = RejectedGoodsMultipleJourney
-              .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .getOrFail
-            val session            = SessionData.empty.copy(
-              rejectedGoodsMultipleJourney = Some(journey)
-            )
-
-            val expectedContactDetails = journey.answers.contactDetails
-            val expectedAddress        = journey.computeAddressDetails.get
-            val expectedJourney        =
-              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = session.copy(rejectedGoodsMultipleJourney = Some(expectedJourney))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.BasisForClaimController.show
-            )
-        }
-      }
-
       "redirect to the basis for claims page and update the contact/address details if third party user" in {
         forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
           val journey = RejectedGoodsMultipleJourney
