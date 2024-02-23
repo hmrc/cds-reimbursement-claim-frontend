@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._

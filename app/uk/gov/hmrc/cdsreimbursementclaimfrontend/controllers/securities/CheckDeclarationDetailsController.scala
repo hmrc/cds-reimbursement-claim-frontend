@@ -48,7 +48,7 @@ class CheckDeclarationDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val show: Action[AnyContent] =
+  final val show: Action[AnyContent] =
     simpleActionReadWriteJourney { implicit request => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(true)
       (
@@ -60,7 +60,7 @@ class CheckDeclarationDetailsController @Inject() (
       )
     }
 
-  val submit: Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     simpleActionReadWriteJourney { _ => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
       if (journey.getSelectedDepositIds.isEmpty)

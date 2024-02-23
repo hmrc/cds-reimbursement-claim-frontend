@@ -25,7 +25,6 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.authenticatedUserGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._

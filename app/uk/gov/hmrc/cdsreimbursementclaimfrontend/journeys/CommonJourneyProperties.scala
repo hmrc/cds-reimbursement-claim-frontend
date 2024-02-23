@@ -20,18 +20,13 @@ import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
