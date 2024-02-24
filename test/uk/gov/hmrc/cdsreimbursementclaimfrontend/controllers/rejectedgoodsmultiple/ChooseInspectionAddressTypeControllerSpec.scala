@@ -116,7 +116,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -149,7 +149,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -191,7 +191,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -224,7 +224,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -301,8 +301,8 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
-            mockStoreSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))(Right(()))
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
           }
 
           checkIsRedirect(

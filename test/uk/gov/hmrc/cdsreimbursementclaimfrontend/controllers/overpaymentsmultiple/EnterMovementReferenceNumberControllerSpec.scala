@@ -379,7 +379,7 @@ class EnterMovementReferenceNumberControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(overpaymentsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -436,7 +436,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(overpaymentsMultipleJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }
 

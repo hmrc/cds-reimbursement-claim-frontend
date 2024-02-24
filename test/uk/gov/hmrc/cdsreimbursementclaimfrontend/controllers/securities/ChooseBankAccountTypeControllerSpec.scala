@@ -90,7 +90,7 @@ class ChooseBankAccountTypeControllerSpec
     ) { case (initialJourney: SecuritiesJourney, _) =>
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(securitiesJourney = Some(initialJourney)))
+        mockGetSession(SessionData(initialJourney))
       }
 
       checkPageIsDisplayed(
@@ -134,7 +134,7 @@ class ChooseBankAccountTypeControllerSpec
       ) { case (initialJourney: SecuritiesJourney, _) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(securitiesJourney = Some(initialJourney)))
+          mockGetSession(SessionData(initialJourney))
           mockStoreSession(
             session.copy(
               securitiesJourney = Some(

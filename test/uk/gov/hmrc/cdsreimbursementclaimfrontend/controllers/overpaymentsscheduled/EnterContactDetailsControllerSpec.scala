@@ -82,7 +82,7 @@ class EnterContactDetailsControllerSpec
         forAll(buildCompleteJourneyGen()) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
@@ -108,7 +108,7 @@ class EnterContactDetailsControllerSpec
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -129,7 +129,7 @@ class EnterContactDetailsControllerSpec
       "submit valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey.withEnterContactDetailsMode(true))))
+          mockGetSession(SessionData(journey.withEnterContactDetailsMode(true)))
           mockStoreSession(Right(()))
         }
 
@@ -145,7 +145,7 @@ class EnterContactDetailsControllerSpec
       "change valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
           mockStoreSession(Right(()))
         }
 

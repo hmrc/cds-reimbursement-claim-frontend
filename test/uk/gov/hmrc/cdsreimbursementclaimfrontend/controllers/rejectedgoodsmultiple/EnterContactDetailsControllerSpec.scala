@@ -74,7 +74,7 @@ class EnterContactDetailsControllerSpec
   private def mockCompleteJourney(journey: RejectedGoodsMultipleJourney, email: Email, name: contactdetails.Name) =
     inSequence {
       mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-      mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+      mockGetSession(SessionData(journey))
     }
 
   "Enter Contact Details Controller" when {
@@ -124,9 +124,9 @@ class EnterContactDetailsControllerSpec
         (journey, email, name) =>
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey.submitContactDetails(None))))
+            mockGetSession(SessionData(journey.submitContactDetails(None)))
           }
 
           checkPageIsDisplayed(
@@ -153,9 +153,9 @@ class EnterContactDetailsControllerSpec
         (journey, email, name) =>
           inSequence {
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockStoreSession(
               session.copy(rejectedGoodsMultipleJourney =
                 Some(

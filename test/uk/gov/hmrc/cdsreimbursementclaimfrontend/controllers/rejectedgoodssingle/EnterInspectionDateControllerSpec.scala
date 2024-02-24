@@ -238,7 +238,7 @@ class EnterInspectionDateControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
           mockStoreSession(sessionWithInspectionDate)(Right(()))
         }
 
