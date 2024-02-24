@@ -27,25 +27,18 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -75,9 +68,9 @@ class EnterContactDetailsControllerSpec
 
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 
-  private def mockCompleteJourney(journey: SecuritiesJourney, email: Email, name: contactdetails.Name) =
+  private def mockCompleteJourney(journey: SecuritiesJourney) =
     inSequence {
-      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+      mockAuthWithNoRetrievals()
       mockGetSession(SessionData(journey))
     }
 
@@ -93,8 +86,8 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
-          mockCompleteJourney(journey, email, name)
+        forAll(buildCompleteJourneyGen()) { journey =>
+          mockCompleteJourney(journey)
           val contactDetails = journey.answers.contactDetails
 
           checkPageIsDisplayed(
@@ -124,34 +117,33 @@ class EnterContactDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(SessionData(journey))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(SessionData(journey.submitContactDetails(None)))
-          }
+      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey.submitContactDetails(None)))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
-          )
+        checkPageIsDisplayed(
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-contact-details.change.title")
+        )
 
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
-            doc => {
-              val errors = getErrorSummary(doc)
-              errors contains messageFromMessageKey(
-                "enter-contact-details.contact-name.error.required"
-              )
-              errors contains messageFromMessageKey(
-                "enter-contact-details.contact-email.error.required"
-              )
-            },
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-contact-details.change.title"),
+          doc => {
+            val errors = getErrorSummary(doc)
+            errors contains messageFromMessageKey(
+              "enter-contact-details.contact-name.error.required"
+            )
+            errors contains messageFromMessageKey(
+              "enter-contact-details.contact-email.error.required"
+            )
+          },
+          expectedStatus = BAD_REQUEST
+        )
       }
 
       "submit a valid contact detail" in forAll(
@@ -166,18 +158,9 @@ class EnterContactDetailsControllerSpec
         genName
       ) { (journey, email, name) =>
         inSequence {
-          mockAuthWithAllRetrievals(
-            Some(AffinityGroup.Individual),
-            Some(email.value),
-            Set(
-              Enrolment(EoriEnrolment.key)
-                .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, journey.getClaimantEori.value)
-            ),
-            Some(Credentials("id", "GovernmentGateway")),
-            Some(Name(name.name, name.lastName))
-          )
+          mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
-          mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+          mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(
@@ -210,9 +193,9 @@ class EnterContactDetailsControllerSpec
       "submit a valid contact detail when journey is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+            mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+            mockAuthWithNoRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(
               session.copy(securitiesJourney =
