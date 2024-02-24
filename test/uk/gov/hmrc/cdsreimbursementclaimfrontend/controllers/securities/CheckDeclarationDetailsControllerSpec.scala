@@ -289,12 +289,16 @@ class CheckDeclarationDetailsControllerSpec
             inSequence {
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
+              mockStoreSession(
+                SessionData(
+                  initialJourney.submitCheckDeclarationDetailsChangeMode(false).withEnterContactDetailsMode(true)
+                )
+              )(Right(()))
             }
 
             checkIsRedirect(
               performAction(),
-              routes.CheckClaimantDetailsController.show
+              routes.EnterContactDetailsController.show
             )
           }
         }

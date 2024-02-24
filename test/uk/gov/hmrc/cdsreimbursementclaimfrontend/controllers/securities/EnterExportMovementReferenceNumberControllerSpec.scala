@@ -197,13 +197,15 @@ class EnterExportMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockGetDisplayDeclaration(Left(Error("")))
           mockStoreSession(
-            SessionData(journey.submitExportMovementReferenceNumber(exampleMrn).getOrFail)
+            SessionData(
+              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(exampleMrn).getOrFail
+            )
           )(Right(()))
         }
 
         checkIsRedirect(
           performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show
+          routes.EnterContactDetailsController.show
         )
       }
 
@@ -220,13 +222,15 @@ class EnterExportMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockGetDisplayDeclaration(Left(Error("")))
           mockStoreSession(
-            SessionData(journey.submitExportMovementReferenceNumber(exampleMrn).getOrFail)
+            SessionData(
+              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(exampleMrn).getOrFail
+            )
           )(Right(()))
         }
 
         checkIsRedirect(
           performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
-          routes.CheckClaimantDetailsController.show
+          routes.EnterContactDetailsController.show
         )
       }
 

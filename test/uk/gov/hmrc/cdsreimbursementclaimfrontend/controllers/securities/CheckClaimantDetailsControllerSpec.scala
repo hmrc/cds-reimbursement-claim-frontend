@@ -181,8 +181,9 @@ class CheckClaimantDetailsControllerSpec
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
           genConsigneeDetails,
-          genDeclarantDetails
-        ) { case ((mrn, rfs, decl), consignee, declarant) =>
+          genDeclarantDetails,
+          genContactAddress
+        ) { case ((mrn, rfs, decl), consignee, declarant, address) =>
           val eori               = exampleEori
           val drd                = decl.displayResponseDetail.copy(
             declarantDetails = declarant.copy(declarantEORI = eori.value),
@@ -201,9 +202,8 @@ class CheckClaimantDetailsControllerSpec
           val session = SessionData(journey)
 
           val expectedContactDetails = journey.answers.contactDetails
-          val expectedAddress        = journey.computeAddressDetails.get
           val expectedJourney        =
-            journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
+            journey.submitContactDetails(expectedContactDetails).submitContactAddress(address)
           val updatedSession         = SessionData(expectedJourney)
 
           inSequence {
