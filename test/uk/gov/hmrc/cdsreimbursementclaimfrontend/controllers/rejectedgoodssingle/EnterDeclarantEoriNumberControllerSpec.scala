@@ -162,7 +162,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val eori           = journey.answers.eoriNumbersVerification
           .flatMap(_.declarantEoriNumber)
           .getOrElse(fail("No consignee eori found"))
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -237,9 +237,9 @@ class EnterDeclarantEoriNumberControllerSpec
           initialJourney
             .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
-        val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val requiredSession               = SessionData(journey)
         val updatedJourney                = journey.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-        val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+        val updatedSession                = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -268,7 +268,7 @@ class EnterDeclarantEoriNumberControllerSpec
               initialJourney
                 .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
-            val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
+            val requiredSession               = SessionData(journey)
 
             inSequence {
               mockAuthWithNoRetrievals()

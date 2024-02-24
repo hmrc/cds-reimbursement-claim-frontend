@@ -117,7 +117,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "the user has answered this question before" in forAll(completeJourneyNotCMAEligibleGen) { journey =>
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -501,7 +501,7 @@ class EnterBankAccountDetailsControllerSpec
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
-        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
         val updatedSession             = session.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
@@ -555,7 +555,7 @@ class EnterBankAccountDetailsControllerSpec
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
-        val requiredSession = session.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
         val boom            = new BadRequestException("Boom!")
 
         inSequence {

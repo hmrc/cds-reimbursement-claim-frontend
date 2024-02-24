@@ -94,7 +94,7 @@ class CheckClaimantDetailsControllerSpec
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
-          val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -180,7 +180,7 @@ class CheckClaimantDetailsControllerSpec
             val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
               journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = session.copy(rejectedGoodsScheduledJourney = Some(expectedJourney))
+            val updatedSession         = SessionData(expectedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

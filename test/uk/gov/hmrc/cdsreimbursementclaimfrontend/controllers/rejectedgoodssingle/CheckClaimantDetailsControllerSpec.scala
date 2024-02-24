@@ -96,7 +96,7 @@ class CheckClaimantDetailsControllerSpec
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
-          val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()

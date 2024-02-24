@@ -172,7 +172,7 @@ class CheckMovementReferenceNumbersControllerSpec
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
           val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
 
-          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -205,7 +205,7 @@ class CheckMovementReferenceNumbersControllerSpec
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
           val mrns = acc14Declarations.map(_.getMRN)
 
-          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -249,7 +249,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -273,7 +273,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -296,7 +296,7 @@ class CheckMovementReferenceNumbersControllerSpec
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
           val sessionToAmend =
-            session.copy(overpaymentsMultipleJourney = Some(journey.withEnterContactDetailsMode(true)))
+            SessionData(journey.withEnterContactDetailsMode(true))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -345,12 +345,12 @@ class CheckMovementReferenceNumbersControllerSpec
 
             journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-            val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+            val sessionToAmend = SessionData(journey)
 
             val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
 
             val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
-            val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

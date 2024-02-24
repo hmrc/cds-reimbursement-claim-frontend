@@ -108,7 +108,7 @@ class EnterInspectionDateControllerSpec
 
       "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
         val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

@@ -207,7 +207,7 @@ class ChooseRepaymentMethodControllerSpec
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
               session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(CurrentMonthAdjustment).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -229,7 +229,7 @@ class ChooseRepaymentMethodControllerSpec
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
               session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(BankAccountTransfer).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

@@ -121,7 +121,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "the user has answered this question before" in forAll(completeJourneyNotCMAEligibleGen) { journey =>
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -630,7 +630,7 @@ class EnterBankAccountDetailsControllerSpec
 //      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
 //        (bankDetails, accountExists) =>
 //          val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-//          val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
+//          val requiredSession = SessionData(initialJourney)
 //
 //          val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
 //          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
@@ -659,7 +659,7 @@ class EnterBankAccountDetailsControllerSpec
 //      }
 
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
-        val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(journeyWithMrnAndDeclaration))
+        val requiredSession = SessionData(journeyWithMrnAndDeclaration)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -680,7 +680,7 @@ class EnterBankAccountDetailsControllerSpec
         genBankAccountDetails
       ) { bankDetails =>
         val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-        val requiredSession = session.copy(rejectedGoodsMultipleJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()

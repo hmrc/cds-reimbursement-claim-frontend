@@ -90,7 +90,7 @@ class CheckDeclarationDetailsControllerSpec
           acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -120,7 +120,7 @@ class CheckDeclarationDetailsControllerSpec
           features = Some(RejectedGoodsSingleJourney.Features(false, true))
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -150,7 +150,7 @@ class CheckDeclarationDetailsControllerSpec
         val journey =
           completeJourneyWithSomeSubsidiesGen.sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

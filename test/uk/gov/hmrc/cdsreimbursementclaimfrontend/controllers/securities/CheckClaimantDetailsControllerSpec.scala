@@ -206,7 +206,7 @@ class CheckClaimantDetailsControllerSpec
           val expectedAddress        = journey.computeAddressDetails.get
           val expectedJourney        =
             journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-          val updatedSession         = session.copy(securitiesJourney = Some(expectedJourney))
+          val updatedSession         = SessionData(expectedJourney)
 
           inSequence {
             mockAuthWithNoRetrievals()

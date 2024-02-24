@@ -142,7 +142,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       ) { journey =>
         val eori           = journey.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber).value
-        val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -220,7 +220,7 @@ class EnterDeclarantEoriNumberControllerSpec
               .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
               .getOrFail
 
-          val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+          val requiredSession = SessionData(journey)
           val updatedJourney  = journey.submitDeclarantEoriNumber(eori)
           val updatedSession  = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
@@ -252,7 +252,7 @@ class EnterDeclarantEoriNumberControllerSpec
                 .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
 
-            val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+            val requiredSession = SessionData(journey)
 
             inSequence {
               mockAuthWithNoRetrievals()

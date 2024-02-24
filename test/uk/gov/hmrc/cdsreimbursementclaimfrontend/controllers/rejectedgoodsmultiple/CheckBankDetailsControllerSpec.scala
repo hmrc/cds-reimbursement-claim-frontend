@@ -82,7 +82,7 @@ class CheckBankDetailsControllerSpec
         .flatMap(_.submitPayeeType(payeeType))
         .getOrFail
 
-    session.copy(rejectedGoodsMultipleJourney = Some(rejectedGoodsMultipleJourney))
+    SessionData(rejectedGoodsMultipleJourney)
 
   }
 

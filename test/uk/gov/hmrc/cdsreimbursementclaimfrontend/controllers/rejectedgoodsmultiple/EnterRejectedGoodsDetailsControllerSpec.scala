@@ -86,7 +86,7 @@ class EnterRejectedGoodsDetailsControllerSpec
       "the user has entered some details" in {
         val journey        = session.rejectedGoodsMultipleJourney.getOrElse(fail("No rejected goods journey"))
         val updatedJourney = journey.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()

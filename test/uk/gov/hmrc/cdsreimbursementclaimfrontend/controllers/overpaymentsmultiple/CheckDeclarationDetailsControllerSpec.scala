@@ -131,7 +131,7 @@ class CheckDeclarationDetailsControllerSpec
         val journey        = session.overpaymentsMultipleJourney.get
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

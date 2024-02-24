@@ -126,7 +126,7 @@ class EnterInspectionDateControllerSpec
 
       "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
         val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -196,7 +196,7 @@ class EnterInspectionDateControllerSpec
             val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -234,7 +234,7 @@ class EnterInspectionDateControllerSpec
             val initialSession         = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -254,9 +254,9 @@ class EnterInspectionDateControllerSpec
       }
 
       "redirect to CYA page if journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
-        val initialSession = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val initialSession = SessionData(journey)
         val updatedJourney = journey.submitInspectionDate(date)
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()

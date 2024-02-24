@@ -87,7 +87,7 @@ class CheckDeclarationDetailsControllerSpec
           acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(overpaymentsScheduledJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
