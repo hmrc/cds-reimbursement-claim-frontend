@@ -33,12 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -68,12 +66,6 @@ class EnterContactDetailsControllerSpec
   val session: SessionData = SessionData.empty.copy(
     overpaymentsScheduledJourney = Some(OverpaymentsScheduledJourney.empty(exampleEori))
   )
-
-  private def mockCompleteJourney(journey: OverpaymentsScheduledJourney, email: Email, name: contactdetails.Name) =
-    inSequence {
-      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-      mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-    }
 
   "Enter Contact Details Controller" when {
     "Enter Contact Details page" must {

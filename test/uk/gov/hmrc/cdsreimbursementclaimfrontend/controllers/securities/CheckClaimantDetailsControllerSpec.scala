@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -181,10 +180,9 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the first confirm full repayment page and update the contact/address details if the journey does not already contain them." in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
-          individualGen,
           genConsigneeDetails,
           genDeclarantDetails
-        ) { case ((mrn, rfs, decl), individual, consignee, declarant) =>
+        ) { case ((mrn, rfs, decl), consignee, declarant) =>
           val eori               = exampleEori
           val drd                = decl.displayResponseDetail.copy(
             declarantDetails = declarant.copy(declarantEORI = eori.value),

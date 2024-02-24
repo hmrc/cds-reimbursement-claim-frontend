@@ -68,12 +68,6 @@ class EnterContactDetailsControllerSpec
     overpaymentsSingleJourney = Some(OverpaymentsSingleJourney.empty(exampleEori))
   )
 
-  private def mockCompleteJourney(journey: OverpaymentsSingleJourney) =
-    inSequence {
-      mockAuthWithNoRetrievals()
-      mockGetSession(session.copy(overpaymentsSingleJourney = Some(journey)))
-    }
-
   "Enter Contact Details Controller" when {
     "Enter Contact Details page" must {
 

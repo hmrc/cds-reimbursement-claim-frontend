@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -160,8 +159,8 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the select basis for claim page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, individualGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, individual, consignee, declarant) =>
+        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails) {
+          (initialDisplayDeclaration, consignee, declarant) =>
             val eori               = exampleEori
             val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
               declarantDetails = declarant.copy(declarantEORI = eori.value),
