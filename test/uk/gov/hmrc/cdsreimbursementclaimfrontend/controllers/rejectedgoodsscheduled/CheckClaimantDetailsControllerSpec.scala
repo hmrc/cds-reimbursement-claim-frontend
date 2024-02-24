@@ -151,14 +151,14 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show
+            routes.UploadMrnListController.show
           )
         }
       }
 
       "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, consignee, declarant) =>
+        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
+          (initialDisplayDeclaration, consignee, declarant, address) =>
             val eori               = exampleEori
             val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
               declarantDetails = declarant.copy(declarantEORI = eori.value),
@@ -172,9 +172,8 @@ class CheckClaimantDetailsControllerSpec
             val session            = SessionData(journey)
 
             val expectedContactDetails = journey.answers.contactDetails
-            val expectedAddress        = journey.computeAddressDetails.get
             val expectedJourney        =
-              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
+              journey.submitContactDetails(expectedContactDetails).submitContactAddress(address)
             val updatedSession         = SessionData(expectedJourney)
 
             inSequence {
@@ -185,7 +184,7 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show
+              routes.UploadMrnListController.show
             )
         }
       }
@@ -209,7 +208,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show
+            routes.UploadMrnListController.show
           )
         }
       }
