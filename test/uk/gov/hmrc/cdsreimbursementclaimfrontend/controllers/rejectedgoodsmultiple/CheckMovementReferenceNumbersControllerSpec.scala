@@ -297,11 +297,16 @@ class CheckMovementReferenceNumbersControllerSpec
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionToAmend)
+            mockStoreSession(
+              session.copy(
+                rejectedGoodsMultipleJourney = Some(journey.withEnterContactDetailsMode(true))
+              )
+            )(Right(()))
           }
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.CheckClaimantDetailsController.show
+            routes.EnterContactDetailsController.show
           )
         }
       }
