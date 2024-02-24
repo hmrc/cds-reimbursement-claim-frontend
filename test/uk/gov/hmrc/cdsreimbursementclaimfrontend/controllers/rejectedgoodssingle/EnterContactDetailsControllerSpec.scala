@@ -69,9 +69,7 @@ class EnterContactDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(RejectedGoodsSingleJourney.empty(exampleEori))
 
   private def mockCompleteJourney(journey: RejectedGoodsSingleJourney, email: Email, name: contactdetails.Name) =
     inSequence {

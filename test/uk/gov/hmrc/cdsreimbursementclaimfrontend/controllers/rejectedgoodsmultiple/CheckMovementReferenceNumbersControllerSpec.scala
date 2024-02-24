@@ -80,9 +80,7 @@ class CheckMovementReferenceNumbersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(RejectedGoodsMultipleJourney.empty(exampleEori))
 
   def addAcc14(
     journey: RejectedGoodsMultipleJourney,

@@ -101,8 +101,10 @@ class UploadMrnListControllerSpec
         val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey.receiveScheduledDocument(journey.answers.nonce, uploadDocument).getOrFail))
-          mockInitializeCall(Some(uploadDocument))
+          mockGetSession(
+            SessionData(journey.receiveScheduledDocument(journey.answers.nonce, exampleUploadedFile).getOrFail)
+          )
+          mockInitializeCall(Some(exampleUploadedFile))
         }
 
         checkIsRedirect(
@@ -136,7 +138,7 @@ class UploadMrnListControllerSpec
       val callbackPayload: UploadMrnListCallback =
         UploadMrnListCallback(
           nonce = Nonce.random,
-          uploadedFiles = Seq(uploadDocument)
+          uploadedFiles = Seq(exampleUploadedFile)
         )
 
       "return 204 if callback accepted" in {
@@ -147,7 +149,7 @@ class UploadMrnListControllerSpec
           mockStoreSession(
             SessionData(
               journey
-                .receiveScheduledDocument(journey.answers.nonce, uploadDocument)
+                .receiveScheduledDocument(journey.answers.nonce, exampleUploadedFile)
                 .getOrFail
             )
           )(Right(()))

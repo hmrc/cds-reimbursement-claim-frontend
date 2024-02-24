@@ -64,9 +64,7 @@ class EnterContactDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session: SessionData = SessionData.empty.copy(
-    overpaymentsSingleJourney = Some(OverpaymentsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
   "Enter Contact Details Controller" when {
     "Enter Contact Details page" must {

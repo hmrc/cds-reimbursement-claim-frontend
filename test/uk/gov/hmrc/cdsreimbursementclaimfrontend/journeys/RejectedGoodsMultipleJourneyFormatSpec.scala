@@ -73,7 +73,7 @@ class RejectedGoodsMultipleJourneyFormatSpec
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          supportingEvidences = Seq(uploadDocument)
+          supportingEvidences = Seq(exampleUploadedFile)
         )
       )
       validateCanReadAndWriteJson(

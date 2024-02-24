@@ -142,9 +142,7 @@ class CheckClaimantDetailsControllerSpec
             .submitContactDetails(Some(contactDetails))
             .submitContactAddress(address)
 
-          val session = SessionData.empty.copy(
-            rejectedGoodsScheduledJourney = Some(journey)
-          )
+          val session = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -171,9 +169,7 @@ class CheckClaimantDetailsControllerSpec
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
-            val session            = SessionData.empty.copy(
-              rejectedGoodsScheduledJourney = Some(journey)
-            )
+            val session            = SessionData(journey)
 
             val expectedContactDetails = journey.answers.contactDetails
             val expectedAddress        = journey.computeAddressDetails.get

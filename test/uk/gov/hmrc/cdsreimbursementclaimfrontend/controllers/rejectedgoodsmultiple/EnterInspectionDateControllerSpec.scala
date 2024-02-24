@@ -82,9 +82,7 @@ class EnterInspectionDateControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(RejectedGoodsMultipleJourney.empty(exampleEori))
 
   def addAcc14(
     journey: RejectedGoodsMultipleJourney,

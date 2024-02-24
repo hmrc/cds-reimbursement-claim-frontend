@@ -90,9 +90,7 @@ class EnterMovementReferenceNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session = SessionData.empty.copy(
-    overpaymentsScheduledJourney = Some(OverpaymentsScheduledJourney.empty(exampleEori))
-  )
+  val session = SessionData(OverpaymentsScheduledJourney.empty(exampleEori))
 
   private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimService

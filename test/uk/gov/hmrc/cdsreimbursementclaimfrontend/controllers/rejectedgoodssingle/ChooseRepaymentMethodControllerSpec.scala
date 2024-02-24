@@ -118,9 +118,7 @@ class ChooseRepaymentMethodControllerSpec
 
       "show the page on a pre-existing journey" in {
         forAll(completeJourneyCMAEligibleGen) { journey =>
-          val session = SessionData.empty.copy(
-            rejectedGoodsSingleJourney = Some(journey)
-          )
+          val session = SessionData(journey)
 
           val expectedCheckedKey = journey.answers.reimbursementMethod match {
             case Some(CurrentMonthAdjustment) => "input[value=0]"

@@ -114,7 +114,7 @@ class UploadFilesControllerSpec
     val callbackPayload: UploadDocumentsCallback =
       UploadDocumentsCallback(
         nonce = Nonce.random,
-        uploadedFiles = Seq(uploadDocument),
+        uploadedFiles = Seq(exampleUploadedFile),
         cargo = UploadDocumentType.CommercialInvoice
       )
 
@@ -130,7 +130,7 @@ class UploadFilesControllerSpec
         mockStoreSession(
           SessionData(
             journey
-              .receiveUploadedFiles(documentType, journey.answers.nonce, Seq(uploadDocument))
+              .receiveUploadedFiles(documentType, journey.answers.nonce, Seq(exampleUploadedFile))
               .getOrFail
           )
         )(Right(()))

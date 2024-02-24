@@ -81,9 +81,7 @@ class CheckMovementReferenceNumbersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  private val session = SessionData.empty.copy(
-    overpaymentsMultipleJourney = Some(OverpaymentsMultipleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(OverpaymentsMultipleJourney.empty(exampleEori))
 
   def addAcc14(
     journey: OverpaymentsMultipleJourney,

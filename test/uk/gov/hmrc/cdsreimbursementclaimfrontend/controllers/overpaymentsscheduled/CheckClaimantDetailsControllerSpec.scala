@@ -136,60 +136,28 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the select basis for claim page and do not update the contact/address details if they are already present" in {
         forAll(displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (displayDeclaration, contactDetails, address) =>
+          (displayDeclaration, contactDetails, contactAddress) =>
             val journey = OverpaymentsScheduledJourney
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .map(_.submitContactDetails(Some(contactDetails)))
-              .map(_.submitContactAddress(address))
+              .tryBuildFrom(
+                OverpaymentsScheduledJourney.Answers(
+                  userEoriNumber = displayDeclaration.getDeclarantEori,
+                  movementReferenceNumber = Some(exampleMrn),
+                  displayDeclaration = Some(displayDeclaration),
+                  scheduledDocument = Some(exampleUploadedFile),
+                  contactDetails = Some(contactDetails),
+                  contactAddress = Some(contactAddress)
+                )
+              )
               .getOrFail
-
-            val session = SessionData(journey)
 
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(session)
+              mockGetSession(SessionData(journey))
             }
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show
-            )
-        }
-      }
-
-      "redirect to the select basis for claim page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, consignee, declarant) =>
-            val eori               = exampleEori
-            val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
-              declarantDetails = declarant.copy(declarantEORI = eori.value),
-              consigneeDetails = Some(consignee.copy(consigneeEORI = eori.value))
-            )
-            val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
-            val journey            = OverpaymentsScheduledJourney
-              .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-              .getOrFail
-            val session            = SessionData.empty.copy(
-              overpaymentsScheduledJourney = Some(journey)
-            )
-
-            val expectedContactDetails = journey.answers.contactDetails
-            val expectedAddress        = journey.computeAddressDetails.get
-            val expectedJourney        =
-              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = SessionData(expectedJourney)
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(),
-              routes.BasisForClaimController.show
+              routes.UploadMrnListController.show
             )
         }
       }
@@ -213,7 +181,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show
+            routes.UploadMrnListController.show
           )
         }
       }

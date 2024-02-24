@@ -67,9 +67,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(emptyJourney)
-  )
+  val session = SessionData(emptyJourney)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
