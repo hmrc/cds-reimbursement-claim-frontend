@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.displayDeclarationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -163,8 +162,8 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the select basis for claim page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, individualGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, individual, consignee, declarant) =>
+        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
+          (initialDisplayDeclaration, consignee, declarant, address) =>
             val eori               = exampleEori
             val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
               declarantDetails = declarant.copy(declarantEORI = eori.value),
@@ -179,10 +178,10 @@ class CheckClaimantDetailsControllerSpec
             val session = SessionData(journey)
 
             val expectedContactDetails = journey.answers.contactDetails
-            val expectedAddress        = journey.computeAddressDetails.get
-            val expectedJourney        =
-              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = session.copy(overpaymentsMultipleJourney = Some(expectedJourney))
+
+            val expectedJourney =
+              journey.submitContactDetails(expectedContactDetails).submitContactAddress(address)
+            val updatedSession  = session.copy(overpaymentsMultipleJourney = Some(expectedJourney))
 
             inSequence {
               mockAuthWithNoRetrievals()
