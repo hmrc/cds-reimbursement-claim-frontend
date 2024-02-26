@@ -21,6 +21,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -29,14 +30,16 @@
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[MrnContactDetails], postAction: Call, confirmContactDetails: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[MrnContactDetails], postAction: Call, enterContactDetails: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-contact-details"}
 
-@title = @{if (confirmContactDetails) messages(s"enter-contact-details.confirm.title") else messages(s"enter-contact-details.change.title")}
+@title = @{messages(s"enter-contact-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -46,6 +49,8 @@
 
     @heading(Html(title))
 
+    @insetText(content = HtmlContent(messages(s"enter-contact-details.inset-text")))
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
@@ -54,7 +59,6 @@
             name = s"enter-contact-details.contact-name",
             label = s"enter-contact-details.contact-name.label",
             isPageHeading = false,
-            autocomplete = Some("name"),
             classes = Some("govuk-input--width-20")
         )
 
@@ -65,7 +69,6 @@
             label = s"enter-contact-details.contact-email.label",
             isPageHeading = false,
             inputType = "email",
-            autocomplete = Some("email"),
             spellcheck = Some(false),
             classes = Some("govuk-input--width-20")
         )
@@ -76,7 +79,6 @@
             name = s"enter-contact-details.contact-phone-number",
             label = s"enter-contact-details.contact-phone-number.label",
             inputType = "tel",
-            autocomplete = Some("tel"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20")
         )

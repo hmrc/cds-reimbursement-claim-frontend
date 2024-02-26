@@ -85,7 +85,7 @@ class EnterContactDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
+            messageFromMessageKey("enter-contact-details.title"),
             doc => doc.select("form").attr("action") shouldBe routes.EnterContactDetailsController.submit.url
           )
         }
@@ -111,7 +111,7 @@ class EnterContactDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-contact-details.change.title"),
+          messageFromMessageKey("enter-contact-details.title"),
           doc => {
             getErrorSummary(doc) contains messageFromMessageKey(
               "enter-contact-details.contact-name.error.required"
@@ -130,6 +130,7 @@ class EnterContactDetailsControllerSpec
           mockGetSession(SessionData(journey.withEnterContactDetailsMode(true)))
           mockStoreSession(Right(()))
         }
+
 
         checkIsRedirect(
           performAction(
