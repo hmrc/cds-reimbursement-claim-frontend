@@ -50,7 +50,10 @@ class CheckClaimantDetailsController @Inject() (
   val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
 
   val changeCd: Call =
-    routes.EnterContactDetailsController.show(confirmContactDetails = false)
+    routes.EnterContactDetailsController.show
+
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
 
   val postAction: Call =
     routes.CheckClaimantDetailsController.submit
@@ -62,10 +65,10 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterMovementReferenceNumberController.show
 
   override val nextPageInTheJourney: Call =
-    routes.BasisForClaimController.show
+    routes.UploadMrnListController.show
 
   override val confirmEmailRoute: Call =
-    routes.EnterContactDetailsController.show(confirmContactDetails = true)
+    routes.EnterContactDetailsController.show
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 

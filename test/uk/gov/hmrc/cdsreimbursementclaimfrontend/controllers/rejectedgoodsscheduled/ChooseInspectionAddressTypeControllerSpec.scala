@@ -80,9 +80,7 @@ class ChooseInspectionAddressTypeControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
   "Enter Special Circumstances Controller" must {
     "Show Page" when {

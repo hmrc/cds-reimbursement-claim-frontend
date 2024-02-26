@@ -33,14 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -67,15 +63,7 @@ class EnterContactDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session: SessionData = SessionData.empty.copy(
-    overpaymentsScheduledJourney = Some(OverpaymentsScheduledJourney.empty(exampleEori))
-  )
-
-  private def mockCompleteJourney(journey: OverpaymentsScheduledJourney, email: Email, name: contactdetails.Name) =
-    inSequence {
-      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-      mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-    }
+  val session: SessionData = SessionData(OverpaymentsScheduledJourney.empty(exampleEori))
 
   "Enter Contact Details Controller" when {
     "Enter Contact Details page" must {
@@ -89,21 +77,16 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
-          mockCompleteJourney(journey, email, name)
-          val contactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
+        forAll(buildCompleteJourneyGen()) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("enter-contact-details.change.title"),
-            doc => {
-              doc
-                .select("form input[name='enter-contact-details.contact-name']")
-                .`val`() shouldBe contactDetails.get.fullName
-              doc
-                .select("form input[name='enter-contact-details.contact-email']")
-                .`val`() shouldBe contactDetails.get.emailAddress.get.value
-            }
+            doc => doc.select("form").attr("action") shouldBe routes.EnterContactDetailsController.submit.url
           )
         }
       }
@@ -120,77 +103,57 @@ class EnterContactDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey.submitContactDetails(None))))
-          }
+      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
-          )
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("enter-contact-details.change.title"),
-            doc => {
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-name.error.required"
-              )
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-email.error.required"
-              )
-            },
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-contact-details.change.title"),
+          doc => {
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-name.error.required"
+            )
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-email.error.required"
+            )
+          },
+          expectedStatus = BAD_REQUEST
+        )
       }
 
-      "submit a valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(overpaymentsScheduledJourney = Some(journey)))
-            mockStoreSession(
-              session.copy(overpaymentsScheduledJourney =
-                Some(
-                  journey.submitContactDetails(
-                    Some(
-                      MrnContactDetails(name.toFullName, Some(email), None)
-                        .computeChanges(
-                          Some(
-                            journey
-                              .getInitialContactDetailsFromDeclarationAndCurrentUser(
-                                uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
-                                  .Individual(Some(email), journey.getClaimantEori, Some(name)),
-                                None
-                              )
-                          )
-                        )
-                    )
-                  )
-                )
-              )
-            )(Right(()))
-          }
+      "submit valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey.withEnterContactDetailsMode(true)))
+          mockStoreSession(Right(()))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.change.title")
-          )
+        checkIsRedirect(
+          performAction(
+            "enter-contact-details.contact-name"  -> name.toFullName,
+            "enter-contact-details.contact-email" -> email.value
+          ),
+          routes.CheckClaimantDetailsController.redirectToALF
+        )
+      }
 
-          checkIsRedirect(
-            performAction(
-              "enter-contact-details.contact-name"  -> name.toFullName,
-              "enter-contact-details.contact-email" -> email.value
-            ),
-            routes.CheckClaimantDetailsController.show
-          )
+      "change valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            "enter-contact-details.contact-name"  -> name.toFullName,
+            "enter-contact-details.contact-email" -> email.value
+          ),
+          routes.CheckClaimantDetailsController.show
+        )
       }
     }
   }

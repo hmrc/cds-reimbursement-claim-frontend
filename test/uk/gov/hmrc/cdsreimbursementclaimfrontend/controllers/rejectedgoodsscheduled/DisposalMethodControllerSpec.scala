@@ -123,7 +123,7 @@ class DisposalMethodControllerSpec
       "submit a valid disposal method" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
         val journey        = session.rejectedGoodsScheduledJourney.getOrElse(fail("No rejected goods journey"))
         val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
-        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -139,7 +139,7 @@ class DisposalMethodControllerSpec
 
       "redirect to CYA page" when {
         "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
-          val sessionWitJourney = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+          val sessionWitJourney = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()

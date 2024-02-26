@@ -17,10 +17,10 @@ GET         /overpayments/single/claimant-details/lookup-address                
 GET         /overpayments/single/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 GET         /overpayments/single/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithAddressController.show
 
-GET         /overpayments/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.show(confirmContactDetails: Boolean = false)
-POST        /overpayments/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.submit(confirmContactDetails: Boolean = false)
-GET         /overpayments/single/claimant-details/confirm-contact-details                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.show(confirmContactDetails: Boolean = true)
-POST        /overpayments/single/claimant-details/confirm-contact-details                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.submit(confirmContactDetails: Boolean = true)
+GET         /overpayments/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.show
+POST        /overpayments/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.submit
+GET         /overpayments/single/claimant-details/confirm-contact-details                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.show
+POST        /overpayments/single/claimant-details/confirm-contact-details                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.submit
 
 GET         /overpayments/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.show
 POST        /overpayments/single/enter-duplicate-movement-reference-number                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDuplicateMovementReferenceNumberController.submit

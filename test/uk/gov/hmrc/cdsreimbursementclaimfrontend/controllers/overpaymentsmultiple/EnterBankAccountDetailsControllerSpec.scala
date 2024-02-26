@@ -117,7 +117,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "the user has answered this question before" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -525,7 +525,7 @@ class EnterBankAccountDetailsControllerSpec
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
-        val requiredSession = session.copy(overpaymentsMultipleJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
         val updatedSession             = session.copy(overpaymentsMultipleJourney = updatedJourney.toOption)
@@ -579,7 +579,7 @@ class EnterBankAccountDetailsControllerSpec
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
-        val requiredSession = session.copy(overpaymentsMultipleJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
         val boom            = new BadRequestException("Boom!")
 
         inSequence {

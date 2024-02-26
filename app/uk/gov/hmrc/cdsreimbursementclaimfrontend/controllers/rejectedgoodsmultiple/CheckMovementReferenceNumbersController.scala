@@ -70,14 +70,15 @@ class CheckMovementReferenceNumbersController @Inject() (
         .asFuture
     }
 
-  final val submit: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      journey.getMovementReferenceNumbers
-        .map { mrns =>
-          checkMovementReferenceNumbersForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
+    journey.getMovementReferenceNumbers
+      .map { mrns =>
+        checkMovementReferenceNumbersForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
                 BadRequest(
                   checkMovementReferenceNumbers(
                     mrns,
@@ -86,22 +87,25 @@ class CheckMovementReferenceNumbersController @Inject() (
                     routes.EnterMovementReferenceNumberController.show,
                     routes.CheckMovementReferenceNumbersController.delete
                   )
-                ),
-              answer =>
-                Redirect(
-                  answer match {
-                    case Yes =>
-                      routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
-                    case No  =>
-                      if (shouldForwardToCYA(journey)) checkYourAnswers
-                      else routes.CheckClaimantDetailsController.show
-                  }
                 )
-            )
-        }
-        .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
-        .asFuture
-    }
+              ),
+            answer =>
+              answer match {
+                case Yes =>
+                  (
+                    journey,
+                    Redirect(
+                      routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
+                    )
+                  )
+                case No  =>
+                  if (shouldForwardToCYA(journey)) (journey, Redirect(checkYourAnswers))
+                  else (journey.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
+              }
+          )
+      }
+      .getOrElse((journey, Redirect(routes.EnterMovementReferenceNumberController.show(0))))
+  }
 
   final def delete(mrn: MRN): Action[AnyContent] =
     actionReadWriteJourney(

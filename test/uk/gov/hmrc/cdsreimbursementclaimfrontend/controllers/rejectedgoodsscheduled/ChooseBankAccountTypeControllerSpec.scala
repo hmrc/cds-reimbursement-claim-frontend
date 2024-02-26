@@ -140,7 +140,7 @@ class ChooseBankAccountTypeControllerSpec
 
       "successfully supply an answer" in forAll { bankAccountType: BankAccountType =>
         val updatedJourney = session.rejectedGoodsScheduledJourney.get.submitBankAccountType(bankAccountType).getOrFail
-        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()

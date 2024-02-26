@@ -49,7 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
-class ChooseExportMethodControllerTests
+class ChooseExportMethodControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -200,7 +200,7 @@ class ChooseExportMethodControllerTests
 
         checkIsRedirect(
           performAction(Some(methodOfDisposal)),
-          routes.CheckClaimantDetailsController.show
+          routes.EnterContactDetailsController.show
         )
       }
     }

@@ -41,4 +41,5 @@ trait CommonAnswers {
   def selectedDocumentType: Option[UploadDocumentType]
   def supportingEvidences: Seq[UploadedFile]
   def checkYourAnswersChangeMode: Boolean
+  def enterContactDetailsMode: Boolean
 }

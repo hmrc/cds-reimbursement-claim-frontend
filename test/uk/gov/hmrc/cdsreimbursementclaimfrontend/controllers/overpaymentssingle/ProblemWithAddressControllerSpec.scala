@@ -61,9 +61,7 @@ class ProblemWithAddressControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  private val session = SessionData.empty.copy(
-    overpaymentsSingleJourney = Some(OverpaymentsSingleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
   "Problem with address Controller" when {
     "Show Problem with address page" must {

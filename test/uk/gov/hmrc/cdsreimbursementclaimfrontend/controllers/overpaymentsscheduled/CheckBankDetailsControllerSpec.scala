@@ -80,9 +80,7 @@ class CheckBankDetailsControllerSpec
         .flatMapWhenDefined(payeeType)(journey => p => journey.submitPayeeType(p))
         .getOrFail
 
-    SessionData.empty.copy(
-      overpaymentsScheduledJourney = Some(overpaymentsScheduledJourney)
-    )
+    SessionData(overpaymentsScheduledJourney)
   }
 
   private def sessionWithBankDetailsStored(

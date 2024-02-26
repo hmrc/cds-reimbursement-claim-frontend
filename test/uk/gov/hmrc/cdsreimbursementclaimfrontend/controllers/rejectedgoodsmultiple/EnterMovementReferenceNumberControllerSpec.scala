@@ -145,7 +145,7 @@ class EnterMovementReferenceNumberControllerSpec
         buildCompleteJourneyGen()
       ) { journey =>
         val mrn            = journey.getLeadMovementReferenceNumber.get
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -175,7 +175,7 @@ class EnterMovementReferenceNumberControllerSpec
         )
       ) { journey =>
         val mrn            = journey.getNthMovementReferenceNumber(1).get
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -260,7 +260,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         val updatedJourney =
           journey.submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn)).getOrFail
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -286,7 +286,7 @@ class EnterMovementReferenceNumberControllerSpec
             .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
             .getOrFail
 
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -313,7 +313,7 @@ class EnterMovementReferenceNumberControllerSpec
             .map(_.submitUserXiEori(UserXiEori.NotRegistered))
             .getOrFail
 
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -341,7 +341,7 @@ class EnterMovementReferenceNumberControllerSpec
             .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
             .getOrFail
 
-        val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -366,8 +366,8 @@ class EnterMovementReferenceNumberControllerSpec
           .submitMovementReferenceNumberAndDeclaration(1, secondMrn, getDisplayDeclarationForMrn(secondMrn))
           .getOrFail
 
-        val updatedSessionWithLeadMrn   = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithLeadMrn))
-        val updatedSessionWithSecondMrn = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourneyWithSecondMrn))
+        val updatedSessionWithLeadMrn   = SessionData(updatedJourneyWithLeadMrn)
+        val updatedSessionWithSecondMrn = SessionData(updatedJourneyWithSecondMrn)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -406,11 +406,11 @@ class EnterMovementReferenceNumberControllerSpec
             journey
               .submitMovementReferenceNumberAndDeclaration(mrnToChange - 1, correctedDD.getMRN, correctedDD)
               .getOrFail
-          val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+          val updatedSession = SessionData(updatedJourney)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -468,7 +468,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }
 

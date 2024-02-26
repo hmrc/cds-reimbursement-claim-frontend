@@ -347,6 +347,9 @@ final class OverpaymentsScheduledJourney private (
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsScheduledJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
 
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsScheduledJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
     requestNonce: Nonce,
@@ -534,6 +537,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .map(_.submitContactDetails(answers.contactDetails))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(

@@ -114,6 +114,9 @@ final class SecuritiesJourney private (
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
+  def withEnterContactDetailsMode(enabled: Boolean): SecuritiesJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
   def getSecurityTaxCodesWithAmounts(securityDepositId: String): Seq[DutyAmount] =
     getSecurityTaxCodesFor(securityDepositId)
       .flatMap(getSecurityTaxDetailsFor(securityDepositId, _).toList)
@@ -865,6 +868,9 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
     final override def checkYourAnswersChangeMode: Boolean =
       modes.checkYourAnswersChangeMode
+
+    final override def enterContactDetailsMode: Boolean =
+      modes.enterContactDetailsMode
   }
 
   final case class Output(
@@ -982,6 +988,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapEachWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectSecurityDepositId
       )

@@ -91,9 +91,7 @@ class EnterMovementReferenceNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session = SessionData.empty.copy(
-    overpaymentsSingleJourney = Some(OverpaymentsSingleJourney.empty(exampleEori))
-  )
+  val session = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
   private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimService
@@ -140,7 +138,7 @@ class EnterMovementReferenceNumberControllerSpec
           fail("Unable to generate complete journey")
         )
         val mrn            = journey.answers.movementReferenceNumber.getOrElse(fail("No mrn found in journey"))
-        val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -254,7 +252,7 @@ class EnterMovementReferenceNumberControllerSpec
           journey
             .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
-        val updatedSession                = session.copy(overpaymentsSingleJourney = Some(updatedJourney))
+        val updatedSession                = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -287,7 +285,7 @@ class EnterMovementReferenceNumberControllerSpec
               journey
                 .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
-            val updatedSession                = session.copy(overpaymentsSingleJourney = Some(updatedJourney))
+            val updatedSession                = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

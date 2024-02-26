@@ -120,7 +120,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "the user has answered this question before" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -654,7 +654,7 @@ class EnterBankAccountDetailsControllerSpec
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-        val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
 
         val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
         val updatedSession             = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
@@ -702,7 +702,7 @@ class EnterBankAccountDetailsControllerSpec
         genBankAccountDetails
       ) { bankDetails =>
         val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-        val requiredSession = session.copy(rejectedGoodsScheduledJourney = Some(initialJourney))
+        val requiredSession = SessionData(initialJourney)
 
         val boom = new BadRequestException("Boom!")
 

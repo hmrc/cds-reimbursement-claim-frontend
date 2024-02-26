@@ -88,7 +88,7 @@ class CheckDeclarationDetailsControllerSpec
           acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -150,11 +150,16 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              overpaymentsSingleJourney = session.overpaymentsSingleJourney.map(_.withEnterContactDetailsMode(true))
+            )
+          )(Right(()))
         }
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.EnterContactDetailsController.show(confirmContactDetails = false)
+          routes.EnterContactDetailsController.show
         )
       }
 

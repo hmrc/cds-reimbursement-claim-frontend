@@ -106,7 +106,7 @@ class EnterSpecialCircumstancesControllerSpec
       "display the page on a pre-existing journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
         whenever(journey.answers.basisOfClaimSpecialCircumstances.isDefined) {
           val basisOFClaimSpecialCircumstances = journey.answers.basisOfClaimSpecialCircumstances
-          val updatedSession                   = session.copy(rejectedGoodsSingleJourney = Some(journey))
+          val updatedSession                   = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -136,7 +136,7 @@ class EnterSpecialCircumstancesControllerSpec
         val updatedJourney = journey
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
           .getOrElse(fail("unable to get special circumstances"))
-        val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()

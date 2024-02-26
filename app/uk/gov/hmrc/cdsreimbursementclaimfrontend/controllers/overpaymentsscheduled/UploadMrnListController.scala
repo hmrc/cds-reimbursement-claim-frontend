@@ -53,7 +53,7 @@ class UploadMrnListController @Inject() (
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val continueUrl: Call =
       if (journey.hasCompleteAnswers) checkYourAnswers
-      else routes.CheckClaimantDetailsController.show
+      else routes.BasisForClaimController.show
 
     val isSubsidy = journey.isSubsidyOnlyJourney
 

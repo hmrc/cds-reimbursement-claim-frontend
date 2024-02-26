@@ -42,6 +42,8 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   implicit val errorHandler: ErrorHandler
 
+  def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey
+
   def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable
 
   val checkDeclarationDetailsAnswerForm: Form[YesNo] =
@@ -82,7 +84,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
           ),
         answer =>
           (
-            journey,
+            modifyJourney(journey, enterContactDetailsMode = answer.asBoolean),
             Redirect(answer match {
               case Yes => continueRoute(journey)
               case No  => enterMovementReferenceNumberRoute

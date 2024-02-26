@@ -67,9 +67,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(emptyJourney)
-  )
+  val session = SessionData(emptyJourney)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
@@ -116,7 +114,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -149,7 +147,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -191,7 +189,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -224,7 +222,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -301,8 +299,8 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(rejectedGoodsMultipleJourney = Some(journey)))
-            mockStoreSession(session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney)))(Right(()))
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
           }
 
           checkIsRedirect(

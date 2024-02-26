@@ -74,9 +74,7 @@ class EnterInspectionDateControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
@@ -108,7 +106,7 @@ class EnterInspectionDateControllerSpec
 
       "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
         val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val updatedSession = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

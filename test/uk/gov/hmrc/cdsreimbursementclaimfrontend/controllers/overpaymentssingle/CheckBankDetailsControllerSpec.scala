@@ -81,9 +81,7 @@ class CheckBankDetailsControllerSpec
         .flatMapWhenDefined(payeeType)(journey => p => journey.submitPayeeType(p))
         .getOrFail
 
-    SessionData.empty.copy(
-      overpaymentsSingleJourney = Some(overpaymentsSingleJourney)
-    )
+    SessionData(overpaymentsSingleJourney)
   }
 
   private def sessionWithBankDetailsNotNeeded(): SessionData = {
@@ -98,9 +96,7 @@ class CheckBankDetailsControllerSpec
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
         .getOrFail
 
-    SessionData.empty.copy(
-      overpaymentsSingleJourney = Some(overpaymentsSingleJourney)
-    )
+    SessionData(overpaymentsSingleJourney)
   }
 
   private def sessionWithBankDetailsStored(

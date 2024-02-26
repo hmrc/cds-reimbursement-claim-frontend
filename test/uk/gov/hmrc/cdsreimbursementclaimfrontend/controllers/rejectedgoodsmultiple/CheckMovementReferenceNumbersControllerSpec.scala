@@ -80,9 +80,7 @@ class CheckMovementReferenceNumbersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  private val session = SessionData.empty.copy(
-    rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori))
-  )
+  private val session = SessionData(RejectedGoodsMultipleJourney.empty(exampleEori))
 
   def addAcc14(
     journey: RejectedGoodsMultipleJourney,
@@ -171,7 +169,7 @@ class CheckMovementReferenceNumbersControllerSpec
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
           val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -204,7 +202,7 @@ class CheckMovementReferenceNumbersControllerSpec
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
           val mrns = acc14Declarations.map(_.getMRN)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -248,7 +246,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -272,7 +270,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -294,16 +292,21 @@ class CheckMovementReferenceNumbersControllerSpec
 
           journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionToAmend)
+            mockStoreSession(
+              session.copy(
+                rejectedGoodsMultipleJourney = Some(journey.withEnterContactDetailsMode(true))
+              )
+            )(Right(()))
           }
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.CheckClaimantDetailsController.show
+            routes.EnterContactDetailsController.show
           )
         }
       }
@@ -343,12 +346,12 @@ class CheckMovementReferenceNumbersControllerSpec
 
             journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-            val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+            val sessionToAmend = SessionData(journey)
 
             val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
 
             val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
-            val updatedSession = session.copy(rejectedGoodsMultipleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

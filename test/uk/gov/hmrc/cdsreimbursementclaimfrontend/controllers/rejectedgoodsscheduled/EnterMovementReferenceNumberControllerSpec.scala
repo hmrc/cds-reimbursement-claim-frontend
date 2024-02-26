@@ -152,7 +152,7 @@ class EnterMovementReferenceNumberControllerSpec
         buildCompleteJourneyGen()
       ) { journey =>
         val mrn            = journey.getLeadMovementReferenceNumber.get
-        val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
