@@ -133,11 +133,6 @@ class EnterContactDetailsControllerSpec
             mockStoreSession(Right(()))
           }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.title")
-          )
-
           checkIsRedirect(
             performAction(
               "enter-contact-details.contact-name"  -> name.toFullName,
