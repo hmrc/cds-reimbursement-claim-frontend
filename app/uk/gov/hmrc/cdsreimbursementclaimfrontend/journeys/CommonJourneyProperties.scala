@@ -20,18 +20,13 @@ import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
@@ -195,52 +190,6 @@ trait CommonJourneyProperties {
       contactAddress
     )
 
-  final def computeContactDetails(
-    authenticatedUser: AuthenticatedUser,
-    verifiedEmailOpt: Option[CdsVerifiedEmail]
-  ): Option[MrnContactDetails] =
-    Some(
-      answers.contactDetails.getOrElse(
-        getInitialContactDetailsFromDeclarationAndCurrentUser(authenticatedUser, verifiedEmailOpt)
-      )
-    )
-
-  final def getInitialContactDetailsFromDeclarationAndCurrentUser(
-    authenticatedUser: AuthenticatedUser,
-    verifiedEmailOpt: Option[CdsVerifiedEmail]
-  ): MrnContactDetails = {
-    def currentUserEmail = verifiedEmailOpt
-      .map(_.toEmail)
-      .orElse(authenticatedUser.email)
-    (
-      getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
-      getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
-    ) match {
-      case (Some(consigneeContactDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
-        MrnContactDetails(
-          consigneeContactDetails.contactName.getOrElse(""),
-          consigneeContactDetails.maybeEmailAddress
-            .fold(currentUserEmail)(address => Some(Email(address))),
-          consigneeContactDetails.telephone.map(PhoneNumber(_))
-        )
-
-      case (_, Some(declarantContactDetails)) if getDeclarantEoriFromACC14.contains(answers.userEoriNumber) =>
-        MrnContactDetails(
-          declarantContactDetails.contactName.getOrElse(""),
-          declarantContactDetails.maybeEmailAddress
-            .fold(currentUserEmail)(address => Some(Email(address))),
-          declarantContactDetails.telephone.map(PhoneNumber(_))
-        )
-
-      case _ =>
-        MrnContactDetails(
-          authenticatedUser.name.map(_.toFullName).getOrElse(""),
-          currentUserEmail,
-          None
-        )
-    }
-  }
-
   final def emailAddressHasChanged: Boolean =
     answers.contactDetails.exists(_.emailAddressHasChanged)
 
@@ -257,7 +206,7 @@ trait CommonJourneyProperties {
     answers.bankAccountDetails.exists(_.bankAccountHasChanged)
 
   final def computeAddressDetails: Option[ContactAddress] =
-    answers.contactAddress.orElse(getInitialAddressDetailsFromDeclaration)
+    answers.contactAddress
 
   final def getInitialAddressDetailsFromDeclaration: Option[ContactAddress] = (
     getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails),

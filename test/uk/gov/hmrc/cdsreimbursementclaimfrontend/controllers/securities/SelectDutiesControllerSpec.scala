@@ -86,9 +86,7 @@ class SelectDutiesControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
-  )
+  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
   def validateSelectDutiesPage(
     securityId: String,

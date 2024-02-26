@@ -324,7 +324,7 @@ final class OverpaymentsScheduledJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -345,7 +345,10 @@ final class OverpaymentsScheduledJourney private (
     }
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsScheduledJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsScheduledJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
@@ -442,8 +445,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    dutiesChangeMode: Boolean = false,
-    checkYourAnswersChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with ScheduledVariantAnswers
 
@@ -535,6 +537,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .map(_.submitContactDetails(answers.contactDetails))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(

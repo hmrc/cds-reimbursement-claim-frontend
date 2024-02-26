@@ -41,7 +41,6 @@
 
 @(answers: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
-@key = @{"check-claim"}
 @title = @{messages(s"check-claim.scheduled.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -54,19 +53,19 @@
 
     @answers.map { claim =>
         @subHeading(Html(messages(s"duty-type.${claim._1.repr}")), classes = "govuk-heading-m", id = s"check-claim-duty-${claim._1.repr}")
-        @summary(TaxCodeReimbursementScheduledOverpaymentsSummary((claim._1, claim._2),key, subKey))
+        @summary(TaxCodeReimbursementScheduledOverpaymentsSummary((claim._1, claim._2),"check-claim", subKey))
     <br>
     }
 
     @subHeading(Html(messages(s"check-claim.total.header")), classes = "govuk-heading-m")
-    @summary(ScheduledReimbursementSummary(reimbursementTotal, key))
+    @summary(ScheduledReimbursementSummary(reimbursementTotal, "check-claim"))
     <br>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
-            name = key,
+            name = "check-claim",
             legend = messages(s"check-claim.are-duties-correct"),
             inline = true,
             items = Seq(

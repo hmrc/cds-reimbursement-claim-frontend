@@ -79,7 +79,7 @@ class SecuritiesJourneyFormatSpec extends AnyWordSpec with JsonFormatTest with M
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          supportingEvidences = Seq(uploadDocument)
+          supportingEvidences = Seq(exampleUploadedFile)
         )
       )
       validateCanReadAndWriteJson(

@@ -233,7 +233,10 @@ final class OverpaymentsMultipleJourney private (
     answers.correctedAmounts.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(ZERO)
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsMultipleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
@@ -643,7 +646,7 @@ final class OverpaymentsMultipleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -738,8 +741,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    checkYourAnswersChangeMode: Boolean = false,
-    dutiesChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -830,6 +832,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMapEachWhenDefined(answers.correctedAmounts)(j => {

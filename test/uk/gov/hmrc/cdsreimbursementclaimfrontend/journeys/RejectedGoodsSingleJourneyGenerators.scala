@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -313,7 +314,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
               Some(bankAccountType)
             else None,
           reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-          checkYourAnswersChangeMode = true
+          modes = JourneyModes(checkYourAnswersChangeMode = true)
         )
 
       RejectedGoodsSingleJourney.tryBuildFrom(answers, features)
@@ -390,7 +391,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers
@@ -471,7 +472,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           basisOfClaim = Some(basisOfClaim),
           methodOfDisposal = Some(methodOfDisposal),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers
@@ -557,7 +558,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           basisOfClaim = Some(basisOfClaim),
           methodOfDisposal = Some(methodOfDisposal),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers

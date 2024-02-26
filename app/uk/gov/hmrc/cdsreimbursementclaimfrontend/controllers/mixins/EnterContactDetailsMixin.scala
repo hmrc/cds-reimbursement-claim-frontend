@@ -29,22 +29,25 @@ import scala.concurrent.Future
 
 trait EnterContactDetailsMixin extends JourneyBaseController {
 
-  def postAction(confirmContactDetails: Boolean = false): Call
-  val continueRoute: Call
+  val postAction: Call
+
+  val continueRouteEnterAddress: Call
+
+  val continueRouteChangeDetails: Call
 
   val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 
   def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
 
-  final def show(confirmContactDetails: Boolean = false): Action[AnyContent] =
-    actionReadJourneyAndUser { implicit request => journey => userType => verifiedEmailOpt =>
-      if (confirmContactDetails) {
+  final def show: Action[AnyContent] =
+    actionReadJourney { implicit request => journey =>
+      if (journey.answers.enterContactDetailsMode) {
         Future.successful(
           Ok(
             enterOrChangeContactDetailsPage(
               Forms.mrnContactDetailsForm,
-              postAction(confirmContactDetails),
-              confirmContactDetails
+              postAction,
+              journey.answers.enterContactDetailsMode
             )
           )
         )
@@ -52,18 +55,18 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
         Future.successful(
           Ok(
             enterOrChangeContactDetailsPage(
-              Forms.mrnContactDetailsForm.withDefault(journey.computeContactDetails(userType, verifiedEmailOpt)),
-              postAction(confirmContactDetails),
-              confirmContactDetails
+              Forms.mrnContactDetailsForm.withDefault(journey.answers.contactDetails),
+              postAction,
+              journey.answers.enterContactDetailsMode
             )
           )
         )
       }
     }
 
-  final def submit(confirmContactDetails: Boolean = false): Action[AnyContent] =
-    actionReadWriteJourneyAndUser(
-      { implicit request => journey => userType => verifiedEmailOpt =>
+  final def submit: Action[AnyContent] =
+    actionReadWriteJourney(
+      { implicit request => journey =>
         Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
@@ -74,23 +77,27 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
                   BadRequest(
                     enterOrChangeContactDetailsPage(
                       formWithErrors,
-                      postAction(confirmContactDetails),
-                      confirmContactDetails
+                      postAction,
+                      journey.answers.enterContactDetailsMode
                     )
                   )
                 )
               ),
             contactDetails => {
               val previousDetails =
-                journey.getInitialContactDetailsFromDeclarationAndCurrentUser(userType, verifiedEmailOpt)
+                journey.answers.contactDetails
               val updatedJourney  = modifyJourney(
                 journey,
                 Some(
                   contactDetails
-                    .computeChanges(Some(previousDetails))
+                    .computeChanges(previousDetails)
                 )
               )
-              Future.successful((updatedJourney, Redirect(continueRoute)))
+              if (journey.answers.enterContactDetailsMode) {
+                Future.successful((updatedJourney, Redirect(continueRouteEnterAddress)))
+              } else {
+                Future.successful((updatedJourney, Redirect(continueRouteChangeDetails)))
+              }
             }
           )
       },

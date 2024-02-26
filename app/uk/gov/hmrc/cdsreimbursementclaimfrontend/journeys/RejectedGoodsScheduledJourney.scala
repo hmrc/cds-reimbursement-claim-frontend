@@ -65,7 +65,10 @@ final class RejectedGoodsScheduledJourney private (
     new RejectedGoodsScheduledJourney(newAnswers, caseNumber, features)
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsScheduledJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
@@ -402,7 +405,7 @@ final class RejectedGoodsScheduledJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -514,8 +517,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     selectedDocumentType: Option[UploadDocumentType] = None,
     scheduledDocument: Option[UploadedFile] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    dutiesChangeMode: Boolean = false,
-    checkYourAnswersChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends RejectedGoodsAnswers
       with ScheduledVariantAnswers
 
@@ -615,6 +617,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(

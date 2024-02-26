@@ -20,6 +20,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** Common answers of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsAnswers extends CommonAnswers {
@@ -30,4 +31,14 @@ trait RejectedGoodsAnswers extends CommonAnswers {
   def detailsOfRejectedGoods: Option[String]
   def inspectionDate: Option[InspectionDate]
   def inspectionAddress: Option[InspectionAddress]
+  def modes: JourneyModes
+
+  final override def checkYourAnswersChangeMode: Boolean =
+    modes.checkYourAnswersChangeMode
+
+  final def dutiesChangeMode: Boolean =
+    modes.dutiesChangeMode
+
+  final override def enterContactDetailsMode: Boolean =
+    modes.enterContactDetailsMode
 }

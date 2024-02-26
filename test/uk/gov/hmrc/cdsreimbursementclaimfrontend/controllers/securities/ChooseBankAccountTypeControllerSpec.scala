@@ -56,9 +56,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData.empty.copy(
-    securitiesJourney = Some(emptyJourney)
-  )
+  val session: SessionData = SessionData(emptyJourney)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 
@@ -90,7 +88,7 @@ class ChooseBankAccountTypeControllerSpec
     ) { case (initialJourney: SecuritiesJourney, _) =>
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(securitiesJourney = Some(initialJourney)))
+        mockGetSession(SessionData(initialJourney))
       }
 
       checkPageIsDisplayed(
@@ -134,7 +132,7 @@ class ChooseBankAccountTypeControllerSpec
       ) { case (initialJourney: SecuritiesJourney, _) =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(securitiesJourney = Some(initialJourney)))
+          mockGetSession(SessionData(initialJourney))
           mockStoreSession(
             session.copy(
               securitiesJourney = Some(

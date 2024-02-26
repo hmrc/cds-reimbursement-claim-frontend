@@ -109,7 +109,7 @@ class EnterMovementReferenceNumberControllerSpec
         ).sample.getOrElse(fail("Unable to generate complete journey"))
 
         val mrn            = journey.answers.movementReferenceNumber.getOrElse(fail("No mrn found in journey"))
-        val sessionToAmend = session.copy(securitiesJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()

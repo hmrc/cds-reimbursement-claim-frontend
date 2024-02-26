@@ -68,7 +68,10 @@ final class RejectedGoodsSingleJourney private (
     duties
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsSingleJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsSingleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsSingleDocumentTypes)
@@ -406,7 +409,7 @@ final class RejectedGoodsSingleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -514,8 +517,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false,
-    dutiesChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends RejectedGoodsAnswers
       with SingleVariantAnswers
 
@@ -635,6 +637,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails
       )

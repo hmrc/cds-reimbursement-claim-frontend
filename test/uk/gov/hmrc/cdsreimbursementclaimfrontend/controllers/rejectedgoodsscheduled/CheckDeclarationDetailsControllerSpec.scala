@@ -121,7 +121,7 @@ class CheckDeclarationDetailsControllerSpec
           features = Some(RejectedGoodsScheduledJourney.Features(false, true))
         ).sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -163,7 +163,7 @@ class CheckDeclarationDetailsControllerSpec
         val journey            = session.rejectedGoodsScheduledJourney.get
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val sessionToAmend     = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        val sessionToAmend     = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -185,11 +185,17 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              rejectedGoodsScheduledJourney =
+                session.rejectedGoodsScheduledJourney.map(_.withEnterContactDetailsMode(true))
+            )
+          )(Right(()))
         }
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.UploadMrnListController.show
+          routes.EnterContactDetailsController.show
         )
       }
 

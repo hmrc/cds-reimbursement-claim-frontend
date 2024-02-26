@@ -48,7 +48,7 @@ class CheckDeclarationDetailsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val show: Action[AnyContent] =
+  final val show: Action[AnyContent] =
     simpleActionReadWriteJourney { implicit request => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(true)
       (
@@ -60,21 +60,16 @@ class CheckDeclarationDetailsController @Inject() (
       )
     }
 
-  val submit: Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     simpleActionReadWriteJourney { _ => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
-      (
-        updatedJourney,
-        Redirect(
-          if (journey.getSelectedDepositIds.isEmpty)
-            routes.CheckDeclarationDetailsController.show
-          else if (journey.userHasSeenCYAPage)
-            routes.CheckYourAnswersController.show
-          else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
-            routes.ChooseExportMethodController.show
-          else
-            routes.CheckClaimantDetailsController.show
-        )
-      )
+      if (journey.getSelectedDepositIds.isEmpty)
+        (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
+      else if (journey.userHasSeenCYAPage)
+        (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
+      else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
+        (updatedJourney, Redirect(routes.ChooseExportMethodController.show))
+      else
+        (updatedJourney.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
     }
 }

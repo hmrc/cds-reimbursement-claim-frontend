@@ -110,7 +110,7 @@ class CheckDeclarationDetailsControllerSpec
       "display subsidy status when declaration has only subsidy payments" in {
         val journey = completeJourneyWithOnlySubsidiesGen.sample.getOrElse(fail("Journey building has failed."))
 
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -161,7 +161,7 @@ class CheckDeclarationDetailsControllerSpec
         val journey        = session.rejectedGoodsMultipleJourney.get
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val sessionToAmend = session.copy(rejectedGoodsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -183,6 +183,12 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              rejectedGoodsMultipleJourney =
+                session.rejectedGoodsMultipleJourney.map(_.withEnterContactDetailsMode(true))
+            )
+          )(Right(()))
         }
 
         checkIsRedirect(

@@ -112,7 +112,10 @@ final class OverpaymentsSingleJourney private (
       answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsSingleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
@@ -520,7 +523,7 @@ final class OverpaymentsSingleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -614,8 +617,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false,
-    dutiesChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with SingleVariantAnswers
 
@@ -723,7 +725,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
 
     val changeDutiesModeDisabled: Validate[OverpaymentsSingleJourney] =
       checkIsFalse(
-        _.answers.dutiesChangeMode,
+        _.answers.modes.dutiesChangeMode,
         DUTIES_CHANGE_MODE_ENABLED
       )
 
@@ -796,6 +798,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(
         answers.duplicateDeclaration
@@ -815,7 +818,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
         _.selectAndReplaceTaxCodeSetForReimbursement
       )
       .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
-      .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
+      .map(_.withDutiesChangeMode(answers.modes.dutiesChangeMode))
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)

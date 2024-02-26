@@ -28,10 +28,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
@@ -40,11 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -97,11 +92,11 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
-          val sessionToAmend = session.copy(rejectedGoodsScheduledJourney = Some(journey))
+        forAll(buildCompleteJourneyGen()) { journey =>
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+            mockAuthWithNoRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -114,15 +109,9 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
-        forAll(genEmail, genName, genEori) { (email, name, eori) =>
+        forAll(genEori) { eori =>
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(Enrolment(EoriEnrolment.key).withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthWithNoRetrievals()
             mockGetSession(SessionData(RejectedGoodsScheduledJourney.empty(eori)))
           }
 
@@ -148,30 +137,28 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
-        forAll(genEmail, genName, genMrnContactDetails, genContactAddress) { (email, name, contactDetails, address) =>
+        forAll(genMrnContactDetails, genContactAddress) { (contactDetails, address) =>
           val journey = journeyWithMrnAndDeclaration
             .submitContactDetails(Some(contactDetails))
             .submitContactAddress(address)
 
-          val session = SessionData.empty.copy(
-            rejectedGoodsScheduledJourney = Some(journey)
-          )
+          val session = SessionData(journey)
 
           inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
+            mockAuthWithNoRetrievals()
             mockGetSession(session)
           }
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show
+            routes.UploadMrnListController.show
           )
         }
       }
 
       "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
-        forAll(displayDeclarationGen, genEmail, genName, individualGen, genConsigneeDetails, genDeclarantDetails) {
-          (initialDisplayDeclaration, email, name, individual, consignee, declarant) =>
+        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
+          (initialDisplayDeclaration, consignee, declarant, address) =>
             val eori               = exampleEori
             val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
               declarantDetails = declarant.copy(declarantEORI = eori.value),
@@ -182,37 +169,28 @@ class CheckClaimantDetailsControllerSpec
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
               .getOrFail
-            val session            = SessionData.empty.copy(
-              rejectedGoodsScheduledJourney = Some(journey)
-            )
+            val session            = SessionData(journey)
 
-            val expectedContactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
-            val expectedAddress        = journey.computeAddressDetails.get
+            val expectedContactDetails = journey.answers.contactDetails
             val expectedJourney        =
-              journey.submitContactDetails(expectedContactDetails).submitContactAddress(expectedAddress)
-            val updatedSession         = session.copy(rejectedGoodsScheduledJourney = Some(expectedJourney))
+              journey.submitContactDetails(expectedContactDetails).submitContactAddress(address)
+            val updatedSession         = SessionData(expectedJourney)
 
             inSequence {
-              mockAuthWithAllRetrievals(
-                Some(AffinityGroup.Individual),
-                Some(email.value),
-                Set(Enrolment(EoriEnrolment.key).withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)),
-                Some(Credentials("id", "GovernmentGateway")),
-                Some(Name(name.name, name.lastName))
-              )
+              mockAuthWithNoRetrievals()
               mockGetSession(session)
               mockStoreSession(updatedSession)(Right(()))
             }
 
             checkIsRedirect(
               performAction(),
-              routes.BasisForClaimController.show
+              routes.UploadMrnListController.show
             )
         }
       }
 
       "redirect to the basis for claims page and update the contact/address details if third party user" in {
-        forAll(displayDeclarationGen, genEmail, genName, genEori) { (displayDeclaration, email, name, userEori) =>
+        forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
           val journey = RejectedGoodsScheduledJourney
             .empty(userEori)
             .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
@@ -223,23 +201,14 @@ class CheckClaimantDetailsControllerSpec
           val session = SessionData(journey)
 
           inSequence {
-            mockAuthWithAllRetrievals(
-              Some(AffinityGroup.Individual),
-              Some(email.value),
-              Set(
-                Enrolment(EoriEnrolment.key)
-                  .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, userEori.value)
-              ),
-              Some(Credentials("id", "GovernmentGateway")),
-              Some(Name(name.name, name.lastName))
-            )
+            mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockStoreSession(Right(()))
           }
 
           checkIsRedirect(
             performAction(),
-            routes.BasisForClaimController.show
+            routes.UploadMrnListController.show
           )
         }
       }

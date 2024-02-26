@@ -49,8 +49,11 @@ class CheckDeclarationDetailsController @Inject() (
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
     journey.getLeadDisplayDeclaration
 
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey.withEnterContactDetailsMode(claimantDetailsChangeMode)
+
   final override def continueRoute(journey: Journey): Call =
-    routes.CheckClaimantDetailsController.show
+    routes.EnterContactDetailsController.show
 
   final override val enterMovementReferenceNumberRoute: Call =
     routes.EnterMovementReferenceNumberController.submit

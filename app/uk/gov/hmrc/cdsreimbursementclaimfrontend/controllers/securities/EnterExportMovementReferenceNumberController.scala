@@ -133,7 +133,10 @@ class EnterExportMovementReferenceNumberController @Inject() (
           if (updatedJourney.userHasSeenCYAPage) {
             (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
           } else {
-            (updatedJourney, Redirect(routes.CheckClaimantDetailsController.show))
+            (
+              updatedJourney.withEnterContactDetailsMode(true),
+              Redirect(routes.EnterContactDetailsController.show)
+            )
           }
       )
 

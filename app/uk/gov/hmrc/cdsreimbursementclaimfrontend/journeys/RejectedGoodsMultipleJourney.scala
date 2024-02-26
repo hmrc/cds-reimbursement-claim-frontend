@@ -219,7 +219,10 @@ final class RejectedGoodsMultipleJourney private (
     getReimbursementClaims.values.flatMap(_.values).sum
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsMultipleJourney =
-    this.copy(answers.copy(dutiesChangeMode = enabled))
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsMultipleJourney =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsMultipleDocumentTypes)
@@ -648,7 +651,7 @@ final class RejectedGoodsMultipleJourney private (
       validate(this)
         .fold(
           _ => this,
-          _ => this.copy(answers.copy(checkYourAnswersChangeMode = enabled))
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
         )
     }
 
@@ -758,8 +761,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    checkYourAnswersChangeMode: Boolean = false,
-    dutiesChangeMode: Boolean = false
+    modes: JourneyModes = JourneyModes()
   ) extends RejectedGoodsAnswers
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -854,6 +856,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
       .map(_.submitContactDetails(answers.contactDetails))
       .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails

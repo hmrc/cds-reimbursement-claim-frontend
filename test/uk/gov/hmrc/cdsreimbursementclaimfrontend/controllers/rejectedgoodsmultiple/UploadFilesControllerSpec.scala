@@ -120,11 +120,11 @@ class UploadFilesControllerSpec
             SessionData(
               journey
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
-                .receiveUploadedFiles(UploadDocumentType.AirWayBill, journey.answers.nonce, Seq(uploadDocument))
+                .receiveUploadedFiles(UploadDocumentType.AirWayBill, journey.answers.nonce, Seq(exampleUploadedFile))
                 .getOrFail
             )
           )
-          mockInitializeCall(Seq(uploadDocument.copy(cargo = Some(UploadDocumentType.AirWayBill))))
+          mockInitializeCall(Seq(exampleUploadedFile.copy(cargo = Some(UploadDocumentType.AirWayBill))))
         }
 
         checkIsRedirect(
@@ -176,7 +176,7 @@ class UploadFilesControllerSpec
       val callbackPayload: UploadDocumentsCallback =
         UploadDocumentsCallback(
           nonce = Nonce.random,
-          uploadedFiles = Seq(uploadDocument),
+          uploadedFiles = Seq(exampleUploadedFile),
           cargo = UploadDocumentType.CommercialInvoice
         )
 
@@ -188,7 +188,11 @@ class UploadFilesControllerSpec
           mockStoreSession(
             SessionData(
               journey
-                .receiveUploadedFiles(UploadDocumentType.CommercialInvoice, journey.answers.nonce, Seq(uploadDocument))
+                .receiveUploadedFiles(
+                  UploadDocumentType.CommercialInvoice,
+                  journey.answers.nonce,
+                  Seq(exampleUploadedFile)
+                )
                 .getOrFail
             )
           )(Right(()))

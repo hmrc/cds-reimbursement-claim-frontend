@@ -118,9 +118,7 @@ class ChooseRepaymentMethodControllerSpec
 
       "show the page on a pre-existing journey" in {
         forAll(completeJourneyCMAEligibleGen) { journey =>
-          val session = SessionData.empty.copy(
-            rejectedGoodsSingleJourney = Some(journey)
-          )
+          val session = SessionData(journey)
 
           val expectedCheckedKey = journey.answers.reimbursementMethod match {
             case Some(CurrentMonthAdjustment) => "input[value=0]"
@@ -207,7 +205,7 @@ class ChooseRepaymentMethodControllerSpec
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
               session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(CurrentMonthAdjustment).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()
@@ -229,7 +227,7 @@ class ChooseRepaymentMethodControllerSpec
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
             val updatedJourney =
               session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(BankAccountTransfer).getOrFail
-            val updatedSession = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
+            val updatedSession = SessionData(updatedJourney)
 
             inSequence {
               mockAuthWithNoRetrievals()

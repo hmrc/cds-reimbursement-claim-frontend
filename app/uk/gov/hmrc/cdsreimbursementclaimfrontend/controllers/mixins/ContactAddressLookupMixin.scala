@@ -30,40 +30,25 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
 
   def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey
 
+  def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey
+
   def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable
 
-  final val show: Action[AnyContent] = actionReadJourneyAndUser {
-    implicit request => journey => authenticatedUser => verifiedEmailOpt =>
-      val (maybeContactDetails, maybeAddressDetails) =
-        (journey.computeContactDetails(authenticatedUser, verifiedEmailOpt), journey.computeAddressDetails)
-
-      (maybeContactDetails, maybeAddressDetails) match {
-        case (Some(cd), _) if !cd.emailAddress.exists(_.value.trim.nonEmpty) || cd.fullName.trim.isEmpty =>
-          Redirect(confirmEmailRoute).asFuture
-        case (Some(cd), Some(ca))                                                                        => Ok(viewTemplate(cd)(ca)(request)).asFuture
-        case _                                                                                           =>
-          logger.warn(
-            s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
-          )
-          Redirect(redirectWhenNoAddressDetailsFound).asFuture
-      }
+  final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
+    val (maybeContactDetails, maybeAddressDetails) =
+      (journey.answers.contactDetails, journey.answers.contactAddress)
+    (maybeContactDetails, maybeAddressDetails) match {
+      case (Some(cd), Some(ca)) =>
+        (modifyJourney(journey, enterContactDetailsMode = false), Ok(viewTemplate(cd)(ca)(request)))
+      case _                    =>
+        logger.warn(
+          s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
+        )
+        ((modifyJourney(journey, enterContactDetailsMode = false), Redirect(redirectWhenNoAddressDetailsFound)))
+    }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourneyAndUser {
-    _ => journey => authenticatedUser => verifiedEmailOpt =>
-      (journey.computeContactDetails(authenticatedUser, verifiedEmailOpt), journey.computeAddressDetails) match {
-        case (Some(cd), Some(ca)) =>
-          (
-            modifyJourney(modifyJourney(journey, cd), ca),
-            Redirect(nextPageInTheJourney)
-          ).asFuture
-        case _                    =>
-          (
-            journey,
-            Redirect(redirectWhenNoAddressDetailsFound)
-          ).asFuture
-      }
-
+  final val submit: Action[AnyContent] = simpleActionReadJourney { _ =>
+    Redirect(nextPageInTheJourney)
   }
-
 }

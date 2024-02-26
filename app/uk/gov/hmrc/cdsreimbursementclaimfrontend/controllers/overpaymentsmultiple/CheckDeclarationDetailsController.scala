@@ -44,6 +44,9 @@ class CheckDeclarationDetailsController @Inject() (
   final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
     journey.getLeadDisplayDeclaration
 
+  final override def modifyJourney(journey: Journey, claimantDetailsChangeMode: Boolean): Journey =
+    journey
+
   final override def continueRoute(journey: Journey): Call = {
     val numOfMRNs = journey.countOfMovementReferenceNumbers
     if (numOfMRNs > 1)

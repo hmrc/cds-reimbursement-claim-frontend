@@ -161,7 +161,7 @@ class EnterImporterEoriNumberControllerSpec
           journey.answers.eoriNumbersVerification
             .flatMap(_.consigneeEoriNumber)
             .getOrElse(fail("No consignee eori found"))
-        val sessionToAmend = session.copy(overpaymentsSingleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -237,9 +237,9 @@ class EnterImporterEoriNumberControllerSpec
             .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
 
-        val requiredSession = session.copy(overpaymentsSingleJourney = Some(journey))
+        val requiredSession = SessionData(journey)
         val updatedJourney  = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-        val updatedSession  = session.copy(overpaymentsSingleJourney = Some(updatedJourney))
+        val updatedSession  = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -268,7 +268,7 @@ class EnterImporterEoriNumberControllerSpec
               initialJourney
                 .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
-            val requiredSession               = session.copy(overpaymentsSingleJourney = Some(journey))
+            val requiredSession               = SessionData(journey)
 
             inSequence {
               mockAuthWithNoRetrievals()

@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import scala.util.Random
 
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of RejectedGoodsScheduledJourney. */
 object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerators with JourneyTestData {
@@ -168,7 +169,6 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
       submitBankAccountDetails,
       submitBankAccountType,
       generateSubsidyPayments,
-      features,
       payeeType
     )
       .map(RejectedGoodsScheduledJourney.tryBuildFrom(_, features))
@@ -184,7 +184,6 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    features: Option[RejectedGoodsScheduledJourney.Features] = None,
     payeeType: Option[PayeeType] = None
   ): Gen[RejectedGoodsScheduledJourney.Answers] =
     for {
@@ -273,7 +272,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
         supportingEvidences = supportingEvidencesExpanded,
         bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
         bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
-        checkYourAnswersChangeMode = true
+        modes = JourneyModes(checkYourAnswersChangeMode = true)
       )
     }
 
@@ -342,7 +341,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-        checkYourAnswersChangeMode = false
+        modes = JourneyModes(checkYourAnswersChangeMode = false)
       )
     }
 
@@ -417,7 +416,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
           methodOfDisposal = Some(methodOfDisposal),
           detailsOfRejectedGoods = Some("rejected goods details"),
           correctedAmounts = Some(correctedAmounts),
-          checkYourAnswersChangeMode = false
+          modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
       answers

@@ -35,14 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AuthenticatedUserGen.individualGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -70,14 +67,12 @@ class EnterContactDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
-  val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
-  )
+  val session: SessionData = SessionData(RejectedGoodsSingleJourney.empty(exampleEori))
 
-  private def mockCompleteJourney(journey: RejectedGoodsSingleJourney, email: Email, name: contactdetails.Name) =
+  private def mockCompleteJourney(journey: RejectedGoodsSingleJourney) =
     inSequence {
-      mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-      mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
+      mockAuthWithNoRetrievals()
+      mockGetSession(SessionData(journey))
     }
 
   "Enter Contact Details Controller" when {
@@ -92,9 +87,9 @@ class EnterContactDetailsControllerSpec
       }
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen(), genEmail, genName, individualGen) { (journey, email, name, individual) =>
-          mockCompleteJourney(journey, email, name)
-          val contactDetails = journey.computeContactDetails(individual, individual.asVerifiedEmail)
+        forAll(buildCompleteJourneyGen()) { journey =>
+          mockCompleteJourney(journey)
+          val contactDetails = journey.answers.contactDetails
 
           checkPageIsDisplayed(
             performAction(),
@@ -123,56 +118,48 @@ class EnterContactDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
-          inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey.submitContactDetails(None))))
-          }
+      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey.submitContactDetails(None)))
+        }
 
-          checkPageIsDisplayed(
-            controller.show()(FakeRequest()),
-            messageFromMessageKey("enter-contact-details.title")
-          )
+        checkPageIsDisplayed(
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-contact-details.title")
+        )
 
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("enter-contact-details.title"),
-            doc => {
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-name.error.required"
-              )
-              getErrorSummary(doc) contains messageFromMessageKey(
-                "enter-contact-details.contact-email.error.required"
-              )
-            },
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("enter-contact-details.title"),
+          doc => {
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-name.error.required"
+            )
+            getErrorSummary(doc) contains messageFromMessageKey(
+              "enter-contact-details.contact-email.error.required"
+            )
+          },
+          expectedStatus = BAD_REQUEST
+        )
       }
 
       "submit a valid basis for claim" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
-            mockAuthorisedUserWithEoriNumber(journey.getClaimantEori, email.value, name.name, name.lastName)
-            mockGetSession(session.copy(rejectedGoodsSingleJourney = Some(journey)))
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
             mockStoreSession(
               session.copy(rejectedGoodsSingleJourney =
                 Some(
                   journey.submitContactDetails(
                     Some(
                       MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
-                        Some(
-                          journey
-                            .getInitialContactDetailsFromDeclarationAndCurrentUser(
-                              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
-                                .Individual(Some(email), journey.getClaimantEori, Some(name)),
-                              None
-                            )
-                        )
+                        journey.answers.contactDetails
                       )
                     )
                   )

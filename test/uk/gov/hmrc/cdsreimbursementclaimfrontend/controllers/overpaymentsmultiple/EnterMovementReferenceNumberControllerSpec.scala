@@ -145,7 +145,7 @@ class EnterMovementReferenceNumberControllerSpec
         buildCompleteJourneyGen()
       ) { journey =>
         val mrn            = journey.getLeadMovementReferenceNumber.get
-        val sessionToAmend = session.copy(overpaymentsMultipleJourney = Some(journey))
+        val sessionToAmend = SessionData(journey)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -230,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         val updatedJourney =
           journey.submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn)).getOrFail
-        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -256,7 +256,7 @@ class EnterMovementReferenceNumberControllerSpec
             .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
             .getOrFail
 
-        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -283,7 +283,7 @@ class EnterMovementReferenceNumberControllerSpec
             .map(_.submitUserXiEori(UserXiEori.NotRegistered))
             .getOrFail
 
-        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -311,7 +311,7 @@ class EnterMovementReferenceNumberControllerSpec
             .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
             .getOrFail
 
-        val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+        val updatedSession = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -335,8 +335,8 @@ class EnterMovementReferenceNumberControllerSpec
           .submitMovementReferenceNumberAndDeclaration(1, secondMrn, getDisplayDeclarationForMrn(secondMrn))
           .getOrFail
 
-        val updatedSessionWithLeadMrn   = session.copy(overpaymentsMultipleJourney = Some(updatedJourneyWithLeadMrn))
-        val updatedSessionWithSecondMrn = session.copy(overpaymentsMultipleJourney = Some(updatedJourneyWithSecondMrn))
+        val updatedSessionWithLeadMrn   = SessionData(updatedJourneyWithLeadMrn)
+        val updatedSessionWithSecondMrn = SessionData(updatedJourneyWithSecondMrn)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -375,11 +375,11 @@ class EnterMovementReferenceNumberControllerSpec
             journey
               .submitMovementReferenceNumberAndDeclaration(mrnToChange - 1, correctedDD.getMRN, correctedDD)
               .getOrFail
-          val updatedSession = session.copy(overpaymentsMultipleJourney = Some(updatedJourney))
+          val updatedSession = SessionData(updatedJourney)
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(overpaymentsMultipleJourney = Some(journey)))
+            mockGetSession(SessionData(journey))
             mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -436,7 +436,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(overpaymentsMultipleJourney = Some(journey)))
+          mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }
 
