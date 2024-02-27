@@ -21,13 +21,16 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ContactAndAddressSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
+
 )
 
 @(contactDetails: MrnContactDetails, contactAddress: ContactAddress, contactChange: Call, addressChange: Option[Call], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -35,9 +38,12 @@
 @key = @{"check-claimant-details"}
 @title = @{messages(s"check-claimant-details.title")}
 
+
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
+
+    @insetText(content = HtmlContent(messages(s"check-claimant-details.inset-text")))
 
     @summary(
         ContactAndAddressSummary((contactDetails, contactAddress, contactChange, addressChange), key, None)

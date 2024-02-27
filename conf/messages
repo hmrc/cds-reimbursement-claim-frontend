@@ -117,7 +117,8 @@ check-claimant-details.change-hint.address=Contact address
 check-claimant-details.change-hint.contact=Contact details
 check-claimant-details.contact.address=Contact address
 check-claimant-details.contact.details=Contact details
-check-claimant-details.title=How we will contact you about this claim
+check-claimant-details.title=Confirm contact details for this claim
+check-claimant-details.inset-text=Contact details are used only for this claim.
 
 check-declaration-details.acceptance-date-label=Date duty to be collected
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
