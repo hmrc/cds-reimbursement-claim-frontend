@@ -131,7 +131,6 @@ class EnterContactDetailsControllerSpec
           mockStoreSession(Right(()))
         }
 
-
         checkIsRedirect(
           performAction(
             "enter-contact-details.contact-name"  -> name.toFullName,
