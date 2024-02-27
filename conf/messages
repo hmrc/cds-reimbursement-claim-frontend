@@ -504,7 +504,7 @@ confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like t
 confirm-full-repayment.question=Do you want to claim back all of this security deposit?
 confirm-full-repayment.title=Claim back this security deposit?
 
-confirmation-of-submission.claim-reference=Your claim reference number
+confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.
 confirmation-of-submission.feedback-link=What did you think of this service?
 confirmation-of-submission.multiple.mrn=First MRN
