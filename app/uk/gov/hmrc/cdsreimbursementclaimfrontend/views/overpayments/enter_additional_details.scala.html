@@ -44,20 +44,22 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), classes="govuk-heading-xl govuk-!-margin-bottom-8")
 
     @paragraph(Html(messages(s"enter-additional-details.help-text")))
+
+    @paragraph(Html(messages(s"enter-additional-details.bullet-help-text")))
 
     @bulletList(
         Seq(
             Html(messages(s"enter-additional-details.bullet.1")),
             Html(messages(s"enter-additional-details.bullet.2")),
             Html(messages(s"enter-additional-details.bullet.3")),
-            Html(messages(s"enter-additional-details.bullet.4"))
+            Html(messages(s"enter-additional-details.bullet.4")),
+            Html(messages(s"enter-additional-details.bullet.5")),
+            Html(messages(s"enter-additional-details.bullet.6")),
         )
     )
-
-    @paragraph(Html(messages(s"enter-additional-details.p1")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
