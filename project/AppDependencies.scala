@@ -11,7 +11,7 @@ object AppDependencies {
   val compile = Seq(
     "uk.gov.hmrc"           %% "bootstrap-frontend-play-30" % "8.4.0",
     "uk.gov.hmrc"           %% "play-frontend-hmrc-play-30" % "8.5.0",
-    "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-28"         % hmrcMongoPlayVersion,
+    "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"         %% "cats-core"                  % "2.10.0",
     "com.github.kxbmap"     %% "configs"                    % "0.6.1",
     "com.github.arturopala" %% "validator"                  % "0.23.0"
@@ -27,7 +27,7 @@ object AppDependencies {
     "com.github.chocpanda"   %% "scalacheck-magnolia"     % "0.5.1"              % Test,
     "com.vladsch.flexmark"    % "flexmark-all"            % "0.64.8"             % Test,
     "org.pegdown"             % "pegdown"                 % "1.6.0"              % Test,
-    "uk.gov.hmrc.mongo"      %% "hmrc-mongo-test-play-28" % hmrcMongoPlayVersion % Test
+    "uk.gov.hmrc.mongo"      %% "hmrc-mongo-test-play-30" % hmrcMongoPlayVersion % Test
   )
 
 }
