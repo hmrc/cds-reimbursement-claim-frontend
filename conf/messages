@@ -1046,15 +1046,16 @@ enter-movement-reference-number.securities.invalid.number=Enter the MRN in the c
 enter-movement-reference-number.securities.title=Enter the Movement Reference Number (MRN)
 enter-movement-reference-number.title=Enter the Movement Reference Number (MRN)
 
-enter-rejected-goods-details.rejected-goods.bullet.1=what the goods are
-enter-rejected-goods-details.rejected-goods.bullet.2=the quantity of goods being claimed for
-enter-rejected-goods-details.rejected-goods.bullet.3=the value of the goods being claimed for
-enter-rejected-goods-details.rejected-goods.bullet.4=the reason for rejection
+enter-rejected-goods-details.rejected-goods.bullet.1=preference codes
+enter-rejected-goods-details.rejected-goods.bullet.2=proof of return or refunds
+enter-rejected-goods-details.rejected-goods.bullet.3=incorrect commodity codes
+enter-rejected-goods-details.rejected-goods.bullet.4=tariff number
 enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or less
 enter-rejected-goods-details.rejected-goods.error.required=Enter details of the rejected goods
-enter-rejected-goods-details.rejected-goods.help-text=Tell HMRC any additional details that help to support your claim. This may include:
+enter-rejected-goods-details.rejected-goods.help-text=Give reasons why you should be repaid and the rejection reason.
+enter-rejected-goods-details.rejected-goods.hint=Additional details (optional)
 enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
-enter-rejected-goods-details.rejected-goods.p1=This can include:
+enter-rejected-goods-details.rejected-goods.p1=Please include any changes to:
 enter-rejected-goods-details.rejected-goods.title=Additional claim details
 
 enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances must be 500 characters or less
