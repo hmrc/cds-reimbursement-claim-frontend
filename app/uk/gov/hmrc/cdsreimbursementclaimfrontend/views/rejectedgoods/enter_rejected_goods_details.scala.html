@@ -42,7 +42,7 @@
 
  @errorSummary(form.errors)
 
- @heading(Html(title))
+ @heading(Html(title), classes="govuk-heading-xl govuk-!-margin-bottom-8")
 
  @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.help-text")))
  @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.p1")))
@@ -66,7 +66,7 @@
    isPageHeading = false,
    label = s"enter-rejected-goods-details.rejected-goods.label",
    labelClasses = Some("govuk-visually-hidden"),
-   hint = None,
+   hint = Some(s"enter-rejected-goods-details.rejected-goods.hint"),
    value = form("enter-rejected-goods-details.rejected-goods").value,
    maxLength = Some(500)
   )
