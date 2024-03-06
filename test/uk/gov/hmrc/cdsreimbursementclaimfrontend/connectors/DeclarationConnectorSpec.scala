@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import cats.syntax.eq._
 import com.google.inject.Inject
 import play.api.Configuration

@@ -87,10 +87,11 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
       eventNode.put("message", message.drop(4))
       try {
         val messageNode: JsonNode = mapper.readTree(message.drop(4))
-        eventNode.set("cdsr", messageNode)
+        eventNode.set[JsonNode]("cdsr", messageNode)
       } catch {
         case e: Exception =>
-          Logger(getClass).error(e.getMessage)
+          Logger(getClass()).error(s"${e.getMessage}\nmessage:$message")
+          eventNode.put("message", message)
       }
     } else
       eventNode.put("message", message)

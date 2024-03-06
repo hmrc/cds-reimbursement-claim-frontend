@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.typesafe.config.ConfigFactory

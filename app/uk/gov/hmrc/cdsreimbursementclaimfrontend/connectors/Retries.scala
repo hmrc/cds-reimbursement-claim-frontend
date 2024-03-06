@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import akka.actor.ActorSystem
-import akka.pattern.after
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.pattern.after
 import play.api.Configuration
 import play.api.Logger
 import uk.gov.hmrc.http.HttpResponse
