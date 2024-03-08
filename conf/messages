@@ -860,6 +860,8 @@ enter-bank-account-details.title=Enter your bank account details
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.
 enter-claim.actual-amount=How much should have been paid, in pounds?
+enter-claim.exchange-rate-details.heading=Calculating your payment
+enter-claim.exchange-rate-details.paragraph=If you need to work out the value of your goods in pounds sterling (GBP), you must only use HMRC’s <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank">exchange rates (opens in new tab)</a>. <br><br> The exchange rate you use must be the same as when you filed your original declaration. When converting to GBP, if your original declaration was submitted in October 2023, you should use the exchange rate for October 2023.
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
 enter-claim.help-text.excise=Include {0} duty details ({1}).
