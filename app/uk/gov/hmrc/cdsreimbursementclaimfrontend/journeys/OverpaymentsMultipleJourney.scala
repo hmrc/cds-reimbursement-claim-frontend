@@ -230,7 +230,7 @@ final class OverpaymentsMultipleJourney private (
     getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
   def getTotalReimbursementAmount: BigDecimal =
-    answers.correctedAmounts.map(_.keys.map(getReimbursementAmountForDeclaration).sum).getOrElse(ZERO)
+    getReimbursementClaims.flatMap(_._2.values).sum
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
