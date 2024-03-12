@@ -64,6 +64,7 @@ button.continue=Continue
 button.go-back=Go back
 button.saveAndContinue=Save and continue
 button.tryAgain=Try again
+button.signin=Sign in
 
 check-claim.are-duties-correct=Are these duties correct?
 check-claim.change-amount=Change amount
