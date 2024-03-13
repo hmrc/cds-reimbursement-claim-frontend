@@ -24,6 +24,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
+import uk.gov.hmrc.play.bootstrap.binders.UnsafePermitAll
 
 @Singleton
 class AuthLoginStubController @Inject() (
@@ -33,12 +36,21 @@ class AuthLoginStubController @Inject() (
     extends FrontendBaseController {
 
   val defaultEoriNumber     = "GB000000000000001"
-  val postAction: Call      = Call("POST", viewConfig.signInUrl)
+  val postAction: Call      = Call("POST", viewConfig.authLoginStubSignInUrl)
   val startClaimUrl: String = s"${viewConfig.selfBaseUrl}${StartController.startNewClaim()}"
+  val redirectPolicy        = UnsafePermitAll
 
   final val show: Action[AnyContent] = Action { implicit request =>
     val eoriNumber = request.getQueryString("eori").getOrElse(defaultEoriNumber)
-    Ok(authLoginStubPage(eoriNumber, startClaimUrl, postAction)).withNewSession
+
+    val continueUrl =
+      request
+        .getQueryString("continue")
+        .map(RedirectUrl.apply)
+        .map(_.get(UnsafePermitAll).url)
+        .getOrElse(startClaimUrl)
+
+    Ok(authLoginStubPage(eoriNumber, continueUrl, postAction)).withNewSession
   }
 
 }

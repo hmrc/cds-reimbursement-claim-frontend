@@ -192,7 +192,7 @@ final class OverpaymentsMultipleJourney private (
               correctAmount <- correctAmountOpt
               paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
             } yield (taxCode, paidAmount - correctAmount)
-          }.collect { case Some(x) => x }
+          }.collect { case Some(y) => y }
         )
       )
       .getOrElse(OrderedMap.empty)

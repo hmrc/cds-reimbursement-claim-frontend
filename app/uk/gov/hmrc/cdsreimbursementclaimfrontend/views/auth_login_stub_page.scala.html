@@ -32,7 +32,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
 )
 
-@(eoriNumber: String, startClaimUrl: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(eoriNumber: String, continueUrl: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{"Sign in using test credentials"}
 
@@ -50,23 +50,7 @@
         <input type="hidden" name="enrolment[0].name" value="HMRC-CUS-ORG"/>
         <input type="hidden" name="enrolment[0].taxIdentifier[0].name" value="EORINumber"/>
         <input type="hidden" name="enrolment[0].state" value="Activated"/>
-        
-        <div class="govuk-form-group">
-            <label class="govuk-label" for="redirectionUrl"> Redirect URL </label>
-
-            <div id="redirectionUrl-hint" class="govuk-hint">
-            The URL to be redirected to when the authentication step is completed.
-            </div>
-
-            <input
-                class="govuk-input"
-                id="redirectionUrl"
-                name="redirectionUrl"
-                type="text"
-                value=@startClaimUrl
-                aria-describedby="redirectionUrl-hint"
-            />
-        </div>
+        <input type="hidden" name="redirectionUrl" value=@continueUrl/>
 
         <div class="govuk-form-group">
             <label class="govuk-label" for="enrolment[0].taxIdentifier[0].value"> Claimant's EORI </label>

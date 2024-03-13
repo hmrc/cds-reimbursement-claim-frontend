@@ -51,6 +51,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   private val signOutUrl: String =
     getString("bas-gateway.signOutUrl")
 
+  val authLoginStubSignInUrl: String =
+    getString("auth-login-stub.signInUrl")
+
   val ggTimeoutSeconds: Long =
     servicesConfig.getDuration("gg.timeout").toSeconds
 
