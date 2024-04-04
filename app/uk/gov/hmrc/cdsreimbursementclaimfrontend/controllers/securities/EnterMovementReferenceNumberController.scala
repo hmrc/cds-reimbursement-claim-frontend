@@ -63,7 +63,7 @@ class EnterMovementReferenceNumberController @Inject() (
               journey,
               BadRequest(
                 enterMovementReferenceNumberPage(
-                  formWithErrors.copy(data = Map.empty),
+                  formWithErrors,
                   routes.EnterMovementReferenceNumberController.submit
                 )
               )
