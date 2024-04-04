@@ -194,10 +194,12 @@ class EnterMovementReferenceNumberControllerSpec
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
+          doc => {
+            getErrorSummary(doc)                                        shouldBe messageFromMessageKey(
               s"$enterMovementReferenceNumberKeyAndSubKey.invalid.number"
-            ),
+            )
+            doc.getElementById(enterMovementReferenceNumberKey).`val`() shouldBe invalidMRN.value
+          },
           expectedStatus = BAD_REQUEST
         )
       }
