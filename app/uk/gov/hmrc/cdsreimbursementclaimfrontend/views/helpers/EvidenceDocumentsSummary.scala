@@ -95,7 +95,7 @@ object EvidenceDocumentsSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.label"))
+                  visuallyHiddenText = Some(messages(s"$key.hidden-label"))
                 )
               )
             )
