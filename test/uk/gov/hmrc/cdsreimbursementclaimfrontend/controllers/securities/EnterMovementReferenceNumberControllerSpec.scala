@@ -195,7 +195,7 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
           doc => {
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
+            getErrorSummary(doc)                                        shouldBe messageFromMessageKey(
               s"$enterMovementReferenceNumberKeyAndSubKey.invalid.number"
             )
             doc.getElementById(enterMovementReferenceNumberKey).`val`() shouldBe invalidMRN.value
