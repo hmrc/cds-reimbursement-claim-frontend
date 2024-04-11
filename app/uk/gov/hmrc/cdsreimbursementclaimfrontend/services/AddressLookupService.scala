@@ -100,17 +100,18 @@ class DefaultAddressLookupService @Inject() (
         .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateUrl.url}")
         .signOutUserVia(viewConfig.ggSignOut)
         .nameConsumerServiceAs("cds-reimbursement-claim")
-        .withPageTitles(
-          appTitle.some,
-          None,
-          fullPageTitle("address-lookup.lookup.title").some,
-          fullPageTitle("address-lookup.confirm.title").some,
-          fullPageTitle("address-lookup.select.title").some,
-          fullPageTitle("address-lookup.edit.title").some,
-          pageHeading("address-lookup.lookup.title").some,
-          pageHeading("address-lookup.confirm.title").some,
-          pageHeading("address-lookup.select.title").some,
-          pageHeading("address-lookup.edit.title").some
+        .withPageLabels(
+          appTitle = appTitle.some,
+          phaseBannerHtml = None,
+          lookupTitle = fullPageTitle("address-lookup.lookup.title").some,
+          confirmTitle = fullPageTitle("address-lookup.confirm.title").some,
+          selectTitle = fullPageTitle("address-lookup.select.title").some,
+          editTitle = fullPageTitle("address-lookup.edit.title").some,
+          lookupHeading = pageHeading("address-lookup.lookup.title").some,
+          confirmHeading = pageHeading("address-lookup.confirm.title").some,
+          selectHeading = pageHeading("address-lookup.select.title").some,
+          editHeading = pageHeading("address-lookup.edit.title").some,
+          searchAgainLinkText = Some(messages("address-lookup.label.searchAgainLinkText"))
         )
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
