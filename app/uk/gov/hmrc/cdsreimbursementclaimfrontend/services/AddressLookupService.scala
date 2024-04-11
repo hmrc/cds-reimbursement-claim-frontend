@@ -108,7 +108,7 @@ class DefaultAddressLookupService @Inject() (
           selectTitle = fullPageTitle("address-lookup.select.title").some,
           editTitle = fullPageTitle("address-lookup.edit.title").some,
           lookupHeading = pageHeading("address-lookup.lookup.title").some,
-          confirmHeading = pageHeading("address-lookup.confirm.title").some,
+          confirmHeading = pageHeading("address-lookup.confirm.h1").some,
           selectHeading = pageHeading("address-lookup.select.title").some,
           editHeading = pageHeading("address-lookup.edit.title").some,
           searchAgainLinkText = Some(messages("address-lookup.label.searchAgainLinkText"))

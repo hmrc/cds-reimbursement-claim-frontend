@@ -1,6 +1,7 @@
 account-number.mask=Ending with {0}
 
 address-lookup.confirm.title=Review and confirm
+address-lookup.confirm.h1=Review and confirm address
 address-lookup.edit.title=Enter your address
 address-lookup.lookup.title=Find your UK address
 address-lookup.select.title=Choose your address
