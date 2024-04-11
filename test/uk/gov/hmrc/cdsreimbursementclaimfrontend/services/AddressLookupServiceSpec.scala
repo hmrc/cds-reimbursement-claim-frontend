@@ -96,17 +96,17 @@ class AddressLookupServiceSpec
     .whetherShowBanner(true)
     .disableTranslations(true)
     .withPageLabels(
-      Some(s"${messages("service.title")}"),
-      None,
-      Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
-      Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
-      Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
-      Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK"),
-      Some(s"${messages("address-lookup.lookup.title")}"),
-      Some(s"${messages("address-lookup.confirm.title")}"),
-      Some(s"${messages("address-lookup.select.title")}"),
-      Some(s"${messages("address-lookup.edit.title")}"),
-      Some(s"${messages("address-lookup.label.searchAgainLinkText")}")
+      appTitle = Some(s"${messages("service.title")}"),
+      phaseBannerHtml = None,
+      lookupTitle = Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
+      confirmTitle = Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
+      selectTitle = Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
+      editTitle = Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK"),
+      lookupHeading = Some(s"${messages("address-lookup.lookup.title")}"),
+      confirmHeading = Some(s"${messages("address-lookup.confirm.h1")}"),
+      selectHeading = Some(s"${messages("address-lookup.select.title")}"),
+      editHeading = Some(s"${messages("address-lookup.edit.title")}"),
+      searchAgainLinkText = Some(s"${messages("address-lookup.label.searchAgainLinkText")}")
     )
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
