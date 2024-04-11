@@ -26,22 +26,30 @@ final case class AddressLookupOptions(
   signOutHref: Option[String] = None,
   accessibilityFooterUrl: Option[String] = None,
   selectPageConfig: Option[SelectPageConfig] = None,
-  confirmPageConfig: ConfirmPageConfig = ConfirmPageConfig(),
+  confirmPageConfig: Option[ConfirmPageConfig] = None,
   phaseFeedbackLink: Option[String] = None,
   deskProServiceName: Option[String] = None,
   showPhaseBanner: Option[Boolean] = None,
   ukMode: Option[Boolean] = None,
-  disableTranslations: Option[Boolean] = None
+  disableTranslations: Option[Boolean] = None,
+  showBackButtons: Option[Boolean] = None,
+  includeHMRCBranding: Option[Boolean] = None,
+  homeNavHref: Option[String] = None,
+  allowedCountryCodes: Option[Seq[String]] = None
 )
 
 object AddressLookupOptions {
 
-  final case class SelectPageConfig(proposalListLimit: Int)
+  final case class SelectPageConfig(
+    proposalListLimit: Option[Int] = None,
+    showSearchAgainLink: Option[Boolean] = None
+  )
 
   final case class ConfirmPageConfig(
     showChangeLink: Option[Boolean] = None,
     showSearchAgainLink: Option[Boolean] = None,
-    showConfirmChangeText: Option[Boolean] = None
+    showConfirmChangeText: Option[Boolean] = None,
+    showSubHeadingAndInfo: Option[Boolean] = None
   )
 
   final case class TimeoutConfig(

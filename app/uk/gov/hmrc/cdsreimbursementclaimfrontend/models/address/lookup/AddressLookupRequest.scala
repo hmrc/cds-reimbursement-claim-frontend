@@ -21,6 +21,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.SelectPageConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.ConfirmPageConfig
 
 final case class AddressLookupRequest(
   version: Int,
@@ -47,9 +48,14 @@ object AddressLookupRequest {
     def whetherSearchOnlyUkAddresses(value: Boolean): Builder =
       copy(options.copy(ukMode = value.some))
 
-    def showMax(maxToShow: Int): Builder =
-      copy(options.copy(selectPageConfig = SelectPageConfig(proposalListLimit = maxToShow).some))
-
+    def showMax(value: Int): Builder               =
+      copy(
+        options.copy(
+          selectPageConfig = options.selectPageConfig
+            .map(_.copy(proposalListLimit = value.some))
+            .orElse(Some(SelectPageConfig(proposalListLimit = value.some)))
+        )
+      )
     def whetherShowBanner(value: Boolean): Builder =
       copy(options.copy(showPhaseBanner = value.some))
 
@@ -66,18 +72,27 @@ object AddressLookupRequest {
       copy(options.copy(phaseFeedbackLink = link.some))
 
     def whetherShowSearchAgainLink(value: Boolean): Builder =
-      copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showSearchAgainLink = value.some)))
+      copy(
+        options.copy(
+          confirmPageConfig = options.confirmPageConfig
+            .map(_.copy(showSearchAgainLink = value.some))
+            .orElse(Some(ConfirmPageConfig(showSearchAgainLink = value.some))),
+          selectPageConfig = options.selectPageConfig
+            .map(_.copy(showSearchAgainLink = value.some))
+            .orElse(Some(SelectPageConfig(showSearchAgainLink = value.some)))
+        )
+      )
 
     def whetherShowChangeLink(value: Boolean): Builder =
-      copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showChangeLink = value.some)))
+      copy(options.copy(confirmPageConfig = options.confirmPageConfig.map(_.copy(showChangeLink = value.some))))
 
     def whetherShowConfirmChangeText(value: Boolean): Builder =
-      copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showConfirmChangeText = value.some)))
+      copy(options.copy(confirmPageConfig = options.confirmPageConfig.map(_.copy(showConfirmChangeText = value.some))))
 
     def disableTranslations(value: Boolean): Builder =
       copy(options.copy(disableTranslations = Some(value)))
 
-    def withPageTitles(
+    def withPageLabels(
       appTitle: Option[String] = None,
       phaseBannerHtml: Option[String] = None,
       lookupTitle: Option[String],
@@ -87,16 +102,19 @@ object AddressLookupRequest {
       lookupHeading: Option[String],
       confirmHeading: Option[String],
       selectHeading: Option[String],
-      editHeading: Option[String]
+      editHeading: Option[String],
+      searchAgainLinkText: Option[String]
     ): Builder =
       copy(labels =
         labels.copy(en =
           LanguageLabels(
             appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
-            lookupPageLabels = PageLabels(lookupTitle, lookupHeading).some,
-            confirmPageLabels = PageLabels(confirmTitle, confirmHeading).some,
-            selectPageLabels = PageLabels(selectTitle, selectHeading).some,
-            editPageLabels = PageLabels(editTitle, editHeading).some
+            lookupPageLabels = LookupPageLabels(lookupTitle, lookupHeading).some,
+            confirmPageLabels =
+              ConfirmPageLabels(confirmTitle, confirmHeading, searchAgainLinkText = searchAgainLinkText).some,
+            selectPageLabels =
+              SelectPageLabels(selectTitle, selectHeading, searchAgainLinkText = searchAgainLinkText).some,
+            editPageLabels = EditPageLabels(editTitle, editHeading).some
           ).some
         )
       )

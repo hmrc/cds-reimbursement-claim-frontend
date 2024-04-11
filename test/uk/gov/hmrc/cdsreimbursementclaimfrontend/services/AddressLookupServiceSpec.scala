@@ -95,7 +95,7 @@ class AddressLookupServiceSpec
     .whetherShowChangeLink(true)
     .whetherShowBanner(true)
     .disableTranslations(true)
-    .withPageTitles(
+    .withPageLabels(
       Some(s"${messages("service.title")}"),
       None,
       Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
@@ -105,7 +105,8 @@ class AddressLookupServiceSpec
       Some(s"${messages("address-lookup.lookup.title")}"),
       Some(s"${messages("address-lookup.confirm.title")}"),
       Some(s"${messages("address-lookup.select.title")}"),
-      Some(s"${messages("address-lookup.edit.title")}")
+      Some(s"${messages("address-lookup.edit.title")}"),
+      Some(s"${messages("address-lookup.label.searchAgainLinkText")}")
     )
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(

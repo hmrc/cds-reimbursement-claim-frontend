@@ -4,6 +4,7 @@ address-lookup.confirm.title=Review and confirm
 address-lookup.edit.title=Enter your address
 address-lookup.lookup.title=Find your UK address
 address-lookup.select.title=Choose your address
+address-lookup.label.searchAgainLinkText=Find a different address
 
 bank-details.account-name.label.hidden=bank details
 bank-details.account-name.label=Name on the account
