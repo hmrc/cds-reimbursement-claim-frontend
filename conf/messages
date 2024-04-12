@@ -1128,7 +1128,7 @@ landing-securities.docs.l6=inward processing relief - a completed <a class="govu
 landing-securities.docs.l7=end use relief - a completed <a class="govuk-link" href="https://public-online.hmrc.gov.uk/lc/content/xfaforms/profiles/forms.html?contentRoot=repository:///Applications/Customs_C/1.0/BOD4CDS&template=BOD4CDS.xdp">Bill of Discharge 4 form</a>
 landing-securities.docs.l8=letter of authority to update bank account details
 landing-securities.docs.l9=other documents that support your claim
-landing-securities.docs.p1=You should provide supporting documents for the goods you have imported. Scan these documents before you make your claim so you can upload them later. The documents can be up to 10MB per file. We accept JPG, PNG and PDF.
+landing-securities.docs.p1=You should provide supporting documents for the goods you have imported. Scan these documents before you make your claim so you can upload them later. The documents can be up to {0} per file. We accept JPG, PNG and PDF.
 landing-securities.docs.p2=Documentation required will depend on the circumstances of your import and may include:
 landing-securities.help.heading=If you need help
 landing-securities.help.p1=Find out more information about <a class="govuk-link" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">importing goods into the UK</a>.
@@ -1329,7 +1329,7 @@ schedule-document.upload.error.required=There is a problem with the file you tri
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
 schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template</a>. You can use this to fill in the information we need to process you claim.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
-schedule-document.upload.help-text.para4=This document can be up to 10MB and must be a JPG, PNG or PDF.
+schedule-document.upload.help-text.para4=This document can be up to {0} and must be a JPG, PNG or PDF.
 schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.things-to-show.l1=all be from the same importer
 schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
