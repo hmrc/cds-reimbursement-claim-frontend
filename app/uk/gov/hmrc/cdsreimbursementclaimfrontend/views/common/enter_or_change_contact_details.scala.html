@@ -59,7 +59,8 @@
             name = s"enter-contact-details.contact-name",
             label = s"enter-contact-details.contact-name.label",
             isPageHeading = false,
-            classes = Some("govuk-input--width-20")
+            classes = Some("govuk-input--width-20"),
+            autocomplete = Some("name")
         )
 
         @inputText(
@@ -70,7 +71,8 @@
             isPageHeading = false,
             inputType = "email",
             spellcheck = Some(false),
-            classes = Some("govuk-input--width-20")
+            classes = Some("govuk-input--width-20"),
+            autocomplete = Some("email")
         )
 
         @inputText(
@@ -80,7 +82,8 @@
             label = s"enter-contact-details.contact-phone-number.label",
             inputType = "tel",
             isPageHeading = false,
-            classes = Some("govuk-input--width-20")
+            classes = Some("govuk-input--width-20"),
+            autocomplete = Some("tel")
         )
         @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
     }
