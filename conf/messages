@@ -23,7 +23,7 @@ bank-details.sort-code.label=Sort code
 bank-details.title=Check these bank details are correct
 bank-details.warning=We have been unable to check the details of this bank account. You should check the details that you have entered are correct before continuing
 bank-details.yes=Yes
-bank-details-yes-no.error.required=Select yes to continue with this bank account
+bank-details.error.required=Select yes to continue with this bank account
 
 bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 bank-service-unavailable.title=Sorry, the service is unavailable
