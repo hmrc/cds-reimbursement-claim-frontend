@@ -39,14 +39,19 @@
     warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form: Form[YesNo],    bankAccount: BankAccountDetails, postAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"bank-details.title")}
 
-@layout(pageTitle = Some(s"$title")) {
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
 
     @heading(Html(title))
 
