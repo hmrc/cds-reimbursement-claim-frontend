@@ -820,7 +820,7 @@ enter-additional-details.error.maxLength=Additional details must be 500 characte
 enter-additional-details.error.required=Enter additional details
 enter-additional-details.help-text=Give reasons why you should be repaid. Provide details about any changes to item numbers, quotas, and quantities.
 enter-additional-details.bullet-help-text=Please include any changes to:
-enter-additional-details.hint=Additional details (optional)
+enter-additional-details.hint=Additional details
 enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.title=Additional claim details
 
