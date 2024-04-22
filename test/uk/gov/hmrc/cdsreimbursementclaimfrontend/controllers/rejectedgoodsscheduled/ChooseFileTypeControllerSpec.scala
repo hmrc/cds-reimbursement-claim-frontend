@@ -72,7 +72,7 @@ class ChooseFileTypeControllerSpec
       ("Commercial invoice", "CommercialInvoice"),
       ("Correspondence between trader and agent", "CorrespondenceTrader"),
       ("Documentary proof that the goods are faulty or not what you ordered", "DocumentaryProofFaultyOrNotWhatOrdered"),
-      ("Import and export declaration", "ImportAndExportDeclaration"),
+      ("Import or export declaration", "ImportAndExportDeclaration"),
       ("Letter of authority", "LetterOfAuthority"),
       ("Proof of export or destruction", "ProofOfExportOrDestruction")
     ) ++ (
