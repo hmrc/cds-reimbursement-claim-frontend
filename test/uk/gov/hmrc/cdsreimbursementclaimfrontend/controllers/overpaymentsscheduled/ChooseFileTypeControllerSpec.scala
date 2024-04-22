@@ -75,7 +75,7 @@ class ChooseFileTypeControllerSpec
         ("Bill of lading", "BillOfLading"),
         ("Commercial invoice", "CommercialInvoice"),
         ("Correspondence between trader and agent", "CorrespondenceTrader"),
-        ("Import and export declaration", "ImportAndExportDeclaration"),
+        ("Import or export declaration", "ImportAndExportDeclaration"),
         ("Packing list", "PackingList"),
         ("Letter of authority", "ProofOfAuthority"),
         ("Substitute entry", "SubstituteEntry"),
