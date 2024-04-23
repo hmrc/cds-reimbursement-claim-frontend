@@ -464,7 +464,7 @@ choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
 
 choose-payee-type.error.required=Select who the repayment will be made to
-choose-payee-type.radio.declarant=Declarant
+choose-payee-type.radio.declarant=Declarant / Representative
 choose-payee-type.radio.importer=Importer
 choose-payee-type.title=Who will the repayment be made to?
 choose-payee-type.details.h1=Importer
