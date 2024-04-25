@@ -472,7 +472,7 @@ choose-payee-type.details.declarant=Declarant
 choose-payee-type.details.representative=Representative
 choose-payee-type.details.p1=The organisation that brought goods into the UK from another country.
 choose-payee-type.details.p2=The organisation that submits an import declaration on the importer's behalf.
-choose-payee-type.details.p3=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer's behalf.
+choose-payee-type.details.p3=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer''s behalf.
 choose-payee-type.details.title=Who is the importer, declarant and the representative?
 
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
