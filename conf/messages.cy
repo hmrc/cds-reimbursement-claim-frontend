@@ -437,6 +437,7 @@ choose-files.allowed-file-types=JPG, PNG neu PDF
 choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
 choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf JPG, PNG neu PDF.
+choose-files.p2=
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
 choose-payee-type.error.required=Dewiswch pwy fydd yn cael yr ad-daliad

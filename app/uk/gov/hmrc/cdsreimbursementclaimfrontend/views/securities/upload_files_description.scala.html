@@ -24,4 +24,5 @@
 )
 
 @(documentTypeDescription: String)(implicit messages: Messages)
-@paragraph(Html(messages("choose-files.p1", documentTypeDescription, fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"),fileUploadConfig.readMaxUploadsValue("supporting-evidence")).capitalize), Some("govuk-body govuk-!-margin-bottom-6")) 
+@paragraph(Html(messages("choose-files.p1", documentTypeDescription, fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"),fileUploadConfig.readMaxUploadsValue("supporting-evidence")).capitalize), Some("govuk-body govuk-!-margin-bottom-2"))
+@paragraph(Html(messages("choose-files.p2")),Some("govuk-body govuk-!-margin-bottom-6"))
