@@ -501,7 +501,7 @@ choose-reason-for-security.securities.paragraph=Tell us why HMRC required a secu
 choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
 
 claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
-claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}">start a new security deposit claim</a>
+claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>
 claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" class="govuk-link" target="_blank">contact HMRC (opens in new tab)</a>
 claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
 
@@ -1147,7 +1147,6 @@ landing-securities.start.p1=To start your claim, you will need the reference num
 landing-securities.start.p2=An MRN has 18 numbers and letters. For example, 21GBJD4DCMAM33D012
 landing-securities.start.p3=Continue to use this service if you have a Movement Reference Number
 landing-securities.start.p4=An entry number has 18 numbers and letters. For example, 123123456A01112022
-TODO: this link is empty
 landing-securities.start.p5=If you have an entry number, you should <a href="" class="govuk-link">contact HMRC</a> about your claim.
 landing-securities.start.subheading1=A Movement reference Number (MRN)
 landing-securities.start.subheading2=An Entry Number
