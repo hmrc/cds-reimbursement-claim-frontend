@@ -1678,9 +1678,11 @@ timed-out.p1=This was because you were inactive for too long.
 timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 timed-out.title=For your security, we signed you out
 
-unauthorised.help=You need an EORI number to use this service. An EORI number must be 14 characters or less, and only include letters a to z and numbers 1 to 9
-unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">how to get an EORI number (opens in new tab)</a>
-unauthorised.title=There is a problem
+unauthorised.h2.already-subscribed=If you are already subscribed to CDS
+unauthorised.h2.subscribe=Subscribe to CDS
+unauthorised.link-to-subscribe=<a href="{0}">Subscribe to the Custom Declaration Service</a>
+unauthorised.p1=Check that you signed in with the Government Gateway user ID that is linked to your Economic Operator and Registration Identification (EORI) number and CDS account.
+unauthorised.title=To continue you need to subscribe to the Customs Declaration Service (CDS)
 
 we-only-support-gg.createAccount=Create an account
 we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
