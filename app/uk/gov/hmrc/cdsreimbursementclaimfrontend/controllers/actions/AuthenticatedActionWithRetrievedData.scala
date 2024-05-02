@@ -163,11 +163,11 @@ class AuthenticatedActionWithRetrievedData @Inject() (
             Future.successful(Right(Some(Eori(eori.value))))
           case None       =>
             logger.warn("EORI is missing from the enrolment")
-            Future.successful(Left(errorHandler.errorResult()(request)))
+            Future.successful(Left(Redirect(unauthorizedErrorPage)))
         }
       case None       =>
         logger.warn("No EORI enrolment")
-        Future.successful(Left(errorHandler.errorResult()(request)))
+        Future.successful(Left(Redirect(unauthorizedErrorPage)))
     }
 
   private def handleSignedInUser[A](

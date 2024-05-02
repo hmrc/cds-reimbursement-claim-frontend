@@ -45,7 +45,7 @@ bill-of-discharge-error.bod3.p3=This tells HMRC how you disposed of Inward Proce
 bill-of-discharge-error.bod4.p2=To submit a new claim for repayment of your security deposit or guarantee at a later date, you will need to complete a BOD4 form.
 bill-of-discharge-error.bod4.p3=This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
 bill-of-discharge-error.p1=You have chosen at this time not to continue with your claim for repayment of a security deposit or guarantee.
-bill-of-discharge-error.p4=Find out more information about <a href="{0}">importing goods into the UK</a>.
+bill-of-discharge-error.p4=Find out more information about <a href="{0}" class="govuk-link">importing goods into the UK</a>.
 bill-of-discharge-error.p5=For general enquiries about importing, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">Contact HMRC (opens in new tab)</a>
 bill-of-discharge-error.title=You have chosen not to continue with your claim
 
@@ -502,8 +502,8 @@ choose-reason-for-security.securities.paragraph=Tell us why HMRC required a secu
 choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
 
 claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
-claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}">claim back import duty and VAT guidance</a> or  <a href="{1}">start a new security deposit claim</a>
-claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" target="_blank">contact HMRC (opens in new tab)</a>
+claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>
+claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" class="govuk-link" target="_blank">contact HMRC (opens in new tab)</a>
 claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
 
 confirm-full-repayment.caption=Security deposit: {0} of {1}
@@ -1148,7 +1148,7 @@ landing-securities.start.p1=To start your claim, you will need the reference num
 landing-securities.start.p2=An MRN has 18 numbers and letters. For example, 21GBJD4DCMAM33D012
 landing-securities.start.p3=Continue to use this service if you have a Movement Reference Number
 landing-securities.start.p4=An entry number has 18 numbers and letters. For example, 123123456A01112022
-landing-securities.start.p5=If you have an entry number, you should <a href="">contact HMRC</a> about your claim.
+landing-securities.start.p5=If you have an entry number, you should <a href="" class="govuk-link">contact HMRC</a> about your claim.
 landing-securities.start.subheading1=A Movement reference Number (MRN)
 landing-securities.start.subheading2=An Entry Number
 landing-securities.title=Claim back an import security deposit or guarantee
@@ -1590,7 +1590,7 @@ sign-out.title=You have successfully left the service
 
 signed-out.button=Go to GOV.UK
 signed-out.p1=To access the claim back import duty and VAT service, you’ll need to sign back in.
-signed-out.p2=You can <a href="{0}">sign in</a> to your account.
+signed-out.p2=You can <a href="{0}" class="govuk-link">sign in</a> to your account.
 signed-out.title=You’ve signed out
 sort-code.mask=Ending with {0}
 
@@ -1679,13 +1679,15 @@ timed-out.p1=This was because you were inactive for too long.
 timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 timed-out.title=For your security, we signed you out
 
-unauthorised.help=You need an EORI number to use this service. An EORI number must be 14 characters or less, and only include letters a to z and numbers 1 to 9
-unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">how to get an EORI number (opens in new tab)</a>
-unauthorised.title=There is a problem
+unauthorised.h2.already-subscribed=If you are already subscribed to CDS
+unauthorised.h2.subscribe=Subscribe to CDS
+unauthorised.link-to-subscribe=<a href="{0}" class="govuk-link">Subscribe to the Custom Declaration Service</a>
+unauthorised.p1=Check that you signed in with the Government Gateway user ID that is linked to your Economic Operator and Registration Identification (EORI) number and CDS account.
+unauthorised.title=To continue you need to subscribe to the Customs Declaration Service (CDS)
 
 we-only-support-gg.createAccount=Create an account
-we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
+we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}" class="govuk-link">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
 we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot be used to access this service.
 we-only-support-gg.signIn=Sign in if you already have an account
-we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
+we-only-support-gg.signIn.p1=<a href="{0}" class="govuk-link">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
