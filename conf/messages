@@ -915,7 +915,7 @@ enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 enter-claim.securities.claim-amount.hint=The claim amount must be lower than the amount paid.
 enter-claim.securities.claim-amount=How much should have been paid, in pounds?
 enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
-enter-claim.securities.securityIdLabel=Security ID: 
+enter-claim.securities.securityIdLabel=Security deposit ID: {0}
 enter-claim.securities.title={0} - {1}
 enter-claim.title.caption=Claim details
 enter-claim.title.excise={0} - {1} {2}

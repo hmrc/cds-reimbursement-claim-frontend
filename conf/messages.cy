@@ -862,7 +862,7 @@ enter-claim.securities.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fo
 enter-claim.securities.claim-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
 enter-claim.securities.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.securities.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="amount-paid">{0}</span>
-enter-claim.securities.securityIdLabel=ID Sicrwydd:
+enter-claim.securities.securityIdLabel=ID Sicrwydd: {0}
 enter-claim.securities.title={0} - {1}
 enter-claim.title.caption=Manylion yr hawliad
 enter-claim.title.excise={0} - {1} {2}

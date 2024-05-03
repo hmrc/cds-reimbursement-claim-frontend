@@ -41,21 +41,16 @@
 
 @key = @{"enter-claim.securities"}
 @title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
-@caption = @{messages(s"enter-claim.title.caption")}
+@caption = @{messages("enter-claim.securities.securityIdLabel", securityDepositId)}
 @pageTitleWithCaption = @{s"$caption: $title"}
 @hintText = @{Html(messages(s"enter-claim.securities.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$pageTitleWithCaption"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
     @heading(Html(title), caption = caption)
-
-    <p class="govuk-body">
-        @messages(s"enter-claim.securities.securityIdLabel")
-        <span id="securityDepositId" class="govuk-!-font-weight-bold">@{securityDepositId}</span>
-    </p>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
