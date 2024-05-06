@@ -83,11 +83,12 @@ class EnterClaimControllerSpec
     amount: BigDecimal
   ) = {
 
-    val caption = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val heading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val caption         = doc.select("span.govuk-caption-xl").eachText().asScala.toList
+    val heading         = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val expectedCaption = messages("enter-claim.securities.securityIdLabel", securityDepositId)
 
-    caption shouldBe List(messages("enter-claim.title.caption"))
-    heading shouldBe List(s"Claim details $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+    caption shouldBe List(expectedCaption)
+    heading shouldBe List(s"$expectedCaption $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
 
     doc.select("#amount-paid").text()                                       shouldBe amount.toPoundSterlingString
     doc.select("input[name='enter-claim.securities.claim-amount']").`val`() shouldBe ""
