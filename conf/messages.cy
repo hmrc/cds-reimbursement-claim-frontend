@@ -806,7 +806,6 @@ enter-bank-account-details.error.account-exists-error=Nid oedd y gwasanaeth ar g
 enter-bank-account-details.error.moc-check-failed=Nid oeddem yn gallu gwirio’ch cod didoli na rhif eich cyfrif. Rhowch gynnig arall arni gan ddefnyddio manylion gwahanol
 enter-bank-account-details.error.moc-check-no=Nodwch gyfuniad dilys o rif cyfrif banc a chod didoli
 enter-bank-account-details.p1=Dyma’r cyfrif yr hoffech gael ad-daliadau eu gwneud iddo yn y DU. Dim ond ar gyfer yr hawliad hwn y defnyddir y manylion personol hyn.
-enter-bank-account-details.p2=I ddefnyddio’r manylion banc hyn ar gyfer hawliadau eraill yn y dyfodol <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/vat-customs-and-excise-and-duties-enquiries-for-welsh-speaking-customers" target="_blank">cysylltwch â CThEF (yn agor tab newydd)</a>
 enter-bank-account-details.sort-code.error.required=Nodwch god didoli
 enter-bank-account-details.sort-code.help-text=Mae’n rhaid i hwn fod yn 6 digid.
 enter-bank-account-details.sort-code.invalid=Nodwch god didoli dilys, megis 309430
