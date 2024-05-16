@@ -73,6 +73,9 @@ final class RejectedGoodsScheduledJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
 
+  def removeUnsupportedTaxCodes(): RejectedGoodsScheduledJourney =
+    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */

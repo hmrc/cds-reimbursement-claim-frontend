@@ -281,6 +281,9 @@ final class OverpaymentsMultipleJourney private (
         }
       }
 
+  def removeUnsupportedTaxCodes(): OverpaymentsMultipleJourney =
+    this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */

@@ -230,4 +230,7 @@ trait CommonJourneyProperties {
     getDisplayDeclarations.nonEmpty &&
       getDisplayDeclarations.forall(_.hasOnlySubsidyPayments)
 
+  def containsUnsupportedTaxCode: Boolean =
+    getLeadDisplayDeclaration.map(_.containsSomeUnsupportedTaxCode).getOrElse(false)
+
 }

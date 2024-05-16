@@ -117,9 +117,9 @@ final class OverpaymentsSingleJourney private (
   def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsSingleJourney =
     this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
-    */
+  def removeUnsupportedTaxCodes(): OverpaymentsSingleJourney =
+    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration

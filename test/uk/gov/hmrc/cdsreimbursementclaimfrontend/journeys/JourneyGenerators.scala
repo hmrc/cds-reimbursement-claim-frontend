@@ -93,6 +93,28 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       dutyDetails = (paidAmounts :+ ((TaxCode.A00, BigDecimal("1.01")))).map { case (t, a) => (t, a, false) }
     )).sample.get
 
+  final def exampleDisplayDeclarationWithSomeUnsupportedCode: DisplayDeclaration =
+    (for {
+      declarantEORI <- IdGen.genEori
+      consigneeEORI <- IdGen.genEori
+      paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.A00, TaxCode.UnsupportedTaxCode("foo")))
+    } yield buildDisplayDeclaration(
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
+    )).sample.get
+
+  final def exampleDisplayDeclarationWithOnlyUnsupportedCodes: DisplayDeclaration =
+    (for {
+      declarantEORI <- IdGen.genEori
+      consigneeEORI <- IdGen.genEori
+      paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.UnsupportedTaxCode("foo"), TaxCode.UnsupportedTaxCode("bar")))
+    } yield buildDisplayDeclaration(
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
+    )).sample.get
+
   final val exampleSecuritiesDisplayDeclaration: DisplayDeclaration =
     securitiesDisplayDeclarationGen.sample.get
 

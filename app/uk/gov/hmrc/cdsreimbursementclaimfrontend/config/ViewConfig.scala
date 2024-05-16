@@ -140,6 +140,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val betaFeedbackUrl: String = getString("external-url.beta-feedback")
   val feedbackUrl: String     = getString("external-url.feedback")
 
+  val legacyC285FormUrl: String = getString("external-url.c285-form")
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
