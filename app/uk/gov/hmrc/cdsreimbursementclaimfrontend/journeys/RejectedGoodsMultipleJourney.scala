@@ -260,6 +260,9 @@ final class RejectedGoodsMultipleJourney private (
         }
       }
 
+  def removeUnsupportedTaxCodes(): RejectedGoodsMultipleJourney =
+    this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration

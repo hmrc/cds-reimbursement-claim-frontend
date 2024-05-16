@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.UnsupportedTaxCode
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -66,6 +67,9 @@ final case class DisplayDeclaration(
 
   def getAvailableTaxCodes: Seq[TaxCode] =
     getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
+
+  def iterateAvailableTaxCodes: Iterator[TaxCode] =
+    getNdrcDetailsList.map(_.iterator.map(d => TaxCode(d.taxType))).getOrElse(Iterator.empty)
 
   def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
@@ -215,6 +219,34 @@ final case class DisplayDeclaration(
     copy(displayResponseDetail =
       displayResponseDetail.copy(declarantDetails =
         displayResponseDetail.declarantDetails.copy(contactDetails = Some(contactDetails))
+      )
+    )
+
+  def containsOnlyUnsupportedTaxCodes: Boolean = {
+    val iterator = iterateAvailableTaxCodes
+    iterator.hasNext && iterator.forall {
+      case UnsupportedTaxCode(_) => true
+      case _                     => false
+    }
+  }
+
+  def containsSomeUnsupportedTaxCode: Boolean =
+    iterateAvailableTaxCodes.exists {
+      case UnsupportedTaxCode(_) => true
+      case _                     => false
+    }
+
+  def removeUnsupportedTaxCodes(): DisplayDeclaration =
+    copy(displayResponseDetail =
+      displayResponseDetail.copy(ndrcDetails =
+        displayResponseDetail.ndrcDetails.map(ndrcDetailsList =>
+          ndrcDetailsList.filter(ndrcDetails =>
+            TaxCode(ndrcDetails.taxType) match {
+              case UnsupportedTaxCode(_) => false
+              case _                     => true
+            }
+          )
+        )
       )
     )
 

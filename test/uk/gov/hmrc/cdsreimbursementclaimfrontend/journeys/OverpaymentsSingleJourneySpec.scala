@@ -72,6 +72,7 @@ class OverpaymentsSingleJourneySpec
       emptyJourney.hasCompleteAnswers                                             shouldBe false
       emptyJourney.toOutput.isLeft                                                shouldBe true
       emptyJourney.isFinalized                                                    shouldBe false
+      emptyJourney.containsUnsupportedTaxCode                                     shouldBe false
     }
 
     "check completeness and produce the correct output" in {
@@ -82,6 +83,7 @@ class OverpaymentsSingleJourneySpec
         journey.hasCompleteSupportingEvidences             shouldBe true
         journey.hasCompleteAnswers                         shouldBe true
         journey.isFinalized                                shouldBe false
+        journey.containsUnsupportedTaxCode                 shouldBe false
 
         journey.getTotalReimbursementAmount shouldBe (
           journey.getEUDutyReimbursementTotal.getOrElse(ZERO) +

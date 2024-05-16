@@ -75,7 +75,9 @@ class EnterMovementReferenceNumberController @Inject() (
     journey.submitUserXiEori(userXiEori)
 
   override def afterSuccessfullSubmit(journey: RejectedGoodsSingleJourney): Result =
-    if (journey.needsDeclarantAndConsigneeEoriSubmission) {
+    if (journey.containsUnsupportedTaxCode) {
+      Redirect(routes.ProblemWithDeclarationController.show)
+    } else if (journey.needsDeclarantAndConsigneeEoriSubmission) {
       Redirect(routes.EnterImporterEoriNumberController.show)
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)

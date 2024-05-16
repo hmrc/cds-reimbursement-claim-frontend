@@ -138,6 +138,6 @@ object TaxCodes {
     taxCodesStringMap.get(taxCode)
 
   def findUnsafe(taxCode: String): TaxCode =
-    taxCodesStringMap(taxCode)
+    taxCodesStringMap.getOrElse(taxCode, UnsupportedTaxCode(taxCode))
 
 }

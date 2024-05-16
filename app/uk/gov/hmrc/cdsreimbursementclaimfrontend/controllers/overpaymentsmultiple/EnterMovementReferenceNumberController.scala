@@ -186,7 +186,9 @@ class EnterMovementReferenceNumberController @Inject() (
     pageIndex: Int
   ): Result =
     Redirect(
-      if (updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
+      if (updatedJourney.containsUnsupportedTaxCode) {
+        routes.ProblemWithDeclarationController.show
+      } else if (updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
         routes.EnterImporterEoriNumberController.show
       } else {
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show

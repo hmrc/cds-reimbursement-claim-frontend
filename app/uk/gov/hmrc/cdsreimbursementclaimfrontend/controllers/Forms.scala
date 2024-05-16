@@ -405,4 +405,7 @@ object Forms {
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
+
+  val problemWithDeclarationForm: Form[YesNo] = YesOrNoQuestionForm("problem-with-declaration")
+
 }

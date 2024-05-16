@@ -64,5 +64,28 @@ class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPr
 
       displayDeclaration.totalDutiesPaidCharges.toString() shouldBe nonVatPaidAmount.sum.toDouble.toString
     }
+
+    "check containsSomeUnsupportedTaxCode" in {
+      exampleDisplayDeclaration.containsSomeUnsupportedTaxCode shouldBe false
+      val declaration = exampleDisplayDeclarationWithSomeUnsupportedCode
+      declaration.containsOnlyUnsupportedTaxCodes shouldBe false
+      declaration.containsSomeUnsupportedTaxCode  shouldBe true
+
+    }
+
+    "check containsOnlyUnsupportedTaxCodes" in {
+      exampleDisplayDeclaration.containsOnlyUnsupportedTaxCodes shouldBe false
+      val declaration = exampleDisplayDeclarationWithOnlyUnsupportedCodes
+      declaration.containsOnlyUnsupportedTaxCodes shouldBe true
+      declaration.containsSomeUnsupportedTaxCode  shouldBe true
+    }
+
+    "removeUnsupportedTaxCodes" in {
+      exampleDisplayDeclaration.removeUnsupportedTaxCodes()                                              shouldBe exampleDisplayDeclaration
+      exampleDisplayDeclarationWithSomeUnsupportedCode.removeUnsupportedTaxCodes().getAvailableTaxCodes  shouldBe Seq(
+        TaxCode.A00
+      )
+      exampleDisplayDeclarationWithOnlyUnsupportedCodes.removeUnsupportedTaxCodes().getAvailableTaxCodes shouldBe Seq()
+    }
   }
 }

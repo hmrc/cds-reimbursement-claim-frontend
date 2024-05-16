@@ -64,6 +64,9 @@ final class OverpaymentsScheduledJourney private (
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
+  def removeUnsupportedTaxCodes(): OverpaymentsScheduledJourney =
+    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+
   /** Resets the journey with the new MRN
     * or keep existing journey if submitted the same MRN and declaration as before.
     */
