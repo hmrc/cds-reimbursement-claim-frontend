@@ -77,7 +77,7 @@ class ChooseFileTypeControllerSpec
         ("Correspondence between trader and agent", "CorrespondenceTrader"),
         ("Import or export declaration", "ImportAndExportDeclaration"),
         ("Packing list", "PackingList"),
-        ("Letter of authority", "ProofOfAuthority"),
+        ("Proof of authority", "ProofOfAuthority"),
         ("Substitute entry", "SubstituteEntry"),
         ("Other documents", "Other")
       )
