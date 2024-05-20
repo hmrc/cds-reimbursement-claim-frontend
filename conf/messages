@@ -1300,6 +1300,7 @@ problem-with-declaration.paragraph.3=Please provide <a href="{0}" class="govuk-l
 problem-with-declaration.continue.question=Would you like to continue without these tax-type codes for this MRN ?
 problem-with-declaration.continue.yes=Yes
 problem-with-declaration.continue.no=No
+problem-with-declaration.error.required=Select yes to continue with this claim without these tax-type codes
 
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)

@@ -777,6 +777,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   override implicit val validator: Validate[OverpaymentsMultipleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
+      containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       basisOfClaimHasBeenProvided,
       additionalDetailsHasBeenProvided,

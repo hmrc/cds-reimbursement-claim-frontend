@@ -22,6 +22,7 @@ object JourneyValidationErrors {
   val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String  = "missingFirstMovementReferenceNumber"
   val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String = "missingSecondMovementReferenceNumber"
   val MISSING_DISPLAY_DECLARATION: String              = "missingDisplayDeclaration"
+  val UNSUPPORTED_TAX_CODES: String                    = "unsupportedTaxCodes"
   val MISSING_BASIS_OF_CLAIM: String                   = "missingBasisOfClaim"
   val MISSING_DETAILS_OF_OVERPAYMENT: String           = "missingDetailsOfOverpayment"
   val MISSING_DETAILS_OF_REJECTED_GOODS: String        = "missingDetailsOfRejectedGoods"

@@ -222,6 +222,12 @@ final case class DisplayDeclaration(
       )
     )
 
+  def containsOnlySupportedTaxCodes: Boolean =
+    iterateAvailableTaxCodes.forall {
+      case UnsupportedTaxCode(_) => false
+      case _                     => true
+    }
+
   def containsOnlyUnsupportedTaxCodes: Boolean = {
     val iterator = iterateAvailableTaxCodes
     iterator.hasNext && iterator.forall {
