@@ -579,6 +579,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   override implicit val validator: Validate[RejectedGoodsSingleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
+      containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       basisOfClaimHasBeenProvided,
       basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,

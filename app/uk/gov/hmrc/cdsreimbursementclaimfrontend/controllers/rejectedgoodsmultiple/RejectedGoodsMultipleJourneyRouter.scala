@@ -29,7 +29,8 @@ trait RejectedGoodsMultipleJourneyRouter {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show(1)
       case MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER                 => routes.EnterMovementReferenceNumberController.show(2)
-      case MISSING_DISPLAY_DECLARATION                              => undefined //routes.EnterMovementReferenceNumberController.show
+      case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.showFirst()
+      case UNSUPPORTED_TAX_CODES                                    => routes.ProblemWithDeclarationController.show
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
       case MISSING_DETAILS_OF_REJECTED_GOODS                        => routes.EnterRejectedGoodsDetailsController.show
       case MISSING_INSPECTION_DATE                                  => routes.EnterInspectionDateController.show

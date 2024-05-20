@@ -28,6 +28,7 @@ trait OverpaymentsScheduledJourneyRouter {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.show
+      case UNSUPPORTED_TAX_CODES                                    => routes.ProblemWithDeclarationController.show
       case MISSING_SCHEDULED_DOCUMENT                               => routes.UploadMrnListController.show
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show

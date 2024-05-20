@@ -29,6 +29,7 @@ trait OverpaymentsMultipleJourneyRouter {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.showFirst
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.showFirst
+      case UNSUPPORTED_TAX_CODES                                    => routes.ProblemWithDeclarationController.show
       case MISSING_BASIS_OF_CLAIM                                   => routes.BasisForClaimController.show
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show
       case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show

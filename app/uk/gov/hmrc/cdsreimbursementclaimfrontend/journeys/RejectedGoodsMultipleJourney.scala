@@ -800,6 +800,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
   override implicit val validator: Validate[RejectedGoodsMultipleJourney] =
     all(
       hasMRNAndDisplayDeclaration,
+      containsOnlySupportedTaxCodes,
       hasMultipleMovementReferenceNumbers,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       basisOfClaimHasBeenProvided,

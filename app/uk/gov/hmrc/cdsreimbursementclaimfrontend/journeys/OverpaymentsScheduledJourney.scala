@@ -481,6 +481,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   override implicit val validator: Validate[OverpaymentsScheduledJourney] =
     all(
       hasMRNAndDisplayDeclaration,
+      containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       scheduledDocumentHasBeenDefined,
       basisOfClaimHasBeenProvided,

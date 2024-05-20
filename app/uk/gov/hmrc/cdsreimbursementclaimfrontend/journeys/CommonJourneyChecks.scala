@@ -37,6 +37,14 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
   final val hasMRNAndDisplayDeclaration: Validate[J] =
     hasMovementReferenceNumber & hasDisplayDeclaration
 
+  final val containsOnlySupportedTaxCodes: Validate[J] =
+    checkIsTrue(
+      journey =>
+        journey.getLeadDisplayDeclaration
+          .forall(_.containsOnlySupportedTaxCodes),
+      UNSUPPORTED_TAX_CODES
+    )
+
   final val declarantOrImporterEoriMatchesUserOrHasBeenVerified: Validate[J] =
     conditionally[J](
       _.needsDeclarantAndConsigneeEoriSubmission,
