@@ -260,6 +260,11 @@ final class RejectedGoodsMultipleJourney private (
         }
       }
 
+  def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
+    getDisplayDeclarationFor(mrn)
+      .map(_.containsSomeUnsupportedTaxCode)
+      .getOrElse(false)
+
   def removeUnsupportedTaxCodes(): RejectedGoodsMultipleJourney =
     this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
 
