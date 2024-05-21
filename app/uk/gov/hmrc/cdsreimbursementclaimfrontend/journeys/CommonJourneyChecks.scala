@@ -40,7 +40,7 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
   final val containsOnlySupportedTaxCodes: Validate[J] =
     checkIsTrue(
       journey =>
-        journey.getLeadDisplayDeclaration
+        journey.getDisplayDeclarations
           .forall(_.containsOnlySupportedTaxCodes),
       UNSUPPORTED_TAX_CODES
     )
