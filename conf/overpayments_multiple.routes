@@ -70,3 +70,5 @@ GET         /overpayments/multiple/check-your-answers                           
 
 GET         /overpayments/multiple/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithDeclarationController.show
 POST        /overpayments/multiple/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithDeclarationController.submit
+GET         /overpayments/multiple/new-tax-type-code-validation/:index                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithDeclarationController.showNth(index: Int)
+POST        /overpayments/multiple/new-tax-type-code-validation/:index                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithDeclarationController.submitNth(index: Int)
