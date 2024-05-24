@@ -17,7 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.data.Form
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
@@ -29,6 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 @Singleton
 class ProblemWithDeclarationController @Inject() (
@@ -56,4 +61,65 @@ class ProblemWithDeclarationController @Inject() (
 
   final override val checkDeclarationDetailsAction: Call =
     routes.CheckDeclarationDetailsController.show
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  final def showNth(pageIndex: Int): Action[AnyContent] =
+    actionReadJourney { implicit request => implicit journey =>
+      val form: Form[YesNo] = Forms.problemWithDeclarationForm
+      (journey.getNthDisplayDeclaration(pageIndex - 1) match {
+        case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
+          Ok(
+            problemWithDeclarationDeadEndPage(
+              declaration.getMRN,
+              routes.EnterMovementReferenceNumberController.show(pageIndex)
+            )
+          )
+        case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>
+          Ok(
+            problemWithDeclarationCanContinuePage(
+              form,
+              declaration.getMRN,
+              routes.ProblemWithDeclarationController.submitNth(pageIndex)
+            )
+          )
+        case Some(_)                                                          =>
+          Redirect(routes.CheckMovementReferenceNumbersController.show)
+        case None                                                             =>
+          throw new IllegalStateException(s"Expected the journey to have $pageIndex DisplayDeclaration already")
+      }).asFuture
+    }
+
+  final def submitNth(pageIndex: Int): Action[AnyContent] =
+    actionReadWriteJourney { implicit request => implicit journey =>
+      Forms.problemWithDeclarationForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              journey,
+              journey
+                .getNthDisplayDeclaration(pageIndex - 1)
+                .map { declaration =>
+                  BadRequest(
+                    problemWithDeclarationCanContinuePage(
+                      formWithErrors,
+                      declaration.getMRN,
+                      routes.ProblemWithDeclarationController.submitNth(pageIndex)
+                    )
+                  )
+                }
+                .getOrElse(InternalServerError)
+            ).asFuture,
+          answer =>
+            answer match {
+              case YesNo.No  =>
+                (journey, Redirect(routes.EnterMovementReferenceNumberController.show(pageIndex))).asFuture
+              case YesNo.Yes =>
+                (
+                  removeUnsupportedTaxCodesFromJourney(journey),
+                  Redirect(routes.CheckMovementReferenceNumbersController.show)
+                ).asFuture
+            }
+        )
+    }
 }
