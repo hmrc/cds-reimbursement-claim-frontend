@@ -25,16 +25,22 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.RedirectToGovUkLandingPage
 
 @Singleton
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  landingPage: landing_page
+  landingPage: landing_page,
+  featureSwitchService: FeatureSwitchService
 )(implicit viewConfig: ViewConfig)
     extends FrontendBaseController
     with Logging {
 
   def showLandingPage(): Action[AnyContent] = Action { implicit request =>
-    Ok(landingPage())
+    if (featureSwitchService.isEnabled(RedirectToGovUkLandingPage))
+      Redirect(viewConfig.govUkLandingPageUrl)
+    else
+      Ok(landingPage())
   }
 }
