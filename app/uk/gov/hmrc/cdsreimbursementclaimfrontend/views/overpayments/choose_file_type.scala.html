@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 @this(
@@ -30,6 +31,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
@@ -41,6 +43,11 @@
     @title = @{messages("choose-file-type.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @inset = {
+        @paragraph(Html(messages(s"choose-file-type.inset-text")))
+        @paragraph(Html(messages(s"choose-file-type.help-text")))
+    }
 
     @radioItems = @{
         typesOfEvidences.map { evidenceType =>
@@ -60,7 +67,7 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"choose-file-type.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @insetText(content = HtmlContent(inset), classes = Some("govuk-!-margin-top-0"))
 
         @dropdownDetails(summary = s"choose-file-type.heading", content = supportingEvidenceHints.renderHintsWithLabels("choose-file-type.file-type"))
 

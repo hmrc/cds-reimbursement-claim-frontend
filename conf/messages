@@ -449,6 +449,7 @@ choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.file-type.none.more=I have no more documents to upload
 choose-file-type.heading=Examples of supporting documents
 choose-file-type.help-text=You can repeat this step to add more types of documents to your claim.
+choose-file-type.inset-text=You must add a commercial invoice to support your claim.
 choose-file-type.or=or
 choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
 choose-file-type.securities.title=Add supporting documents to your claim
