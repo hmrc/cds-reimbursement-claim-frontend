@@ -44,15 +44,17 @@
 
  @heading(Html(title), classes="govuk-heading-xl govuk-!-margin-bottom-8")
 
- @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.help-text")))
- @paragraph(Html(messages(s"enter-rejected-goods-details.rejected-goods.p1")))
+ @paragraph(Html(messages("enter-rejected-goods-details.rejected-goods.help-text.p1")))
+ @paragraph(Html(messages("enter-rejected-goods-details.rejected-goods.help-text.p2")))
 
  @bulletList(
   Seq(
-   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.1")),
-   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.2")),
-   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.3")),
-   Html(messages(s"enter-rejected-goods-details.rejected-goods.bullet.4"))
+   Html(messages("enter-rejected-goods-details.rejected-goods.li1")),
+   Html(messages("enter-rejected-goods-details.rejected-goods.li2")),
+   Html(messages("enter-rejected-goods-details.rejected-goods.li3")),
+   Html(messages("enter-rejected-goods-details.rejected-goods.li4")),
+   Html(messages("enter-rejected-goods-details.rejected-goods.li5")),
+   Html(messages("enter-rejected-goods-details.rejected-goods.li6"))
   )
  )
 
@@ -66,7 +68,7 @@
    isPageHeading = false,
    label = s"enter-rejected-goods-details.rejected-goods.label",
    labelClasses = Some("govuk-visually-hidden"),
-   hint = Some(s"enter-rejected-goods-details.rejected-goods.hint"),
+   hint = Some("enter-rejected-goods-details.rejected-goods.hint"),
    value = form("enter-rejected-goods-details.rejected-goods").value,
    maxLength = Some(500)
   )
