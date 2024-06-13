@@ -129,7 +129,7 @@ class CheckYourAnswersControllerSpec
 
     val mrnKeys: Seq[(String, Option[String])]            =
       claim.movementReferenceNumbers.zipWithIndex
-        .map { case (mrn, i) => (s"${OrdinalNumber.label(i + 1).capitalize} MRN", Some(mrn.value)) }
+        .map { case (mrn, i) => (s"${OrdinalNumber(i + 1).capitalize} MRN", Some(mrn.value)) }
 
     val declaration: Option[DisplayDeclaration]           = journey.getLeadDisplayDeclaration
     val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)

@@ -22,8 +22,35 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndexSpec._
+import play.api.i18n._
 
 class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+
+  implicit val messagesMap: Map[String, String] = Map(
+    "ordinal.label.0"   -> "zero",
+    "ordinal.label.1"   -> "first",
+    "ordinal.label.2"   -> "second",
+    "ordinal.label.3"   -> "third",
+    "ordinal.label.4"   -> "fourth",
+    "ordinal.label.5"   -> "fifth",
+    "ordinal.label.6"   -> "sixth",
+    "ordinal.label.7"   -> "seventh",
+    "ordinal.label.8"   -> "eighth",
+    "ordinal.label.9"   -> "ninth",
+    "ordinal.suffix.0"  -> "th",
+    "ordinal.suffix.1"  -> "st",
+    "ordinal.suffix.1x" -> "th",
+    "ordinal.suffix.2"  -> "nd",
+    "ordinal.suffix.3"  -> "rd",
+    "ordinal.suffix.4"  -> "th",
+    "ordinal.suffix.5"  -> "th",
+    "ordinal.suffix.6"  -> "th",
+    "ordinal.suffix.7"  -> "th",
+    "ordinal.suffix.8"  -> "th",
+    "ordinal.suffix.9"  -> "th"
+  )
+  implicit val messagesApi: MessagesApi         = new DefaultMessagesApi(messages = Map("default" -> messagesMap))
+  implicit val messages: Messages               = MessagesImpl(Lang.defaultLang, messagesApi)
 
   "Converting MRN and original index back and forth" should {
     "match" in {

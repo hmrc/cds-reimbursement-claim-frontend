@@ -77,7 +77,7 @@ class CheckClaimDetailsControllerSpec
     claims.keys.zipWithIndex.foreach { case (mrn, index) =>
       doc
         .getElementById(s"summary-mrn-${index + 1}")
-        .text() shouldBe s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${mrn.value}"
+        .text() shouldBe s"${OrdinalNumber(index + 1).capitalize} MRN: ${mrn.value}"
     }
     summaryKeyValueList(doc) should containOnlyPairsOf(
       claims.toSeq

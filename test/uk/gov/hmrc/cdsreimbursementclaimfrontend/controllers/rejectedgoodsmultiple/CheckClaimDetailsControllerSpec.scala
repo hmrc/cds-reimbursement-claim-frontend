@@ -73,7 +73,7 @@ class CheckClaimDetailsControllerSpec
 
     doc.select(".heading-mrn").eachText() should contain theSameElementsAs claims.keys.zipWithIndex.map {
       case (mrn, i) =>
-        messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumber.label(i + 1).capitalize, mrn.value)
+        messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumber(i + 1).capitalize, mrn.value)
     }
     doc.select("#overall-total").text() shouldBe claims.map(_._2.values.sum).sum.toPoundSterlingString
 
