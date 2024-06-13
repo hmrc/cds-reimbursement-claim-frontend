@@ -121,7 +121,7 @@ class CheckYourAnswersControllerSpec
     )
 
     val mrnKeys: Seq[String] =
-      (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.label(i).capitalize} MRN")
+      (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber(i).capitalize} MRN")
 
     summaryKeys should contain allOf (
       "Contact details",

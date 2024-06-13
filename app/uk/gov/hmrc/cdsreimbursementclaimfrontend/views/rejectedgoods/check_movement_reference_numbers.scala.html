@@ -20,7 +20,7 @@
 @import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.twirl.api.TwirlFeatureImports.defining
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -69,19 +69,19 @@
             @references.zipWithIndex.drop(1).map { mrnWithIndex =>
                 @defining(mrnWithIndex._2) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</dt>
+                        <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@changeUrl(index + 1).url>
                                 @{messages(s"cya.change")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</span>
                             </a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
                             <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>
                                 @{messages(s"cya.remove")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumeral((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</span>
                             </a>
                         }
                         </dd>

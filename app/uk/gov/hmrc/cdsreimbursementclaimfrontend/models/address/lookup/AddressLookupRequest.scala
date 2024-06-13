@@ -106,8 +106,17 @@ object AddressLookupRequest {
       searchAgainLinkText: Option[String]
     ): Builder =
       copy(labels =
-        labels.copy(en =
-          LanguageLabels(
+        labels.copy(
+          en = LanguageLabels(
+            appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
+            lookupPageLabels = LookupPageLabels(lookupTitle, lookupHeading).some,
+            confirmPageLabels =
+              ConfirmPageLabels(confirmTitle, confirmHeading, searchAgainLinkText = searchAgainLinkText).some,
+            selectPageLabels =
+              SelectPageLabels(selectTitle, selectHeading, searchAgainLinkText = searchAgainLinkText).some,
+            editPageLabels = EditPageLabels(editTitle, editHeading).some
+          ).some,
+          cy = LanguageLabels(
             appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
             lookupPageLabels = LookupPageLabels(lookupTitle, lookupHeading).some,
             confirmPageLabels =
