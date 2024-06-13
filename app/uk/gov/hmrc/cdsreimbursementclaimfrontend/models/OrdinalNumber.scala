@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 /** This is an I18N-aware replacement for [[OrdinalNumeral]] */
 object OrdinalNumber {
 
-  def label(index: Int)(implicit messages: Messages): String = {
+  def apply(index: Int)(implicit messages: Messages): String = {
     val i   = Math.abs(index)
     val key = s"ordinal.label.$i"
     messages

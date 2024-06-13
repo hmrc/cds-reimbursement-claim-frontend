@@ -19,7 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 import cats.Eq
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+import play.api.i18n.Messages
 
 final case class AssociatedMrnIndex private (urlIndex: Int) {
 
@@ -29,7 +30,8 @@ final case class AssociatedMrnIndex private (urlIndex: Int) {
   def -(integer: Int): AssociatedMrnIndex =
     AssociatedMrnIndex(urlIndex - integer)
 
-  def ordinalNumeral: String = OrdinalNumeral(urlIndex)
+  def ordinalNumeral(implicit messages: Messages): String =
+    OrdinalNumber(urlIndex)
 
   def toListIndex: Int = urlIndex - 2
 

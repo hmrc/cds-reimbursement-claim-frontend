@@ -57,7 +57,7 @@
     @heading(Html(title))
 
     @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"check-claim.multiple.duty.label", OrdinalNumber.label(index).capitalize, mrn.value)), id = s"summary-mrn-$index")
+        @subHeading(Html(messages(s"check-claim.multiple.duty.label", OrdinalNumber(index).capitalize, mrn.value)), id = s"summary-mrn-$index")
         @summary(SummaryList(MultipleClaimSummaryHelper.makeClaimSummaryRows(index,claim,enterClaimAction)))
     }
 

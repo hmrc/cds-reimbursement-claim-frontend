@@ -62,7 +62,7 @@ object ClaimSummaryHelper {
                 href = s"${claimAction(taxCode).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
-                  s"${OrdinalNumber.label(index + 1).capitalize} MRN: ${TaxCodes
+                  s"${OrdinalNumber(index + 1).capitalize} MRN: ${TaxCodes
                     .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
                 )
               )
