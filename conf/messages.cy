@@ -893,7 +893,7 @@ enter-duplicate-movement-reference-number.input-title=Nodwch MRN
 enter-duplicate-movement-reference-number.invalid=Mae''n rhaid i''r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI3
 enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Mae''r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o''r blaen. Nodwch MRN gwahanol
 enter-duplicate-movement-reference-number.invalid.number=Mae''n rhaid i''r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.title=Nodwch eich MRN dyblyg
+enter-duplicate-movement-reference-number.title=Nodwch yr MRN dyblyg
 enter-export-movement-reference-number.error.required=Nodwch eich Cyfeirnod Symud Allforio
 enter-export-movement-reference-number.multiple.error.required=Nodwch eich Cyfeirnod Symud Allforio
 enter-export-movement-reference-number.multiple.inset-text=Byddwch yn gallu ychwanegu unrhyw MRNau allforio ychwanegol yn nes ymlaen.
@@ -1253,8 +1253,8 @@ select-basis-for-claim.1.bullet=Gwaharddiad toll:
 select-basis-for-claim.1.description=Hawliwch ohiriadau tollau a chwotâu tariff dros dro ar gyfer nwyddau a fewnforiwyd i''r DU.
 select-basis-for-claim.10.bullet=Eiddo personol
 select-basis-for-claim.10.description=
-select-basis-for-claim.11.bullet=Cyfradd tollau o''ch dewis:
-select-basis-for-claim.11.description=Craffu ar ôl clirio a dilysu dogfennau i ategu hawliad o ran cyfraddau tollau o''ch dewis.
+select-basis-for-claim.11.bullet=Cyfradd tollau ffafriol:
+select-basis-for-claim.11.description=Craffu ar ôl clirio a dilysu dogfennau i ategu hawliad o ran cyfraddau tollau ffafriol.
 select-basis-for-claim.12.bullet=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd:
 select-basis-for-claim.12.description=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd, a thollau wedi''u gordalu.
 select-basis-for-claim.13.bullet=Rhyddhad ar nwyddau a ddychwelwyd (RGR)
@@ -1293,7 +1293,7 @@ select-basis-for-claim.reason.InwardProcessingReliefFromCustomsDuty=Rhyddhad pro
 select-basis-for-claim.reason.Miscellaneous=Rheswm arall
 select-basis-for-claim.reason.OutwardProcessingRelief=Rhyddhad prosesu allanol
 select-basis-for-claim.reason.PersonalEffects=Eiddo personol
-select-basis-for-claim.reason.Preference=Cyfradd tollau o''ch dewis
+select-basis-for-claim.reason.Preference=Cyfradd tollau ffafriol
 select-basis-for-claim.reason.ProofOfReturnRefundGiven=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd
 select-basis-for-claim.reason.RGR=Rhyddhad ar nwyddau a ddychwelwyd (RGR)
 select-basis-for-claim.reason.hint.IncorrectExciseValue=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
@@ -1598,7 +1598,7 @@ enter-contact-details.title=Rhoi''r manylion cyswllt ar gyfer yr hawliad hwn
 error-claim-invalid-TPI04.bullet.2=mae''r hawliad hwn eisoes wedi''i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu''r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o''r blaen ac eisiau hawlio mwy
 enter-additional-details.bullet.4=rhif tariff
 enter-claim.exchange-rate-details.heading=Cyfrifo''ch taliad
-enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae''n rhaid i''r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno''ch datganiad gwreiddiol. Wrth drosi i GBP
+enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae''n rhaid i''r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno?ch datganiad gwreiddiol. Wrth drosi i GBP
 address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
 enter-additional-details.bullet.5=cod gweithdrefn y tollau
 enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i''r canlynol:
