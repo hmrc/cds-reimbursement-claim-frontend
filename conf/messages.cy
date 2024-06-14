@@ -1573,7 +1573,7 @@ we-only-support-gg.p1=Ni allwch gael mynediad at y gwasanaeth hwn drwy ddefnyddi
 we-only-support-gg.signIn=Mewngofnodwch os oes gennych gyfrif eisoes
 we-only-support-gg.signIn.p1=<a href="{0}">Mewngofnodwch</a> gyda''r un Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a ddefnyddiwyd gennych i greu''ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.
 we-only-support-gg.title=Rhoi gwybod am Dreth Enillion Cyfalaf ar eiddo yn y DU a''i thalu
-enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i?r canlynol:
+enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i''r canlynol:
 rejected-goods.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 rejected-goods.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
 enter-contact-details.contact-phone-number.label=Ffôn (dewisol)
@@ -1583,7 +1583,7 @@ enter-additional-details.hint=Manylion ychwanegol
 
 overpayments.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 overpayments.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
-enter-additional-details.help-text=Rhowch resymau dros pam y dylech gael eich ad-dalu. Rhowch fanylion am unrhyw newidiadau i rifau eitemau, cwot�u a niferoedd.
+enter-additional-details.help-text=Rhowch resymau dros pam y dylech gael eich ad-dalu. Rhowch fanylion am unrhyw newidiadau i rifau eitemau, cwotâu a niferoedd.
 enter-additional-details.bullet.3=codau nwyddau anghywir
 choose-payee-type.details.representative=Cynrychiadol
 bank-details.error.required=Dewiswch ''Iawn'' i barhau â''r cyfrif banc hwn
@@ -1591,31 +1591,31 @@ check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad
 address-lookup.confirm.h1=Adolygu a chadarnhau''r cyfeiriad
 enter-additional-details.bullet.6=rhif trosglwyddo man preswylio
 enter-additional-details.bullet.1=codau dewis
-enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu � chi yngl?n �?r hawliad hwn.
+enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu â chi ynglŷn â''r hawliad hwn.
 check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
-confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch � CThEF os na chewch hyn.
-enter-contact-details.title=Rhoi?r manylion cyswllt ar gyfer yr hawliad hwn
-error-claim-invalid-TPI04.bullet.2=mae?r hawliad hwn eisoes wedi?i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu?r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o?r blaen ac eisiau hawlio mwy
+confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.
+enter-contact-details.title=Rhoi''r manylion cyswllt ar gyfer yr hawliad hwn
+error-claim-invalid-TPI04.bullet.2=mae''r hawliad hwn eisoes wedi''i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu''r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o''r blaen ac eisiau hawlio mwy
 enter-additional-details.bullet.4=rhif tariff
-enter-claim.exchange-rate-details.heading=Cyfrifo?ch taliad
-enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae?n rhaid i?r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath � phan wnaethoch gyflwyno?ch datganiad gwreiddiol. Wrth drosi i GBP
+enter-claim.exchange-rate-details.heading=Cyfrifo''ch taliad
+enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae''n rhaid i''r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno''ch datganiad gwreiddiol. Wrth drosi i GBP
 address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
 enter-additional-details.bullet.5=cod gweithdrefn y tollau
-enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i?r canlynol:
+enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i''r canlynol:
 choose-payee-type.details.p3=Trydydd parti, fel asiantau tollau, trefnwyr anfon nwyddau neu gwmn�au cludo parseli?n gyflym sy?n gweithredu ar ran y mewnforiwr.
 
 #===================================================
 # DATE FORMAT
 #===================================================
-month.1=Ionawr
-month.2=Chwefror
-month.3=Mawrth
-month.4=Ebrill
-month.5=Mai
-month.6=Mehefin
-month.7=Gorffennaf
-month.8=Awst
-month.9=Medi
-month.10=Hydref
-month.11=Tachwedd
-month.12=Rhagfyr
+month.January=Ionawr
+month.February=Chwefror
+month.March=Mawrth
+month.April=Ebrill
+month.May=Mai
+month.June=Mehefin
+month.July=Gorffennaf
+month.August=Awst
+month.September=Medi
+month.October=Hydref
+month.November=Tachwedd
+month.December=Rhagfyr
