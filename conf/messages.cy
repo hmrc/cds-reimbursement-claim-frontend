@@ -427,6 +427,7 @@ choose-file-type.file-type.none=Nid oes gen i unrhyw ddogfennau i''w huwchlwytho
 choose-file-type.file-type.none.more=Nid oes gen i unrhyw ddogfennau eraill i''w huwchlwytho
 choose-file-type.heading=Enghreifftiau o ddogfennau ategol
 choose-file-type.help-text=Gallwch ailadrodd y cam hwn i ychwanegu gwahanol fathau o ddogfennau at eich hawliad.
+choose-file-type.inset-text=Mae''n rhaid i chi ychwanegu anfoneb fasnachol i ategu''ch hawliad.
 choose-file-type.or=neu
 choose-file-type.securities.help-text=Gallwch ailadrodd y cam hwn i ychwanegu gwahanol fathau o ddogfennau at eich hawliad
 choose-file-type.securities.title=Ychwanegu dogfennau ategol at eich hawliad
