@@ -26,6 +26,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 package object generators {
@@ -40,6 +41,15 @@ package object generators {
     Gen
       .chooseNum(0L, 10000L)
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
+
+  lazy val genAcceptanceDate: Gen[String] =
+    Gen
+      .chooseNum(0L, 10000L)
+      .map(millis =>
+        LocalDateTime
+          .ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault())
+          .format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+      )
 
   lazy val genBigDecimal: Gen[BigDecimal] =
     BigDecimalGen.amountNumberGen

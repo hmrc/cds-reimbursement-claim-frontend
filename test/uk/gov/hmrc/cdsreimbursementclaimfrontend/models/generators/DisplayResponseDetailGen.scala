@@ -33,6 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
+import java.time.format.DateTimeFormatter
+
 object DisplayResponseDetailGen {
 
   lazy val genDeclarantDetails: Gen[DeclarantDetails] =
@@ -92,7 +94,7 @@ object DisplayResponseDetailGen {
   lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
     for {
       declarationId            <- genMRN
-      acceptanceDate           <- genLocalDateTime
+      acceptanceDate           <- genAcceptanceDate
       declarantReferenceNumber <- Gen.option(genStringWithMaxSizeOfN(10))
       btaDueDate               <- Gen.option(genLocalDateTime)
       procedureCode            <- genStringWithMaxSizeOfN(5)
@@ -105,7 +107,7 @@ object DisplayResponseDetailGen {
       ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
     } yield DisplayResponseDetail(
       declarationId = declarationId.value,
-      acceptanceDate = acceptanceDate.toString,
+      acceptanceDate = acceptanceDate,
       declarantReferenceNumber = declarantReferenceNumber,
       securityReason = None,
       btaDueDate = btaDueDate.map(_.toString),

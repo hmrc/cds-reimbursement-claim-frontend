@@ -283,7 +283,7 @@ trait JourneyTestData {
     DisplayDeclaration {
       DisplayResponseDetail(
         declarationId = id,
-        acceptanceDate = "2021-10-11",
+        acceptanceDate = "11 October 2021",
         declarantReferenceNumber = None,
         securityReason = None,
         btaDueDate = None,
@@ -350,7 +350,7 @@ trait JourneyTestData {
     DisplayDeclaration {
       DisplayResponseDetail(
         declarationId = id,
-        acceptanceDate = "2021-10-11",
+        acceptanceDate = "11 October 2021",
         declarantReferenceNumber = None,
         securityReason = Some(securityReason),
         btaDueDate = Some("2022-03-22"),

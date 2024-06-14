@@ -1708,3 +1708,20 @@ we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot b
 we-only-support-gg.signIn=Sign in if you already have an account
 we-only-support-gg.signIn.p1=<a href="{0}" class="govuk-link">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
+
+
+#===================================================
+# DATE FORMAT
+#===================================================
+month.January=January
+month.February=February
+month.March=March
+month.April=April
+month.May=May
+month.June=June
+month.July=July
+month.August=August
+month.September=September
+month.October=October
+month.November=November
+month.December=December
