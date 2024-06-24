@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
@@ -133,23 +132,28 @@ class ChooseBankAccountTypeControllerSpec
               declaration.displayResponseDetail.copy(ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some)
             )
 
+          val journey = RejectedGoodsSingleJourney
+            .empty(updatedDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
+            .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
+            .getOrFail
+
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              session.copy(rejectedGoodsSingleJourney =
-                RejectedGoodsSingleJourney
-                  .empty(updatedDeclaration.getDeclarantEori)
-                  .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
-                  .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
-                  .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
-                  .toOption
-              )
+              session.copy(rejectedGoodsSingleJourney = Some(journey))
             )
+            mockStoreSession(
+              session.copy(
+                rejectedGoodsSingleJourney = journey.submitBankAccountType(bankAccountType).toOption
+              )
+            )(Right(()))
           }
 
           checkIsRedirect(
             submitBankAccountType(formKey -> bankAccountType.toString),
-            baseRoutes.IneligibleController.ineligible()
+            routes.EnterBankAccountDetailsController.show
           )
       }
     }

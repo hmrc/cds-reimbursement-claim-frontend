@@ -44,9 +44,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
     answers.displayDeclaration
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    !isSubsidyOnlyJourney &&
-      answers.reimbursementMethod.isEmpty ||
-      answers.reimbursementMethod.contains(ReimbursementMethod.BankAccountTransfer)
+    !isSubsidyOnlyJourney
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)

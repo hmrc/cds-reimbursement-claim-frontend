@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
@@ -131,23 +130,28 @@ class ChooseBankAccountTypeControllerSpec
               declaration.displayResponseDetail.copy(ndrcDetails = List(ndrc.copy(cmaEligible = "1".some)).some)
             )
 
+          val journey = OverpaymentsSingleJourney
+            .empty(updatedDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
+            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
+            .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
+            .getOrFail
+
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              session.copy(overpaymentsSingleJourney =
-                OverpaymentsSingleJourney
-                  .empty(updatedDeclaration.getDeclarantEori)
-                  .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
-                  .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
-                  .flatMap(_.submitReimbursementMethod(CurrentMonthAdjustment))
-                  .toOption
-              )
+              session.copy(overpaymentsSingleJourney = Some(journey))
             )
+            mockStoreSession(
+              session.copy(
+                overpaymentsSingleJourney = journey.submitBankAccountType(bankAccountType).toOption
+              )
+            )(Right(()))
           }
 
           checkIsRedirect(
             submitBankAccountType(formKey -> bankAccountType.toString),
-            baseRoutes.IneligibleController.ineligible()
+            routes.EnterBankAccountDetailsController.show
           )
       }
     }

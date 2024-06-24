@@ -159,7 +159,7 @@ class CheckClaimDetailsControllerSpec
             performAction("check-claim" -> "true"),
             routes.ChoosePayeeTypeController.show
 //            if (journey.isAllSelectedDutiesAreCMAEligible)
-//              routes.ReimbursementMethodController.show
+//              routes.ChooseRepaymentMethodController.show
 //            else
 //              routes.CheckBankDetailsController.show
           )

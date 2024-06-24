@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class ReimbursementMethodControllerSpec
+class ChooseRepaymentMethodControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
@@ -54,7 +54,7 @@ class ReimbursementMethodControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: ReimbursementMethodController = instanceOf[ReimbursementMethodController]
+  val controller: ChooseRepaymentMethodController = instanceOf[ChooseRepaymentMethodController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -129,7 +129,7 @@ class ReimbursementMethodControllerSpec
           )
         }
 
-      "redirect to choose file type page if not all duties are CMA eligible" in
+      "redirect to check bank details page if not all duties are CMA eligible" in
         forAll(journeyNotCMAEligibleGen) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
@@ -138,7 +138,7 @@ class ReimbursementMethodControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.ChooseFileTypeController.show
+            routes.CheckBankDetailsController.show
           )
         }
     }
@@ -172,7 +172,7 @@ class ReimbursementMethodControllerSpec
 
           checkIsRedirect(
             performAction("reimbursement-method" -> "0"),
-            routes.ChooseFileTypeController.show
+            routes.CheckBankDetailsController.show
           )
         }
 

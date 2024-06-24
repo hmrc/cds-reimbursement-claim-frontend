@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_account_details
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 @Singleton
 class CheckBankDetailsController @Inject() (
@@ -57,5 +58,8 @@ class CheckBankDetailsController @Inject() (
 
   final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
     journey.submitBankAccountDetails(bankAccountDetails)
+
+  final override def isCMA(journey: Journey): Boolean =
+    journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
 }

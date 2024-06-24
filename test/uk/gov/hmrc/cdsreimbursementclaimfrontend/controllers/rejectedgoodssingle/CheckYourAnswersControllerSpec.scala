@@ -238,7 +238,11 @@ class CheckYourAnswersControllerSpec
             acc14DeclarantMatchesUserEori = false,
             acc14ConsigneeMatchesUserEori = false,
             generateSubsidyPayments = GenerateSubsidyPayments.All,
-            features = Some(RejectedGoodsSingleJourney.Features(false, true))
+            features = Some(
+              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            ),
+            submitBankAccountDetails = false,
+            submitBankAccountType = false
           )
         ) { j =>
           val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)

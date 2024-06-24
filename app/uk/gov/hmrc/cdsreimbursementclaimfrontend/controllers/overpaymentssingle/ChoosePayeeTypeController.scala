@@ -49,7 +49,7 @@ class ChoosePayeeTypeController @Inject() (
     if (journey.isSubsidyOnlyJourney)
       routes.ChooseFileTypeController.show
     else if (journey.isAllSelectedDutiesAreCMAEligible)
-      routes.ReimbursementMethodController.show
+      routes.ChooseRepaymentMethodController.show
     else
       routes.CheckBankDetailsController.show
 

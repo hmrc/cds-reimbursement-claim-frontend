@@ -31,6 +31,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
   val postAction: Call
   val enterBankAccountDetailsRoute: Call
   val chooseBankAccountTypePage: choose_bank_account_type_page
+  def isCMA(journey: Journey): Boolean = false
 
   def modifyJourney(journey: Journey, bankAccountType: BankAccountType): Either[String, Journey]
 
@@ -38,6 +39,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
     Ok(
       chooseBankAccountTypePage(
         bankAccountTypeForm.withDefault(journey.answers.bankAccountType),
+        isCMA(journey),
         postAction
       )
     ).asFuture
@@ -51,7 +53,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
           formWithErrors =>
             (
               journey,
-              BadRequest(chooseBankAccountTypePage(formWithErrors, postAction))
+              BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(journey), postAction))
             ).asFuture,
           bankAccountType =>
             modifyJourney(journey, bankAccountType)

@@ -31,7 +31,13 @@ final case class BusinessCompleteResponse(
   nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
-    BankAccountReputation(accountNumberIsWellFormatted, Some(accountExists), None, accountName, nameMatches)
+    BankAccountReputation(
+      accountNumberIsWellFormatted,
+      Some(accountExists),
+      None,
+      accountName.map(_.take(40)),
+      nameMatches
+    )
 }
 
 object BusinessCompleteResponse {
@@ -45,7 +51,13 @@ final case class PersonalCompleteResponse(
   nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
-    BankAccountReputation(accountNumberIsWellFormatted, Some(accountExists), None, accountName, nameMatches)
+    BankAccountReputation(
+      accountNumberIsWellFormatted,
+      Some(accountExists),
+      None,
+      accountName.map(_.take(40)),
+      nameMatches
+    )
 }
 
 object PersonalCompleteResponse {

@@ -311,18 +311,10 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
             if (submitEvidence) supportingEvidencesExpanded
             else Seq.empty,
           bankAccountDetails =
-            if (
-              submitBankAccountDetails &&
-              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-            )
-              Some(exampleBankAccountDetails)
+            if (submitBankAccountDetails) Some(exampleBankAccountDetails)
             else None,
           bankAccountType =
-            if (
-              submitBankAccountType &&
-              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-            )
-              Some(bankAccountType)
+            if (submitBankAccountType) Some(bankAccountType)
             else None,
           reimbursementMethod =
             if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)

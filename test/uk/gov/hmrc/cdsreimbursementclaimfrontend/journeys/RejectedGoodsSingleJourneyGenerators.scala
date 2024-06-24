@@ -125,7 +125,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
       submitBankAccountType = false,
-      features = Some(RejectedGoodsSingleJourney.Features(false, true))
+      features =
+        Some(RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
     )
 
   val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsSingleJourney] =
@@ -136,7 +137,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
       submitBankAccountType = false,
-      features = Some(RejectedGoodsSingleJourney.Features(false, true))
+      features =
+        Some(RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
     )
 
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsSingleJourney] = for {
@@ -300,18 +302,11 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails =
-            if (
-              submitBankAccountDetails &&
-              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-            )
+            if (submitBankAccountDetails)
               Some(exampleBankAccountDetails)
             else None,
           bankAccountType =
-            if (
-              submitBankAccountType &&
-              (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethod.BankAccountTransfer)
-            )
-              Some(bankAccountType)
+            if (submitBankAccountType) Some(bankAccountType)
             else None,
           reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
           modes = JourneyModes(checkYourAnswersChangeMode = true)
