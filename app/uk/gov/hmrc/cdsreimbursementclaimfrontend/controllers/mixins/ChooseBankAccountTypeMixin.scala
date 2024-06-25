@@ -23,14 +23,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTy
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
 @Singleton
 trait ChooseBankAccountTypeMixin extends JourneyBaseController {
 
   val postAction: Call
   val enterBankAccountDetailsRoute: Call
-  val chooseBankAccountTypePage: choose_bank_account_type_page
+  val chooseBankAccountTypePage: choose_bank_account_type
   def isCMA(journey: Journey): Boolean = false
 
   def modifyJourney(journey: Journey, bankAccountType: BankAccountType): Either[String, Journey]

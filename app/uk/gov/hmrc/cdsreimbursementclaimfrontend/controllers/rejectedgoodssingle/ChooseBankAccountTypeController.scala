@@ -25,14 +25,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseBankAc
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  val chooseBankAccountTypePage: choose_bank_account_type_page
+  val chooseBankAccountTypePage: choose_bank_account_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with ChooseBankAccountTypeMixin {

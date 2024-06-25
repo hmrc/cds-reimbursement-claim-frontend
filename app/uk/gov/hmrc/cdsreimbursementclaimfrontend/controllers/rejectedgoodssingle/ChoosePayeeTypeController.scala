@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChoosePayeeTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ChoosePayeeTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  val choosePayeeTypePage: choose_payee_type_page
+  val choosePayeeTypePage: choose_payee_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController
     with ChoosePayeeTypeMixin {

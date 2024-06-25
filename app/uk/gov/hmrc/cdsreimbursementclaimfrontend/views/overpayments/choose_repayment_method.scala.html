@@ -24,14 +24,18 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
-        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
 )
 
 @(form: Form[ReimbursementMethod], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
@@ -45,13 +49,21 @@
 
     @errorSummary(form.errors)
 
+    @heading(Html(title), classes="govuk-heading-xl cds-wrap-content")
+
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @dropdownDetails(
+            summary = s"reimbursement-method.details.title",
+            html(paragraph(Html(messages(s"reimbursement-method.details.p1"))))
+        )
+
         @radios(
             form = form,
             name = key,
-            legend = title,
-            legendAsHeading = true,
-            classes = "govuk-fieldset__legend--xl",
+            legend = "",
+            legendAsHeading = false,
+            classes = "",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = Seq(
                 RadioItem(
