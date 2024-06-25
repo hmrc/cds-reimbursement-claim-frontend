@@ -357,7 +357,6 @@ choose-export-method.export-method-description.Other=Arall
 choose-export-method.help-text=Roedd y nwyddau yn:
 choose-export-method.radio-or=neu <br>
 choose-export-method.title=Rhowch wybod beth a wnaethoch gyda’r nwyddau
-choose-file-type.inset-text=You must add a commercial invoice to support your claim.
 choose-file-type.choose-file-type.error.invalid-file-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf JPG, PNG neu PDF
 choose-file-type.error.required=Dewiswch y math o ddogfen rydych yn ei huwchlwytho
 choose-file-type.file-type.AdditionalSupportingDocuments=Dogfennau ategol ychwanegol
@@ -478,7 +477,9 @@ claim-invalid-not-exported-all.paragraph1=Bydd hawliad am ad-daliad sicrwydd neu
 claim-invalid-not-exported-all.paragraph2=Ewch yn ôl <a href="{0}">i’r arweiniad ar hawlio tollau mewnforio a TAW yn ôl</a> neu <a href="{1}">ddechrau hawliad newydd am flaendal sicrwydd</a>
 claim-invalid-not-exported-all.paragraph3=I ddiweddaru eich hawliad neu i drafod eich blaendal sicrwydd neu warant, gallwch <a href="{0}" targed ="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
 claim-invalid-not-exported-all.title=Gofyniad o ran hawlio blaendal sicrwydd neu warant yn ôl
-confirm-full-repayment.caption=Blaendal sicrwydd: {0} o {1}
+confirm-full-repayment.caption=ID Blaendal sicrwydd: {0}
+confirm-full-repayment.mrn=MRN
+confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
 confirm-full-repayment.question=A ydych chi am hawlio’r blaendal sicrwydd cyfan yn ôl?
 confirm-full-repayment.title=Hawlio’r blaendal sicrwydd hwn yn ôl?
