@@ -198,7 +198,8 @@ class EnterBankAccountDetailsControllerSpec
             arbitraryBankAccountReputation.arbitrary
           ) { (bankAccountDetails, postCode, genericResponse) =>
             val expectedResponse = genericResponse.copy(
-              otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
+              otherError = Some(ReputationErrorResponse("account-does-not-exist", "error")),
+              accountExists = Some(ReputationResponse.No)
             )
 
             inSequence(
@@ -370,9 +371,11 @@ class EnterBankAccountDetailsControllerSpec
           Gen.option(genPostcode),
           arbitraryBankAccountReputation.arbitrary
         ) { (bankAccountDetails, postCode, genericResponse) =>
-          val expectedResponse = genericResponse.copy(
-            otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
-          )
+          val expectedResponse = genericResponse
+            .copy(
+              otherError = Some(ReputationErrorResponse("account-does-not-exist", "error")),
+              accountExists = Some(ReputationResponse.No)
+            )
 
           inSequence(
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))

@@ -170,7 +170,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
       case BankAccountReputation(
             Yes | Indeterminate,
             accountExists @ Some(Yes | Indeterminate),
-            None,
+            _,
             accountNameOpt,
             nameMatchesOpt @ (Some(Yes) | Some(Partial) | None)
           ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
