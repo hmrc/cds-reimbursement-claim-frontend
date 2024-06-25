@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChoosePayeeT
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ChoosePayeeTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  val choosePayeeTypePage: choose_payee_type_page
+  val choosePayeeTypePage: choose_payee_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController
     with ChoosePayeeTypeMixin {

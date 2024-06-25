@@ -1321,6 +1321,8 @@ reimbursement-method.cma=Current Month Adjustment (CMA)
 reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.title=Choose repayment method
+reimbursement-method.details.title=What is current month adjustment (CMA)?
+reimbursement-method.details.p1=When Customs Duty or import VAT is overpaid using a deferment account, an application can be made (regardless of VAT status) to adjust the deferment account to include the repaid amount.
 
 rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN

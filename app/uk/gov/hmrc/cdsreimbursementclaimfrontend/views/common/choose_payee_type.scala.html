@@ -49,7 +49,7 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), classes="govuk-heading-xl cds-wrap-content")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -68,7 +68,7 @@
         @radios(
             form = form,
             name = key,
-            classes = "govuk-fieldset__legend--xl",
+            classes = "",
             paddingClasses = "govuk-!-margin-bottom-8",
             inline = false,
             items = Seq(

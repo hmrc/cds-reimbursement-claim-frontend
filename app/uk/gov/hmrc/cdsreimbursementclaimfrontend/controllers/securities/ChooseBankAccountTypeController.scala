@@ -26,14 +26,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
-  val chooseBankAccountTypePage: choose_bank_account_type_page
+  val chooseBankAccountTypePage: choose_bank_account_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with ChooseBankAccountTypeMixin {
