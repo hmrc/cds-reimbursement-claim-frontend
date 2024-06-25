@@ -133,19 +133,6 @@ class CheckBankDetailsControllerSpec
         checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
       }
 
-      "Redirect when BankDetails are not required" in {
-        val session = sessionWithBankDetailsNotNeeded()
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val request = FakeRequest()
-        val result  = controller.show(request)
-        checkIsRedirect(result, routes.ChooseFileTypeController.show)
-      }
-
       "Ok when BankDetails has consigneeBankDetails and payeeType is Importer (Consignee)" in forAll(
         genBankAccountDetails
       ) { consigneeBankDetails: BankAccountDetails =>

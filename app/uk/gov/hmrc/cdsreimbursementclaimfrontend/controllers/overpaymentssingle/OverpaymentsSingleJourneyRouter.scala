@@ -45,8 +45,8 @@ trait OverpaymentsSingleJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.CheckBankDetailsController.show
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
-      case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => routes.ReimbursementMethodController.show
-      // case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => routes.ReimbursementMethodController.reset
+      case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => routes.ChooseRepaymentMethodController.show
+      // case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => routes.ChooseRepaymentMethodController.reset
       case DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED      =>
         routes.EnterDuplicateMovementReferenceNumberController.show
       case DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED            => routes.EnterDuplicateMovementReferenceNumberController.show

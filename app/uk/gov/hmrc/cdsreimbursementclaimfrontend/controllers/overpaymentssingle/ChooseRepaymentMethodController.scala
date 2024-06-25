@@ -29,15 +29,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_reimbursement_method
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_repayment_method
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class ReimbursementMethodController @Inject() (
+class ChooseRepaymentMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  selectReimbursementMethodPage: select_reimbursement_method
+  chooseRepaymentMethodPage: choose_repayment_method
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController {
 
@@ -45,7 +45,7 @@ class ReimbursementMethodController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val postAction: Call = routes.ReimbursementMethodController.submit
+  val postAction: Call = routes.ChooseRepaymentMethodController.submit
 
   val form: Form[ReimbursementMethod] =
     Forms.reimbursementMethodForm("reimbursement-method")
@@ -55,13 +55,13 @@ class ReimbursementMethodController @Inject() (
       (
         if (journey.isAllSelectedDutiesAreCMAEligible) {
           Ok(
-            selectReimbursementMethodPage(
+            chooseRepaymentMethodPage(
               form.withDefault(journey.answers.reimbursementMethod),
               postAction
             )
           )
         } else
-          Redirect(routes.ChooseFileTypeController.show)
+          Redirect(routes.CheckBankDetailsController.show)
       ).asFuture
     }
 
@@ -75,7 +75,7 @@ class ReimbursementMethodController @Inject() (
               (
                 journey,
                 BadRequest(
-                  selectReimbursementMethodPage(
+                  chooseRepaymentMethodPage(
                     formWithErrors,
                     postAction
                   )
@@ -86,18 +86,13 @@ class ReimbursementMethodController @Inject() (
                 case Right(modifiedJourney) =>
                   (
                     modifiedJourney,
-                    Redirect(method match {
-                      case ReimbursementMethod.BankAccountTransfer =>
-                        routes.CheckBankDetailsController.show
-                      case _                                       =>
-                        routes.ChooseFileTypeController.show
-                    })
+                    Redirect(routes.CheckBankDetailsController.show)
                   ).asFuture
 
                 case Left("submitReimbursementMethod.notCMAEligible") =>
                   (
                     journey,
-                    Redirect(routes.ChooseFileTypeController.show)
+                    Redirect(routes.CheckBankDetailsController.show)
                   ).asFuture
 
                 case Left(error) =>

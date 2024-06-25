@@ -461,17 +461,8 @@ final class OverpaymentsSingleJourney private (
     reimbursementMethod: ReimbursementMethod
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (isAllSelectedDutiesAreCMAEligible) {
-        if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment)
-          Right(
-            this.copy(
-              answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = None
-              )
-            )
-          )
-        else
+      if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment) {
+        if (isAllSelectedDutiesAreCMAEligible)
           Right(
             this.copy(
               answers.copy(
@@ -480,8 +471,17 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
+        else
+          Left("submitReimbursementMethod.notCMAEligible")
       } else
-        Left("submitReimbursementMethod.notCMAEligible")
+        Right(
+          this.copy(
+            answers.copy(
+              reimbursementMethod = Some(reimbursementMethod),
+              bankAccountDetails = computeBankAccountDetails
+            )
+          )
+        )
     }
 
   def resetReimbursementMethod(): OverpaymentsSingleJourney =
@@ -650,8 +650,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED
           )
         ),
-        whenFalse(
-          _.isAllSelectedDutiesAreCMAEligible,
+        whenTrue(
+          _.isSubsidyOnlyJourney,
           checkIsEmpty(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED

@@ -33,6 +33,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   val chooseBankAccountTypeRoute: Call
   val changeBankAccountDetailsRoute: Call
   val checkBankAccountDetailsPage: check_bank_account_details
+  def isCMA(journey: Journey): Boolean = false
 
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
 
@@ -53,6 +54,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                     checkBankAccountDetailsPage(
                       bankDetailsAreYouSureForm,
                       bankAccountDetails.masked,
+                      isCMA(journey),
                       postAction,
                       changeBankAccountDetailsRoute
                     )
@@ -88,6 +90,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                     checkBankAccountDetailsPage(
                       formWithErrors,
                       bankAccountDetails.masked,
+                      isCMA(journey),
                       postAction,
                       changeBankAccountDetailsRoute
                     )

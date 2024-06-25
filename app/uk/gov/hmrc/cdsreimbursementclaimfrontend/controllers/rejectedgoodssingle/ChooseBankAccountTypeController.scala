@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type_page
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 class ChooseBankAccountTypeController @Inject() (
   val jcc: JourneyControllerComponents,
@@ -51,5 +52,8 @@ class ChooseBankAccountTypeController @Inject() (
     bankAccountType: BankAccountType
   ): Either[String, Journey] =
     journey.submitBankAccountType(bankAccountType)
+
+  final override def isCMA(journey: Journey): Boolean =
+    journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
 }

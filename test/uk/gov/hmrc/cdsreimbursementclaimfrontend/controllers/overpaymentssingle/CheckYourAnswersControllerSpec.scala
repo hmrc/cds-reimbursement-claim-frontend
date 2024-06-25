@@ -225,7 +225,9 @@ class CheckYourAnswersControllerSpec
             generateSubsidyPayments = GenerateSubsidyPayments.All,
             features = Some(
               OverpaymentsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            )
+            ),
+            submitBankAccountDetails = false,
+            submitBankAccountType = false
           )
         ) { j =>
           val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)

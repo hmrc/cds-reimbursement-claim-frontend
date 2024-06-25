@@ -841,7 +841,7 @@ class RejectedGoodsSingleJourneySpec
       journeyEither.isRight shouldBe true
     }
 
-    "fail submitting BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
+    "submit BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
       val displayDeclarationNotCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
       val journeyEither                    =
@@ -852,7 +852,7 @@ class RejectedGoodsSingleJourneySpec
           .flatMap(_.submitCorrectAmount(TaxCode.A00, DefaultMethodReimbursementClaim(BigDecimal("0.00"))))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
-      journeyEither shouldBe Left("submitReimbursementMethod.notCMAEligible")
+      journeyEither.isRight shouldBe true
     }
 
     "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
@@ -869,22 +869,6 @@ class RejectedGoodsSingleJourneySpec
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
 
       journeyEither.isRight shouldBe true
-    }
-
-    "fail submitting bankAccountDetails if not needed" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val journeyEither                    =
-        RejectedGoodsSingleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-          .flatMap(_.submitCorrectAmount(TaxCode.A00, DefaultMethodReimbursementClaim(BigDecimal("0.00"))))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-          .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
-          .flatMap(_.submitBankAccountType(BankAccountType.Business))
-
-      journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
     }
 
     "change reimbursementMethod to CMA in a complete journey with all duties CMA eligible" in {

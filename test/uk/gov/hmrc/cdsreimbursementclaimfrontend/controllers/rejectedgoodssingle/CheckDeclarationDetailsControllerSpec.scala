@@ -117,7 +117,11 @@ class CheckDeclarationDetailsControllerSpec
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false,
           generateSubsidyPayments = GenerateSubsidyPayments.All,
-          features = Some(RejectedGoodsSingleJourney.Features(false, true))
+          features = Some(
+            RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+          ),
+          submitBankAccountDetails = false,
+          submitBankAccountType = false
         ).sample.getOrElse(fail("Journey building has failed."))
 
         val sessionToAmend = SessionData(journey)
