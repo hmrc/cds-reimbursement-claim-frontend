@@ -508,10 +508,12 @@ claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-
 claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" class="govuk-link" target="_blank">contact HMRC (opens in new tab)</a>
 claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
 
-confirm-full-repayment.caption=Security deposit: {0} of {1}
+confirm-full-repayment.caption=Security deposit ID: {0}
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
 confirm-full-repayment.question=Do you want to claim back all of this security deposit?
 confirm-full-repayment.title=Claim back this security deposit?
+confirm-full-repayment.mrn=MRN
+confirm-full-repayment.securityDeposit=Security deposit
 
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.

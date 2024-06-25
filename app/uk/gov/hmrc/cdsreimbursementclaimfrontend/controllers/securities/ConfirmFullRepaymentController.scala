@@ -36,9 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SummaryListCreator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -59,33 +57,30 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
+  def showFirst(): Action[AnyContent]                                                                     = actionReadJourney { _ => journey =>
     journey.getSelectedDepositIds.headOption
       .fold(
         Redirect(routes.CheckDeclarationDetailsController.show).asFuture
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)).asFuture)
   }
-
-  private def getSummaryList(displayDeclaration: DisplayDeclaration, id: String): SummaryList =
-    SummaryListCreator(
-      ("Security deposit ID", id),
-      ("Deposit value", displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString)
+  private def getPageModel(displayDeclaration: DisplayDeclaration, id: String): ConfirmFullRepaymentModel =
+    ConfirmFullRepaymentModel(
+      mrn = displayDeclaration.getMRN.value,
+      securityId = id,
+      depositValue = displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
     )
 
   def show(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(id)
-      .map(getSummaryList(_, id))
-      .fold((journey, errorHandler.errorResult())) { case summaryList =>
+      .map(getPageModel(_, id))
+      .fold((journey, errorHandler.errorResult())) { case model =>
         (
           journey.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPage(
               form.withDefault(journey.getClaimFullAmountStatus(id)),
-              id,
-              journey.getIndexOf(id),
-              journey.getSelectedDepositIds.length,
-              summaryList,
+              model,
               routes.ConfirmFullRepaymentController.submit(id)
             )
           )
@@ -104,15 +99,12 @@ class ConfirmFullRepaymentController @Inject() (
               journey,
               journey
                 .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(getSummaryList(_, id))
-                .map { case summaryList =>
+                .map(getPageModel(_, id))
+                .map { case model =>
                   BadRequest(
                     confirmFullRepaymentPage(
                       formWithErrors,
-                      id,
-                      journey.getIndexOf(id),
-                      journey.getSelectedDepositIds.length,
-                      summaryList,
+                      model,
                       routes.ConfirmFullRepaymentController.submit(id)
                     )
                   )
@@ -174,3 +166,5 @@ class ConfirmFullRepaymentController @Inject() (
          Redirect(routes.CheckClaimDetailsController.show)
        )).asFuture
 }
+
+final case class ConfirmFullRepaymentModel(mrn: String, securityId: String, depositValue: String)
