@@ -31,7 +31,7 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
 )
 
-@(form: Form[BankAccountDetails], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BankAccountDetails], isCMA: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-bank-account-details"}
 @title = @{messages(s"enter-bank-account-details.title")}
@@ -47,6 +47,10 @@
     @heading(Html(title))
 
     @paragraph(Html(messages(s"enter-bank-account-details.p1", viewConfig.contactCdsTeamUrl)))
+
+    @if(isCMA) {
+        @paragraph(Html(messages(s"enter-bank-account-details.cma-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
+    }
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

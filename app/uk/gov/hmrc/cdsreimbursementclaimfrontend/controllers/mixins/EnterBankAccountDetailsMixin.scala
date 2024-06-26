@@ -56,13 +56,14 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
   val routesPack: EnterBankAccountDetailsMixin.RoutesPack
+  def isCMA(journey: Journey): Boolean = false
 
   implicit val errorHandler: ErrorHandler
 
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(enterBankAccountDetailsPage(enterBankDetailsForm, routesPack.submitPath)).asFuture
+  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Ok(enterBankAccountDetailsPage(enterBankDetailsForm, isCMA(journey), routesPack.submitPath)).asFuture
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -76,6 +77,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
               BadRequest(
                 enterBankAccountDetailsPage(
                   formWithErrors,
+                  isCMA(journey),
                   routesPack.submitPath
                 )
               )
@@ -88,7 +90,8 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
 
   def handleBadReputation(
     bankAccountDetails: BankAccountDetails,
-    reputation: BankAccountReputation
+    reputation: BankAccountReputation,
+    isCMA: Boolean
   )(implicit request: Request[_]): Result =
     reputation match {
       case BankAccountReputation(_, _, Some(errorResponse), _, _)                =>
@@ -97,6 +100,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             enterBankDetailsForm
               .fill(bankAccountDetails)
               .withError("enter-bank-account-details", s"error.${errorResponse.code}"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -106,6 +110,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             enterBankDetailsForm
               .fill(bankAccountDetails)
               .withError("enter-bank-account-details", "error.account-exists-error"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -115,6 +120,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .withError("enter-bank-account-details", "error.account-does-not-exist"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -123,6 +129,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .withError("enter-bank-account-details", "error.moc-check-no"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -131,6 +138,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           enterBankAccountDetailsPage(
             enterBankDetailsForm
               .withError("enter-bank-account-details", "error.moc-check-failed"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -142,6 +150,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
             enterBankDetailsForm
               .fill(bankAccountDetails)
               .withError("enter-bank-account-details", "error.account-does-not-exist"),
+            isCMA,
             routesPack.submitPath
           )
         )
@@ -195,7 +204,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
               )
           )
       case badReputation =>
-        (journey, handleBadReputation(bankAccountDetails, badReputation))
+        (journey, handleBadReputation(bankAccountDetails, badReputation, isCMA(journey)))
     }
 
   private def getBankAccountType(journey: Journey, getBankAccountTypePage: Call) =
