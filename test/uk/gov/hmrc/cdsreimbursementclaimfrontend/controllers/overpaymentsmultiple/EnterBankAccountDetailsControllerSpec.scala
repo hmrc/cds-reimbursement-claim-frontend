@@ -221,7 +221,8 @@ class EnterBankAccountDetailsControllerSpec
             arbitraryBankAccountReputation.arbitrary
           ) { (bankAccountDetails, postCode, genericResponse) =>
             val expectedResponse = genericResponse.copy(
-              otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
+              otherError = Some(ReputationErrorResponse("account-does-not-exist", "error")),
+              accountExists = Some(ReputationResponse.No)
             )
 
             inSequence(
@@ -394,7 +395,8 @@ class EnterBankAccountDetailsControllerSpec
           arbitraryBankAccountReputation.arbitrary
         ) { (bankAccountDetails, postCode, genericResponse) =>
           val expectedResponse = genericResponse.copy(
-            otherError = Some(ReputationErrorResponse("account-does-not-exist", "error"))
+            otherError = Some(ReputationErrorResponse("account-does-not-exist", "error")),
+            accountExists = Some(ReputationResponse.No)
           )
 
           inSequence(
