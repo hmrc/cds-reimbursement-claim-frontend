@@ -865,6 +865,7 @@ enter-bank-account-details.sort-code.help-text=Must be 6 digits long.
 enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.sort-code.label=Sort code
 enter-bank-account-details.title=Enter your bank account details
+enter-bank-account-details.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.

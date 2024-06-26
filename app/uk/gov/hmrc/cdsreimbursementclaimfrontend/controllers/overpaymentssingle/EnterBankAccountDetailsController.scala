@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
@@ -45,6 +46,9 @@ class EnterBankAccountDetailsController @Inject() (
     journey.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack = EnterBankAccountDetailsController.routesPack
+
+  final override def isCMA(journey: Journey): Boolean =
+    journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
 }
 
