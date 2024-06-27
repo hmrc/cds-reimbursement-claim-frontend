@@ -30,19 +30,19 @@ class DateFormatterSpec extends AnyWordSpec with ControllerSpec with Matchers {
 
   "DateFormatter" should {
     "format date in english correctly - 13 May 2021" in {
-      DateFormatter.formatDate("13 May 2021")(englishMessages) shouldBe "13 May 2021"
+      DateFormatter.toDisplayDate("13 May 2021")(englishMessages) shouldBe "13 May 2021"
     }
 
     "format date in english correctly - 1 August 2020" in {
-      DateFormatter.formatDate("1 August 2020")(englishMessages) shouldBe "1 August 2020"
+      DateFormatter.toDisplayDate("1 August 2020")(englishMessages) shouldBe "1 August 2020"
     }
 
     "format date in welsh correctly - 11 January 2023" in {
-      DateFormatter.formatDate("11 January 2023")(welshMessages) shouldBe "11 Ionawr 2023"
+      DateFormatter.toDisplayDate("11 January 2023")(welshMessages) shouldBe "11 Ionawr 2023"
     }
 
     "format date in welsh correctly - 22 November 2021" in {
-      DateFormatter.formatDate("22 November 2021")(welshMessages) shouldBe "22 Tachwedd 2021"
+      DateFormatter.toDisplayDate("22 November 2021")(welshMessages) shouldBe "22 Tachwedd 2021"
     }
 
   }

@@ -40,7 +40,7 @@ object TemporaryAdmissionMethodOfDisposalSummary {
       exportMethodItem(DeclaredToACustomsWarehouse),
       exportMethodItem(Destroyed),
       exportMethodItem(Other),
-      RadioItem(divider = Some("or")),
+      RadioItem(divider = Some(messages("choose-export-method.radio-or"))),
       exportMethodItem(MultipleDisposalMethodsWereUsed)
     )
 

@@ -28,7 +28,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.formatDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
   override def render(
@@ -57,7 +57,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
         ).some.filter(_ => showImportMrn),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.import-date-label"))),
-          value = Value(Text(formatDate(declaration.displayResponseDetail.acceptanceDate)))
+          value = Value(Text(toDisplayDate(declaration.displayResponseDetail.acceptanceDate)))
         ).some,
         declaration.getMethodsOfPayment
           .map { methods =>
