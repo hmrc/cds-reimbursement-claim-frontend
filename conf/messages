@@ -1311,6 +1311,11 @@ problem-with-declaration.continue.yes=Yes
 problem-with-declaration.continue.no=No
 problem-with-declaration.error.required=Select yes to continue with this claim without these tax-type codes
 
+problem-with-mrn.title=Sorry, there is a problem with this MRN
+problem-with-mrn.paragraph.1=The MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> is invalid or there’s no duty or VAT in this MRN to claim.
+problem-with-mrn.help=Please provide another <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> or you can get help by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">contacting HMRC (opens in new tab)</a>.
+
+
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 recruitment-banner.message=Help improve GOV.UK

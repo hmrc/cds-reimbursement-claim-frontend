@@ -237,7 +237,7 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "reject an invalid MRN" in {
+      "reject an invalid formatted MRN" in {
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
         inSequence {
@@ -253,6 +253,19 @@ class EnterMovementReferenceNumberControllerSpec
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
           },
           expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject an unknown mrn or mrn without declaration" in forAll { (mrn: MRN) =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(None))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value)(),
+          routes.ProblemWithMrnController.show(1, mrn)
         )
       }
 

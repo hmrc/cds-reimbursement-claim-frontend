@@ -22,6 +22,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -161,7 +162,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  (journey, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
                 },
               updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, mrn, pageIndex))
             )

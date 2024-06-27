@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
@@ -49,6 +50,8 @@ class EnterMovementReferenceNumberController @Inject() (
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
+
+  override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
 
   override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
     featureSwitchService.isEnabled(Feature.XiEori)
