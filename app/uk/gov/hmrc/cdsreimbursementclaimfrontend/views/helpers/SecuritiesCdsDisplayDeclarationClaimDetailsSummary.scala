@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 
 object SecuritiesCdsDisplayDeclarationClaimDetailsSummary {
 
@@ -58,7 +59,7 @@ object SecuritiesCdsDisplayDeclarationClaimDetailsSummary {
         .map(formattedDate =>
           SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.acceptance-date-label"))),
-            value = Value(Text(formattedDate))
+            value = Value(Text(toDisplayDate(formattedDate)))
           )
         ),
       DateUtils
@@ -66,7 +67,7 @@ object SecuritiesCdsDisplayDeclarationClaimDetailsSummary {
         .map(formattedDate =>
           SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.bta-due-date-label"))),
-            value = Value(Text(formattedDate))
+            value = Value(Text(toDisplayDate(formattedDate)))
           )
         )
     ).flatMap(_.toList)

@@ -20,7 +20,7 @@ import play.api.i18n.Messages
 
 object DateFormatter {
 
-  def formatDate(dateString: String)(implicit messages: Messages): String = {
+  def toDisplayDate(dateString: String)(implicit messages: Messages): String = {
     val split = dateString.trim.split(" ")
     s"${split(0)} ${messages(s"month.${split(1)}")} ${split(2)}"
   }

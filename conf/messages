@@ -377,7 +377,7 @@ choose-export-method.export-method-description.ExportedInSingleShipment=Exported
 choose-export-method.export-method-description.MultipleDisposalMethodsWereUsed=More than one of the above
 choose-export-method.export-method-description.Other=Other
 choose-export-method.help-text=The goods were:
-choose-export-method.radio-or=or <br>
+choose-export-method.radio-or=or
 choose-export-method.title=Tell us what you did with the goods
 
 choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be a JPG, PNG or PDF
