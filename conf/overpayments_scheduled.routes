@@ -72,3 +72,5 @@ GET         /overpayments/scheduled/check-your-answers                          
 
 GET         /overpayments/scheduled/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithDeclarationController.show
 POST        /overpayments/scheduled/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithDeclarationController.submit
+
+GET         /overpayments/scheduled/problem-with-mrn/:mrn                                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithMrnController.show(mrn: MRN)

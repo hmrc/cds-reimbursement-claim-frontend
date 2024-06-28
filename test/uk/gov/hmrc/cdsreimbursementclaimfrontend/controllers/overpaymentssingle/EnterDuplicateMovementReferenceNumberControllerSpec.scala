@@ -228,7 +228,10 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         )
       }
 
-      "submit an unknown MRN" in forAll(journeyGen, genMRN) { case (journey, mrn) =>
+      "reject an unknown mrn or mrn without declaration " in forAll { (mrn: MRN) =>
+        val journey: OverpaymentsSingleJourney =
+          journeyGen.sample.get
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
@@ -237,7 +240,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterDuplicateMovementReferenceNumberKey -> mrn.value),
-          baseRoutes.IneligibleController.ineligible()
+          routes.ProblemWithMrnController.show(mrn)
         )
       }
 

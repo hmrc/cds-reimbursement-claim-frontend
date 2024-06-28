@@ -22,6 +22,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -29,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes
@@ -146,7 +148,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  (journey, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
                 },
               updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, mrn, pageIndex))
             )

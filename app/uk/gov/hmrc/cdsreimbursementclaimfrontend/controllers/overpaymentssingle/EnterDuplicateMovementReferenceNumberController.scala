@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
@@ -52,6 +53,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
+
+  override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
 
   override val formKey = "enter-duplicate-movement-reference-number"
 

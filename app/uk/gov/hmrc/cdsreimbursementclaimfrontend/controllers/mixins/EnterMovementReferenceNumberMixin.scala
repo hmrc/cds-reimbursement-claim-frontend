@@ -20,6 +20,7 @@ import cats.data.EitherT
 import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
@@ -44,6 +45,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
+  val problemWithMrnCall: MRN => Call
 
   val formKey = "enter-movement-reference-number"
 
@@ -90,7 +92,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
               )
             } else {
               logger.error(s"Unable to record $mrn", error.toException)
-              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+              (journey, Redirect(problemWithMrnCall(mrn)))
             },
           updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
         )

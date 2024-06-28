@@ -35,9 +35,6 @@ class IneligibleControllerSpec extends ControllerSpec {
           messageFromMessageKey("ineligible.title")
         )
       }
-
     }
-
   }
-
 }

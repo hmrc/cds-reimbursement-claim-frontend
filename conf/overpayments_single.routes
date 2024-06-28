@@ -79,3 +79,5 @@ GET         /overpayments/single/check-your-answers                             
 
 GET         /overpayments/single/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithDeclarationController.show
 POST        /overpayments/single/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithDeclarationController.submit
+
+GET         /overpayments/single/problem-with-mrn/:mrn                                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithMrnController.show(mrn: MRN)

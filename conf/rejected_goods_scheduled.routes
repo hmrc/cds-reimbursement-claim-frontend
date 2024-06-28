@@ -85,3 +85,5 @@ GET          /rejected-goods/scheduled/check-your-answers                       
 
 GET          /rejected-goods/scheduled/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithDeclarationController.show
 POST         /rejected-goods/scheduled/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithDeclarationController.submit
+
+GET          /rejected-goods/scheduled/problem-with-mrn/:mrn                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithMrnController.show(mrn: MRN)

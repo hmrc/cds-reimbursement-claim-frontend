@@ -87,3 +87,5 @@ GET          /rejected-goods/multiple/new-tax-type-code-validation              
 POST         /rejected-goods/multiple/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithDeclarationController.submit
 GET          /rejected-goods/multiple/new-tax-type-code-validation/:index           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithDeclarationController.showNth(index: Int)
 POST         /rejected-goods/multiple/new-tax-type-code-validation/:index           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithDeclarationController.submitNth(index: Int)
+
+GET          /rejected-goods/multiple/problem-with-mrn/:pageIndex/:mrn                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithMrnController.show(pageIndex: Int, mrn: MRN)

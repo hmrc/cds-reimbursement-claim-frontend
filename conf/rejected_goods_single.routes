@@ -82,3 +82,5 @@ GET          /rejected-goods/single/check-your-answers                          
 
 GET          /rejected-goods/single/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ProblemWithDeclarationController.show
 POST         /rejected-goods/single/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ProblemWithDeclarationController.submit
+
+GET          /rejected-goods/single/problem-with-mrn/:mrn                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ProblemWithMrnController.show(mrn: MRN)
