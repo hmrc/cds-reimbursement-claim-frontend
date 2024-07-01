@@ -92,38 +92,38 @@ object AddressLookupRequest {
     def disableTranslations(value: Boolean): Builder =
       copy(options.copy(disableTranslations = Some(value)))
 
-    def withPageLabels(
-      appTitle: Option[String] = None,
-      phaseBannerHtml: Option[String] = None,
-      lookupTitle: Option[String],
-      confirmTitle: Option[String],
-      selectTitle: Option[String],
-      editTitle: Option[String],
-      lookupHeading: Option[String],
-      confirmHeading: Option[String],
-      selectHeading: Option[String],
-      editHeading: Option[String],
-      searchAgainLinkText: Option[String]
-    ): Builder =
+    def withPageLabels(labelsByLocale: LabelsByLocale): Builder =
       copy(labels =
         labels.copy(
           en = LanguageLabels(
-            appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
-            lookupPageLabels = LookupPageLabels(lookupTitle, lookupHeading).some,
-            confirmPageLabels =
-              ConfirmPageLabels(confirmTitle, confirmHeading, searchAgainLinkText = searchAgainLinkText).some,
-            selectPageLabels =
-              SelectPageLabels(selectTitle, selectHeading, searchAgainLinkText = searchAgainLinkText).some,
-            editPageLabels = EditPageLabels(editTitle, editHeading).some
+            appLevelLabels = AppLabels(labelsByLocale.en.appTitle, labelsByLocale.en.phaseBannerHtml).some,
+            lookupPageLabels = LookupPageLabels(labelsByLocale.en.lookupTitle, labelsByLocale.en.lookupHeading).some,
+            confirmPageLabels = ConfirmPageLabels(
+              labelsByLocale.en.confirmTitle,
+              labelsByLocale.en.confirmHeading,
+              searchAgainLinkText = labelsByLocale.en.searchAgainLinkText
+            ).some,
+            selectPageLabels = SelectPageLabels(
+              labelsByLocale.en.selectTitle,
+              labelsByLocale.en.selectHeading,
+              searchAgainLinkText = labelsByLocale.en.searchAgainLinkText
+            ).some,
+            editPageLabels = EditPageLabels(labelsByLocale.en.editTitle, labelsByLocale.en.editHeading).some
           ).some,
           cy = LanguageLabels(
-            appLevelLabels = AppLabels(appTitle, phaseBannerHtml).some,
-            lookupPageLabels = LookupPageLabels(lookupTitle, lookupHeading).some,
-            confirmPageLabels =
-              ConfirmPageLabels(confirmTitle, confirmHeading, searchAgainLinkText = searchAgainLinkText).some,
-            selectPageLabels =
-              SelectPageLabels(selectTitle, selectHeading, searchAgainLinkText = searchAgainLinkText).some,
-            editPageLabels = EditPageLabels(editTitle, editHeading).some
+            appLevelLabels = AppLabels(labelsByLocale.cy.appTitle, labelsByLocale.cy.phaseBannerHtml).some,
+            lookupPageLabels = LookupPageLabels(labelsByLocale.cy.lookupTitle, labelsByLocale.cy.lookupHeading).some,
+            confirmPageLabels = ConfirmPageLabels(
+              labelsByLocale.cy.confirmTitle,
+              labelsByLocale.cy.confirmHeading,
+              searchAgainLinkText = labelsByLocale.cy.searchAgainLinkText
+            ).some,
+            selectPageLabels = SelectPageLabels(
+              labelsByLocale.cy.selectTitle,
+              labelsByLocale.cy.selectHeading,
+              searchAgainLinkText = labelsByLocale.cy.searchAgainLinkText
+            ).some,
+            editPageLabels = EditPageLabels(labelsByLocale.cy.editTitle, labelsByLocale.cy.editHeading).some
           ).some
         )
       )

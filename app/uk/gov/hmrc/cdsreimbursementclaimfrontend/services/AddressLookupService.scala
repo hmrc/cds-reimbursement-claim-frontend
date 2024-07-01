@@ -26,7 +26,10 @@ import com.google.inject.Inject
 import play.api.http.HeaderNames.LOCATION
 import play.api.http.Status.ACCEPTED
 import play.api.http.Status.OK
+import play.api.i18n.Lang
 import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.Reads.minLength
 import play.api.libs.json.JsPath
@@ -39,7 +42,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupPageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LabelsByLocale
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
@@ -64,7 +69,8 @@ trait AddressLookupService {
 
 class DefaultAddressLookupService @Inject() (
   connector: AddressLookupConnector,
-  addressLookupConfiguration: AddressLookupConfig
+  addressLookupConfiguration: AddressLookupConfig,
+  messagesApi: MessagesApi
 )(implicit
   ec: ExecutionContext,
   viewConfig: ViewConfig
@@ -78,10 +84,13 @@ class DefaultAddressLookupService @Inject() (
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
 
-  private def appTitle(implicit messages: Messages): String =
+  val englishMessages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  val welshMessages: Messages   = MessagesImpl(Lang("cy"), messagesApi)
+
+  private def appTitle(messages: Messages): String =
     messages("service.title")
 
-  private def fullPageTitle(titleKey: String)(implicit messages: Messages): String =
+  private def fullPageTitle(titleKey: String, messages: Messages): String =
     viewConfig
       .pageTitleWithServiceName(
         messages(titleKey),
@@ -89,7 +98,7 @@ class DefaultAddressLookupService @Inject() (
         hasErrors = false
       )
 
-  private def pageHeading(titleKey: String)(implicit messages: Messages): String =
+  private def pageHeading(titleKey: String, messages: Messages): String =
     messages(titleKey)
 
   def startLookupRedirectingBackTo(
@@ -101,17 +110,34 @@ class DefaultAddressLookupService @Inject() (
         .signOutUserVia(viewConfig.ggSignOut)
         .nameConsumerServiceAs("cds-reimbursement-claim")
         .withPageLabels(
-          appTitle = appTitle.some,
-          phaseBannerHtml = None,
-          lookupTitle = fullPageTitle("address-lookup.lookup.title").some,
-          confirmTitle = fullPageTitle("address-lookup.confirm.title").some,
-          selectTitle = fullPageTitle("address-lookup.select.title").some,
-          editTitle = fullPageTitle("address-lookup.edit.title").some,
-          lookupHeading = pageHeading("address-lookup.lookup.title").some,
-          confirmHeading = pageHeading("address-lookup.confirm.h1").some,
-          selectHeading = pageHeading("address-lookup.select.title").some,
-          editHeading = pageHeading("address-lookup.edit.title").some,
-          searchAgainLinkText = Some(messages("address-lookup.label.searchAgainLinkText"))
+          LabelsByLocale(
+            en = AddressLookupPageLabels(
+              appTitle = appTitle(englishMessages).some,
+              phaseBannerHtml = None,
+              lookupTitle = fullPageTitle("address-lookup.lookup.title", englishMessages).some,
+              confirmTitle = fullPageTitle("address-lookup.confirm.title", englishMessages).some,
+              selectTitle = fullPageTitle("address-lookup.select.title", englishMessages).some,
+              editTitle = fullPageTitle("address-lookup.edit.title", englishMessages).some,
+              lookupHeading = pageHeading("address-lookup.lookup.title", englishMessages).some,
+              confirmHeading = pageHeading("address-lookup.confirm.h1", englishMessages).some,
+              selectHeading = pageHeading("address-lookup.select.title", englishMessages).some,
+              editHeading = pageHeading("address-lookup.edit.title", englishMessages).some,
+              searchAgainLinkText = Some(englishMessages("address-lookup.label.searchAgainLinkText"))
+            ),
+            cy = AddressLookupPageLabels(
+              appTitle = appTitle(welshMessages).some,
+              phaseBannerHtml = None,
+              lookupTitle = fullPageTitle("address-lookup.lookup.title", welshMessages).some,
+              confirmTitle = fullPageTitle("address-lookup.confirm.title", welshMessages).some,
+              selectTitle = fullPageTitle("address-lookup.select.title", welshMessages).some,
+              editTitle = fullPageTitle("address-lookup.edit.title", welshMessages).some,
+              lookupHeading = pageHeading("address-lookup.lookup.title", welshMessages).some,
+              confirmHeading = pageHeading("address-lookup.confirm.h1", welshMessages).some,
+              selectHeading = pageHeading("address-lookup.select.title", welshMessages).some,
+              editHeading = pageHeading("address-lookup.edit.title", welshMessages).some,
+              searchAgainLinkText = Some(welshMessages("address-lookup.label.searchAgainLinkText"))
+            )
+          )
         )
         .showMax(addressLookupConfiguration.addressesShowLimit)
         .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)

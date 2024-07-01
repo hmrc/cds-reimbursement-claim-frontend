@@ -43,7 +43,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupPageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LabelsByLocale
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
@@ -71,7 +73,8 @@ class AddressLookupServiceSpec
   private val addressLookupConnector = mock[AddressLookupConnector]
   implicit val messages: Messages    = MessagesImpl(Lang("en"), theMessagesApi)
   private val addressLookupConfig    = new AddressLookupConfig(servicesConfig)
-  private val addressLookupService   = new DefaultAddressLookupService(addressLookupConnector, addressLookupConfig)
+  private val addressLookupService   =
+    new DefaultAddressLookupService(addressLookupConnector, addressLookupConfig, theMessagesApi)
 
   implicit val timeoutConfiguration: TimeoutConfig =
     TimeoutConfig(
@@ -81,6 +84,39 @@ class AddressLookupServiceSpec
     )
 
   val addressUpdateCall: Call = Call("", "/update-contact-address")
+
+  val welshMessages: Messages = MessagesImpl(Lang("cy"), theMessagesApi)
+  val labelsByLocale = LabelsByLocale(
+    en = AddressLookupPageLabels(
+      appTitle = Some(s"${messages("service.title")}"),
+      phaseBannerHtml = None,
+      lookupTitle = Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
+      confirmTitle = Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
+      selectTitle = Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
+      editTitle = Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK"),
+      lookupHeading = Some(s"${messages("address-lookup.lookup.title")}"),
+      confirmHeading = Some(s"${messages("address-lookup.confirm.h1")}"),
+      selectHeading = Some(s"${messages("address-lookup.select.title")}"),
+      editHeading = Some(s"${messages("address-lookup.edit.title")}"),
+      searchAgainLinkText = Some(s"${messages("address-lookup.label.searchAgainLinkText")}")
+    ),
+    cy = AddressLookupPageLabels(
+      appTitle = Some(s"${welshMessages("service.title")}"),
+      phaseBannerHtml = None,
+      lookupTitle =
+        Some(s"${welshMessages("address-lookup.lookup.title")} - ${welshMessages("service.title")} - GOV.UK"),
+      confirmTitle =
+        Some(s"${welshMessages("address-lookup.confirm.title")} - ${welshMessages("service.title")} - GOV.UK"),
+      selectTitle =
+        Some(s"${welshMessages("address-lookup.select.title")} - ${welshMessages("service.title")} - GOV.UK"),
+      editTitle = Some(s"${welshMessages("address-lookup.edit.title")} - ${welshMessages("service.title")} - GOV.UK"),
+      lookupHeading = Some(s"${welshMessages("address-lookup.lookup.title")}"),
+      confirmHeading = Some(s"${welshMessages("address-lookup.confirm.h1")}"),
+      selectHeading = Some(s"${welshMessages("address-lookup.select.title")}"),
+      editHeading = Some(s"${welshMessages("address-lookup.edit.title")}"),
+      searchAgainLinkText = Some(s"${welshMessages("address-lookup.label.searchAgainLinkText")}")
+    )
+  )
 
   val addressLookupRequest: AddressLookupRequest = AddressLookupRequest
     .redirectBackTo(s"${viewConfig.selfBaseUrl}${addressUpdateCall.url}")
@@ -95,19 +131,7 @@ class AddressLookupServiceSpec
     .whetherShowChangeLink(true)
     .whetherShowBanner(true)
     .disableTranslations(false)
-    .withPageLabels(
-      appTitle = Some(s"${messages("service.title")}"),
-      phaseBannerHtml = None,
-      lookupTitle = Some(s"${messages("address-lookup.lookup.title")} - ${messages("service.title")} - GOV.UK"),
-      confirmTitle = Some(s"${messages("address-lookup.confirm.title")} - ${messages("service.title")} - GOV.UK"),
-      selectTitle = Some(s"${messages("address-lookup.select.title")} - ${messages("service.title")} - GOV.UK"),
-      editTitle = Some(s"${messages("address-lookup.edit.title")} - ${messages("service.title")} - GOV.UK"),
-      lookupHeading = Some(s"${messages("address-lookup.lookup.title")}"),
-      confirmHeading = Some(s"${messages("address-lookup.confirm.h1")}"),
-      selectHeading = Some(s"${messages("address-lookup.select.title")}"),
-      editHeading = Some(s"${messages("address-lookup.edit.title")}"),
-      searchAgainLinkText = Some(s"${messages("address-lookup.label.searchAgainLinkText")}")
-    )
+    .withPageLabels(labelsByLocale)
 
   def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
     response: Either[Error, HttpResponse]
