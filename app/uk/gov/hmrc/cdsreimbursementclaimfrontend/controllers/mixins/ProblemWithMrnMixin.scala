@@ -16,20 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.payeeTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.problemWithDeclarationForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_mrn
-
-import scala.concurrent.Future
 
 trait ProblemWithMrnMixin extends JourneyBaseController {
   val problemWithMRNPage: problem_with_mrn

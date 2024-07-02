@@ -146,7 +146,7 @@ class ChooseReasonForSecurityController @Inject() (
     hc: HeaderCarrier,
     r: Request[_]
   ): EitherT[Future, Result, SecuritiesJourney] =
-    getUserXiEoriIfNeeded(journey, true)
+    getUserXiEoriIfNeeded(journey, enabled = true)
       .leftMap(error => logAndDisplayError("Could not get XI EORI", error))
 
   private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =

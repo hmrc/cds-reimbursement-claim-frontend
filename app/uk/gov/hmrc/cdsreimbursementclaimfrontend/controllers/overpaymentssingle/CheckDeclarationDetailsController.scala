@@ -64,7 +64,13 @@ class CheckDeclarationDetailsController @Inject() (
   override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
     case (decl, form, _) =>
       implicit request =>
-        checkDeclarationDetailsPage(decl, form, false, postAction, Some("single"))
+        checkDeclarationDetailsPage(
+          declaration = decl,
+          form = form,
+          isDuplicate = false,
+          postAction = postAction,
+          subKey = Some("single")
+        )
   }
 
 }

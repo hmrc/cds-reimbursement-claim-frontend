@@ -60,13 +60,13 @@ class SelectDutiesController @Inject() (
           val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties(mrn))
           Ok(
             selectDutiesPage(
-              form,
-              availableDuties,
-              Some((pageIndex, mrn)),
-              false,
-              Some("multiple"),
-              routes.SelectDutiesController.submit(pageIndex),
-              journey.isSubsidyOnlyJourney
+              form = form,
+              availableTaxCodes = availableDuties,
+              indexAndMrnOpt = Some((pageIndex, mrn)),
+              showCmaNotEligibleHint = false,
+              subKey = Some("multiple"),
+              postAction = routes.SelectDutiesController.submit(pageIndex),
+              isSubsidyOnly = journey.isSubsidyOnlyJourney
             )
           )
         }
@@ -93,13 +93,13 @@ class SelectDutiesController @Inject() (
                     journey,
                     BadRequest(
                       selectDutiesPage(
-                        formWithErrors,
-                        availableDuties,
-                        Some((pageIndex, mrn)),
-                        false,
-                        Some("multiple"),
-                        routes.SelectDutiesController.submit(pageIndex),
-                        journey.isSubsidyOnlyJourney
+                        form = formWithErrors,
+                        availableTaxCodes = availableDuties,
+                        indexAndMrnOpt = Some((pageIndex, mrn)),
+                        showCmaNotEligibleHint = false,
+                        subKey = Some("multiple"),
+                        postAction = routes.SelectDutiesController.submit(pageIndex),
+                        isSubsidyOnly = journey.isSubsidyOnlyJourney
                       )
                     )
                   ),

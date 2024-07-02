@@ -16,15 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithMrnMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_mrn
 
 import javax.inject.Inject
