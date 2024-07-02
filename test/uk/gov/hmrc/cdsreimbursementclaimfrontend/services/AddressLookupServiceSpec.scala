@@ -86,7 +86,7 @@ class AddressLookupServiceSpec
   val addressUpdateCall: Call = Call("", "/update-contact-address")
 
   val welshMessages: Messages = MessagesImpl(Lang("cy"), theMessagesApi)
-  val labelsByLocale = LabelsByLocale(
+  val labelsByLocale          = LabelsByLocale(
     en = AddressLookupPageLabels(
       appTitle = Some(s"${messages("service.title")}"),
       phaseBannerHtml = None,

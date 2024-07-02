@@ -204,8 +204,8 @@ class EnterClaimController @Inject() (
           case Some(Left(depositId)) =>
             routes.ConfirmFullRepaymentController.show(depositId)
 
-          case Some(Right((depositId, taxCode))) =>
-            routes.EnterClaimController.show(depositId, taxCode)
+          case Some(Right((depositId, tc))) =>
+            routes.EnterClaimController.show(depositId, tc)
 
           case None =>
             routes.CheckClaimDetailsController.show

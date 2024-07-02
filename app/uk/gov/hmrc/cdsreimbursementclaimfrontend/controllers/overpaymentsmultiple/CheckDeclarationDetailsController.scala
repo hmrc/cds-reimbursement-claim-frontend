@@ -65,11 +65,11 @@ class CheckDeclarationDetailsController @Inject() (
     case (decl, form, journey) =>
       implicit request =>
         checkDeclarationDetailsPage(
-          decl,
-          form,
-          false,
-          postAction,
-          Some("multiple"),
+          declaration = decl,
+          form = form,
+          isDuplicate = false,
+          postAction = postAction,
+          subKey = Some("multiple"),
           isSubsidy = journey.isSubsidyOnlyJourney
         )
   }
