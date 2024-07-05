@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
@@ -45,6 +46,9 @@ class EnterBankAccountDetailsController @Inject() (
     journey.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack = EnterBankAccountDetailsController.routesPack
+
+  final override def isCMA(journey: Journey): Boolean =
+    journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
 }
 
