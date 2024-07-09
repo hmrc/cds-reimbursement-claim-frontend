@@ -205,11 +205,56 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
+    submitReimbursementMethod: Boolean = true,
+    submitEvidence: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
+    checkYourAnswersChangeMode: Boolean = true,
     features: Option[RejectedGoodsSingleJourney.Features] = None,
     payeeType: Option[PayeeType] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
+    buildAnswersGen(
+      acc14DeclarantMatchesUserEori,
+      acc14ConsigneeMatchesUserEori,
+      allDutiesCmaEligible,
+      hasConsigneeDetailsInACC14,
+      submitDeclarantDetails,
+      submitConsigneeDetails,
+      submitContactDetails,
+      submitContactAddress,
+      submitBankAccountDetails,
+      submitBankAccountType,
+      submitReimbursementMethod,
+      submitEvidence,
+      reimbursementMethod,
+      generateSubsidyPayments,
+      checkYourAnswersChangeMode,
+      features,
+      payeeType
+    ).map(answers =>
+      RejectedGoodsSingleJourney
+        .tryBuildFrom(answers, features)
+    )
+
+  def buildAnswersGen(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    allDutiesCmaEligible: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    submitReimbursementMethod: Boolean = true,
+    submitEvidence: Boolean = true,
+    reimbursementMethod: Option[ReimbursementMethod] = None,
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
+    checkYourAnswersChangeMode: Boolean = true,
+    features: Option[RejectedGoodsSingleJourney.Features] = None,
+    payeeType: Option[PayeeType] = None
+  ): Gen[RejectedGoodsSingleJourney.Answers] =
     for {
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
@@ -280,39 +325,36 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
             Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
-      val answers =
-        RejectedGoodsSingleJourney.Answers(
-          nonce = Nonce.random,
-          userEoriNumber = userEoriNumber,
-          movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
-          payeeType = payeeType,
-          eoriNumbersVerification = eoriNumbersVerification,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
-          basisOfClaim = Some(basisOfClaim),
-          basisOfClaimSpecialCircumstances =
-            if (basisOfClaim === BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
-            else None,
-          methodOfDisposal = Some(methodOfDisposal),
-          detailsOfRejectedGoods = Some("rejected goods details"),
-          correctedAmounts = Some(correctedAmounts),
-          inspectionDate = Some(exampleInspectionDate),
-          inspectionAddress = Some(exampleInspectionAddress),
-          selectedDocumentType = None,
-          supportingEvidences = supportingEvidencesExpanded,
-          bankAccountDetails =
-            if (submitBankAccountDetails)
-              Some(exampleBankAccountDetails)
-            else None,
-          bankAccountType =
-            if (submitBankAccountType) Some(bankAccountType)
-            else None,
-          reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-          modes = JourneyModes(checkYourAnswersChangeMode = true)
-        )
-
-      RejectedGoodsSingleJourney.tryBuildFrom(answers, features)
+      RejectedGoodsSingleJourney.Answers(
+        nonce = Nonce.random,
+        userEoriNumber = userEoriNumber,
+        movementReferenceNumber = Some(mrn),
+        displayDeclaration = Some(displayDeclaration),
+        payeeType = payeeType,
+        eoriNumbersVerification = eoriNumbersVerification,
+        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        basisOfClaim = Some(basisOfClaim),
+        basisOfClaimSpecialCircumstances =
+          if (basisOfClaim === BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
+          else None,
+        methodOfDisposal = Some(methodOfDisposal),
+        detailsOfRejectedGoods = Some("rejected goods details"),
+        correctedAmounts = Some(correctedAmounts),
+        inspectionDate = Some(exampleInspectionDate),
+        inspectionAddress = Some(exampleInspectionAddress),
+        selectedDocumentType = None,
+        supportingEvidences = supportingEvidencesExpanded,
+        bankAccountDetails =
+          if (submitBankAccountDetails)
+            Some(exampleBankAccountDetails)
+          else None,
+        bankAccountType =
+          if (submitBankAccountType) Some(bankAccountType)
+          else None,
+        reimbursementMethod = if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
+        modes = JourneyModes(checkYourAnswersChangeMode = true)
+      )
     }
 
   def buildJourneyFromAnswersGen(
