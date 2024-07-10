@@ -61,14 +61,11 @@ class ChooseRepaymentMethodController @Inject() (
           formWithErrors => (journey, BadRequest(chooseReimbursementMethod(formWithErrors, postAction))),
           repaymentMethod =>
             (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
-              case (Right(updatedJourney), BankAccountTransfer) =>
+              case (Right(updatedJourney), _) =>
                 if (journey.userHasSeenCYAPage && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
                   (updatedJourney, Redirect(checkYourAnswers))
                 else (updatedJourney, Redirect(routes.CheckBankDetailsController.show))
-              case (Right(updatedJourney), _)                   =>
-                if (journey.userHasSeenCYAPage) (updatedJourney, Redirect(checkYourAnswers))
-                else (updatedJourney, Redirect(chooseFileTypeAction))
-              case (Left(errorMessage), _)                      =>
+              case (Left(errorMessage), _)    =>
                 logger.error(s"We failed to choose the repayment method - $errorMessage")
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             }

@@ -199,7 +199,7 @@ class ChooseRepaymentMethodControllerSpec
         }
       }
 
-      "accept Current Month Adjustment and move on to the upload supporting evidence page" in {
+      "accept Current Month Adjustment and move on to the check bank details page" in {
         forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
           whenever(ndrcDetails.isCmaEligible) {
             val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
@@ -215,7 +215,7 @@ class ChooseRepaymentMethodControllerSpec
 
             checkIsRedirect(
               performAction(formKey -> "0"),
-              routes.ChooseFileTypeController.show
+              routes.CheckBankDetailsController.show
             )
           }
         }
