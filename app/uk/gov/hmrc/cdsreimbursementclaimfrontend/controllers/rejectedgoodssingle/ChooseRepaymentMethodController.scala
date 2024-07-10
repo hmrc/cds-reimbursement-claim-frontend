@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseRepaymentMethodMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_repayment_method
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,52 +33,25 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ChooseRepaymentMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  chooseReimbursementMethod: choose_repayment_method
+  val chooseRepaymentMethodPage: choose_repayment_method
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
+    extends RejectedGoodsSingleJourneyBaseController
+    with ChooseRepaymentMethodMixin {
 
-  private val form                 = reimbursementMethodForm("choose-payment-method.rejected-goods.single")
-  private val postAction           = routes.ChooseRepaymentMethodController.submit
-  private val chooseFileTypeAction = routes.ChooseFileTypeController.show
+  override val postAction: Call            = routes.ChooseRepaymentMethodController.submit
+  override def checkBankDetailsRoute: Call = routes.CheckBankDetailsController.show
+
+  override def modifyJourney(
+    journey: RejectedGoodsSingleJourney,
+    method: ReimbursementMethod
+  ): Either[String, RejectedGoodsSingleJourney] =
+    journey.submitReimbursementMethod(method)
+
+  override def resetReimbursementMethod(journey: RejectedGoodsSingleJourney): RejectedGoodsSingleJourney =
+    journey.resetReimbursementMethod()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val filledForm = form.withDefault(journey.answers.reimbursementMethod)
-    Ok(chooseReimbursementMethod(filledForm, postAction)).asFuture
-  }
-
-  def submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => (journey, BadRequest(chooseReimbursementMethod(formWithErrors, postAction))),
-          repaymentMethod =>
-            (journey.submitReimbursementMethod(repaymentMethod), repaymentMethod) match {
-              case (Right(updatedJourney), BankAccountTransfer) =>
-                if (journey.userHasSeenCYAPage && (journey.answers.reimbursementMethod === Some(repaymentMethod)))
-                  (updatedJourney, Redirect(checkYourAnswers))
-                else (updatedJourney, Redirect(routes.CheckBankDetailsController.show))
-              case (Right(updatedJourney), _)                   =>
-                if (journey.userHasSeenCYAPage) (updatedJourney, Redirect(checkYourAnswers))
-                else (updatedJourney, Redirect(chooseFileTypeAction))
-              case (Left(errorMessage), _)                      =>
-                logger.error(s"We failed to choose the repayment method - $errorMessage")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-            }
-        )
-        .asFuture
-    },
-    fastForwardToCYAEnabled = false
-  )
-
-  def reset: Action[AnyContent] = actionReadWriteJourney { _ => journey =>
-    val updatedJourney =
-      if (!journey.isAllSelectedDutiesAreCMAEligible) journey.resetReimbursementMethod()
-      else journey
-    (updatedJourney, Redirect(checkYourAnswers)).asFuture
-  }
 }
