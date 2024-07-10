@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import cats.implicits.catsSyntaxEq
+import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -31,32 +31,22 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-@SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial"))
 class ChooseRepaymentMethodControllerSpec
-    extends ControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with BeforeAndAfterEach {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -66,8 +56,6 @@ class ChooseRepaymentMethodControllerSpec
 
   val controller: ChooseRepaymentMethodController = instanceOf[ChooseRepaymentMethodController]
 
-  private val formKey = "choose-payment-method.rejected-goods.single"
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
@@ -76,73 +64,91 @@ class ChooseRepaymentMethodControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def sessionWithNdrcDetails(ndrcDetails: List[NdrcDetails], displayDeclaration: DisplayDeclaration): SessionData = {
-    val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-    val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
-    val taxCode   = ndrcDetails.map(details => TaxCode(details.taxType))
-    val journey   = RejectedGoodsSingleJourney
-      .empty(displayDeclaration.getDeclarantEori)
-      .submitMovementReferenceNumberAndDeclaration(updatedDd.getMRN, updatedDd)
-      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCode))
-      .getOrFail
-    SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+  def assertPageContent(
+    doc: Document
+  ): Unit = {
+    radioItems(doc) should containOnlyPairsOf(
+      Seq(
+        m("reimbursement-method.cma")           -> "0",
+        m("reimbursement-method.bank-transfer") -> "1"
+      )
+    )
+    hasContinueButton(doc)
   }
 
-  "Choose Payment Method Controller" when {
-    "Show Choose Payment Method page" must {
+  val journeyCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildJourneyFromAnswersGen(
+      buildAnswersGen(
+        allDutiesCmaEligible = true,
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        submitReimbursementMethod = false,
+        reimbursementMethod = None,
+        submitEvidence = false,
+        checkYourAnswersChangeMode = false
+      )
+    )
+
+  val journeyNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildJourneyFromAnswersGen(
+      buildAnswersGen(
+        allDutiesCmaEligible = false,
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        submitReimbursementMethod = false,
+        reimbursementMethod = None,
+        submitEvidence = false,
+        checkYourAnswersChangeMode = false
+      )
+    )
+
+  "Repayment Method Controller" when {
+
+    "Show repayment method page" must {
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
+      "not find the page if RejectedGoods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "show the page on a new journey" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$formKey.title"),
-          doc => {
-            doc.select(s"input[name='$formKey'][checked]").size() shouldBe 0
-            doc.select("form").attr("action")                     shouldBe routes.ChooseRepaymentMethodController.submit.url
-          }
-        )
-      }
-
-      "show the page on a pre-existing journey" in {
-        forAll(completeJourneyCMAEligibleGen) { journey =>
-          val session = SessionData(journey)
-
-          val expectedCheckedKey = journey.answers.reimbursementMethod match {
-            case Some(CurrentMonthAdjustment) => "input[value=0]"
-            case _                            => "input[value=1]"
-          }
-
+      "display the page if all duties are are CMA eligible" in
+        forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$formKey.title"),
-            doc => doc.select(expectedCheckedKey).hasAttr("checked") shouldBe true
+            messageFromMessageKey("reimbursement-method.title"),
+            assertPageContent(_)
           )
         }
-      }
+
+      "redirect to check bank details page if not all duties are CMA eligible" in
+        forAll(journeyNotCMAEligibleGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.CheckBankDetailsController.show
+          )
+        }
     }
 
-    "Submit Choose Payment Method page" must {
+    "Submit Repayment Method" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -150,98 +156,82 @@ class ChooseRepaymentMethodControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Repayment Method" in {
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$formKey.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$formKey.error.required"),
-          BAD_REQUEST
-        )
-      }
-
-      "reject an unknown Repayment Method" in {
-        forAll(genStringWithMaxSizeOfN(5)) { answer =>
-          whenever(answer =!= "0" && answer =!= "1") {
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-            }
-
-            checkPageIsDisplayed(
-              performAction(formKey -> answer),
-              messageFromMessageKey(s"$formKey.title"),
-              doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$formKey.error.required"),
-              BAD_REQUEST
-            )
+      "accept selection of Current Method Adjustment" in
+        forAll(journeyCMAEligibleGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(
+              SessionData(
+                journey
+                  .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
+                  .getOrFail
+              )
+            )(Right(()))
           }
+
+          checkIsRedirect(
+            performAction("reimbursement-method" -> "0"),
+            routes.CheckBankDetailsController.show
+          )
         }
-      }
 
-      "reject any repayment method and show ineligible page" in {
-        forAll { (ndrcDetails: NdrcDetails) =>
-          whenever(!ndrcDetails.isCmaEligible) {
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-            }
-
-            checkIsRedirect(
-              performAction(formKey -> "0"),
-              baseRoutes.IneligibleController.ineligible()
-            )
+      "accept selection of Bank Account Transfer" in
+        forAll(journeyCMAEligibleGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(
+              SessionData(
+                journey
+                  .submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer)
+                  .getOrFail
+              )
+            )(Right(()))
           }
+
+          checkIsRedirect(
+            performAction("reimbursement-method" -> "1"),
+            routes.CheckBankDetailsController.show
+          )
         }
-      }
 
-      "accept Current Month Adjustment and move on to the check bank details page" in {
-        forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails.isCmaEligible) {
-            val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-            val updatedJourney =
-              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(CurrentMonthAdjustment).getOrFail
-            val updatedSession = SessionData(updatedJourney)
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(formKey -> "0"),
-              routes.CheckBankDetailsController.show
-            )
+      "reject invalid selection" in
+        forAll(journeyCMAEligibleGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
           }
+
+          checkPageIsDisplayed(
+            performAction("reimbursement-method" -> "2"),
+            messageFromMessageKey("reimbursement-method.title"),
+            doc => {
+              assertPageContent(doc)
+              assertShowsInputError(doc, Some(m("reimbursement-method.error.invalid")))
+            },
+            expectedStatus = BAD_REQUEST
+          )
         }
-      }
 
-      "accept Bank Transfer and move on to the check these bank details are correct page" in {
-        forAll { (ndrcDetails: NdrcDetails, displayDeclaration: DisplayDeclaration) =>
-          whenever(ndrcDetails.isCmaEligible) {
-            val session        = sessionWithNdrcDetails(List(ndrcDetails), displayDeclaration)
-            val updatedJourney =
-              session.rejectedGoodsSingleJourney.get.submitReimbursementMethod(BankAccountTransfer).getOrFail
-            val updatedSession = SessionData(updatedJourney)
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-              mockStoreSession(updatedSession)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(formKey -> "1"),
-              routes.CheckBankDetailsController.show
-            )
+      "reject empty selection" in
+        forAll(journeyCMAEligibleGen) { journey =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
           }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("reimbursement-method.title"),
+            doc => {
+              assertPageContent(doc)
+              assertShowsInputError(doc, Some(m("reimbursement-method.error.required")))
+            },
+            expectedStatus = BAD_REQUEST
+          )
         }
-      }
     }
+
   }
 }
