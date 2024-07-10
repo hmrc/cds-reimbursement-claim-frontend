@@ -16,14 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.implicits.catsSyntaxEq
 import com.github.arturopala.validator.Validator.Validate
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseRepaymentMethodMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
 import javax.inject.Inject
@@ -38,7 +44,8 @@ class ChooseRepaymentMethodController @Inject() (
     extends RejectedGoodsSingleJourneyBaseController
     with ChooseRepaymentMethodMixin {
 
-  override val postAction: Call            = routes.ChooseRepaymentMethodController.submit
+  override val postAction: Call = routes.ChooseRepaymentMethodController.submit
+
   override def checkBankDetailsRoute: Call = routes.CheckBankDetailsController.show
 
   override def modifyJourney(
