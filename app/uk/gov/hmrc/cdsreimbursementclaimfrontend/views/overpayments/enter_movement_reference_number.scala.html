@@ -64,7 +64,7 @@
         @if(isFirst) {
             @inputText(
                 form = form,
-                id = key,
+                id = "enter-movement-reference-number",
                 name = "enter-movement-reference-number",
                 label = combine(key, subKey, "enter-mrn.label").head,
                 isPageHeading = false,
@@ -74,7 +74,7 @@
         } else {
             @inputText(
                 form = form,
-                id = key,
+                id = "enter-movement-reference-number",
                 name = "enter-movement-reference-number",
                 label = s"$key.enter-mrn.label",
                 isPageHeading = false,
