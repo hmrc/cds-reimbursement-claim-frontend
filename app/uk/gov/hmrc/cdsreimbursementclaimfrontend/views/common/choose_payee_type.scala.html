@@ -25,52 +25,61 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    govukRadios: GovukRadios
 )
 
-@(form: Form[PayeeType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[PayeeType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)p
 
 @key = @{"choose-payee-type"}
 @title = @{messages(s"choose-payee-type.title")}
 
-@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}proo
+
+@hintHtml = @{
+    dropdownDetails(
+        summary = s"choose-payee-type.details.title",
+        html(
+            subHeading(Html(messages(s"choose-payee-type.details.importer")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"choose-payee-type.details.p1"))),
+            subHeading(Html(messages(s"choose-payee-type.details.declarant")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"choose-payee-type.details.p2"))),
+            subHeading(Html(messages(s"choose-payee-type.details.representative")), classes = "govuk-heading-s"),
+            paragraph(Html(messages(s"choose-payee-type.details.p3")))
+        )
+    )
+}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), classes="govuk-heading-xl cds-wrap-content")
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @dropdownDetails(
-            summary = s"choose-payee-type.details.title",
-            html(
-                subHeading(Html(messages(s"choose-payee-type.details.importer")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"choose-payee-type.details.p1"))),
-                subHeading(Html(messages(s"choose-payee-type.details.declarant")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"choose-payee-type.details.p2"))),
-                subHeading(Html(messages(s"choose-payee-type.details.representative")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"choose-payee-type.details.p3")))
-            )
-        )
-
-        @radios(
-            form = form,
+        @govukRadios(Radios(
+            fieldset = Some(Fieldset(
+              legend = Some(Legend(
+                content = Text(title),
+                classes = "govuk-fieldset__legend--xl cds-wrap-content govuk-!-margin-bottom-8",
+                isPageHeading = true
+              ))
+            )),
+            hint = Some(Hint(
+              content = HtmlContent(hintHtml)
+            )),
             name = key,
-            classes = "",
-            paddingClasses = "govuk-!-margin-bottom-8",
-            inline = false,
             items = Seq(
                 RadioItem(
                     id = Some(s"choose-payee-type-importer"),
@@ -84,8 +93,9 @@
                     content = Text(messages(s"choose-payee-type.radio.declarant")),
                     checked = form.value.contains(PayeeType.Declarant)
                 )
-            )
-        )
+            ),
+            classes = ""
+          ))
 
         @submitButton("button.continue")
     }
