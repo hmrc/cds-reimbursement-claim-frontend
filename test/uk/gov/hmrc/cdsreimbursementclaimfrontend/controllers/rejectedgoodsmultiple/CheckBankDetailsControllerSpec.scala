@@ -203,7 +203,7 @@ class CheckBankDetailsControllerSpec
 
     "Redirect when journey is subsidy only" in {
       forAll(
-        incompleteJourneyWithCompleteClaimsGen(2, true)
+        incompleteJourneyWithCompleteClaimsGen(n = 2, subsidyOnly = true)
       ) { case (journey, _) =>
         featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
         featureSwitch.disable(Feature.BlockSubsidies)

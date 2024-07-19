@@ -129,7 +129,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /accountExists: [error.path.missing]; /accountNumberIsWellFormatted: [error.path.missing]"
+            "could not parse http response JSON: /accountNumberIsWellFormatted: [error.path.missing]"
           )
         )
       )
@@ -140,7 +140,7 @@ class BankAccountReputationConnectorSpec
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
-            "could not parse http response JSON: /accountExists: [error.path.missing]; /accountNumberIsWellFormatted: [error.path.missing]"
+            "could not parse http response JSON: /accountNumberIsWellFormatted: [error.path.missing]"
           )
         )
       )

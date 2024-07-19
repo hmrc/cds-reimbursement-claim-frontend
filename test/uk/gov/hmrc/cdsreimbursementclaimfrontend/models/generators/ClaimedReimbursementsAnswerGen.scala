@@ -43,7 +43,7 @@ object ClaimedReimbursementsAnswerGen {
         UUID.randomUUID(),
         ClaimedReimbursement.PaymentMethod.`001`,
         UUID.randomUUID().toString(),
-        true
+        isFilled = true
       )
     )
 

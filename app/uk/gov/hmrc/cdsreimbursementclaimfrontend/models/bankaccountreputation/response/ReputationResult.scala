@@ -26,16 +26,16 @@ sealed trait ReputationResult {
 
 final case class BusinessCompleteResponse(
   accountNumberIsWellFormatted: ReputationResponse,
-  accountExists: ReputationResponse,
+  accountExists: Option[ReputationResponse] = None,
   accountName: Option[String] = None,
   nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
     BankAccountReputation(
       accountNumberIsWellFormatted,
-      Some(accountExists),
+      accountExists,
       None,
-      accountName.map(_.take(40)),
+      accountName,
       nameMatches
     )
 }
@@ -46,16 +46,16 @@ object BusinessCompleteResponse {
 
 final case class PersonalCompleteResponse(
   accountNumberIsWellFormatted: ReputationResponse,
-  accountExists: ReputationResponse,
+  accountExists: Option[ReputationResponse] = None,
   accountName: Option[String] = None,
   nameMatches: Option[ReputationResponse] = None
 ) extends ReputationResult {
   def toCommonResponse(): BankAccountReputation =
     BankAccountReputation(
       accountNumberIsWellFormatted,
-      Some(accountExists),
+      accountExists,
       None,
-      accountName.map(_.take(40)),
+      accountName,
       nameMatches
     )
 }

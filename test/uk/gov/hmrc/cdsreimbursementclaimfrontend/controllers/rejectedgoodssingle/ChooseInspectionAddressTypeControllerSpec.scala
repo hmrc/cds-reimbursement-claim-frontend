@@ -306,7 +306,10 @@ class ChooseInspectionAddressTypeControllerSpec
             RejectedGoodsSingleJourney
               .empty(
                 updatedDeclaration.getDeclarantEori,
-                features = Some(RejectedGoodsSingleJourney.Features(true, true))
+                features = Some(
+                  RejectedGoodsSingleJourney
+                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+                )
               )
               .submitMovementReferenceNumberAndDeclaration(
                 updatedDeclaration.getMRN,

@@ -402,11 +402,11 @@ class EnterClaimControllerSpec
           }
 
           val expectedNextRoute: Call = next match {
-            case Some(Left(depositId)) =>
-              routes.ConfirmFullRepaymentController.show(depositId)
+            case Some(Left(id)) =>
+              routes.ConfirmFullRepaymentController.show(id)
 
-            case Some(Right((depositId, taxCode))) =>
-              routes.EnterClaimController.show(depositId, taxCode)
+            case Some(Right((id, code))) =>
+              routes.EnterClaimController.show(id, code)
 
             case None =>
               routes.CheckClaimDetailsController.show

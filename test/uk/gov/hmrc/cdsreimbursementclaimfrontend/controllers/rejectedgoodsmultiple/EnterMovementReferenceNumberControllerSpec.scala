@@ -169,7 +169,7 @@ class EnterMovementReferenceNumberControllerSpec
       "display the page on a pre-existing subsidies journey" in forAll(
         buildCompleteJourneyGen(
           generateSubsidyPayments = GenerateSubsidyPayments.All,
-          features = Some(Features(true, true)),
+          features = Some(Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)),
           submitBankAccountDetails = false,
           submitBankAccountType = false
         )
@@ -439,7 +439,13 @@ class EnterMovementReferenceNumberControllerSpec
         val session: SessionData =
           SessionData(
             RejectedGoodsMultipleJourney
-              .empty(exampleEori, features = Some(RejectedGoodsMultipleJourney.Features(true, false)))
+              .empty(
+                exampleEori,
+                features = Some(
+                  RejectedGoodsMultipleJourney
+                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+                )
+              )
           )
 
         val displayDeclaration =
@@ -467,7 +473,9 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "reject a non-first MRN with subsidies payment method" in forAll(
-        journeyWithMrnAndDeclarationWithFeatures(RejectedGoodsMultipleJourney.Features(true, false)),
+        journeyWithMrnAndDeclarationWithFeatures(
+          RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+        ),
         genMRN
       ) { (journey, mrn: MRN) =>
         featureSwitch.enable(Feature.BlockSubsidies)

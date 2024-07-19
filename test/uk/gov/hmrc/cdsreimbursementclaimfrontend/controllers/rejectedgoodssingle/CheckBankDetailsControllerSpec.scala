@@ -76,21 +76,6 @@ class CheckBankDetailsControllerSpec
     SessionData(rejectedGoodsSingleJourney)
   }
 
-  private def sessionWithBankDetailsNotNeeded(): SessionData = {
-    val displayDeclaration: DisplayDeclaration =
-      displayDeclarationCMAEligibleGen.sample.get
-
-    val rejectedGoodsSingleJourney: RejectedGoodsSingleJourney =
-      RejectedGoodsSingleJourney
-        .empty(displayDeclaration.getDeclarantEori)
-        .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(displayDeclaration.getAvailableTaxCodes.take(1)))
-        .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-        .getOrFail
-
-    SessionData(rejectedGoodsSingleJourney)
-  }
-
   private def sessionWithBankDetailsStored(
     session: SessionData,
     bankAccountDetails: BankAccountDetails

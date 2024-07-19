@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -33,7 +32,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
@@ -66,9 +64,6 @@ class EnterBankAccountDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with MockBankAccountReputationService {
-
-  private def getInputBoxValue(doc: Document, inputBoxSubKey: String): Option[String] =
-    selectedInputBox(doc, s"enter-bank-account-details.$inputBoxSubKey")
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -195,14 +190,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -220,14 +210,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-exists-error"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -246,11 +231,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -268,18 +251,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-exists-error"
-              )
-              getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
-              getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
-              getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -298,18 +272,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              )
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -329,16 +294,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -358,16 +316,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -415,14 +366,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -440,14 +386,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-exists-error"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -466,16 +407,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -494,18 +428,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-exists-error"
-              )
-              getInputBoxValue(doc, "account-name")   shouldBe Some(bankAccountDetails.accountName.value)
-              getInputBoxValue(doc, "sort-code")      shouldBe Some(bankAccountDetails.sortCode.value)
-              getInputBoxValue(doc, "account-number") shouldBe Some(bankAccountDetails.accountNumber.value)
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -524,18 +449,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              )
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -555,16 +471,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -584,16 +493,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                    shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed")
-              getInputBoxValue(doc, "account-name")   shouldBe Some("")
-              getInputBoxValue(doc, "sort-code")      shouldBe Some("")
-              getInputBoxValue(doc, "account-number") shouldBe Some("")
-            },
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -612,14 +514,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
       }
@@ -629,36 +526,53 @@ class EnterBankAccountDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-//      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
-//        (bankDetails, accountExists) =>
-//          val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-//          val requiredSession = SessionData(initialJourney)
-//
-//          val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-//          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
-//          val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
-//            accountNumberWithSortCodeIsValid = Yes,
-//            accountExists = Some(accountExists),
-//            otherError = None
-//          )
-//
-//          inSequence {
-//            mockAuthWithNoRetrievals()
-//            mockGetSession(requiredSession)
-//            mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
-//            mockStoreSession(updatedSession)(Right(()))
-//          }
-//
-//          checkIsRedirect(
-//            performAction(
-//              "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-//              "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-//              "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
-//            ),
-//            routes.CheckBankDetailsController.show
-//          )
-//
-//      }
+      "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
+        (bankDetails, accountExists) =>
+          val initialJourney =
+            RejectedGoodsMultipleJourney
+              .empty(exampleDisplayDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumberAndDeclaration(
+                exampleMrn,
+                exampleDisplayDeclaration.withDeclarationId(exampleMrn.value)
+              )
+              .flatMap(
+                _.submitMovementReferenceNumberAndDeclaration(
+                  1,
+                  anotherExampleMrn,
+                  exampleDisplayDeclaration.withDeclarationId(anotherExampleMrn.value)
+                )
+              )
+              .flatMap(_.submitBankAccountType(BankAccountType.Personal))
+              .getOrFail
+
+          val requiredSession = SessionData(initialJourney)
+
+          val updatedJourney             =
+            initialJourney.submitBankAccountDetails(bankDetails.withExistenceVerified(Some(accountExists)))
+          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
+          val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
+            accountNumberWithSortCodeIsValid = Yes,
+            accountExists = Some(accountExists),
+            otherError = None
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(requiredSession)
+            mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(
+              "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
+              "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
+              "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
+            ),
+            routes.CheckBankDetailsController.show
+          )
+
+      }
 
       "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
         val requiredSession = SessionData(journeyWithMrnAndDeclaration)
@@ -701,7 +615,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          commonRoutes.BankAccountVerificationUnavailable.show
+          routes.CheckBankDetailsController.showWarning
         )
 
       }

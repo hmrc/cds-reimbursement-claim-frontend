@@ -138,7 +138,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     name: Option[Name],
     request: MessagesRequest[A]
   )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
-    hasEoriEnrolment(enrolments, request) map {
+    hasEoriEnrolment(enrolments) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
         if (
@@ -153,8 +153,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     }
 
   private def hasEoriEnrolment[A](
-    enrolments: Enrolments,
-    request: MessagesRequest[A]
+    enrolments: Enrolments
   ): Future[Either[Result, Option[Eori]]] =
     enrolments.getEnrolment(EoriEnrolment.key) match {
       case Some(eori) =>

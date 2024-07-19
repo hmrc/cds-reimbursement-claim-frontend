@@ -205,11 +205,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    submitReimbursementMethod: Boolean = true,
-    submitEvidence: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    checkYourAnswersChangeMode: Boolean = true,
     features: Option[RejectedGoodsSingleJourney.Features] = None,
     payeeType: Option[PayeeType] = None
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
@@ -224,12 +221,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       submitContactAddress,
       submitBankAccountDetails,
       submitBankAccountType,
-      submitReimbursementMethod,
-      submitEvidence,
       reimbursementMethod,
       generateSubsidyPayments,
-      checkYourAnswersChangeMode,
-      features,
       payeeType
     ).map(answers =>
       RejectedGoodsSingleJourney
@@ -247,12 +240,8 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    submitReimbursementMethod: Boolean = true,
-    submitEvidence: Boolean = true,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    checkYourAnswersChangeMode: Boolean = true,
-    features: Option[RejectedGoodsSingleJourney.Features] = None,
     payeeType: Option[PayeeType] = None
   ): Gen[RejectedGoodsSingleJourney.Answers] =
     for {

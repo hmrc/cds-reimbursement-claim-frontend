@@ -23,6 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
+import org.scalamock.function.FunctionAdapter2
+import munit.diff.Diff
+import play.api.libs.json.Json
+import scala.io.AnsiColor._
 
 import scala.concurrent.Future
 
@@ -50,12 +54,23 @@ trait SessionSupport { this: MockFactory =>
       .expects(*, *)
       .never()
 
+  def sessionMatcher(expectedSession: SessionData) =
+    new FunctionAdapter2[SessionData, HeaderCarrier, Boolean]({ case (actualSession, _) =>
+      if (actualSession !== expectedSession) {
+        val s1   = Json.prettyPrint(Json.toJson(expectedSession))
+        val s2   = Json.prettyPrint(Json.toJson(actualSession))
+        val diff = new Diff(s1, s2)
+        println(diff.createReport(s"$RED_B${WHITE}Expected session (red) is not same as actual one (gray) $RESET"))
+        false
+      } else true
+    })
+
   def mockStoreSession(
     session: SessionData
   )(result: Either[Error, Unit]): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
     (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
-      .expects(session, *)
+      .expects(sessionMatcher(session))
       .noMoreThanOnce()
       .returning(Future.successful(result))
 

@@ -86,7 +86,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     listOfExactlyN(n, mrnWithDisplayDeclarationSubsidyOnlyGen).map { data =>
       val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
       (
-        journeyWithMrnAndDeclarationWithFeatures(RejectedGoodsMultipleJourney.Features(false, true))
+        journeyWithMrnAndDeclarationWithFeatures(
+          RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+        )
           .flatMapEach(dataWithIndex, submitData)
           .getOrFail,
         data.map(_._1)
@@ -222,7 +224,8 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
       submitBankAccountType = false,
-      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+      features =
+        Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
     )
 
   val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
@@ -232,7 +235,8 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
       submitBankAccountType = false,
-      features = Some(RejectedGoodsMultipleJourney.Features(false, true))
+      features =
+        Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
     )
 
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for {

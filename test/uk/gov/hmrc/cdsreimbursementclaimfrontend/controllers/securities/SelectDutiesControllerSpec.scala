@@ -247,7 +247,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId, Seq.empty),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, doc, journey, true)
+              doc => validateSelectDutiesPage(securityId = securityId, doc = doc, journey = journey, isError = true)
             )
           }
         }

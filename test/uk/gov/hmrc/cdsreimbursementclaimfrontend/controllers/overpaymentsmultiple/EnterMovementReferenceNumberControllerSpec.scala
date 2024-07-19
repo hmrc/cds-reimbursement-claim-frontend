@@ -408,7 +408,13 @@ class EnterMovementReferenceNumberControllerSpec
         val session = SessionData.empty.copy(
           overpaymentsMultipleJourney = Some(
             OverpaymentsMultipleJourney
-              .empty(exampleEori, features = Some(OverpaymentsMultipleJourney.Features(true, false)))
+              .empty(
+                exampleEori,
+                features = Some(
+                  OverpaymentsMultipleJourney
+                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+                )
+              )
           )
         )
 
@@ -437,7 +443,9 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "reject a non-first MRN with subsidies payment method" in forAll(
-        journeyWithMrnAndDeclarationWithFeatures(OverpaymentsMultipleJourney.Features(true, false)),
+        journeyWithMrnAndDeclarationWithFeatures(
+          OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+        ),
         genMRN
       ) { (journey, mrn: MRN) =>
         val displayDeclaration =

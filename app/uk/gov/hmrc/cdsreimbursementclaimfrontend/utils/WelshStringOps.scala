@@ -65,12 +65,12 @@ object WelshStringOps {
 
   private val welshCharacters = WELSH_ALPHABET.filter(s => s._1.length === 2)
 
-  implicit class WelshStringOps(private val s: String) extends AnyVal {
+  implicit class WelshStringOps(private val string: String) extends AnyVal {
 
     def isBeforeInWelsh(other: String): Boolean =
-      if (other === s) false
+      if (other === string) false
       else {
-        val listOfWeights        = toCharacterValues(clean(s), List.empty)
+        val listOfWeights        = toCharacterValues(clean(string), List.empty)
         val compareListOfWeights = toCharacterValues(clean(other), List.empty)
         isBefore(listOfWeights, compareListOfWeights)
       }
