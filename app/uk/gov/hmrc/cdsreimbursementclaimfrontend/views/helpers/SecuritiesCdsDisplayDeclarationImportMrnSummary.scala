@@ -20,6 +20,7 @@ import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper.combine
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -49,7 +50,15 @@ object SecuritiesCdsDisplayDeclarationImportMrnSummary {
             )
           )
         )
-      ).some
+      ).some,
+      declaration.getMaybeLRN match {
+        case Some(lrn) =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.securities.lrn-label"))),
+            value = Value(Text(lrn))
+          ).some
+        case _         => None
+      }
     ).flatMap(_.toList)
   )
 }
