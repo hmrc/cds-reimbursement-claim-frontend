@@ -73,6 +73,8 @@ final case class DisplayDeclaration(
 
   def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
+  def getMaybeLRN: Option[String] = displayResponseDetail.declarantReferenceNumber
+
   def getReasonForSecurity: Option[ReasonForSecurity] =
     displayResponseDetail.securityReason.flatMap(ReasonForSecurity.fromACC14Code)
 
