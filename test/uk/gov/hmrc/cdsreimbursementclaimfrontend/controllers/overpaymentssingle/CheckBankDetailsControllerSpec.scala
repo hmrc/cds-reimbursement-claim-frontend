@@ -84,21 +84,6 @@ class CheckBankDetailsControllerSpec
     SessionData(overpaymentsSingleJourney)
   }
 
-  private def sessionWithBankDetailsNotNeeded(): SessionData = {
-    val displayDeclaration: DisplayDeclaration =
-      displayDeclarationCMAEligibleGen.sample.get
-
-    val overpaymentsSingleJourney: OverpaymentsSingleJourney =
-      OverpaymentsSingleJourney
-        .empty(displayDeclaration.getDeclarantEori)
-        .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(displayDeclaration.getAvailableTaxCodes.take(1)))
-        .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
-        .getOrFail
-
-    SessionData(overpaymentsSingleJourney)
-  }
-
   private def sessionWithBankDetailsStored(
     session: SessionData,
     bankAccountDetails: BankAccountDetails

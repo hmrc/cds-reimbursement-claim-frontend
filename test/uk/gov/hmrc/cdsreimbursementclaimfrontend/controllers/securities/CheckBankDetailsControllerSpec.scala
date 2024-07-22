@@ -99,7 +99,8 @@ class CheckBankDetailsControllerSpec
 
       "Redirect when BankDetails is empty and required" in {
         val bankDetails = BankDetails(None, None)
-        val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
+        val journey     =
+          initialJourneyWithBankDetailsinACC14(maybeBankDetails = Some(bankDetails), bankDetailsRequired = true)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -112,7 +113,7 @@ class CheckBankDetailsControllerSpec
       }
 
       "Redirect when BankDetails is None and required" in {
-        val journey = initialJourneyWithBankDetailsinACC14(None, true)
+        val journey = initialJourneyWithBankDetailsinACC14(maybeBankDetails = None, bankDetailsRequired = true)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -124,7 +125,7 @@ class CheckBankDetailsControllerSpec
       }
 
       "Redirect when BankDetails is None and not required" in {
-        val journey = initialJourneyWithBankDetailsinACC14(None, false)
+        val journey = initialJourneyWithBankDetailsinACC14(maybeBankDetails = None, bankDetailsRequired = false)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -138,7 +139,8 @@ class CheckBankDetailsControllerSpec
       "Ok when BankDetails has consigneeBankDetails" in forAll(genBankAccountDetails) {
         consigneeBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(Some(consigneeBankDetails), None)
-          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true)
+          val journey     =
+            initialJourneyWithBankDetailsinACC14(maybeBankDetails = Some(bankDetails), bankDetailsRequired = true)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -154,7 +156,11 @@ class CheckBankDetailsControllerSpec
       "Ok when BankDetails has declarantBankDetails" in forAll(genBankAccountDetails) {
         declarantBankDetails: BankAccountDetails =>
           val bankDetails = BankDetails(None, Some(declarantBankDetails))
-          val journey     = initialJourneyWithBankDetailsinACC14(Some(bankDetails), true, true)
+          val journey     = initialJourneyWithBankDetailsinACC14(
+            maybeBankDetails = Some(bankDetails),
+            bankDetailsRequired = true,
+            declarantIsPayee = true
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()

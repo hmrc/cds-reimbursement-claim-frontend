@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
-import cats.implicits._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.getDescription
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.selectDutiesKey

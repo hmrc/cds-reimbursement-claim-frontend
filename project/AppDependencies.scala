@@ -27,6 +27,7 @@ object AppDependencies {
     "com.github.chocpanda"   %% "scalacheck-magnolia"     % "0.5.1"              % Test,
     "com.vladsch.flexmark"    % "flexmark-all"            % "0.64.8"             % Test,
     "org.pegdown"             % "pegdown"                 % "1.6.0"              % Test,
+    "org.scalameta"          %% "munit-diff"              % "1.0.0"              % Test,
     "uk.gov.hmrc.mongo"      %% "hmrc-mongo-test-play-30" % hmrcMongoPlayVersion % Test
   )
 

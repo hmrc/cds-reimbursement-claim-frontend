@@ -82,10 +82,7 @@ class ChooseRepaymentMethodControllerSpec
         allDutiesCmaEligible = true,
         submitBankAccountDetails = false,
         submitBankAccountType = false,
-        submitReimbursementMethod = false,
-        reimbursementMethod = None,
-        submitEvidence = false,
-        checkYourAnswersChangeMode = false
+        reimbursementMethod = None
       )
     )
 
@@ -95,10 +92,7 @@ class ChooseRepaymentMethodControllerSpec
         allDutiesCmaEligible = false,
         submitBankAccountDetails = false,
         submitBankAccountType = false,
-        submitReimbursementMethod = false,
-        reimbursementMethod = None,
-        submitEvidence = false,
-        checkYourAnswersChangeMode = false
+        reimbursementMethod = None
       )
     )
 

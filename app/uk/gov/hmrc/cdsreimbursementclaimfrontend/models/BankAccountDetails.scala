@@ -50,14 +50,17 @@ final case class BankAccountDetails(
     accountNameOpt: Option[String]
   ): BankAccountDetails =
     (nameMatchesOpt, accountNameOpt) match {
-      case (Some(ReputationResponse.Partial), Some(accountName)) =>
-        this.copy(accountName = AccountName(accountName))
-      case _                                                     =>
+      case (Some(ReputationResponse.Partial), Some(name)) =>
+        this.copy(accountName = AccountName(name))
+      case _                                              =>
         this
     }
 
   def withExistenceVerified(existenceVerified: Boolean): BankAccountDetails =
     this.copy(existenceVerified = existenceVerified)
+
+  def withExistenceVerified(accountExists: Option[ReputationResponse]): BankAccountDetails =
+    this.copy(existenceVerified = accountExists.contains(ReputationResponse.Yes))
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[BankAccountDetails]): BankAccountDetails =

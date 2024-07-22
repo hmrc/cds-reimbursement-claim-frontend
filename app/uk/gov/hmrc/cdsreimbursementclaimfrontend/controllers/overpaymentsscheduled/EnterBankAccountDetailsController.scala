@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
@@ -50,7 +49,7 @@ class EnterBankAccountDetailsController @Inject() (
 
 object EnterBankAccountDetailsController {
   val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
-    errorPath = commonRoutes.BankAccountVerificationUnavailable.show,
+    validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
     successPath = routes.CheckBankDetailsController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit,

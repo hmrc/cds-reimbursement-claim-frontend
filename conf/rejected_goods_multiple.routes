@@ -65,6 +65,9 @@ POST         /rejected-goods/multiple/choose-payee-type                         
 GET          /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.show
 POST         /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.submit
 
+GET          /rejected-goods/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.showWarning
+POST         /rejected-goods/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.submitWarning
+
 GET          /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.show
 POST         /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.submit
 

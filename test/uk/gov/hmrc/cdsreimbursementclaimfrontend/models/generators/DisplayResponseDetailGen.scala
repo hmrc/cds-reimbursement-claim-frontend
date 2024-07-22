@@ -33,8 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
-import java.time.format.DateTimeFormatter
-
 object DisplayResponseDetailGen {
 
   lazy val genDeclarantDetails: Gen[DeclarantDetails] =

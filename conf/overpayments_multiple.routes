@@ -38,6 +38,9 @@ POST        /overpayments/multiple/choose-bank-account-type                     
 GET         /overpayments/multiple/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckBankDetailsController.show
 POST        /overpayments/multiple/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckBankDetailsController.submit
 
+GET         /overpayments/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckBankDetailsController.showWarning
+POST        /overpayments/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckBankDetailsController.submitWarning
+
 GET         /overpayments/multiple/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterBankAccountDetailsController.show
 POST        /overpayments/multiple/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterBankAccountDetailsController.submit
 

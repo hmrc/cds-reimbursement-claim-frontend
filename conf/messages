@@ -26,6 +26,11 @@ bank-details.warning=We have been unable to check the details of this bank accou
 bank-details.yes=Yes
 bank-details.error.required=Select yes to continue with this bank account
 
+bank-details.warning.title=These bank details could not be verified
+bank-details.warning.inset=Confirm the bank account details are correct to continue.
+bank-details.warning.are-you-sure=Do you want to continue with these bank details?
+bank-details.warning.no=No, I want to provide new bank details
+
 bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 bank-service-unavailable.title=Sorry, the service is unavailable
 

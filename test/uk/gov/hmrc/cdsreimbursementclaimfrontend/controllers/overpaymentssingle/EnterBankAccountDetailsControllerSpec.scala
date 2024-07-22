@@ -32,7 +32,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
@@ -205,14 +204,9 @@ class EnterBankAccountDetailsControllerSpec
               mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
             )
 
-            checkPageIsDisplayed(
+            checkIsRedirect(
               validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-              messageFromMessageKey(s"$messagesKey.title"),
-              doc =>
-                getErrorSummary(doc) shouldBe messageFromMessageKey(
-                  "enter-bank-account-details.error.account-does-not-exist"
-                ),
-              BAD_REQUEST
+              routes.CheckBankDetailsController.showWarning
             )
           }
 
@@ -231,14 +225,9 @@ class EnterBankAccountDetailsControllerSpec
               mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
             )
 
-            checkPageIsDisplayed(
+            checkIsRedirect(
               validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-              messageFromMessageKey(s"$messagesKey.title"),
-              doc =>
-                getErrorSummary(doc) shouldBe messageFromMessageKey(
-                  "enter-bank-account-details.error.account-exists-error"
-                ),
-              BAD_REQUEST
+              routes.CheckBankDetailsController.showWarning
             )
           }
 
@@ -257,11 +246,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -281,12 +268,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -306,12 +290,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -330,14 +311,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Personal), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -380,14 +356,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -405,14 +376,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-exists-error"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -431,11 +397,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-no"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -455,12 +419,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey("enter-bank-account-details.error.moc-check-failed"),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
 
@@ -479,14 +440,9 @@ class EnterBankAccountDetailsControllerSpec
             mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
           )
 
-          checkPageIsDisplayed(
+          checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-bank-account-details.error.account-does-not-exist"
-              ),
-            BAD_REQUEST
+            routes.CheckBankDetailsController.showWarning
           )
         }
       }
@@ -577,7 +533,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          commonRoutes.BankAccountVerificationUnavailable.show
+          routes.CheckBankDetailsController.showWarning
         )
 
       }

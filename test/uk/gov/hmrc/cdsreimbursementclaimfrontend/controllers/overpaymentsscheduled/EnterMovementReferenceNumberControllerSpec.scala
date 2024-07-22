@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -272,7 +271,13 @@ class EnterMovementReferenceNumberControllerSpec
         val session = SessionData.empty.copy(
           overpaymentsScheduledJourney = Some(
             OverpaymentsScheduledJourney
-              .empty(exampleEori, features = Some(OverpaymentsScheduledJourney.Features(true, false)))
+              .empty(
+                exampleEori,
+                features = Some(
+                  OverpaymentsScheduledJourney
+                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+                )
+              )
           )
         )
 

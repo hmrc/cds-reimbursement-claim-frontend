@@ -163,7 +163,11 @@ class CheckMovementReferenceNumbersControllerSpec
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
           val journey = (for {
-            j1 <- addAcc14(session.rejectedGoodsMultipleJourney.get, firstMrn, true)
+            j1 <- addAcc14(
+                    journey = session.rejectedGoodsMultipleJourney.get,
+                    acc14Declaration = firstMrn,
+                    submitEORIs = true
+                  )
             j2 <- addAcc14(j1, secondMrn)
           } yield j2).getOrFail
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
@@ -194,7 +198,11 @@ class CheckMovementReferenceNumbersControllerSpec
       "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val firstMrnJourney =
-            addAcc14(session.rejectedGoodsMultipleJourney.get, acc14Declarations.head, true).getOrFail
+            addAcc14(
+              journey = session.rejectedGoodsMultipleJourney.get,
+              acc14Declaration = acc14Declarations.head,
+              submitEORIs = true
+            ).getOrFail
           val journey         = acc14Declarations.tail.foldLeft(firstMrnJourney) { case (journey, declaration) =>
             addAcc14(journey, declaration).getOrFail
           }

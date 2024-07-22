@@ -211,7 +211,7 @@ class ChooseReasonForSecurityControllerSpec
               mockAuthWithNoRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-              mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
               mockStoreSession(updatedJourney)(Right(()))
             }
 
@@ -257,7 +257,7 @@ class ChooseReasonForSecurityControllerSpec
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
-              mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
               mockStoreSession(updatedJourney)(Right(()))
             }
 
@@ -423,7 +423,7 @@ class ChooseReasonForSecurityControllerSpec
           val updatedJourney = SessionData(
             initialJourney
               .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay = false))
               .getOrFail
           )
 
@@ -431,7 +431,7 @@ class ChooseReasonForSecurityControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
-            mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
             mockStoreSession(updatedJourney)(Right(()))
           }
 
@@ -470,7 +470,7 @@ class ChooseReasonForSecurityControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
-            mockGetIsDuplicateClaim(Right(ExistingClaim(false)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
             mockStoreSession(updatedJourney)(Right(()))
           }
 
@@ -531,7 +531,7 @@ class ChooseReasonForSecurityControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-            mockGetIsDuplicateClaim(Right(ExistingClaim(true)))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
             mockStoreSession(updatedJourney)(Right(()))
           }
 

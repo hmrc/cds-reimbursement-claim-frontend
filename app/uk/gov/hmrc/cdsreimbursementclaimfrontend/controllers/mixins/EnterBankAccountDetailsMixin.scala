@@ -28,14 +28,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Error => ReputationResponseError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
@@ -43,7 +40,7 @@ import scala.concurrent.Future
 
 object EnterBankAccountDetailsMixin {
   final case class RoutesPack(
-    errorPath: Call,
+    validationErrorPath: Call,
     retryPath: Call,
     successPath: Call,
     submitPath: Call,
@@ -88,125 +85,6 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     fastForwardToCYAEnabled = false
   )
 
-  def handleBadReputation(
-    bankAccountDetails: BankAccountDetails,
-    reputation: BankAccountReputation,
-    isCMA: Boolean
-  )(implicit request: Request[_]): Result =
-    reputation match {
-      case BankAccountReputation(_, _, Some(errorResponse), _, _)                =>
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .fill(bankAccountDetails)
-              .withError("enter-bank-account-details", s"error.${errorResponse.code}"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-      case BankAccountReputation(Yes, Some(ReputationResponseError), None, _, _) =>
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .fill(bankAccountDetails)
-              .withError("enter-bank-account-details", "error.account-exists-error"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-      case BankAccountReputation(Yes, Some(No), None, _, _) |
-          BankAccountReputation(Yes, Some(Indeterminate), None, _, _) =>
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .withError("enter-bank-account-details", "error.account-does-not-exist"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-      case BankAccountReputation(No, _, None, _, _)                              =>
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .withError("enter-bank-account-details", "error.moc-check-no"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-      case BankAccountReputation(_, _, None, _, _)                               =>
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .withError("enter-bank-account-details", "error.moc-check-failed"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-
-      case default: BankAccountReputation =>
-        logger.info(s"Reached default case - response: [$default]")
-        BadRequest(
-          enterBankAccountDetailsPage(
-            enterBankDetailsForm
-              .fill(bankAccountDetails)
-              .withError("enter-bank-account-details", "error.account-does-not-exist"),
-            isCMA,
-            routesPack.submitPath
-          )
-        )
-    }
-
-  private def processCdsError[E : CdsError](error: E, errorPage: Call)(implicit
-    request: Request[_],
-    errorHandler: ErrorHandler
-  ): Result =
-    error match {
-      case e @ ServiceUnavailableError(_, _) =>
-        logger.warn(s"could not contact bank account service: $e")
-        Redirect(errorPage)
-      case e                                 =>
-        logAndDisplayError("could not process bank account details: ", e)
-    }
-
-  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
-  private def processBankAccountReputation(
-    journey: Journey,
-    bankAccountReputation: BankAccountReputation,
-    bankAccountDetails: BankAccountDetails,
-    nextPage: EnterBankAccountDetailsMixin.RoutesPack
-  )(implicit request: Request[_]): (Journey, Result) =
-    bankAccountReputation match {
-      case BankAccountReputation(
-            Yes | Indeterminate,
-            accountExists @ Some(Yes | Indeterminate),
-            _,
-            accountNameOpt,
-            nameMatchesOpt @ (Some(Yes) | Some(Partial) | None)
-          ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
-        modifyJourney(
-          journey,
-          bankAccountDetails
-            .withMaybeAccountName(nameMatchesOpt, accountNameOpt)
-            .withExistenceVerified(accountExists.contains(ReputationResponse.Yes))
-        )
-          .fold(
-            error => {
-              logger.warn(s"cannot submit bank account details because of $error")
-              (
-                journey,
-                Redirect(nextPage.retryPath)
-              )
-            },
-            modifiedJourney =>
-              (
-                modifiedJourney,
-                Redirect(nextPage.successPath)
-              )
-          )
-      case badReputation =>
-        (journey, handleBadReputation(bankAccountDetails, badReputation, isCMA(journey)))
-    }
-
   private def getBankAccountType(journey: Journey, getBankAccountTypePage: Call) =
     journey.answers.bankAccountType
       .toRight((journey, Redirect(getBankAccountTypePage)))
@@ -223,9 +101,62 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           bankAccountReputationService
             .checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)
             .fold(
-              e => (journey, processCdsError(e, routesPack.errorPath)),
+              e => (journey, processCdsError(e, routesPack.validationErrorPath)),
               bankAccountReputation =>
                 processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
             )
       )
+
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
+  private def processBankAccountReputation(
+    journey: Journey,
+    bankAccountReputation: BankAccountReputation,
+    bankAccountDetails: BankAccountDetails,
+    nextPage: EnterBankAccountDetailsMixin.RoutesPack
+  ): (Journey, Result) =
+    modifyJourney(
+      journey,
+      bankAccountDetails
+        .withMaybeAccountName(bankAccountReputation.nameMatches, bankAccountReputation.accountName.map(_.take(40)))
+        .withExistenceVerified(bankAccountReputation.accountExists)
+    )
+      .fold(
+        error => {
+          logger.warn(s"cannot submit bank account details because of $error")
+          (
+            journey,
+            Redirect(nextPage.retryPath)
+          )
+        },
+        modifiedJourney =>
+          (
+            modifiedJourney,
+            bankAccountReputation match {
+              case BankAccountReputation(
+                    Yes | Indeterminate,
+                    accountExists @ Some(Yes | Indeterminate),
+                    _,
+                    _,
+                    (Some(Yes) | Some(Partial) | None)
+                  ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
+                Redirect(nextPage.successPath)
+
+              case _ =>
+                Redirect(nextPage.validationErrorPath)
+            }
+          )
+      )
+
+  private def processCdsError[E : CdsError](error: E, errorPage: Call)(implicit
+    request: Request[_],
+    errorHandler: ErrorHandler
+  ): Result =
+    error match {
+      case e @ ServiceUnavailableError(_, _) =>
+        logger.warn(s"could not contact bank account service: $e")
+        Redirect(errorPage)
+      case e                                 =>
+        logAndDisplayError("could not process bank account details: ", e)
+    }
+
 }

@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
@@ -362,7 +361,13 @@ class EnterMovementReferenceNumberControllerSpec
           val session = SessionData.empty.copy(
             rejectedGoodsSingleJourney = Some(
               RejectedGoodsSingleJourney
-                .empty(exampleEori, features = Some(RejectedGoodsSingleJourney.Features(true, false)))
+                .empty(
+                  exampleEori,
+                  features = Some(
+                    RejectedGoodsSingleJourney
+                      .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+                  )
+                )
             )
           )
 
@@ -394,7 +399,9 @@ class EnterMovementReferenceNumberControllerSpec
         (mrn: MRN) =>
           val journey                       = RejectedGoodsSingleJourney.empty(
             exampleEori,
-            features = Some(RejectedGoodsSingleJourney.Features(true, true))
+            features = Some(
+              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+            )
           )
           val displayDeclaration            =
             buildDisplayDeclaration()

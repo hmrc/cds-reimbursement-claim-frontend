@@ -33,7 +33,6 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
@@ -177,7 +176,7 @@ class EnterBankAccountDetailsControllerSpec
               }
               checkIsRedirect(
                 performAction(bankAccountDataToEnter),
-                commonRoutes.BankAccountVerificationUnavailable.show
+                routes.CheckBankDetailsController.showWarning
               )
             }
         }
