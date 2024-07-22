@@ -31,6 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper.combine
 
 object SecuritiesCdsDisplayDeclarationSummary {
 
@@ -58,6 +59,14 @@ object SecuritiesCdsDisplayDeclarationSummary {
           )
         )
       ).some,
+      declaration.getMaybeLRN match {
+        case Some(lrn) =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.securities.lrn-label"))),
+            value = Value(Text(lrn))
+          ).some
+        case _         => None
+      },
       declaration.consigneeName.map { name =>
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
