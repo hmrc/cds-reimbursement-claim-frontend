@@ -79,37 +79,40 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    simpleActionReadWriteJourney { implicit request => journey =>
-      bankDetailsAreYouSureForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              journey.answers.bankAccountDetails
-                .map { bankAccountDetails =>
-                  BadRequest(
-                    checkBankDetailsPage(
-                      formWithErrors,
-                      bankAccountDetails.masked,
-                      isCMA(journey),
-                      postAction,
-                      changeBankAccountDetailsRoute
+    simpleActionReadWriteJourney(
+      body = { implicit request => journey =>
+        bankDetailsAreYouSureForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                journey.answers.bankAccountDetails
+                  .map { bankAccountDetails =>
+                    BadRequest(
+                      checkBankDetailsPage(
+                        formWithErrors,
+                        bankAccountDetails.masked,
+                        isCMA(journey),
+                        postAction,
+                        changeBankAccountDetailsRoute
+                      )
                     )
-                  )
-                }
-                .getOrElse(InternalServerError)
-            ),
-          answer =>
-            (
-              journey,
-              Redirect(answer match {
-                case YesNo.Yes => continueRoute(journey)
-                case YesNo.No  => changeBankAccountDetailsRoute
-              })
-            )
-        )
-    }
+                  }
+                  .getOrElse(InternalServerError)
+              ),
+            answer =>
+              (
+                journey,
+                Redirect(answer match {
+                  case YesNo.Yes => continueRoute(journey)
+                  case YesNo.No  => changeBankAccountDetailsRoute
+                })
+              )
+          )
+      },
+      fastForwardToCYAEnabled = false
+    )
 
   final val showWarning: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
