@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
@@ -159,6 +160,11 @@ class CheckYourAnswersControllerSpec
           "UK Duty"                            -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Excise Duty"                        -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Total"                              -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Payee"                              ->
+            Some(claim.payeeType match {
+              case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
+              case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
+            }),
           "Method"                             ->
             Some(claim.reimbursementMethod match {
               case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
