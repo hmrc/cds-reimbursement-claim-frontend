@@ -73,6 +73,7 @@
                     key,
                     routes.SelectSecuritiesController.show
                 ).rows ++
+                PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)).rows ++
                 (
                         if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
                             Seq.empty[SummaryListRow]
@@ -93,7 +94,7 @@
                                             } else {
                                                 s"check-your-answers.payment-method.unknown"
                                             }
-                                        ))))
+                                ))))
                             )
                         }
                         )))

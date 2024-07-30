@@ -50,6 +50,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -155,6 +156,10 @@ class CheckYourAnswersControllerSpec
           .flatMap(DateUtils.displayFormat)),
         ("Total security deposit value" -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString)),
+        ("Payee"                        -> journey.answers.payeeType.map {
+          case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
+          case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
+        }),
         ("Payment method"               -> Some(
           if (
             journey.answers.displayDeclaration

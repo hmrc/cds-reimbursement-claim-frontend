@@ -78,6 +78,7 @@
     @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show))
 
     @subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
+    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)))
     @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"check-your-answers.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
