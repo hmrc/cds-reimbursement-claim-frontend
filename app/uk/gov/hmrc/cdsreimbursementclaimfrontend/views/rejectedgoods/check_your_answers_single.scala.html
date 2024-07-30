@@ -55,7 +55,7 @@
     } 
 
     @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.show)))
+    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF)))
 
     @subHeading(Html(messages(s"check-your-answers.basis.h2")))
     @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"check-your-answers.basis", subKey, routes.BasisForClaimController.show))
