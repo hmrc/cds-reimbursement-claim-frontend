@@ -42,13 +42,16 @@
 @key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.title")}
 
-@layout(pageTitle = Some(s"$title")) {
+
+<head>
+    <!-- urls will not be hardcoded. We may choose to just have custom css -->
+    <link rel="stylesheet" href="http://localhost:7500/claim-back-import-duty-vat/assets/stylesheets/application-ie-8.css">
+    <link rel="stylesheet" href="http://localhost:7500/claim-back-import-duty-vat/assets/stylesheets/application.css">
+</head>
+<main id="content" class="grid-row" role="main">
+    <div class="column-two-thirds">
 
     @heading(Html(title))
-
-
-
-<a href="@routes.CheckYourAnswersController.generatePdf">Print CYA</a>
 
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
@@ -84,7 +87,5 @@
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        @submitButton("button.accept-and-send")
-    }
-}
+    </div>
+</main>

@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import _root_.com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -32,7 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single_pdf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -41,9 +44,11 @@ class CheckYourAnswersController @Inject() (
   overpaymentsSingleClaimConnector: OverpaymentsSingleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_single,
+  checkYourAnswersPdf: check_your_answers_single_pdf,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService
+  auditService: AuditService,
+  pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController {
 
@@ -151,4 +156,34 @@ class CheckYourAnswersController @Inject() (
           }
           .getOrElse(redirectToTheStartOfTheJourney)
       }
+
+  final val generatePdf: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      journey.toOutput
+        .fold(
+          errors => {
+            logger.warn(s"Claim not ready to print CYA page PDF because of ${errors.mkString(",")}")
+            (
+              journey.submitCheckYourAnswersChangeMode(false),
+              Redirect(routeForValidationErrors(errors))
+            )
+          },
+          output =>
+            (
+              journey.submitCheckYourAnswersChangeMode(true),
+              pdfGenerator.ok(
+                checkYourAnswersPdf(
+                  output,
+                  journey.isAllSelectedDutiesAreCMAEligible,
+                  journey.isSubsidyOnlyJourney,
+                  journey.answers.displayDeclaration,
+                  postAction
+                ),
+                ""
+              )
+            )
+        )
+        .asFuture
+    }
+
 }

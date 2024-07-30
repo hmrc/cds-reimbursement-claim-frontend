@@ -80,6 +80,8 @@ POST        /overpayments/single/submit-claim                                   
 GET         /overpayments/single/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.showConfirmation
 GET         /overpayments/single/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.show
 
+GET         /overpayments/single/check-your-answers/print                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.generatePdf
+
 GET         /overpayments/single/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithDeclarationController.show
 POST        /overpayments/single/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithDeclarationController.submit
 
