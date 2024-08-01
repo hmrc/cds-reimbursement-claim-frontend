@@ -401,9 +401,9 @@ choose-file-type.file-type.ImportAndExportDeclaration.bullet=Datganiad mewnforio
 choose-file-type.file-type.ImportAndExportDeclaration.description=Tystiolaeth o’r mewnforio neu’r allforio a ddatgenir.
 choose-file-type.file-type.ImportDeclaration=Datganiad mewnforio
 choose-file-type.file-type.ImportPackingList=Rhestr bacio mewnforio
-choose-file-type.file-type.LetterOfAuthority=Llythyr o awdurdod
-choose-file-type.file-type.LetterOfAuthority.bullet=Llythyr o awdurdod:
-choose-file-type.file-type.LetterOfAuthority.description=Llythyr o awdurdod.
+choose-file-type.file-type.LetterOfAuthority=Tystiolaeth o awdurdod
+choose-file-type.file-type.LetterOfAuthority.bullet=Tystiolaeth o awdurdod:
+choose-file-type.file-type.LetterOfAuthority.description=Tystiolaeth o awdurdod.
 choose-file-type.file-type.LetterOfAuthority.hint=Bydd angen hyn pan fydd manylion cyfrif banc wedi’u diweddaru.
 choose-file-type.file-type.Other=Dogfennau eraill
 choose-file-type.file-type.Other.bullet=Dogfennau eraill:
@@ -454,7 +454,7 @@ choose-payee-type.radio.importer=Mewnforiwr
 choose-payee-type.title=Pwy fydd yn cael yr ad-daliad?
 choose-payee-type.details.importer=Mewnforiwr
 choose-payee-type.details.declarant=Datganydd
-choose-payee-type.details.p1=Y mewnforiwr yw’r person neu’r cwmni sydd wedi prynu’r nwyddau sy’n dod i’r DU.
+choose-payee-type.details.p1=Y sefydliad a ddaeth â nwyddau i mewn i’r DU o wlad arall..
 choose-payee-type.details.p2=Y sefydliad sy’n cyflwyno datganiad mewnforio ar ran y mewnforiwr.
 choose-payee-type.details.title=Pwy yw’r mewnforiwr, y datganydd a’r cynrychiolydd?
 choose-payment-method.rejected-goods.single.bank-transfer=Trosglwyddiad cyfrif banc
@@ -1012,7 +1012,7 @@ enter-rejected-goods-details.rejected-goods.li2=cod nwyddau
 enter-rejected-goods-details.rejected-goods.li3=nifer y pecynnau
 enter-rejected-goods-details.rejected-goods.li4=gwerth (£) o’r anfoneb fewnforio
 enter-rejected-goods-details.rejected-goods.li5=lleoliad y nwyddau (porthladd, maes awyr neu borthladd post)
-enter-rejected-goods-details.rejected-goods.li6=olrhain post
+enter-rejected-goods-details.rejected-goods.li6=rhif olrhain drwy’r post
 enter-rejected-goods-details.rejected-goods.hint=Manylion y nwyddau wedi’u gwrthod
 
 
@@ -1608,7 +1608,7 @@ enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
 error-claim-invalid-TPI04.bullet.2=mae’r hawliad hwn eisoes wedi’i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu’r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o’r blaen ac eisiau hawlio mwy
 enter-additional-details.bullet.4=rhif tariff
 enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
-enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP
+enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyer mis Hydref 2023.
 address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
 enter-additional-details.bullet.5=cod gweithdrefn y tollau
 enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i’r canlynol:

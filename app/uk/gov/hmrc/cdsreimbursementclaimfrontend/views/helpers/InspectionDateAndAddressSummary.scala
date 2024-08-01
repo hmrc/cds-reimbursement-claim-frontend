@@ -31,6 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 
 object InspectionDateAndAddressSummary {
 
@@ -91,7 +92,7 @@ object InspectionDateAndAddressSummary {
       Seq(
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.inspection-date"))),
-          value = Value(Text(InspectionDate(inspectionDate.value).checkYourDetailsDisplayFormat)),
+          value = Value(Text(toDisplayDate(InspectionDate(inspectionDate.value).checkYourDetailsDisplayFormat))),
           actions = Some(changeInspectionDateAction)
         ),
         SummaryListRow(
