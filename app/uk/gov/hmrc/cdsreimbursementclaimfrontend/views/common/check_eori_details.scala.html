@@ -20,14 +20,18 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
-    eoriDetailsHelper:uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EoriDetailsHelper,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
@@ -55,7 +59,20 @@
 
         @paragraph(Html(messages(s"check-eori-details.paragraph", viewConfig.eoriNumberHelpUrl)))
 
-        @summary(SummaryList(eoriDetailsHelper.eoriSummary(eori, name)))
+        @summary(
+            SummaryList(
+                Seq(
+                    SummaryListRow(
+                        Key(HtmlContent(messages("check-eori-details.eori-number.label"))),
+                        Value(Text(eori.value))
+                    ),
+                    SummaryListRow(
+                        Key(content = HtmlContent(messages("check-eori-details.name.label"))),
+                        Value(Text(name))
+                    )
+                )
+            )
+        )
 
         @radios(
             form = form,
