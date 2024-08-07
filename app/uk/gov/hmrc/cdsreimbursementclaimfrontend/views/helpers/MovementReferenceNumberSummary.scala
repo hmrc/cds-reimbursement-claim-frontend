@@ -54,24 +54,45 @@ object MovementReferenceNumberSummary {
   ): SummaryList =
     SummaryList(
       mrns.zipWithIndex.map { case (mrn, index) =>
-        SummaryListRow(
-          key = Key(
-            HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber(index + 1).capitalize))
-          ),
-          value = Value(Text(mrn.value)),
-          actions = changeCallOpt.map(changeCall =>
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = changeCall.url,
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText =
-                    Some(messages(combine(key, subKey, "label-plaintext"), OrdinalNumber(index + 1).capitalize))
+        if (index == 0 && messages.lang.language == "cy") {
+          SummaryListRow(
+            key = Key(
+              HtmlContent(messages(combine(key, subKey, "label.first"), OrdinalNumber(index + 1)))
+            ),
+            value = Value(Text(mrn.value)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText =
+                      Some(messages(combine(key, subKey, "label-plaintext.first"), OrdinalNumber(index + 1)))
+                  )
                 )
               )
             )
           )
-        )
+        } else {
+          SummaryListRow(
+            key = Key(
+              HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber(index + 1).capitalize))
+            ),
+            value = Value(Text(mrn.value)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText =
+                      Some(messages(combine(key, subKey, "label-plaintext"), OrdinalNumber(index + 1).capitalize))
+                  )
+                )
+              )
+            )
+          )
+        }
       }
     )
 }

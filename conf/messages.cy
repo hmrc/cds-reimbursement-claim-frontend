@@ -69,6 +69,7 @@ check-claim.eu-duty.label=Toll yr UE
 check-claim.excise-duty.label=Toll Ecséis
 check-claim.multiple.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.multiple.duty.label={0} MRN: {1}
+check-claim.multiple.duty.label.first=MRN {0}: {1}
 check-claim.multiple.error.invalid=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.multiple.error.required=Dewiswch ''Iawn'' os yw’r tollau’n gywir
 check-claim.multiple.no=Na, dewiswch dollau gwahanol
@@ -314,8 +315,8 @@ check-your-answers.reference-number.rejectedgoods.scheduled.h2=Prif Gyfeirnod Sy
 check-your-answers.reference-number.rejectedgoods.scheduled.h2-subsidy=Prif Gyfeirnod Symud (MRN) - Cymhorthdal
 check-your-answers.reference-number.rejectedgoods.scheduled.label=Yr MRN cyntaf
 check-your-answers.reference-number.rejectedgoods.scheduled.label-plaintext=Cyfeirnod Symud (MRN) cyntaf
-check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
-check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext={0} Cyfeirnod Symud (MRN)
+check-your-answers.reference-number.rejectedgoodsmultiple.label.first=MRN {0}
+check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext.first=Cyfeirnod Symud (MRN) {0}
 check-your-answers.reference-number.scheduled.h2=Prif Gyfeirnod Symud (MRN)
 check-your-answers.reference-number.scheduled.h2-subsidy=Prif Gyfeirnod Symud (MRN) - Cymhorthdal
 check-your-answers.reference-number.scheduled.label=Yr MRN cyntaf
@@ -1197,7 +1198,6 @@ ordinal.label.17=yr ail ar bymtheg
 ordinal.label.18=y deunawfed
 ordinal.label.19=y pedwerydd ar bymtheg
 ordinal.label.20=yr ugeinfed
-
 
 
 overpayments.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
