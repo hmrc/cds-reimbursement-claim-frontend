@@ -854,6 +854,7 @@ enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.help-text=The MRN is issued when an import is declared.
 enter-associated-mrn.invalid.number=Enter a Movement Reference Number (MRN)
 enter-associated-mrn.title=Enter the {0}{1} Movement Reference Number (MRN)
+enter-associated-mrn.title.second=Enter the {0}{1} Movement Reference Number (MRN)
 
 enter-bank-account-details.account-name.error.maxLength=Enter a valid account name
 enter-bank-account-details.account-name.error.required=Enter the name on the account
