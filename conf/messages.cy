@@ -9,7 +9,7 @@ bank-details.account-number.label=Rhif y cyfrif
 bank-details.are-you-sure=A ydych chi’n siŵr bod y manylion banc hyn yn gywir?
 bank-details.change=Newid
 bank-details.details.bullet1=llythyr o awdurdod oddi wrth y cwmni rydych yn ei gynrychioli sy’n profi mai chi yw ei gynrychiolydd
-bank-details.details.bullet2=llythyr o awdurdod oddi wrth y cwmni rydych yn ei gynrychioli at ei fanc, yn cadarnhau i beth a ddylai’r manylion banc newid
+bank-details.details.bullet2=llythyr oddi wrth y cwmni rydych yn ei gynrychioli at ei fanc, yn cadarnhau i beth a ddylai’r manylion banc newid
 bank-details.details.heading=Sut i newid y manylion banc os mai chi yw’r cynrychiolydd
 bank-details.details.p1=Os ydych yn gynrychiolydd ac yn dymuno newid y manylion banc hyn, bydd angen i chi ddarparu:
 bank-details.different-details-link=<a href="{0}" class="govuk-link">Nodwch fanylion banc gwahanol</a>
@@ -446,7 +446,7 @@ choose-files.allowed-file-types=JPG, PNG neu PDF
 choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
 choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf JPG, PNG neu PDF.
-choose-files.p2=
+choose-files.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil yn y man ar gyfer uwchlwytho ffeiliau.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
 choose-payee-type.error.required=Dewiswch pwy fydd yn cael yr ad-daliad
