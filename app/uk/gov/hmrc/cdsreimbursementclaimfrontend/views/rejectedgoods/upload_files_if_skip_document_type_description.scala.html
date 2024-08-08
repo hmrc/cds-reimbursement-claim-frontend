@@ -1,0 +1,48 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
+
+@this(
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    fileUploadConfig: FileUploadConfig
+)
+
+@(documentTypes: Seq[UploadDocumentType])(implicit messages: Messages)
+
+@insetText(content = HtmlContent(messages(s"choose-files.if-skip.inset-text")), classes = Some("govuk-!-margin-top-0"))
+
+@dropdownDetails(summary = s"choose-file-type.heading", content = DropdownHints.enumeration(documentTypes).renderHintsWithLabels("choose-file-type.file-type"))
+
+@paragraph(
+ Html(
+  messages(
+   "choose-files.if-skip.p1",
+   fileUploadConfig.readMaxFileSizeHumanReadable("supporting-evidence"),
+   fileUploadConfig.readMaxUploadsValue("supporting-evidence")
+  ).capitalize
+ ),
+ Some("govuk-body govuk-!-margin-bottom-2")
+)
+
+@paragraph(Html(messages("choose-files.if-skip.p2")),Some("govuk-body govuk-!-margin-bottom-6"))

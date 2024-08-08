@@ -115,7 +115,7 @@ class UploadFilesControllerSpec
       UploadDocumentsCallback(
         nonce = Nonce.random,
         uploadedFiles = Seq(exampleUploadedFile),
-        cargo = UploadDocumentType.CommercialInvoice
+        cargo = Some(UploadDocumentType.CommercialInvoice)
       )
 
     "return 204 if callback accepted" in forAllWith(
@@ -130,12 +130,12 @@ class UploadFilesControllerSpec
         mockStoreSession(
           SessionData(
             journey
-              .receiveUploadedFiles(documentType, journey.answers.nonce, Seq(exampleUploadedFile))
+              .receiveUploadedFiles(Some(documentType), journey.answers.nonce, Seq(exampleUploadedFile))
               .getOrFail
           )
         )(Right(()))
       }
-      val result = performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = documentType))
+      val result = performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = Some(documentType)))
       status(result) shouldBe 204
     }
 
@@ -151,7 +151,7 @@ class UploadFilesControllerSpec
           SessionData(journey)
         )
       }
-      val result = performAction(callbackPayload.copy(nonce = Nonce.random, cargo = documentType))
+      val result = performAction(callbackPayload.copy(nonce = Nonce.random, cargo = Some(documentType)))
       status(result) shouldBe 400
     }
 
@@ -168,7 +168,7 @@ class UploadFilesControllerSpec
         )
       }
       val result =
-        performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = UploadDocumentType.AirWayBill))
+        performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = Some(UploadDocumentType.AirWayBill)))
       status(result) shouldBe 400
     }
 

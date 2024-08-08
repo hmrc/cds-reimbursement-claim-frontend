@@ -36,6 +36,8 @@ trait CommonJourneyProperties {
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
 
+  def needsDocumentType: Boolean = true
+
   def declarantEoriMatchesConsignee: Boolean =
     getDeclarantEoriFromACC14.isDefined &&
       getDeclarantEoriFromACC14 === getConsigneeEoriFromACC14
@@ -54,7 +56,8 @@ trait CommonJourneyProperties {
 
   final def hasCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.nonEmpty &&
-      answers.supportingEvidences.forall(_.documentType.isDefined)
+      (!needsDocumentType ||
+        answers.supportingEvidences.forall(_.documentType.isDefined))
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
     getLeadDisplayDeclaration.flatMap(_.getConsigneeEori)

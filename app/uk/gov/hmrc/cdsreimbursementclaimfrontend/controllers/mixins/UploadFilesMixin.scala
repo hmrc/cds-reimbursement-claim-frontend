@@ -43,10 +43,11 @@ trait UploadFilesMixin extends JourneyBaseController {
   val callbackAction: Call
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
+  def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate: Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable
 
   def modifyJourney(
     journey: Journey,
-    documentType: UploadDocumentType,
+    documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, Journey]
@@ -55,8 +56,31 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
-      case None =>
+      case None if journey.needsDocumentType =>
         Redirect(selectDocumentTypePageAction).asFuture
+
+      case None =>
+        uploadDocumentsConnector
+          .initialize(
+            UploadDocumentsConnector
+              .Request(
+                uploadDocumentsSessionConfigIfSkipDocumentType(
+                  journey.getDocumentTypesIfRequired.getOrElse(Seq.empty),
+                  journey.answers.nonce
+                ),
+                journey.answers.supportingEvidences
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
+              )
+          )
+          .map {
+            case Some(url) =>
+              Redirect(url)
+
+            case None =>
+              Redirect(
+                s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}"
+              )
+          }
 
       case Some(documentType) =>
         val continueAfterYesAnswerUrl =
@@ -219,4 +243,60 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
     messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
+
+  def uploadDocumentsSessionConfigIfSkipDocumentType(
+    documentTypes: Seq[UploadDocumentType],
+    nonce: Nonce
+  )(implicit messages: Messages): UploadDocumentsSessionConfig =
+    UploadDocumentsSessionConfig(
+      nonce = nonce,
+      continueUrl = selfUrl + checkYourAnswers.url,
+      continueAfterYesAnswerUrl = None,
+      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
+      minimumNumberOfFiles = 1,
+      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
+      initialNumberOfEmptyRows = 1,
+      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
+      allowedContentTypes = "application/pdf,image/jpeg,image/png",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg",
+      cargo = None,
+      newFileDescription = None,
+      content = uploadDocumentsContentIfSkipDocumentType(documentTypes),
+      features = UploadDocumentsSessionConfig.Features(
+        showUploadMultiple = true,
+        showLanguageSelection = viewConfig.enableLanguageSwitching,
+        showAddAnotherDocumentButton = false,
+        showYesNoQuestionBeforeContinue = false
+      )
+    )
+
+  def uploadDocumentsContentIfSkipDocumentType(
+    documentTypes: Seq[UploadDocumentType]
+  )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
+    val descriptionHtml = chooseFilesPageDescriptionIfSkipDocumentTypeTemplate(documentTypes)(messages).body
+
+    UploadDocumentsSessionConfig.Content(
+      serviceName = messages("service.title"),
+      title = messages("choose-files.if-skip.title"),
+      descriptionHtml = descriptionHtml,
+      serviceUrl = viewConfig.homePageUrl,
+      accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
+      phaseBanner = "beta",
+      phaseBannerUrl = viewConfig.betaFeedbackUrl,
+      signOutUrl = viewConfig.ggSignOut,
+      timedOutUrl = viewConfig.ggTimedOutUrl,
+      keepAliveUrl = viewConfig.ggKeepAliveUrl,
+      timeoutSeconds = viewConfig.ggTimeoutSeconds.toInt,
+      countdownSeconds = viewConfig.ggCountdownSeconds.toInt,
+      pageTitleClasses = "govuk-heading-xl",
+      allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
+      fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
+      chooseFirstFileLabel = "",
+      chooseNextFileLabel = None,
+      addAnotherDocumentButtonText = None,
+      yesNoQuestionText = None,
+      yesNoQuestionRequiredError = None
+    )
+  }
 }

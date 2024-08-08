@@ -1167,7 +1167,7 @@ class OverpaymentsScheduledJourneySpec
 
     "receiveUploadedFiles fails when nonce is not matching the journey nonce" in {
       val journey = OverpaymentsScheduledJourney.empty(exampleEori)
-      val result  = journey.receiveUploadedFiles(UploadDocumentType.ProofOfAuthority, Nonce.random, Seq.empty)
+      val result  = journey.receiveUploadedFiles(Some(UploadDocumentType.ProofOfAuthority), Nonce.random, Seq.empty)
       result shouldBe Left("receiveUploadedFiles.invalidNonce")
     }
 
@@ -1176,7 +1176,7 @@ class OverpaymentsScheduledJourneySpec
       val uploadedFile = buildUploadDocument("foo").copy(cargo = None)
       val result       =
         journey
-          .receiveUploadedFiles(UploadDocumentType.ProofOfAuthority, journey.answers.nonce, Seq(uploadedFile))
+          .receiveUploadedFiles(Some(UploadDocumentType.ProofOfAuthority), journey.answers.nonce, Seq(uploadedFile))
           .getOrFail
       result.answers.supportingEvidences.head shouldBe uploadedFile.copy(cargo =
         Some(UploadDocumentType.ProofOfAuthority)

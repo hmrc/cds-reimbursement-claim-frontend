@@ -64,8 +64,10 @@ class ChooseFileTypeControllerSpec
 
   private val messagesKey: String = "choose-file-type"
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Overpayments_v2)
+    featureSwitch.disable(Feature.SkipDocumentType)
+  }
 
   @annotation.nowarn
   def validateChooseFileTypePage(doc: Document, journey: OverpaymentsSingleJourney) = {
