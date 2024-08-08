@@ -230,7 +230,12 @@ class CheckYourAnswersControllerSpec
             acc14ConsigneeMatchesUserEori = false,
             generateSubsidyPayments = GenerateSubsidyPayments.All,
             features = Some(
-              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+              OverpaymentsSingleJourney
+                .Features(
+                  shouldBlockSubsidies = false,
+                  shouldAllowSubsidyOnlyPayments = true,
+                  shouldSkipDocumentTypeSelection = false
+                )
             ),
             submitBankAccountDetails = false,
             submitBankAccountType = false
@@ -257,7 +262,11 @@ class CheckYourAnswersControllerSpec
           buildCompleteJourneyGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
-              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+              OverpaymentsSingleJourney.Features(
+                shouldBlockSubsidies = true,
+                shouldAllowSubsidyOnlyPayments = false,
+                shouldSkipDocumentTypeSelection = false
+              )
             )
           ).sample.getOrElse(fail())
 

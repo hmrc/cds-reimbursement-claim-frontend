@@ -1075,14 +1075,22 @@ class OverpaymentsSingleJourneySpec
             exampleEori,
             features = Some(
               OverpaymentsSingleJourney
-                .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+                .Features(
+                  shouldBlockSubsidies = true,
+                  shouldAllowSubsidyOnlyPayments = false,
+                  shouldSkipDocumentTypeSelection = false
+                )
             )
           )
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
           .getOrFail
 
         journey.features shouldBe Some(
-          OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+          OverpaymentsSingleJourney.Features(
+            shouldBlockSubsidies = true,
+            shouldAllowSubsidyOnlyPayments = false,
+            shouldSkipDocumentTypeSelection = false
+          )
         )
 
         OverpaymentsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
@@ -1100,14 +1108,22 @@ class OverpaymentsSingleJourneySpec
             exampleEori,
             features = Some(
               OverpaymentsSingleJourney
-                .Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+                .Features(
+                  shouldBlockSubsidies = false,
+                  shouldAllowSubsidyOnlyPayments = true,
+                  shouldSkipDocumentTypeSelection = false
+                )
             )
           )
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
           .getOrFail
 
         journey.features shouldBe Some(
-          OverpaymentsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+          OverpaymentsSingleJourney.Features(
+            shouldBlockSubsidies = false,
+            shouldAllowSubsidyOnlyPayments = true,
+            shouldSkipDocumentTypeSelection = false
+          )
         )
 
         OverpaymentsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
@@ -1124,14 +1140,22 @@ class OverpaymentsSingleJourneySpec
           .empty(
             exampleEori,
             features = Some(
-              OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+              OverpaymentsSingleJourney.Features(
+                shouldBlockSubsidies = true,
+                shouldAllowSubsidyOnlyPayments = true,
+                shouldSkipDocumentTypeSelection = false
+              )
             )
           )
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
           .getOrFail
 
         journey.features shouldBe Some(
-          OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
+          OverpaymentsSingleJourney.Features(
+            shouldBlockSubsidies = true,
+            shouldAllowSubsidyOnlyPayments = true,
+            shouldSkipDocumentTypeSelection = false
+          )
         )
 
         OverpaymentsSingleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(

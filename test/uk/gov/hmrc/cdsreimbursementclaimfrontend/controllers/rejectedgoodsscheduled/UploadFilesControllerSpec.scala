@@ -109,7 +109,7 @@ class UploadFilesControllerSpec
               journeyWithMrnAndDeclaration
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
                 .receiveUploadedFiles(
-                  UploadDocumentType.AirWayBill,
+                  Some(UploadDocumentType.AirWayBill),
                   journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(exampleUploadedFile)
                 )
@@ -169,7 +169,7 @@ class UploadFilesControllerSpec
         UploadDocumentsCallback(
           nonce = Nonce.random,
           uploadedFiles = Seq(exampleUploadedFile),
-          cargo = UploadDocumentType.CommercialInvoice
+          cargo = Some(UploadDocumentType.CommercialInvoice)
         )
 
       "return 204 if callback accepted" in {
@@ -180,7 +180,7 @@ class UploadFilesControllerSpec
             SessionData(
               journeyWithMrnAndDeclaration
                 .receiveUploadedFiles(
-                  UploadDocumentType.CommercialInvoice,
+                  Some(UploadDocumentType.CommercialInvoice),
                   journeyWithMrnAndDeclaration.answers.nonce,
                   Seq(exampleUploadedFile)
                 )

@@ -23,9 +23,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 final case class UploadDocumentsCallback(
   nonce: Nonce,
   uploadedFiles: Seq[UploadedFile],
-  cargo: UploadDocumentType
+  cargo: Option[UploadDocumentType] = None
 ) {
-  def documentType: UploadDocumentType = cargo
+  def documentType: Option[UploadDocumentType] = cargo
 }
 
 object UploadDocumentsCallback {

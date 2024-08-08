@@ -77,6 +77,11 @@ final class OverpaymentsSingleJourney private (
     }
   }
 
+  override def needsDocumentType: Boolean =
+    features
+      .map(feature => !feature.shouldSkipDocumentTypeSelection)
+      .getOrElse(true)
+
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
 
@@ -502,14 +507,14 @@ final class OverpaymentsSingleJourney private (
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
-    documentType: UploadDocumentType,
+    documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
-          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+          case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
         }
         Right(
@@ -559,7 +564,9 @@ final class OverpaymentsSingleJourney private (
           mrn                 <- getLeadMovementReferenceNumber
           basisOfClaim        <- answers.basisOfClaim
           additionalDetails   <- answers.additionalDetails
-          supportingEvidences  = answers.supportingEvidences
+          supportingEvidences  =
+            answers.supportingEvidences
+              .map(file => if (file.documentType.isEmpty) file.copy(cargo = Some(UploadDocumentType.Other)) else file)
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
         } yield OverpaymentsSingleJourney.Output(
@@ -595,7 +602,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
+    shouldAllowSubsidyOnlyPayments: Boolean,
+    shouldSkipDocumentTypeSelection: Boolean
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey
@@ -828,7 +836,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
         answers.supportingEvidences,
         j =>
           (e: UploadedFile) =>
-            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 

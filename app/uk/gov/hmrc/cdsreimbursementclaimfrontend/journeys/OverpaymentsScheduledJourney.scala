@@ -306,14 +306,14 @@ final class OverpaymentsScheduledJourney private (
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
-    documentType: UploadDocumentType,
+    documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       if (answers.nonce.equals(requestNonce)) {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
-          case uf if uf.documentType.isEmpty => uf.copy(cargo = Some(documentType))
+          case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
         }
         Right(
@@ -561,7 +561,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
         answers.supportingEvidences,
         j =>
           (e: UploadedFile) =>
-            j.receiveUploadedFiles(e.documentType.getOrElse(UploadDocumentType.Other), answers.nonce, Seq(e))
+            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 

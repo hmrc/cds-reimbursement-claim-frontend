@@ -78,12 +78,14 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[OverpaymentsSingleJourney.Features] = {
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
-    if (blockSubsidies || subsidiesForOverpayments)
+    val skipDocumentType         = featureSwitchService.isEnabled(Feature.SkipDocumentType)
+    if (blockSubsidies || subsidiesForOverpayments || skipDocumentType)
       Some(
         OverpaymentsSingleJourney
           .Features(
             shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments,
+            shouldSkipDocumentTypeSelection = skipDocumentType
           )
       )
     else None

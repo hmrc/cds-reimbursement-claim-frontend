@@ -304,7 +304,11 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "reject an MRN with subsidies payment method" in forAll(
         genMRN,
         journeyWithFeaturesGen(
-          OverpaymentsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+          OverpaymentsSingleJourney.Features(
+            shouldBlockSubsidies = true,
+            shouldAllowSubsidyOnlyPayments = false,
+            shouldSkipDocumentTypeSelection = false
+          )
         )
       ) { (mrn: MRN, journey) =>
         val displayDeclaration =

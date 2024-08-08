@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_file_type
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
