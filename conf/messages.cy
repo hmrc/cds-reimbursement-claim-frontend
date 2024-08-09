@@ -833,6 +833,20 @@ enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn
 enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.mrn=MRN:
+enter-claim.paid-amount.duty-type.beer=Cwrw
+enter-claim.paid-amount.duty-type.biofuels=Biodanwyddau
+enter-claim.paid-amount.duty-type.cider-perry=Seidr a pherai
+enter-claim.paid-amount.duty-type.climate-change-levy=Ardoll Newid yn yr Hinsawdd
+enter-claim.paid-amount.duty-type.eu-duty=doll yr UE
+enter-claim.paid-amount.duty-type.excise-duty=doll Ecséis
+enter-claim.paid-amount.duty-type.hydrocarbon-oils=Olew hydrocarbon
+enter-claim.paid-amount.duty-type.low-alcohol-beverages=Diodydd alcohol isel
+enter-claim.paid-amount.duty-type.made-wine=Gwin a wnaed
+enter-claim.paid-amount.duty-type.miscellaneous-road-fuels=Tanwydd ffordd amrywiol
+enter-claim.paid-amount.duty-type.spirits=Gwirodydd
+enter-claim.paid-amount.duty-type.tobacco=Cynhyrchion tybaco
+enter-claim.paid-amount.duty-type.uk-duty=doll y DU
+enter-claim.paid-amount.duty-type.wine=Gwin
 enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=Faint o {1} - {2} a dalwyd drwy gymhorthdal: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>

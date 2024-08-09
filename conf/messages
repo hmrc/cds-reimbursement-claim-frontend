@@ -895,6 +895,20 @@ enter-claim.mrn=MRN:
 enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
+enter-claim.paid-amount.duty-type.beer=Beer
+enter-claim.paid-amount.duty-type.biofuels=Biofuels
+enter-claim.paid-amount.duty-type.cider-perry=Cider and perry
+enter-claim.paid-amount.duty-type.climate-change-levy=Climate Change Levy
+enter-claim.paid-amount.duty-type.eu-duty=EU Duty
+enter-claim.paid-amount.duty-type.excise-duty=Excise Duty
+enter-claim.paid-amount.duty-type.hydrocarbon-oils=Hydrocarbon oil
+enter-claim.paid-amount.duty-type.low-alcohol-beverages=Low alcohol beverages
+enter-claim.paid-amount.duty-type.made-wine=Made-wine
+enter-claim.paid-amount.duty-type.miscellaneous-road-fuels=Miscellaneous road fuels
+enter-claim.paid-amount.duty-type.spirits=Spirits
+enter-claim.paid-amount.duty-type.tobacco=Tobacco products
+enter-claim.paid-amount.duty-type.uk-duty=UK Duty
+enter-claim.paid-amount.duty-type.wine=Wine
 enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
