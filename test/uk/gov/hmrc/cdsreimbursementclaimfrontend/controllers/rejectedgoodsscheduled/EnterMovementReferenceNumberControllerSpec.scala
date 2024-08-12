@@ -101,7 +101,7 @@ class EnterMovementReferenceNumberControllerSpec
     )
   )
 
-  val messageKey: String = "enter-movement-reference-number.rejected-goods"
+  val messageKey: String = "enter-movement-reference-number"
 
   private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimService
@@ -164,10 +164,10 @@ class EnterMovementReferenceNumberControllerSpec
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
-              .text()                              shouldBe messageFromMessageKey(
+              .text()                                                     shouldBe messageFromMessageKey(
               s"$messageKey.scheduled.help"
             )
-            doc.getElementById(messageKey).`val`() shouldBe mrn.value
+            doc.getElementById("enter-movement-reference-number").`val`() shouldBe mrn.value
           }
         )
       }
@@ -206,11 +206,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value),
+          performAction("enter-movement-reference-number" -> invalidMRN.value),
           messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => {
-            getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
-            doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
+            getErrorSummary(doc)                                          shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
+            doc.getElementById("enter-movement-reference-number").`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
           },
           expectedStatus = BAD_REQUEST
         )
@@ -224,7 +224,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          performAction("enter-movement-reference-number" -> mrn.value),
           routes.ProblemWithMrnController.show(mrn)
         )
       }
@@ -252,7 +252,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          performAction("enter-movement-reference-number" -> mrn.value),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -285,7 +285,7 @@ class EnterMovementReferenceNumberControllerSpec
             }
 
             checkIsRedirect(
-              performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+              performAction("enter-movement-reference-number" -> mrn.value),
               routes.EnterImporterEoriNumberController.show
             )
           }
@@ -326,7 +326,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          performAction("enter-movement-reference-number" -> mrn.value),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -366,7 +366,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          performAction("enter-movement-reference-number" -> mrn.value),
           routes.EnterImporterEoriNumberController.show
         )
       }
@@ -399,7 +399,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value),
+          performAction("enter-movement-reference-number" -> mrn.value),
           messageFromMessageKey("enter-movement-reference-number.scheduled.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(

@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_multiple_movement_reference_numbers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -46,7 +46,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   val featureSwitchService: FeatureSwitchService,
-  enterMovementReferenceNumberPage: enter_multiple_movement_reference_numbers
+  enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with EnterMovementReferenceNumberMixin {
@@ -58,7 +58,7 @@ class EnterMovementReferenceNumberController @Inject() (
   override val formKey: String = "enter-movement-reference-number.rejected-goods"
 
   override def form(journey: Journey): Form[MRN] =
-    Forms.movementReferenceNumberRejectedGoodsForm
+    Forms.movementReferenceNumberForm
 
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
     journey.getLeadMovementReferenceNumber
@@ -69,7 +69,6 @@ class EnterMovementReferenceNumberController @Inject() (
         enterMovementReferenceNumberPage(
           form,
           "scheduled",
-          1,
           routes.EnterMovementReferenceNumberController.submit
         )
 
