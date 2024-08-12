@@ -67,7 +67,7 @@ class EnterMovementReferenceNumberController @Inject() (
       implicit request =>
         enterMovementReferenceNumberPage(
           form,
-          Some("rejected-goods.single"),
+          "single",
           routes.EnterMovementReferenceNumberController.submit
         )
 

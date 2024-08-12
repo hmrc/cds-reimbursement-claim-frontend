@@ -68,7 +68,7 @@ class EnterMovementReferenceNumberController @Inject() (
       implicit request =>
         enterMovementReferenceNumberPage(
           form,
-          Some("scheduled"),
+          "scheduled",
           routes.EnterMovementReferenceNumberController.submit
         )
 

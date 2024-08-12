@@ -34,10 +34,10 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
-@title = @{messages(combine(key, subKey, "title"))}
+@title = @{messages(combine(key, Some(subKey), "title"))}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -58,7 +58,7 @@
             form = form,
             id = key,
             name = key,
-            label = combine(key, subKey, "enter-mrn.label").head,
+            label = combine(key, Some(subKey), "enter-mrn.label").head,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"enter-movement-reference-number.help")

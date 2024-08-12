@@ -124,7 +124,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-movement-reference-number.title"),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc => {
             doc.select("#enter-movement-reference-number").`val`() shouldBe ""
             doc.select("form").attr("action")                      shouldBe routes.EnterMovementReferenceNumberController.submit.url
@@ -146,7 +146,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-movement-reference-number.title"),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc => doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
         )
       }
@@ -173,7 +173,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey("enter-movement-reference-number.title"),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.number"),
           expectedStatus = BAD_REQUEST
         )
@@ -187,7 +187,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> ""),
-          messageFromMessageKey("enter-movement-reference-number.title"),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -235,7 +235,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
-          messageFromMessageKey("enter-movement-reference-number.title"),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               "enter-movement-reference-number.error.subsidy-payment-found"

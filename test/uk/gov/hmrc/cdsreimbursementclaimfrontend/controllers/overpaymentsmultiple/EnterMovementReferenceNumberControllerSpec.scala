@@ -48,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
@@ -433,7 +434,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number" -> mrn.value)(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title"),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", OrdinalNumber(1)),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               "enter-movement-reference-number.error.subsidy-payment-found"

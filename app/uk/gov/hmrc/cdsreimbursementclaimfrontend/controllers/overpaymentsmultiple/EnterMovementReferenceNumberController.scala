@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_multiple_movement_reference_numbers
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -51,7 +51,7 @@ class EnterMovementReferenceNumberController @Inject() (
   claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   featureSwitchService: FeatureSwitchService,
-  enterMovementReferenceNumberPage: enter_movement_reference_number
+  enterMovementReferenceNumberPage: enter_multiple_movement_reference_numbers
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends OverpaymentsMultipleJourneyBaseController
     with GetXiEoriMixin {
@@ -70,7 +70,7 @@ class EnterMovementReferenceNumberController @Inject() (
        Ok(
          enterMovementReferenceNumberPage(
            movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
-           Some("multiple"),
+           "multiple",
            pageIndex,
            routes.EnterMovementReferenceNumberController.submit(pageIndex),
            isSubsidy = journey.isSubsidyOnlyJourney
@@ -96,7 +96,7 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
-                  Some("multiple"),
+                  "multiple",
                   pageIndex,
                   routes.EnterMovementReferenceNumberController.submit(pageIndex)
                 )
@@ -121,7 +121,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm.withError("enter-movement-reference-number", error.message),
-                        Some("multiple"),
+                        "multiple",
                         pageIndex,
                         routes.EnterMovementReferenceNumberController.submit(pageIndex)
                       )
@@ -173,7 +173,7 @@ class EnterMovementReferenceNumberController @Inject() (
       movementReferenceNumberForm
         .fill(mrn)
         .withError("enter-movement-reference-number", errorSuffix),
-      Some("multiple"),
+      "multiple",
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )

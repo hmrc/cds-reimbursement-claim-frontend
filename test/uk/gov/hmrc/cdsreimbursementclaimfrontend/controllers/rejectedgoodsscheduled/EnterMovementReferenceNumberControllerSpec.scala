@@ -134,7 +134,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
+          messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -160,7 +160,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
+          messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -191,7 +191,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number.rejected-goods" -> ""),
-          messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
+          messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -207,7 +207,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value),
-          messageFromMessageKey(s"$messageKey.scheduled.title", "first"),
+          messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"

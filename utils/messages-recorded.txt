@@ -484,7 +484,7 @@ enter-movement-reference-number.securities.enter-mrn.label
 enter-movement-reference-number.securities.help
 enter-movement-reference-number.securities.help-text
 enter-movement-reference-number.securities.title
-enter-movement-reference-number.title
+enter-movement-reference-number.single.title
 enter-rejected-goods-details.rejected-goods.bullet.1
 enter-rejected-goods-details.rejected-goods.bullet.2
 enter-rejected-goods-details.rejected-goods.bullet.3

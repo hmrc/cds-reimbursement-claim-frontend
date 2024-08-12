@@ -69,7 +69,7 @@ class EnterMovementReferenceNumberController @Inject() (
       implicit request =>
         enterMovementReferenceNumberPage(
           form,
-          Some("overpayments.single"),
+          "single",
           routes.EnterMovementReferenceNumberController.submit
         )
 
