@@ -230,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number." -> "")(),
+          performAction("enter-movement-reference-number" -> "")(),
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
