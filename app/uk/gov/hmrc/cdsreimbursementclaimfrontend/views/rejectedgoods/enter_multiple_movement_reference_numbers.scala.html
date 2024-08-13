@@ -40,7 +40,7 @@
 
 @(form: Form[MRN], subKey: String, pageOrdinalValue: Int, postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-movement-reference-number.rejected-goods"}
+@key = @{"enter-movement-reference-number"}
 @ordinalValueStr = @{OrdinalNumber(pageOrdinalValue)}
 
 @title = @{
@@ -53,7 +53,7 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -62,9 +62,9 @@
         @heading(Html(title))
 
         @dropdownDetails(
-            summary = s"enter-movement-reference-number.rejected-goods.details.heading",
+            summary = s"enter-movement-reference-number.details.heading",
             html(
-                paragraph(Html(messages(s"enter-movement-reference-number.rejected-goods.details.paragraph")))
+                paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph")))
             )
         )
 

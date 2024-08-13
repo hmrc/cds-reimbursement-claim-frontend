@@ -26,7 +26,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
@@ -68,7 +68,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
        Ok(
          enterMovementReferenceNumberPage(
-           movementReferenceNumberRejectedGoodsForm
+           movementReferenceNumberForm
              .withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            "multiple",
            pageIndex,
@@ -87,8 +87,8 @@ class EnterMovementReferenceNumberController @Inject() (
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
-      val filledForm    = movementReferenceNumberRejectedGoodsForm.bindFromRequest()
-      movementReferenceNumberRejectedGoodsForm
+      val filledForm    = movementReferenceNumberForm.bindFromRequest()
+      movementReferenceNumberForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
@@ -128,7 +128,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm
-                          .withError("enter-movement-reference-number.rejected-goods", error.message),
+                          .withError("enter-movement-reference-number", error.message),
                         "multiple",
                         pageIndex,
                         routes.EnterMovementReferenceNumberController.submit(pageIndex),
@@ -187,16 +187,16 @@ class EnterMovementReferenceNumberController @Inject() (
             .map(Error.apply)
         )
       case _           =>
-        EitherT.leftT(Error("could not unbox display declara  tion"))
+        EitherT.leftT(Error("could not unbox display declaration"))
     }
 
   private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, @annotation.nowarn isSubsidy: Boolean)(implicit
     request: Request[_]
   ) =
     enterMovementReferenceNumberPage(
-      movementReferenceNumberRejectedGoodsForm
+      movementReferenceNumberForm
         .fill(mrn)
-        .withError("enter-movement-reference-number.rejected-goods", errorSuffix),
+        .withError("enter-movement-reference-number", errorSuffix),
       "multiple",
       pageIndex,
       routes.EnterMovementReferenceNumberController.submit(pageIndex)

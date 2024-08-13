@@ -105,7 +105,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(*)
       .returning(response)
 
-  val messageKey: String = "enter-movement-reference-number.rejected-goods"
+  val messageKey: String = "enter-movement-reference-number"
 
   "MRN Controller" when {
     "Enter MRN page" must {
@@ -230,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> "")(),
+          performAction("enter-movement-reference-number." -> "")(),
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
@@ -246,10 +246,10 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value)(),
+          performAction("enter-movement-reference-number" -> invalidMRN.value)(),
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => {
-            getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
+            getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"enter-movement-reference-number.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
           },
           expectedStatus = BAD_REQUEST
@@ -264,7 +264,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value)(),
+          performAction("enter-movement-reference-number" -> mrn.value)(),
           routes.ProblemWithMrnController.show(1, mrn)
         )
       }
@@ -283,7 +283,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -309,7 +309,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.EnterImporterEoriNumberController.show
         )
       }
@@ -337,7 +337,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.EnterImporterEoriNumberController.show
         )
       }
@@ -365,7 +365,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -390,7 +390,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> secondMrn.value)(2),
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
           routes.CheckMovementReferenceNumbersController.show
         )
       }
@@ -429,7 +429,7 @@ class EnterMovementReferenceNumberControllerSpec
           }
 
           checkIsRedirect(
-            performAction("enter-movement-reference-number.rejected-goods" -> correctedDD.getMRN.value)(mrnToChange),
+            performAction("enter-movement-reference-number" -> correctedDD.getMRN.value)(mrnToChange),
             routes.SelectDutiesController.show(mrnToChange)
           )
         }
