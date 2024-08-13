@@ -105,7 +105,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(*)
       .returning(response)
 
-  val messageKey: String = "enter-movement-reference-number"
+  val messageKey: String = "enter-movement-reference-number.rejected-goods"
 
   "MRN Controller" when {
     "Enter MRN page" must {
