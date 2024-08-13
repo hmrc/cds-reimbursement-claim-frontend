@@ -195,7 +195,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey("enter-movement-reference-number.single.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.rejected-goods.error.required"
+              "enter-movement-reference-number.error.required"
             ),
           expectedStatus = BAD_REQUEST
         )
@@ -389,7 +389,7 @@ class EnterMovementReferenceNumberControllerSpec
             messageFromMessageKey("enter-movement-reference-number.single.title"),
             doc =>
               getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-movement-reference-number.rejected-goods.error.subsidy-payment-found"
+                "enter-movement-reference-number.error.subsidy-payment-found"
               ),
             expectedStatus = BAD_REQUEST
           )

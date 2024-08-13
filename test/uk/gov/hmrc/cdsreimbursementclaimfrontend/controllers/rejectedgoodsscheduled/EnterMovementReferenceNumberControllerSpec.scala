@@ -190,7 +190,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> ""),
+          performAction("enter-movement-reference-number." -> ""),
           messageFromMessageKey(s"enter-movement-reference-number.scheduled.title", "first"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
