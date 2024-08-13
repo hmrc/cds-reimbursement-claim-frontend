@@ -105,7 +105,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(*)
       .returning(response)
 
-  val messageKey: String = "enter-movement-reference-number"
+  val messageKey: String = "enter-movement-reference-number.rejected-goods"
 
   "MRN Controller" when {
     "Enter MRN page" must {
@@ -230,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number." -> "")(),
+          performAction("enter-movement-reference-number" -> "")(),
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
