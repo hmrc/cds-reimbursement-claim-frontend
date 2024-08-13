@@ -45,14 +45,18 @@
 
 @title = @{
     subKey match {
-        case "single" => EnterMovementReferenceNumberTitleHelper.single
-        case "multiple" => EnterMovementReferenceNumberTitleHelper.multiple(pageOrdinalValue, isSubsidy)
-        case "scheduled" => EnterMovementReferenceNumberTitleHelper.scheduled
+        case "single" => EnterMovementReferenceNumberHelper.titleSingle
+        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageOrdinalValue, isSubsidy)
+        case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled
     }
 }
 
 @label = @{
-
+    subKey match {
+        case "single" => EnterMovementReferenceNumberHelper.labelSingle
+        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageOrdinalValue, isSubsidy)
+        case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled
+    }
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -76,8 +80,7 @@
             form = form,
             id = key,
             name = key,
-            label = combine(key, Some(subKey), "enter-mrn.label").head,
-            headingMessageArgs = Seq(ordinalValueStr),
+            label = label,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(combine(key, Some(subKey), "help").head)

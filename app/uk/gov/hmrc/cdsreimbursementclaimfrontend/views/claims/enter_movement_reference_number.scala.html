@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 
 @this(
@@ -37,11 +38,24 @@
 @(form: Form[MRN], subKey: String, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
-@title = @{messages(combine(key, Some(subKey), "title"))}
+
+@title = @{
+    subKey match {
+        case "single" => EnterMovementReferenceNumberHelper.titleSingle
+        case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled
+}
+}
+
+@label = @{
+    subKey match {
+        case "single" => EnterMovementReferenceNumberHelper.labelSingle
+        case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled
+    }
+}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -58,7 +72,7 @@
             form = form,
             id = key,
             name = key,
-            label = combine(key, Some(subKey), "enter-mrn.label").head,
+            label = label,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"enter-movement-reference-number.help")

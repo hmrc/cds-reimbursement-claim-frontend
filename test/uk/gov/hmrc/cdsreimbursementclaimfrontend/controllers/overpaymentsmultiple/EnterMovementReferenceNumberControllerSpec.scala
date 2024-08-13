@@ -130,9 +130,10 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey(s"$messageKey.multiple.title", "first"),
           doc => {
             doc
-              .getElementById(s"$messageKey-hint")
+              .getElementById(s"$messageKey-label")
               .text()                           shouldBe messageFromMessageKey(
-              s"$messageKey.help"
+              s"$messageKey.multiple.label",
+              "first"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
