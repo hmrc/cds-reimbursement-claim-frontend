@@ -131,7 +131,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                           shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
@@ -159,7 +159,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                              shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.getElementById(messageKey).`val`() shouldBe mrn.value
           }
@@ -189,7 +189,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                              shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.getElementById(messageKey).`val`() shouldBe mrn.value
           }

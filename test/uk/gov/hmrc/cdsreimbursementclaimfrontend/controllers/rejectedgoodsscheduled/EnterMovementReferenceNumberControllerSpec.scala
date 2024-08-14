@@ -139,7 +139,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                           shouldBe messageFromMessageKey(
-              s"$messageKey.scheduled.help"
+              s"$messageKey.help"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController.submit.url
@@ -165,7 +165,7 @@ class EnterMovementReferenceNumberControllerSpec
             doc
               .getElementById(s"$messageKey-hint")
               .text()                                                     shouldBe messageFromMessageKey(
-              s"$messageKey.scheduled.help"
+              s"$messageKey.help"
             )
             doc.getElementById("enter-movement-reference-number").`val`() shouldBe mrn.value
           }

@@ -348,19 +348,6 @@ object Forms {
       )(identity)(Some(_))
     )
 
-  val movementReferenceNumberRejectedGoodsForm: Form[MRN] =
-    Form(
-      mapping(
-        "enter-movement-reference-number.rejected-goods" ->
-          nonEmptyText
-            .verifying(
-              "invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
-
   val enterDuplicateMrnWithNoCheck: Form[MRN] =
     Form(
       mapping(

@@ -24,25 +24,25 @@ object EnterMovementReferenceNumberHelper {
   def titleSingle()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.single.title")
 
-  def titleMultiple(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
+  def titleMultiple(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
     messages.lang.language match {
-      case "en" => titleMultipleEnglish(pageOrdinalValue, isSubsidy)
-      case "cy" => titleMultipleWelsh(pageOrdinalValue, isSubsidy)
+      case "en" => titleMultipleEnglish(pageNumber, isSubsidy)
+      case "cy" => titleMultipleWelsh(pageNumber, isSubsidy)
     }
-  def titleScheduled()(implicit messages: Messages): String                                         =
+  def titleScheduled()(implicit messages: Messages): String                                   =
     messages("enter-movement-reference-number.scheduled.title")
 
-  private def titleMultipleWelsh(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
+  private def titleMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
     val maybeSubsidy = if (isSubsidy) ".subsidy" else ""
-    pageOrdinalValue match {
+    pageNumber match {
       case x if x <= 20 =>
-        messages(s"enter-movement-reference-number.multiple.title.$pageOrdinalValue$maybeSubsidy")
+        messages(s"enter-movement-reference-number.multiple.title.$pageNumber$maybeSubsidy")
       case _            => messages(s"enter-movement-reference-number.multiple.title.default$maybeSubsidy")
     }
   }
 
-  private def titleMultipleEnglish(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
-    val ordinalNumber = OrdinalNumber(pageOrdinalValue)
+  private def titleMultipleEnglish(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
+    val ordinalNumber = OrdinalNumber(pageNumber)
     val maybeSubsidy  = if (isSubsidy) ".subsidy" else ""
     messages(s"enter-movement-reference-number.multiple.title$maybeSubsidy", ordinalNumber)
   }
@@ -50,25 +50,25 @@ object EnterMovementReferenceNumberHelper {
   def labelSingle()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.single.label")
 
-  def labelMultiple(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
+  def labelMultiple(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
     messages.lang.language match {
-      case "en" => labelMultipleEnglish(pageOrdinalValue, isSubsidy)
-      case "cy" => labelMultipleWelsh(pageOrdinalValue, isSubsidy)
+      case "en" => labelMultipleEnglish(pageNumber, isSubsidy)
+      case "cy" => labelMultipleWelsh(pageNumber, isSubsidy)
     }
-  def labelScheduled()(implicit messages: Messages): String                                         =
+  def labelScheduled()(implicit messages: Messages): String                                   =
     messages("enter-movement-reference-number.scheduled.label")
 
-  private def labelMultipleWelsh(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
+  private def labelMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
     val maybeSubsidy = if (isSubsidy) ".subsidy" else ""
-    pageOrdinalValue match {
+    pageNumber match {
       case x if x <= 20 =>
-        messages(s"enter-movement-reference-number.multiple.label.$pageOrdinalValue$maybeSubsidy")
+        messages(s"enter-movement-reference-number.multiple.label.$pageNumber$maybeSubsidy")
       case _            => messages(s"enter-movement-reference-number.multiple.label.default$maybeSubsidy")
     }
   }
 
-  private def labelMultipleEnglish(pageOrdinalValue: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
-    val ordinalNumber = OrdinalNumber(pageOrdinalValue)
+  private def labelMultipleEnglish(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
+    val ordinalNumber = OrdinalNumber(pageNumber)
     val maybeSubsidy  = if (isSubsidy) ".subsidy" else ""
     messages(s"enter-movement-reference-number.multiple.label$maybeSubsidy", ordinalNumber)
   }
