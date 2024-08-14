@@ -71,7 +71,7 @@ class EnterMovementReferenceNumberController @Inject() (
          enterMovementReferenceNumberPage(
            movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
            "multiple",
-           pageIndex,
+           Some(pageIndex),
            routes.EnterMovementReferenceNumberController.submit(pageIndex),
            isSubsidy = journey.isSubsidyOnlyJourney
          )
@@ -97,7 +97,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 enterMovementReferenceNumberPage(
                   formWithErrors,
                   "multiple",
-                  pageIndex,
+                  Some(pageIndex),
                   routes.EnterMovementReferenceNumberController.submit(pageIndex)
                 )
               )
@@ -122,7 +122,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       enterMovementReferenceNumberPage(
                         filledForm.withError("enter-movement-reference-number", error.message),
                         "multiple",
-                        pageIndex,
+                        Some(pageIndex),
                         routes.EnterMovementReferenceNumberController.submit(pageIndex)
                       )
                     )
@@ -174,7 +174,7 @@ class EnterMovementReferenceNumberController @Inject() (
         .fill(mrn)
         .withError("enter-movement-reference-number", errorSuffix),
       "multiple",
-      pageIndex,
+      Some(pageIndex),
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )
 

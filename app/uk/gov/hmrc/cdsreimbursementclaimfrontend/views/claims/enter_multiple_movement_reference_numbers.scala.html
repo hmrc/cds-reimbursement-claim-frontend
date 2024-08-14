@@ -38,15 +38,14 @@
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[MRN], subKey: String, pageOrdinalValue: Int, postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: String, pageNumber: Option[Int], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
-@ordinalValueStr = @{OrdinalNumber(pageOrdinalValue)}
 
 @title = @{
     subKey match {
         case "single" => EnterMovementReferenceNumberHelper.titleSingle
-        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageOrdinalValue, isSubsidy)
+        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageNumber.getOrElse(1), isSubsidy)
         case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled
     }
 }
@@ -54,7 +53,7 @@
 @label = @{
     subKey match {
         case "single" => EnterMovementReferenceNumberHelper.labelSingle
-        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageOrdinalValue, isSubsidy)
+        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageNumber.getOrElse(1), isSubsidy)
         case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled
     }
 }
@@ -84,7 +83,7 @@
             doNotResolveLabel = true,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            hint = Some(combine(key, Some(subKey), "help").head)
+            hint = Some(s"enter-movement-reference-number.help")
         )
 
         @submitButton("button.continue")
