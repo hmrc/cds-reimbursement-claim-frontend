@@ -43,7 +43,8 @@
     labelClasses: Option[String] = None,
     prefix: Option[PrefixOrSuffix] = None,
     autocomplete: Option[String] = None,
-    spellcheck: Option[Boolean] = None
+    spellcheck: Option[Boolean] = None,
+    doNotResolveLabel: Boolean = false
 )(implicit messages: Messages)
 
 @govukInput(Input(
@@ -51,7 +52,7 @@
     name,
     classes = classes.fold("")(x => x),
     label = Label(
-        content = HtmlContent(messages(label, headingMessageArgs:_*)),
+        content = HtmlContent(if(doNotResolveLabel) label else messages(label, headingMessageArgs:_*)),
         isPageHeading = isPageHeading,
         classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else ""),
         attributes = Map("id" -> s"$id-label")

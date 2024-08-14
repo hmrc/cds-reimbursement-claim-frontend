@@ -1043,6 +1043,7 @@ enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I5
 enter-movement-reference-number.help-text=The MRN is issued when an import is declared.
 enter-movement-reference-number.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-movement-reference-number.multiple.label=Enter {0} MRN
+enter-movement-reference-number.multiple.label.subsidy=Enter {0} MRN
 enter-movement-reference-number.multiple.error.existingMRN=This Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.multiple.error.needsNonSubsidy=Enter a non-subsidy MRN
 enter-movement-reference-number.multiple.error.needsSubsidy=Enter a subsidy MRN
