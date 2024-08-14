@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.OrdinalNumberMrnHelper
 
 import scala.concurrent.Future
 
@@ -73,7 +74,7 @@ class CheckClaimDetailsControllerSpec
 
     doc.select(".heading-mrn").eachText() should contain theSameElementsAs claims.keys.zipWithIndex.map {
       case (mrn, i) =>
-        messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumber(i + 1).capitalize, mrn.value)
+        messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumberMrnHelper(i + 1), mrn.value)
     }
     doc.select("#overall-total").text() shouldBe claims.map(_._2.values.sum).sum.toPoundSterlingString
 

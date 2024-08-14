@@ -84,7 +84,7 @@ check-claim.error.required=Select yes if the claim details are correct
 check-claim.eu-duty.label=EU Duty
 check-claim.excise-duty.label=Excise Duty
 check-claim.multiple.are-duties-correct=Are these duties correct?
-check-claim.multiple.duty.label={0} MRN: {1}
+check-claim.multiple.duty.label={0}: {1}
 check-claim.multiple.error.invalid=Select yes if the claim details are correct
 check-claim.multiple.error.required=Select yes if duties are correct
 check-claim.multiple.no=No, select different duties
@@ -316,6 +316,7 @@ check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.inspection.inspection-date=Inspection date
 check-your-answers.multiple-claim-totals.label=Claim total
+check-your-answers.multiple.mrn-label-plaintext={0} (Movement Reference Number)
 check-your-answers.payee-type.label=Payee
 check-your-answers.payee-type.importer=Importer
 check-your-answers.payee-type.declarant=Declarant / Representative
@@ -343,8 +344,6 @@ check-your-answers.reference-number.rejectedgoodsmultiple.label={0} MRN
 check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext={0} Movement Reference Number (MRN)
 check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (MRN)
 check-your-answers.reference-number.scheduled.h2-subsidy=Lead Movement Reference Number (MRN) - Subsidy
-check-your-answers.reference-number.scheduled.label=First MRN
-check-your-answers.reference-number.scheduled.label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.reimbursement-method.bt=Bank account transfer
 check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
 check-your-answers.reimbursement-method.h2=Repayment method
@@ -356,10 +355,14 @@ check-your-answers.repayment-method.cma=Current Month Adjustment (CMA)
 check-your-answers.repayment-method.h2=Repayment method
 check-your-answers.repayment-method.label=Method
 check-your-answers.repayment-method.subsidy=Subsidy allocation
+check-your-answers.scheduled.mrn-label=First MRN
+check-your-answers.scheduled.mrn-label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.scheduled.confirmation-statement.h2=Now send your claim
 check-your-answers.scheduled.title=Check your answers before sending your claim
+check-your-answers.single.mrn-label=MRN
+check-your-answers.single.mrn-label-plaintext=Movement Reference Number (MRN)
 check-your-answers.special-circumstances.h2=Special circumstances
 check-your-answers.special-circumstances.label=Any special circumstances relating to your claim
 check-your-answers.title=Check your answers before sending your claim
@@ -1270,6 +1273,8 @@ ordinal.suffix.7=th
 ordinal.suffix.8=th
 ordinal.suffix.9=th
 
+ordinal-number-mrn={0} MRN
+
 overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
 overpayments.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
@@ -1289,7 +1294,6 @@ overpayments.choose-how-many-mrns.details.heading=What is a Movement Reference N
 overpayments.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.multiple-mrns.heading=Entering Multiple MRNs
 overpayments.choose-how-many-mrns.multiple-mrns.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with either a GB or an XI EORI number.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-
 
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta

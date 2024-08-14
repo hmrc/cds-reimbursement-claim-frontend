@@ -20,6 +20,7 @@
 @import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.twirl.api.TwirlFeatureImports.defining
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -55,33 +56,22 @@
         @errorSummary(form.errors)
 
         <dl class="govuk-summary-list cds-multi-action">
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.multiple.label"))</dt>
-                <dd class="govuk-summary-list__value">@references.head.value</dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href=@changeUrl(1).url>
-                        @{messages(s"cya.change")}
-                        <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.multiple.label"))</span>
-                    </a>
-                </dd>
-                <dd class="govuk-summary-list__actions"></dd>
-            </div>
-            @references.zipWithIndex.drop(1).map { mrnWithIndex =>
+            @references.zipWithIndex.map { mrnWithIndex =>
                 @defining(mrnWithIndex._2) { index =>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</dt>
+                        <dt class="govuk-summary-list__key">@Html(OrdinalNumberMrnHelper(index + 1))</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link" href=@changeUrl(index + 1).url>
                                 @{messages(s"cya.change")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(OrdinalNumberMrnHelper(index + 1))</span>
                             </a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
                         @if(references.size > 2) {
                             <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>
                                 @{messages(s"cya.remove")}
-                                <span class="govuk-visually-hidden">@Html(messages(s"check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label", OrdinalNumber((index + 1)).capitalize))</span>
+                                <span class="govuk-visually-hidden">@Html(OrdinalNumberMrnHelper(index + 1))</span>
                             </a>
                         }
                         </dd>

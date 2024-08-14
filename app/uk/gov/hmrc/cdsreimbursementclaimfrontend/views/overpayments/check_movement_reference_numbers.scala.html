@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 
 @this(
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -68,7 +69,7 @@
             </div>
             @references.zipWithIndex.drop(1).map { case (mrn, index) =>
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.associated-mrn-label", OrdinalNumber((index + 1)).capitalize))</dt>
+                    <dt class="govuk-summary-list__key">@Html(OrdinalNumberMrnHelper(index + 1))</dt>
                     <dd class="govuk-summary-list__value">@mrn.value</dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" href=@changeUrl(index + 1).url>

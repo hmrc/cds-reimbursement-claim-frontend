@@ -224,9 +224,8 @@ class CheckMovementReferenceNumbersControllerSpec
               getErrorSummary(doc) shouldBe ""
               formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
-              lines.size                                                  shouldBe acc14Declarations.size
-              validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
-              lines.zipWithIndex.drop(1).forall(line => validateMrnLine(line._1, line._2, mrns))
+              lines.size shouldBe acc14Declarations.size
+              lines.zipWithIndex.forall(line => validateMrnLine(line._1, line._2, mrns))
             }
           )
         }

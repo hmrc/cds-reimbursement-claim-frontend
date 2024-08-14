@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper.co
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+
 object MovementReferenceNumberSummary {
 
   def single(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
@@ -32,7 +33,7 @@ object MovementReferenceNumberSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(HtmlContent(messages(combine(key, subKey, "label")))),
+          key = Key(HtmlContent(messages("check-your-answers.single.mrn-label"))),
           value = Value(Text(answer.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -40,7 +41,7 @@ object MovementReferenceNumberSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(combine(key, subKey, "label-plaintext")))
+                  visuallyHiddenText = Some(messages("check-your-answers.single.mrn-label-plaintext"))
                 )
               )
             )
@@ -54,45 +55,47 @@ object MovementReferenceNumberSummary {
   ): SummaryList =
     SummaryList(
       mrns.zipWithIndex.map { case (mrn, index) =>
-        if (index == 0 && messages.lang.language == "cy") {
-          SummaryListRow(
-            key = Key(
-              HtmlContent(messages(combine(key, subKey, "label.first"), OrdinalNumber(index + 1)))
-            ),
-            value = Value(Text(mrn.value)),
-            actions = changeCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText =
-                      Some(messages(combine(key, subKey, "label-plaintext.first"), OrdinalNumber(index + 1)))
-                  )
+        SummaryListRow(
+          key = Key(
+            HtmlContent(OrdinalNumberMrnHelper(index + 1))
+          ),
+          value = Value(Text(mrn.value)),
+          actions = changeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText =
+                    Some(messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1)))
                 )
               )
             )
           )
-        } else {
-          SummaryListRow(
-            key = Key(
-              HtmlContent(messages(combine(key, subKey, "label"), OrdinalNumber(index + 1).capitalize))
-            ),
-            value = Value(Text(mrn.value)),
-            actions = changeCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText =
-                      Some(messages(combine(key, subKey, "label-plaintext"), OrdinalNumber(index + 1).capitalize))
-                  )
-                )
-              )
-            )
-          )
-        }
+        )
       }
+    )
+
+  def scheduled(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("check-your-answers.scheduled.mrn-label"))),
+          value = Value(Text(answer.value)),
+          actions = changeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages("check-your-answers.scheduled.mrn-label-plaintext"))
+                )
+              )
+            )
+          )
+        )
+      )
     )
 }
