@@ -25,7 +25,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.govukfrontend.views.Aliases.{RadioItem, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MultipleClaimSummaryHelper
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -57,7 +57,7 @@
     @heading(Html(title))
 
     @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"check-claim.multiple.duty.label", OrdinalNumber(index).capitalize, mrn.value)), id = s"summary-mrn-$index")
+        @subHeading(Html(messages(s"check-claim.multiple.duty.label", OrdinalNumberMrnHelper(index), mrn.value)), id = s"summary-mrn-$index")
         @summary(SummaryList(MultipleClaimSummaryHelper.makeClaimSummaryRows(index,claim,enterClaimAction)))
     }
 

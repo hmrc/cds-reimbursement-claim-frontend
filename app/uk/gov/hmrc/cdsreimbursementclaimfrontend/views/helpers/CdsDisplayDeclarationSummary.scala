@@ -52,7 +52,7 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(HtmlContent(messages(combine(key, subKey, "mrn-label")))),
+          key = Key(HtmlContent(messages(s"$key.mrn-label"))),
           value = Value(Text(declaration.displayResponseDetail.declarationId))
         ).some.filter(_ => showImportMrn),
         declaration.getMaybeLRN match {

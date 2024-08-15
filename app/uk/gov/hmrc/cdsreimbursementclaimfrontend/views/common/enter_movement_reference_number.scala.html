@@ -21,34 +21,46 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import cats.implicits.catsSyntaxEq
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[MRN], subKey: Option[String], pageOrdinalValue: Int, postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: String, pageNumber: Option[Int], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@isFirst = @{pageOrdinalValue === 1}
+@key = @{"enter-movement-reference-number"}
 
-@key = @{if(isFirst) "enter-movement-reference-number" else "enter-associated-mrn"}
+@title = @{
+    subKey match {
+        case "single" => EnterMovementReferenceNumberHelper.titleSingle
+        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageNumber.getOrElse(1), isSubsidy)
+        case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled
+    }
+}
 
-@ordinalValueStr = @{OrdinalNumber(pageOrdinalValue)}
-@subsidyString = @{if (isSubsidy && pageOrdinalValue > 1) " subsidy" else ""}
-@title = @{messages(combine(key, subKey, "title"), ordinalValueStr, subsidyString)}
+@label = @{
+    subKey match {
+        case "single" => EnterMovementReferenceNumberHelper.labelSingle
+        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageNumber.getOrElse(1), isSubsidy)
+        case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled
+    }
+}
+
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -56,33 +68,24 @@
 
         @heading(Html(title))
 
-        @dropdownDetails(summary = s"enter-movement-reference-number.details.heading",
+        @dropdownDetails(
+            summary = s"enter-movement-reference-number.details.heading",
             html(
                 paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph")))
-        ))
+            )
+        )
 
-        @if(isFirst) {
-            @inputText(
-                form = form,
-                id = "enter-movement-reference-number",
-                name = "enter-movement-reference-number",
-                label = combine(key, subKey, "enter-mrn.label").head,
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.help")
-            )
-        } else {
-            @inputText(
-                form = form,
-                id = "enter-movement-reference-number",
-                name = "enter-movement-reference-number",
-                label = s"$key.enter-mrn.label",
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.help"),
-                headingMessageArgs = ordinalValueStr :: Nil
-            )
-        }
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = label,
+            doNotResolveLabel = true,
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"enter-movement-reference-number.help")
+        )
+
         @submitButton("button.continue")
     }
 }

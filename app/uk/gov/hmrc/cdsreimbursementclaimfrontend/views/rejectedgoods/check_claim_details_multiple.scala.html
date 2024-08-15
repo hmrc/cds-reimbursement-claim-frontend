@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ReimbursementsClaimsSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -53,7 +53,7 @@
     @heading(Html(title))
 
     @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.duty.label",OrdinalNumber(index).capitalize, mrn.value)), classes = "govuk-heading-m heading-mrn")
+        @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.duty.label",OrdinalNumberMrnHelper(index), mrn.value)), classes = "govuk-heading-m heading-mrn")
         @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_),Some(index)))
     }
 

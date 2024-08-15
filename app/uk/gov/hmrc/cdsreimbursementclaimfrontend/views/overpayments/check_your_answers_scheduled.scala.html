@@ -49,7 +49,7 @@
     @heading(Html(title))
 
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number", Some("scheduled"), ifSubsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
+    @summary(MovementReferenceNumberSummary.scheduled(claim.movementReferenceNumber, s"check-your-answers.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
 
     @subHeading(Html(messages(s"check-your-answers.scheduled-document.h2")))
     @summary(ScheduledDocumentSummary(claim.scheduledDocument.fileName,s"check-your-answers.scheduled-document",Some(routes.UploadMrnListController.show)))

@@ -466,7 +466,7 @@ enter-movement-reference-number.rejected-goods.details.paragraph
 enter-movement-reference-number.rejected-goods.error.subsidy-payment-found
 enter-movement-reference-number.rejected-goods.error.wrongMRN
 enter-movement-reference-number.rejected-goods.multiple.enter-mrn.label
-enter-movement-reference-number.rejected-goods.multiple.help
+enter-movement-reference-number.multiple.help
 enter-movement-reference-number.rejected-goods.multiple.help-text1
 enter-movement-reference-number.rejected-goods.multiple.title
 enter-movement-reference-number.rejected-goods.scheduled.enter-mrn.label
@@ -484,7 +484,7 @@ enter-movement-reference-number.securities.enter-mrn.label
 enter-movement-reference-number.securities.help
 enter-movement-reference-number.securities.help-text
 enter-movement-reference-number.securities.title
-enter-movement-reference-number.title
+enter-movement-reference-number.single.title
 enter-rejected-goods-details.rejected-goods.bullet.1
 enter-rejected-goods-details.rejected-goods.bullet.2
 enter-rejected-goods-details.rejected-goods.bullet.3

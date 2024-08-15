@@ -81,7 +81,7 @@
             id = s"enter-claim.scheduled.paid-amount",
             name = s"enter-claim.scheduled.paid-amount",
             label = if(DutyTypes.custom.contains(dutyType)) s"enter-claim.scheduled.paid-amount" else s"enter-claim.scheduled.paid-amount.excise",
-            headingMessageArgs = Seq(messages(s"duty-type.${dutyType.repr}"), taxCode.value),
+            headingMessageArgs = Seq(messages(s"enter-claim.paid-amount.duty-type.${dutyType.repr}"), taxCode.value),
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,

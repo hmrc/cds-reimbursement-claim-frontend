@@ -26,7 +26,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberRejectedGoodsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -68,10 +68,10 @@ class EnterMovementReferenceNumberController @Inject() (
 
        Ok(
          enterMovementReferenceNumberPage(
-           movementReferenceNumberRejectedGoodsForm
+           movementReferenceNumberForm
              .withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
-           Some("multiple"),
-           pageIndex,
+           "multiple",
+           Some(pageIndex),
            routes.EnterMovementReferenceNumberController.submit(pageIndex),
            isSubsidy = journey.isSubsidyOnlyJourney
          )
@@ -87,8 +87,8 @@ class EnterMovementReferenceNumberController @Inject() (
       ).asFuture
     else {
       val mrnIndex: Int = pageIndex - 1
-      val filledForm    = movementReferenceNumberRejectedGoodsForm.bindFromRequest()
-      movementReferenceNumberRejectedGoodsForm
+      val filledForm    = movementReferenceNumberForm.bindFromRequest()
+      movementReferenceNumberForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
@@ -97,8 +97,8 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
-                  Some("multiple"),
-                  pageIndex,
+                  "multiple",
+                  Some(pageIndex),
                   routes.EnterMovementReferenceNumberController.submit(pageIndex),
                   isSubsidy = journey.isSubsidyOnlyJourney
                 )
@@ -128,9 +128,9 @@ class EnterMovementReferenceNumberController @Inject() (
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm
-                          .withError("enter-movement-reference-number.rejected-goods", error.message),
-                        Some("multiple"),
-                        pageIndex,
+                          .withError("enter-movement-reference-number", error.message),
+                        "multiple",
+                        Some(pageIndex),
                         routes.EnterMovementReferenceNumberController.submit(pageIndex),
                         isSubsidy = journey.isSubsidyOnlyJourney
                       )
@@ -187,18 +187,18 @@ class EnterMovementReferenceNumberController @Inject() (
             .map(Error.apply)
         )
       case _           =>
-        EitherT.leftT(Error("could not unbox display declara  tion"))
+        EitherT.leftT(Error("could not unbox display declaration"))
     }
 
   private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, @annotation.nowarn isSubsidy: Boolean)(implicit
     request: Request[_]
   ) =
     enterMovementReferenceNumberPage(
-      movementReferenceNumberRejectedGoodsForm
+      movementReferenceNumberForm
         .fill(mrn)
-        .withError("enter-movement-reference-number.rejected-goods", errorSuffix),
-      Some("multiple"),
-      pageIndex,
+        .withError("enter-movement-reference-number", errorSuffix),
+      "multiple",
+      Some(pageIndex),
       routes.EnterMovementReferenceNumberController.submit(pageIndex)
     )
 

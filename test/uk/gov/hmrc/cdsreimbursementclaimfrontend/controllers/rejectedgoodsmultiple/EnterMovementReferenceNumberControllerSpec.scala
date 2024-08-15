@@ -105,7 +105,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(*)
       .returning(response)
 
-  val messageKey: String = "enter-movement-reference-number.rejected-goods"
+  val messageKey: String = "enter-movement-reference-number"
 
   "MRN Controller" when {
     "Enter MRN page" must {
@@ -126,12 +126,12 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
               .text()                           shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.select(s"#$messageKey").`val`() shouldBe ""
             doc.select("form").attr("action")   shouldBe routes.EnterMovementReferenceNumberController
@@ -154,12 +154,12 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
               .text()                              shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.getElementById(messageKey).`val`() shouldBe mrn.value
           }
@@ -184,12 +184,12 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           controller.show(2)(FakeRequest()),
-          messageFromMessageKey(s"$messageKey.multiple.title", "second", " subsidy"),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "second", " subsidy"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
               .text()                              shouldBe messageFromMessageKey(
-              s"$messageKey.multiple.help"
+              s"$messageKey.help"
             )
             doc.getElementById(messageKey).`val`() shouldBe mrn.value
           }
@@ -230,8 +230,8 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> "")(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          performAction("enter-movement-reference-number" -> "")(),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -246,10 +246,10 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction("enter-movement-reference-number.rejected-goods" -> invalidMRN.value)(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          performAction("enter-movement-reference-number" -> invalidMRN.value)(),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc => {
-            getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"$messageKey.invalid.number")
+            getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"enter-movement-reference-number.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
           },
           expectedStatus = BAD_REQUEST
@@ -264,7 +264,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> mrn.value)(),
+          performAction("enter-movement-reference-number" -> mrn.value)(),
           routes.ProblemWithMrnController.show(1, mrn)
         )
       }
@@ -283,7 +283,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -309,7 +309,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.EnterImporterEoriNumberController.show
         )
       }
@@ -337,7 +337,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.EnterImporterEoriNumberController.show
         )
       }
@@ -365,7 +365,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> leadMrn.value)(),
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.CheckDeclarationDetailsController.show
         )
       }
@@ -390,7 +390,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkIsRedirect(
-          performAction("enter-movement-reference-number.rejected-goods" -> secondMrn.value)(2),
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
           routes.CheckMovementReferenceNumbersController.show
         )
       }
@@ -429,7 +429,7 @@ class EnterMovementReferenceNumberControllerSpec
           }
 
           checkIsRedirect(
-            performAction("enter-movement-reference-number.rejected-goods" -> correctedDD.getMRN.value)(mrnToChange),
+            performAction("enter-movement-reference-number" -> correctedDD.getMRN.value)(mrnToChange),
             routes.SelectDutiesController.show(mrnToChange)
           )
         }
@@ -463,7 +463,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(),
-          messageFromMessageKey(s"$messageKey.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
@@ -495,7 +495,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(2),
-          messageFromMessageKey(s"$messageKey.multiple.title", "second", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "second", ""),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
