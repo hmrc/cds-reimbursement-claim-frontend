@@ -196,8 +196,9 @@ trait UploadFilesMixin extends JourneyBaseController {
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
-      allowedContentTypes = "application/pdf,image/jpeg,image/png",
-      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg",
+      allowedContentTypes =
+        "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
       cargo = Some(documentType),
       newFileDescription = Some(documentTypeDescription(documentType)),
       content = uploadDocumentsContent(documentType),
@@ -258,8 +259,9 @@ trait UploadFilesMixin extends JourneyBaseController {
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
-      allowedContentTypes = "application/pdf,image/jpeg,image/png",
-      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg",
+      allowedContentTypes =
+        "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
       cargo = None,
       newFileDescription = None,
       content = uploadDocumentsContentIfSkipDocumentType(documentTypes),
