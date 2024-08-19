@@ -395,7 +395,7 @@ choose-export-method.help-text=The goods were:
 choose-export-method.radio-or=or
 choose-export-method.title=Tell us what you did with the goods
 
-choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be a JPG, PNG or PDF
+choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 choose-file-type.error.required=Select which type of document you are uploading
 choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
 choose-file-type.file-type.AdditionalSupportingDocuments.bullet=Additional supporting documents:
@@ -476,13 +476,13 @@ choose-files.add-another-document-question.error.required=Select yes to add a di
 choose-files.allowed-file-types=JPG, PNG, or PDF
 choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
-choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be a JPG, PNG or PDF.
+choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 choose-files.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
 choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
 
 choose-files.if-skip.inset-text=You must add a commercial invoice to support your claim.
-choose-files.if-skip.p1=Each file can be up to a maximum of 9MB. The selected file must be JPG, PNG, PDF.
+choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 choose-files.if-skip.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
 choose-files.if-skip.title=Upload documents to support your claim
 
@@ -1366,7 +1366,7 @@ schedule-document.upload.error.required=There is a problem with the file you tri
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
 schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template</a>. You can use this to fill in the information we need to process you claim.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
-schedule-document.upload.help-text.para4=This document can be up to {0} and must be a JPG, PNG or PDF.
+schedule-document.upload.help-text.para4=This document can be up to {0} and must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.things-to-show.l1=all be from the same importer
 schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
