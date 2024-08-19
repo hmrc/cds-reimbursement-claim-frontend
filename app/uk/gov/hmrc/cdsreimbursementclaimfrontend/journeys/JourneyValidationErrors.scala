@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 object JourneyValidationErrors {
 
+  val EORI_NOT_ALLOWLISTED: String                     = "userEoriNotAllowlisted"
   val JOURNEY_ALREADY_FINALIZED: String                = "journeyAlreadyFinalized"
   val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String  = "missingFirstMovementReferenceNumber"
   val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String = "missingSecondMovementReferenceNumber"

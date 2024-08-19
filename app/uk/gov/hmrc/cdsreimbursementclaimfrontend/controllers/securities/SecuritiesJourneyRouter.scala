@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => commonRoutes}
 
 trait SecuritiesJourneyRouter {
 
@@ -25,6 +26,7 @@ trait SecuritiesJourneyRouter {
 
   def routeForValidationError(error: String): Call =
     error match {
+      case EORI_NOT_ALLOWLISTED                                              => commonRoutes.UnauthorisedController.unauthorised()
       case JOURNEY_ALREADY_FINALIZED                                         => routes.CheckYourAnswersController.showConfirmation
       case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                           => routes.EnterMovementReferenceNumberController.show
       case MISSING_REASON_FOR_SECURITY                                       => routes.ChooseReasonForSecurityController.show

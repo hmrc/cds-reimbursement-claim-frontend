@@ -91,6 +91,9 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   /** Updates the state of the journey for the current user. */
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
 
+  /** Optional journey access precondition. */
+  val journeyAccessPrecondition: Option[Validate[Journey]] = None
+
   /** Optional action precondition. */
   val actionPrecondition: Option[Validate[Journey]] = None
 
@@ -99,13 +102,22 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Check if action precondition met when defined, and if not then return the list of errors. */
   final def checkIfMaybeActionPreconditionFails(journey: Journey): Option[Seq[String]] =
-    actionPrecondition.fold[Option[Seq[String]]](None)(
+    journeyAccessPrecondition.fold[Option[Seq[String]]](None)(
       _.apply(journey).fold(
         errors => {
-          logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
+          logger.warn(s"Journey access condition not met: ${errors.messages.mkString(",")}")
           Some(errors.messages)
         },
-        _ => None
+        _ =>
+          actionPrecondition.fold[Option[Seq[String]]](None)(
+            _.apply(journey).fold(
+              errors => {
+                logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
+                Some(errors.messages)
+              },
+              _ => None
+            )
+          )
       )
     )
 
