@@ -473,7 +473,7 @@ choose-file-type.title=Add supporting documents to your claim
 
 choose-files.add-another-document-question=Add a different type of supporting evidence to your claim?
 choose-files.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
-choose-files.allowed-file-types=JPG, PNG, or PDF
+choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
 choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
 choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
@@ -1360,7 +1360,7 @@ rejected-goods.choose-how-many-mrns.details.paragraph=A Movement Reference Numbe
 
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
-schedule-document.upload.allowed-file-types=JPG, PNG, or PDF
+schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
 schedule-document.upload.choose.description=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
