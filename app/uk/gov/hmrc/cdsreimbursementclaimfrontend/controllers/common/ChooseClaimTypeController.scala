@@ -72,9 +72,9 @@ class ChooseClaimTypeController @Inject() (
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      val securitiesIsEnabled =
+      val userIsAuthorisedSecuritiesLimitedAccess =
         request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
-      Ok(chooseClaimTypePage(claimFormForm, securitiesIsEnabled))
+      Ok(chooseClaimTypePage(claimFormForm, userIsAuthorisedSecuritiesLimitedAccess))
     }
 
   final val submit: Action[AnyContent] =

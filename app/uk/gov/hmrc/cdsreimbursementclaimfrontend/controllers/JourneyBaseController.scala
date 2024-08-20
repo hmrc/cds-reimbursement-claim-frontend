@@ -92,7 +92,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
 
   /** Optional journey access precondition. */
-  val journeyAccessPrecondition: Option[Validate[Journey]] = None
+  def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] = None
 
   /** Optional action precondition. */
   val actionPrecondition: Option[Validate[Journey]] = None
@@ -101,7 +101,9 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     "Missing journey data in session, redirecting to the start page."
 
   /** Check if action precondition met when defined, and if not then return the list of errors. */
-  final def checkIfMaybeActionPreconditionFails(journey: Journey): Option[Seq[String]] =
+  private final def checkIfMaybeActionPreconditionFails(journey: Journey)(implicit
+    request: Request[_]
+  ): Option[Seq[String]] =
     journeyAccessPrecondition.fold[Option[Seq[String]]](None)(
       _.apply(journey).fold(
         errors => {

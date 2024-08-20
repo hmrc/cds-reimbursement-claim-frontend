@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import com.github.arturopala.validator.Validator._
 import play.api.libs.json.Format
 import play.api.mvc.Call
+import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.EORI_NOT_ALLOWLISTED
@@ -48,15 +49,15 @@ trait SecuritiesJourneyBaseController extends JourneyBaseController with Securit
   final override def updateJourney(sessionData: SessionData, journey: SecuritiesJourney): SessionData =
     sessionData.copy(securitiesJourney = Some(journey))
 
-  final override val journeyAccessPrecondition: Option[Validate[Journey]] =
-    Some(validateUserEoriIsOnTheAllowList)
+  final override def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] =
+    if (jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) Some(validateUserEoriIsOnTheAllowList)
+    else None
 
-  val validateUserEoriIsOnTheAllowList: Validate[SecuritiesJourney] = {
+  private val validateUserEoriIsOnTheAllowList: Validate[SecuritiesJourney] = {
     val accessEoriSet = EnrolmentConfig.getLimitedAccessEoriSet(jcc.configuration)
     checkIsTrue(
       journey => accessEoriSet.contains(journey.answers.userEoriNumber),
       EORI_NOT_ALLOWLISTED
     )
   }
-
 }

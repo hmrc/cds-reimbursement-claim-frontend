@@ -31,6 +31,7 @@ object Feature extends EnumerationFormat[Feature] {
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object Securities extends Feature { val name = "securities" }
   case object LimitedAccess extends Feature { val name = "limited-access" }
+  case object LimitedAccessSecurities extends Feature { val name = "limited-access-securities" }
   case object ViewUpload extends Feature { val name = "view-upload" }
   case object Overpayments_v2 extends Feature { val name = "overpayments_v2" }
   case object XiEori extends Feature { val name = "xi-eori" }
@@ -48,6 +49,7 @@ object Feature extends EnumerationFormat[Feature] {
       RejectedGoods,
       Securities,
       LimitedAccess,
+      LimitedAccessSecurities,
       ViewUpload,
       Overpayments_v2,
       XiEori,

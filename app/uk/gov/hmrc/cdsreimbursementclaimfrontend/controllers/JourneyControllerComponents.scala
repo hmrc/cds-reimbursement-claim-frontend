@@ -46,7 +46,7 @@ class JourneyControllerComponents @Inject() (
   sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val controllerComponents: MessagesControllerComponents,
   val sessionCache: SessionCache,
-  featureSwitchService: FeatureSwitchService,
+  val featureSwitchService: FeatureSwitchService,
   val errorHandler: ErrorHandler,
   val configuration: Configuration,
   val servicesConfig: ServicesConfig
