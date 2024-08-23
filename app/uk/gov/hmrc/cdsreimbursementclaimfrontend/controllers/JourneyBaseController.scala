@@ -101,17 +101,28 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     "Missing journey data in session, redirecting to the start page."
 
   /** Check if action precondition met when defined, and if not then return the list of errors. */
-  private final def checkIfMaybeActionPreconditionFails(journey: Journey)(implicit
+  private final def checkIfMaybeJourneyAccessPreconditionFails(journey: Journey)(implicit
     request: Request[_]
   ): Option[Seq[String]] =
-    journeyAccessPrecondition.fold[Option[Seq[String]]](None)(
-      _.apply(journey).fold(
-        errors => {
-          logger.warn(s"Journey access condition not met: ${errors.messages.mkString(",")}")
-          Some(errors.messages)
-        },
-        _ =>
-          actionPrecondition.fold[Option[Seq[String]]](None)(
+    journeyAccessPrecondition
+      .flatMap(
+        _.apply(journey).fold(
+          errors => {
+            logger.warn(s"Access preconditions not met: ${errors.messages.mkString(",")}")
+            Some(errors.messages)
+          },
+          _ => None
+        )
+      )
+
+  /** Check if action precondition met when defined, and if not then return the list of errors. */
+  final def checkIfMaybeActionPreconditionFails(journey: Journey)(implicit
+    request: Request[_]
+  ): Option[Seq[String]] =
+    checkIfMaybeJourneyAccessPreconditionFails(journey)
+      .orElse(
+        actionPrecondition
+          .flatMap(
             _.apply(journey).fold(
               errors => {
                 logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
@@ -121,7 +132,25 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             )
           )
       )
-    )
+
+  // .fold[Option[Seq[String]]](None)(
+  //   _.apply(journey).fold(
+  //     errors => {
+  //       logger.warn(s"Journey access condition not met: ${errors.messages.mkString(",")}")
+  //       Some(errors.messages)
+  //     },
+  //     _ =>
+  //       actionPrecondition.fold[Option[Seq[String]]](None)(
+  //         _.apply(journey).fold(
+  //           errors => {
+  //             logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
+  //             Some(errors.messages)
+  //           },
+  //           _ => None
+  //         )
+  //       )
+  //   )
+  //)
 
   /** Check if the CYA page should be displayed next. */
   final def shouldForwardToCYA(journey: Journey): Boolean =
