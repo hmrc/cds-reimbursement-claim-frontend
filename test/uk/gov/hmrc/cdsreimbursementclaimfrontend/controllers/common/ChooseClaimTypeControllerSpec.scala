@@ -35,7 +35,10 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.{Application, Configuration, Logger, MarkerContext}
+import play.api.Application
+import play.api.Configuration
+import play.api.Logger
+import play.api.MarkerContext
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -49,7 +52,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimT
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, TestDefaultMessagesApiProvider}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessagesApiProvider
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -83,7 +89,8 @@ class ChooseClaimTypeControllerSpec
 
   private val exampleEori: Eori = IdGen.genEori.sample.get
 
-  private val encodedEori = new String(Base64.getEncoder.encode(exampleEori.value.getBytes), StandardCharsets.UTF_8)
+  private val encodedEori =
+    new String(Base64.getEncoder.encode(exampleEori.value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
 
   override def buildFakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -150,7 +157,7 @@ class ChooseClaimTypeControllerSpec
       mockSessionCache,
       chooseClaimTypePage,
       featureSwitch
-    ){
+    ) {
       override val logger: Logger = stubLogger
     }
 
