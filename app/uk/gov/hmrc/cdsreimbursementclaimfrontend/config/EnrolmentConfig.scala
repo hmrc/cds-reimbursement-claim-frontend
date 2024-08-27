@@ -16,6 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
+import play.api.Configuration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+import java.util.Locale
+
 object EnrolmentConfig {
 
   object EoriEnrolment {
@@ -25,5 +31,23 @@ object EnrolmentConfig {
     val eoriEnrolmentIdentifier = "EORINumber"
 
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
+  def getLimitedAccessEoriSet(config: Configuration): Set[Eori] =
+    try config
+      .getOptional[String]("limited-access-securities-eori-csv-base64")
+      .map(s => Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)))
+      .map(a => new String(a, StandardCharsets.UTF_8))
+      .map(
+        _.split(',')
+          .map(_.trim.toUpperCase(Locale.ENGLISH))
+          .map(s => new Eori(s))
+          .toSet
+      )
+      .getOrElse(Set.empty)
+    catch {
+      case e: Exception =>
+        throw new Exception("Error while parsing 'limited-access-securities-eori-csv-base64' config property", e)
+    }
 
 }

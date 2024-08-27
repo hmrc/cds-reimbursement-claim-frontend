@@ -36,37 +36,53 @@
         featureSwitchService: FeatureSwitchService
 )
 
-@(form: Form[ClaimForm])(implicit request: Request[_], hc: HeaderCarrier, messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimForm], userIsAuthorisedSecuritiesLimitedAccess: Boolean = false)(implicit request: Request[_], hc: HeaderCarrier, messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-claim-type"}
 @title = @{messages(s"choose-claim-type.title")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@normalRadioItems = @{Seq(
-    Some(RadioItem(
-        id = Some(s"choose-claim-type-c285"),
-        value = Some(C285.toString),
-        content = HtmlContent(messages(s"choose-claim-type.c285.title")),
-        hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.c285.hint")))),
-        checked = form.value.contains(C285)
-    )),
- if(featureSwitchService.isEnabled(Feature.RejectedGoods))
-    Some(RadioItem(
-        id = Some(s"choose-claim-type-ce1179"),
-        value = Some(RejectedGoods.toString),
-        content = HtmlContent(messages(s"choose-claim-type.ce1179.title")),
-        hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.ce1179.hint")))),
-        checked = form.value.contains(RejectedGoods)
-    )) else None,
- if(featureSwitchService.isEnabled(Feature.Securities))
-    Some(RadioItem(
+@securitiesRadioButton = @{
+    RadioItem(
         id = Some(s"choose-claim-type-securities"),
         value = Some(Securities.toString),
         content = HtmlContent(messages(s"choose-claim-type.securities.title")),
         hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.securities.hint")))),
         checked = form.value.contains(Securities)
-    )) else None   
-).filter(_.isDefined).map(_.get)}
+    )
+}
+
+@normalRadioItems = @{
+    Seq(
+        Some(
+            RadioItem(
+                id = Some(s"choose-claim-type-c285"),
+                value = Some(C285.toString),
+                content = HtmlContent(messages(s"choose-claim-type.c285.title")),
+                hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.c285.hint")))),
+                checked = form.value.contains(C285)
+            )
+        ),
+        if(featureSwitchService.isEnabled(Feature.RejectedGoods))
+            Some(
+                RadioItem(
+                    id = Some(s"choose-claim-type-ce1179"),
+                    value = Some(RejectedGoods.toString),
+                    content = HtmlContent(messages(s"choose-claim-type.ce1179.title")),
+                    hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.ce1179.hint")))),
+                    checked = form.value.contains(RejectedGoods)
+                )
+            ) else None,
+        if(featureSwitchService.isEnabled(Feature.Securities)) {
+            if (featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) {
+                if (userIsAuthorisedSecuritiesLimitedAccess)
+                    Some(securitiesRadioButton)
+                else None
+            } else {
+                Some(securitiesRadioButton)
+            }
+        } else None
+    ).filter(_.isDefined).map(_.get)}
 
 @dividerRadio = @{RadioItem(
  divider = Some(messages("radio.divider"))

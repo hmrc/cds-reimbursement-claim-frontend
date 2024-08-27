@@ -49,6 +49,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -66,9 +67,14 @@ class ChooseClaimTypeController @Inject() (
     with SessionUpdates
     with Logging {
 
+  private val securitiesAccessEoriSet =
+    EnrolmentConfig.getLimitedAccessEoriSet(viewConfig.config)
+
   final val show: Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      Ok(chooseClaimTypePage(claimFormForm))
+    authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
+      val userIsAuthorisedSecuritiesLimitedAccess =
+        request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
+      Ok(chooseClaimTypePage(claimFormForm, userIsAuthorisedSecuritiesLimitedAccess))
     }
 
   final val submit: Action[AnyContent] =

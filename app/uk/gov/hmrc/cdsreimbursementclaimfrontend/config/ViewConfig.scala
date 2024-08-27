@@ -27,7 +27,7 @@ import javax.inject.Singleton
 import scala.concurrent.duration.Duration
 
 @Singleton
-class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+class ViewConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
 
   private def getString(key: String): String     = servicesConfig.getString(key)
   private def getDuration(key: String): Duration = servicesConfig.getDuration(key)

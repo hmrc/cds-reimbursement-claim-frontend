@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
+import com.typesafe.config.ConfigFactory
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
@@ -26,15 +28,21 @@ import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.Application
+import play.api.Configuration
 import play.api.Logger
 import play.api.MarkerContext
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
@@ -47,6 +55,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{route
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessagesApiProvider
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -55,7 +64,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
+import uk.gov.hmrc.mongo.play.PlayMongoModule
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -71,6 +84,34 @@ class ChooseClaimTypeControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  private val exampleEoriWithoutSecuritiesAccess = IdGen.genEori.sample.get
+
+  private val exampleEori: Eori = IdGen.genEori.sample.get
+
+  private val encodedEori =
+    new String(Base64.getEncoder.encode(exampleEori.value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+
+  override def buildFakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .configure(
+        Configuration(
+          ConfigFactory.parseString(
+            s"""
+              | metrics.jvm = false
+              | metrics.enabled = false
+              | metrics.logback = false
+              | auditing.enabled = false
+              | microservice.upscan-initiate.upscan-store.expiry-time = 1
+              | limited-access-securities-eori-csv-base64 = "$encodedEori"
+          """.stripMargin
+          )
+        )
+      )
+      .disable[PlayMongoModule]
+      .overrides(featuresCacheBinding :: overrideBindings: _*)
+      .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
+      .build()
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -125,15 +166,13 @@ class ChooseClaimTypeControllerSpec
 
   private val formKey = "choose-claim-type"
 
-  val exampleEori: Eori = IdGen.genEori.sample.get
-
   "ChooseClaimTypeController" must {
 
     def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithEoriEnrolmentRetrievals()
         mockGetSession(SessionData.empty)
       }
 
@@ -160,7 +199,7 @@ class ChooseClaimTypeControllerSpec
 
     "display the page when features switched off" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithEoriEnrolmentRetrievals()
         mockGetSession(SessionData.empty)
       }
 
@@ -181,6 +220,47 @@ class ChooseClaimTypeControllerSpec
           hasButton(buttons, "ViewUpload")    shouldBe false
           extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
+        }
+      )
+    }
+
+    "display the page without securities if securities limited access is enabled and user doesn't have access" in {
+      inSequence {
+        mockAuthWithEoriEnrolmentRetrievals(exampleEoriWithoutSecuritiesAccess)
+        mockGetSession(SessionData.empty)
+      }
+
+      featureSwitch.enable(Feature.LimitedAccessSecurities)
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$formKey.title"),
+        doc => {
+          val buttons = radioButtons(doc)
+          hasButton(buttons, "Securities") shouldBe false
+        }
+      )
+    }
+
+    "display the page with securities if securities limited access is enabled and user has access" in {
+
+      inSequence {
+        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+        mockGetSession(SessionData.empty)
+      }
+
+      featureSwitch.enable(Feature.LimitedAccessSecurities)
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$formKey.title"),
+        doc => {
+          val buttons          = radioButtons(doc)
+          val securitiesButton = extractButton(buttons, "Securities")
+          hasButton(buttons, "Securities") shouldBe true
+
+          extractLabel(securitiesButton) shouldBe messageFromMessageKey(s"$formKey.securities.title")
+          extractHint(securitiesButton)  shouldBe messageFromMessageKey(s"$formKey.securities.hint")
         }
       )
     }
