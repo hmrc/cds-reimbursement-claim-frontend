@@ -71,7 +71,10 @@ class ChooseExportMethodControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "choose-export-method"
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   def validateChooseExportMethodPage(doc: Document, isError: Boolean = false) = {
     val header         = doc.select(".govuk-heading-xl").eachText().asScala

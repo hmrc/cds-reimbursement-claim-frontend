@@ -64,7 +64,10 @@ class EnterContactDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 

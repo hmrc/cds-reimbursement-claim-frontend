@@ -76,7 +76,10 @@ class SelectSecuritiesControllerSpec
 
   private val messagesKey: String = "select-securities"
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   def validateSelectSecuritiesPage(
     doc: Document,

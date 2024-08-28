@@ -58,8 +58,10 @@ class ProblemWithAddressControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   private val session = SessionData(SecuritiesJourney.empty(exampleEori))
 

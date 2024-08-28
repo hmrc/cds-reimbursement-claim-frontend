@@ -77,7 +77,10 @@ class CheckDeclarationDetailsControllerSpec
 
   private val messagesKey: String = "check-declaration-details"
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,

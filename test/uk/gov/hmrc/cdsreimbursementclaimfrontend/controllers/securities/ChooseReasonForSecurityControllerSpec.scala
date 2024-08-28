@@ -59,8 +59,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.LimitedAccessSecurities
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 
 class ChooseReasonForSecurityControllerSpec
@@ -96,7 +96,10 @@ class ChooseReasonForSecurityControllerSpec
     .empty(exampleEori)
     .submitMovementReferenceNumber(exampleMrn)
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   private def mockGetDisplayDeclarationWithErrorCodes(response: Either[GetDeclarationError, DisplayDeclaration]) =
     (mockClaimsService

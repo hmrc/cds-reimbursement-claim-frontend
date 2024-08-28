@@ -90,7 +90,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
-    ()
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
   }
 
   val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
