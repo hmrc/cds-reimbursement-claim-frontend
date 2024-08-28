@@ -92,6 +92,34 @@ class ChooseReasonForSecurityControllerSpec
 
   private val messagesKey: String = "choose-reason-for-security.securities"
 
+  private val ntasOptions = Seq(
+    ("Temporary Admissions (2 years Expiration)", "TemporaryAdmission2Y"),
+    ("Temporary Admissions (6 months Expiration)", "TemporaryAdmission6M"),
+    ("Temporary Admissions (3 months Expiration)", "TemporaryAdmission3M"),
+    ("Temporary Admissions (2 months Expiration)", "TemporaryAdmission2M")
+  )
+
+  //currently disabled
+  private val niruOptions =
+    Seq(
+      ("Missing document: Community System of Duty Relief (CSDR)", "CommunitySystemsOfDutyRelief"),
+      ("End Use Relief", "EndUseRelief"),
+      ("Inward Processing Relief (IPR)", "InwardProcessingRelief"),
+      ("Outward Processing Relief (OPR)", "OutwardProcessingRelief")
+    )
+
+  //currently disabled
+  private val nidacOptions =
+    Seq(
+      ("Account Sales", "AccountSales"),
+      ("Manual override of duty amount", "ManualOverrideDeposit"),
+      ("Missing document: quota license", "MissingLicenseQuota"),
+      ("Missing document: preference", "MissingPreferenceCertificate"),
+      ("Revenue Dispute or Inland Pre-Clearance (IPC)", "RevenueDispute"),
+      ("UKAP Entry Price", "UKAPEntryPrice"),
+      ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
+    )
+
   val initialJourney: SecuritiesJourney = SecuritiesJourney
     .empty(exampleEori)
     .submitMovementReferenceNumber(exampleMrn)
@@ -117,23 +145,8 @@ class ChooseReasonForSecurityControllerSpec
       .returning(response)
 
   def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
-    radioItems(doc) should contain theSameElementsAs Seq(
-      ("Account Sales", "AccountSales"),
-      ("Missing document: Community System of Duty Relief (CSDR)", "CommunitySystemsOfDutyRelief"),
-      ("End Use Relief", "EndUseRelief"),
-      ("Inward Processing Relief (IPR)", "InwardProcessingRelief"),
-      ("Manual override of duty amount", "ManualOverrideDeposit"),
-      ("Missing document: quota license", "MissingLicenseQuota"),
-      ("Missing document: preference", "MissingPreferenceCertificate"),
-      ("Outward Processing Relief (OPR)", "OutwardProcessingRelief"),
-      ("Revenue Dispute or Inland Pre-Clearance (IPC)", "RevenueDispute"),
-      ("Temporary Admissions (2 years Expiration)", "TemporaryAdmission2Y"),
-      ("Temporary Admissions (6 months Expiration)", "TemporaryAdmission6M"),
-      ("Temporary Admissions (3 months Expiration)", "TemporaryAdmission3M"),
-      ("Temporary Admissions (2 months Expiration)", "TemporaryAdmission2M"),
-      ("UKAP Entry Price", "UKAPEntryPrice"),
-      ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
-    )
+    radioItems(doc) should contain theSameElementsAs ntasOptions
+
     hasContinueButton(doc)
   }
 

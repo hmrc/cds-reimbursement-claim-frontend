@@ -78,7 +78,15 @@ class ChooseReasonForSecurityController @Inject() (
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
-  private val reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
+  private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity]  =
+    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNtas)) ReasonForSecurity.ntas else Set.empty
+  private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity]  =
+    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) ReasonForSecurity.niru else Set.empty
+  private def nidacOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
+    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNidac)) ReasonForSecurity.nidac else Set.empty
+
+  private def reasonsForSecurity(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
+    ntasOptions ++ niruOptions ++ nidacOptions
 
   private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 

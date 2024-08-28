@@ -142,7 +142,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
     for {
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -158,7 +158,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
     for {
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -173,7 +173,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
     for {
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.temporaryAdmissions)
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -333,12 +333,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       mrn                         <- IdGen.genMRN
       rfs                         <- genReasonForSecurity
       methodOfDisposal            <-
-        if (ReasonForSecurity.temporaryAdmissions.contains(rfs))
+        if (ReasonForSecurity.ntas.contains(rfs))
           Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values).map(Some.apply)
         else Gen.const(None)
       exportMrn                   <-
         if (
-          ReasonForSecurity.temporaryAdmissions(rfs) && methodOfDisposal.exists(
+          ReasonForSecurity.ntas(rfs) && methodOfDisposal.exists(
             TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains
           )
         ) exportMrnTrueGen.map(Some.apply)

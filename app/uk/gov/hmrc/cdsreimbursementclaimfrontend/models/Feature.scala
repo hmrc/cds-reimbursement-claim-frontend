@@ -39,6 +39,9 @@ object Feature extends EnumerationFormat[Feature] {
   case object SubsidiesForOverpayments extends Feature { val name = "subsidies-for-overpayments" }
   case object RedirectToGovUkLandingPage extends Feature { val name = "redirect-to-gov-uk-landing-page" }
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
+  case object SecurityReasonsNtas extends Feature { val name = "security-reasons.ntas" }
+  case object SecurityReasonsNiru extends Feature { val name = "security-reasons.niru" }
+  case object SecurityReasonsNidac extends Feature { val name = "security-reasons.nidac" }
 
   def of(name: String): Option[Feature] =
     values.find(_.name === name)
@@ -54,7 +57,11 @@ object Feature extends EnumerationFormat[Feature] {
       BlockSubsidies,
       SubsidiesForRejectedGoods,
       SubsidiesForOverpayments,
-      RedirectToGovUkLandingPage
+      RedirectToGovUkLandingPage,
+      SkipDocumentType,
+      SecurityReasonsNtas,
+      SecurityReasonsNiru,
+      SecurityReasonsNidac
     )
 }
 

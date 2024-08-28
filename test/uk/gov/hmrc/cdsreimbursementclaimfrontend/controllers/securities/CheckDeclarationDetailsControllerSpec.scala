@@ -271,7 +271,7 @@ class CheckDeclarationDetailsControllerSpec
       "continue to the check claimant details page if some securities has been selected" in {
         forAll(
           mrnWithRfsExcludingWithDisplayDeclarationGen(
-            ReasonForSecurity.temporaryAdmissions.toList
+            ReasonForSecurity.ntas.toList
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -306,7 +306,7 @@ class CheckDeclarationDetailsControllerSpec
       "continue to the export method page if some securities has been selected (Temporary Admission)" in {
         forAll(
           mrnWithRfsWithDisplayDeclarationGen(
-            ReasonForSecurity.temporaryAdmissions.toList
+            ReasonForSecurity.ntas.toList
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)

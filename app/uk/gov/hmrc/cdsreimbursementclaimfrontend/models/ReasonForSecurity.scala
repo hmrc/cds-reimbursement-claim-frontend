@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.syntax.eq._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed class ReasonForSecurity(val acc14Code: String)
@@ -39,32 +40,34 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   case object UKAPEntryPrice extends ReasonForSecurity("CEP")
   case object UKAPSafeguardDuties extends ReasonForSecurity("CSD")
 
-  override val values: Set[ReasonForSecurity] =
-    Set(
-      AccountSales,
-      CommunitySystemsOfDutyRelief,
-      EndUseRelief,
-      InwardProcessingRelief,
-      ManualOverrideDeposit,
-      MissingLicenseQuota,
-      MissingPreferenceCertificate,
-      OutwardProcessingRelief,
-      RevenueDispute,
-      TemporaryAdmission2Y,
-      TemporaryAdmission6M,
-      TemporaryAdmission3M,
-      TemporaryAdmission2M,
-      UKAPEntryPrice,
-      UKAPSafeguardDuties
-    )
-
-  val temporaryAdmissions: Set[ReasonForSecurity] =
+  val ntas: Set[ReasonForSecurity] =
     Set(
       TemporaryAdmission2Y,
       TemporaryAdmission6M,
       TemporaryAdmission3M,
       TemporaryAdmission2M
     )
+
+  val niru: Set[ReasonForSecurity] =
+    Set(
+      InwardProcessingRelief,
+      OutwardProcessingRelief,
+      EndUseRelief,
+      CommunitySystemsOfDutyRelief
+    )
+
+  val nidac: Set[ReasonForSecurity] =
+    Set(
+      MissingPreferenceCertificate,
+      MissingLicenseQuota,
+      AccountSales,
+      UKAPEntryPrice,
+      UKAPSafeguardDuties,
+      RevenueDispute,
+      ManualOverrideDeposit
+    )
+
+  override val values: Set[ReasonForSecurity] = ntas ++ niru ++ nidac
 
   def has(rfs: String): Boolean =
     valueMap.contains(rfs)

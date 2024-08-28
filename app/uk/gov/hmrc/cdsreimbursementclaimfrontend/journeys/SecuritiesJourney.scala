@@ -251,7 +251,7 @@ final class SecuritiesJourney private (
     }
 
   def needsMethodOfDisposalSubmission: Boolean =
-    getReasonForSecurity.exists(ReasonForSecurity.temporaryAdmissions)
+    getReasonForSecurity.exists(ReasonForSecurity.ntas)
 
   def needsExportMRNSubmission: Boolean =
     needsMethodOfDisposalSubmission &&

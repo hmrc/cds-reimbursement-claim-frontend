@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.temporaryAdmissions
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
@@ -144,15 +144,15 @@ class EnterExportMovementReferenceNumberController @Inject() (
     journey: SecuritiesJourney
   )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
     (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodOfDisposal) match {
-      case (None, _)                                                                          =>
+      case (None, _)                                                           =>
         (journey, errorHandler.errorResult()).asFuture
-      case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && isExportedMod(mod)  =>
+      case (Some(rfs), Some(mod)) if ntas.contains(rfs) && isExportedMod(mod)  =>
         body
-      case (Some(rfs), Some(mod)) if temporaryAdmissions.contains(rfs) && !isExportedMod(mod) =>
+      case (Some(rfs), Some(mod)) if ntas.contains(rfs) && !isExportedMod(mod) =>
         (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
-      case (Some(rfs), None) if temporaryAdmissions.contains(rfs)                             =>
+      case (Some(rfs), None) if ntas.contains(rfs)                             =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
-      case (Some(_), _)                                                                       =>
+      case (Some(_), _)                                                        =>
         (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
     }
 
