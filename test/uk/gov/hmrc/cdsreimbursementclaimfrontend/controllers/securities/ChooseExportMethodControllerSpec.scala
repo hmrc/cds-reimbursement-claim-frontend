@@ -110,7 +110,7 @@ class ChooseExportMethodControllerSpec
 
       "show the page for temporary admissions RfS" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas.toList),
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -137,7 +137,7 @@ class ChooseExportMethodControllerSpec
 
       "show an error if no export method is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas.toList),
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -155,7 +155,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to /enter-export-movement-reference-number when single shipment is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas.toList),
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -173,7 +173,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to /enter-export-movement-reference-number when multiple shipment is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.temporaryAdmissions.toList),
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas.toList),
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>

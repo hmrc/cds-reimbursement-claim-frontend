@@ -132,7 +132,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.hasCompleteAnswers                            shouldBe false
         journey.hasCompleteSupportingEvidences                shouldBe false
         journey.isFinalized                                   shouldBe false
-        journey.needsExportMRNSubmission                      shouldBe (ReasonForSecurity.temporaryAdmissions(
+        journey.needsExportMRNSubmission                      shouldBe (ReasonForSecurity.ntas(
           rfs
         ) && journey.answers.temporaryAdmissionMethodOfDisposal.contains(
           TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
@@ -217,7 +217,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "accept submission of a method of disposal for a suitable reason for security" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(ReasonForSecurity.ntas),
         securitiesDisplayDeclarationGen
       ) { case (mrn, rfs, decl) =>
         val journey = emptyJourney
@@ -238,7 +238,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject submission of a valid method of disposal for a non-suitable reason for security" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.ntas),
         Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values),
         securitiesDisplayDeclarationGen
       ) { case (mrn, rfs, methodOfDisposal, decl) =>
@@ -255,7 +255,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "accept submission of a valid export MRN for a suitable reason for security and method of disposal" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(ReasonForSecurity.ntas),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
@@ -279,7 +279,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject submission of a valid export MRN for a non-suitable reason for security" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.ntas),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
@@ -296,7 +296,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "reject submission of a valid export MRN for a non-suitable method of disposal" in {
       forAll(
         genMRN,
-        Gen.oneOf(ReasonForSecurity.temporaryAdmissions),
+        Gen.oneOf(ReasonForSecurity.ntas),
         Gen.oneOf(
           TemporaryAdmissionMethodOfDisposal.values.diff(exportedMethodsOfDisposal)
         ),

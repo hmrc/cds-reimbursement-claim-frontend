@@ -25,7 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.temporaryAdmissions
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -67,7 +67,7 @@ class CheckDeclarationDetailsController @Inject() (
         (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
       else if (journey.userHasSeenCYAPage)
         (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
-      else if (journey.getReasonForSecurity.exists(temporaryAdmissions.contains))
+      else if (journey.getReasonForSecurity.exists(ntas.contains))
         (updatedJourney, Redirect(routes.ChooseExportMethodController.show))
       else
         (updatedJourney.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))

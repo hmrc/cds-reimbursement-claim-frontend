@@ -117,8 +117,8 @@ class ChooseExportMethodController @Inject() (
   )(body: => (SecuritiesJourney, Result))(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
-        case rfs if ReasonForSecurity.temporaryAdmissions.contains(rfs) => body
-        case _                                                          => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+        case rfs if ReasonForSecurity.ntas.contains(rfs) => body
+        case _                                           => (journey, Redirect(routes.CheckClaimantDetailsController.show))
       }
       .asFuture
 }
