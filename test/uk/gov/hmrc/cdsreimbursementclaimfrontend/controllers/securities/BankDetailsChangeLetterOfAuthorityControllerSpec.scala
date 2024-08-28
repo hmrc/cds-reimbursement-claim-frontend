@@ -69,7 +69,10 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
   private def letterOfAuthorityPage: Future[Result] = controller.show(FakeRequest())
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   "BankDetailsChangeLetterOfAuthorityController" when {
 

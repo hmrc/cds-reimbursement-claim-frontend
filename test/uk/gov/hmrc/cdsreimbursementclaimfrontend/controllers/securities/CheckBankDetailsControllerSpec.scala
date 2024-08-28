@@ -66,7 +66,10 @@ class CheckBankDetailsControllerSpec
 
   private val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Securities)
+  override def beforeEach(): Unit = {
+    featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   private def initialJourneyWithBankDetailsinACC14(
     maybeBankDetails: Option[BankDetails],

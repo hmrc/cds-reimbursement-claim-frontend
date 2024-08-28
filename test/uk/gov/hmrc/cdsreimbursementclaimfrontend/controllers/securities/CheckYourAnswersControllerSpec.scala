@@ -95,8 +95,10 @@ class CheckYourAnswersControllerSpec
 
   private val messagesKey: String = "check-your-answers"
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
+    featureSwitch.disable(Feature.LimitedAccessSecurities)
+  }
 
   def validateCheckYourAnswersPage(
     doc: Document,
