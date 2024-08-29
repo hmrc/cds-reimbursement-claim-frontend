@@ -1364,7 +1364,7 @@ schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, 
 schedule-document.upload.choose.description=Select a document to upload
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with both GB and XI EORI numbers.
-schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template</a>. You can use this to fill in the information we need to process you claim.
+schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template (opens in a new tab)</a>. You can use this to fill in the information we need to process you claim.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
 schedule-document.upload.help-text.para4=This document can be up to {0} and must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 schedule-document.upload.input-title=Select a document to upload
