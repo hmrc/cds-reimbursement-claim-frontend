@@ -1325,7 +1325,7 @@ schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, 
 schedule-document.upload.choose.description=Dewiswch ddogfen i’w huwchlwytho
 schedule-document.upload.error.required=Mae problem gyda’r ffeil y gwnaethoch geisio ei huwchlwytho
 schedule-document.upload.help-text.para1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl MRNau i’w cynnwys yn yr hawliad hwn. Gallwch roi MRNau sy’n gysylltiedig â rhifau EORI GB a XI.
-schedule-document.upload.help-text.para2=Lawrlwythwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">templed hawlio hwn</a>. Gallwch ddefnyddio hwn i lenwi’r wybodaeth sydd ei hangen arnom i brosesu’ch hawliad.
+schedule-document.upload.help-text.para2=Lawrlwythwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">templed hawlio hwn (yn agor tab newydd)</a>. Gallwch ddefnyddio hwn i lenwi’r wybodaeth sydd ei hangen arnom i brosesu’ch hawliad.
 schedule-document.upload.help-text.para3=Bydd eich hawliad yn cael ei ohirio os na fydd yr wybodaeth hon yn cael ei darparu.
 schedule-document.upload.help-text.para4=Gall y ddogfen hon fod hyd at 9MB a rhaid iddi fod yn Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
 schedule-document.upload.input-title=Dewiswch ddogfen i’w huwchlwytho
