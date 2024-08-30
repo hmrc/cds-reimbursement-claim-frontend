@@ -8,6 +8,7 @@ bank-details.account-name.label=Yr enw sydd ar y cyfrif
 bank-details.account-number.label=Rhif y cyfrif
 bank-details.are-you-sure=A ydych chi’n siŵr bod y manylion banc hyn yn gywir?
 bank-details.change=Newid
+bank-details.cma-text=Caiff y taliad ond ei wneud i’r cyfrif banc hwn os yw’r dyddiad olaf i ohirio eisoes wedi mynd heibio erbyn i’r hawliad gael ei brosesu. Gwiriwch y <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">dyddiad olaf ar gyfer gwneud addasiadau i gyfnod gohirio (yn agor tab newydd).</a>.
 bank-details.details.bullet1=llythyr o awdurdod oddi wrth y cwmni rydych yn ei gynrychioli sy’n profi mai chi yw ei gynrychiolydd
 bank-details.details.bullet2=llythyr oddi wrth y cwmni rydych yn ei gynrychioli at ei fanc, yn cadarnhau i beth a ddylai’r manylion banc newid
 bank-details.details.heading=Sut i newid y manylion banc os mai chi yw’r cynrychiolydd
@@ -17,7 +18,11 @@ bank-details.no=Na
 bank-details.p1=Dyma fanylion y banc lle bydd eich ad-daliadau’n cael eu gwneud yn y DU ar sail ein cofnodion.
 bank-details.sort-code.label=Cod didoli
 bank-details.title=Gwnewch yn siŵr bod y manylion banc hyn yn gywir
+bank-details.warning.are-you-sure=A ydych am fynd yn eich blaen gyda’r manylion banc hyn?
 bank-details.warning=Nid ydym wedi gallu gwirio manylion y cyfrif banc hwn. Dylech wirio bod y manylion rydych wedi’u nodi yn gywir cyn mynd yn eich blaen
+bank-details.warning.no=Na, rwyf am roi manylion banc newydd
+bank-details.warning.title=Nid oedd modd dilysu’r manylion banc hyn
+bank-details.warning.inset=Cadarnhewch fod manylion y cyfrif banc yn gywir i fynd yn eich blaen.
 bank-details.yes=Iawn
 bank-details-yes-no.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
 bank-service-unavailable.help=Cysylltwch â’r <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">tîm CDS (yn agor tab newydd)</a> os oes angen i chi wneud newid i’ch gwybodaeth cyfrif banc er mwyn cwblhau’r hawliad hwn.
@@ -33,6 +38,7 @@ bank_account_letter_of_authority.subheading1=Cyfrif banc o dan yr un enw
 bank_account_letter_of_authority.subheading2=Cyfrif banc o dan enw gwahanol
 bank_account_letter_of_authority.title=A oes angen Llythyr o Awdurdod?
 bank_account_letter_of_authority.yes=Iawn
+
 bill-of-discharge-error.bod3.p2=I gyflwyno hawliad newydd am ad-daliad o’ch blaendal sicrwydd neu warant yn ddiweddarach, bydd angen i chi lenwi ffurflen BOD3.
 bill-of-discharge-error.bod3.p3=Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau oedd wedi’u Prosesu’n Fewnol y gwnaethoch eu mewnforio gydag awdurdod drwy ddatganiad.
 bill-of-discharge-error.bod4.p2=I gyflwyno hawliad newydd am ad-daliad o’ch blaendal sicrwydd neu warant yn ddiweddarach, bydd angen i chi lenwi ffurflen BOD4.
@@ -292,7 +298,7 @@ check-your-answers.inspection.inspection-address-type=Math o gyfeiriad yr archwi
 check-your-answers.inspection.inspection-date=Dyddiad yr archwiliad
 check-your-answers.multiple-claim-totals.label=Cyfanswm yr hawliad
 check-your-answers.multiple.mrn-label-plaintext={0} (Cyfeirnod Symud)
-check-your-answers.payee-type.label=Pwy fydd yn cael yr ad-daliad
+check-your-answers.payee-type.label=Talai
 check-your-answers.payee-type.type.importer=Mewnforiwr
 check-your-answers.payee-type.type.declarant=Datganydd / Cynrychiolydd
 check-your-answers.payment-method.bt=Trosglwyddiad cyfrif banc
@@ -1294,12 +1300,16 @@ problem-with-address.point.1=enw neu rif eiddo (cyfeiriad  - llinell 1)
 problem-with-address.point.2=cod post go iawn
 problem-with-address.point.3=enw tref neu ddinas
 problem-with-address.title=Mae problem gyda’ch cyfeiriad cyswllt
+problem-with-mrn.help=Darparwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd).</a>.
+
 radio.divider=neu
 recruitment-banner.dismiss=Dim diolch
 recruitment-banner.link=Byddwch yn rhan o wneud gwasanaethau’r llywodraeth yn well (yn agor ffenestr newydd)
 recruitment-banner.message=Helpwch i wella GOV.UK
 reimbursement-method.bank-transfer=Trosglwyddiad cyfrif banc
 reimbursement-method.cma=Addasiad Mis Cyfredol (CMA)
+reimbursement-method.details.title=Beth yw addasiad mis cyfredol (CMA)?
+reimbursement-method.details.p1=Pan fydd Toll Dramor neu TAW mewnforio yn cael ei gordalu gan ddefnyddio cyfrif gohirio, gall cais gael ei wneud (waeth beth yw’r statws TAW) i addasu’r cyfrif gohirio i gynnwys y swm sy’n cael ei ad-dalu.
 reimbursement-method.error.invalid=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.title=Dewiswch ddull ad-dalu
