@@ -19,91 +19,67 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+    govukDetails: GovukDetails
 )
 
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"landing-securities"}
 @title = @{messages(s"landing-securities.title")}
+@dropdown = @{
+    HtmlContent(bulletList((1 to 12).map(i => Html(messages(s"landing-securities.supporting-documents.details.l$i")))))
+}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title))
+    @paragraph(Html(messages("landing-securities.p1")))
 
-    @paragraph(Html(messages(s"landing-securities.intro.p1")))
+    @subHeading(Html(messages("landing-securities.who")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.who.p1")))
 
-    @subHeading(Html(messages(s"landing-securities.who.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+    @subHeading(Html(messages("landing-securities.temporary-admissions")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.temporary-admissions.p1")))
 
-    @paragraph(Html(messages(s"landing-securities.who.p1")))
-
-    @bulletList((1 to 3).map(i => Html(messages(s"landing-securities.who.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.why.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @paragraph(Html(messages(s"landing-securities.why.p1")))
-
-    @bulletList((1 to 9).map(i => Html(messages(s"landing-securities.why.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.what.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @bulletList((1 to 3).map(i => Html(messages(s"landing-securities.what.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.before.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @paragraph(Html(messages(s"landing-securities.before.p1")))
-
-    @bulletList((1 to 8).map(i => Html(messages(s"landing-securities.before.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.docs.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @paragraph(Html(messages(s"landing-securities.docs.p1")))
-
-    @paragraph(Html(messages(s"landing-securities.docs.p2")))
-
-    @bulletList((1 to 9).map(i => Html(messages(s"landing-securities.docs.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.start.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @paragraph(Html(messages(s"landing-securities.start.p1")))
-
-    @subHeading(Html(messages(s"landing-securities.start.subheading1")), classes = "govuk-heading-s govuk-!-margin-top-6", level = "h3")
-
-    @paragraph(Html(messages(s"landing-securities.start.p2")))
-
-    @paragraph(Html(messages(s"landing-securities.start.p3")))
+    @subHeading(Html(messages("landing-securities.before-you-start")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.before-you-start.p1")))
 
     <p class="govuk-body">
         <a href="@{routes.StartController.startNewClaim()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
-            @messages(s"landing-securities.start-button")
+            @messages("landing-securities.start-button")
             <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
             </svg>
         </a>
     </p>
 
-    @subHeading(Html(messages(s"landing-securities.start.subheading2")), classes = "govuk-heading-s govuk-!-margin-top-6", level = "h3")
+    @subHeading(Html(messages("landing-securities.what-you-need")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.what-you-need.p1")))
+    @bulletList((1 to 9).map(i => Html(messages(s"landing-securities.what-you-need.l$i"))))
 
-    @paragraph(Html(messages(s"landing-securities.start.p4")))
+    @insetText(content = HtmlContent(messages("landing-securities.inset-text")))
 
-    @paragraph(Html(messages(s"landing-securities.start.p5")))
+    @subHeading(Html(messages("landing-securities.supporting-documents")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.supporting-documents.p1")))
 
-    @subHeading(Html(messages(s"landing-securities.next.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
+    @govukDetails(Details(summary = HtmlContent(messages("landing-securities.supporting-documents.details")), content = dropdown))
 
-    @paragraph(Html(messages(s"landing-securities.next.p1")))
+    @subHeading(Html(messages("landing-securities.what-happens-next")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.what-happens-next.p1")))
+    @paragraph(Html(messages("landing-securities.what-happens-next.p2")))
+    @bulletList((1 to 3).map(i => Html(messages(s"landing-securities.what-happens-next.p2.l$i"))))
 
-    @bulletList((1 to 3).map(i => Html(messages(s"landing-securities.next.l$i"))))
-
-    @subHeading(Html(messages(s"landing-securities.help.heading")), classes = "govuk-heading-m govuk-!-margin-top-6")
-
-    @paragraph(Html(messages(s"landing-securities.help.p1")))
-
-    @paragraph(Html(messages(s"landing-securities.help.p2")))
+    @subHeading(Html(messages("landing-securities.need-help")), classes = "govuk-heading-m")
+    @paragraph(Html(messages("landing-securities.need-help.p1")))
+    @paragraph(Html(messages("landing-securities.need-help.p2")))
 
 }

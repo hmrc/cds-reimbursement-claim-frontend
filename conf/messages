@@ -1128,67 +1128,51 @@ invalid-reason-for-security.reason=Reason for security deposit
 invalid-reason-for-security.submit=Enter a different MRN
 invalid-reason-for-security.title=There is a problem with your claim
 
-landing-securities.before.heading=Before you start
-landing-securities.before.l1=an EORI number that starts with ‘GB’. <a class="govuk-link" href="">Register here if you need an EORI number</a>.
-landing-securities.before.l2=an account to use HMRC online services. <a class="govuk-link" href="">Register here if you need a Government Gateway ID</a>
-landing-securities.before.l3=the Movement Reference Number (MRN) for each of your goods
-landing-securities.before.l4=details about the goods you imported
-landing-securities.before.l5=to calculate how much tax is due if you are making a partial claim
-landing-securities.before.l6=details of why HMRC required a security deposit or guarantee for your import
-landing-securities.before.l7=bank account details
-landing-securities.before.l8=contact details
-landing-securities.before.p1=To make a claim you will need:
-landing-securities.docs.heading=What documents do I need to provide?
-landing-securities.docs.l1=commercial invoices
-landing-securities.docs.l2=import and export declarations
-landing-securities.docs.l3=packing lists
-landing-securities.docs.l4=documentation that was missing at the time of import
-landing-securities.docs.l5=substitute or diversion entry
-landing-securities.docs.l6=inward processing relief - a completed <a class="govuk-link" href="https://public-online.hmrc.gov.uk/lc/content/xfaforms/profiles/forms.html?contentRoot=repository:///Applications/Customs_D/1.0/BRBOD3&template=BOD3.xdp">Bill of Discharge 3 form</a>
-landing-securities.docs.l7=end use relief - a completed <a class="govuk-link" href="https://public-online.hmrc.gov.uk/lc/content/xfaforms/profiles/forms.html?contentRoot=repository:///Applications/Customs_C/1.0/BOD4CDS&template=BOD4CDS.xdp">Bill of Discharge 4 form</a>
-landing-securities.docs.l8=letter of authority to update bank account details
-landing-securities.docs.l9=other documents that support your claim
-landing-securities.docs.p1=You should provide supporting documents for the goods you have imported. Scan these documents before you make your claim so you can upload them later. The documents can be up to {0} per file. We accept JPG, PNG and PDF.
-landing-securities.docs.p2=Documentation required will depend on the circumstances of your import and may include:
-landing-securities.help.heading=If you need help
-landing-securities.help.p1=Find out more information about <a class="govuk-link" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">importing goods into the UK</a>.
-landing-securities.help.p2=For general enquiries about importing, you can <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank">contact HMRC (opens in new tab)</a>.
-landing-securities.intro.p1=Use this service if you want to claim back an import security deposit or guarantee paid to HMRC for goods you brought into the UK.
-landing-securities.next.heading=What happens next
-landing-securities.next.l1=confirm your claim and deposit refund or guarantee release transfer
-landing-securities.next.l2=ask for more information
-landing-securities.next.l3=explain why your claim was rejected
-landing-securities.next.p1=Your claim will be reviewed by HMRC. We will email you the outcome within 30 working days and contact you to either:
-landing-securities.start-button=Start now
-landing-securities.start.heading=Starting your claim
-landing-securities.start.p1=To start your claim, you will need the reference number that matches the declaration that you will be including in your claim. There are 2 types of reference number you may have:
-landing-securities.start.p2=An MRN has 18 numbers and letters. For example, 21GBJD4DCMAM33D012
-landing-securities.start.p3=Continue to use this service if you have a Movement Reference Number
-landing-securities.start.p4=An entry number has 18 numbers and letters. For example, 123123456A01112022
-landing-securities.start.p5=If you have an entry number, you should <a href="" class="govuk-link">contact HMRC</a> about your claim.
-landing-securities.start.subheading1=A Movement reference Number (MRN)
-landing-securities.start.subheading2=An Entry Number
 landing-securities.title=Claim back an import security deposit or guarantee
-landing-securities.what.heading=What you need to know
-landing-securities.what.l1=claims can take 30 days to process, or longer if we need to contact you
-landing-securities.what.l2=you will need to provide documents to support your claim
-landing-securities.what.l3=For inward processing relief or end use relief claims, a claim for a refund will only be accepted when 100% of the imported goods have been discharged
-landing-securities.who.heading=Making a claim
-landing-securities.who.l1=importers or their representatives
-landing-securities.who.l2=agents
-landing-securities.who.l3=freight forwarders or fast parcel operators
-landing-securities.who.p1=Anyone who paid an import security deposit or guarantee to HMRC and wants it refunding can submit a claim, including:
-landing-securities.why.heading=Types of claims
-landing-securities.why.l1=Temporary admissions of goods
-landing-securities.why.l2=Inward processing relief
-landing-securities.why.l3=Outward processing relief
-landing-securities.why.l4=End use relief
-landing-securities.why.l5=Account sales
-landing-securities.why.l6=Airworthiness
-landing-securities.why.l7=Missing documents at time of import
-landing-securities.why.l8=UKAP Entry price
-landing-securities.why.l9=UKAP safeguard duties
-landing-securities.why.p1=A security deposit or guarantee may have been paid to HMRC for a variety of reasons. These can include:
+landing-securities.p1=You can use this service to claim back an import security deposit or guarantee paid to HMRC for goods you temporarily brought into the UK.
+landing-securities.who=Who can claim
+landing-securities.who.p1=You can claim if you are an importer, a customs agent, freight forwarder or fast parcel operator, acting on behalf of the importer.
+landing-securities.temporary-admissions=Temporary Admission claims
+landing-securities.temporary-admissions.p1=Temporary admissions are for set periods ranging from 2, 3 or 6 months, or 2 years. When this time period comes to an end, you may submit a claim for the security deposit or guarantee paid at the time of import.
+landing-securities.before-you-start=Before you start
+landing-securities.before-you-start.p1=You must be <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">subscribed to the Customs Declaration Service</a> and need a Government Gateway user ID and password linked to your EORI number.
+landing-securities.start-button=Start now
+landing-securities.what-you-need=What you’ll need
+landing-securities.what-you-need.p1=To claim a security deposit or guarantee you’ll need:
+landing-securities.what-you-need.l1=an import and export Movement Reference Number (MRN) from the Customs Declaration Service
+landing-securities.what-you-need.l2=to know how the goods will be received — for example, imported as freight or post
+landing-securities.what-you-need.l3=details of your guarantee (if applicable)
+landing-securities.what-you-need.l4=to know how long the goods will be in UK
+landing-securities.what-you-need.l5=to know what you did with the goods
+landing-securities.what-you-need.l6=your bank details
+landing-securities.what-you-need.l7=your contact and address details
+landing-securities.what-you-need.l8=duty or VAT amount due and paid to HMRC
+landing-securities.what-you-need.l9=supporting documents
+landing-securities.inset-text=Online services may be slow during busy times. Check if there are any <a href="https://www.gov.uk/guidance/customs-declaration-service-service-availability-and-issues" class="govuk-link">problems with this service</a>.
+landing-securities.supporting-documents=Supporting documents
+landing-securities.supporting-documents.p1=You will need supporting evidence relating to the claim. Files can be up to 9MB each and are any of the following:
+landing-securities.supporting-documents.details=Examples of supporting documents
+landing-securities.supporting-documents.details.l1=commercial invoices
+landing-securities.supporting-documents.details.l2=import or export declaration
+landing-securities.supporting-documents.details.l3=packing lists
+landing-securities.supporting-documents.details.l4=PIM/PIEX international consignment notes
+landing-securities.supporting-documents.details.l5=sea or air waybill
+landing-securities.supporting-documents.details.l6=bill of lading
+landing-securities.supporting-documents.details.l7=international consignment note
+landing-securities.supporting-documents.details.l8=customers order or sales contract
+landing-securities.supporting-documents.details.l9=correspondence between companies
+landing-securities.supporting-documents.details.l10=substitute or diversion entry
+landing-securities.supporting-documents.details.l11=proof of authority to update bank account details
+landing-securities.supporting-documents.details.l12=other documents that support your claim
+landing-securities.what-happens-next=What happens next
+landing-securities.what-happens-next.p1=Your claim will be reviewed by HMRC. To find out more about the status of your claim, visit the claims dashboard. We will email or write to you within 30 working days with the outcome.
+landing-securities.what-happens-next.p2=We will contact you to either:
+landing-securities.what-happens-next.p2.l1=confirm your claim and refund of deposit or guarantee
+landing-securities.what-happens-next.p2.l2=ask for more information
+landing-securities.what-happens-next.p2.l3=explain why your claim was rejected
+landing-securities.need-help=If you need help
+landing-securities.need-help.p1=Find out more information about <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" class="govuk-link"> importing goods into the UK</a>
+landing-securities.need-help.p2=For general enquiries about importing, you can <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank" class="govuk-link"> contact HMRC (opens in new tab)</a>.
 
 landing.before.heading=Before you start
 landing.before.l1=Government Gateway credentials
