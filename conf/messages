@@ -311,6 +311,7 @@ check-your-answers.duplicate-declaration-details.label=Duplicate declaration det
 check-your-answers.export-declaration-details.h2=Export Movement Reference Number (MRN)
 check-your-answers.export-declaration-details.mrn=Export MRN
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+check-your-answers.inset-text=You can print full details of your claim on the next page.
 check-your-answers.inspection.h2=Details of inspection
 check-your-answers.inspection.inspection-address=Inspection address
 check-your-answers.inspection.inspection-address-type=Inspection address type

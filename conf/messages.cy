@@ -292,6 +292,7 @@ check-your-answers.duplicate-declaration-details.label=Manylion y datganiad dybl
 check-your-answers.export-declaration-details.h2=Cyfeirnod Symud (MRN) Allforio
 check-your-answers.export-declaration-details.mrn=MRN Allforio
 check-your-answers.help-text=Dyma fanylion eich hawliad. Darllenwch y manylion yn ofalus a newid y rhai sy’n anghywir.
+check-your-answers.inset-text=Gallwch argraffu manylion llawn eich hawliad ar y dudalen nesaf.
 check-your-answers.inspection.h2=Manylion yr archwiliad
 check-your-answers.inspection.inspection-address=Cyfeiriad yr archwiliad
 check-your-answers.inspection.inspection-address-type=Math o gyfeiriad yr archwiliad

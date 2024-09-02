@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,7 +34,8 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
 @(
@@ -102,6 +104,8 @@
 
     @subHeading(Html(messages(combine(s"check-your-answers", subKey, "confirmation-statement.h2"))))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
+
+    @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
