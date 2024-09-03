@@ -118,7 +118,7 @@ class CheckYourAnswersControllerSpec
       "Basis for claim".expectedAlways,
       "Reason for claim".expectedAlways,
       "Claim total".expectedAlways,
-      "Repayment method".expectedAlways,
+      "Repayment details".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
       "Now send your claim".expectedAlways
