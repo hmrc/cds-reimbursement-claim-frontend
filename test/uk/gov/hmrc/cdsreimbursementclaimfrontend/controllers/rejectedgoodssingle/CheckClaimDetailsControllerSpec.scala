@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -33,11 +34,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
@@ -48,7 +53,8 @@ class CheckClaimDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckPropertyChecks {
+    with ScalaCheckPropertyChecks
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -64,6 +70,23 @@ class CheckClaimDetailsControllerSpec
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  def assertPageContent(
+    doc: Document,
+    journey: RejectedGoodsSingleJourney
+  ): Unit = {
+
+    validateClaimsTable(doc, journey.getReimbursements, routes.EnterClaimController.show)
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+    )
+
+    val mrn = journey.getLeadMovementReferenceNumber.get.value
+    assertPageElementsByIdAndExpectedText(doc)(
+      s"check-claim-section-$mrn" -> m("check-claim.duty.label", mrn),
+      "check-claim-yes-no"        -> s"${m("check-claim.is-this-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
+    )
+  }
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
@@ -93,7 +116,8 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("check-claim.title")
+            messageFromMessageKey("check-claim.title"),
+            assertPageContent(_, journey)
           )
         }
       }

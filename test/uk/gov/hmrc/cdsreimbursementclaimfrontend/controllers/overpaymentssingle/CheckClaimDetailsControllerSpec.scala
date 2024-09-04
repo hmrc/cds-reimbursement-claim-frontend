@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
 import scala.concurrent.Future
 
@@ -47,7 +48,8 @@ class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -69,16 +71,16 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: OverpaymentsSingleJourney
   ): Unit = {
+
+    validateClaimsTable(doc, journey.getReimbursements, routes.EnterClaimController.show)
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+    )
+
     val mrn = journey.getLeadMovementReferenceNumber.get.value
     assertPageElementsByIdAndExpectedText(doc)(
       s"check-claim-section-$mrn" -> m("check-claim.duty.label", mrn),
-      "check-claim-yes-no"        -> s"${m("check-claim.are-duties-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
-    )
-    summaryKeyValueList(doc)  should containOnlyPairsOf(
-      journey.getReimbursements.map { case Reimbursement(taxCode, amount, _) =>
-        (s"$taxCode - ${m(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
-      } ++
-        Seq(m("check-claim.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+      "check-claim-yes-no"        -> s"${m("check-claim.is-this-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
     )
   }
 
