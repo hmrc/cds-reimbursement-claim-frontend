@@ -126,7 +126,7 @@ class CheckYourAnswersControllerSpec
       "Details of rejected goods".expectedAlways,
       "Claim total".expectedAlways,
       "Details of inspection".expectedAlways,
-      "Repayment method".expectedAlways,
+      "Repayment details".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
       "Now send your claim".expectedAlways
