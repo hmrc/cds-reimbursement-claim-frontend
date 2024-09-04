@@ -61,7 +61,7 @@ object DutyTypeSummary {
 
   def buildFromReimbursements(reimbursements: Seq[Reimbursement]): Seq[DutyTypeSummary] = {
     val totals = reimbursements
-      .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, Reimbursement(taxCode, claimAmount, _)) =>
+      .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, Reimbursement(taxCode, claimAmount, _, _, _)) =>
         if (TaxCodes.ukTaxCodeSet.contains(taxCode)) {
           buff(0) += claimAmount
           buff

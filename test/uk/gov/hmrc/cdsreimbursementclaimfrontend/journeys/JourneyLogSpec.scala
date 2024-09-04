@@ -55,12 +55,14 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
             Reimbursement(
               TaxCode.A00,
               BigDecimal("1234.56"),
-              ReimbursementMethod.CurrentMonthAdjustment
+              ReimbursementMethod.CurrentMonthAdjustment,
+              BigDecimal("34.56")
             ),
             Reimbursement(
               TaxCode.A30,
               BigDecimal("12.34"),
-              ReimbursementMethod.CurrentMonthAdjustment
+              ReimbursementMethod.CurrentMonthAdjustment,
+              BigDecimal("1.34")
             )
           ),
           reimbursementMethod = ReimbursementMethod.CurrentMonthAdjustment,
@@ -237,17 +239,20 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
             Reimbursement(
               TaxCode.A00,
               BigDecimal("1234.56"),
-              ReimbursementMethod.CurrentMonthAdjustment
+              ReimbursementMethod.CurrentMonthAdjustment,
+              BigDecimal("34.56")
             ),
             Reimbursement(
               TaxCode.A20,
               BigDecimal("12.34"),
-              ReimbursementMethod.CurrentMonthAdjustment
+              ReimbursementMethod.CurrentMonthAdjustment,
+              BigDecimal("34.56")
             ),
             Reimbursement(
               TaxCode.A90,
               BigDecimal("12.345"),
-              ReimbursementMethod.CurrentMonthAdjustment
+              ReimbursementMethod.CurrentMonthAdjustment,
+              BigDecimal("34.56")
             )
           ),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,

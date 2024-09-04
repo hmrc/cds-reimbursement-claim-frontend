@@ -145,7 +145,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
     getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
 
   private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
-    getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _)) =>
+    getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _, _, _)) =>
       if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
       else a
     }

@@ -22,7 +22,9 @@ import play.api.libs.json.Format
 final case class Reimbursement(
   taxCode: TaxCode,
   amount: BigDecimal,
-  reimbursementMethod: ReimbursementMethod
+  reimbursementMethod: ReimbursementMethod,
+  paidAmount: BigDecimal,
+  correctedAmount: Option[BigDecimal] = None
 )
 
 object Reimbursement {
@@ -35,28 +37,20 @@ object Reimbursement {
   ): Seq[Reimbursement] =
     reimbursement match {
       case DefaultMethodReimbursementClaim(correctAmount) =>
-        Seq(Reimbursement(taxCode, paidAmount - correctAmount, defaultReimbursementMethod))
-
-      case SplitMethodReimbursementClaim(default, subsidy) =>
         Seq(
-          Reimbursement(taxCode, paidAmount - subsidy.amount - default.amount, defaultReimbursementMethod),
-          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.Subsidy)
+          Reimbursement(
+            taxCode,
+            paidAmount - correctAmount,
+            defaultReimbursementMethod,
+            paidAmount,
+            Some(correctAmount)
+          )
         )
-    }
-
-  def fromReimbursementAmount(
-    taxCode: TaxCode,
-    reimbursement: ReimbursementClaim,
-    defaultReimbursementMethod: ReimbursementMethod
-  ): Seq[Reimbursement] =
-    reimbursement match {
-      case DefaultMethodReimbursementClaim(reimbursementAmount) =>
-        Seq(Reimbursement(taxCode, reimbursementAmount, defaultReimbursementMethod))
 
       case SplitMethodReimbursementClaim(default, subsidy) =>
         Seq(
-          Reimbursement(taxCode, default.amount, defaultReimbursementMethod),
-          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.Subsidy)
+          Reimbursement(taxCode, paidAmount - subsidy.amount - default.amount, defaultReimbursementMethod, paidAmount),
+          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.Subsidy, paidAmount)
         )
     }
 

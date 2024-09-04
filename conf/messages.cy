@@ -83,7 +83,7 @@ check-claim.multiple.overall-total.label=Cyfanswm yr ad-daliad
 check-claim.multiple.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.multiple.total=Ad-daliad ar gyfer yr MRN hwn
 check-claim.multiple.yes=Iawn
-check-claim.no=Na, dewiswch dollau gwahanol
+check-claim.no=Na
 check-claim.overall-total.label=Cyfanswm yn gyfan gwbl
 check-claim.rejected-goods.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.rejected-goods.error.invalid=Dewiswch ''Iawn'' os yw’r tollau hyn yn gywir
@@ -101,11 +101,20 @@ check-claim.securities.hidden.claim-full-amount=Newidiwch {0} ar gyfer ID Sicrwy
 check-claim.securities.hidden.duties-selected=Newidiwch {0} ar gyfer ID Sicrwydd: {1}
 check-claim.securities.hidden.tax-code=Newidiwch swm {0} ar gyfer ID Sicrwydd: {1}
 check-claim.securities.title=Gwiriwch fanylion yr hawliad ar gyfer y blaendaliadau sicrwydd hyn
-check-claim.title=Gwiriwch gyfanswm ad-daliad yr hawliad ar gyfer yr MRN
+check-claim.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.total.header=Cyfanswm
 check-claim.total=Ad-daliad ar gyfer yr MRN hwn
 check-claim.uk-duty.label=Toll y DU
 check-claim.yes=Iawn
+
+check-claim.table-header.selected-charges=Taliadau a ddewiswyd
+check-claim.table-header.you-paid=Rydych chi wedi talu
+check-claim.table-header.should-have-paid=Dylech fod wedi talu
+check-claim.table-header.claim-amount=Swm yr hawliad
+check-claim.table.change-link=<a href="{0}" class="govuk-link">Newid</a>
+check-claim.table.total=Cyfanswm yr ad-daliad ar gyfer yr hawliad hwn
+check-claim.is-this-correct=A yw hyn yn gywir?
+
 check-claim-timed-out.button=Mewngofnodi
 check-claim-timed-out.p1=Er eich diogelwch, mae’r sesiwn hon wedi dod i ben am eich bod wedi bod yn segur am 15 munud
 check-claim-timed-out.p2=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.

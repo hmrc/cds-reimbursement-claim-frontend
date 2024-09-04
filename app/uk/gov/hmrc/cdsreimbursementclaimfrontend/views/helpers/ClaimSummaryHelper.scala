@@ -35,7 +35,7 @@ object ClaimSummaryHelper {
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): Seq[SummaryListRow] = {
     val reimbursements: Seq[Reimbursement] =
-      claims.map { case (taxCode, amount, _) => Reimbursement(taxCode, amount, null) }
+      claims.map { case (taxCode, amount, _) => Reimbursement(taxCode, amount, null, null, null) }
 
     val claimAction: TaxCode => Call       =
       claims.map { case (taxCode, _, call) => (taxCode, call) }.toMap
@@ -51,7 +51,7 @@ object ClaimSummaryHelper {
   def makeClaimSummaryRows(claims: Seq[Reimbursement], claimAction: TaxCode => Call)(implicit
     messages: Messages
   ): Seq[SummaryListRow] =
-    claims.zipWithIndex.map { case (Reimbursement(taxCode, claimAmount, _), index) =>
+    claims.zipWithIndex.map { case (Reimbursement(taxCode, claimAmount, _, _, _), index) =>
       SummaryListRow(
         key = Key(Text(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")),
         value = Value(Text(claimAmount.toPoundSterlingString)),
