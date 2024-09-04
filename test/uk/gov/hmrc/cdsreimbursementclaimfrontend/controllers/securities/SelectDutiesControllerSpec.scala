@@ -97,7 +97,7 @@ class SelectDutiesControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title       = doc.select("title").eachText().asScala.toList
+    val title       = doc.select("title").first().text()
     val caption     = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val formHeading = doc.select(".govuk-heading-xl").eachText().asScala.toList
 
@@ -108,11 +108,9 @@ class SelectDutiesControllerSpec
       dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
 
     title                    should ===(
-      List(
-        (if (isError) "Error: "
-         else
-           "") + s"Security deposit ID: $securityId: Which duties do you want to claim for? - Claim back import duty and VAT - GOV.UK"
-      )
+      (if (isError) "Error: "
+       else
+         "") + s"Security deposit ID: $securityId: Which duties do you want to claim for? - Claim back import duty and VAT - GOV.UK"
     )
     caption                  should ===(List(s"Security deposit ID: $securityId"))
     formHeading              should ===(List(s"Security deposit ID: $securityId Which duties do you want to claim for?"))

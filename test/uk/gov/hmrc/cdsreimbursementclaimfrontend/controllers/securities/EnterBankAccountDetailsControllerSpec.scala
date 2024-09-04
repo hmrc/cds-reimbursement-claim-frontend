@@ -87,7 +87,7 @@ class EnterBankAccountDetailsControllerSpec
       BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
     error: Boolean = false
   ): Assertion = {
-    val title         = doc.select("title").eachText().asScala.toList
+    val title         = doc.select("title").first().text()
     val heading       = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val accountName   =
       doc.select("input[name='enter-bank-account-details.account-name']").first().attr("value")
@@ -96,10 +96,8 @@ class EnterBankAccountDetailsControllerSpec
     val accountNumber =
       doc.select("input[name='enter-bank-account-details.account-number']").first().attr("value")
     title         should ===(
-      List(
-        (if (error) "Error: "
-         else "") + "Enter your bank account details - Claim back import duty and VAT - GOV.UK"
-      )
+      (if (error) "Error: "
+       else "") + "Enter your bank account details - Claim back import duty and VAT - GOV.UK"
     )
     heading       should ===(List("Enter your bank account details"))
     accountName   should ===(expectedBankAccountDetails.accountName.value)

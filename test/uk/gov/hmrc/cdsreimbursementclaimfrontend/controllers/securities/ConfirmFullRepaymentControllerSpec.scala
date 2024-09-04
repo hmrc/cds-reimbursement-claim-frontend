@@ -94,7 +94,7 @@ class ConfirmFullRepaymentControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title               = doc.select("title").eachText().asScala.toList
+    val title               = doc.select("title").first().text()
     val caption             = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val heading             = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
@@ -105,11 +105,9 @@ class ConfirmFullRepaymentControllerSpec
       journey.getSecurityDetailsFor(securityId).value.getTotalAmount
     )
     title           should ===(
-      List(
-        (if (isError) "Error: "
-         else
-           "") + s"Security deposit ID: $securityId: Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
-      )
+      (if (isError) "Error: "
+       else
+         "") + s"Security deposit ID: $securityId: Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
     )
     caption         should ===(
       List(s"Security deposit ID: $securityId")

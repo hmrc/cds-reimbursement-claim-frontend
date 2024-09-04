@@ -30,8 +30,10 @@ import uk.gov.hmrc.http.hooks.RequestData
 import uk.gov.hmrc.http.hooks.ResponseData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2Impl
 
 import java.net.URL
 import javax.inject.Inject
@@ -42,12 +44,15 @@ import scala.io.AnsiColor._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
+import scala.annotation.nowarn
 
 class Module extends AbstractModule {
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  @nowarn
   override def configure(): Unit = {
     bind(classOf[HttpClient]).to(classOf[DebuggingHttpClient])
+    bind(classOf[HttpClientV2]).to(classOf[DebuggingHttpClientV2])
     ()
   }
 }
@@ -121,3 +126,11 @@ class DebuggingHook(config: Configuration) extends HttpHook {
   }
 
 }
+
+@Singleton
+class DebuggingHttpClientV2 @Inject() (
+  config: Configuration,
+  httpAuditing: HttpAuditing,
+  wsClient: WSClient,
+  actorSystem: ActorSystem
+) extends HttpClientV2Impl(wsClient, actorSystem, config, Seq(httpAuditing.AuditingHook, new DebuggingHook(config)))
