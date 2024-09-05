@@ -187,7 +187,7 @@ check-eori-details.error.invalid=Select yes if the EORI details are correct
 check-eori-details.error.required=Select yes if the EORI details are correct
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.name.label=Name
-check-eori-details.paragraph=This is the EORI number linked to your Government Gateway Account. Check these details are correct.
+check-eori-details.paragraph=This is the EORI number linked to your Government Gateway Account.
 check-eori-details.title=Check your EORI Number
 
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
