@@ -35,10 +35,11 @@ class FeatureSwitchProtectedAction(feature: Feature, featureSwitch: FeatureSwitc
   override protected def refine[A](request: MessagesRequest[A]): Future[Either[Result, MessagesRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    Future.successful(
-      if (featureSwitch.isEnabled(feature)) Right(request)
-      else Left(Results.NotFound(errorHandler.notFoundTemplate(request)))
-    )
+    if (featureSwitch.isEnabled(feature)) Future.successful(Right(request))
+    else {
+      errorHandler.notFoundTemplate(request).map(html => Left(Results.NotFound(html)))
+    }
+
   }
 
 }

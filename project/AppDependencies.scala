@@ -6,11 +6,11 @@ object AppDependencies {
 
   val monocleVersion       = "2.1.0"
   val jsoupVersion         = "1.17.2"
-  val hmrcMongoPlayVersion = "1.7.0"
+  val hmrcMongoPlayVersion = "2.2.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"           %% "bootstrap-frontend-play-30" % "8.4.0",
-    "uk.gov.hmrc"           %% "play-frontend-hmrc-play-30" % "8.5.0",
+    "uk.gov.hmrc"           %% "bootstrap-frontend-play-30" % "9.4.0",
+    "uk.gov.hmrc"           %% "play-frontend-hmrc-play-30" % "10.11.0",
     "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"         %% "cats-core"                  % "2.10.0",
     "com.github.kxbmap"     %% "configs"                    % "0.6.1",

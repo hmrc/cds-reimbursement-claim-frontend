@@ -27,23 +27,30 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import play.api.mvc.RequestHeader
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ErrorHandler @Inject() (
   val messagesApi: MessagesApi,
   error_template: error_template
 )(implicit
-  val appConfig: ViewConfig
+  val appConfig: ViewConfig,
+  val ec: ExecutionContext
 ) extends FrontendErrorHandler {
 
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   override def standardErrorTemplate(
     pageTitle: String,
     heading: String,
     message: String
   )(implicit
-    request: Request[_]
-  ): Html =
-    error_template(pageTitle, heading, message)
+    request: RequestHeader
+  ): Future[Html] = {
+    implicit val r: Request[_] = request.asInstanceOf[Request[_]]
+    Future.successful(error_template(pageTitle, heading, message))
+  }
 
   def errorResult[R <: Request[_]](
   )(implicit request: R): Result =
