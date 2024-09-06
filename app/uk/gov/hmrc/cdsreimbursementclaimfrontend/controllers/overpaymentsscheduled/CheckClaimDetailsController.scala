@@ -61,7 +61,7 @@ class CheckClaimDetailsController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      val answers                        = journey.getReimbursementClaims
+      val answers                        = journey.getReimbursements
       val reimbursementTotal: BigDecimal = journey.getTotalReimbursementAmount
       (
         journey.withDutiesChangeMode(false),
@@ -74,7 +74,8 @@ class CheckClaimDetailsController @Inject() (
                 answers,
                 reimbursementTotal,
                 checkClaimDetailsForm,
-                postAction
+                postAction,
+                enterClaimAction
               )
             }
           case _                                                 =>
@@ -85,7 +86,7 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val answers            = journey.getReimbursementClaims
+      val answers            = journey.getReimbursements
       val reimbursementTotal = journey.getTotalReimbursementAmount
 
       journey.answers.movementReferenceNumber match {
@@ -101,7 +102,8 @@ class CheckClaimDetailsController @Inject() (
                       answers,
                       reimbursementTotal,
                       formWithErrors,
-                      postAction
+                      postAction,
+                      enterClaimAction
                     )
                   )
                 ),

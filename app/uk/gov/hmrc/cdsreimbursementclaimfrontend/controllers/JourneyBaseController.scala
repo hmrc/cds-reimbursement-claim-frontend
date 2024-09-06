@@ -32,6 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
@@ -427,6 +429,18 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
               }
           }
       }
+
+  final def getReimbursementWithCorrectAmount(
+    reimbursements: Seq[Reimbursement]
+  ): Seq[ReimbursementWithCorrectAmount] =
+    reimbursements.map { reimbursement =>
+      ReimbursementWithCorrectAmount(
+        reimbursement.taxCode,
+        reimbursement.amount,
+        reimbursement.paidAmount,
+        reimbursement.correctedAmount.getOrElse(BigDecimal(0))
+      )
+    }
 
   implicit class FormOps[A](val form: Form[A]) {
     def withDefault(optValue: Option[A]): Form[A] =

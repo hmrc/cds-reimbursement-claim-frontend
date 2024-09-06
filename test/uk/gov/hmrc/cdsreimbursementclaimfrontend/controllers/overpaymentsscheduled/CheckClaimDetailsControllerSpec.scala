@@ -37,22 +37,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildAnswersGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyFromAnswersGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
-import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -74,42 +72,15 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: OverpaymentsScheduledJourney
   ): Unit = {
-    val claims = journey.getReimbursementClaims
 
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-yes-no" -> s"${m(s"check-claim.are-duties-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
-    )
-
-    claims.map { claim =>
-      assertPageElementsByIdAndExpectedText(doc)(
-        s"check-claim-duty-${claim._1.repr}" -> m(s"duty-type.${claim._1.repr}")
-      )
-    }
+    validateClaimsTablesForScheduled(doc, journey.getReimbursements, routes.EnterClaimController.show)
 
     summaryKeyValueList(doc) should containOnlyPairsOf(
-      claims.toSeq
-        .map(_._2)
-        .flatMap(
-          _.map { case (taxCode, amount: AmountPaidWithCorrect) =>
-            (
-              m(s"check-claim.duty-code.row.key", m(s"tax-code.$taxCode")),
-              amount.refundAmount.toPoundSterlingString
-            )
-          }
-        ) ++
-        claims
-          .filter(claim => claim._2.size > 1)
-          .map { (claim: (DutyType, SortedMap[TaxCode, AmountPaidWithCorrect])) =>
-            (
-              s"${m(s"check-claim.duty-code.total.key", m(s"duty-type.${claim._1.repr}"))}",
-              journey
-                .getTaxCodesSubtotal(claim._2)
-                .toPoundSterlingString
-            )
-          }
-          .toSeq ++ Seq(
-          (m(s"check-claim.total"), journey.getTotalReimbursementAmount.toPoundSterlingString)
-        )
+      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+    )
+
+    assertPageElementsByIdAndExpectedText(doc)(
+      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
     )
   }
 

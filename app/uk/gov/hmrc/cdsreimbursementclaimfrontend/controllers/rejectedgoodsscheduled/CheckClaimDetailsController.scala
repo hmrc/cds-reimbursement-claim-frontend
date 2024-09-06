@@ -26,6 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -46,15 +48,16 @@ class CheckClaimDetailsController @Inject() (
 
   implicit val subKey: Option[String] = Some("scheduled")
 
-  private val postAction: Call         = routes.CheckClaimDetailsController.submit
-  private val selectDutiesAction: Call = routes.SelectDutyTypesController.show
+  private val postAction: Call                              = routes.CheckClaimDetailsController.submit
+  private val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
+  private val enterClaimAction: (DutyType, TaxCode) => Call = routes.EnterClaimController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val answers            = journey.getReimbursementClaims
+    val answers            = journey.getReimbursements
     val reimbursementTotal = journey.getTotalReimbursementAmount
     (
       journey.withDutiesChangeMode(false),
@@ -65,7 +68,8 @@ class CheckClaimDetailsController @Inject() (
             answers,
             reimbursementTotal,
             checkClaimDetailsForm,
-            postAction
+            postAction,
+            enterClaimAction
           )
         )
       }
@@ -74,7 +78,7 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val answers            = journey.getReimbursementClaims
+      val answers            = journey.getReimbursements
       val reimbursementTotal = journey.getTotalReimbursementAmount
 
       if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
@@ -90,7 +94,8 @@ class CheckClaimDetailsController @Inject() (
                     answers,
                     reimbursementTotal,
                     formWithErrors,
-                    postAction
+                    postAction,
+                    enterClaimAction
                   )
                 )
               ),

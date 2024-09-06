@@ -72,7 +72,11 @@ class CheckClaimDetailsControllerSpec
     journey: OverpaymentsSingleJourney
   ): Unit = {
 
-    validateClaimsTable(doc, journey.getReimbursements, routes.EnterClaimController.show)
+    validateClaimsTableForSingle(
+      doc,
+      toReimbursementWithCorrectAmount(journey.getReimbursements),
+      routes.EnterClaimController.show
+    )
     summaryKeyValueList(doc) should containOnlyPairsOf(
       Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
     )
