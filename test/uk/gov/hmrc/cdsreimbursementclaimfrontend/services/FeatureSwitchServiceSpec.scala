@@ -39,6 +39,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks with OptionValues {
@@ -135,10 +136,10 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     private def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
       new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 
-        def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
+        def filter[A](input: Request[A]): Future[Option[Result]] = {
           implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(input, input.session)
-          if (fs.isEnabled(feature)) None
-          else Some(NotFound(errorHandler.notFoundTemplate(input)))
+          if (fs.isEnabled(feature)) Future.successful(None)
+          else errorHandler.notFoundTemplate(input).map(c => Some(NotFound(c)))
         }
 
         override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser

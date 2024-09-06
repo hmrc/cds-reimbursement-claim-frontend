@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.syntax.eq._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed class ReasonForSecurity(val acc14Code: String)

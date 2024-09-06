@@ -68,9 +68,9 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "2.13.13")
+  .settings(scalaVersion := "2.13.14")
   .settings(TwirlKeys.templateImports := Seq.empty)
-  .settings(addCompilerPlugin(scalafixSemanticdb("4.9.1")))
+  .settings(addCompilerPlugin(scalafixSemanticdb("4.9.9")))
   .settings(
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",

@@ -32,12 +32,12 @@ trait ClaimsTableValidator {
   this: Matchers =>
 
   def validateClaimsTableForSingle(
-    doc: Document,
-    reimbursements: Seq[ReimbursementWithCorrectAmount],
-    claimAction: TaxCode => Call
-  )(implicit
-    m: Messages
-  ) = {
+                                    doc: Document,
+                                    reimbursements: Seq[ReimbursementWithCorrectAmount],
+                                    claimAction: TaxCode => Call
+                                  )(implicit
+                                    m: Messages
+                                  ) = {
 
     validateClaimsTableHeaders(doc)
 
@@ -58,13 +58,13 @@ trait ClaimsTableValidator {
   }
 
   private def validateRowsForScheduled(
-    doc: Document,
-    dutyType: DutyType,
-    reimbursements: Seq[ReimbursementWithCorrectAmount],
-    claimAction: (DutyType, TaxCode) => Call
-  )(implicit
-    m: Messages
-  ) =
+                                        doc: Document,
+                                        dutyType: DutyType,
+                                        reimbursements: Seq[ReimbursementWithCorrectAmount],
+                                        claimAction: (DutyType, TaxCode) => Call
+                                      )(implicit
+                                        m: Messages
+                                      ) =
     reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, correctedAmount) =>
       val suffix = s"$dutyType-$taxCode"
 
@@ -82,12 +82,12 @@ trait ClaimsTableValidator {
     }
 
   def validateClaimsTablesForScheduled(
-    doc: Document,
-    reimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]],
-    claimAction: (DutyType, TaxCode) => Call
-  )(implicit
-    m: Messages
-  ) =
+                                        doc: Document,
+                                        reimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]],
+                                        claimAction: (DutyType, TaxCode) => Call
+                                      )(implicit
+                                        m: Messages
+                                      ) =
     reimbursements.map { claims =>
       validateClaimsTableHeaders(doc, s"-${claims._1}")
       validateRowsForScheduled(doc, claims._1, claims._2, claimAction)
@@ -95,8 +95,8 @@ trait ClaimsTableValidator {
     }
 
   def toReimbursementWithCorrectAmount(
-    reimbursements: Seq[Reimbursement]
-  ): Seq[ReimbursementWithCorrectAmount] =
+                                        reimbursements: Seq[Reimbursement]
+                                      ): Seq[ReimbursementWithCorrectAmount] =
     reimbursements.map { reimbursement =>
       ReimbursementWithCorrectAmount(
         reimbursement.taxCode,
