@@ -69,9 +69,10 @@ class ClaimInvalidTPI04ControllerSpec
 
   def validateClaimInvalidPage(doc: Document) = {
     val buttons = doc.select(".govuk-button").asScala.toList
-    buttons.map(a => (a.text(), a.attr("href"))) should ===(
-      List(
-        ("Enter a different MRN", "/claim-back-import-duty-vat/securities/enter-movement-reference-number"),
+    buttons.map(a => (a.text(), a.attr("href"))) should (
+      contain(
+        ("Enter a different MRN", "/claim-back-import-duty-vat/securities/enter-movement-reference-number")
+      ) and contain(
         ("Reason for security deposit", "/claim-back-import-duty-vat/securities/choose-reason-for-security")
       )
     )

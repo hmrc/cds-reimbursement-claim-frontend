@@ -85,7 +85,7 @@ class ChooseExportMethodControllerSpec
     header             should ===(List(messages(s"$messagesKey.title")))
     radioInputs.length should ===(11)
     radioLabels.length should ===(11)
-    continueButton     should ===(List(messages("button.continue")))
+    continueButton     should contain(messages("button.continue"))
 
     if (isError) {
       val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList

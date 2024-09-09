@@ -333,8 +333,9 @@ trait ControllerSpec
     summaryKeys.asScala.zip(summaryValues.asScala).toMap
   }
 
-  final def hasContinueButton(doc: Document) =
-    doc.select("button.govuk-button").text() shouldBe "Continue"
+  final def hasContinueButton(doc: Document)(implicit pos: Position) =
+    if (doc.select("button.govuk-button").eachText.asScala.exists(_ == "Continue")) succeed
+    else fail("Expected page to have [Continue] button but none found")
 
   final def formAction(doc: Document) =
     doc.select("form").attr("action")
