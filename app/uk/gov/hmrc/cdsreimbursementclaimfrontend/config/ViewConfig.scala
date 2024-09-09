@@ -140,6 +140,7 @@ class ViewConfig @Inject() (val config: Configuration, servicesConfig: ServicesC
 
   val betaFeedbackUrl: String = getString("external-url.beta-feedback")
   val feedbackUrl: String     = getString("external-url.feedback")
+  val researchUrl: String     = getString("external-url.research")
 
   val legacyC285FormUrl: String = getString("external-url.c285-form")
 

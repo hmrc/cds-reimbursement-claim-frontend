@@ -103,7 +103,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
     headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"))
     input.attr("value") should ===("")
-    continueButton      should ===(List(messages("button.continue")))
+    continueButton      should contain(messages("button.continue"))
   }
 
   def validateChooseExportMethodMultiplePage(doc: Document): Assertion = {
@@ -113,7 +113,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
     headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"))
     input.attr("value") should ===("")
-    continueButton      should ===(List(messages("button.continue")))
+    continueButton      should contain(messages("button.continue"))
   }
 
   private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
