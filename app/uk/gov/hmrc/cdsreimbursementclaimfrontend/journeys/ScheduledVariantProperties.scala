@@ -116,18 +116,6 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
       case None                   => SortedMap.empty
     }
 
-  private def toReimbursementWithCorrectAmount(
-    claims: SortedMap[TaxCode, Option[AmountPaidWithCorrect]]
-  ): List[ReimbursementWithCorrectAmount] =
-    claims.view.map { case (taxCode, Some(amount)) =>
-      ReimbursementWithCorrectAmount(
-        taxCode,
-        amount.paidAmount - amount.correctAmount,
-        amount.paidAmount,
-        amount.correctAmount
-      )
-    }.toList
-
   def getReimbursementFor(
     dutyType: DutyType,
     taxCode: TaxCode

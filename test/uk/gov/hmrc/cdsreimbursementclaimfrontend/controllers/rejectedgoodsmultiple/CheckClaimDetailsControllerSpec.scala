@@ -32,12 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.OrdinalNumberMrnHelper
 
 import scala.concurrent.Future
@@ -46,7 +48,8 @@ class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -66,29 +69,24 @@ class CheckClaimDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def validateCheckClaimDetailsPage(
+  def assertPageContent(
     doc: Document,
-    claims: Map[MRN, Map[TaxCode, BigDecimal]]
-  ) = {
-    val (keys, values) = summaryKeyValue(doc)
+    journey: RejectedGoodsMultipleJourney
+  ): Unit = {
 
-    doc.select(".heading-mrn").eachText() should contain theSameElementsAs claims.keys.zipWithIndex.map {
-      case (mrn, i) =>
-        messages("check-claim.rejected-goods.multiple.duty.label", OrdinalNumberMrnHelper(i + 1), mrn.value)
-    }
-    doc.select("#overall-total").text() shouldBe claims.map(_._2.values.sum).sum.toPoundSterlingString
+    validateClaimsTablesForMultiple(
+      doc,
+      journey.getReimbursementsWithCorrectAmounts,
+      routes.EnterClaimController.show
+    )
 
-    hasContinueButton(doc)
-    formAction(
-      doc
-    ) shouldBe "/claim-back-import-duty-vat/rejected-goods/multiple/check-claim"
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+    )
 
-    val claimedTaxCodes = claims.flatMap(_._2.keys).map(tc => messages(s"tax-code.${tc.value}")).toSet
-    val claimedAmounts  = claims.flatMap(_._2.values).map(_.toPoundSterlingString).toSet
-    val mrnTotals       = claims.map(_._2.values.sum).map(_.toPoundSterlingString).toSet
-    keys   should contain allElementsOf claimedTaxCodes
-    values should contain allElementsOf claimedAmounts
-    values should contain allElementsOf mrnTotals
+    assertPageElementsByIdAndExpectedText(doc)(
+      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
+    )
   }
 
   "CheckClaimDetailsController" when {
@@ -114,7 +112,7 @@ class CheckClaimDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title"),
-            doc => validateCheckClaimDetailsPage(doc, journey.getReimbursementClaims)
+            doc => assertPageContent(doc, journey)
           )
         }
       }
@@ -166,7 +164,7 @@ class CheckClaimDetailsControllerSpec
       }
 
       "when in change mode redirect to the CYA page if answer is yes" in {
-        forAll(completeJourneyGen) { case journey =>
+        forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
             mockAuthWithNoRetrievals()
@@ -181,7 +179,7 @@ class CheckClaimDetailsControllerSpec
       }
 
       "when in change mode redirect back to the duties selection if answer is no" in {
-        forAll(completeJourneyGen) { case journey =>
+        forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
             mockAuthWithNoRetrievals()
