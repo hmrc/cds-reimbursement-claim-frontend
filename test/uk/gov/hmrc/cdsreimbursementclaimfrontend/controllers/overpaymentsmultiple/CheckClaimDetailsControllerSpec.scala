@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 
 import scala.concurrent.Future
@@ -50,7 +51,8 @@ class CheckClaimDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with SummaryMatchers
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -70,30 +72,23 @@ class CheckClaimDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  def validateCheckClaimDetailsPage(
+  def assertPageContent(
     doc: Document,
-    claims: Map[MRN, Map[TaxCode, BigDecimal]]
-  ) = {
-    claims.keys.zipWithIndex.foreach { case (mrn, index) =>
-      doc
-        .getElementById(s"summary-mrn-${index + 1}")
-        .text() shouldBe s"${OrdinalNumber(index + 1).capitalize} MRN: ${mrn.value}"
-    }
+    journey: OverpaymentsMultipleJourney
+  ): Unit = {
+
+    validateClaimsTablesForMultiple(
+      doc,
+      journey.getReimbursementsWithCorrectAmounts,
+      routes.EnterClaimController.show
+    )
+
     summaryKeyValueList(doc) should containOnlyPairsOf(
-      claims.toSeq
-        .map(_._2)
-        .flatMap(
-          _.map { case (taxCode, amount) =>
-            (s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}", amount.toPoundSterlingString)
-          }
-        ) ++ claims.values
-        .map(r => (messages("check-claim.multiple.total"), r.values.sum.toPoundSterlingString)) ++
-        Seq(
-          (
-            messages("check-claim.multiple.overall-total.label"),
-            claims.values.map(_.values.sum).sum.toPoundSterlingString
-          )
-        )
+      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+    )
+
+    assertPageElementsByIdAndExpectedText(doc)(
+      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
     )
   }
 
@@ -123,7 +118,7 @@ class CheckClaimDetailsControllerSpec
             messageFromMessageKey(
               s"$messagesKey.title"
             ),
-            doc => validateCheckClaimDetailsPage(doc, journey.getReimbursementClaims)
+            doc => assertPageContent(doc, journey)
           )
         }
       }
@@ -182,5 +177,4 @@ class CheckClaimDetailsControllerSpec
       }
     }
   }
-
 }
