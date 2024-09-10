@@ -129,6 +129,7 @@ trait ClaimsTableValidator {
   )(implicit
     m: Messages
   ): immutable.Iterable[Assertion] =
+
     reimbursements.map { claims =>
       validateClaimsTableHeaders(doc, s"-${claims._1}")
       validateRowsForScheduled(doc, claims._1, claims._2, claimAction)

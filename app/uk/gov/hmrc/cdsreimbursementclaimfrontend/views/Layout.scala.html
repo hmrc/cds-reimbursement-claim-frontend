@@ -35,9 +35,9 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukPhaseBanner
 @import uk.gov.hmrc.govukfrontend.views.Aliases.PhaseBanner
+@import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
 @import uk.gov.hmrc.govukfrontend.views.html.components.Tag
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
@@ -47,12 +47,14 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+
 @this(
-        head: Head,
-        hmrcLayout: HmrcLayout,
+        hmrcStandardPage: HmrcStandardPage,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         govukPhaseBanner: GovukPhaseBanner,
-        languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
         hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
         govukBackLink: GovukBackLink
 )
@@ -67,20 +69,6 @@
         hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@defaultHead = {
-@headBlock
-@{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
-    timeout= Some(viewConfig.timeout),
-    countdown= Some(viewConfig.countdown),
-    message= Some(messages("session-expired-message")),
-    keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
-    signOutUrl= signOutUrl,
-    timeoutUrl= Some(s"${StartController.timedOut.url}"),
-    keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
-    signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
-))}
-}
-
 @signOutUrl = @{
     if(suppressSignOutLink || request.session.get("authToken").isEmpty) {
         None
@@ -90,36 +78,40 @@
 }
 
 @scripts = {
-@scriptsBlock
+    @scriptsBlock
     <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
 }
 
-@beforeContentBlock = {
-    @govukPhaseBanner(PhaseBanner(
-        tag = Some(Tag(content = HtmlContent(messages("phasebanner.phase")))),
-        content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.betaFeedbackUrl))))
-
-    <div class="cds-user-banner cds-no-border">
-        @if(!suppressBackLink) {
-            <div id="cdsr-back-link">
-                @govukBackLink(BackLink(content = Text(messages("back.text"))))
-            </div>
-        }
-        <div>
-        @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
-        </div>
-    </div>
-}
-
-@hmrcLayout(
+@hmrcStandardPage(HmrcStandardPageParams(
+    serviceURLs = ServiceURLs(
+        serviceUrl = Some(viewConfig.homePageUrl),
+        signOutUrl = signOutUrl,
+        accessibilityStatementUrl = Some(viewConfig.accessibilityStatementUrl)
+    ),
+    banners = Banners(
+        phaseBanner = Some(PhaseBanner(
+            tag = Some(Tag(content = HtmlContent(messages("phasebanner.phase")))),
+            content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.betaFeedbackUrl))
+        )), 
+        userResearchBanner = Some(UserResearchBanner(url = viewConfig.researchUrl))
+    ),
     pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
-    beforeContentBlock = Some(beforeContentBlock),
-    isWelshTranslationAvailable = false,
-    serviceUrl = Some(viewConfig.homePageUrl),
-    signOutUrl = signOutUrl,
-    additionalHeadBlock = Some(head(Some(defaultHead))),
-    additionalScriptsBlock = Some(scripts)
-) {
+    isWelshTranslationAvailable = viewConfig.enableLanguageSwitching,
+    backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")))) else None },
+    templateOverrides = TemplateOverrides(
+        additionalScriptsBlock = Some(scripts),
+        additionalHeadBlock = { if(timeOut) Some(hmrcTimeoutDialog(TimeoutDialog(
+            timeout= Some(viewConfig.timeout),
+            countdown= Some(viewConfig.countdown),
+            message= Some(messages("session-expired-message")),
+            keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+            signOutUrl= signOutUrl,
+            timeoutUrl= Some(s"${StartController.timedOut.url}"),
+            keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+            signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
+        ))) else None }
+    )
+)){
     @contentBlock
     <div>
         @hmrcReportTechnicalIssueHelper()
