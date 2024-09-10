@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
 import java.time.LocalDate
+import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 multiple MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -141,6 +142,17 @@ final class RejectedGoodsMultipleJourney private (
         )
       })
       .getOrElse(Map.empty)
+
+  def getReimbursementWithCorrectAmountFor(declarationId: MRN): List[ReimbursementWithCorrectAmount] = {
+    val taxCodesWithAmountPaidAndCorrect = getAvailableTaxCodesWithPaidAmountsFor(declarationId)
+      .flatMap { case (taxCode, paidAmount) =>
+        getCorrectedAmountFor(declarationId, taxCode) match {
+          case Some(ca) => Some(taxCode, Option(AmountPaidWithCorrect(paidAmount, ca)))
+          case _        => None
+        }
+      }
+    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect: _*))
+  }
 
   def needsBanksAccountDetailsSubmission: Boolean =
     !this.isSubsidyOnlyJourney
