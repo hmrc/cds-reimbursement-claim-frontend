@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -25,7 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import org.scalatest.matchers.should.Matchers
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
+import scala.collection.immutable
 import scala.collection.immutable.SortedMap
 
 trait ClaimsTableValidator {
@@ -37,7 +40,7 @@ trait ClaimsTableValidator {
     claimAction: TaxCode => Call
   )(implicit
     m: Messages
-  ) = {
+  ): Seq[Assertion] = {
 
     validateClaimsTableHeaders(doc)
 
@@ -56,6 +59,44 @@ trait ClaimsTableValidator {
     }
 
   }
+
+  private def validateRowsForMultiple(
+    doc: Document,
+    mrn: MRN,
+    index: Int,
+    reimbursements: Seq[ReimbursementWithCorrectAmount],
+    claimAction: (Int, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ) =
+    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, correctedAmount) =>
+      val suffix = s"${mrn.value}-$taxCode"
+
+      doc
+        .getElementById(s"selected-claim-$suffix")
+        .text()                                                  shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"what-you-paid-$suffix").text()        shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"you-should-have-paid-$suffix").text() shouldBe correctedAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text()         shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()               shouldBe m(
+        "check-claim.table.change-link",
+        claimAction(index, taxCode).url,
+        s"change-link-$suffix"
+      )
+    }
+
+  def validateClaimsTablesForMultiple(
+    doc: Document,
+    reimbursements: Seq[(MRN, Int, Seq[ReimbursementWithCorrectAmount])],
+    claimAction: (Int, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ): Seq[Assertion] =
+    reimbursements.map { case (mrn, index, claims) =>
+      validateClaimsTableHeaders(doc, s"-${mrn.value}")
+      validateRowsForMultiple(doc, mrn, index, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${mrn.value}")
+    }
 
   private def validateRowsForScheduled(
     doc: Document,
@@ -87,7 +128,7 @@ trait ClaimsTableValidator {
     claimAction: (DutyType, TaxCode) => Call
   )(implicit
     m: Messages
-  ) =
+  ): immutable.Iterable[Assertion] =
     reimbursements.map { claims =>
       validateClaimsTableHeaders(doc, s"-${claims._1}")
       validateRowsForScheduled(doc, claims._1, claims._2, claimAction)
