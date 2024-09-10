@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import play.twirl.api.Html
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +31,9 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio)
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+        bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets)
 
 @(form: Form[ReasonForSecurity], reasonsForSecurity: Set[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -54,13 +57,30 @@
     }.toSeq.sortBy(_._1).map(_._2)
 }
 
+@bulletList = {
+    @bullets(
+        Seq(
+            Html(messages("choose-reason-for-security.securities.details.li1")),
+            Html(messages("choose-reason-for-security.securities.details.li2")),
+            Html(messages("choose-reason-for-security.securities.details.li3")),
+            Html(messages("choose-reason-for-security.securities.details.li4"))
+        )
+    )
+}
+
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
 
     @heading(Html(title))
+    <div id="hint" class="govuk-hint">
+        @messages("choose-reason-for-security.securities.hint")
+    </div>
 
-    @paragraph(Html(messages(s"choose-reason-for-security.securities.paragraph")))
+    @dropdownDetails(
+        summary = "choose-reason-for-security.securities.details",
+        content = bulletList
+    )
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         

@@ -530,7 +530,13 @@ choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price
 choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
-choose-reason-for-security.securities.title=Select why a security deposit or guarantee was required
+choose-reason-for-security.securities.title=Why a security deposit or guarantee was required?
+choose-reason-for-security.securities.hint=Select one option from the list.
+choose-reason-for-security.securities.details=Examples of reasons for making a claim
+choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (2-year period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 years
+choose-reason-for-security.securities.details.li2=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (6-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 6 months
+choose-reason-for-security.securities.details.li3=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (3-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 3 months
+choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (2-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 months
 
 claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
 claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>
