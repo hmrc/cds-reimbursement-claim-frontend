@@ -24,8 +24,10 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -109,7 +111,9 @@ class CheckClaimDetailsController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  private def getClaimsForDisplay(journey: RejectedGoodsMultipleJourney): Seq[(MRN, Int, Map[TaxCode, BigDecimal])] =
+  private def getClaimsForDisplay(
+    journey: RejectedGoodsMultipleJourney
+  ): Seq[(MRN, Int, List[ReimbursementWithCorrectAmount])] =
     journey.getReimbursementClaims.toSeq.zipWithIndex
-      .map { case ((mrn, claims), index) => (mrn, index + 1, claims) }
+      .map { case ((mrn, _), index) => (mrn, index + 1, journey.getReimbursementWithCorrectAmountFor(mrn)) }
 }

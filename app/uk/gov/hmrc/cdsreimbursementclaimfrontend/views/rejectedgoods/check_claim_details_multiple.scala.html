@@ -27,6 +27,8 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
+
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -40,7 +42,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], claims: Seq[(MRN,Int,Map[TaxCode,BigDecimal])], enterClaimAction: (Int,TaxCode) => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], claims: Seq[(MRN,Int,List[ReimbursementWithCorrectAmount])], enterClaimAction: (Int,TaxCode) => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claim.rejected-goods"}
 @title = @{messages(s"check-claim.rejected-goods.multiple.title")}
@@ -52,13 +54,7 @@
 
     @heading(Html(title))
 
-    @for((mrn, index, claim) <- claims){
-        @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.duty.label",OrdinalNumberMrnHelper(index), mrn.value)), classes = "govuk-heading-m heading-mrn")
-        @summary(ReimbursementsClaimsSummary.singleFull(claim.toSeq,key,enterClaimAction(index,_),Some(index)))
-    }
-
     @subHeading(Html(messages(s"check-claim.rejected-goods.multiple.overall-total.header")), classes = "govuk-heading-m")
-    @summary(ReimbursementsClaimsSummary.multipleOverallTotalRow(claims, key))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @radios(

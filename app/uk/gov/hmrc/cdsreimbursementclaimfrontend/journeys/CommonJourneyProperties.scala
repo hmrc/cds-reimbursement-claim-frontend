@@ -24,9 +24,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+
+import scala.collection.immutable.SortedMap
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
@@ -140,6 +145,18 @@ trait CommonJourneyProperties {
           case _                                                                                                => None
         }
     }
+
+  final def toReimbursementWithCorrectAmount(
+    claims: SortedMap[TaxCode, Option[AmountPaidWithCorrect]]
+  ): List[ReimbursementWithCorrectAmount] =
+    claims.view.map { case (taxCode, Some(amount)) =>
+      ReimbursementWithCorrectAmount(
+        taxCode,
+        amount.paidAmount - amount.correctAmount,
+        amount.paidAmount,
+        amount.correctAmount
+      )
+    }.toList
 
   final def getInitialBankAccountDetailsFromDeclaration: Option[BankAccountDetails] =
     getConsigneeBankAccountDetails.orElse(getDeclarantBankAccountDetails)
