@@ -81,20 +81,19 @@
         name = "check-claim",
         legend = messages("check-claim.is-this-correct"),
         inline = true,
+        id = s"check-claim-yes-no",
         items = Seq(
             RadioItem(
                 value = Some("true"),
                 content = Text(messages(s"check-claim.yes")),
                 checked = false
-        ),
+            ),
             RadioItem(
                 value = Some("false"),
                 content = Text(messages(s"check-claim.no")),
                 checked = false)
-        ),
-        id = s"check-claim-yes-no"
-    )
-
+            ),
+        )
         @submitButton("button.continue")
     }
 }

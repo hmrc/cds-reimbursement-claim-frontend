@@ -144,7 +144,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim.multiple" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.ChoosePayeeTypeController.show
           )
         }
@@ -157,7 +157,7 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim.multiple" -> "true"),
+            performAction("check-claim" -> "true"),
             routes.CheckYourAnswersController.show
           )
         }
@@ -171,7 +171,7 @@ class CheckClaimDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-claim.multiple" -> "false"),
+          performAction("check-claim" -> "false"),
           routes.SelectDutiesController.showFirst
         )
       }
