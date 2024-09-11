@@ -43,7 +43,7 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val form: Form[YesNo] = YesOrNoQuestionForm("check-claim.rejected-goods")
+  val form: Form[YesNo] = YesOrNoQuestionForm("check-claim")
 
   val submitAction: Call                       = routes.CheckClaimDetailsController.submit
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
