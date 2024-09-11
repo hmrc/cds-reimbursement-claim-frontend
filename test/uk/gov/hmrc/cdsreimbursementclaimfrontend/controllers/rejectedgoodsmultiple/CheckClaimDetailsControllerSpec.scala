@@ -123,7 +123,7 @@ class CheckClaimDetailsControllerSpec
       def performAction(value: String): Future[Result] =
         controller.submit(
           FakeRequest()
-            .withFormUrlEncodedBody("check-claim.rejected-goods" -> value)
+            .withFormUrlEncodedBody("check-claim" -> value)
         )
 
       "fail if rejected goods feature is disabled" in {
