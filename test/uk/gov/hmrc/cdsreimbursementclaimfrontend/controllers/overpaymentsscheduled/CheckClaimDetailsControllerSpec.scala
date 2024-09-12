@@ -42,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 
 import scala.concurrent.Future
 
@@ -73,7 +74,11 @@ class CheckClaimDetailsControllerSpec
     journey: OverpaymentsScheduledJourney
   ): Unit = {
 
-    validateClaimsTablesForScheduled(doc, journey.getReimbursements, routes.EnterClaimController.show)
+    validateClaimsTablesForScheduled(
+      doc,
+      ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements),
+      routes.EnterClaimController.show
+    )
 
     summaryKeyValueList(doc) should containOnlyPairsOf(
       Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)

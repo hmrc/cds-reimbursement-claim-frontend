@@ -20,6 +20,8 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -28,6 +30,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.HeadCell
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
+import cats.syntax.eq._
+
+import scala.collection.immutable.SortedMap
 
 object ClaimsTableHelper {
   def claimsTableHeaders(headerIdSuffix: String = "")(implicit
@@ -64,7 +69,7 @@ object ClaimsTableHelper {
   def claimsRowsForSingle(claims: Seq[ReimbursementWithCorrectAmount], claimAction: TaxCode => Call)(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount) =>
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, _) =>
       makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, taxCode.value) ++ Seq(
         TableRow(
           content = HtmlContent(
@@ -84,7 +89,7 @@ object ClaimsTableHelper {
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount) =>
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, _) =>
       val suffix = s"${mrn.value}-$taxCode"
       makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
         TableRow(
@@ -106,28 +111,29 @@ object ClaimsTableHelper {
 
   def claimsRowsForScheduled(
     claims: Seq[ReimbursementWithCorrectAmount],
-    dutyType: DutyType,
+    mainDutyType: String,
     claimAction: (DutyType, TaxCode) => Call
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount) =>
-      val suffix = s"$dutyType-$taxCode"
-      makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
-        TableRow(
-          content = HtmlContent(
-            messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
-          ),
-          attributes = Map("id" -> s"change-$suffix"),
-          classes = "govuk-link"
+    claims.map {
+      case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, Some(dutyType)) =>
+        val suffix = s"$dutyType-$taxCode"
+        makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
+          TableRow(
+            content = HtmlContent(
+              messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
+            ),
+            attributes = Map("id" -> s"change-$suffix"),
+            classes = "govuk-link"
+          )
         )
-      )
     } ++ Seq(
       makeTotalRowCells(
         claims.map(_.amount).sum,
         claims.map(_.paidAmount).sum,
         claims.map(_.correctedAmount).sum,
-        s"$dutyType"
+        s"$mainDutyType"
       )
     )
 
@@ -211,5 +217,19 @@ object ClaimsTableHelper {
         classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-heading-l  govuk-summary-list--no-border"
       )
     )
+
+  def sortReimbursementsByDisplayDuty(
+    reimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]]
+  ): Map[String, List[ReimbursementWithCorrectAmount]] = {
+    val ukDuties     = reimbursements.filter(_._1 === UkDuty).values.flatten.toList
+    val euDuties     = reimbursements.filter(_._1 === EuDuty).values.flatten.toList
+    val exciseDuties = reimbursements.filterNot(i => i._1 === UkDuty || i._1 === EuDuty).values.flatten.toList
+
+    Map(
+      UkDuty.repr   -> ukDuties,
+      EuDuty.repr   -> euDuties,
+      "excise-duty" -> exciseDuties
+    ).filterNot(_._2.isEmpty)
+  }
 
 }

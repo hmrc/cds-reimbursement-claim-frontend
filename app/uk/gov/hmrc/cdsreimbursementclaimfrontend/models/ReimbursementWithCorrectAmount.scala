@@ -23,10 +23,12 @@ final case class ReimbursementWithCorrectAmount(
   taxCode: TaxCode,
   amount: BigDecimal,
   paidAmount: BigDecimal,
-  correctedAmount: BigDecimal
+  correctedAmount: BigDecimal,
+  dutyOpt: Option[DutyType] = None
 ) {
   override def toString =
-    s"$taxCode: amount = $amount, paid amount = $paidAmount, corrected amount = $correctedAmount \n"
+    s"$taxCode: amount = $amount, paid amount = $paidAmount, corrected amount = $correctedAmount ${dutyOpt
+      .map(d => s", dutyOpt = $d")} \n"
 }
 object ReimbursementWithCorrectAmount {
 

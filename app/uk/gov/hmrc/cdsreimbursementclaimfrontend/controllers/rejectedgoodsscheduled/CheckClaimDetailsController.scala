@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,7 +58,7 @@ class CheckClaimDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val answers            = journey.getReimbursements
+    val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
     val reimbursementTotal = journey.getTotalReimbursementAmount
     (
       journey.withDutiesChangeMode(false),
@@ -78,7 +79,7 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val answers            = journey.getReimbursements
+      val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
       val reimbursementTotal = journey.getTotalReimbursementAmount
 
       if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
