@@ -25,7 +25,11 @@ final case class ReimbursementWithCorrectAmount(
   paidAmount: BigDecimal,
   correctedAmount: BigDecimal,
   dutyOpt: Option[DutyType] = None
-)
+) {
+  override def toString =
+    s"$taxCode: amount = $amount, paid amount = $paidAmount, corrected amount = $correctedAmount ${dutyOpt
+      .map(d => s", dutyOpt = $d")} \n"
+}
 object ReimbursementWithCorrectAmount {
 
   implicit val format: Format[ReimbursementWithCorrectAmount] =

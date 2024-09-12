@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -79,6 +80,34 @@ object ClaimsTableHelper {
         )
       )
     }
+
+  def claimsRowsForMultiple(
+    claims: Seq[ReimbursementWithCorrectAmount],
+    mrn: MRN,
+    index: Int,
+    claimAction: (Int, TaxCode) => Call
+  )(implicit
+    messages: Messages
+  ): Seq[Seq[TableRow]] =
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, _) =>
+      val suffix = s"${mrn.value}-$taxCode"
+      makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
+        TableRow(
+          content = HtmlContent(
+            messages("check-claim.table.change-link", claimAction(index, taxCode).url, s"change-link-$suffix")
+          ),
+          attributes = Map("id" -> s"change-$suffix"),
+          classes = "govuk-link"
+        )
+      )
+    } ++ Seq(
+      makeTotalRowCells(
+        claims.map(_.amount).sum,
+        claims.map(_.paidAmount).sum,
+        claims.map(_.correctedAmount).sum,
+        s"${mrn.value}"
+      )
+    )
 
   def claimsRowsForScheduled(
     claims: Seq[ReimbursementWithCorrectAmount],

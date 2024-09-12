@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
 import java.time.LocalDate
+import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 multiple MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -142,6 +143,21 @@ final class RejectedGoodsMultipleJourney private (
       })
       .getOrElse(Map.empty)
 
+  def getReimbursementsWithCorrectAmounts: Seq[(MRN, Int, List[ReimbursementWithCorrectAmount])] =
+    getReimbursementClaims.toSeq.zipWithIndex
+      .map { case ((mrn, _), index) => (mrn, index + 1, getReimbursementWithCorrectAmountFor(mrn)) }
+
+  def getReimbursementWithCorrectAmountFor(declarationId: MRN): List[ReimbursementWithCorrectAmount] = {
+    val taxCodesWithAmountPaidAndCorrect = getAvailableTaxCodesWithPaidAmountsFor(declarationId)
+      .flatMap { case (taxCode, paidAmount) =>
+        getCorrectedAmountFor(declarationId, taxCode) match {
+          case Some(ca) => Some((taxCode, Some(AmountPaidWithCorrect(paidAmount, ca))))
+          case _        => None
+        }
+      }
+    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect: _*))
+  }
+
   def needsBanksAccountDetailsSubmission: Boolean =
     !this.isSubsidyOnlyJourney
 
@@ -246,7 +262,7 @@ final class RejectedGoodsMultipleJourney private (
         }
       }
 
-  def getSubsidyError(): String =
+  def getSubsidyError: String =
     getLeadDisplayDeclaration
       .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
       .fold {
@@ -261,9 +277,7 @@ final class RejectedGoodsMultipleJourney private (
       }
 
   def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
-    getDisplayDeclarationFor(mrn)
-      .map(_.containsSomeUnsupportedTaxCode)
-      .getOrElse(false)
+    getDisplayDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
 
   def removeUnsupportedTaxCodes(): RejectedGoodsMultipleJourney =
     this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
@@ -293,7 +307,7 @@ final class RejectedGoodsMultipleJourney private (
       else if (
         index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)
       ) {
-        Left(getSubsidyError())
+        Left(getSubsidyError)
       } else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
@@ -686,8 +700,8 @@ final class RejectedGoodsMultipleJourney private (
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
 
-  override def hashCode(): Int    = answers.hashCode
-  override def toString(): String = s"RejectedGoodsMultipleJourney($answers,$caseNumber)"
+  override def hashCode(): Int  = answers.hashCode
+  override def toString: String = s"RejectedGoodsMultipleJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
