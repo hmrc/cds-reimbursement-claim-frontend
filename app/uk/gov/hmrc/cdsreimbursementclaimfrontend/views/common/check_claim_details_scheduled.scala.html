@@ -42,7 +42,7 @@
         govukTable: GovukTable
 )
 
-@(answers: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call, enterClaimAction: (DutyType, TaxCode) => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(answers: Map[String, List[ReimbursementWithCorrectAmount]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call, enterClaimAction: (DutyType, TaxCode) => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @title = @{messages(s"check-claim.scheduled.title")}
 
@@ -62,7 +62,7 @@
             firstCellIsHeader = true,
             attributes = Map("id" -> s"claims-table-${claim._1}"),
             classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4",
-            caption = Some(messages(s"duty-type.${claim._1.repr}")),
+            caption = Some(messages(s"duty-type.${claim._1}")),
             captionClasses = "govuk-table__caption govuk-!-margin-top-9 govuk-table__caption--m"
         ))
 

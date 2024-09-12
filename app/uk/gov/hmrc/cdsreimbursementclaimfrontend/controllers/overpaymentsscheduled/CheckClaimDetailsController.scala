@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,7 +62,7 @@ class CheckClaimDetailsController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      val answers                        = journey.getReimbursements
+      val answers                        = sortReimbursementsByDisplayDuty(journey.getReimbursements)
       val reimbursementTotal: BigDecimal = journey.getTotalReimbursementAmount
       (
         journey.withDutiesChangeMode(false),
@@ -86,7 +87,7 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => journey =>
-      val answers            = journey.getReimbursements
+      val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
       val reimbursementTotal = journey.getTotalReimbursementAmount
 
       journey.answers.movementReferenceNumber match {
@@ -128,4 +129,5 @@ class CheckClaimDetailsController @Inject() (
     },
     fastForwardToCYAEnabled = false
   )
+
 }

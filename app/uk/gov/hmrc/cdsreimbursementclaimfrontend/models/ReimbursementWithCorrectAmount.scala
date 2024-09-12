@@ -23,7 +23,8 @@ final case class ReimbursementWithCorrectAmount(
   taxCode: TaxCode,
   amount: BigDecimal,
   paidAmount: BigDecimal,
-  correctedAmount: BigDecimal
+  correctedAmount: BigDecimal,
+  dutyOpt: Option[DutyType] = None
 )
 object ReimbursementWithCorrectAmount {
 
