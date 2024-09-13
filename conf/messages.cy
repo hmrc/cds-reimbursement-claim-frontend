@@ -501,10 +501,10 @@ choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen bl
 choose-reason-for-security.securities.title=Pam oedd angen blaendal sicrwydd neu warant?
 choose-reason-for-security.securities.hint=Dewiswch un opsiwn o’r rhestr.
 choose-reason-for-security.securities.details=Enghreifftiau o resymau dros wneud hawliad
-choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 flynedd):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o?r DU o fewn 2 flynedd 
-choose-reason-for-security.securities.details.li2=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 6 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o?r DU o fewn 6 mis
-choose-reason-for-security.securities.details.li3=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 3 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o?r DU o fewn 3 mis
-choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 fis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o?r DU o fewn 2 fis
+choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 flynedd):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 flynedd 
+choose-reason-for-security.securities.details.li2=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 6 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 6 mis
+choose-reason-for-security.securities.details.li3=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 3 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 3 mis
+choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 fis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 fis
 
 
 claim-invalid-not-exported-all.paragraph1=Bydd hawliad am ad-daliad sicrwydd neu ad-daliad gwarant o dan Ryddhad Prosesu Mewnol neu Ryddhad Defnydd Terfynol ond yn cael ei dderbyn pan fydd y nwyddau a fewnforiwyd wedi’u rhyddhau 100%.
