@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
+import cats.Monad
 import cats.data.EitherT
+import cats.instances.future
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.BankAccountReputationConnector
@@ -29,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultBankAccountReputationService])
@@ -65,6 +68,23 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
       case BankAccountType.Business =>
         getBusinessAccountReputation(bankAccountDetails)
     }
+
+  def checkBankAccountReputationV2(
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, ConnectorError, BankAccountReputation] = {
+    implicit val monad: Monad[Future] = future.catsStdInstancesForFuture
+    getBusinessAccountReputation(bankAccountDetails)
+      .flatMap(reputation1 =>
+        if (reputation1.isConfirmed) EitherT.right(Future.successful(reputation1))
+        else
+          getPersonalAccountReputation(bankAccountDetails, postCode)
+            .map(reputation2 =>
+              if (reputation2.isConfirmed) reputation2
+              else reputation1
+            )
+      )
+  }
 
   def getBusinessAccountReputation(
     bankAccountDetails: BankAccountDetails
