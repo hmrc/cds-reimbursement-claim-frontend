@@ -25,4 +25,7 @@ final case class BankAccountReputation(
   otherError: Option[ReputationErrorResponse] = None,
   accountName: Option[String] = None,
   nameMatches: Option[ReputationResponse] = None
-)
+) {
+
+  def isConfirmed: Boolean = accountExists.exists(_.acceptable) && nameMatches.exists(_.acceptable)
+}

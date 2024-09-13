@@ -19,16 +19,36 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 import cats.kernel.Eq
 import play.api.libs.json._
 
-sealed trait ReputationResponse extends Product with Serializable
+sealed trait ReputationResponse extends Product with Serializable {
+  def acceptable: Boolean
+}
 
 object ReputationResponse {
 
-  case object Yes extends ReputationResponse { override def toString(): String = "yes" }
-  case object No extends ReputationResponse { override def toString(): String = "no" }
-  case object Indeterminate extends ReputationResponse { override def toString(): String = "indeterminate" }
-  case object Inapplicable extends ReputationResponse { override def toString(): String = "inapplicable" }
-  case object Error extends ReputationResponse { override def toString(): String = "error" }
-  case object Partial extends ReputationResponse { override def toString(): String = "partial" }
+  case object Yes extends ReputationResponse {
+    override def toString(): String  = "yes"
+    override def acceptable: Boolean = true
+  }
+  case object No extends ReputationResponse {
+    override def toString(): String  = "no"
+    override def acceptable: Boolean = false
+  }
+  case object Indeterminate extends ReputationResponse {
+    override def toString(): String  = "indeterminate"
+    override def acceptable: Boolean = true
+  }
+  case object Inapplicable extends ReputationResponse {
+    override def toString(): String  = "inapplicable"
+    override def acceptable: Boolean = false
+  }
+  case object Error extends ReputationResponse {
+    override def toString(): String  = "error"
+    override def acceptable: Boolean = false
+  }
+  case object Partial extends ReputationResponse {
+    override def toString(): String  = "partial"
+    override def acceptable: Boolean = true
+  }
 
   val allValues: Seq[ReputationResponse]         = Seq(Yes, No, Indeterminate, Inapplicable, Error, Partial)
   val valuesMap: Map[String, ReputationResponse] = allValues.map(v => (v.toString, v)).toMap
