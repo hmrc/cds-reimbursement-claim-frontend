@@ -87,4 +87,21 @@ trait MockBankAccountReputationService {
       .returning(EitherT.fromEither[Future](response))
       .once()
 
+  def mockBankAccountReputationV2(
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String],
+    response: Either[ConnectorError, BankAccountReputation]
+  )(implicit
+    ec: ExecutionContext
+  ): CallHandler4[BankAccountDetails, Option[String], HeaderCarrier, ExecutionContext, EitherT[
+    Future,
+    ConnectorError,
+    BankAccountReputation
+  ]] =
+    (mockBankAccountReputationService
+      .checkBankAccountReputationV2(_: BankAccountDetails, _: Option[String])(_: HeaderCarrier, _: ExecutionContext))
+      .expects(bankAccountDetails, postCode, *, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
+
 }

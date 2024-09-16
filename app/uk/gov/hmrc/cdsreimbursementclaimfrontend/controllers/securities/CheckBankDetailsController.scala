@@ -58,8 +58,8 @@ class CheckBankDetailsController @Inject() (
       routes.UploadFilesController.show
     }
 
-  final override val chooseBankAccountTypeRoute: Call =
-    routes.ChooseBankAccountTypeController.show
+  final override val enterBankAccountDetailsRoute: Call =
+    routes.EnterBankAccountDetailsController.show
 
   final override val changeBankAccountDetailsRoute: Call =
     routes.BankDetailsChangeLetterOfAuthorityController.show

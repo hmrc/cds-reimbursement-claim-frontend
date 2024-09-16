@@ -51,11 +51,11 @@ class CheckBankDetailsController @Inject() (
     if (journey.userHasSeenCYAPage) checkYourAnswers
     else routes.ChooseFileTypeController.show
 
-  final override val chooseBankAccountTypeRoute: Call =
-    routes.ChooseBankAccountTypeController.show
+  final override val enterBankAccountDetailsRoute: Call =
+    routes.EnterBankAccountDetailsController.show
 
   final override val changeBankAccountDetailsRoute: Call =
-    chooseBankAccountTypeRoute
+    enterBankAccountDetailsRoute
 
   final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
     journey.submitBankAccountDetails(bankAccountDetails)

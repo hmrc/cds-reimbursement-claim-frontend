@@ -109,7 +109,7 @@ class CheckBankDetailsControllerSpec
         val request = FakeRequest()
         val result  = controller.show(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
 
       }
 
@@ -123,7 +123,7 @@ class CheckBankDetailsControllerSpec
 
         val request = FakeRequest()
         val result  = controller.show(request)
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
       }
 
       "Ok when BankDetails has consigneeBankDetails and payeeType is Consignee" in forAll(genBankAccountDetails) {

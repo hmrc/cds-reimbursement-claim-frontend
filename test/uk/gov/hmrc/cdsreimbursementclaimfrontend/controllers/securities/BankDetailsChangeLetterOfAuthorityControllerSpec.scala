@@ -113,7 +113,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
       def submitLetterOfAuthorityAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "select 'Yes' should redirect to choose bank account type page" in forAll(completeJourneyGen) { journey =>
+      "select 'Yes' should redirect to enter bank account details page" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
@@ -123,7 +123,7 @@ class BankDetailsChangeLetterOfAuthorityControllerSpec
 
         checkIsRedirect(
           submitLetterOfAuthorityAction(confirmBodMessagesKey -> "true"),
-          routes.ChooseBankAccountTypeController.show
+          routes.EnterBankAccountDetailsController.show
         )
       }
 

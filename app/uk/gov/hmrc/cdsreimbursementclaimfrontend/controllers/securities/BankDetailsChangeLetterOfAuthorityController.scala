@@ -59,7 +59,7 @@ class BankDetailsChangeLetterOfAuthorityController @Inject() (
         .fold(
           formWithError => BadRequest(bankAccountLetterOfAuthority(formWithError, submitRoute)),
           {
-            case Yes => Redirect(routes.ChooseBankAccountTypeController.show)
+            case Yes => Redirect(routes.EnterBankAccountDetailsController.show)
             case No  =>
               if (journey.userHasSeenCYAPage) {
                 Redirect(routes.CheckYourAnswersController.show)

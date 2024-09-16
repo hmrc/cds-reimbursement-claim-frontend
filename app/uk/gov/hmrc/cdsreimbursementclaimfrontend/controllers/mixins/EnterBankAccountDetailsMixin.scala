@@ -43,8 +43,7 @@ object EnterBankAccountDetailsMixin {
     validationErrorPath: Call,
     retryPath: Call,
     successPath: Call,
-    submitPath: Call,
-    getBankAccountTypePath: Call
+    submitPath: Call
   )
 }
 
@@ -94,17 +93,12 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String]
   )(implicit request: Request[_]): Future[(Journey, Result)] =
-    getBankAccountType(journey, routesPack.getBankAccountTypePath)
+    bankAccountReputationService
+      .checkBankAccountReputationV2(bankAccountDetails, postCode)
       .fold(
-        identity(_).asFuture: Future[(Journey, Result)],
-        bankAccountType =>
-          bankAccountReputationService
-            .checkBankAccountReputation(bankAccountType, bankAccountDetails, postCode)
-            .fold(
-              e => (journey, processCdsError(e, routesPack.validationErrorPath)),
-              bankAccountReputation =>
-                processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
-            )
+        e => (journey, processCdsError(e, routesPack.validationErrorPath)),
+        bankAccountReputation =>
+          processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
       )
 
   @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
