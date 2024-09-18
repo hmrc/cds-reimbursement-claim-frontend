@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import cats.kernel.Eq
 
 sealed trait UploadDocumentType
 
@@ -262,4 +263,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
 
   val validator: Validator[Id, UploadDocumentType] = maybeUploadDocumentType =>
     maybeUploadDocumentType.toValidNel(MissingAnswerError("Upload Document Type"))
+
+  implicit val eq: Eq[UploadDocumentType] = Eq.fromUniversalEquals
 }
