@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import cats.syntax.eq._
 
 import java.util.Locale
 
@@ -276,7 +277,9 @@ trait UploadFilesMixin extends JourneyBaseController {
   def uploadDocumentsContentIfSkipDocumentType(
     documentTypes: Seq[UploadDocumentType]
   )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
-    val descriptionHtml = chooseFilesPageDescriptionIfSkipDocumentTypeTemplate(documentTypes)(messages).body
+    val descriptionHtml = chooseFilesPageDescriptionIfSkipDocumentTypeTemplate(
+      documentTypes.filterNot(_ === UploadDocumentType.Other)
+    )(messages).body
 
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
