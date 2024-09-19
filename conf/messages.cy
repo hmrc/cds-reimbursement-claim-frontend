@@ -1,10 +1,15 @@
 account-number.mask=Yn gorffen gyda {0}
+
+address-lookup.confirm.h1=Adolygu a chadarnhau’r cyfeiriad
 address-lookup.confirm.title=Adolygu a chadarnhau’r cyfeiriad
 address-lookup.edit.title=Nodwch eich cyfeiriad
+address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
 address-lookup.lookup.title=Dewch o hyd i’ch cyfeiriad yn y DU
 address-lookup.select.title=Dewiswch eich cyfeiriad
-bank-details.account-name.label.hidden=manylion banc
+bank-details-yes-no.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
+
 bank-details.account-name.label=Yr enw sydd ar y cyfrif
+bank-details.account-name.label.hidden=manylion banc
 bank-details.account-number.label=Rhif y cyfrif
 bank-details.are-you-sure=A ydych chi’n siŵr bod y manylion banc hyn yn gywir?
 bank-details.change=Newid
@@ -14,19 +19,21 @@ bank-details.details.bullet2=llythyr oddi wrth y cwmni rydych yn ei gynrychioli 
 bank-details.details.heading=Sut i newid y manylion banc os mai chi yw’r cynrychiolydd
 bank-details.details.p1=Os ydych yn gynrychiolydd ac yn dymuno newid y manylion banc hyn, bydd angen i chi ddarparu:
 bank-details.different-details-link=<a href="{0}" class="govuk-link">Nodwch fanylion banc gwahanol</a>
+bank-details.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
 bank-details.no=Na
 bank-details.p1=Dyma fanylion y banc lle bydd eich ad-daliadau’n cael eu gwneud yn y DU ar sail ein cofnodion.
 bank-details.sort-code.label=Cod didoli
 bank-details.title=Gwnewch yn siŵr bod y manylion banc hyn yn gywir
-bank-details.warning.are-you-sure=A ydych am fynd yn eich blaen gyda’r manylion banc hyn?
 bank-details.warning=Nid ydym wedi gallu gwirio manylion y cyfrif banc hwn. Dylech wirio bod y manylion rydych wedi’u nodi yn gywir cyn mynd yn eich blaen
+bank-details.warning.are-you-sure=A ydych am fynd yn eich blaen gyda’r manylion banc hyn?
+bank-details.warning.inset=Cadarnhewch fod manylion y cyfrif banc yn gywir i fynd yn eich blaen.
 bank-details.warning.no=Na, rwyf am roi manylion banc newydd
 bank-details.warning.title=Nid oedd modd dilysu’r manylion banc hyn
-bank-details.warning.inset=Cadarnhewch fod manylion y cyfrif banc yn gywir i fynd yn eich blaen.
 bank-details.yes=Iawn
-bank-details-yes-no.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
+
 bank-service-unavailable.help=Cysylltwch â’r <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">tîm CDS (yn agor tab newydd)</a> os oes angen i chi wneud newid i’ch gwybodaeth cyfrif banc er mwyn cwblhau’r hawliad hwn.
 bank-service-unavailable.title=Mae’n ddrwg gennym, ond nid yw’r gwasanaeth ar gael
+
 bank_account_letter_of_authority.error.required=Dewiswch ''Iawn'' i fynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc
 bank_account_letter_of_authority.label=A ydych chi eisiau mynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc?
 bank_account_letter_of_authority.no=Na
@@ -47,6 +54,7 @@ bill-of-discharge-error.p1=Rydych wedi dewis ar yr amser hwn i beidio â pharhau
 bill-of-discharge-error.p4=Dewch o hyd i ragor o wybodaeth am <a href="{0}">fewnforio nwyddau i’r DU</a>.
 bill-of-discharge-error.p5=Ar gyfer ymholiadau cyffredinol ynglŷn â mewnforio, gallwch <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
 bill-of-discharge-error.title=Rydych wedi dewis peidio â pharhau â’ch hawliad
+
 bill-of-discharge.bod3.p1=Bydd angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD3 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl. Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau oedd wedi’u Prosesu’n Fewnol y gwnaethoch eu mewnforio gydag awdurdod drwy ddatganiad.
 bill-of-discharge.bod3.title=Bil rhyddhau Prosesu Mewnol (ffurflen BOD3)
 bill-of-discharge.bod4.p1=Bydd angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD4 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl. Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau Defnydd Terfynol y gwnaethoch eu mewnforio gan ddefnyddio awdurdod drwy ddatganiad.
@@ -56,14 +64,21 @@ bill-of-discharge.no=Na
 bill-of-discharge.p2=Byddwn yn gofyn i chi uwchlwytho hwn, ynghyd â’ch dogfennau ategol eraill yn hwyrach ymlaen yn yr hawliad hwn.
 bill-of-discharge.subheading=Parhau â’r hawliad hwn?
 bill-of-discharge.yes=Iawn
+
 button.accept-and-send=Derbyn ac anfon
 button.confirm-and-continue=Cadarnhau ac yn eich blaen
 button.confirm-and-submit-claim=Cadarnhau a chyflwyno’r hawliad
 button.continue=Yn eich blaen
 button.go-back=Ewch yn ôl
 button.saveAndContinue=Cadw ac yn eich blaen
-button.tryAgain=Rhowch gynnig arall arni
 button.signin=Mewngofnodi
+button.tryAgain=Rhowch gynnig arall arni
+
+check-claim-timed-out.button=Mewngofnodi
+check-claim-timed-out.p1=Er eich diogelwch, mae’r sesiwn hon wedi dod i ben am eich bod wedi bod yn segur am 15 munud
+check-claim-timed-out.p2=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.
+check-claim-timed-out.title=Mae’ch sesiwn wedi dod i ben o ganlyniad i anweithgarwch
+
 check-claim.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.change-amount=Newid y swm
 check-claim.duty-code.row.key={0} - ad-daliad
@@ -73,6 +88,7 @@ check-claim.error.invalid=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.error.required=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.eu-duty.label=Toll yr UE
 check-claim.excise-duty.label=Toll Ecséis
+check-claim.is-this-correct=A yw hyn yn gywir?
 check-claim.multiple.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.multiple.duty.label={0}: {1}
 check-claim.multiple.error.invalid=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
@@ -101,35 +117,32 @@ check-claim.securities.hidden.claim-full-amount=Newidiwch {0} ar gyfer ID Sicrwy
 check-claim.securities.hidden.duties-selected=Newidiwch {0} ar gyfer ID Sicrwydd: {1}
 check-claim.securities.hidden.tax-code=Newidiwch swm {0} ar gyfer ID Sicrwydd: {1}
 check-claim.securities.title=Gwiriwch fanylion yr hawliad ar gyfer y blaendaliadau sicrwydd hyn
+check-claim.table-header.claim-amount=Swm yr hawliad
+check-claim.table-header.selected-charges=Taliadau a ddewiswyd
+check-claim.table-header.should-have-paid=Dylech fod wedi talu
+check-claim.table-header.you-paid=Rydych chi wedi talu
+check-claim.table.change-link=<a href="{0}" class="govuk-link">Newid</a>
+check-claim.table.total=Cyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
-check-claim.total.header=Cyfanswm
 check-claim.total=Ad-daliad ar gyfer yr MRN hwn
+check-claim.total.header=Cyfanswm
 check-claim.uk-duty.label=Toll y DU
 check-claim.yes=Iawn
 
-check-claim.table-header.selected-charges=Taliadau a ddewiswyd
-check-claim.table-header.you-paid=Rydych chi wedi talu
-check-claim.table-header.should-have-paid=Dylech fod wedi talu
-check-claim.table-header.claim-amount=Swm yr hawliad
-check-claim.table.change-link=<a href="{0}" class="govuk-link">Newid</a>
-check-claim.table.total=Cyfanswm yr ad-daliad ar gyfer yr hawliad hwn
-check-claim.is-this-correct=A yw hyn yn gywir?
-
-check-claim-timed-out.button=Mewngofnodi
-check-claim-timed-out.p1=Er eich diogelwch, mae’r sesiwn hon wedi dod i ben am eich bod wedi bod yn segur am 15 munud
-check-claim-timed-out.p2=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.
-check-claim-timed-out.title=Mae’ch sesiwn wedi dod i ben o ganlyniad i anweithgarwch
 check-claimant-details.change-hint.address=Cyfeiriad cyswllt
 check-claimant-details.change-hint.contact=Manylion cyswllt
 check-claimant-details.contact.address=Cyfeiriad cyswllt
 check-claimant-details.contact.details=Manylion cyswllt
+check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
+check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
+
 check-declaration-details.acceptance-date-label=Dyddiad casglu’r tollau
 check-declaration-details.banner.empty-securities-selection=Mae’n rhaid i chi ddewis o leiaf un sicrwydd er mwyn symud ymlaen gyda’r hawliad hwn.
 check-declaration-details.bta-due-date-label=Dyddiad gwneud y blaendal sicrwydd
 check-declaration-details.declarant-address-label=Cyfeiriad y datganydd
 check-declaration-details.declarant-name-label=Enw’r datganydd
-check-declaration-details.details.contact-details.h2=Manylion cyswllt
 check-declaration-details.details.claim-details.h2=Manylion yr hawliad
+check-declaration-details.details.contact-details.h2=Manylion cyswllt
 check-declaration-details.details.h1=Mewnforiwr
 check-declaration-details.details.h2=Datganydd
 check-declaration-details.details.p1=Y sefydliad a ddaeth â nwyddau i mewn i’r DU o wlad arall.
@@ -172,6 +185,7 @@ check-declaration-details.subsidy-label=Cymhorthdal
 check-declaration-details.subsidy-status-label=Statws cymhorthdal
 check-declaration-details.title=Gwnewch yn siŵr bod manylion y datganiad hwn yn gywir
 check-declaration-details.yes=Iawn
+
 check-eori-details.eori-correct=Iawn
 check-eori-details.eori-correct-label=A yw’r manylion hyn yn gywir?
 check-eori-details.eori-incorrect=Na
@@ -182,6 +196,7 @@ check-eori-details.gateway-id.label=Dynodydd Defnyddiwr (ID) ar gyfer Porth y Ll
 check-eori-details.name.label=Enw
 check-eori-details.paragraph=Dyma’r rhif EORI sy’n gysylltiedig â’ch Cyfrif Porth y Llywodraeth.
 check-eori-details.title=Gwiriwch eich rhif EORI
+
 check-movement-reference-numbers.add-another-mrn-question=A ydych chi am ychwanegu MRN arall?
 check-movement-reference-numbers.error.invalid=Dewiswch ''Iawn'' os ydych am ychwanegu Cyfeirnod Symud (MRN) arall
 check-movement-reference-numbers.error.required=Dewiswch ''Iawn'' os ydych am ychwanegu Cyfeirnod Symud (MRN) arall
@@ -194,10 +209,12 @@ check-movement-reference-numbers.rejected-goods.reference-number.multiple.label=
 check-movement-reference-numbers.rejected-goods.reference-number.subsequent-mrn-label={0} MRN
 check-movement-reference-numbers.rejected-goods.title=Cyfeirnodau Symud (MRNau) wedi’u hychwanegu
 check-movement-reference-numbers.title=Cyfeirnodau Symud (MRNau) wedi’u hychwanegu at eich hawliad
+
 check-total-import-discharged.error.invalid=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
 check-total-import-discharged.error.required=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
 check-total-import-discharged.help-text=Bydd unrhyw hawliad am ad-daliad ond yn cael ei dderbyn pan fydd yr holl nwyddau a fewnforiwyd wedi’u rhyddhau’n llawn
 check-total-import-discharged.title=A ydych chi wedi rhyddhau yr holl nwyddau a fewnforiwyd?
+
 check-your-answers.additional-details.h2=Rheswm dros hawlio
 check-your-answers.additional-details.label=Dyma’r rheswm dros yr hawliad
 check-your-answers.attached-documents.empty=Nid oes dogfennau ynghlwm
@@ -275,8 +292,8 @@ check-your-answers.declaration-details.paid-duties-charges-label=Tollau wedi’u
 check-your-answers.declaration-details.paid-vat-charges-label=TAW a dalwyd
 check-your-answers.declaration-details.reason-for-security-label=Rheswm dros flaendal sicrwydd
 check-your-answers.declaration-details.scheduled.mrn-label=Yr MRN cyntaf
-check-your-answers.declaration-details.securities.mrn-label=MRN mewnforio
 check-your-answers.declaration-details.securities.lrn-label=Cyfeirnod Lleol (LRN)
+check-your-answers.declaration-details.securities.mrn-label=MRN mewnforio
 check-your-answers.declaration-details.subsidy-label=Cymhorthdal
 check-your-answers.declaration-details.subsidy-status-label=Statws cymhorthdal
 check-your-answers.declaration-statement=Rwyf i, {0}, yn datgan bod y manylion sydd yn yr hawliad hwn yn wir ac yn gyflawn.
@@ -308,9 +325,9 @@ check-your-answers.inspection.inspection-address-type=Math o gyfeiriad yr archwi
 check-your-answers.inspection.inspection-date=Dyddiad yr archwiliad
 check-your-answers.multiple-claim-totals.label=Cyfanswm yr hawliad
 check-your-answers.multiple.mrn-label-plaintext={0} (Cyfeirnod Symud)
-check-your-answers.payee-type.label=Talai
-check-your-answers.payee-type.importer=Mewnforiwr
 check-your-answers.payee-type.declarant=Datganydd / Cynrychiolydd
+check-your-answers.payee-type.importer=Mewnforiwr
+check-your-answers.payee-type.label=Talai
 check-your-answers.payment-method.bt=Trosglwyddiad cyfrif banc
 check-your-answers.payment-method.cash-account=Cyfrif arian parod
 check-your-answers.payment-method.duty-deferment=Cyfrif gohirio tollau
@@ -323,12 +340,14 @@ check-your-answers.reference-number.h2=Cyfeirnod Symud (MRN)
 check-your-answers.reference-number.h2-subsidy=Cyfeirnod Symud (MRN) - Cymhorthdal
 check-your-answers.reference-number.multiple.h2=Cyfeirnodau Symud (MRNau)
 check-your-answers.reference-number.multiple.h2-subsidy=Cyfeirnodau Symud (MRNau) - Cymhorthdal
+check-your-answers.reference-number.multiple.label=Yr MRN cyntaf
+check-your-answers.reference-number.multiple.label-plaintext=Yr MRN cyntaf
 check-your-answers.reference-number.rejectedgoods.scheduled.h2=Prif Gyfeirnod Symud (MRN)
 check-your-answers.reference-number.rejectedgoods.scheduled.h2-subsidy=Prif Gyfeirnod Symud (MRN) - Cymhorthdal
 check-your-answers.reference-number.rejectedgoods.scheduled.label=Yr MRN cyntaf
 check-your-answers.reference-number.rejectedgoods.scheduled.label-plaintext=Cyfeirnod Symud (MRN) cyntaf
-check-your-answers.reference-number.rejectedgoodsmultiple.label.first=MRN {0}
 check-your-answers.reference-number.rejectedgoodsmultiple.label-plaintext.first=Cyfeirnod Symud (MRN) {0}
+check-your-answers.reference-number.rejectedgoodsmultiple.label.first=MRN {0}
 check-your-answers.reference-number.scheduled.h2=Prif Gyfeirnod Symud (MRN)
 check-your-answers.reference-number.scheduled.h2-subsidy=Prif Gyfeirnod Symud (MRN) - Cymhorthdal
 check-your-answers.reimbursement-method.bt=Trosglwyddiad cyfrif banc
@@ -353,6 +372,7 @@ check-your-answers.single.mrn-label-plaintext=Cyfeirnod Symud (MRN)
 check-your-answers.special-circumstances.h2=Amgylchiadau arbennig
 check-your-answers.special-circumstances.label=Amgylchiadau arbennig sy’n ymwneud â’ch hawliad
 check-your-answers.title=Gwiriwch eich atebion cyn anfon eich hawliad
+
 choose-claim-type.c285.hint=Ar gyfer nwyddau rydych wedi’u mewnforio neu eu cael o dramor.
 choose-claim-type.c285.title=Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu
 choose-claim-type.ce1179.hint=Os nad yw’r nwyddau wedi bodloni amodau contract, yn ddiffygiol neu wedi’u difrodi cyn clirio’r tollau.
@@ -364,6 +384,7 @@ choose-claim-type.securities.title=Hawlio blaendal sicrwydd yn ôl
 choose-claim-type.title=Dechrau hawliad newydd
 choose-claim-type.view.hint=Uwchlwythwch ddogfennau neu weld manylion yr hawliadau rydych wedi’u cyflwyno.
 choose-claim-type.view.title=Bwrw golwg dros yr hawliadau neu uwchlwytho dogfennau
+
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
 choose-export-method.export-method-description.DeclaredToAFreeZone=Wedi’u datgan i Barth Rhydd
@@ -379,6 +400,7 @@ choose-export-method.export-method-description.Other=Arall
 choose-export-method.help-text=Roedd y nwyddau yn rhai:
 choose-export-method.radio-or=neu
 choose-export-method.title=Rhowch wybod beth a wnaethoch gyda’r nwyddau
+
 choose-file-type.choose-file-type.error.invalid-file-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
 choose-file-type.error.required=Dewiswch y math o ddogfen rydych yn ei huwchlwytho
 choose-file-type.file-type.AdditionalSupportingDocuments=Dogfennau ategol ychwanegol
@@ -449,38 +471,44 @@ choose-file-type.file-type.none=Nid oes gen i unrhyw ddogfennau i’w huwchlwyth
 choose-file-type.file-type.none.more=Nid oes gen i unrhyw ddogfennau eraill i’w huwchlwytho
 choose-file-type.heading=Enghreifftiau o ddogfennau ategol
 choose-file-type.help-text=Gallwch ailadrodd y cam hwn i ychwanegu gwahanol fathau o ddogfennau at eich hawliad.
-choose-file-type.inset-text=Mae''n rhaid i chi ychwanegu anfoneb fasnachol i ategu''ch hawliad.
+choose-file-type.inset-text=Mae’n rhaid i chi ychwanegu anfoneb fasnachol i ategu’ch hawliad.
 choose-file-type.or=neu
 choose-file-type.securities.help-text=Gallwch ailadrodd y cam hwn i ychwanegu gwahanol fathau o ddogfennau at eich hawliad
 choose-file-type.securities.title=Ychwanegu dogfennau ategol at eich hawliad
 choose-file-type.title=Ychwanegu dogfennau ategol at eich hawliad
+
 choose-files.add-another-document-question=Ychwanegu math gwahanol o dystiolaeth ategol at eich hawliad?
 choose-files.add-another-document-question.error.required=Dewiswch ''Iawn'' i ychwanegu math gwahanol o dystiolaeth ategol at eich hawliad
 choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
 choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
+choose-files.if-skip.inset-text=Mae’n rhaid i chi ychwanegu anfoneb fasnachol i ategu’ch hawliad.
+choose-files.if-skip.p1=Gall pob ffeil fod hyd at {0}.  Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
+choose-files.if-skip.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil.
+choose-files.if-skip.title=Uwchlwytho dogfennau i ategu’ch hawliad
 choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
 choose-files.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
-choose-files.if-skip.inset-text=Mae''n rhaid i chi ychwanegu anfoneb fasnachol i ategu''ch hawliad.
-choose-files.if-skip.p1=Each file can be up to a maximum of {0}.  Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
-choose-files.if-skip.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
-choose-files.if-skip.title=Uwchlwytho dogfennau i ategu’ch hawliad
+
+choose-payee-type.details.declarant=Datganydd
+choose-payee-type.details.importer=Mewnforiwr
+choose-payee-type.details.p1=Y sefydliad a ddaeth â nwyddau i mewn i’r DU o wlad arall.
+choose-payee-type.details.p2=Y sefydliad sy’n cyflwyno datganiad mewnforio ar ran y mewnforiwr.
+choose-payee-type.details.p3=Trydydd parti, fel asiantau tollau, trefnwyr anfon nwyddau neu gwmnïau cludo parseli’n gyflym sy’n gweithredu ar ran y mewnforiwr.
+choose-payee-type.details.representative=Cynrychiolydd
+choose-payee-type.details.title=Pwy yw’r mewnforiwr, y datganydd a’r cynrychiolydd?
 choose-payee-type.error.required=Dewiswch pwy fydd yn cael yr ad-daliad
 choose-payee-type.radio.declarant=Datganydd / Cynrychiolydd
 choose-payee-type.radio.importer=Mewnforiwr
 choose-payee-type.title=Pwy fydd yn cael yr ad-daliad?
-choose-payee-type.details.importer=Mewnforiwr
-choose-payee-type.details.declarant=Datganydd
-choose-payee-type.details.p1=Y sefydliad a ddaeth â nwyddau i mewn i’r DU o wlad arall.
-choose-payee-type.details.p2=Y sefydliad sy’n cyflwyno datganiad mewnforio ar ran y mewnforiwr.
-choose-payee-type.details.title=Pwy yw’r mewnforiwr, y datganydd a’r cynrychiolydd?
+
 choose-payment-method.rejected-goods.single.bank-transfer=Trosglwyddiad cyfrif banc
 choose-payment-method.rejected-goods.single.cma=Addasiad Mis Cyfredol (CMA)
 choose-payment-method.rejected-goods.single.error.number=Dewiswch i gael eich ad-dalu drwy addasiad mis cyfredol (CMA) neu drwy drosglwyddiad cyfrif banc
 choose-payment-method.rejected-goods.single.error.required=Dewiswch i gael eich ad-dalu drwy addasiad mis cyfredol (CMA) neu drwy drosglwyddiad cyfrif banc
 choose-payment-method.rejected-goods.single.title=Dewiswch ddull ad-dalu
+
 choose-reason-for-security.securities.AccountSales=Gwerthiannau Cyfrif
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Dogfen ar goll: System Rhyddhad Tollau Gymunedol (CSDR)
 choose-reason-for-security.securities.EndUseRelief=Rhyddhad Defnydd Terfynol
@@ -496,41 +524,45 @@ choose-reason-for-security.securities.TemporaryAdmission3M=Mynediad Dros Dro (Do
 choose-reason-for-security.securities.TemporaryAdmission6M=Mynediad Dros Dro (Dod i ben mewn 6 mis)
 choose-reason-for-security.securities.UKAPEntryPrice=Pris Mynediad UKAP
 choose-reason-for-security.securities.UKAPSafeguardDuties=Tollau Diogelu UKAP
-choose-reason-for-security.securities.error.required=Dewiswch reswm dros y sicrwydd
-choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio
-choose-reason-for-security.securities.title=Pam oedd angen blaendal sicrwydd neu warant?
-choose-reason-for-security.securities.hint=Dewiswch un opsiwn o’r rhestr.
 choose-reason-for-security.securities.details=Enghreifftiau o resymau dros wneud hawliad
-choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 flynedd):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 flynedd 
+choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 flynedd):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 flynedd
 choose-reason-for-security.securities.details.li2=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 6 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 6 mis
 choose-reason-for-security.securities.details.li3=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 3 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 3 mis
 choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 fis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 fis
-
+choose-reason-for-security.securities.error.required=Dewiswch reswm dros y sicrwydd
+choose-reason-for-security.securities.hint=Dewiswch un opsiwn o’r rhestr.
+choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio
+choose-reason-for-security.securities.title=Pam oedd angen blaendal sicrwydd neu warant?
 
 claim-invalid-not-exported-all.paragraph1=Bydd hawliad am ad-daliad sicrwydd neu ad-daliad gwarant o dan Ryddhad Prosesu Mewnol neu Ryddhad Defnydd Terfynol ond yn cael ei dderbyn pan fydd y nwyddau a fewnforiwyd wedi’u rhyddhau 100%.
 claim-invalid-not-exported-all.paragraph2=Ewch yn ôl <a href="{0}">i’r arweiniad ar hawlio tollau mewnforio a TAW yn ôl</a> neu <a href="{1}">ddechrau hawliad newydd am flaendal sicrwydd</a>
 claim-invalid-not-exported-all.paragraph3=I ddiweddaru eich hawliad neu i drafod eich blaendal sicrwydd neu warant, gallwch <a href="{0}" targed ="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
 claim-invalid-not-exported-all.title=Gofyniad o ran hawlio blaendal sicrwydd neu warant yn ôl
+
 confirm-full-repayment.caption=ID Blaendal sicrwydd: {0}
-confirm-full-repayment.mrn=MRN
-confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
+confirm-full-repayment.mrn=MRN
 confirm-full-repayment.question=A ydych chi am hawlio’r blaendal sicrwydd cyfan yn ôl?
+confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 confirm-full-repayment.title=Hawlio’r blaendal sicrwydd hwn yn ôl?
+
+confirmation-of-submission.claim-reference=Cyfeirnod hawlio
+confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.
 confirmation-of-submission.feedback-link=Beth oedd eich barn am y gwasanaeth hwn?
-confirmation-of-submission.multiple.mrn=Yr MRN cyntaf
 confirmation-of-submission.mrn=MRN
+confirmation-of-submission.multiple.mrn=Yr MRN cyntaf
+confirmation-of-submission.next-steps=Y camau nesaf
 confirmation-of-submission.reimbursement-amount=Swm y gwnaethpwyd cais amdano
 confirmation-of-submission.title=Hawliad wedi ei gyflwyno’n llwyddiannus
+confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Bwrw golwg dros hawliad presennol neu uwchlwytho dogfennau</a>
 confirmation-of-submission.what-next.l1=cadarnhau’ch hawliad a’ch trosglwyddiad banc
 confirmation-of-submission.what-next.l2=gofyn am fwy o wybodaeth
 confirmation-of-submission.what-next.l3=egluro pam y gwrthodwyd eich hawliad
-confirmation-of-submission.next-steps=Y camau nesaf
-confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Bwrw golwg dros hawliad presennol neu uwchlwytho dogfennau</a>
 confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Dechrau hawliad newydd</a>
 confirmation-of-submission.what-next.p1=Bydd CThEF yn adolygu eich hawliad a byddwn yn anfon y canlyniad atoch dros e-bost neu drwy’r post o fewn 30 diwrnod gwaith.
 confirmation-of-submission.what-next.p2=Byddwn yn cysylltu â chi naill ai i:
 confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf?
+
 country.AD=Andorra
 country.AE=Yr Emiradau Arabaidd Unedig
 country.AF=Affganistan
@@ -784,19 +816,23 @@ country.ZM=Zambia
 country.ZW=Zimbabwe
 countryCode.placeholder=Dewiswch wlad
 currency=£
+
 cya.add=Ychwanegu
 cya.change=Newid
 cya.delete=Dileu
 cya.remove=Tynnu
+
 date.day=Diwrnod
 date.month=Mis
 date.year=Blwyddyn
+
 declaration-not-found.already-paid=Os oes gan eich llwyth rif mynediad a’ch bod wedi talu blaendal sicrwydd i CThEF, gallwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">hawlio ad-daliad yma</a>
 declaration-not-found.because=Gallai hyn fod oherwydd y canlynol:
 declaration-not-found.must-be=Mae’n rhaid i MRN fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DO12.
 declaration-not-found.point.1=Nid yw’r Cyfeirnod Symud (MRN) wedi ei adnabod
 declaration-not-found.submit=Nodwch MRN gwahanol
 declaration-not-found.title=Mae problem gyda’ch hawliad
+
 duty-type.beer=Cwrw
 duty-type.biofuels=Biodanwyddau
 duty-type.cider-perry=Seidr a pherai
@@ -811,10 +847,21 @@ duty-type.spirits=Gwirodydd
 duty-type.tobacco=Cynhyrchion tybaco
 duty-type.uk-duty=Toll y DU
 duty-type.wine=Gwin
+
+enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i’r canlynol:
+enter-additional-details.bullet.1=codau ffafriol
+enter-additional-details.bullet.2=tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad
+enter-additional-details.bullet.3=codau nwyddau anghywir
+enter-additional-details.bullet.4=rhif tariff
+enter-additional-details.bullet.5=cod gweithdrefn y tollau
+enter-additional-details.bullet.6=rhif trosglwyddo man preswylio
 enter-additional-details.error.maxLength=Mae’n rhaid i’r manylion ychwanegol fod yn 500 o gymeriadau neu lai
 enter-additional-details.error.required=Nodwch fanylion ychwanegol
+enter-additional-details.help-text=Rhowch resymau dros pam y dylech gael eich ad-dalu. Rhowch fanylion am unrhyw newidiadau i rifau eitemau, cwotâu a niferoedd.
+enter-additional-details.hint=Manylion ychwanegol
 enter-additional-details.label=Darparwch fanylion ychwanegol am yr hawliad hwn
 enter-additional-details.title=Manylion ychwanegol yr hawliad
+
 enter-associated-mrn.details.heading=Dewch o hyd i’ch MRN
 enter-associated-mrn.details.para=Gallwch ddod o hyd i’ch MRN yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-associated-mrn.enter-mrn.label=Nodwch {0} MRN
@@ -827,6 +874,7 @@ enter-associated-mrn.help-text=Caiff MRN ei gyhoeddi wrth ddatgan nwyddau i’w 
 enter-associated-mrn.invalid.number=Nodwch Gyfeirnod Symud (MRN)
 enter-associated-mrn.title=Nodwch {1}{0} Cyfeirnod Symud (MRN)
 enter-associated-mrn.title.second=Nodwch {1}{0} Gyfeirnod Symud (MRN)
+
 enter-bank-account-details.account-name.error.maxLength=Nodwch enw cyfrif dilys
 enter-bank-account-details.account-name.error.required=Nodwch enw’r cyfrif
 enter-bank-account-details.account-name.invalid=Nodwch enw cyfrif dilys
@@ -849,16 +897,22 @@ enter-bank-account-details.sort-code.help-text=Mae’n rhaid i hwn fod yn 6 digi
 enter-bank-account-details.sort-code.invalid=Nodwch god didoli dilys, megis 309430
 enter-bank-account-details.sort-code.label=Cod didoli
 enter-bank-account-details.title=Nodwch fanylion eich cyfrif banc
+
+enter-claim.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.actual-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
-enter-claim.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
+enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
+enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer mis Hydref 2023.
 enter-claim.help-text.excise=Dylech gynnwys manylion toll {0} ({1}).
-enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
+enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.mrn=MRN:
+enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>
+enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>
+enter-claim.paid-amount-label.subsidy=Faint o {1} - {2} a dalwyd drwy gymhorthdal: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount.duty-type.beer=Cwrw
 enter-claim.paid-amount.duty-type.biofuels=Biodanwyddau
 enter-claim.paid-amount.duty-type.cider-perry=Seidr a pherai
@@ -873,51 +927,49 @@ enter-claim.paid-amount.duty-type.spirits=Gwirodydd
 enter-claim.paid-amount.duty-type.tobacco=Cynhyrchion tybaco
 enter-claim.paid-amount.duty-type.uk-duty=doll y DU
 enter-claim.paid-amount.duty-type.wine=Gwin
-enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>
-enter-claim.paid-amount-label.subsidy=Faint o {1} - {2} a dalwyd drwy gymhorthdal: <span id="paid-amount">{0}</span>
-enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>
-enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd
+enter-claim.rejected-goods.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Mae’n rhaid i swm yr hawliad fod yr un peth neu’n llai na’r swm a dalwyd
+enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Mae’n rhaid i swm yr hawliad fod yn rhif, megis 30 neu 60.55
 enter-claim.rejected-goods.claim-amount.error.required=Nodwch swm yr hawliad, mewn punnoedd
 enter-claim.rejected-goods.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn fwy na sero
 enter-claim.rejected-goods.claim-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
-enter-claim.rejected-goods.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.rejected-goods.for-mrn.paragraph=Mae hyn er mwyn cyfrifo eich ad-daliad fel rhan o’ch hawliad ar gyfer MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.rejected-goods.multiple.title=Manylion yr hawliad ar gyfer {0} - {1} o dan MRN {2}
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
+enter-claim.scheduled.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.scheduled.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.actual-amount.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
 enter-claim.scheduled.actual-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
 enter-claim.scheduled.actual-amount.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
-enter-claim.scheduled.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.scheduled.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn fwy na sero
-enter-claim.scheduled.help-text.excise=Dylech gynnwys manylion toll {0} ({1}) ar gyfer pob cyfeirnod symud nwyddau yn y ffeil rydych wedi’i huwchlwytho.
 enter-claim.scheduled.help-text=Dylech gynnwys manylion {0} {1} ar gyfer pob cyfeirnod symud yn y ffeil rydych wedi’i huwchlwytho.
+enter-claim.scheduled.help-text.excise=Dylech gynnwys manylion toll {0} ({1}) ar gyfer pob cyfeirnod symud nwyddau yn y ffeil rydych wedi’i huwchlwytho.
 enter-claim.scheduled.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.scheduled.invalid.claim=Mae’n rhaid i swm a dalwyd fod yn rhif, megis 30 neu 60.55
+enter-claim.scheduled.paid-amount=Faint o {0} {1} a dalwyd, mewn punnoedd?
 enter-claim.scheduled.paid-amount.error.invalid=Mae’n rhaid i swm a dalwyd fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.paid-amount.error.required=Nodwch y swm a dalwyd, mewn punnoedd
 enter-claim.scheduled.paid-amount.error.zero=Mae’n rhaid i’r cyfanswm a dalwyd fod yn fwy na sero
 enter-claim.scheduled.paid-amount.excise=Faint o doll {0} {1} a dalwyd, mewn punnoedd?
-enter-claim.scheduled.paid-amount=Faint o {0} {1} a dalwyd, mewn punnoedd?
 enter-claim.scheduled.subsidy-inset-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
-enter-claim.scheduled.title.excise={0} - {1} {2}
 enter-claim.scheduled.title={0} {1} - {2}
+enter-claim.scheduled.title.excise={0} - {1} {2}
+enter-claim.securities.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.securities.claim-amount.error.invalid-amount=Mae’n rhaid i swm yr hawliad fod yn llai na neu’n hafal i’r swm a dalwyd
 enter-claim.securities.claim-amount.error.invalid-text=Mae’n rhaid i swm yr hawliad fod yn rhif, megis 30
 enter-claim.securities.claim-amount.error.required=Nodwch swm yr hawliad, mewn punnoedd
 enter-claim.securities.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn 0.01 neu fwy
 enter-claim.securities.claim-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
-enter-claim.securities.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.securities.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=ID y Blaendal Sicrwydd: {0}
 enter-claim.securities.title={0} - {1}
+enter-claim.title={0} - {1}
 enter-claim.title.caption=Manylion yr hawliad
 enter-claim.title.excise={0} - {1} {2}
-enter-claim.title={0} - {1}
+
 enter-contact-details.contact-email.error.maxLength=Mae’n rhaid i’r cyfeiriad e-bost fod yn 241 o gymeriadau neu lai
 enter-contact-details.contact-email.error.required=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 enter-contact-details.contact-email.invalid=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
@@ -928,6 +980,10 @@ enter-contact-details.contact-name.label=Enw llawn
 enter-contact-details.contact-phone-number.error.maxLength=Mae’n rhaid i’r rhif ffôn fod yn 30 o gymeriadau neu lai
 enter-contact-details.contact-phone-number.error.required=Nodwch rif ffôn, fel 01632 960000, 07700 900000 neu +44 1632 960000
 enter-contact-details.contact-phone-number.invalid=Nodwch rif ffôn, fel 01632 960000, 07700 900000 neu +44 1632 960000
+enter-contact-details.contact-phone-number.label=Ffôn (dewisol)
+enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu â chi ynglŷn â’r hawliad hwn.
+enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
+
 enter-declarant-eori-number.caption=Rhif EORI y datganydd
 enter-declarant-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-declarant-eori-number.error.required=Nodwch rif EORI
@@ -937,6 +993,7 @@ enter-declarant-eori-number.input-label=Nodwch rif EORI yr datganydd
 enter-declarant-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
 enter-declarant-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
 enter-declarant-eori-number.title=Nodwch rif EORI y datganydd
+
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-duplicate-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 nod, er enghraifft 19GB03I52858027017.
@@ -946,6 +1003,7 @@ enter-duplicate-movement-reference-number.invalid=Mae’n rhaid i’r Cyfeirnod 
 enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Mae’r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o’r blaen. Nodwch MRN gwahanol
 enter-duplicate-movement-reference-number.invalid.number=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI2
 enter-duplicate-movement-reference-number.title=Nodwch yr MRN dyblyg
+
 enter-export-movement-reference-number.error.required=Nodwch eich Cyfeirnod Symud Allforio
 enter-export-movement-reference-number.multiple.error.required=Nodwch eich Cyfeirnod Symud Allforio
 enter-export-movement-reference-number.multiple.inset-text=Byddwch yn gallu ychwanegu unrhyw MRNau allforio ychwanegol yn nes ymlaen.
@@ -953,18 +1011,19 @@ enter-export-movement-reference-number.multiple.securities.details.heading=Dewch
 enter-export-movement-reference-number.multiple.securities.details.paragraph=Gallwch ddod o hyd i’ch MRN allforio yn eich hysbysiad derbyn allforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-export-movement-reference-number.multiple.securities.enter-mrn.label=Nodwch yr MRN allforio cyntaf
 enter-export-movement-reference-number.multiple.securities.error.import=Nodwch Gyfeirnod Symud (MRN) allforio
-enter-export-movement-reference-number.multiple.securities.help-text=Gall ad-daliad ond cael ei brosesu unwaith y bydd y nwyddau wedi gadael.
 enter-export-movement-reference-number.multiple.securities.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
+enter-export-movement-reference-number.multiple.securities.help-text=Gall ad-daliad ond cael ei brosesu unwaith y bydd y nwyddau wedi gadael.
 enter-export-movement-reference-number.multiple.securities.invalid.number=Nodwch yr MRN yn y fformat cywir
 enter-export-movement-reference-number.multiple.securities.title=Nodwch yr MRN allforio cyntaf yn y datganiad
 enter-export-movement-reference-number.securities.details.heading=Dewch o hyd i’ch MRN allforio
 enter-export-movement-reference-number.securities.details.paragraph=Gallwch ddod o hyd i’ch MRN allforio yn eich hysbysiad derbyn allforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-export-movement-reference-number.securities.enter-mrn.label=Nodwch yr MRN allforio
 enter-export-movement-reference-number.securities.error.import=Nodwch Gyfeirnod Symud (MRN) allforio
-enter-export-movement-reference-number.securities.help-text=Gall ad-daliad ond cael ei brosesu unwaith y bydd y nwyddau wedi gadael.
 enter-export-movement-reference-number.securities.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
+enter-export-movement-reference-number.securities.help-text=Gall ad-daliad ond cael ei brosesu unwaith y bydd y nwyddau wedi gadael.
 enter-export-movement-reference-number.securities.invalid.number=Nodwch yr MRN yn y fformat cywir
 enter-export-movement-reference-number.securities.title=Nodwch yr MRN allforio yn y datganiad
+
 enter-importer-eori-number.caption=Rhif EORI y mewnforiwr
 enter-importer-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-importer-eori-number.error.required=Nodwch rif EORI
@@ -974,6 +1033,7 @@ enter-importer-eori-number.input-label=Nodwch rif EORI y mewnforiwr
 enter-importer-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
 enter-importer-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
 enter-importer-eori-number.title=Nodwch rif EORI y mewnforiwr
+
 enter-inspection-date.rejected-goods.day.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod a mis
 enter-inspection-date.rejected-goods.dayAndYear.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod a blwyddyn
@@ -990,96 +1050,96 @@ enter-inspection-date.rejected-goods.year.error.required=Mae’n rhaid i ddyddia
 
 enter-movement-reference-number.details.heading=Beth yw Cyfeirnod Symud (MRN)
 enter-movement-reference-number.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
-enter-movement-reference-number.error.existingMRN=Mae’r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o’r blaen. Nodwch MRN gwahanol
-enter-movement-reference-number.error.needsSubsidy=Nodwch MRN cymhorthdal
+enter-movement-reference-number.multiple.error.existingMRN=Mae’r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o’r blaen. Nodwch MRN gwahanol
 enter-movement-reference-number.error.needsNonSubsidy=Nodwch MRN nad yw’n gymhorthdal
+enter-movement-reference-number.error.needsSubsidy=Nodwch MRN cymhorthdal
 enter-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN)
 enter-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-movement-reference-number.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
 enter-movement-reference-number.invalid.number=Nodwch Gyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.label.1=Nodwch yr MRN cyntaf
-enter-movement-reference-number.multiple.label.2=Nodwch yr ail MRN
-enter-movement-reference-number.multiple.label.3=Nodwch y trydydd MRN
-enter-movement-reference-number.multiple.label.4=Nodwch y pedwerydd MRN
-enter-movement-reference-number.multiple.label.5=Nodwch y pumed MRN
-enter-movement-reference-number.multiple.label.6=Nodwch y chweched MRN
-enter-movement-reference-number.multiple.label.7=Nodwch y seithfed MRN
-enter-movement-reference-number.multiple.label.8=Nodwch yr wythfed MRN
-enter-movement-reference-number.multiple.label.9=Nodwch y nawfed MRN
-enter-movement-reference-number.multiple.label.10=Nodwch y degfed MRN
-enter-movement-reference-number.multiple.label.11=Nodwch yr unfed MRN ar ddeg
-enter-movement-reference-number.multiple.label.12=Nodwch y deuddegfed MRN
-enter-movement-reference-number.multiple.label.13=Nodwch y trydydd MRN ar ddeg
-enter-movement-reference-number.multiple.label.14=Nodwch y pedwerydd MRN ar ddeg
-enter-movement-reference-number.multiple.label.15=Nodwch y pymthegfed MRN
-enter-movement-reference-number.multiple.label.16=Nodwch yr unfed MRN ar bymtheg
-enter-movement-reference-number.multiple.label.17=Nodwch yr ail MRN ar bymtheg
-enter-movement-reference-number.multiple.label.18=Nodwch y deunawfed MRN
-enter-movement-reference-number.multiple.label.19=Nodwch y pedwerydd MRN ar bymtheg
-enter-movement-reference-number.multiple.label.20=Nodwch yr ugeinfed MRN
-enter-movement-reference-number.multiple.label.default=Nodwch MRN
 enter-movement-reference-number.multiple.label.1.subsidy=Nodwch yr MRN cyntaf
-enter-movement-reference-number.multiple.label.2.subsidy=Nodwch yr ail MRN
-enter-movement-reference-number.multiple.label.3.subsidy=Nodwch y trydydd MRN
-enter-movement-reference-number.multiple.label.4.subsidy=Nodwch y pedwerydd MRN
-enter-movement-reference-number.multiple.label.5.subsidy=Nodwch y pumed MRN
-enter-movement-reference-number.multiple.label.6.subsidy=Nodwch y chweched MRN
-enter-movement-reference-number.multiple.label.7.subsidy=Nodwch y seithfed MRN
-enter-movement-reference-number.multiple.label.8.subsidy=Nodwch yr wythfed MRN
-enter-movement-reference-number.multiple.label.9.subsidy=Nodwch y nawfed MRN
+enter-movement-reference-number.multiple.label.10=Nodwch y degfed MRN
 enter-movement-reference-number.multiple.label.10.subsidy=Nodwch y degfed MRN
+enter-movement-reference-number.multiple.label.11=Nodwch yr unfed MRN ar ddeg
 enter-movement-reference-number.multiple.label.11.subsidy=Nodwch yr unfed MRN ar ddeg
+enter-movement-reference-number.multiple.label.12=Nodwch y deuddegfed MRN
 enter-movement-reference-number.multiple.label.12.subsidy=Nodwch y deuddegfed MRN
+enter-movement-reference-number.multiple.label.13=Nodwch y trydydd MRN ar ddeg
 enter-movement-reference-number.multiple.label.13.subsidy=Nodwch y trydydd MRN ar ddeg
+enter-movement-reference-number.multiple.label.14=Nodwch y pedwerydd MRN ar ddeg
 enter-movement-reference-number.multiple.label.14.subsidy=Nodwch y pedwerydd MRN ar ddeg
+enter-movement-reference-number.multiple.label.15=Nodwch y pymthegfed MRN
 enter-movement-reference-number.multiple.label.15.subsidy=Nodwch y pymthegfed MRN
+enter-movement-reference-number.multiple.label.16=Nodwch yr unfed MRN ar bymtheg
 enter-movement-reference-number.multiple.label.16.subsidy=Nodwch yr unfed MRN ar bymtheg
+enter-movement-reference-number.multiple.label.17=Nodwch yr ail MRN ar bymtheg
 enter-movement-reference-number.multiple.label.17.subsidy=Nodwch yr ail MRN ar bymtheg
+enter-movement-reference-number.multiple.label.18=Nodwch y deunawfed MRN
 enter-movement-reference-number.multiple.label.18.subsidy=Nodwch y deunawfed MRN
+enter-movement-reference-number.multiple.label.19=Nodwch y pedwerydd MRN ar bymtheg
 enter-movement-reference-number.multiple.label.19.subsidy=Nodwch y pedwerydd MRN ar bymtheg
+enter-movement-reference-number.multiple.label.2=Nodwch yr ail MRN
+enter-movement-reference-number.multiple.label.2.subsidy=Nodwch yr ail MRN
+enter-movement-reference-number.multiple.label.20=Nodwch yr ugeinfed MRN
 enter-movement-reference-number.multiple.label.20.subsidy=Nodwch yr ugeinfed MRN
+enter-movement-reference-number.multiple.label.3=Nodwch y trydydd MRN
+enter-movement-reference-number.multiple.label.3.subsidy=Nodwch y trydydd MRN
+enter-movement-reference-number.multiple.label.4=Nodwch y pedwerydd MRN
+enter-movement-reference-number.multiple.label.4.subsidy=Nodwch y pedwerydd MRN
+enter-movement-reference-number.multiple.label.5=Nodwch y pumed MRN
+enter-movement-reference-number.multiple.label.5.subsidy=Nodwch y pumed MRN
+enter-movement-reference-number.multiple.label.6=Nodwch y chweched MRN
+enter-movement-reference-number.multiple.label.6.subsidy=Nodwch y chweched MRN
+enter-movement-reference-number.multiple.label.7=Nodwch y seithfed MRN
+enter-movement-reference-number.multiple.label.7.subsidy=Nodwch y seithfed MRN
+enter-movement-reference-number.multiple.label.8=Nodwch yr wythfed MRN
+enter-movement-reference-number.multiple.label.8.subsidy=Nodwch yr wythfed MRN
+enter-movement-reference-number.multiple.label.9=Nodwch y nawfed MRN
+enter-movement-reference-number.multiple.label.9.subsidy=Nodwch y nawfed MRN
+enter-movement-reference-number.multiple.label.default=Nodwch MRN
 enter-movement-reference-number.multiple.label.default.subsidy=Nodwch MRN
 enter-movement-reference-number.multiple.title.1=Nodwch y Cyfeirnod Symud (MRN) cyntaf
-enter-movement-reference-number.multiple.title.2=Nodwch yr ail Gyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.3=Nodwch y trydydd Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.4=Nodwch y pedwerydd Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.5=Nodwch y pumed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.6=Nodwch y chweched Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.7=Nodwch y seithfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.8=Nodwch yr wythfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.9=Nodwch y nawfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.10=Nodwch y degfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.11=Nodwch yr unfed Cyfeirnod Symud (MRN) ar ddeg
-enter-movement-reference-number.multiple.title.12=Nodwch y deuddegfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.13=Nodwch y trydydd Cyfeirnod Symud (MRN) ar ddeg
-enter-movement-reference-number.multiple.title.14=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar ddeg
-enter-movement-reference-number.multiple.title.15=Nodwch y pymthegfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.16=Nodwch yr unfed Cyfeirnod Symud (MRN) ar bymtheg
-enter-movement-reference-number.multiple.title.17=Nodwch yr ail Gyfeirnod Symud (MRN) ar bymtheg
-enter-movement-reference-number.multiple.title.18=Nodwch y deunawfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.19=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar bymtheg
-enter-movement-reference-number.multiple.title.20=Nodwch yr ugeinfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.1.subsidy=Nodwch y Cyfeirnod Symud (MRN) cyntaf
-enter-movement-reference-number.multiple.title.2.subsidy=Nodwch yr ail Gyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.3.subsidy=Nodwch y trydydd Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.4.subsidy=Nodwch y pedwerydd Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.5.subsidy=Nodwch y pumed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.6.subsidy=Nodwch y chweched Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.7.subsidy=Nodwch y seithfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.8.subsidy=Nodwch yr wythfed Cyfeirnod Symud (MRN)
-enter-movement-reference-number.multiple.title.9.subsidy=Nodwch y nawfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.10=Nodwch y degfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.10.subsidy=Nodwch y degfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.11=Nodwch yr unfed Cyfeirnod Symud (MRN) ar ddeg
 enter-movement-reference-number.multiple.title.11.subsidy=Nodwch yr unfed Cyfeirnod Symud (MRN) ar ddeg
+enter-movement-reference-number.multiple.title.12=Nodwch y deuddegfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.12.subsidy=Nodwch y deuddegfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.13=Nodwch y trydydd Cyfeirnod Symud (MRN) ar ddeg
 enter-movement-reference-number.multiple.title.13.subsidy=Nodwch y trydydd Cyfeirnod Symud (MRN) ar ddeg
+enter-movement-reference-number.multiple.title.14=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar ddeg
 enter-movement-reference-number.multiple.title.14.subsidy=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar ddeg
+enter-movement-reference-number.multiple.title.15=Nodwch y pymthegfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.15.subsidy=Nodwch y pymthegfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.16=Nodwch yr unfed Cyfeirnod Symud (MRN) ar bymtheg
 enter-movement-reference-number.multiple.title.16.subsidy=Nodwch yr unfed Cyfeirnod Symud (MRN) ar bymtheg
+enter-movement-reference-number.multiple.title.17=Nodwch yr ail Gyfeirnod Symud (MRN) ar bymtheg
 enter-movement-reference-number.multiple.title.17.subsidy=Nodwch yr ail Gyfeirnod Symud (MRN) ar bymtheg
+enter-movement-reference-number.multiple.title.18=Nodwch y deunawfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.18.subsidy=Nodwch y deunawfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.19=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar bymtheg
 enter-movement-reference-number.multiple.title.19.subsidy=Nodwch y pedwerydd Cyfeirnod Symud (MRN) ar bymtheg
+enter-movement-reference-number.multiple.title.2=Nodwch yr ail Gyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.2.subsidy=Nodwch yr ail Gyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.20=Nodwch yr ugeinfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.title.20.subsidy=Nodwch yr ugeinfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.3=Nodwch y trydydd Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.3.subsidy=Nodwch y trydydd Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.4=Nodwch y pedwerydd Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.4.subsidy=Nodwch y pedwerydd Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.5=Nodwch y pumed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.5.subsidy=Nodwch y pumed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.6=Nodwch y chweched Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.6.subsidy=Nodwch y chweched Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.7=Nodwch y seithfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.7.subsidy=Nodwch y seithfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.8=Nodwch yr wythfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.8.subsidy=Nodwch yr wythfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.9=Nodwch y nawfed Cyfeirnod Symud (MRN)
+enter-movement-reference-number.multiple.title.9.subsidy=Nodwch y nawfed Cyfeirnod Symud (MRN)
 enter-movement-reference-number.scheduled.label=Nodwch yr MRN cyntaf
 enter-movement-reference-number.scheduled.title=Nodwch y Cyfeirnod Symud (MRN) cyntaf
 enter-movement-reference-number.securities.details.heading=Beth yw Cyfeirnod Symud (MRN)
@@ -1090,38 +1150,39 @@ enter-movement-reference-number.securities.help=Mae’n rhaid i’r rhif fod yn 
 enter-movement-reference-number.securities.help-text=Caiff MRN ei gyhoeddi wrth ddatgan nwyddau i’w mewnforio. Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
 enter-movement-reference-number.securities.invalid.number=Nodwch yr MRN yn y fformat cywir
 enter-movement-reference-number.securities.title=Nodwch y Cyfeirnod Symud (MRN)
-enter-movement-reference-number.single.title=Nodwch y Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch MRN
+enter-movement-reference-number.single.title=Nodwch y Cyfeirnod Symud (MRN)
 
 enter-rejected-goods-details.rejected-goods.error.maxLength=Mae’n rhaid i fanylion y nwyddau wedi’u gwrthod fod yn 500 o gymeriadau neu lai
 enter-rejected-goods-details.rejected-goods.error.required=Nodwch fanylion y nwyddau wedi’u gwrthod
-
-enter-rejected-goods-details.rejected-goods.label=Manylion y nwyddau wedi’u gwrthod
-enter-rejected-goods-details.rejected-goods.title=Manylion ychwanegol yr hawliad
-
 enter-rejected-goods-details.rejected-goods.help-text.p1=Rhowch fanylion am y nwyddau sydd wedi’u gwrthod, megis cafodd y nwyddau eu difrodi cyn clirio’r tollau, roeddent yn ddiffygiol, neu nid oeddent fel y disgrifir yn y contract.
 enter-rejected-goods-details.rejected-goods.help-text.p2=Dylech gynnwys y canlynol:
+enter-rejected-goods-details.rejected-goods.hint=Manylion y nwyddau wedi’u gwrthod
+enter-rejected-goods-details.rejected-goods.label=Manylion y nwyddau wedi’u gwrthod
 enter-rejected-goods-details.rejected-goods.li1=disgrifiad o’r nwyddau
 enter-rejected-goods-details.rejected-goods.li2=cod nwyddau
 enter-rejected-goods-details.rejected-goods.li3=nifer y pecynnau
 enter-rejected-goods-details.rejected-goods.li4=gwerth (£) o’r anfoneb fewnforio
 enter-rejected-goods-details.rejected-goods.li5=lleoliad y nwyddau (porthladd, maes awyr neu borthladd post)
 enter-rejected-goods-details.rejected-goods.li6=rhif olrhain drwy’r post
-enter-rejected-goods-details.rejected-goods.hint=Manylion y nwyddau wedi’u gwrthod
-
+enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i’r canlynol:
+enter-rejected-goods-details.rejected-goods.title=Manylion ychwanegol yr hawliad
 
 enter-special-circumstances.rejected-goods.error.maxLength=Mae’n rhaid i’r amgylchiadau arbennig fod yn 500 o gymeriadau neu lai
 enter-special-circumstances.rejected-goods.error.required=Nodwch amgylchiadau arbennig yr hawliad hwn
 enter-special-circumstances.rejected-goods.hint=Disgrifiwch unrhyw amgylchiadau arbennig am yr hawliad hwn.
 enter-special-circumstances.rejected-goods.label=Nodwch unrhyw amgylchiadau arbennig
 enter-special-circumstances.rejected-goods.title=Nodwch unrhyw amgylchiadau arbennig
+
 error-claim-invalid-TPI04.bullet.1=Mae CThEF eisoes wedi casglu’r doll ar gyfer y llwyth hwn.<br><br>Gall hyn fod oherwydd bod cyfnod y blaendal neu’r warant wedi dod i ben, neu fod ei amodau mewnforio wedi newid
+error-claim-invalid-TPI04.bullet.2=mae’r hawliad hwn eisoes wedi’i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu’r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o’r blaen ac eisiau hawlio mwy
 error-claim-invalid-TPI04.para.1=Gallai hyn fod oherwydd y canlynol:
 error-claim-invalid-TPI04.title=Mae problem gyda’ch hawliad
 error.summary.title=Mae problem wedi codi
 exit-survey.link-text=<a href="{0}" class="govuk-link">Beth oedd eich barn am y gwasanaeth hwn?</a>
 exitSurvey.linkText=Rhowch wybod sut y gallwn wella’r gwasanaeth (mae’n cymryd 1 munud)
 file.error.required=Dewiswch ddogfen ategol
+
 generic.back=Yn ôl
 generic.day=Diwrnod
 generic.defaultOption=Dewis
@@ -1131,8 +1192,10 @@ generic.no=Na
 generic.year=Blwyddyn
 generic.yes=Iawn
 hmrc_branding=Cyllid a Thollau EF
+
 ineligible.help=Nid ydych yn gymwys i wneud hawliad. Os oes angen help arnoch, gallwch <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">gysylltu â CThEF (yn agor tab newydd)</a>.
 ineligible.title=Nid ydych yn gallu cyflwyno hawliad
+
 inspection-address.type.Declarant=Cyfeiriad y datganydd
 inspection-address.type.Declarant.hint=Cyfeiriad y datganydd.
 inspection-address.type.Importer=Cyfeiriad y mewnforiwr
@@ -1141,6 +1204,7 @@ inspection-address.type.Other=Cyfeiriad arall
 inspection-address.type.error.required=Dewiswch y cyfeiriad lle mae modd archwilio’r nwyddau
 inspection-address.type.or=neu
 inspection-address.type.title=Dewiswch gyfeiriad ar gyfer yr archwiliad
+
 invalid-reason-for-security.because=Gallai hyn fod oherwydd y canlynol:
 invalid-reason-for-security.point.1=ni thalwyd unrhyw sicrwydd ar gyfer y Cyfeirnod Symud (MRN) hwn
 invalid-reason-for-security.point.2=cafodd yr MRN ei nodi’n anghywir
@@ -1148,6 +1212,7 @@ invalid-reason-for-security.point.3=cafodd y rheswm dros y sicrwydd ei nodi’n 
 invalid-reason-for-security.reason=Rheswm dros flaendal sicrwydd
 invalid-reason-for-security.submit=Nodwch MRN gwahanol
 invalid-reason-for-security.title=Mae problem gyda’ch hawliad
+
 landing-securities.before.heading=Cyn i chi ddechrau
 landing-securities.before.l1=rhif EORI sy’n dechrau gyda ''GB''. <a class="govuk-link" href="">Cofrestrwch yma os oes angen rhif EORI arnoch</a>.
 landing-securities.before.l2=cyfrif er mwyn defnyddio gwasanaethau ar-lein CThEF. <a class="govuk-link" href="">Cofrestrwch yma os oes angen Dynodydd Defnyddiwr (ID) Porth y Llywodraeth arnoch</a
@@ -1209,6 +1274,7 @@ landing-securities.why.l7=Dogfennau ar goll ar yr adeg fewnforio
 landing-securities.why.l8=Pris Mynediad UKAP
 landing-securities.why.l9=Tollau Diogelu UKAP
 landing-securities.why.p1=Mae’n bosib y gall blaendal sicrwydd fod wedi’i dalu neu warant fod wedi’i thalu i CThEF am amryw o resymau. Gall y rhain gynnwys:
+
 landing.before.heading=Cyn i chi ddechrau
 landing.before.l1=manylion Porth y Llywodraeth
 landing.before.l2=cysylltu eich rhif EORI â’ch cofrestriad i’r Gwasanaeth Datganiadau Tollau (CDS)
@@ -1249,6 +1315,7 @@ landing.why.l1=yw’r swm rydych chi eisoes wedi’i dalu yn y datganiad mewnfor
 landing.why.l2=cafodd eich datganiad mewnforio ei wrthod, ac felly mae angen i chi hawlio’r cyfan neu ran o’r swm rydych eisoes wedi’i dalu yn ôl
 landing.why.p1=Dylech wneud hawliad os:
 lang=en
+
 language-switcher.english=English
 language-switcher.english.hidden=Change the language to English
 language-switcher.english.hover=Use this account in English
@@ -1256,29 +1323,38 @@ language-switcher.nav=Newid yr iaith
 language-switcher.welsh=Cymraeg
 language-switcher.welsh.hidden=Newid yr iaith i’r Gymraeg
 language-switcher.welsh.hover=Defnyddio'r cyfrif hwn yn Gymraeg
+
 method-of-payment.001=Taliad ar Unwaith
 method-of-payment.002=Cyfrif Gohirio
 method-of-payment.003=Cyfrif Arian Parod
 method-of-payment.004=Cyfrif Gwarant
 method-of-payment.005=Gwarant Unigol
 method-of-payment.006=Cymhorthdal
+
+month.April=Ebrill
+month.August=Awst
+month.December=Rhagfyr
+month.February=Chwefror
+month.January=Ionawr
+month.July=Gorffennaf
+month.June=Mehefin
+month.March=Mawrth
+month.May=Mai
+month.November=Tachwedd
+month.October=Hydref
+month.September=Medi
+
 mrn-does-not-exist.help-text=Rydych wedi ceisio cyrraedd MRN sydd heb gael ei nodi.
 mrn-does-not-exist.title=Nid yw’r MRN hwn yn bodoli
+
 mrn-not-linked-to-eori.help-text=Mae’n rhaid i’r MRN fod yn gysylltiedig â’ch rhif EORI. Nodwch MRN dilys.
 mrn-not-linked-to-eori.title=Nid yw’r MRN rydych wedi’i nodi’n gysylltiedig â’ch rhif EORI
+
 multiple-select-duties.help-text.1=Dyma’r tollau sydd wedi’u talu o dan MRN: <strong>{0}</strong>
 multiple-select-duties.title=Dewiswch y tollau rydych am eu hawlio o dan {0} MRN
 notification-banner.important=Pwysig
 
 ordinal-number-mrn.1=Yr MRN cyntaf
-ordinal-number-mrn.2=Yr ail MRN
-ordinal-number-mrn.3=Y trydydd MRN
-ordinal-number-mrn.4=Y pedwerydd MRN
-ordinal-number-mrn.5=Y pumed MRN
-ordinal-number-mrn.6=Y chweched MRN
-ordinal-number-mrn.7=Y seithfed MRN
-ordinal-number-mrn.8=Yr wythfed MRN
-ordinal-number-mrn.9=Y nawfed MRN
 ordinal-number-mrn.10=Y degfed MRN
 ordinal-number-mrn.11=Yr unfed MRN ar ddeg
 ordinal-number-mrn.12=Y deuddegfed MRN
@@ -1289,9 +1365,19 @@ ordinal-number-mrn.16=Yr unfed MRN ar bymtheg
 ordinal-number-mrn.17=Yr ail MRN ar bymtheg
 ordinal-number-mrn.18=Y deunawfed MRN
 ordinal-number-mrn.19=Y pedwerydd MRN ar bymtheg
+ordinal-number-mrn.2=Yr ail MRN
 ordinal-number-mrn.20=Yr ugeinfed MRN
+ordinal-number-mrn.3=Y trydydd MRN
+ordinal-number-mrn.4=Y pedwerydd MRN
+ordinal-number-mrn.5=Y pumed MRN
+ordinal-number-mrn.6=Y chweched MRN
+ordinal-number-mrn.7=Y seithfed MRN
+ordinal-number-mrn.8=Yr wythfed MRN
+ordinal-number-mrn.9=Y nawfed MRN
 ordinal-number-mrn.default=Yr MRN
 
+overpayments.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
+overpayments.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 overpayments.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 overpayments.choose-how-many-mrns.individual.title=Nodwch un MRN
 overpayments.choose-how-many-mrns.inset.bullet.importer=i gyd o’r un mewnforiwr
@@ -1300,17 +1386,19 @@ overpayments.choose-how-many-mrns.inset.bullet.reason=â’r un rheswm dros orda
 overpayments.choose-how-many-mrns.inset.paragraph=Os yw’ch hawliad yn cynnwys mwy nag un MRN, mae’n rhaid i’r nwyddau i gyd fod o’r un mewnforiwr a chael yr un rheswm dros ordalu. Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
 overpayments.choose-how-many-mrns.inset.paragraph-xi-info=Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI. Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
 overpayments.choose-how-many-mrns.inset.title=Nodi sawl MRN
+overpayments.choose-how-many-mrns.multiple-mrns.heading=Nodi sawl MRN
+overpayments.choose-how-many-mrns.multiple-mrns.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
+overpayments.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
 overpayments.choose-how-many-mrns.multiple.title=Nodwch sawl MRN
 overpayments.choose-how-many-mrns.p1=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
 overpayments.choose-how-many-mrns.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiant.
+overpayments.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 overpayments.choose-how-many-mrns.scheduled.title=Uwchlwytho sawl MRN
 overpayments.choose-how-many-mrns.title=Sawl Cyfeirnod Symud yr hoffech ei gyflwyno?
-overpayments.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
-overpayments.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
-overpayments.choose-how-many-mrns.multiple-mrns.heading=Nodi sawl MRN
-overpayments.choose-how-many-mrns.multiple-mrns.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
+
 phasebanner.feedback.text=Gwasanaeth newydd yw hwn - bydd eich <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">adborth (yn agor tab newydd)</a> yn ein helpu i’w wella.
 phasebanner.phase=Y Cyfnod Beta
+
 problem-with-address.button.tryAgain=Rhowch gynnig arall arni
 problem-with-address.paragraph.1=Roedd rhywfaint o wybodaeth ar goll ar gyfer eich cyfeiriad cyswllt.
 problem-with-address.paragraph.2=Dylai’r cyfeiriad cyswllt gynnwys:
@@ -1319,18 +1407,22 @@ problem-with-address.point.2=cod post go iawn
 problem-with-address.point.3=enw tref neu ddinas
 problem-with-address.title=Mae problem gyda’ch cyfeiriad cyswllt
 problem-with-mrn.help=Darparwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd).</a>.
-
 radio.divider=neu
+
 recruitment-banner.dismiss=Dim diolch
 recruitment-banner.link=Byddwch yn rhan o wneud gwasanaethau’r llywodraeth yn well (yn agor ffenestr newydd)
 recruitment-banner.message=Helpwch i wella GOV.UK
+
 reimbursement-method.bank-transfer=Trosglwyddiad cyfrif banc
 reimbursement-method.cma=Addasiad Mis Cyfredol (CMA)
-reimbursement-method.details.title=Beth yw addasiad mis cyfredol (CMA)?
 reimbursement-method.details.p1=Pan fydd Toll Dramor neu TAW mewnforio yn cael ei gordalu gan ddefnyddio cyfrif gohirio, gall cais gael ei wneud (waeth beth yw’r statws TAW) i addasu’r cyfrif gohirio i gynnwys y swm sy’n cael ei ad-dalu.
+reimbursement-method.details.title=Beth yw addasiad mis cyfredol (CMA)?
 reimbursement-method.error.invalid=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.title=Dewiswch ddull ad-dalu
+
+rejected-goods.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
+rejected-goods.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 rejected-goods.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 rejected-goods.choose-how-many-mrns.individual.title=Nodwch un MRN
 rejected-goods.choose-how-many-mrns.inset.bullet.importer=i gyd o’r un mewnforiwr
@@ -1340,14 +1432,15 @@ rejected-goods.choose-how-many-mrns.inset.bullet.subsidy=bod naill ai’n gymhor
 rejected-goods.choose-how-many-mrns.inset.paragraph=Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
 rejected-goods.choose-how-many-mrns.inset.paragraph-xi-info=Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI. Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
 rejected-goods.choose-how-many-mrns.inset.title=Nodi sawl MRN
+rejected-goods.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
 rejected-goods.choose-how-many-mrns.multiple.title=Nodwch sawl MRN
 rejected-goods.choose-how-many-mrns.p1=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN).
 rejected-goods.choose-how-many-mrns.p1-xi-info=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
 rejected-goods.choose-how-many-mrns.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiant.
+rejected-goods.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 rejected-goods.choose-how-many-mrns.scheduled.title=Uwchlwytho sawl MRN
 rejected-goods.choose-how-many-mrns.title=Sawl Cyfeirnod Symud yr hoffech ei gyflwyno?
-rejected-goods.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
-rejected-goods.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
+
 schedule-document.file-type.ScheduleOfMRNs=Dogfen restredig
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
 schedule-document.upload.choose.description=Dewiswch ddogfen i’w huwchlwytho
@@ -1363,10 +1456,12 @@ schedule-document.upload.things-to-show.l3=â’r un dull talu
 schedule-document.upload.things-to-show.p1=Mae’n rhaid i’r MRNau yn y ddogfen fod:
 schedule-document.upload.title=Ychwanegu dogfen sy’n dangos pob MRN yn yr hawliad hwn
 schedule-document.upload.title.subsidy=Ychwanegu dogfen sy’n dangos pob MRN cymhorthdal yn yr hawliad hwn
+
 select-bank-account-type.business-bank-account=Cyfrif banc busnes
 select-bank-account-type.error.required=Dewiswch ai cyfrif banc busnes yw hwn neu’n gyfrif banc personol
 select-bank-account-type.personal-bank-account=Cyfrif banc personol
 select-bank-account-type.title=Pa fath o fanylion cyfrif yr ydych yn eu rhoi?
+
 select-basis-for-claim.0.bullet=Cyfeirnod Symud (MRN) dyblyg:
 select-basis-for-claim.0.description=Datganwyd llwyth mwy nag unwaith drwy gamgymeriad a gordalwyd tollau.
 select-basis-for-claim.1.bullet=Gwaharddiad toll:
@@ -1416,18 +1511,19 @@ select-basis-for-claim.reason.PersonalEffects=Eiddo personol
 select-basis-for-claim.reason.Preference=Cyfradd tollau ffafriol
 select-basis-for-claim.reason.ProofOfReturnRefundGiven=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd
 select-basis-for-claim.reason.RGR=Rhyddhad ar nwyddau a ddychwelwyd (RGR)
-select-basis-for-claim.reason.hint.IncorrectExciseValue=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
 select-basis-for-claim.reason.hint.IncorrectAdditionalInformationCode=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
+select-basis-for-claim.reason.hint.IncorrectExciseValue=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
 select-basis-for-claim.reason.hint.d3=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
 select-basis-for-claim.rejected-goods.error.required=Dewiswch y rheswm dros wneud yr hawliad hwn
+select-basis-for-claim.rejected-goods.p1=Dewiswch un opsiwn o’r rhestr
 select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Difrodwyd nwyddau cyn clirio’r tollau
 select-basis-for-claim.rejected-goods.reason.Defective=Nwyddau’n ddiffygiol
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Nid yw’r nwyddau yn unol â’r contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Amgylchiadau arbennig
-select-basis-for-claim.rejected-goods.p1=Dewiswch un opsiwn o’r rhestr
 select-basis-for-claim.rejected-goods.title=Pam rydych yn gwneud yr hawliad hwn?
 select-basis-for-claim.select-label=Dewiswch sail yr hawliad
 select-basis-for-claim.title=Dewiswch y rheswm dros wneud yr hawliad hwn
+
 select-duties.caption=ID y Blaendal Sicrwydd: {0}
 select-duties.duty.407=Cwrw wedi’i wneud yn y DU (cyfradd safonol, hynny yw, cynhyrchiad blynyddol o fwy na 60,000 hectolitr)
 select-duties.duty.411=Gwin (pefriog), o rawnwin ffres, 8.5% cyf. ac uwch, ond heb fod yn fwy na 15% cyf.
@@ -1515,6 +1611,8 @@ select-duties.securities.title=Pa dollau rydych am hawlio ar eu cyfer?
 select-duties.subsidies.title=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau
 select-duties.title=Pa dollau rydych am hawlio ar eu cyfer?
 select-duties.title.caption=Manylion yr hawliad
+
+select-duty-codes.details.heading=Rhagor o wybodaeth am dollau
 select-duty-codes.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
 select-duty-codes.error.required=Dewiswch un math neu’n fwy o dollau rydych am hawlio ar eu cyfer
 select-duty-codes.h1.beer=cwrw
@@ -1531,22 +1629,23 @@ select-duty-codes.h1.tobacco=cynhyrchion tybaco
 select-duty-codes.h1.uk-duty=y DU
 select-duty-codes.h1.wine=gwin
 select-duty-codes.hidden-help=Defnyddiwch y nodwedd ’chwilio’ ar eich porwr i ddod o hyd i gynnwys ar y dudalen.
-select-duty-codes.subsidy-text=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau.
-select-duty-codes.title.caption=Manylion yr hawliad
-select-duty-codes.title=Pa dollau {0} rydych am hawlio ar eu cyfer?
 select-duty-codes.p1=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
-select-duty-codes.details.heading=Rhagor o wybodaeth am dollau
+select-duty-codes.subsidy-text=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau.
+select-duty-codes.title=Pa dollau {0} rydych am hawlio ar eu cyfer?
+select-duty-codes.title.caption=Manylion yr hawliad
 select-duty-codes.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
+
 select-duty-types.checkbox-legend.1=Tollau, Ychwanegol, TAW a Gwrth-Gymhorthdal
 select-duty-types.checkbox-legend.2=Tollau Ecséis
+select-duty-types.details.heading=Rhagor o wybodaeth am dollau
 select-duty-types.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
 select-duty-types.error.required=Dewiswch y tollau rydych am eu hychwanegu yn eich hawliad
 select-duty-types.hidden-help=Defnyddiwch y nodwedd ’chwilio’ ar eich porwr i ddod o hyd i gynnwys ar y dudalen.
+select-duty-types.inset=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
 select-duty-types.title=Pa dollau rydych am hawlio ar eu cyfer?
 select-duty-types.title.caption=Manylion yr hawliad
-select-duty-types.details.heading=Rhagor o wybodaeth am dollau
 select-duty-types.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
-select-duty-types.inset=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
+
 select-method-of-disposal.rejected-goods.error.required=Dewiswch y dull gwaredu
 select-method-of-disposal.rejected-goods.method.Destruction=Dinistrio’r nwyddau
 select-method-of-disposal.rejected-goods.method.DonationToCharity=Cyfrannu’r nwyddau at elusen
@@ -1556,6 +1655,7 @@ select-method-of-disposal.rejected-goods.method.PlacedInCustomsWarehouse=Rhoi’
 select-method-of-disposal.rejected-goods.method.PostalExport=Dychwelyd y nwyddau drwy’r post
 select-method-of-disposal.rejected-goods.p1=Dewiswch un opsiwn o’r rhestr
 select-method-of-disposal.rejected-goods.title=Sut y byddwch yn cael gwared ar y nwyddau?
+
 select-securities.acceptance-date-label=Dyddiad derbyn
 select-securities.bta-due-date-label=Dyddiad casglu’r tollau
 select-securities.error.required=Dewiswch ''Iawn'' os ydych yn hawlio am y Sicrwydd hwn
@@ -1576,13 +1676,16 @@ select-securities.title=Cynnwys y blaendal sicrwydd hwn yn eich hawliad?
 select-securities.title.caption=Blaendal sicrwydd: {0} o {1}
 select-securities.total-amount-label=Cyfanswm gwerth y blaendal sicrwydd
 select-securities.yes=Iawn
+
 service.name=Hawlio tollau mewnforio a TAW yn ôl
 service.signOut=Allgofnodi
 service.text=service.text
 service.title=Hawlio tollau mewnforio a TAW yn ôl
 session-expired-message=Er eich diogelwch, byddwn yn dod â’ch sesiwn i ben ymhen
+
 session-expired.keep-alive-button-text=Yn eich blaen
 session-expired.sign-out-button-text=Allgofnodi
+
 sign-out.close=Gallwch gau'r tab porwr neu ddefnyddio’r cysylltiadau hyn i gael help neu i ddefnyddio’r gwasanaeth eto.
 sign-out.point1.h=Dechrau hawliad newydd
 sign-out.point1.p1=<a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu</a>
@@ -1597,14 +1700,17 @@ sign-out.point4.h=Helpu ni i wella’r gwasanaeth hwn
 sign-out.point4.p1=Rhowch wybod i ni am eich profiad o ddefnyddio’r gwasanaeth hwn i’n helpu i’w wella.
 sign-out.point4.p2=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Rhoi adborth>
 sign-out.title=Rydych chi wedi gadael y gwasanaeth yn llwyddiannus
+
 signed-out.button=Ewch i GOV.UK
 signed-out.p1=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.
 signed-out.p2=Gallwch <a href="{0}">fewngofnodi</a> i’ch cyfrif.
 signed-out.title=Rydych wedi allgofnodi
 sort-code.mask=Yn gorffen gyda {0}
+
 submit-claim-error.p1=Mae’n ddrwg gennym, mae’ch hawliad wedi methu â chael ei gyflwyno
 submit-claim-error.p2=Ni allwch wneud hawliad. Os oes angen help arnoch, gallwch <a class="govuk-link" rel="noreferrer noopener" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/vat-customs-and-excise-and-duties-enquiries-for-welsh-speaking-customers" target="_blank">gysylltu â CThEF (yn agor tab newydd)</a> drwy’r llinell ymholiadau TAW, Tollau ac Ecséis.
 submit-claim-error.title=Hawliad wedi methu â chael ei gyflwyno
+
 tax-code.407 =407 - cwrw wedi’i gynhyrchu yn y DU, cynhyrchu mwy na 60,000 hectolitr y flwyddyn
 tax-code.411 =411 - Pefriog, 8.5% ac yn uwch, ond heb fod yn fwy na 15%
 tax-code.412 =412 - Pefriog, yn fwy na 5.5% ond yn llai nag 8.5%
@@ -1680,63 +1786,19 @@ tax-code.A90 =A90 - Toll Wrthbwyso Derfynol
 tax-code.A95 =A95 - Toll Wrthbwyso Dros Dro
 tax-code.B00 =B00 - Treth Ar Werth
 tax-code.B05 =B05 - Treth Ar Werth
+
 timed-out.button=Mewngofnodi
 timed-out.p1=Roedd hyn oherwydd eich bod wedi bod yn segur am rhy hir.
 timed-out.p2=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.
 timed-out.title=Er eich diogelwch, gwnaethom eich allgofnodi
+
 unauthorised.help=Mae angen rhif EORI arnoch i ddefnyddio’r gwasanaeth hwn. Mae’n rhaid i’r rhif EORI gynnwys 14 o gymeriadau neu lai, a chynnwys llythrennau a i z a’r rhifau 1 i 9 yn unig
 unauthorised.help-text=Dysgu <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">sut i gael rhif EORI (yn agor tab newydd)</a>
 unauthorised.title=Mae problem wedi codi
+
 we-only-support-gg.createAccount=Creu cyfrif
 we-only-support-gg.createAccount.p1=Bydd angen i chi <a href="{0}">greu Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth newydd</a>. Gallwch ei ddefnyddio i greu cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.
 we-only-support-gg.p1=Ni allwch gael mynediad at y gwasanaeth hwn drwy ddefnyddio’r Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a defnyddiwyd gennych i fewngofnodi.
 we-only-support-gg.signIn=Mewngofnodwch os oes gennych gyfrif eisoes
 we-only-support-gg.signIn.p1=<a href="{0}">Mewngofnodwch</a> gyda’r un Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a ddefnyddiwyd gennych i greu’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.
 we-only-support-gg.title=Rhoi gwybod am Dreth Enillion Cyfalaf ar eiddo yn y DU a’i thalu
-enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i’r canlynol:
-rejected-goods.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
-rejected-goods.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
-enter-contact-details.contact-phone-number.label=Ffôn (dewisol)
-confirmation-of-submission.claim-reference=Cyfeirnod hawlio
-enter-additional-details.bullet.2=tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad
-enter-additional-details.hint=Manylion ychwanegol
-
-overpayments.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
-overpayments.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
-enter-additional-details.help-text=Rhowch resymau dros pam y dylech gael eich ad-dalu. Rhowch fanylion am unrhyw newidiadau i rifau eitemau, cwotâu a niferoedd.
-enter-additional-details.bullet.3=codau nwyddau anghywir
-choose-payee-type.details.representative=Cynrychiolydd
-bank-details.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
-check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
-address-lookup.confirm.h1=Adolygu a chadarnhau’r cyfeiriad
-enter-additional-details.bullet.6=rhif trosglwyddo man preswylio
-enter-additional-details.bullet.1=codau ffafriol
-enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu â chi ynglŷn â’r hawliad hwn.
-check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
-confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.
-enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
-error-claim-invalid-TPI04.bullet.2=mae’r hawliad hwn eisoes wedi’i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu’r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o’r blaen ac eisiau hawlio mwy
-enter-additional-details.bullet.4=rhif tariff
-enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
-enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer mis Hydref 2023.
-
-address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
-enter-additional-details.bullet.5=cod gweithdrefn y tollau
-enter-rejected-goods-details.rejected-goods.p1=Dylech gynnwys unrhyw newidiadau i’r canlynol:
-choose-payee-type.details.p3=Trydydd parti, fel asiantau tollau, trefnwyr anfon nwyddau neu gwmnïau cludo parseli’n gyflym sy’n gweithredu ar ran y mewnforiwr.
-
-#===================================================
-# DATE FORMAT
-#===================================================
-month.January=Ionawr
-month.February=Chwefror
-month.March=Mawrth
-month.April=Ebrill
-month.May=Mai
-month.June=Mehefin
-month.July=Gorffennaf
-month.August=Awst
-month.September=Medi
-month.October=Hydref
-month.November=Tachwedd
-month.December=Rhagfyr
