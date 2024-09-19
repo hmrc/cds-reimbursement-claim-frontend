@@ -1,35 +1,34 @@
 account-number.mask=Ending with {0}
 
-address-lookup.confirm.title=Review and confirm address
 address-lookup.confirm.h1=Review and confirm address
+address-lookup.confirm.title=Review and confirm address
 address-lookup.edit.title=Enter your address
+address-lookup.label.searchAgainLinkText=Find a different address
 address-lookup.lookup.title=Find your UK address
 address-lookup.select.title=Choose your address
-address-lookup.label.searchAgainLinkText=Find a different address
 
-bank-details.account-name.label.hidden=bank details
 bank-details.account-name.label=Name on the account
+bank-details.account-name.label.hidden=bank details
 bank-details.account-number.label=Account number
 bank-details.are-you-sure=Are you sure these bank details are correct?
 bank-details.change=Change
+bank-details.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 bank-details.details.bullet1=a proof of authority from the company you represent that proves you are their representative
 bank-details.details.bullet2=a letter from the company you represent to their bank, confirming what the bank details should be changed to
 bank-details.details.heading=How to change bank details if you are a representative
 bank-details.details.p1=If you are a representative and want to change these bank details, you will need to provide:
 bank-details.different-details-link=<a href="{0}" class="govuk-link">Enter different bank details</a>
+bank-details.error.required=Select yes to continue with this bank account
 bank-details.no=No
 bank-details.p1=These are the details of where your repayments will be made in the UK based on our records.
-bank-details.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 bank-details.sort-code.label=Sort code
 bank-details.title=Check these bank details are correct
 bank-details.warning=We have been unable to check the details of this bank account. You should check the details that you have entered are correct before continuing
-bank-details.yes=Yes
-bank-details.error.required=Select yes to continue with this bank account
-
-bank-details.warning.title=These bank details could not be verified
-bank-details.warning.inset=Confirm the bank account details are correct to continue.
 bank-details.warning.are-you-sure=Do you want to continue with these bank details?
+bank-details.warning.inset=Confirm the bank account details are correct to continue.
 bank-details.warning.no=No, I want to provide new bank details
+bank-details.warning.title=These bank details could not be verified
+bank-details.yes=Yes
 
 bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 bank-service-unavailable.title=Sorry, the service is unavailable
@@ -71,8 +70,13 @@ button.confirm-and-submit-claim=Confirm and submit claim
 button.continue=Continue
 button.go-back=Go back
 button.saveAndContinue=Save and continue
-button.tryAgain=Try again
 button.signin=Sign in
+button.tryAgain=Try again
+
+check-claim-timed-out.button=Sign in
+check-claim-timed-out.p1=For your security, this session has ended as you have been inactive for 15 minutes
+check-claim-timed-out.p2=To access the Claim back import duty and VAT service, you’ll need to sign back in.
+check-claim-timed-out.title=Your session has ended due to inactivity
 
 check-claim.are-duties-correct=Are these duties correct?
 check-claim.change-amount=Change amount
@@ -83,6 +87,7 @@ check-claim.error.invalid=Select yes if the claim details are correct
 check-claim.error.required=Select yes if the claim details are correct
 check-claim.eu-duty.label=EU Duty
 check-claim.excise-duty.label=Excise Duty
+check-claim.is-this-correct=Is this correct?
 check-claim.multiple.are-duties-correct=Are these duties correct?
 check-claim.multiple.duty.label={0}: {1}
 check-claim.multiple.error.invalid=Select yes if the claim details are correct
@@ -111,39 +116,32 @@ check-claim.securities.hidden.claim-full-amount={0} for Security ID: {1}
 check-claim.securities.hidden.duties-selected={0} for Security ID: {1}
 check-claim.securities.hidden.tax-code={0} amount for Security ID: {1}
 check-claim.securities.title=Check the claim details for these security deposits
-check-claim.title=Check the repayment total for this claim
-check-claim.total.header=Total
-check-claim.total=Repayment for this MRN
-check-claim.uk-duty.label=UK Duty
-check-claim.yes=Yes
-
-check-claim.table-header.selected-charges=Selected charges
-check-claim.table-header.you-paid=You paid
-check-claim.table-header.should-have-paid=You should have paid
 check-claim.table-header.claim-amount=Claim amount
+check-claim.table-header.selected-charges=Selected charges
+check-claim.table-header.should-have-paid=You should have paid
+check-claim.table-header.you-paid=You paid
 check-claim.table.change-link=<a href="{0}" id="{1}" class="govuk-link">Change</a>
 check-claim.table.total=Repayment claim total
-check-claim.is-this-correct=Is this correct?
-
-check-claim-timed-out.button=Sign in
-check-claim-timed-out.p1=For your security, this session has ended as you have been inactive for 15 minutes
-check-claim-timed-out.p2=To access the Claim back import duty and VAT service, you’ll need to sign back in.
-check-claim-timed-out.title=Your session has ended due to inactivity
+check-claim.title=Check the repayment total for this claim
+check-claim.total=Repayment for this MRN
+check-claim.total.header=Total
+check-claim.uk-duty.label=UK Duty
+check-claim.yes=Yes
 
 check-claimant-details.change-hint.address=Contact address
 check-claimant-details.change-hint.contact=Contact details
 check-claimant-details.contact.address=Contact address
 check-claimant-details.contact.details=Contact details
-check-claimant-details.title=Confirm contact details for this claim
 check-claimant-details.inset-text=Contact details are used only for this claim.
+check-claimant-details.title=Confirm contact details for this claim
 
 check-declaration-details.acceptance-date-label=Date duty to be collected
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 check-declaration-details.bta-due-date-label=Date security deposit made
 check-declaration-details.declarant-address-label=Declarant address
 check-declaration-details.declarant-name-label=Declarant name
-check-declaration-details.details.contact-details.h2=Contact details
 check-declaration-details.details.claim-details.h2=Claim details
+check-declaration-details.details.contact-details.h2=Contact details
 check-declaration-details.details.h1=Importer
 check-declaration-details.details.h2=Declarant
 check-declaration-details.details.p1=The organisation that brought goods into the UK from another country.
@@ -161,9 +159,9 @@ check-declaration-details.importer-name-label=Importer name
 check-declaration-details.importer-telephone-label=Importer telephone
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.label=Declaration details
+check-declaration-details.lrn-label=Local Reference Number (LRN)
 check-declaration-details.method-of-payment-label=Method of payment
 check-declaration-details.mrn-label=MRN
-check-declaration-details.lrn-label=Local Reference Number (LRN)
 check-declaration-details.multiple.is-information-correct=Continue with this MRN?
 check-declaration-details.multiple.mrn-label=First MRN
 check-declaration-details.multiple.subsidy-warning=This is a subsidy MRN. All additional MRNs you include in this claim must be 'subsidy only'
@@ -179,8 +177,8 @@ check-declaration-details.scheduled.error.required=Select yes to continue with t
 check-declaration-details.scheduled.is-information-correct=Continue with this MRN?
 check-declaration-details.scheduled.mrn-label=First MRN
 check-declaration-details.scheduled.mrn-number.label=First MRN
-check-declaration-details.securities.mrn-label=Import MRN
 check-declaration-details.securities.lrn-label=Local Reference Number (LRN)
+check-declaration-details.securities.mrn-label=Import MRN
 check-declaration-details.single.is-information-correct=Continue with this MRN?
 check-declaration-details.subsidy-label=Subsidy
 check-declaration-details.subsidy-status-label=Subsidy status
@@ -326,9 +324,9 @@ check-your-answers.inspection.inspection-address-type=Inspection address type
 check-your-answers.inspection.inspection-date=Inspection date
 check-your-answers.multiple-claim-totals.label=Claim total
 check-your-answers.multiple.mrn-label-plaintext={0} (Movement Reference Number)
-check-your-answers.payee-type.label=Payee
-check-your-answers.payee-type.importer=Importer
 check-your-answers.payee-type.declarant=Declarant / Representative
+check-your-answers.payee-type.importer=Importer
+check-your-answers.payee-type.label=Payee
 check-your-answers.payment-method.bt=Bank account transfer
 check-your-answers.payment-method.cash-account=Cash account
 check-your-answers.payment-method.duty-deferment=Duty deferment account
@@ -364,11 +362,11 @@ check-your-answers.repayment-method.cma=Current Month Adjustment (CMA)
 check-your-answers.repayment-method.h2=Repayment details
 check-your-answers.repayment-method.label=Method
 check-your-answers.repayment-method.subsidy=Subsidy allocation
-check-your-answers.scheduled.mrn-label=First MRN
-check-your-answers.scheduled.mrn-label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.scheduled.confirmation-statement.h2=Now send your claim
+check-your-answers.scheduled.mrn-label=First MRN
+check-your-answers.scheduled.mrn-label-plaintext=First Movement Reference Number (MRN)
 check-your-answers.scheduled.title=Check your answers before sending your claim
 check-your-answers.single.mrn-label=MRN
 check-your-answers.single.mrn-label-plaintext=Movement Reference Number (MRN)
@@ -485,27 +483,26 @@ choose-files.add-another-document-question.error.required=Select yes to add a di
 choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
 choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
+choose-files.if-skip.inset-text=You must add a commercial invoice to support your claim.
+choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
+choose-files.if-skip.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
+choose-files.if-skip.title=Upload documents to support your claim
 choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 choose-files.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
 choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
 
-choose-files.if-skip.inset-text=You must add a commercial invoice to support your claim.
-choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
-choose-files.if-skip.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
-choose-files.if-skip.title=Upload documents to support your claim
-
+choose-payee-type.details.declarant=Declarant
+choose-payee-type.details.importer=Importer
+choose-payee-type.details.p1=The organisation that brought goods into the UK from another country.
+choose-payee-type.details.p2=The organisation that submits an import declaration on the importer's behalf.
+choose-payee-type.details.p3=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer''s behalf.
+choose-payee-type.details.representative=Representative
+choose-payee-type.details.title=Who is the importer, declarant and the representative?
 choose-payee-type.error.required=Select who the repayment will be made to
 choose-payee-type.radio.declarant=Declarant / Representative
 choose-payee-type.radio.importer=Importer
 choose-payee-type.title=Who will the repayment be made to?
-choose-payee-type.details.importer=Importer
-choose-payee-type.details.declarant=Declarant
-choose-payee-type.details.representative=Representative
-choose-payee-type.details.p1=The organisation that brought goods into the UK from another country.
-choose-payee-type.details.p2=The organisation that submits an import declaration on the importer's behalf.
-choose-payee-type.details.p3=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer''s behalf.
-choose-payee-type.details.title=Who is the importer, declarant and the representative?
 
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
 choose-payment-method.rejected-goods.single.cma=Current Month Adjustment (CMA)
@@ -528,15 +525,15 @@ choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admissions 
 choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admissions (6 months Expiration)
 choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price
 choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
-choose-reason-for-security.securities.error.required=Choose the reason for security
-choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
-choose-reason-for-security.securities.title=Why a security deposit or guarantee was required?
-choose-reason-for-security.securities.hint=Select one option from the list.
 choose-reason-for-security.securities.details=Examples of reasons for making a claim
 choose-reason-for-security.securities.details.li1=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (2-year period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 years
 choose-reason-for-security.securities.details.li2=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (6-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 6 months
 choose-reason-for-security.securities.details.li3=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (3-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 3 months
 choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (2-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 months
+choose-reason-for-security.securities.error.required=Choose the reason for security
+choose-reason-for-security.securities.hint=Select one option from the list.
+choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
+choose-reason-for-security.securities.title=Why a security deposit or guarantee was required?
 
 claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
 claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>
@@ -545,23 +542,23 @@ claim-invalid-not-exported-all.title=Requirement for claiming back a security de
 
 confirm-full-repayment.caption=Security deposit ID: {0}
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
-confirm-full-repayment.question=Do you want to claim back all of this security deposit?
-confirm-full-repayment.title=Claim back this security deposit?
 confirm-full-repayment.mrn=MRN
+confirm-full-repayment.question=Do you want to claim back all of this security deposit?
 confirm-full-repayment.securityDeposit=Security deposit
+confirm-full-repayment.title=Claim back this security deposit?
 
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.
 confirmation-of-submission.feedback-link=What did you think of this service?
-confirmation-of-submission.multiple.mrn=First MRN
 confirmation-of-submission.mrn=MRN
+confirmation-of-submission.multiple.mrn=First MRN
+confirmation-of-submission.next-steps=Next steps
 confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.title=Claim successfully submitted
+confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">View an existing claim or upload documents</a>
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
-confirmation-of-submission.next-steps=Next steps
-confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">View an existing claim or upload documents</a>
 confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Start a new claim</a>
 confirmation-of-submission.what-next.p1=Your claim will be reviewed by HMRC and we will email or write to you within 30 working days with the outcome.
 confirmation-of-submission.what-next.p2=We will contact you to either:
@@ -852,6 +849,7 @@ duty-type.tobacco=Tobacco products
 duty-type.uk-duty=UK Duty
 duty-type.wine=Wine
 
+enter-additional-details.bullet-help-text=Please include any changes to:
 enter-additional-details.bullet.1=preference codes
 enter-additional-details.bullet.2=proof of return or refunds
 enter-additional-details.bullet.3=incorrect commodity codes
@@ -861,7 +859,6 @@ enter-additional-details.bullet.6=transfer of residence number
 enter-additional-details.error.maxLength=Additional details must be 500 characters or less
 enter-additional-details.error.required=Enter additional details
 enter-additional-details.help-text=Give reasons why you should be repaid. Provide details about any changes to item numbers, quotas, and quantities.
-enter-additional-details.bullet-help-text=Please include any changes to:
 enter-additional-details.hint=Additional details
 enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.title=Additional claim details
@@ -889,6 +886,7 @@ enter-bank-account-details.account-number.error.length=Account number must be be
 enter-bank-account-details.account-number.error.required=Enter an account number
 enter-bank-account-details.account-number.help-text=Must be between 6 and 8 digits long.
 enter-bank-account-details.account-number.label=Account number
+enter-bank-account-details.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER=Invalid account number
 enter-bank-account-details.error.INVALID_SORTCODE=Invalid sort code
 enter-bank-account-details.error.account-does-not-exist=We were unable to verify your sort code and account no. Try again using different details
@@ -901,23 +899,22 @@ enter-bank-account-details.sort-code.help-text=Must be 6 digits long.
 enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.sort-code.label=Sort code
 enter-bank-account-details.title=Enter your bank account details
-enter-bank-account-details.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 
+enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.
-enter-claim.actual-amount=How much should have been paid, in pounds?
-enter-claim.exchange-rate-details.heading=Calculating your payment
-enter-claim.exchange-rate-details.paragraph=If you need to work out the value of your goods in pounds sterling (GBP), you must only use HMRC’s <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank">exchange rates (opens in new tab)</a>. <br><br> The exchange rate you use must be the same as when you filed your original declaration. When converting to GBP, if your original declaration was submitted in October 2023, you should use the exchange rate for October 2023.
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
+enter-claim.exchange-rate-details.heading=Calculating your payment
+enter-claim.exchange-rate-details.paragraph=If you need to work out the value of your goods in pounds sterling (GBP), you must only use HMRC’s <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank">exchange rates (opens in new tab)</a>. <br><br> The exchange rate you use must be the same as when you filed your original declaration. When converting to GBP, if your original declaration was submitted in October 2023, you should use the exchange rate for October 2023.
 enter-claim.help-text.excise=Include {0} duty details ({1}).
-enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.inset-text=HMRC does not refund agents’ fees.
+enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 enter-claim.mrn=MRN:
+enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
-enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount.duty-type.beer=Beer
 enter-claim.paid-amount.duty-type.biofuels=Biofuels
 enter-claim.paid-amount.duty-type.cider-perry=Cider and perry
@@ -932,50 +929,49 @@ enter-claim.paid-amount.duty-type.spirits=Spirits
 enter-claim.paid-amount.duty-type.tobacco=Tobacco products
 enter-claim.paid-amount.duty-type.uk-duty=UK Duty
 enter-claim.paid-amount.duty-type.wine=Wine
-enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
+enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
+enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-text=Claim amount must be a number, like 30 or 60.55
 enter-claim.rejected-goods.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.rejected-goods.claim-amount.error.zero=Claim amount must be more than zero
 enter-claim.rejected-goods.claim-amount.hint=The claim amount must be lower than the amount paid.
-enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
 enter-claim.rejected-goods.for-mrn.paragraph=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
 enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
+enter-claim.scheduled.actual-amount=How much should have been paid, in pounds?
 enter-claim.scheduled.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.scheduled.actual-amount.error.required=Enter the amount that should have been paid, in pounds
 enter-claim.scheduled.actual-amount.hint=The claim amount must be lower than the amount paid.
 enter-claim.scheduled.actual-amount.invalid.claim=The amount that should have been paid must be less than the amount paid
-enter-claim.scheduled.actual-amount=How much should have been paid, in pounds?
 enter-claim.scheduled.claim-amount.error.zero=The claim amount must be more than zero
-enter-claim.scheduled.help-text.excise=Include {0} duty details ({1}) for all movement reference numbers in the file you uploaded.
 enter-claim.scheduled.help-text=Include {0} {1} details for all movement reference numbers in the file you uploaded.
+enter-claim.scheduled.help-text.excise=Include {0} duty details ({1}) for all movement reference numbers in the file you uploaded.
 enter-claim.scheduled.inset-text=HMRC does not refund agents’ fees.
 enter-claim.scheduled.invalid.claim=The amount paid must be a number, like 30 or 60.55
+enter-claim.scheduled.paid-amount=How much {0} {1} was paid, in pounds?
 enter-claim.scheduled.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
 enter-claim.scheduled.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-claim.scheduled.paid-amount.error.zero=The amount paid must be more than zero
 enter-claim.scheduled.paid-amount.excise=How much {0} duty {1} was paid, in pounds?
-enter-claim.scheduled.paid-amount=How much {0} {1} was paid, in pounds?
 enter-claim.scheduled.subsidy-inset-text=Your subsidy allocation balance will be credited with any claim repayments.
-enter-claim.scheduled.title.excise={0} - {1} {2}
 enter-claim.scheduled.title={0} {1} - {2}
+enter-claim.scheduled.title.excise={0} - {1} {2}
+enter-claim.securities.claim-amount=How much should have been paid, in pounds?
 enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
 enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
 enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
 enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
 enter-claim.securities.claim-amount.hint=The claim amount must be lower than the amount paid.
-enter-claim.securities.claim-amount=How much should have been paid, in pounds?
 enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=Security deposit ID: {0}
 enter-claim.securities.title={0} - {1}
+enter-claim.title={0} - {1}
 enter-claim.title.caption=Claim details
 enter-claim.title.excise={0} - {1} {2}
-enter-claim.title={0} - {1}
 
-enter-contact-details.title=Provide the contact details for this claim
 enter-contact-details.contact-email.error.maxLength=Email address must be 241 characters or less
 enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
@@ -988,6 +984,7 @@ enter-contact-details.contact-phone-number.error.required=Enter a phone number, 
 enter-contact-details.contact-phone-number.invalid=Enter a phone number, like 01632 960000 , 07700 900000 or +44 1632 960000
 enter-contact-details.contact-phone-number.label=Telephone (optional)
 enter-contact-details.inset-text=We will only use this to contact you regarding this claim.
+enter-contact-details.title=Provide the contact details for this claim
 
 enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.error.maxLength=EORI number must be 17 characters or less
@@ -1016,16 +1013,16 @@ enter-export-movement-reference-number.multiple.securities.details.heading=Findi
 enter-export-movement-reference-number.multiple.securities.details.paragraph=You can find your MRN in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number.multiple.securities.enter-mrn.label=Enter the first export MRN
 enter-export-movement-reference-number.multiple.securities.error.import=Enter an export Movement Reference Number (MRN)
-enter-export-movement-reference-number.multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.multiple.securities.help=Must be 18 characters, for example 19GB03I52858027001.
+enter-export-movement-reference-number.multiple.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.multiple.securities.invalid.number=Enter the MRN in the correct format
 enter-export-movement-reference-number.multiple.securities.title=Enter the first export MRN in the declaration
 enter-export-movement-reference-number.securities.details.heading=Finding your export MRN
 enter-export-movement-reference-number.securities.details.paragraph=You can find your MRN in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
 enter-export-movement-reference-number.securities.error.import=Enter an export Movement Reference Number (MRN)
-enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
+enter-export-movement-reference-number.securities.help-text=A repayment can only be processed once the goods have departed.
 enter-export-movement-reference-number.securities.invalid.number=Enter the MRN in the correct format
 enter-export-movement-reference-number.securities.title=Enter the export MRN in the declaration
 
@@ -1055,7 +1052,7 @@ enter-inspection-date.rejected-goods.year.error.required=Inspection date must in
 
 enter-movement-reference-number.details.heading=What is a Movement Reference Number (MRN)
 enter-movement-reference-number.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-movement-reference-number.error.existingMRN=This Movement Reference Number (MRN) has already been used. Enter a different MRN
+enter-movement-reference-number.multiple.error.existingMRN=This Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-movement-reference-number.error.needsNonSubsidy=Enter a non-subsidy MRN
 enter-movement-reference-number.error.needsSubsidy=Enter a subsidy MRN
 enter-movement-reference-number.error.required=Enter a Movement Reference Number (MRN)
@@ -1084,18 +1081,16 @@ enter-rejected-goods-details.rejected-goods.bullet.3=incorrect commodity codes
 enter-rejected-goods-details.rejected-goods.bullet.4=tariff number
 enter-rejected-goods-details.rejected-goods.error.maxLength=Details of the rejected goods must be 500 characters or less
 enter-rejected-goods-details.rejected-goods.error.required=Enter details of the rejected goods
-
 enter-rejected-goods-details.rejected-goods.help-text.p1=Provide details about the rejected goods, such as they were damaged before customs clearance, defective, or not as described in the contract.
 enter-rejected-goods-details.rejected-goods.help-text.p2=Please include the following:
+enter-rejected-goods-details.rejected-goods.hint=Details of rejected goods
+enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
 enter-rejected-goods-details.rejected-goods.li1=goods description
 enter-rejected-goods-details.rejected-goods.li2=commodity code
 enter-rejected-goods-details.rejected-goods.li3=number of packages
 enter-rejected-goods-details.rejected-goods.li4=value (£) from the import invoice
 enter-rejected-goods-details.rejected-goods.li5=location of goods (port, airport or postal port)
 enter-rejected-goods-details.rejected-goods.li6=postal tracking number
-
-enter-rejected-goods-details.rejected-goods.hint=Details of rejected goods
-enter-rejected-goods-details.rejected-goods.label=Provide details of the rejected goods
 enter-rejected-goods-details.rejected-goods.title=Additional claim details
 
 enter-special-circumstances.rejected-goods.error.maxLength=Special circumstances must be 500 characters or less
@@ -1143,17 +1138,39 @@ invalid-reason-for-security.reason=Reason for security deposit
 invalid-reason-for-security.submit=Enter a different MRN
 invalid-reason-for-security.title=There is a problem with your claim
 
-landing-securities.title=Claim back an import security deposit or guarantee
-landing-securities.p1=You can use this service to claim back an import security deposit or guarantee paid to HMRC for goods you temporarily brought into the UK.
-landing-securities.who=Who can claim
-landing-securities.who.p1=You can claim if you are an importer, a customs agent, freight forwarder or fast parcel operator, acting on behalf of the importer.
-landing-securities.temporary-admissions=Temporary Admission claims
-landing-securities.temporary-admissions.p1=Temporary admissions are for set periods ranging from 2, 3 or 6 months, or 2 years. When this time period comes to an end, you may submit a claim for the security deposit or guarantee paid at the time of import.
 landing-securities.before-you-start=Before you start
 landing-securities.before-you-start.p1=You must be <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">subscribed to the Customs Declaration Service</a> and need a Government Gateway user ID and password linked to your EORI number.
+landing-securities.inset-text=Online services may be slow during busy times. Check if there are any <a href="https://www.gov.uk/guidance/customs-declaration-service-service-availability-and-issues" class="govuk-link">problems with this service</a>.
+landing-securities.need-help=If you need help
+landing-securities.need-help.p1=Find out more information about <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" class="govuk-link"> importing goods into the UK</a>
+landing-securities.need-help.p2=For general enquiries about importing, you can <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank" class="govuk-link"> contact HMRC (opens in new tab)</a>.
+landing-securities.p1=You can use this service to claim back an import security deposit or guarantee paid to HMRC for goods you temporarily brought into the UK.
 landing-securities.start-button=Start now
+landing-securities.supporting-documents=Supporting documents
+landing-securities.supporting-documents.details=Examples of supporting documents
+landing-securities.supporting-documents.details.l1=commercial invoices
+landing-securities.supporting-documents.details.l10=substitute or diversion entry
+landing-securities.supporting-documents.details.l11=proof of authority to update bank account details
+landing-securities.supporting-documents.details.l12=other documents that support your claim
+landing-securities.supporting-documents.details.l2=import or export declaration
+landing-securities.supporting-documents.details.l3=packing lists
+landing-securities.supporting-documents.details.l4=PIM/PIEX international consignment notes
+landing-securities.supporting-documents.details.l5=sea or air waybill
+landing-securities.supporting-documents.details.l6=bill of lading
+landing-securities.supporting-documents.details.l7=international consignment note
+landing-securities.supporting-documents.details.l8=customers order or sales contract
+landing-securities.supporting-documents.details.l9=correspondence between companies
+landing-securities.supporting-documents.p1=You will need supporting evidence relating to the claim. Files can be up to 9MB each and are any of the following:
+landing-securities.temporary-admissions=Temporary Admission claims
+landing-securities.temporary-admissions.p1=Temporary admissions are for set periods ranging from 2, 3 or 6 months, or 2 years. When this time period comes to an end, you may submit a claim for the security deposit or guarantee paid at the time of import.
+landing-securities.title=Claim back an import security deposit or guarantee
+landing-securities.what-happens-next=What happens next
+landing-securities.what-happens-next.p1=Your claim will be reviewed by HMRC. To find out more about the status of your claim, visit the claims dashboard. We will email or write to you within 30 working days.
+landing-securities.what-happens-next.p2=We will contact you to either:
+landing-securities.what-happens-next.p2.l1=confirm your claim and refund of deposit or guarantee
+landing-securities.what-happens-next.p2.l2=ask for more information
+landing-securities.what-happens-next.p2.l3=explain why your claim was rejected
 landing-securities.what-you-need=What you’ll need
-landing-securities.what-you-need.p1=To claim a security deposit or guarantee you’ll need:
 landing-securities.what-you-need.l1=an import and export Movement Reference Number (MRN) from the Customs Declaration Service
 landing-securities.what-you-need.l2=to know how the goods will be received — for example, imported as freight or post
 landing-securities.what-you-need.l3=details of your guarantee (if applicable)
@@ -1163,31 +1180,9 @@ landing-securities.what-you-need.l6=your bank details
 landing-securities.what-you-need.l7=your contact and address details
 landing-securities.what-you-need.l8=duty or VAT amount due and paid to HMRC
 landing-securities.what-you-need.l9=supporting documents
-landing-securities.inset-text=Online services may be slow during busy times. Check if there are any <a href="https://www.gov.uk/guidance/customs-declaration-service-service-availability-and-issues" class="govuk-link">problems with this service</a>.
-landing-securities.supporting-documents=Supporting documents
-landing-securities.supporting-documents.p1=You will need supporting evidence relating to the claim. Files can be up to 9MB each and are any of the following:
-landing-securities.supporting-documents.details=Examples of supporting documents
-landing-securities.supporting-documents.details.l1=commercial invoices
-landing-securities.supporting-documents.details.l2=import or export declaration
-landing-securities.supporting-documents.details.l3=packing lists
-landing-securities.supporting-documents.details.l4=PIM/PIEX international consignment notes
-landing-securities.supporting-documents.details.l5=sea or air waybill
-landing-securities.supporting-documents.details.l6=bill of lading
-landing-securities.supporting-documents.details.l7=international consignment note
-landing-securities.supporting-documents.details.l8=customers order or sales contract
-landing-securities.supporting-documents.details.l9=correspondence between companies
-landing-securities.supporting-documents.details.l10=substitute or diversion entry
-landing-securities.supporting-documents.details.l11=proof of authority to update bank account details
-landing-securities.supporting-documents.details.l12=other documents that support your claim
-landing-securities.what-happens-next=What happens next
-landing-securities.what-happens-next.p1=Your claim will be reviewed by HMRC. To find out more about the status of your claim, visit the claims dashboard. We will email or write to you within 30 working days.
-landing-securities.what-happens-next.p2=We will contact you to either:
-landing-securities.what-happens-next.p2.l1=confirm your claim and refund of deposit or guarantee
-landing-securities.what-happens-next.p2.l2=ask for more information
-landing-securities.what-happens-next.p2.l3=explain why your claim was rejected
-landing-securities.need-help=If you need help
-landing-securities.need-help.p1=Find out more information about <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" class="govuk-link"> importing goods into the UK</a>
-landing-securities.need-help.p2=For general enquiries about importing, you can <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank" class="govuk-link"> contact HMRC (opens in new tab)</a>.
+landing-securities.what-you-need.p1=To claim a security deposit or guarantee you’ll need:
+landing-securities.who=Who can claim
+landing-securities.who.p1=You can claim if you are an importer, a customs agent, freight forwarder or fast parcel operator, acting on behalf of the importer.
 
 landing.before.heading=Before you start
 landing.before.l1=Government Gateway credentials
@@ -1245,6 +1240,19 @@ method-of-payment.004=Guarantee Account
 method-of-payment.005=Individual Guarantee
 method-of-payment.006=Subsidy
 
+month.April=April
+month.August=August
+month.December=December
+month.February=February
+month.January=January
+month.July=July
+month.June=June
+month.March=March
+month.May=May
+month.November=November
+month.October=October
+month.September=September
+
 mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been entered.
 mrn-does-not-exist.title=This MRN does not exist
 
@@ -1254,6 +1262,7 @@ mrn-not-linked-to-eori.title=The MRN you entered is not linked to your EORI numb
 multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: <strong>{0}</strong>
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
 notification-banner.important=Important
+ordinal-number-mrn={0} MRN
 
 ordinal.label.0=zero
 ordinal.label.1=first
@@ -1277,8 +1286,8 @@ ordinal.suffix.7=th
 ordinal.suffix.8=th
 ordinal.suffix.9=th
 
-ordinal-number-mrn={0} MRN
-
+overpayments.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+overpayments.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
 overpayments.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
@@ -1287,6 +1296,8 @@ overpayments.choose-how-many-mrns.inset.bullet.reason=have the same reason for o
 overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI.
 overpayments.choose-how-many-mrns.inset.paragraph-xi-info=You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI. If your claim includes multiple MRNs, the goods must:
 overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
+overpayments.choose-how-many-mrns.multiple-mrns.heading=Entering Multiple MRNs
+overpayments.choose-how-many-mrns.multiple-mrns.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.multiple.hint=You can enter details for up to 20 MRNs.
 overpayments.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.
@@ -1294,10 +1305,6 @@ overpayments.choose-how-many-mrns.p2=You can find it in your initial import acce
 overpayments.choose-how-many-mrns.scheduled.hint=You can upload up to 250 MRNs in one file.
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 overpayments.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit?
-overpayments.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
-overpayments.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-overpayments.choose-how-many-mrns.multiple-mrns.heading=Entering Multiple MRNs
-overpayments.choose-how-many-mrns.multiple-mrns.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta
@@ -1309,21 +1316,20 @@ problem-with-address.point.1=a property name or number (address line 1)
 problem-with-address.point.2=a real postcode
 problem-with-address.point.3=a town or city name
 problem-with-address.title=There is a problem with your contact address
-radio.divider=or
 
-problem-with-declaration.title=Sorry, there is a problem with this MRN
+problem-with-declaration.continue.no=No
+problem-with-declaration.continue.question=Would you like to continue without these tax-type codes for this MRN ?
+problem-with-declaration.continue.yes=Yes
+problem-with-declaration.error.required=Select yes to continue with this claim without these tax-type codes
 problem-with-declaration.paragraph.1=The MRN {0} includes a tax-type code we do not support in our service.
 problem-with-declaration.paragraph.2=Please use the <a href="{0}" class="govuk-link" rel="noreferrer noopener">form C285</a> for MRNs containing these tax-type codes.
 problem-with-declaration.paragraph.3=Please provide <a href="{0}" class="govuk-link" rel="noreferrer noopener">another MRN</a> or use <a href="{1}" class="govuk-link" rel="noreferrer noopener">form C285</a> for MRNs containing these tax-type codes.
-problem-with-declaration.continue.question=Would you like to continue without these tax-type codes for this MRN ?
-problem-with-declaration.continue.yes=Yes
-problem-with-declaration.continue.no=No
-problem-with-declaration.error.required=Select yes to continue with this claim without these tax-type codes
+problem-with-declaration.title=Sorry, there is a problem with this MRN
 
-problem-with-mrn.title=Sorry, there is a problem with this MRN
-problem-with-mrn.paragraph.1=The MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> is invalid or there’s no duty or VAT in this MRN to claim.
 problem-with-mrn.help=Please provide another <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> or you can get help by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">contacting HMRC (opens in new tab)</a>.
-
+problem-with-mrn.paragraph.1=The MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> is invalid or there’s no duty or VAT in this MRN to claim.
+problem-with-mrn.title=Sorry, there is a problem with this MRN
+radio.divider=or
 
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
@@ -1331,12 +1337,14 @@ recruitment-banner.message=Help improve GOV.UK
 
 reimbursement-method.bank-transfer=Bank account transfer
 reimbursement-method.cma=Current Month Adjustment (CMA)
+reimbursement-method.details.p1=When Customs Duty or import VAT is overpaid using a deferment account, an application can be made (regardless of VAT status) to adjust the deferment account to include the repaid amount.
+reimbursement-method.details.title=What is current month adjustment (CMA)?
 reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.title=Choose repayment method
-reimbursement-method.details.title=What is current month adjustment (CMA)?
-reimbursement-method.details.p1=When Customs Duty or import VAT is overpaid using a deferment account, an application can be made (regardless of VAT status) to adjust the deferment account to include the repaid amount.
 
+rejected-goods.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+rejected-goods.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
 rejected-goods.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
@@ -1354,9 +1362,6 @@ rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import ac
 rejected-goods.choose-how-many-mrns.scheduled.hint=You can upload up to 250 MRNs in one file.
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
 rejected-goods.choose-how-many-mrns.title=How many Movement Reference Numbers do you want to submit?
-rejected-goods.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
-rejected-goods.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
@@ -1375,10 +1380,10 @@ schedule-document.upload.title=Add a document showing all MRNs in this claim
 schedule-document.upload.title.subsidy=Add a document which shows all the subsidy MRNs in this claim
 
 select-bank-account-type.business-bank-account=Business bank account
+select-bank-account-type.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 select-bank-account-type.error.required=Select if this is a business bank account or a personal bank account
 select-bank-account-type.personal-bank-account=Personal bank account
 select-bank-account-type.title=What type of account details are you providing?
-select-bank-account-type.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
 
 select-basis-for-claim.0.bullet=Duplicate Movement Reference Number (MRN):
 select-basis-for-claim.0.description=A shipment was declared more than once by error and duties were overpaid.
@@ -1429,15 +1434,15 @@ select-basis-for-claim.reason.PersonalEffects=Personal effects
 select-basis-for-claim.reason.Preference=Preferential rate of duty
 select-basis-for-claim.reason.ProofOfReturnRefundGiven=Proof of return or refund given
 select-basis-for-claim.reason.RGR=Returned goods relief (RGR)
-select-basis-for-claim.reason.hint.IncorrectExciseValue=Applicable only to goods moved through Northern Ireland.
 select-basis-for-claim.reason.hint.IncorrectAdditionalInformationCode=Applicable only to goods moved through Northern Ireland.
+select-basis-for-claim.reason.hint.IncorrectExciseValue=Applicable only to goods moved through Northern Ireland.
 select-basis-for-claim.reason.hint.d3=Applicable only to goods moved through Northern Ireland.
 select-basis-for-claim.rejected-goods.error.required=Select the reason for making this claim
+select-basis-for-claim.rejected-goods.p1=Select one option from the list
 select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Goods were damaged before customs clearance
 select-basis-for-claim.rejected-goods.reason.Defective=Goods are defective
 select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Goods are not in accordance with contract
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
-select-basis-for-claim.rejected-goods.p1=Select one option from the list
 select-basis-for-claim.rejected-goods.title=Why are you making this claim?
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.title=Choose the reason for making this claim
@@ -1530,9 +1535,7 @@ select-duties.subsidies.title=Duties shown are all covered by subsidy
 select-duties.title=Which duties do you want to claim for?
 select-duties.title.caption=Claim details
 
-
-
-
+select-duty-codes.details.heading=Find out more about duties
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.error.required=Select one or more duty types you want to claim for
 select-duty-codes.h1.beer=beer
@@ -1549,23 +1552,22 @@ select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.wine=wine
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
-select-duty-codes.title.caption=Claim details
-select-duty-codes.title=Which {0} duties do you want to claim for?
 select-duty-codes.p1=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
-select-duty-codes.details.heading=Find out more about duties
+select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
+select-duty-codes.title=Which {0} duties do you want to claim for?
+select-duty-codes.title.caption=Claim details
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
+select-duty-types.details.heading=Find out more about duties
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
+select-duty-types.inset=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
 select-duty-types.title=Which duties do you want to claim for?
 select-duty-types.title.caption=Claim details
-select-duty-types.details.heading=Find out more about duties
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
-select-duty-types.inset=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
 
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 select-method-of-disposal.rejected-goods.method.Destruction=Destroy the goods
@@ -1725,20 +1727,3 @@ we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot b
 we-only-support-gg.signIn=Sign in if you already have an account
 we-only-support-gg.signIn.p1=<a href="{0}" class="govuk-link">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
-
-
-#===================================================
-# DATE FORMAT
-#===================================================
-month.January=January
-month.February=February
-month.March=March
-month.April=April
-month.May=May
-month.June=June
-month.July=July
-month.August=August
-month.September=September
-month.October=October
-month.November=November
-month.December=December
