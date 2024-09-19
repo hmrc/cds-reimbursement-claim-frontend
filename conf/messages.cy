@@ -9,7 +9,7 @@ bank-details.account-number.label=Rhif y cyfrif
 bank-details.are-you-sure=A ydych chi’n siŵr bod y manylion banc hyn yn gywir?
 bank-details.change=Newid
 bank-details.cma-text=Caiff y taliad ond ei wneud i’r cyfrif banc hwn os yw’r dyddiad olaf i ohirio eisoes wedi mynd heibio erbyn i’r hawliad gael ei brosesu. Gwiriwch y <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">dyddiad olaf ar gyfer gwneud addasiadau i gyfnod gohirio (yn agor tab newydd).</a>.
-bank-details.details.bullet1=llythyr o awdurdod oddi wrth y cwmni rydych yn ei gynrychioli sy’n profi mai chi yw ei gynrychiolydd
+bank-details.details.bullet1=tystiolaeth o awdurdod oddi wrth y cwmni rydych yn ei gynrychioli sy’n profi mai chi yw ei gynrychiolydd
 bank-details.details.bullet2=llythyr oddi wrth y cwmni rydych yn ei gynrychioli at ei fanc, yn cadarnhau i beth a ddylai’r manylion banc newid
 bank-details.details.heading=Sut i newid y manylion banc os mai chi yw’r cynrychiolydd
 bank-details.details.p1=Os ydych yn gynrychiolydd ac yn dymuno newid y manylion banc hyn, bydd angen i chi ddarparu:
@@ -30,13 +30,13 @@ bank-service-unavailable.title=Mae’n ddrwg gennym, ond nid yw’r gwasanaeth a
 bank_account_letter_of_authority.error.required=Dewiswch ''Iawn'' i fynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc
 bank_account_letter_of_authority.label=A ydych chi eisiau mynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc?
 bank_account_letter_of_authority.no=Na
-bank_account_letter_of_authority.p1=Nid oes angen llythyr o awdurdod os ydych yn diweddaru’ch manylion banc at ddibenion cyfrif personol neu fusnes o dan yr un enw.
+bank_account_letter_of_authority.p1=Nid oes angen tystiolaeth o awdurdod os ydych yn diweddaru’ch manylion banc at ddibenion cyfrif personol neu fusnes o dan yr un enw.
 bank_account_letter_of_authority.p2=Er mwyn newid manylion banc i gyfrif o dan enw gwahanol, mae angen i ni gadarnhau bod gennych ganiatâd i wneud hyn.
-bank_account_letter_of_authority.p3=Bydd angen i chi ddarparu llythyr o awdurdod i CThEF er mwyn diweddaru manylion y cyfrif banc ar gyfer yr hawliad hwn. Gallwch uwchlwytho’r ddogfen hon neu ei hanfon drwy’r post at CThEF ar ôl i’ch hawliad gael ei gyflwyno.
+bank_account_letter_of_authority.p3=Bydd angen i chi ddarparu tystiolaeth o awdurdod i CThEF er mwyn diweddaru manylion y cyfrif banc ar gyfer yr hawliad hwn. Gallwch uwchlwytho’r ddogfen hon neu ei hanfon drwy’r post at CThEF ar ôl i’ch hawliad gael ei gyflwyno.
 bank_account_letter_of_authority.p4=Ni fydd eich hawliad yn cael ei brosesu hyd y bydd CThEF wedi cael y ddogfen hon.
 bank_account_letter_of_authority.subheading1=Cyfrif banc o dan yr un enw
 bank_account_letter_of_authority.subheading2=Cyfrif banc o dan enw gwahanol
-bank_account_letter_of_authority.title=A oes angen Llythyr o Awdurdod?
+bank_account_letter_of_authority.title=A oes angen tystiolaeth o awdurdod?
 bank_account_letter_of_authority.yes=Iawn
 
 bill-of-discharge-error.bod3.p2=I gyflwyno hawliad newydd am ad-daliad o’ch blaendal sicrwydd neu warant yn ddiweddarach, bydd angen i chi lenwi ffurflen BOD3.
@@ -309,8 +309,8 @@ check-your-answers.inspection.inspection-date=Dyddiad yr archwiliad
 check-your-answers.multiple-claim-totals.label=Cyfanswm yr hawliad
 check-your-answers.multiple.mrn-label-plaintext={0} (Cyfeirnod Symud)
 check-your-answers.payee-type.label=Talai
-check-your-answers.payee-type.type.importer=Mewnforiwr
-check-your-answers.payee-type.type.declarant=Datganydd / Cynrychiolydd
+check-your-answers.payee-type.importer=Mewnforiwr
+check-your-answers.payee-type.declarant=Datganydd / Cynrychiolydd
 check-your-answers.payment-method.bt=Trosglwyddiad cyfrif banc
 check-your-answers.payment-method.cash-account=Cyfrif arian parod
 check-your-answers.payment-method.duty-deferment=Cyfrif gohirio tollau
@@ -460,7 +460,7 @@ choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
 choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
 choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
-choose-files.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil yn y man ar gyfer uwchlwytho ffeiliau.
+choose-files.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
 choose-files.if-skip.inset-text=Mae''n rhaid i chi ychwanegu anfoneb fasnachol i ategu''ch hawliad.
@@ -1166,7 +1166,7 @@ landing-securities.docs.l4=dogfennau a oedd ar goll ar yr adeg fewnforio
 landing-securities.docs.l5=datganiad amgen neu ddargyfeirio
 landing-securities.docs.l6=rhyddhad prosesu mewnol - <a class="govuk-link" href="https://public-online.hmrc.gov.uk/lc/content/xfaforms/profiles/forms.html?contentRoot=repository:///Applications/Customs_D/1.0/BRBOD3&template=BOD3.xdp">ffurflen Bil Rhyddhau 3 wedi’i chwblhau</a>
 landing-securities.docs.l7=rhyddhad defnydd terfynol - <a class="govuk-link" href="https://public-online.hmrc.gov.uk/lc/content/xfaforms/profiles/forms.html?contentRoot=repository:///Applications/Customs_C/1.0/BOD4CDS&template=BOD4CDS.xdp">ffurflen Bil Rhyddhau 4 wedi’i chwblhau</a>
-landing-securities.docs.l8=llythyr o awdurdod i ddiweddaru manylion cyfrif banc
+landing-securities.docs.l8=tystiolaeth o awdurdod i ddiweddaru manylion cyfrif banc
 landing-securities.docs.l9=dogfennau eraill sy’n ategu’ch hawliad
 landing-securities.docs.p1=Dylech ddarparu dogfennau ategol ar gyfer y nwyddau rydych wedi’u mewnforio. Sganiwch y dogfennau hyn cyn i chi hawlio fel y gallwch eu huwchlwytho yn nes ymlaen. Gall y dogfennau fod hyd at 10MB fesul ffeil. Rydym yn derbyn JPG, PNG, a PDF.
 landing-securities.docs.p2=Bydd y dogfennau sydd eu hangen yn dibynnu ar amgylchiadau’ch nwyddau i’w mewnforio a gall gynnwys:
@@ -1705,7 +1705,7 @@ overpayments.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o
 overpayments.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
 enter-additional-details.help-text=Rhowch resymau dros pam y dylech gael eich ad-dalu. Rhowch fanylion am unrhyw newidiadau i rifau eitemau, cwotâu a niferoedd.
 enter-additional-details.bullet.3=codau nwyddau anghywir
-choose-payee-type.details.representative=Cynrychiadol
+choose-payee-type.details.representative=Cynrychiolydd
 bank-details.error.required=Dewiswch ''Iawn'' i barhau â’r cyfrif banc hwn
 check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
 address-lookup.confirm.h1=Adolygu a chadarnhau’r cyfeiriad
@@ -1718,7 +1718,7 @@ enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
 error-claim-invalid-TPI04.bullet.2=mae’r hawliad hwn eisoes wedi’i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu’r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o’r blaen ac eisiau hawlio mwy
 enter-additional-details.bullet.4=rhif tariff
 enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
-enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyer mis Hydref 2023.
+enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer mis Hydref 2023.
 
 address-lookup.label.searchAgainLinkText=Dod o hyd i gyfeiriad gwahanol
 enter-additional-details.bullet.5=cod gweithdrefn y tollau
