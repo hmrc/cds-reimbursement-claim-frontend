@@ -31,9 +31,9 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
 
   val postAction: Call
   def continueRoute(journey: Journey): Call
-  val chooseBankAccountTypeRoute: Call
   val changeBankAccountDetailsRoute: Call
   val checkBankDetailsPage: check_bank_details
+  val enterBankAccountDetailsRoute: Call
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
   def isCMA(journey: Journey): Boolean = false
 
@@ -69,7 +69,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
             journey,
             Redirect(
               if (journey.needsBanksAccountDetailsSubmission)
-                chooseBankAccountTypeRoute
+                enterBankAccountDetailsRoute
               else
                 continueRoute(journey)
             )
@@ -141,7 +141,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
             journey,
             Redirect(
               if (journey.needsBanksAccountDetailsSubmission)
-                chooseBankAccountTypeRoute
+                enterBankAccountDetailsRoute
               else
                 continueRoute(journey)
             )

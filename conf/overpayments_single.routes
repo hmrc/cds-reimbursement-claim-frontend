@@ -37,9 +37,6 @@ POST        /overpayments/single/check-duplicate-declaration-details            
 GET         /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.show
 POST        /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.submit
 
-GET         /overpayments/single/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseBankAccountTypeController.show
-POST        /overpayments/single/choose-bank-account-type                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseBankAccountTypeController.submit
-
 GET         /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.show
 POST        /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.submit
 

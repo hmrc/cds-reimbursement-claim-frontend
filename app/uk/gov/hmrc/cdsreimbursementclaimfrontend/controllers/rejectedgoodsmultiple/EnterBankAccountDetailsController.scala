@@ -54,7 +54,6 @@ object EnterBankAccountDetailsController {
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
     successPath = routes.CheckBankDetailsController.show,
-    submitPath = routes.EnterBankAccountDetailsController.submit,
-    getBankAccountTypePath = routes.ChooseBankAccountTypeController.show
+    submitPath = routes.EnterBankAccountDetailsController.submit
   )
 }

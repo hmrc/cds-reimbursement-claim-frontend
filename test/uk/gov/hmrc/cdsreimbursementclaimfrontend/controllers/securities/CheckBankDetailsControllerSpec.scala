@@ -112,7 +112,7 @@ class CheckBankDetailsControllerSpec
 
         val result = controller.show(FakeRequest())
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
       }
 
       "Redirect when BankDetails is None and required" in {
@@ -124,7 +124,7 @@ class CheckBankDetailsControllerSpec
         }
 
         val result = controller.show(FakeRequest())
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
       }
 
       "Redirect when BankDetails is None and not required" in {

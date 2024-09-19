@@ -137,15 +137,6 @@ class EnterBankAccountDetailsControllerSpec
     }
 
     "validate bank account details" when {
-      "redirect to choose bank account type page if no bank account type present in session" in forAll(
-        genBankAccountDetails
-      ) { bankDetails =>
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
-        checkIsRedirect(
-          controller.validateBankAccountDetails(journey, bankDetails, None).map(_._2),
-          routes.ChooseBankAccountTypeController.show
-        )
-      }
 
       "personal account" must {
         val journey = RejectedGoodsScheduledJourney
@@ -166,7 +157,7 @@ class EnterBankAccountDetailsControllerSpec
             )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankDetails, postCode, Right(personalResponse))
+            mockBankAccountReputationV2(bankDetails, postCode, Right(personalResponse))
           )
 
           checkIsRedirect(
@@ -186,7 +177,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -206,7 +197,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -228,7 +219,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -249,7 +240,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -271,7 +262,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -294,7 +285,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -316,7 +307,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -337,7 +328,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Personal, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -367,7 +358,7 @@ class EnterBankAccountDetailsControllerSpec
             )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -387,7 +378,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -407,7 +398,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -428,7 +419,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -449,7 +440,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -470,7 +461,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -492,7 +483,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -514,7 +505,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -535,7 +526,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           inSequence(
-            mockBankAccountReputation(BankAccountType.Business, bankAccountDetails, postCode, Right(expectedResponse))
+            mockBankAccountReputationV2(bankAccountDetails, postCode, Right(expectedResponse))
           )
 
           checkIsRedirect(
@@ -565,7 +556,7 @@ class EnterBankAccountDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockBankAccountReputation(BankAccountType.Personal, bankDetails, None, Right(expectedSuccessfulResponse))
+          mockBankAccountReputationV2(bankDetails, None, Right(expectedSuccessfulResponse))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -580,22 +571,6 @@ class EnterBankAccountDetailsControllerSpec
 
       }
 
-      "Redirect to bank account type page if not specified" in forAll(genBankAccountDetails) { bankDetails =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkIsRedirect(
-          performAction(
-            "enter-bank-account-details.account-name"   -> bankDetails.accountName.value,
-            "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
-            "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
-          ),
-          routes.ChooseBankAccountTypeController.show
-        )
-      }
-
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
@@ -607,8 +582,7 @@ class EnterBankAccountDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(requiredSession)
-          mockBankAccountReputation(
-            BankAccountType.Personal,
+          mockBankAccountReputationV2(
             bankDetails,
             None,
             Left(ServiceUnavailableError(boom.message, Some(boom)))

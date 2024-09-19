@@ -136,7 +136,7 @@ class CheckBankDetailsControllerSpec
         val request     = FakeRequest()
         val result      = controller.show(request)
 
-        checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+        checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
     }
 
     "display the page using declarant bank details from Acc14 and payeeType is Declarant" in forAll(
@@ -177,7 +177,7 @@ class CheckBankDetailsControllerSpec
       val request     = FakeRequest()
       val result      = controller.show(request)
 
-      checkIsRedirect(result, routes.ChooseBankAccountTypeController.show)
+      checkIsRedirect(result, routes.EnterBankAccountDetailsController.show)
     }
 
     "display the page with submitted bank details" in forAll(genBankAccountDetails) { bankDetails: BankAccountDetails =>
@@ -223,7 +223,7 @@ class CheckBankDetailsControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.ChooseBankAccountTypeController.show
+        routes.EnterBankAccountDetailsController.show
       )
     }
 

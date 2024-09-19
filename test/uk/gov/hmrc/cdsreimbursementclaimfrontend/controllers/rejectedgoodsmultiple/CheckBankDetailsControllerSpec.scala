@@ -197,7 +197,7 @@ class CheckBankDetailsControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.ChooseBankAccountTypeController.show
+        routes.EnterBankAccountDetailsController.show
       )
     }
 

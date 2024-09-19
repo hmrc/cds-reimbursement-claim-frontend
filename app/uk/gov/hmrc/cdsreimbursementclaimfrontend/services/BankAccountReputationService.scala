@@ -42,6 +42,11 @@ trait BankAccountReputationService {
     postCode: Option[String]
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation]
 
+  def checkBankAccountReputationV2(
+    bankAccountDetails: BankAccountDetails,
+    postCode: Option[String]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, ConnectorError, BankAccountReputation]
+
   def getBusinessAccountReputation(
     bankAccountDetails: BankAccountDetails
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation]
