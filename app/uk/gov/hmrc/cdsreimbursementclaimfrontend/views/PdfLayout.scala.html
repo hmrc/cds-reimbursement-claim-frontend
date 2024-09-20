@@ -1,0 +1,137 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@*
+* Copyright 2021 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
+@import uk.gov.hmrc.govukfrontend.views.Aliases.PhaseBanner
+@import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
+@import uk.gov.hmrc.govukfrontend.views.html.components.Tag
+@import views.html.helper.CSPNonce
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukBackLink
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.backlink.BackLink
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import views.html.helper.CSPNonce
+
+@this(
+        hmrcStandardPage: HmrcStandardPage
+)
+
+@()(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@headBlock = {
+
+    <style media="print">
+
+	body > footer {
+        display: none !important;
+    }
+
+ .govuk-header,
+  .govuk-phase-banner,
+  .govuk-footer,
+  .govuk-table__head,
+  .govuk-skip-link  {
+  	display:none;
+  }
+  .printable, .printable > * {
+  	display:block;
+  }
+  .for-print-only {
+  	display:block !important;
+  }
+  .not-for-print {
+  	display: none;
+  }
+  .word-wrap {
+  	word-wrap: normal;
+  }
+  .govuk-summary-list__row {
+    display: table-row;
+  }
+	.govuk-summary-list {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+		  font-size: 19px;
+      font-size: 1.1875rem;
+      line-height: 1.3157894737;
+      border-collapse: collapse;
+		  font-family: "GDS Transport", arial, sans-serif;
+   		-webkit-font-smoothing: antialiased;
+		  margin-bottom: 30px;
+	}
+	.govuk-summary-list__key {
+		  width: 50%;
+    	margin-bottom: 5px;
+    	font-weight: 700;
+	}
+	.govuk-summary-list__key,
+	.govuk-summary-list__value {
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+	.govuk-summary-list__row {
+        display: table-row;
+	      border-bottom: 1px solid #B1B4B6;
+	}
+	.govuk-summary-list__key,
+	.govuk-summary-list__value,
+	.govuk-summary-list__actions	{
+        	display: table-cell;
+        	padding-top: 10px;
+       	 	padding-right: 20px;
+        	padding-bottom: 10px;
+   		 margin: 0;
+	}
+    </style>
+
+
+}
+
+@hmrcStandardPage(HmrcStandardPageParams(
+  templateOverrides = TemplateOverrides(
+    additionalHeadBlock = Some(headBlock)
+  )
+ )){
+    @contentBlock
+}

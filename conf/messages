@@ -374,6 +374,34 @@ check-your-answers.special-circumstances.h2=Special circumstances
 check-your-answers.special-circumstances.label=Any special circumstances relating to your claim
 check-your-answers.title=Check your answers before sending your claim
 
+check-your-answers.pdf.title=Submitted claim - {0}
+check-your-answers.pdf.amount-requested=Amount requested
+check-your-answers.pdf.claim-reference-number=Claim reference number
+check-your-answers.pdf.mrn=MRN
+check-your-answers.pdf.declaration-details=Declaration details
+check-your-answers.pdf.lrn=Local Reference Number (LRN)
+check-your-answers.pdf.import-date=Import date
+check-your-answers.pdf.import-name=Importer name
+check-your-answers.pdf.import-email=Importer email
+check-your-answers.pdf.import-telephone=Importer telephone
+check-your-answers.pdf.import-address=Importer address
+check-your-answers.pdf.declarant-name=Declarant name
+check-your-answers.pdf.declarant-address=Declarant address
+check-your-answers.pdf.contact-details.header=Contact details for this claim
+check-your-answers.pdf.contact-details=Personal details
+check-your-answers.pdf.contact-address=Contact address
+check-your-answers.pdf.basis-of-claim=Basis of claim
+check-your-answers.pdf.additional-details=Additional claim details
+check-your-answers.pdf.claim-total=Claim total
+check-your-answers.pdf.total=Total
+check-your-answers.pdf.repayment-details=Repayment details
+check-your-answers.pdf.payee=Payee
+check-your-answers.pdf.method=Method
+check-your-answers.pdf.supporting-documents=Supporting documents
+check-your-answers.pdf.uploaded=Uploaded
+check-your-answers.pdf.none=None
+
+
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
 choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance.
@@ -549,6 +577,7 @@ confirm-full-repayment.title=Claim back this security deposit?
 
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.
+confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Print or download full details of your claim (opens in new tab)</a>
 confirmation-of-submission.feedback-link=What did you think of this service?
 confirmation-of-submission.mrn=MRN
 confirmation-of-submission.multiple.mrn=First MRN
