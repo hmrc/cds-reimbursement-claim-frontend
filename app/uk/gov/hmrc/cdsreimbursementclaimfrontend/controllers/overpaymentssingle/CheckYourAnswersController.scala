@@ -32,8 +32,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single_pdf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import scala.concurrent.ExecutionContext
+import _root_.com.hhandoko.play.pdf.PdfGenerator
 
 @Singleton
 class CheckYourAnswersController @Inject() (
@@ -41,9 +43,11 @@ class CheckYourAnswersController @Inject() (
   overpaymentsSingleClaimConnector: OverpaymentsSingleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_single,
+  checkYourAnswersPagePdf: check_your_answers_single_pdf,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService
+  auditService: AuditService,
+  pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController {
 
@@ -53,6 +57,8 @@ class CheckYourAnswersController @Inject() (
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -148,6 +154,35 @@ class CheckYourAnswersController @Inject() (
                 )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
+          }
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  final val showPdf: Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getJourney)
+          .map { journey =>
+            journey.toOutput.fold(
+              errors => {
+                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+                Redirect(routeForValidationErrors(errors)).asFuture
+              },
+              output =>
+                journey.caseNumber match {
+                  case Some(caseNumber) =>
+                    pdfGenerator
+                      .ok(
+                        checkYourAnswersPagePdf(caseNumber, output, journey.answers.displayDeclaration),
+                        selfUrl
+                      )
+                      .asFuture
+                  case None             => Redirect(checkYourAnswers).asFuture
+                }
+            )
+
           }
           .getOrElse(redirectToTheStartOfTheJourney)
       }

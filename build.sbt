@@ -59,6 +59,13 @@ lazy val scoverageSettings =
     ScoverageKeys.coverageHighlighting := true
   )
 
+
+ThisBuild / excludeDependencies ++= Seq(
+  // As of Play 3.0, groupId has changed to org.playframework; exclude transitive dependencies to the old artifacts
+  // Specifically affects play28-scala-pdf_2.13 and play-json-extensions
+  ExclusionRule(organization = "com.typesafe.play")
+)
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(
     play.sbt.PlayScala,

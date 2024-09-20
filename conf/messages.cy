@@ -373,6 +373,10 @@ check-your-answers.special-circumstances.h2=Amgylchiadau arbennig
 check-your-answers.special-circumstances.label=Amgylchiadau arbennig sy’n ymwneud â’ch hawliad
 check-your-answers.title=Gwiriwch eich atebion cyn anfon eich hawliad
 
+check-your-answers.pdf.total=Cyfanswm
+check-your-answers.pdf.additional-details=Manylion ychwanegol yr hawliad
+check-your-answers.pdf.contact-address=Cyfeiriad cyswllt
+
 choose-claim-type.c285.hint=Ar gyfer nwyddau rydych wedi’u mewnforio neu eu cael o dramor.
 choose-claim-type.c285.title=Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu
 choose-claim-type.ce1179.hint=Os nad yw’r nwyddau wedi bodloni amodau contract, yn ddiffygiol neu wedi’u difrodi cyn clirio’r tollau.
@@ -562,7 +566,7 @@ confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-
 confirmation-of-submission.what-next.p1=Bydd CThEF yn adolygu eich hawliad a byddwn yn anfon y canlyniad atoch dros e-bost neu drwy’r post o fewn 30 diwrnod gwaith.
 confirmation-of-submission.what-next.p2=Byddwn yn cysylltu â chi naill ai i:
 confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf?
-
+confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Argraffwch neu lawrlwythwch holl fanylion eich hawliad (yn agor tab newydd)</a>
 country.AD=Andorra
 country.AE=Yr Emiradau Arabaidd Unedig
 country.AF=Affganistan
