@@ -15,7 +15,9 @@ object AppDependencies {
     "org.typelevel"         %% "cats-core"                  % "2.10.0",
     "com.github.kxbmap"     %% "configs"                    % "0.6.1",
     "com.github.arturopala" %% "validator"                  % "0.23.0",
-    "com.hhandoko"          %% "play28-scala-pdf"           % "4.3.0" excludeAll("org.scala-lang.modules" %% "scala-xml")
+    "com.hhandoko"          %% "play28-scala-pdf"           % "4.3.0" excludeAll("org.scala-lang.modules" %% "scala-xml", "org.bouncycastle"),
+    "org.bouncycastle"      % "bcprov-jdk18on"              % "1.78.1", //Overrides the old version brought in transitively above
+    "org.bouncycastle"      % "bcpkix-jdk18on"              % "1.78.1" //Overrides the old version brought in transitively above)
   )
 
   val test = Seq(

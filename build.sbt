@@ -8,6 +8,11 @@ val appName = "cds-reimbursement-claim-frontend"
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml"        % VersionScheme.Always
 ThisBuild / scalafixDependencies += "com.github.liancheng"       %% "organize-imports" % "0.6.0"
 
+ThisBuild / excludeDependencies ++= Seq(
+  // As of Play 3.0, groupId has changed to org.playframework; exclude transitive dependencies to the old artifacts
+  // Specifically affects play28-scala-pdf_2.13 and play-json-extensions
+  ExclusionRule(organization = "com.typesafe.play")
+)
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
 addCommandAlias("fix", "all compile:scalafix test:scalafix")
