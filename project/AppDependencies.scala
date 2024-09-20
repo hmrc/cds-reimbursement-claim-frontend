@@ -15,7 +15,7 @@ object AppDependencies {
     "org.typelevel"         %% "cats-core"                  % "2.10.0",
     "com.github.kxbmap"     %% "configs"                    % "0.6.1",
     "com.github.arturopala" %% "validator"                  % "0.23.0",
-    "com.hhandoko"          %% "play28-scala-pdf"           % "4.3.0"
+    "com.hhandoko"          %% "play28-scala-pdf"           % "4.3.0" excludeAll("org.scala-lang.modules" %% "scala-xml")
   )
 
   val test = Seq(
