@@ -24,6 +24,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsSingleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -34,8 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single_pdf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+
 import scala.concurrent.ExecutionContext
 import _root_.com.hhandoko.play.pdf.PdfGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 
 @Singleton
 class CheckYourAnswersController @Inject() (
@@ -47,7 +50,8 @@ class CheckYourAnswersController @Inject() (
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  pdfGenerator: PdfGenerator
+  pdfGenerator: PdfGenerator,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController {
 
@@ -149,7 +153,8 @@ class CheckYourAnswersController @Inject() (
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
-                    subKey = Some("single")
+                    subKey = Some("single"),
+                    featureSwitchService.isEnabled(ShowPdfDownloadOption)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
