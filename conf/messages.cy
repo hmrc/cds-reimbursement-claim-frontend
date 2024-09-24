@@ -1258,6 +1258,52 @@ landing-securities.start.p5=Os oes gennych rif mynediad, dylech <a href="">gysyl
 landing-securities.start.subheading1=Cyfeirnod Symud (MRN)
 landing-securities.start.subheading2=Rhif mynediad
 landing-securities.title=Hawlio gwarant neu flaendal sicrwydd mewnforio yn ôl
+landing-securities.p1=Gallwch ddefnyddio’r gwasanaeth hwn os ydych am hawlio gwarant neu flaendal sicrwydd mewnforio yn ôl a dalwyd i CThEF am nwyddau a ddaethoch i mewn i’r DU am gyfnod dros dro.
+landing-securities.who=Pwy all hawlio
+landing-securities.who.p1=Gallwch hawlio os ydych yn fewnforiwr, yn asiant tollau, yn drefnydd anfon nwyddau neu’n gwmni cludo parseli’n gyflym, neu’n gweithredu ar ran y mewnforiwr.
+landing-securities.temporary-admissions=Hawliadau mewn perthynas â Mynediad Dros Dro
+landing-securities.temporary-admissions.p1=Mae Mynediadau Dros Dro am gyfnodau penodol sy’n amrywio o 2, 3 neu 6 mis, neu 2 flynedd. Pan fydd y cyfnod hwn o amser yn dod i ben, gallwch gyflwyno hawliad am y warant neu flaendal sicrwydd a dalwyd ar adeg y mewnforio.
+landing-securities.before-you-start=Cyn i chi ddechrau
+landing-securities.before-you-start.p1=I ddefnyddio’r gwasanaeth hwn, mae’n rhaid i chi fod wedi’ch <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">tanysgrifio i’r Gwasanaeth Datganiadau Tollau</a> a bydd angen Dynodydd Defnyddiwr (ID) a chyfrinair ar gyfer Porth y Llywodraeth arnoch sy’n gysylltiedig â’ch rhif EORI.
+landing-securities.what-you-need=Yr hyn y bydd ei angen arnoch
+landing-securities.what-you-need.p1=I hawlio ad-daliad o warant neu flaendal sicrwydd, bydd angen y canlynol arnoch:
+landing-securities.what-you-need.l1=Cyfeirnod Symud (MRN) mewnforio a Chyfeirnod Symud (MRN) Allforio o’r Gwasanaeth Datganiadau Tollau
+landing-securities.what-you-need.l2=gwybodaeth o ran sut y bydd y nwyddau’n dod i law - er enghraifft, wedi’u mewnforio fel nwyddau neu drwy’r post
+landing-securities.what-you-need.l3=manylion o’ch gwarant (os yw’n berthnasol)
+landing-securities.what-you-need.l4=gwybodaeth o ran pa mor hir y bydd y nwyddau yn y DU
+landing-securities.what-you-need.l5=gwybodaeth o ran yr hyn a wnaethoch gyda’r nwyddau
+landing-securities.what-you-need.l6=eich manylion banc
+landing-securities.what-you-need.l7=eich manylion cyswllt a’ch cyfeiriad
+landing-securities.what-you-need.l8=swm y tollau neu’r TAW a oedd yn ddyledus i CThEF ac a gafodd ei dalu iddo
+landing-securities.what-you-need.l9=dogfennau ategol
+landing-securities.inset-text=Gall gwasanaethau ar-lein fod yn araf yn ystod adegau prysur. Gwiriwch a oes unrhyw <a href="https://www.gov.uk/guidance/customs-declaration-service-service-availability-and-issues" class="govuk-link">broblemau gyda’r gwasanaeth hwn</a>.
+landing-securities.supporting-documents=Dogfennau ategol
+landing-securities.supporting-documents.p1=Bydd angen gwybodaeth ategol mewn perthynas â’r hawliad arnoch. Gall ffeiliau fod hyd at 9MB yr un ac ar ffurf unrhyw un o’r canlynol:
+landing-securities.supporting-documents.details=Enghreifftiau o ddogfennau ategol
+landing-securities.supporting-documents.details.l1=anfonebau masnachol
+landing-securities.supporting-documents.details.l2=datganiad mewnforio neu allforio
+landing-securities.supporting-documents.details.l3=rhestrau pacio
+landing-securities.supporting-documents.details.l4=nodiadau llwyth rhyngwladol PIM/PIEX
+landing-securities.supporting-documents.details.l5=bil Teithrestr Awyr neu Fôr
+landing-securities.supporting-documents.details.l6=bil llwytho
+landing-securities.supporting-documents.details.l7=nodyn llwyth rhyngwladol
+landing-securities.supporting-documents.details.l8=contract o werthiant neu archeb gan gwsmer
+landing-securities.supporting-documents.details.l9=gohebiaeth rhwng cwmnïau
+landing-securities.supporting-documents.details.l10=datganiad amgen neu ddargyfeirio
+landing-securities.supporting-documents.details.l11=tystiolaeth o awdurdod i ddiweddaru manylion cyfrif banc
+landing-securities.supporting-documents.details.l12=dogfennau eraill sy’n ategu’ch hawliad
+landing-securities.what-happens-next=Yr hyn sy’n digwydd nesaf
+landing-securities.what-happens-next.p1=Caiff eich hawliad ei adolygu gan CThEF. I ddysgu rhagor ynghylch statws eich hawliad, ewch i’r dangosfwrdd hawliadau. Byddwn yn anfon e-bost neu’n ysgrifennu atoch cyn pen 30 diwrnod gwaith.
+landing-securities.what-happens-next.p2=Byddwn yn cysylltu â chi i wneud un o’r canlynol:
+landing-securities.what-happens-next.p2.l1=cadarnhau eich hawliad ac ad-daliad o’r blaendal neu warant
+landing-securities.what-happens-next.p2.l2=gofyn am ragor o wybodaeth
+landing-securities.what-happens-next.p2.l3=egluro pam y gwrthodwyd eich hawliad
+landing-securities.need-help=Os oes angen help arnoch
+landing-securities.need-help.p1=Dewch o hyd i ragor o wybodaeth am <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" class="govuk-link"> fewnforio nwyddau i’r DU</a>
+landing-securities.need-help.p2=Ar gyfer ymholiadau cyffredinol ynglŷn â mewnforio, gallwch <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank" class="govuk-link"> gysylltu â CThEF (yn agor tab newydd)</a>.
+
+
+
 landing-securities.what.heading=Yr hyn y mae angen i chi ei wybod
 landing-securities.what.l1=gall hawliadau gymryd 30 diwrnod i’w prosesu, neu’n hirach os bydd angen i ni gysylltu â chi
 landing-securities.what.l2=bydd angen i chi ddarparu dogfennau i ategu’ch hawliad
@@ -1266,7 +1312,7 @@ landing-securities.who.heading=Hawlio
 landing-securities.who.l1=mewnforwyr neu eu cynrychiolwyr
 landing-securities.who.l2=asiantau
 landing-securities.who.l3=trefnwyr anfon nwyddau neu gwmnïau cludo parseli’n gyflym
-landing-securities.who.p1=Gall unrhyw un, a dalodd warant neu flaendal sicrwydd mewnforio i CThEF ac sydd am iddynt gael eu had-dalu, gyflwyno hawliad, gan gynnwys:
+
 landing-securities.why.heading=Mathau o hawliadau
 landing-securities.why.l1=Mynediad dros dro o nwyddau
 landing-securities.why.l2=Rhyddhad prosesu mewnol
