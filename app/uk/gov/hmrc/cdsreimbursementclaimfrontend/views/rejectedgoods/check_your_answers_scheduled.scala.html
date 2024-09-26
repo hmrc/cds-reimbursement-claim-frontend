@@ -42,7 +42,7 @@
     claim: RejectedGoodsScheduledJourney.Output,
     isSubsidyOnly: Boolean,
     displayDeclarationOpt: Option[DisplayDeclaration],
-    postAction: Call, subKey: Option[String] = None
+    postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false
 )(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
@@ -105,7 +105,9 @@
     @subHeading(Html(messages(combine(s"check-your-answers", subKey, "confirmation-statement.h2"))))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 
-    @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
+    @if(showPdfOption){
+        @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
+    }
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
