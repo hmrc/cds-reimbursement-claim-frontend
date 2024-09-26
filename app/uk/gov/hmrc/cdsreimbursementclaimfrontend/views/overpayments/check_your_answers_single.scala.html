@@ -39,7 +39,7 @@
     insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.title")}
@@ -83,7 +83,9 @@
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 
-    @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
+    @if(showPdfOption){
+        @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
+    }
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
