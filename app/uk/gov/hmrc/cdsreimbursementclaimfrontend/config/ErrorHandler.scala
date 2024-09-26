@@ -40,15 +40,14 @@ class ErrorHandler @Inject() (
   val ec: ExecutionContext
 ) extends FrontendErrorHandler {
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   override def standardErrorTemplate(
     pageTitle: String,
     heading: String,
     message: String
   )(implicit
-    request: RequestHeader
+    requestHeader: RequestHeader
   ): Future[Html] = {
-    implicit val r: Request[_] = request.asInstanceOf[Request[_]]
+    implicit val r: Request[_] = Request(requestHeader, "")
     Future.successful(error_template(pageTitle, heading, message))
   }
 
