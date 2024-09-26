@@ -29,7 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple
@@ -44,7 +46,8 @@ class CheckYourAnswersController @Inject() (
   checkYourAnswersPage: check_your_answers_multiple,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService
+  auditService: AuditService,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsMultipleJourneyBaseController {
 
@@ -76,7 +79,8 @@ class CheckYourAnswersController @Inject() (
                   output,
                   journey.getLeadDisplayDeclaration,
                   journey.isSubsidyOnlyJourney,
-                  postAction
+                  postAction,
+                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
                 )
               )
             )

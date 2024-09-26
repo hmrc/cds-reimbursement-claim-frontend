@@ -24,6 +24,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsScheduledClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -33,6 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -43,7 +46,8 @@ class CheckYourAnswersController @Inject() (
   checkYourAnswersPage: check_your_answers_scheduled,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService
+  auditService: AuditService,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 
@@ -75,7 +79,8 @@ class CheckYourAnswersController @Inject() (
                   output,
                   journey.answers.displayDeclaration,
                   journey.isSubsidyOnlyJourney,
-                  postAction
+                  postAction,
+                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
                 )
               )
             )
