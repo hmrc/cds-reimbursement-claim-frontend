@@ -110,10 +110,10 @@ class SelectDutiesControllerSpec
     title                    should ===(
       (if (isError) "Error: "
        else
-         "") + s"Security deposit ID: $securityId: Which duties do you want to claim for? - Claim back import duty and VAT - GOV.UK"
+         "") + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
     )
     caption                  should ===(List(s"Security deposit ID: $securityId"))
-    formHeading              should ===(List(s"Security deposit ID: $securityId Which duties do you want to claim for?"))
+    formHeading              should ===(List(s"Security deposit ID: $securityId What do you want to claim?"))
     checkboxes(doc)          should contain theSameElementsAs dutiesAvailable.map(tc =>
       (s"${tc.value} - ${messages(s"$messagesKey.duty.${tc.value}")}", tc.value)
     )
