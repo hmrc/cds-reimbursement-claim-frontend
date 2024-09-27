@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import scala.concurrent.ExecutionContext
 import _root_.com.hhandoko.play.pdf.PdfGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 @Singleton
 class CheckYourAnswersController @Inject() (
@@ -155,7 +156,8 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("single"),
-                    featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
+                    pdfUrl = getPdfUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)

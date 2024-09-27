@@ -19,13 +19,14 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
@@ -34,13 +35,13 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(caseNumber: String, claim: OverpaymentsSingleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration])(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration])(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
 
     @heading(Html(messages("check-your-answers.pdf.title", caseNumber)))
 
-    @summary(CheckYourAnswersPdfHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, claim.reimbursements.map(_.amount).sum.toPoundSterlingString))
+    @summary(CheckYourAnswersPdfHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers))
 
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
@@ -48,10 +49,13 @@
     }
 
     @subHeading(Html(messages("check-your-answers.pdf.contact-details.header")))
-    @summary(CheckYourAnswersPdfHelper.renderContactInformation(claim.claimantInformation, claim.basisOfClaim, claim.additionalDetails, "check-your-answers.pdf"))
+    @summary(CheckYourAnswersPdfHelper.renderContactInformationForMultiple(claim.claimantInformation, "check-your-answers.pdf"))
 
-    @subHeading(Html(messages("check-your-answers.claim-calculation.h2")))
-    @summary(CheckYourAnswersPdfHelper.renderReimbursements(claim.reimbursements))
+    @subHeading(Html(messages("check-your-answers.pdf.basis-of-claim-details.header")))
+    @summary(CheckYourAnswersPdfHelper.renderBasisOfClaimDetails(claim.basisOfClaim, claim.additionalDetails, "check-your-answers.pdf"))
+
+    @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
+    @summary(CheckYourAnswersPdfHelper.renderClaimTotalsForMultiple(claim.reimbursementClaims, s"check-your-answers.claim-total"))
 
     @subHeading(Html(messages("check-your-answers.reimbursement-method.h2")))
     @summary(CheckYourAnswersPdfHelper.renderRepaymentDetails(claim.payeeType, claim.reimbursementMethod))

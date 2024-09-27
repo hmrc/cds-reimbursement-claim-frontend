@@ -376,6 +376,7 @@ check-your-answers.title=Gwiriwch eich atebion cyn anfon eich hawliad
 check-your-answers.pdf.total=Cyfanswm
 check-your-answers.pdf.additional-details=Manylion ychwanegol yr hawliad
 check-your-answers.pdf.contact-address=Cyfeiriad cyswllt
+check-your-answers.pdf.basis-of-claim-details.header=Manylion yr hawliad
 
 choose-claim-type.c285.hint=Ar gyfer nwyddau rydych wedi’u mewnforio neu eu cael o dramor.
 choose-claim-type.c285.title=Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu

@@ -400,6 +400,7 @@ check-your-answers.pdf.method=Method
 check-your-answers.pdf.supporting-documents=Supporting documents
 check-your-answers.pdf.uploaded=Uploaded
 check-your-answers.pdf.none=None
+check-your-answers.pdf.basis-of-claim-details.header=Claim details
 
 
 choose-claim-type.c285.hint=For goods you imported or received from abroad.

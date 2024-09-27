@@ -51,87 +51,93 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import views.html.helper.CSPNonce
 
-@this(
-        hmrcStandardPage: HmrcStandardPage
-)
+@this()
 
 @()(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@headBlock = {
+<head>
 
     <style media="print">
+        #content {
+            display: block;
+            padding: 0 .78947em 1.68421em .78947em;
+            font-family: "nta", Arial, sans-serif;
+            font-size: 19px;
+            line-height: 1.31579;
+            font-weight: 400;
+        }
 
-	body > footer {
-        display: none !important;
-    }
 
- .govuk-header,
-  .govuk-phase-banner,
-  .govuk-footer,
-  .govuk-table__head,
-  .govuk-skip-link  {
-  	display:none;
-  }
-  .printable, .printable > * {
-  	display:block;
-  }
-  .for-print-only {
-  	display:block !important;
-  }
-  .not-for-print {
-  	display: none;
-  }
-  .word-wrap {
-  	word-wrap: normal;
-  }
-  .govuk-summary-list__row {
-    display: table-row;
-  }
-	.govuk-summary-list {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
-		  font-size: 19px;
-      font-size: 1.1875rem;
-      line-height: 1.3157894737;
-      border-collapse: collapse;
-		  font-family: "GDS Transport", arial, sans-serif;
-   		-webkit-font-smoothing: antialiased;
-		  margin-bottom: 30px;
-	}
-	.govuk-summary-list__key {
-		  width: 50%;
-    	margin-bottom: 5px;
-    	font-weight: 700;
-	}
-	.govuk-summary-list__key,
-	.govuk-summary-list__value {
-		word-wrap: break-word;
-		overflow-wrap: break-word;
-	}
-	.govuk-summary-list__row {
+     .govuk-header,
+      .govuk-phase-banner,
+      .govuk-footer,
+      .govuk-table__head,
+      .govuk-skip-link  {
+        display:none;
+      }
+      .printable, .printable > * {
+        display:block;
+      }
+      .for-print-only {
+        display:block !important;
+      }
+      .not-for-print {
+        display: none;
+      }
+      .word-wrap {
+        word-wrap: normal;
+      }
+      .govuk-summary-list__row {
         display: table-row;
-	      border-bottom: 1px solid #B1B4B6;
-	}
-	.govuk-summary-list__key,
-	.govuk-summary-list__value,
-	.govuk-summary-list__actions	{
-        	display: table-cell;
-        	padding-top: 10px;
-       	 	padding-right: 20px;
-        	padding-bottom: 10px;
-   		 margin: 0;
-	}
+      }
+        .govuk-summary-list {
+          display: table;
+          width: 100%;
+          table-layout: fixed;
+          border-collapse: collapse;
+              font-size: 19px;
+          font-size: 1.1875rem;
+          line-height: 1.3157894737;
+          border-collapse: collapse;
+              font-family: "GDS Transport", arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+              margin-bottom: 30px;
+        }
+        .govuk-summary-list__key {
+              width: 50%;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .govuk-summary-list__key,
+        .govuk-summary-list__value {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .govuk-summary-list__row {
+            display: table-row;
+              border-bottom: 1px solid #B1B4B6;
+        }
+        .govuk-summary-list__key,
+        .govuk-summary-list__value,
+        .govuk-summary-list__actions	{
+                display: table-cell;
+                padding-top: 10px;
+                padding-right: 20px;
+                padding-bottom: 10px;
+             margin: 0;
+        }
+
     </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body class="govuk-template__body ">
+    <div class="govuk-width-container" id="content">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                @contentBlock
+            </div>
+        </div>
+    </div>
+</body>
 
 
-}
-
-@hmrcStandardPage(HmrcStandardPageParams(
-  templateOverrides = TemplateOverrides(
-    additionalHeadBlock = Some(headBlock)
-  )
- )){
-    @contentBlock
-}
