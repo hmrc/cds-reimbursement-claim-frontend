@@ -19,21 +19,27 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
-import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoute}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoute}
 
 object CheckYourAnswersPdfHelper {
 
@@ -42,7 +48,7 @@ object CheckYourAnswersPdfHelper {
     key: String
   )(implicit
     messages: Messages
-  ): SummaryList                                                                                         =
+  ): SummaryList =
     SummaryList(
       Seq(
         declaration.getMaybeLRN.map(lrn =>
@@ -91,6 +97,7 @@ object CheckYourAnswersPdfHelper {
         )
       ).flatMap(_.toList)
     )
+
   def renderContactInformation(
     claimantInformation: ClaimantInformation,
     basisForClaim: BasisOfOverpaymentClaim,
@@ -126,6 +133,53 @@ object CheckYourAnswersPdfHelper {
       )
     )
   }
+
+  def renderContactInformationForMultiple(
+    claimantInformation: ClaimantInformation,
+    key: String
+  )(implicit
+    messages: Messages
+  ): SummaryList = {
+    val contactData = ClaimantInformationSummary.getContactDataHtml(claimantInformation)
+    val addressData = ClaimantInformationSummary.getAddressDataHtml(claimantInformation)
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.contact-details"))),
+          value = Value(HtmlContent(HtmlFormat.fill(contactData)))
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.contact-address"))),
+          value = Value(HtmlContent(HtmlFormat.fill(addressData)))
+        )
+      )
+    )
+  }
+
+  def renderBasisOfClaimDetails(
+    basisForClaim: BasisOfOverpaymentClaim,
+    additionDetails: String,
+    key: String
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.basis-of-claim"))),
+          value = Value(
+            HtmlContent(messages(s"select-basis-for-claim.reason.$basisForClaim"))
+          )
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.additional-details"))),
+          value = Value(
+            HtmlContent(additionDetails)
+          )
+        )
+      )
+    )
+
   def renderReimbursements(reimbursements: Seq[Reimbursement])(implicit messages: Messages): SummaryList =
     SummaryList(
       reimbursements
@@ -180,5 +234,58 @@ object CheckYourAnswersPdfHelper {
         )
       )
     )
+
+  def renderClaimDetailsForMultiple(caseNumber: String, amountRequested: BigDecimal, mrns: Seq[MRN])(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("confirmation-of-submission.reimbursement-amount"))),
+          value = Value(Text(amountRequested.toPoundSterlingString))
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages("confirmation-of-submission.claim-reference"))),
+          value = Value(Text(caseNumber))
+        )
+      ) ++ mrns.zipWithIndex.map { case (mrn, index) =>
+        SummaryListRow(
+          key = Key(
+            HtmlContent(OrdinalNumberMrnHelper(index + 1))
+          ),
+          value = Value(Text(mrn.value))
+        )
+      }
+    )
+
+  def renderClaimTotalsForMultiple(reimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]], key: String)(implicit
+    messages: Messages
+  ): SummaryList = {
+
+    val totalAmount: BigDecimal =
+      reimbursementClaims.flatMap(_._2.values).sum
+
+    SummaryList(rows =
+      reimbursementClaims.toSeq
+        .map { case (mrn, claims) =>
+          SummaryListRow(
+            key = Key(Text(mrn.value)),
+            value = Value(Text(claims.values.sum.toPoundSterlingString))
+          )
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.multiple.total"))),
+            value = Value(Text(totalAmount.toPoundSterlingString))
+          )
+        )
+    )
+  }
+
+  def getPdfUrl(journey: JourneyBase): String = journey match {
+    case journey: OverpaymentsSingleJourney   => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
+    case journey: OverpaymentsMultipleJourney => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
+    case _                                    => ???
+  }
 
 }
