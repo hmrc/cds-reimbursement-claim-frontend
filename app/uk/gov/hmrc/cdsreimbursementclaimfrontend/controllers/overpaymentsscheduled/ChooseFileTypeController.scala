@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import cats.syntax.eq._
 
 @Singleton
 class ChooseFileTypeController @Inject() (
@@ -49,7 +50,7 @@ class ChooseFileTypeController @Inject() (
       implicit request =>
         chooseFileTypePage(
           form,
-          DropdownHints.enumeration(documentTypes),
+          DropdownHints.enumeration(documentTypes.filterNot(_ === UploadDocumentType.Other)),
           documentTypes,
           routes.ChooseFileTypeController.submit
         )
