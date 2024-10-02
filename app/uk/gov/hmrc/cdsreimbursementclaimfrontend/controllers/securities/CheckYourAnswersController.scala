@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -33,6 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_pdf
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 import scala.concurrent.ExecutionContext
 
@@ -42,16 +45,19 @@ class CheckYourAnswersController @Inject() (
   securitiesClaimConnector: SecuritiesClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers,
+  checkYourAnswersPagePdf: check_your_answers_pdf,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  featureSwitchService: FeatureSwitchService
+  featureSwitchService: FeatureSwitchService,
+  pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
     with Logging {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
+  final val selfUrl: String                = jcc.servicesConfig.getString("self.url")
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -142,12 +148,48 @@ class CheckYourAnswersController @Inject() (
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
-                    subKey = Some("scheduled")
+                    subKey = Some("securities"),
+                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
+                    pdfUrl = getPdfUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
           }
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  val showPdf: Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getJourney)
+          .map(journey =>
+            journey.toOutput.fold(
+              errors => {
+                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+                Redirect(routeForValidationErrors(errors)).asFuture
+              },
+              output =>
+                journey.caseNumber match {
+                  case Some(caseNumber) =>
+                    pdfGenerator
+                      .ok(
+                        checkYourAnswersPagePdf(
+                          caseNumber,
+                          journey.getTotalReclaimAmount,
+                          output,
+                          journey.answers.displayDeclaration,
+                          journey.answers.exportMovementReferenceNumber
+                        ),
+                        selfUrl
+                      )
+                      .asFuture
+                  case None             => Redirect(checkYourAnswers).asFuture
+                }
+            )
+          )
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 }

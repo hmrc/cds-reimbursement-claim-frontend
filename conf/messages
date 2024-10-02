@@ -401,7 +401,12 @@ check-your-answers.pdf.supporting-documents=Supporting documents
 check-your-answers.pdf.uploaded=Uploaded
 check-your-answers.pdf.none=None
 check-your-answers.pdf.basis-of-claim-details.header=Claim details
-
+check-your-answers.pdf.movement-reference-number=Movement Reference Number (MRN)
+check-your-answers.pdf.acceptance-date=Acceptance date
+check-your-answers.pdf.tax-collection-date=Tax collection date
+check-your-answers.pdf.claim-for-security.total=Total value of selected security deposit IDs
+check-your-answers.pdf.security-deposit.h2=Security deposit ID: {0}
+check-your-answers.pdf.selected-charges=Selected charges
 
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
@@ -1270,18 +1275,18 @@ method-of-payment.004=Guarantee Account
 method-of-payment.005=Individual Guarantee
 method-of-payment.006=Subsidy
 
-month.April=April
-month.August=August
-month.December=December
-month.February=February
-month.January=January
-month.July=July
-month.June=June
-month.March=March
-month.May=May
-month.November=November
-month.October=October
-month.September=September
+month.april=April
+month.august=August
+month.december=December
+month.february=February
+month.january=January
+month.july=July
+month.june=June
+month.march=March
+month.may=May
+month.november=November
+month.october=October
+month.september=September
 
 mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been entered.
 mrn-does-not-exist.title=This MRN does not exist

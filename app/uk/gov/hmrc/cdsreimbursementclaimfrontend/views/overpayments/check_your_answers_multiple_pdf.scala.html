@@ -49,7 +49,7 @@
     }
 
     @subHeading(Html(messages("check-your-answers.pdf.contact-details.header")))
-    @summary(CheckYourAnswersPdfHelper.renderContactInformationForMultiple(claim.claimantInformation, "check-your-answers.pdf"))
+    @summary(CheckYourAnswersPdfHelper.renderContactInformationCommon(claim.claimantInformation, "check-your-answers.pdf"))
 
     @subHeading(Html(messages("check-your-answers.pdf.basis-of-claim-details.header")))
     @summary(CheckYourAnswersPdfHelper.renderBasisOfClaimDetails(claim.basisOfClaim, claim.additionalDetails, "check-your-answers.pdf"))

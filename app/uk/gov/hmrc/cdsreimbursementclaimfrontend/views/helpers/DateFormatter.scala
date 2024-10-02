@@ -18,11 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 
+import java.time.LocalDate
+import java.util.Locale
+
 object DateFormatter {
 
   def toDisplayDate(dateString: String)(implicit messages: Messages): String = {
     val split = dateString.trim.split(" ")
-    s"${split(0)} ${messages(s"month.${split(1)}")} ${split(2)}"
+    s"${split(0)} ${messages(s"month.${split(1).toLowerCase(Locale.ENGLISH)}")} ${split(2)}"
+  }
+
+  def parseYyyyMmDdToDisplayDate(dateString: String)(implicit messages: Messages): String = {
+    val date = LocalDate.parse(dateString)
+    s"${date.getDayOfMonth} ${messages(s"month.${date.getMonth.name().toLowerCase(Locale.ENGLISH)}")} ${date.getYear}"
   }
 
 }
