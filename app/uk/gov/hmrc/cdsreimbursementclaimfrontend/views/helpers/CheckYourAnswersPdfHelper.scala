@@ -21,6 +21,7 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -49,6 +50,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoute}
 
 object CheckYourAnswersPdfHelper {
 
@@ -319,7 +321,12 @@ object CheckYourAnswersPdfHelper {
       )
     )
 
-  def renderClaimDetails(caseNumber: String, mrn: MRN, amountRequested: String)(implicit
+  def renderClaimDetails(
+    caseNumber: String,
+    mrn: MRN,
+    amountRequested: String,
+    mrnKey: String = "confirmation-of-submission.mrn"
+  )(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -333,7 +340,7 @@ object CheckYourAnswersPdfHelper {
           value = Value(Text(caseNumber))
         ),
         SummaryListRow(
-          key = Key(HtmlContent(messages("confirmation-of-submission.mrn"))),
+          key = Key(HtmlContent(messages(mrnKey))),
           value = Value(Text(mrn.value))
         )
       )
@@ -464,10 +471,21 @@ object CheckYourAnswersPdfHelper {
       )
     )
 
+  def renderScheduledDocument(fileName: String)(implicit messages: Messages): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("check-your-answers.scheduled-document.label"))),
+          value = Value(Text(fileName))
+        )
+      )
+    )
+
   def getPdfUrl(journey: JourneyBase): String = journey match {
-    case journey: OverpaymentsSingleJourney   => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
-    case journey: OverpaymentsMultipleJourney => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
-    case journey: SecuritiesJourney           => securitiesRoute.CheckYourAnswersController.showPdf.url
+    case journey: OverpaymentsSingleJourney    => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
+    case journey: OverpaymentsMultipleJourney  => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
+    case journey: SecuritiesJourney            => securitiesRoute.CheckYourAnswersController.showPdf.url
+    case journey: OverpaymentsScheduledJourney => overpaymentsScheduledRoute.CheckYourAnswersController.showPdf.url
   }
 
   private def getPaymentMethod(displayDeclaration: DisplayDeclaration, claim: SecuritiesJourney.Output)(implicit

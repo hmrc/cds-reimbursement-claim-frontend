@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -33,8 +34,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled_pdf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 import scala.concurrent.ExecutionContext
 
@@ -44,15 +47,18 @@ class CheckYourAnswersController @Inject() (
   overpaymentsScheduledClaimConnector: OverpaymentsScheduledClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_scheduled,
+  checkYourAnswersPagePdf: check_your_answers_scheduled_pdf,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  featureSwitchService: FeatureSwitchService
+  featureSwitchService: FeatureSwitchService,
+  pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
+  final val selfUrl: String                = jcc.servicesConfig.getString("self.url")
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
@@ -147,12 +153,47 @@ class CheckYourAnswersController @Inject() (
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
-                    subKey = Some("scheduled")
+                    subKey = Some("scheduled"),
+                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
+                    pdfUrl = getPdfUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
           }
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  final val showPdf: Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getJourney)
+          .map(journey =>
+            journey.toOutput.fold(
+              errors => {
+                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+                Redirect(routeForValidationErrors(errors)).asFuture
+              },
+              output =>
+                journey.caseNumber match {
+                  case Some(caseNumber) =>
+                    pdfGenerator
+                      .ok(
+                        checkYourAnswersPagePdf(
+                          caseNumber,
+                          journey.getTotalReimbursementAmount,
+                          output,
+                          journey.getLeadDisplayDeclaration
+                        ),
+                        selfUrl
+                      )
+                      .asFuture
+                  case None             => Redirect(checkYourAnswers).asFuture
+                }
+            )
+          )
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 }
