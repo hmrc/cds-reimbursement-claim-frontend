@@ -61,7 +61,8 @@ object UploadDocumentsSessionConfig {
     chooseNextFileLabel: Option[String] = None,
     addAnotherDocumentButtonText: Option[String] = None,
     yesNoQuestionText: Option[String] = None,
-    yesNoQuestionRequiredError: Option[String] = None
+    yesNoQuestionRequiredError: Option[String] = None,
+    fileUploadRequiredError: Option[String] = None
   )
 
   object Content {

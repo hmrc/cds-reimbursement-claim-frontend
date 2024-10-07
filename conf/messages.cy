@@ -1508,6 +1508,7 @@ schedule-document.upload.things-to-show.l3=â’r un dull talu
 schedule-document.upload.things-to-show.p1=Mae’n rhaid i’r MRNau yn y ddogfen fod:
 schedule-document.upload.title=Ychwanegu dogfen sy’n dangos pob MRN yn yr hawliad hwn
 schedule-document.upload.title.subsidy=Ychwanegu dogfen sy’n dangos pob MRN cymhorthdal yn yr hawliad hwn
+schedule-document.upload.error.file-upload.required=Uwchlwythwch ffeil sy’n nodi’r holl MRNau sy’n gysylltiedig â’r hawliad hwn
 
 select-bank-account-type.business-bank-account=Cyfrif banc busnes
 select-bank-account-type.error.required=Dewiswch ai cyfrif banc busnes yw hwn neu’n gyfrif banc personol
