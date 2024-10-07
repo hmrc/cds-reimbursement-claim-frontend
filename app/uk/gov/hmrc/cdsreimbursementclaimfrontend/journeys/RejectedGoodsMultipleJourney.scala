@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 multiple MRN journey logic.
@@ -45,6 +46,7 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[RejectedGoodsMultipleJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsMultipleJourney]
@@ -62,7 +64,7 @@ final class RejectedGoodsMultipleJourney private (
   private def copy(
     newAnswers: RejectedGoodsMultipleJourney.Answers
   ): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(newAnswers, caseNumber, features)
+    new RejectedGoodsMultipleJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -687,6 +689,7 @@ final class RejectedGoodsMultipleJourney private (
               new RejectedGoodsMultipleJourney(
                 answers = this.answers,
                 caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
                 features = features
               )
             )
@@ -857,11 +860,13 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

@@ -30,6 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
+import java.time.LocalDateTime
+
 /** An encapsulated C285 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
   *
@@ -41,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsSingleJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsSingleJourney]
@@ -58,7 +61,7 @@ final class OverpaymentsSingleJourney private (
   private def copy(
     newAnswers: OverpaymentsSingleJourney.Answers
   ): OverpaymentsSingleJourney =
-    new OverpaymentsSingleJourney(newAnswers, caseNumber, features)
+    new OverpaymentsSingleJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
@@ -539,7 +542,12 @@ final class OverpaymentsSingleJourney private (
           errors => Left(errors.headMessage),
           _ =>
             Right(
-              new OverpaymentsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber), features = features)
+              new OverpaymentsSingleJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
+                features = features
+              )
             )
         )
     }
@@ -783,11 +791,13 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsSingleJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsSingleJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

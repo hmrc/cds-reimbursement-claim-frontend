@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C285 multiple MRN journey logic.
@@ -44,6 +45,7 @@ import scala.collection.immutable.SortedMap
 final class OverpaymentsMultipleJourney private (
   val answers: OverpaymentsMultipleJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsMultipleJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsMultipleJourney]
@@ -60,7 +62,7 @@ final class OverpaymentsMultipleJourney private (
   private def copy(
     newAnswers: OverpaymentsMultipleJourney.Answers
   ): OverpaymentsMultipleJourney =
-    new OverpaymentsMultipleJourney(newAnswers, caseNumber, features)
+    new OverpaymentsMultipleJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -682,6 +684,7 @@ final class OverpaymentsMultipleJourney private (
               new OverpaymentsMultipleJourney(
                 answers = this.answers,
                 caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
                 features = features
               )
             )
@@ -832,11 +835,13 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 
