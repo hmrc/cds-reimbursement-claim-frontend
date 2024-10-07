@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated Securities journey logic.
@@ -45,7 +46,8 @@ import scala.collection.immutable.SortedMap
   */
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
-  val caseNumber: Option[String] = None
+  val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None
 ) extends JourneyBase
     with CommonJourneyProperties
     with DirectFluentSyntax[SecuritiesJourney]
@@ -62,7 +64,7 @@ final class SecuritiesJourney private (
   private def copy(
     newAnswers: SecuritiesJourney.Answers
   ): SecuritiesJourney =
-    new SecuritiesJourney(newAnswers, caseNumber)
+    new SecuritiesJourney(newAnswers, caseNumber, submissionDateTime)
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -781,7 +783,14 @@ final class SecuritiesJourney private (
       validate(this)
         .fold(
           errors => Left(errors.headMessage),
-          _ => Right(new SecuritiesJourney(answers = this.answers, caseNumber = Some(caseNumber)))
+          _ =>
+            Right(
+              new SecuritiesJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now())
+              )
+            )
         )
     }
 
@@ -967,9 +976,13 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
   implicit val format: Format[SecuritiesJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "caseNumber").readNullable[String])(new SecuritiesJourney(_, _)),
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime])(new SecuritiesJourney(_, _, _)),
       ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "caseNumber").writeNullable[String])(journey => (journey.answers, journey.caseNumber))
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime])(journey =>
+        (journey.answers, journey.caseNumber, journey.submissionDateTime)
+      )
     )
 
   override def tryBuildFrom(answers: Answers, features: Option[Features] = None): Either[String, SecuritiesJourney] =

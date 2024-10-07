@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 scheduled MRN journey logic.
@@ -44,6 +45,7 @@ import scala.collection.immutable.SortedMap
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[RejectedGoodsScheduledJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsScheduledJourney]
@@ -62,7 +64,7 @@ final class RejectedGoodsScheduledJourney private (
   private def copy(
     newAnswers: RejectedGoodsScheduledJourney.Answers
   ): RejectedGoodsScheduledJourney =
-    new RejectedGoodsScheduledJourney(newAnswers, caseNumber, features)
+    new RejectedGoodsScheduledJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledJourney =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
@@ -422,6 +424,7 @@ final class RejectedGoodsScheduledJourney private (
               new RejectedGoodsScheduledJourney(
                 answers = this.answers,
                 caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
                 features = features
               )
             )
@@ -598,11 +601,13 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

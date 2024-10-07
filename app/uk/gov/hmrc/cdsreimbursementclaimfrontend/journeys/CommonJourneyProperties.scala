@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** Common properties and computations of all of the journeys. */
@@ -40,6 +41,8 @@ trait CommonJourneyProperties {
 
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
+
+  def submissionDateTime: Option[LocalDateTime]
 
   def needsDocumentType: Boolean = true
 

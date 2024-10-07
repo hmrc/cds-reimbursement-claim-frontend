@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
@@ -44,6 +45,7 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[RejectedGoodsSingleJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[RejectedGoodsSingleJourney]
@@ -62,7 +64,7 @@ final class RejectedGoodsSingleJourney private (
   private def copy(
     newAnswers: RejectedGoodsSingleJourney.Answers
   ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(newAnswers, caseNumber, features)
+    new RejectedGoodsSingleJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] =
     duties
@@ -425,7 +427,12 @@ final class RejectedGoodsSingleJourney private (
           errors => Left(errors.headMessage),
           _ =>
             Right(
-              new RejectedGoodsSingleJourney(answers = this.answers, caseNumber = Some(caseNumber), features = features)
+              new RejectedGoodsSingleJourney(
+                answers = this.answers,
+                caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
+                features = features
+              )
             )
         )
     }
@@ -612,11 +619,13 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsSingleJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsSingleJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

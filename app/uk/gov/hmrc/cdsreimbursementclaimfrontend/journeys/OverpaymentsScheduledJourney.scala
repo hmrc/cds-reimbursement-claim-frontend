@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
+import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C285 scheduled MRN journey logic.
@@ -42,6 +43,7 @@ import scala.collection.immutable.SortedMap
 final class OverpaymentsScheduledJourney private (
   val answers: OverpaymentsScheduledJourney.Answers,
   val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsScheduledJourney.Features]
 ) extends JourneyBase
     with DirectFluentSyntax[OverpaymentsScheduledJourney]
@@ -59,7 +61,7 @@ final class OverpaymentsScheduledJourney private (
   private def copy(
     newAnswers: OverpaymentsScheduledJourney.Answers
   ): OverpaymentsScheduledJourney =
-    new OverpaymentsScheduledJourney(newAnswers, caseNumber, features)
+    new OverpaymentsScheduledJourney(newAnswers, caseNumber, submissionDateTime, features)
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
@@ -341,6 +343,7 @@ final class OverpaymentsScheduledJourney private (
               new OverpaymentsScheduledJourney(
                 answers = this.answers,
                 caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
                 features = features
               )
             )
@@ -516,11 +519,13 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     Format(
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.features)
+        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 
