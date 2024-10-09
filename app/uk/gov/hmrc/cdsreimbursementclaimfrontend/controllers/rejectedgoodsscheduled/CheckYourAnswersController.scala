@@ -83,8 +83,7 @@ class CheckYourAnswersController @Inject() (
                   isSubsidyOnly,
                   journey.answers.displayDeclaration,
                   postAction,
-                  Some("scheduled"),
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                  Some("scheduled")
                 )
               )
             )

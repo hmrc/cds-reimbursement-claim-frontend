@@ -82,8 +82,7 @@ class CheckYourAnswersController @Inject() (
                   journey.isAllSelectedDutiesAreCMAEligible,
                   journey.answers.displayDeclaration,
                   postAction,
-                  isSubsidy = journey.isSubsidyOnlyJourney,
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                  isSubsidy = journey.isSubsidyOnlyJourney
                 )
               )
             )
