@@ -588,7 +588,8 @@ final class OverpaymentsSingleJourney private (
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           duplicateMovementReferenceNumber = answers.duplicateDeclaration.map(_.movementReferenceNumber),
           reimbursementMethod = getDefaultReimbursementMethod,
-          bankAccountDetails = answers.bankAccountDetails
+          bankAccountDetails = answers.bankAccountDetails,
+          newEoriAndDan = None
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -649,7 +650,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     reimbursements: Seq[Reimbursement],
     reimbursementMethod: ReimbursementMethod, //this has to stay for a while until we fully implement split payments
     bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
+    supportingEvidences: Seq[EvidenceDocument],
+    newEoriAndDan: Option[NewEoriAndDan]
   )
 
   import com.github.arturopala.validator.Validator._
