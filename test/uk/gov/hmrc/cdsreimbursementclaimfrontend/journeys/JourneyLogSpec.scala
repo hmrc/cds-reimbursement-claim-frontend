@@ -67,7 +67,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           ),
           reimbursementMethod = ReimbursementMethod.CurrentMonthAdjustment,
           bankAccountDetails = Some(exampleBankAccountDetails),
-          supportingEvidences = exampleSupportingEvidences
+          supportingEvidences = exampleSupportingEvidences,
+          newEoriAndDan = None
         )
 
       val log = JourneyLog.apply(
