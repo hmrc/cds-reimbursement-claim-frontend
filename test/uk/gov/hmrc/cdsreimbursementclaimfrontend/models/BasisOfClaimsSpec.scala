@@ -78,6 +78,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           OutwardProcessingRelief,
           PersonalEffects,
           Preference,
+          IncorrectEoriAndDan,
           ProofOfReturnRefundGiven,
           RGR,
           Miscellaneous
@@ -100,6 +101,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           OutwardProcessingRelief,
           PersonalEffects,
           Preference,
+          IncorrectEoriAndDan,
           ProofOfReturnRefundGiven,
           RGR,
           Miscellaneous

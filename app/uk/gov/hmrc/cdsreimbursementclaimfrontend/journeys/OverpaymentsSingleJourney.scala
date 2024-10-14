@@ -63,9 +63,9 @@ final class OverpaymentsSingleJourney private (
   ): OverpaymentsSingleJourney =
     new OverpaymentsSingleJourney(newAnswers, caseNumber, submissionDateTime, features)
 
-  override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+  override def getAvailableClaimTypes(showDanOption: Boolean = false): Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(true, answers.displayDeclaration)
+      .excludeNorthernIrelandClaims(true, answers.displayDeclaration, hasDanOption = showDanOption)
 
   override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] = {
     val wasIncorrectExciseCodeSelected: Boolean =

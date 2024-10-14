@@ -39,15 +39,17 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
   } //Northern Ireland only
   case object IncorrectCommodityCode extends BasisOfOverpaymentClaim { val order = 5 }
   case object IncorrectCpc extends BasisOfOverpaymentClaim { val order = 6 }
-  case object IncorrectExciseValue extends BasisOfOverpaymentClaim { val order = 7 } //Northern Ireland only
-  case object IncorrectValue extends BasisOfOverpaymentClaim { val order = 8 }
-  case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim { val order = 9 }
-  case object OutwardProcessingRelief extends BasisOfOverpaymentClaim { val order = 10 }
-  case object PersonalEffects extends BasisOfOverpaymentClaim { val order = 11 }
-  case object Preference extends BasisOfOverpaymentClaim { val order = 12 }
-  case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim { val order = 13 }
-  case object RGR extends BasisOfOverpaymentClaim { val order = 14 }
-  case object Miscellaneous extends BasisOfOverpaymentClaim { val order = 15 }
+
+  case object IncorrectEoriAndDan extends BasisOfOverpaymentClaim { val order = 7 }
+  case object IncorrectExciseValue extends BasisOfOverpaymentClaim { val order = 8 } //Northern Ireland only
+  case object IncorrectValue extends BasisOfOverpaymentClaim { val order = 9 }
+  case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim { val order = 10 }
+  case object OutwardProcessingRelief extends BasisOfOverpaymentClaim { val order = 11 }
+  case object PersonalEffects extends BasisOfOverpaymentClaim { val order = 12 }
+  case object Preference extends BasisOfOverpaymentClaim { val order = 13 }
+  case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim { val order = 14 }
+  case object RGR extends BasisOfOverpaymentClaim { val order = 15 }
+  case object Miscellaneous extends BasisOfOverpaymentClaim { val order = 16 }
 
   val values: Set[BasisOfOverpaymentClaim] =
     Set(
@@ -57,6 +59,7 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       IncorrectAdditionalInformationCode,
       IncorrectCommodityCode,
       IncorrectCpc,
+      IncorrectEoriAndDan,
       IncorrectExciseValue,
       IncorrectValue,
       InwardProcessingReliefFromCustomsDuty,
@@ -78,7 +81,8 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   def excludeNorthernIrelandClaims(
     hasDuplicateEntryClaim: Boolean,
-    displayDeclarationOpt: Option[DisplayDeclaration]
+    displayDeclarationOpt: Option[DisplayDeclaration],
+    hasDanOption: Boolean = false
   ): Set[BasisOfOverpaymentClaim] = {
 
     val receivedExciseCodes: List[String] =
@@ -93,8 +97,11 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       if (hasDuplicateEntryClaim) values
       else values - DuplicateEntry
 
-    if (hasNorthernIrelandExciseCodes) baseClaims
-    else baseClaims - IncorrectExciseValue
+    val claims =
+      if (hasNorthernIrelandExciseCodes) baseClaims
+      else baseClaims - IncorrectExciseValue
+
+    if (hasDanOption) claims else claims - IncorrectEoriAndDan
   }
 
   val validator: Validator[Id, BasisOfOverpaymentClaim] = maybeBasisOfClaim =>

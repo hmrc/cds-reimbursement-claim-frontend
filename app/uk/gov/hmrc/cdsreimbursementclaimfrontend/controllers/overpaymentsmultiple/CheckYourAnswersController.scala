@@ -87,7 +87,7 @@ class CheckYourAnswersController @Inject() (
                   journey.getLeadDisplayDeclaration,
                   journey.isSubsidyOnlyJourney,
                   postAction,
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption) //fixme should I commit this?
+                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
                 )
               )
             )
