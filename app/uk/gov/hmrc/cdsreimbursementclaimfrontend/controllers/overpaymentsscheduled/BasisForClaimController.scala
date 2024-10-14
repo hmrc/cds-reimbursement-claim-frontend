@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
 
@@ -35,7 +36,8 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class BasisForClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  override val basisForClaimPage: select_basis_for_claim
+  override val basisForClaimPage: select_basis_for_claim,
+  override val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController
     with OverpaymentsBasisForClaimMixin {

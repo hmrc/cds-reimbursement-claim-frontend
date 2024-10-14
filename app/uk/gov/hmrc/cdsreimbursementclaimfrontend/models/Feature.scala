@@ -44,6 +44,7 @@ object Feature extends EnumerationFormat[Feature] {
   case object SecurityReasonsNiru extends Feature { val name = "security-reasons.niru" }
   case object SecurityReasonsNidac extends Feature { val name = "security-reasons.nidac" }
   case object ShowPdfDownloadOption extends Feature { val name = "show-pdf-download-option" }
+  case object ShowDanRadioOption extends Feature { val name = "show-dan-radio-option" }
 
   def of(name: String): Option[Feature] =
     values.find(_.name === name)
@@ -65,7 +66,8 @@ object Feature extends EnumerationFormat[Feature] {
       SecurityReasonsNtas,
       SecurityReasonsNiru,
       SecurityReasonsNidac,
-      ShowPdfDownloadOption
+      ShowPdfDownloadOption,
+      ShowDanRadioOption
     )
 }
 

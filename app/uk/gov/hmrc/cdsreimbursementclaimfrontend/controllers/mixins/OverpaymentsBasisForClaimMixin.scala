@@ -24,6 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowDanRadioOption
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
 
@@ -35,6 +37,7 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
 
   val basisForClaimPage: select_basis_for_claim
   val postAction: Call
+  val featureSwitchService: FeatureSwitchService
   def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call
 
   def modifyJourney(journey: Journey, basisOfClaim: BasisOfOverpaymentClaim): Journey
@@ -49,8 +52,14 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
         Ok(
           basisForClaimPage(
             form,
-            journey.getAvailableClaimTypes,
-            DropdownHints(journey.getAvailableClaimTypes.toList.sorted.map(_.toString)),
+            journey.getAvailableClaimTypes(featureSwitchService.isEnabled(ShowDanRadioOption)),
+            DropdownHints(
+              journey
+                .getAvailableClaimTypes(featureSwitchService.isEnabled(ShowDanRadioOption))
+                .toList
+                .sorted
+                .map(_.toString)
+            ),
             None,
             postAction
           )
@@ -70,8 +79,14 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
                 BadRequest(
                   basisForClaimPage(
                     formWithErrors,
-                    journey.getAvailableClaimTypes,
-                    DropdownHints(journey.getAvailableClaimTypes.toList.sorted.map(_.toString)),
+                    journey.getAvailableClaimTypes(featureSwitchService.isEnabled(ShowDanRadioOption)),
+                    DropdownHints(
+                      journey
+                        .getAvailableClaimTypes(featureSwitchService.isEnabled(ShowDanRadioOption))
+                        .toList
+                        .sorted
+                        .map(_.toString)
+                    ),
                     None,
                     postAction
                   )

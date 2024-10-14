@@ -66,6 +66,9 @@ final class OverpaymentsScheduledJourney private (
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
+  def getAvailableClaimTypes(showDanOption: Boolean = false): Set[BasisOfOverpaymentClaim] =
+    Set[BasisOfOverpaymentClaim]()
+
   def removeUnsupportedTaxCodes(): OverpaymentsScheduledJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
