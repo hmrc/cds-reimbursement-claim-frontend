@@ -41,8 +41,6 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
 
   val formKey: String = "select-basis-for-claim"
 
-  val basisOfClaimsHints: DropdownHints
-
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       Future.successful {
@@ -52,7 +50,7 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
           basisForClaimPage(
             form,
             journey.getAvailableClaimTypes,
-            basisOfClaimsHints,
+            DropdownHints(journey.getAvailableClaimTypes.toList.sorted.map(_.toString)),
             None,
             postAction
           )
@@ -73,7 +71,7 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
                   basisForClaimPage(
                     formWithErrors,
                     journey.getAvailableClaimTypes,
-                    basisOfClaimsHints,
+                    DropdownHints(journey.getAvailableClaimTypes.toList.sorted.map(_.toString)),
                     None,
                     postAction
                   )

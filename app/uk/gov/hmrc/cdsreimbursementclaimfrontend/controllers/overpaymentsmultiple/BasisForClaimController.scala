@@ -41,9 +41,6 @@ class BasisForClaimController @Inject() (
     extends OverpaymentsMultipleJourneyBaseController
     with OverpaymentsBasisForClaimMixin {
 
-  override val basisOfClaimsHints: DropdownHints =
-    DropdownHints.range(elementIndex = 1, maxHints = 14)
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
