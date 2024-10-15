@@ -459,6 +459,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    newEori: Option[Eori] = None,
     modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with ScheduledVariantAnswers

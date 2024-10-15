@@ -1041,6 +1041,15 @@ enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This Movem
 enter-duplicate-movement-reference-number.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
 enter-duplicate-movement-reference-number.title=Enter the duplicate MRN
 
+enter-new-eori-number.title=Enter the new EORI number
+enter-new-eori-number.inset-text=You must be authorised to use this EORI number.
+enter-new-eori-number.hint=The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
+
+enter-new-eori-number.error.maxLength=EORI number must be 17 characters or less
+enter-new-eori-number.error.required=Enter an EORI number
+enter-new-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
+enter-new-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+
 enter-export-movement-reference-number.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number.multiple.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number.multiple.inset-text=You will be able to add any additional export MRN later.

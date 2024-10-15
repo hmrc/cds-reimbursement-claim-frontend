@@ -767,6 +767,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    newEori: Option[Eori] = None,
     modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
 

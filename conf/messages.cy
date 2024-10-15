@@ -1159,6 +1159,11 @@ enter-movement-reference-number.securities.title=Nodwch y Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch MRN
 enter-movement-reference-number.single.title=Nodwch y Cyfeirnod Symud (MRN)
 
+enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
+enter-new-eori-number.error.required=Nodwch rif EORI
+enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+
 enter-rejected-goods-details.rejected-goods.error.maxLength=Mae’n rhaid i fanylion y nwyddau wedi’u gwrthod fod yn 500 o gymeriadau neu lai
 enter-rejected-goods-details.rejected-goods.error.required=Nodwch fanylion y nwyddau wedi’u gwrthod
 enter-rejected-goods-details.rejected-goods.help-text.p1=Rhowch fanylion am y nwyddau sydd wedi’u gwrthod, megis cafodd y nwyddau eu difrodi cyn clirio’r tollau, roeddent yn ddiffygiol, neu nid oeddent fel y disgrifir yn y contract.

@@ -53,6 +53,8 @@ class BasisForClaimController @Inject() (
   final override def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call =
     if (basisOfClaim === BasisOfOverpaymentClaim.DuplicateEntry)
       routes.EnterDuplicateMovementReferenceNumberController.show
+    else if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+      routes.EnterNewEoriNumberController.show
     else
       routes.EnterAdditionalDetailsController.show
 

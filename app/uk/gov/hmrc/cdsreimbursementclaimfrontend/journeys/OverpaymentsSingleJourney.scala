@@ -535,6 +535,13 @@ final class OverpaymentsSingleJourney private (
         )
     }
 
+  def submitNewEori(eori: Eori): OverpaymentsSingleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newEori = Some(eori))
+      )
+    }
+
   def finalizeJourneyWith(caseNumber: String): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       validate(this)
@@ -634,6 +641,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     reimbursementMethod: Option[ReimbursementMethod] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    newEori: Option[Eori] = None,
     modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with SingleVariantAnswers

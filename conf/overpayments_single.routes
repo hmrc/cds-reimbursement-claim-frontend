@@ -37,6 +37,12 @@ POST        /overpayments/single/check-duplicate-declaration-details            
 GET         /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.show
 POST        /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.submit
 
+GET         /overpayments/single/enter-new-eori                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterNewEoriNumberController.show
+POST        /overpayments/single/enter-new-eori                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterNewEoriNumberController.submit
+
+GET         /overpayments/single/enter-new-dan                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterNewDanController.show
+POST        /overpayments/single/enter-new-dan                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterNewDanController.submit
+
 GET         /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.show
 POST        /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.submit
 
