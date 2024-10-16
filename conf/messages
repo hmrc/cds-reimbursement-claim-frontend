@@ -1119,6 +1119,14 @@ enter-movement-reference-number.securities.title=Enter the Movement Reference Nu
 enter-movement-reference-number.single.label=Enter MRN
 enter-movement-reference-number.single.title=Enter the Movement Reference Number (MRN)
 
+enter-new-dan.title=Enter the new deferment account number
+enter-new-dan.inset-text=You must be authorised to use this deferment account.
+enter-new-dan.hint=A deferment account number is made up of 7 numbers (for example, ‘1234567’).
+
+enter-new-dan.error.maxLength=Deferment account number must only include numbers 1 to 9
+enter-new-dan.error.required=Enter deferment account number
+enter-new-dan.invalid.number=Deferment account number must only include numbers 1 to 9
+
 enter-rejected-goods-details.rejected-goods.bullet.1=preference codes
 enter-rejected-goods-details.rejected-goods.bullet.2=proof of return or refunds
 enter-rejected-goods-details.rejected-goods.bullet.3=incorrect commodity codes

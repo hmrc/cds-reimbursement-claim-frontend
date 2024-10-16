@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
@@ -47,6 +48,13 @@ object Forms {
       key -> nonEmptyText(maxLength = 18)
         .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(Eori.unapply)
+  )
+
+  def newDanForm(key: String): Form[Dan] = Form(
+    mapping(
+      key -> nonEmptyText(maxLength = 7)
+        .verifying("invalid.number", str => str.length > 7 || str.isEmpty || Dan(str).isValid)
+    )(Dan.apply)(Dan.unapply)
   )
 
   val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(

@@ -1159,6 +1159,15 @@ enter-movement-reference-number.securities.title=Nodwch y Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch MRN
 enter-movement-reference-number.single.title=Nodwch y Cyfeirnod Symud (MRN)
 
+enter-new-dan.title=Rhowch y rhif cyfrif gohirio newydd
+enter-new-dan.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r cyfrif gohirio hwn.
+enter-new-dan.hint=Mae rhif cyfrif gohirio yn cynnwys hyd at 7 digid (er enghraifft, ’1234567’).
+
+enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 1 i 9 yn unig
+enter-new-dan.error.required=Nodwch rif cyfrif gohirio
+enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 1 i 9 yn unig
+
+
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-new-eori-number.error.required=Nodwch rif EORI
 enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig

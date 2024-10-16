@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.newDanForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 import scala.concurrent.Future
@@ -32,25 +32,48 @@ trait EnterNewDanMixin extends JourneyBaseController {
   type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
 
   val newDanPage: enter_new_dan
-//  val postAction: Call
-//  val continueAction: Call
+  val postAction: Call
+  val continueAction: Call
   val formKey: String = "enter-new-dan"
 
-//  def modifyJourney(journey: Journey, eori: Eori): Journey
-//
-//  def getNewEoriAnswer(journey: Journey): Option[Eori] =
-//    journey.answers.newEori
+  def modifyJourney(journey: Journey, dan: Dan): Journey
+
+  def getNewDanAnswer(journey: Journey): Option[Dan] =
+    journey.answers.newDan
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
-        newDanPage()
+        newDanPage(
+          newDanForm(formKey).withDefault(getNewDanAnswer(journey)),
+          postAction
+        )
       )
     }
   }
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      ???
+      newDanForm(formKey)
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              (
+                journey,
+                BadRequest(
+                  newDanPage(
+                    formWithErrors,
+                    postAction
+                  )
+                )
+              )
+            ),
+          dan =>
+            Future.successful(
+              modifyJourney(journey, dan),
+              Redirect(continueAction)
+            )
+        )
     }
 }
