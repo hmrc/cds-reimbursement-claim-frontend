@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 /** Common answers of the rejected-goods single, multiple and scheduled journeys. */
 trait OverpaymentsAnswers extends CommonAnswers {
@@ -25,6 +27,8 @@ trait OverpaymentsAnswers extends CommonAnswers {
   def basisOfClaim: Option[BasisOfOverpaymentClaim]
   def additionalDetails: Option[String]
   def modes: JourneyModes
+  def newEori: Option[Eori]
+  def newDan: Option[Dan]
 
   final override def checkYourAnswersChangeMode: Boolean =
     modes.checkYourAnswersChangeMode
