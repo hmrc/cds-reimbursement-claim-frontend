@@ -1159,6 +1159,11 @@ enter-movement-reference-number.securities.title=Nodwch y Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch MRN
 enter-movement-reference-number.single.title=Nodwch y Cyfeirnod Symud (MRN)
 
+
+enter-new-eori-number.title=Nodwch y rhif EORI newydd
+enter-new-eori-number.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r rhif EORI hwn.
+enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
+
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-new-eori-number.error.required=Nodwch rif EORI
 enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
@@ -1569,6 +1574,8 @@ select-basis-for-claim.reason.PersonalEffects=Eiddo personol
 select-basis-for-claim.reason.Preference=Cyfradd tollau ffafriol
 select-basis-for-claim.reason.ProofOfReturnRefundGiven=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd
 select-basis-for-claim.reason.RGR=Rhyddhad ar nwyddau a ddychwelwyd (RGR)
+select-basis-for-claim.reason.IncorrectEoriAndDan=Rhif EORI anghywir a rhif cyfrif gohirio (DAN) anghywir
+select-basis-for-claim.reason.hint.IncorrectEoriAndDan=Yn berthnasol pan fydd yr EORI a’r DAN yn anghywir
 select-basis-for-claim.reason.hint.IncorrectAdditionalInformationCode=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
 select-basis-for-claim.reason.hint.IncorrectExciseValue=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
 select-basis-for-claim.reason.hint.d3=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
