@@ -578,6 +578,10 @@ final class OverpaymentsSingleJourney private (
               .map(file => if (file.documentType.isEmpty) file.copy(cargo = Some(UploadDocumentType.Other)) else file)
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
+          newEoriAndDan        = (answers.newEori, answers.newDan) match {
+                                   case (Some(newEori), Some(newDan)) => Some(NewEoriAndDan(newEori, newDan.value))
+                                   case _                             => None
+                                 }
         } yield OverpaymentsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
@@ -590,7 +594,7 @@ final class OverpaymentsSingleJourney private (
           duplicateMovementReferenceNumber = answers.duplicateDeclaration.map(_.movementReferenceNumber),
           reimbursementMethod = getDefaultReimbursementMethod,
           bankAccountDetails = answers.bankAccountDetails,
-          newEoriAndDan = None
+          newEoriAndDan = newEoriAndDan
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
