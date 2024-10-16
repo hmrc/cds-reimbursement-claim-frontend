@@ -567,7 +567,7 @@ choose-reason-for-security.securities.details.li4=<span class="govuk-body govuk-
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.hint=Select one option from the list.
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
-choose-reason-for-security.securities.title=Why a security deposit or guarantee was required?
+choose-reason-for-security.securities.title=Why was a security deposit or guarantee required?
 
 claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
 claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>

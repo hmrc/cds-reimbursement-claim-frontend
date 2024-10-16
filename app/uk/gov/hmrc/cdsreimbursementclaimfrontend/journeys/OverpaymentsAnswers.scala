@@ -27,6 +27,8 @@ trait OverpaymentsAnswers extends CommonAnswers {
   def basisOfClaim: Option[BasisOfOverpaymentClaim]
   def additionalDetails: Option[String]
   def modes: JourneyModes
+  def newEori: Option[Eori]
+  def newDan: Option[Dan]
 
   def newEori: Option[Eori]
   def newDan: Option[Dan]
