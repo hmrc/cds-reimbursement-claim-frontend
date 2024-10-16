@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
@@ -584,6 +585,10 @@ final class OverpaymentsSingleJourney private (
               .map(file => if (file.documentType.isEmpty) file.copy(cargo = Some(UploadDocumentType.Other)) else file)
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
+          newEoriAndDan        = (answers.newEori, answers.newDan) match {
+                                   case (Some(newEori), Some(newDan)) => Some(NewEoriAndDan(newEori, newDan.value))
+                                   case _                             => None
+                                 }
         } yield OverpaymentsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
@@ -596,7 +601,7 @@ final class OverpaymentsSingleJourney private (
           duplicateMovementReferenceNumber = answers.duplicateDeclaration.map(_.movementReferenceNumber),
           reimbursementMethod = getDefaultReimbursementMethod,
           bankAccountDetails = answers.bankAccountDetails,
-          newEoriAndDan = None
+          newEoriAndDan = newEoriAndDan
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -642,6 +647,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     selectedDocumentType: Option[UploadDocumentType] = None,
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     newEori: Option[Eori] = None,
+    newDan: Option[Dan] = None,
     modes: JourneyModes = JourneyModes()
   ) extends OverpaymentsAnswers
       with SingleVariantAnswers
