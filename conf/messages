@@ -1049,6 +1049,7 @@ enter-new-eori-number.error.maxLength=EORI number must be 17 characters or less
 enter-new-eori-number.error.required=Enter an EORI number
 enter-new-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
 enter-new-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-new-eori-number.doesNotExist=The entered EORI number is not found in the system.
 
 enter-export-movement-reference-number.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number.multiple.error.required=Enter your Export Movement Reference Number

@@ -1168,6 +1168,7 @@ enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o 
 enter-new-eori-number.error.required=Nodwch rif EORI
 enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
 enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+enter-new-eori-number.doesNotExist=Nid yw’r rhif EORI a nodwyd i’w weld ar y system.
 
 enter-rejected-goods-details.rejected-goods.error.maxLength=Mae’n rhaid i fanylion y nwyddau wedi’u gwrthod fod yn 500 o gymeriadau neu lai
 enter-rejected-goods-details.rejected-goods.error.required=Nodwch fanylion y nwyddau wedi’u gwrthod

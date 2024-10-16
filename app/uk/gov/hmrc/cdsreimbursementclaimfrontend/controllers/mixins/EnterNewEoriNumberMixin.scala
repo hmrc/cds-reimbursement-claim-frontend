@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -70,10 +71,24 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
               )
             ),
           eori =>
-            Future.successful(
-              modifyJourney(journey, eori),
-              Redirect(continueAction)
-            )
+            if (false) { //fixme validate if eori exists (sub09)
+              Future.successful(
+                modifyJourney(journey, eori),
+                Redirect(continueAction)
+              )
+            } else {
+              Future.successful(
+                journey,
+                BadRequest(
+                  newEoriPage(
+                    eoriNumberForm(formKey)
+                      .fill(eori)
+                      .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                    postAction
+                  )
+                )
+              )
+            }
         )
     }
 }
