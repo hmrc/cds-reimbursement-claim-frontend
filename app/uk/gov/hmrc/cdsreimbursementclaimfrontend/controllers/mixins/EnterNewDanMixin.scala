@@ -27,19 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 import scala.concurrent.Future
 
+//skeleton mixin for new dan page. This will be implemented in CDSR-3339
 trait EnterNewDanMixin extends JourneyBaseController {
 
   type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
 
   val newDanPage: enter_new_dan
-//  val postAction: Call
-//  val continueAction: Call
   val formKey: String = "enter-new-dan"
-
-//  def modifyJourney(journey: Journey, eori: Eori): Journey
-//
-//  def getNewEoriAnswer(journey: Journey): Option[Eori] =
-//    journey.answers.newEori
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
