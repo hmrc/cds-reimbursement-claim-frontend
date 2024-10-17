@@ -39,7 +39,8 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[DefaultEoriDetailsConnector])
 trait EoriDetailsConnector {
 
-  def getEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]]
+  def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]]
+  def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]]
 }
 
 object EoriDetailsConnector {
@@ -72,7 +73,7 @@ class DefaultEoriDetailsConnector @Inject() (
   lazy val retryIntervals: Seq[FiniteDuration] =
     Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  override def getEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
+  override def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](url)
     ).flatMap {
@@ -86,7 +87,26 @@ class DefaultEoriDetailsConnector @Inject() (
       case response =>
         Future.failed(
           new EoriDetailsConnector.Exception(
-            s"Request to POST $url failed because of ${response.status} ${response.body}"
+            s"Request to GET $url failed because of ${response.status} ${response.body}"
+          )
+        )
+    }
+
+  override def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
+    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+      http.GET[HttpResponse](s"$url/${eori.value}")
+    ).flatMap {
+      case response if response.status === 200 =>
+        Future(response.json.as[EoriDetailsConnector.Response])
+          .transform(r => Some(r), e => new EoriDetailsConnector.Exception(e.getMessage))
+
+      case response if response.status === 204 =>
+        Future.successful(None)
+
+      case response =>
+        Future.failed(
+          new EoriDetailsConnector.Exception(
+            s"Request to GET $url/${eori.value} failed because of ${response.status} ${response.body}"
           )
         )
     }

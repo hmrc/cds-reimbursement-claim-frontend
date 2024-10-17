@@ -36,7 +36,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.util.Failure
 import scala.util.Try
 
-class EoriDetailsConnectorSpec
+class EoriDetailsConnectorGetEoriDetailsSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
@@ -74,7 +74,7 @@ class EoriDetailsConnectorSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedUrl = "http://host3:123/foo-claim/eori"
+  val expectedUrl = "http://host3:123/foo-claim/eori/GB0123456789"
 
   val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockGet(expectedUrl)(_)
@@ -88,7 +88,7 @@ class EoriDetailsConnectorSpec
       givenServiceReturns(
         Some(HttpResponse(200, """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789","fullName":"Foo Bar"}"""))
       ).once()
-      await(connector.getEoriDetails) shouldBe Some(
+      await(connector.getEoriDetails(Eori("GB0123456789"))) shouldBe Some(
         EoriDetailsConnector
           .Response(
             eoriGB = Eori("GB0123456789"),
@@ -103,7 +103,7 @@ class EoriDetailsConnectorSpec
       givenServiceReturns(
         Some(HttpResponse(200, """{"eoriGB":"GB0123456789","eoriXI":null,"fullName":"Foo Bar"}"""))
       ).once()
-      await(connector.getEoriDetails) shouldBe Some(
+      await(connector.getEoriDetails(Eori("GB0123456789"))) shouldBe Some(
         EoriDetailsConnector
           .Response(
             eoriGB = Eori("GB0123456789"),
@@ -118,20 +118,20 @@ class EoriDetailsConnectorSpec
       givenServiceReturns(
         Some(HttpResponse(204, """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789","fullName":"Foo Bar"}"""))
       ).once()
-      await(connector.getEoriDetails) shouldBe None
+      await(connector.getEoriDetails(Eori("GB0123456789"))) shouldBe None
     }
 
     "throw exception when empty response" in {
       givenServiceReturns(Some(HttpResponse(200, ""))).once()
       a[EoriDetailsConnector.Exception] shouldBe thrownBy {
-        await(connector.getEoriDetails)
+        await(connector.getEoriDetails(Eori("GB0123456789")))
       }
     }
 
     "throw exception when invalid response" in {
       givenServiceReturns(Some(HttpResponse(200, """{"eoriGB":"ABC123"}"""))).once()
       a[EoriDetailsConnector.Exception] shouldBe thrownBy {
-        await(connector.getEoriDetails)
+        await(connector.getEoriDetails(Eori("GB0123456789")))
       }
     }
 
@@ -140,15 +140,15 @@ class EoriDetailsConnectorSpec
         Some(HttpResponse(201, """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789","fullName":"Foo Bar"}"""))
       ).once()
       a[EoriDetailsConnector.Exception] shouldBe thrownBy {
-        await(connector.getEoriDetails)
+        await(connector.getEoriDetails(Eori("GB0123456789")))
       }
     }
 
     "throw exception when 4xx response status" in {
       givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
-      Try(await(connector.getEoriDetails)) shouldBe Failure(
+      Try(await(connector.getEoriDetails(Eori("GB0123456789")))) shouldBe Failure(
         new EoriDetailsConnector.Exception(
-          "Request to POST http://host3:123/foo-claim/eori failed because of 404 case not found"
+          "Request to GET http://host3:123/foo-claim/eori/GB0123456789 failed because of 404 case not found"
         )
       )
     }
@@ -159,7 +159,7 @@ class EoriDetailsConnectorSpec
         Some(HttpResponse(200, """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789","fullName":"Foo Bar"}"""))
       ).never()
       a[EoriDetailsConnector.Exception] shouldBe thrownBy {
-        await(connector.getEoriDetails)
+        await(connector.getEoriDetails(Eori("GB0123456789")))
       }
     }
 
@@ -167,7 +167,7 @@ class EoriDetailsConnectorSpec
       givenServiceReturns(Some(HttpResponse(500, ""))).once()
       givenServiceReturns(Some(HttpResponse(200, """{"eoriGB":"GB0123456789","eoriXI":null,"fullName":"Foo Bar"}""")))
         .once()
-      await(connector.getEoriDetails) shouldBe Some(
+      await(connector.getEoriDetails(Eori("GB0123456789"))) shouldBe Some(
         EoriDetailsConnector
           .Response(
             eoriGB = Eori("GB0123456789"),
@@ -182,7 +182,7 @@ class EoriDetailsConnectorSpec
       givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
       givenServiceReturns(Some(HttpResponse(200, """{"eoriGB":"GB0123456789","eoriXI":null,"fullName":"Foo Bar"}""")))
         .once()
-      await(connector.getEoriDetails) shouldBe Some(
+      await(connector.getEoriDetails(Eori("GB0123456789"))) shouldBe Some(
         EoriDetailsConnector
           .Response(
             eoriGB = Eori("GB0123456789"),

@@ -85,7 +85,7 @@ class DefaultXiEoriConnector @Inject() (
 
       case response =>
         Future.failed(
-          new XiEoriConnector.Exception(s"Request to POST $url failed because of ${response.status} ${response.body}")
+          new XiEoriConnector.Exception(s"Request to GET $url failed because of ${response.status} ${response.body}")
         )
     }
 
