@@ -1049,6 +1049,7 @@ enter-new-eori-number.error.maxLength=EORI number must be 17 characters or less
 enter-new-eori-number.error.required=Enter an EORI number
 enter-new-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
 enter-new-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-new-eori-number.doesNotExist=The entered EORI number is not found in the system.
 
 enter-export-movement-reference-number.error.required=Enter your Export Movement Reference Number
 enter-export-movement-reference-number.multiple.error.required=Enter your Export Movement Reference Number
@@ -1784,3 +1785,5 @@ we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot b
 we-only-support-gg.signIn=Sign in if you already have an account
 we-only-support-gg.signIn.p1=<a href="{0}" class="govuk-link">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
+
+common.blank=

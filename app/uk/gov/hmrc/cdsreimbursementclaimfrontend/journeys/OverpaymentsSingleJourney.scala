@@ -129,6 +129,20 @@ final class OverpaymentsSingleJourney private (
   def removeUnsupportedTaxCodes(): OverpaymentsSingleJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
+  def submitNewEori(eori: Eori): OverpaymentsSingleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newEori = Some(eori))
+      )
+    }
+
+  def submitNewDan(dan: Dan): OverpaymentsSingleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newDan = Some(dan))
+      )
+    }
+
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration
@@ -536,20 +550,6 @@ final class OverpaymentsSingleJourney private (
         )
     }
 
-  def submitNewEori(eori: Eori): OverpaymentsSingleJourney =
-    whileClaimIsAmendable {
-      this.copy(
-        answers.copy(newEori = Some(eori))
-      )
-    }
-
-  def submitNewDan(dan: Dan): OverpaymentsSingleJourney =
-    whileClaimIsAmendable {
-      this.copy(
-        answers.copy(newDan = Some(dan))
-      )
-    }
-
   def finalizeJourneyWith(caseNumber: String): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       validate(this)
@@ -865,6 +865,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .mapWhenDefined(answers.newEori)(_.submitNewEori)
+      .mapWhenDefined(answers.newDan)(_.submitNewDan)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

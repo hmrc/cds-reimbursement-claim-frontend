@@ -30,9 +30,6 @@ trait OverpaymentsAnswers extends CommonAnswers {
   def newEori: Option[Eori]
   def newDan: Option[Dan]
 
-  def newEori: Option[Eori]
-  def newDan: Option[Dan]
-
   final override def checkYourAnswersChangeMode: Boolean =
     modes.checkYourAnswersChangeMode
 

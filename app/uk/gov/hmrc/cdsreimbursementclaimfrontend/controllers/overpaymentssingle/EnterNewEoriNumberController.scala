@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterNewEoriNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
@@ -33,6 +34,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EnterNewEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
+  val eoriDetailsConnector: EoriDetailsConnector,
   val newEoriPage: enter_new_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsSingleJourneyBaseController
