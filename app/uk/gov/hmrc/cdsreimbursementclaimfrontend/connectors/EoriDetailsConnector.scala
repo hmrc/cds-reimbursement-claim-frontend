@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.actor.ActorSystem
 import cats.syntax.eq._
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,29 +36,30 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[DefaultXiEoriConnector])
-trait XiEoriConnector {
+@ImplementedBy(classOf[DefaultEoriDetailsConnector])
+trait EoriDetailsConnector {
 
-  def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori]
+  def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]]
+  def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]]
 }
 
-object XiEoriConnector {
+object EoriDetailsConnector {
 
-  final case class Response(eoriGB: String, eoriXI: String)
+  final case class Response(eoriGB: Eori, eoriXI: Option[Eori], fullName: String, eoriEndDate: Option[String])
   final case class Exception(msg: String) extends scala.RuntimeException(msg)
 
   implicit val format: Format[Response] = Json.format[Response]
 }
 
 @Singleton
-class DefaultXiEoriConnector @Inject() (
+class DefaultEoriDetailsConnector @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends XiEoriConnector
+) extends EoriDetailsConnector
     with Retries
     with Logging {
 
@@ -67,25 +68,46 @@ class DefaultXiEoriConnector @Inject() (
   lazy val contextPath: String =
     servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
 
-  lazy val url = s"$baseUrl$contextPath/eori/xi"
+  lazy val url = s"$baseUrl$contextPath/eori"
 
   lazy val retryIntervals: Seq[FiniteDuration] =
     Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  override def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori] =
+  override def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](url)
     ).flatMap {
       case response if response.status === 200 =>
-        Future(response.json.as[XiEoriConnector.Response])
-          .transform(r => UserXiEori(r.eoriXI), e => new XiEoriConnector.Exception(e.getMessage))
+        Future(response.json.as[EoriDetailsConnector.Response])
+          .transform(r => Some(r), e => new EoriDetailsConnector.Exception(e.getMessage))
 
       case response if response.status === 204 =>
-        Future.successful(UserXiEori.NotRegistered)
+        Future.successful(None)
 
       case response =>
         Future.failed(
-          new XiEoriConnector.Exception(s"Request to GET $url failed because of ${response.status} ${response.body}")
+          new EoriDetailsConnector.Exception(
+            s"Request to GET $url failed because of ${response.status} ${response.body}"
+          )
+        )
+    }
+
+  override def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
+    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+      http.GET[HttpResponse](s"$url/${eori.value}")
+    ).flatMap {
+      case response if response.status === 200 =>
+        Future(response.json.as[EoriDetailsConnector.Response])
+          .transform(r => Some(r), e => new EoriDetailsConnector.Exception(e.getMessage))
+
+      case response if response.status === 204 =>
+        Future.successful(None)
+
+      case response =>
+        Future.failed(
+          new EoriDetailsConnector.Exception(
+            s"Request to GET $url/${eori.value} failed because of ${response.status} ${response.body}"
+          )
         )
     }
 

@@ -116,7 +116,7 @@ class XiEoriConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
       givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
       Try(await(connector.getXiEori)) shouldBe Failure(
         new XiEoriConnector.Exception(
-          "Request to POST http://host3:123/foo-claim/eori/xi failed because of 404 case not found"
+          "Request to GET http://host3:123/foo-claim/eori/xi failed because of 404 case not found"
         )
       )
     }
