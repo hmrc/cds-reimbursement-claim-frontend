@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterNewDanMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 import javax.inject.Inject
@@ -42,4 +42,9 @@ class EnterNewDanController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration)
 
+  final override val postAction: Call     = routes.EnterNewDanController.submit
+  final override val continueAction: Call = routes.EnterAdditionalDetailsController.show
+
+  final override def modifyJourney(journey: Journey, dan: Dan): Journey =
+    journey.submitNewDan(dan)
 }

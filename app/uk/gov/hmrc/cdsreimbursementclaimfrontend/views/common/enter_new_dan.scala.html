@@ -20,7 +20,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -32,13 +32,35 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[Dan], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-new-dan"}
     @title = @{messages("enter-new-dan.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-        NEW DAN PAGE
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+        @errorSummary(form.errors)
+
+        @heading(Html(title))
+
+        @insetText(HtmlContent(messages("enter-new-dan.inset-text")), Some("enter-new-dan-inset-text"))
+
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+            @inputText(
+                form = form,
+                id = key,
+                name = key,
+                label = "common.blank",
+                isPageHeading = false,
+                hint = Some("enter-new-dan.hint"),
+                classes = Some("govuk-input--width-20")
+            )
+
+            @submitButton("button.continue")
+
+        }
 
     }
