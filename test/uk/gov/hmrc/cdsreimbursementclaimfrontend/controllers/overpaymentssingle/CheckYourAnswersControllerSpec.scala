@@ -115,8 +115,7 @@ class CheckYourAnswersControllerSpec
       "Movement Reference Number (MRN)".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,
-      "Basis for claim".expectedAlways,
-      "Reason for claim".expectedAlways,
+      "Claim details".expectedAlways,
       "Claim total".expectedAlways,
       "Repayment details".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
@@ -144,38 +143,40 @@ class CheckYourAnswersControllerSpec
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Importer name"                      -> declaration.flatMap(_.consigneeName),
-          "Importer email"                     -> declaration.flatMap(_.consigneeEmail),
-          "Importer telephone"                 -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                   -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
-          "Declarant name"                     -> declaration.map(_.declarantName),
-          "Declarant address"                  -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
-          "Contact details"                    -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"                    -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "This is the basis behind the claim" -> Some(
+          "Importer name"                -> declaration.flatMap(_.consigneeName),
+          "Importer email"               -> declaration.flatMap(_.consigneeEmail),
+          "Importer telephone"           -> declaration.flatMap(_.consigneeTelephone),
+          "Importer address"             -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
+          "Declarant name"               -> declaration.map(_.declarantName),
+          "Declarant address"            -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
+          "Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "Basis for claim"              -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "This is the reason for the claim"   -> Some(claim.additionalDetails),
-          "EU Duty"                            -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "UK Duty"                            -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Excise Duty"                        -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Total"                              -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Payee"                              ->
+          "Additional claim information" -> Some(claim.additionalDetails),
+          "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
+          "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
+          "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Payee"                        ->
             Some(claim.payeeType match {
               case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
               case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
             }),
-          "Method"                             ->
+          "Method"                       ->
             Some(claim.reimbursementMethod match {
               case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
               case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
               case _                                          => m("check-your-answers.repayment-method.bt")
             }),
-          "Uploaded"                           -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"                -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                          -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"                     -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
+          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
+          "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
+          "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
         )
+        ++ claim.reimbursements.map { r =>
+          m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)
+        }
     )
   }
 

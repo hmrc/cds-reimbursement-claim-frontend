@@ -18,10 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -251,6 +253,11 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
+      newEoriAndDan                = basisOfClaim match {
+                                       case boc if boc == IncorrectEoriAndDan =>
+                                         Some(NewEoriAndDan(IdGen.genEori.sample.get, IdGen.genDan.sample.get.value))
+                                       case _                                 => None
+                                     }
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
@@ -319,7 +326,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           reimbursementMethod =
             if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)
             else None,
-          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode)
+          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode),
+          newEori = newEoriAndDan.map(_.eori),
+          newDan = newEoriAndDan.map(d => Dan(d.dan))
         )
 
       answers

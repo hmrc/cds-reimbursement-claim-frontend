@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -239,11 +240,15 @@ final class OverpaymentsSingleJourney private (
       )
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       basisOfClaim match {
         case BasisOfOverpaymentClaim.DuplicateEntry =>
-          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim), newEori = None, newDan = None))
+
+        case BasisOfOverpaymentClaim.IncorrectEoriAndDan if answers.basisOfClaim == IncorrectEoriAndDan =>
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim), duplicateDeclaration = None))
 
         case BasisOfOverpaymentClaim.IncorrectExciseValue =>
           this.copy(
@@ -252,7 +257,9 @@ final class OverpaymentsSingleJourney private (
               duplicateDeclaration = None,
               correctedAmounts = answers.correctedAmounts.map(_.filter { case (taxCode, _) =>
                 TaxCodes.exciseTaxCodeSet.contains(taxCode)
-              })
+              }),
+              newEori = None,
+              newDan = None
             )
           )
 
@@ -260,7 +267,9 @@ final class OverpaymentsSingleJourney private (
           this.copy(
             answers.copy(
               basisOfClaim = Some(basisOfClaim),
-              duplicateDeclaration = None
+              duplicateDeclaration = None,
+              newEori = None,
+              newDan = None
             )
           )
       }
@@ -592,9 +601,10 @@ final class OverpaymentsSingleJourney private (
               .map(file => if (file.documentType.isEmpty) file.copy(cargo = Some(UploadDocumentType.Other)) else file)
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
-          newEoriAndDan        = (answers.newEori, answers.newDan) match {
-                                   case (Some(newEori), Some(newDan)) => Some(NewEoriAndDan(newEori, newDan.value))
-                                   case _                             => None
+          newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
+                                   case (IncorrectEoriAndDan, Some(newEori), Some(newDan)) =>
+                                     Some(NewEoriAndDan(newEori, newDan.value))
+                                   case _                                                  => None
                                  }
         } yield OverpaymentsSingleJourney.Output(
           movementReferenceNumber = mrn,
@@ -788,7 +798,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded
     )
 
   import JourneyFormats._

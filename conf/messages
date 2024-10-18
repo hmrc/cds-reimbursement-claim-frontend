@@ -373,6 +373,11 @@ check-your-answers.single.mrn-label-plaintext=Movement Reference Number (MRN)
 check-your-answers.special-circumstances.h2=Special circumstances
 check-your-answers.special-circumstances.label=Any special circumstances relating to your claim
 check-your-answers.title=Check your answers before sending your claim
+check-your-answers.basis-of-claim=Basis for claim
+check-your-answers.additional-info=Additional claim information
+check-your-answers.claim-details=Claim details
+check-your-answers.new-eori=New EORI
+check-your-answers.new-dan=New deferment account number
 
 check-your-answers.pdf.title=Submitted claim - {0}
 check-your-answers.pdf.amount-requested=Amount requested
@@ -1503,7 +1508,7 @@ select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Goods a
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
 select-basis-for-claim.rejected-goods.title=Why are you making this claim?
 select-basis-for-claim.select-label=Choose which basis for claim
-select-basis-for-claim.title=Choose the reason for making this claim
+select-basis-for-claim.title=Why are you making this claim?
 
 select-duties.caption=Security deposit ID: {0}
 select-duties.duty.407=Beer made in the UK (standard rate, that is, annual production more than 60,000 hectolitres)
