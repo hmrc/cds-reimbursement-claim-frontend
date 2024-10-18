@@ -38,6 +38,8 @@ object JourneyValidationErrors {
   val MISSING_SCHEDULED_DOCUMENT: String               = "missingScheduledDocument"
   val MISSING_REASON_FOR_SECURITY: String              = "missingReasonForSecurity"
   val MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER: String = "missingExportMovementReferenceNumber"
+  val MISSING_NEW_EORI: String                         = "missingNewEori"
+  val MISSING_NEW_DAN: String                          = "missingNewDan"
 
   val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String              = "totalReimbursementAmountMustBeGreaterThanZero"
   val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                            =

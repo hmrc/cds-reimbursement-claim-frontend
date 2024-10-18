@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import com.github.arturopala.validator.Validator._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 
 trait OverpaymentsJourneyChecks[J <: OverpaymentsJourneyProperties]
     extends CommonJourneyChecks[OverpaymentsJourneyProperties] {
@@ -38,6 +39,24 @@ trait OverpaymentsJourneyChecks[J <: OverpaymentsJourneyProperties]
     whenTrue(
       journey => journey.features.exists(_.shouldBlockSubsidies) && !journey.isSubsidyOnlyJourney,
       declarationsHasNoSubsidyPayments
+    )
+
+  final val newEoriAndDanProvidedIfNeeded: Validate[J] =
+    all(
+      whenTrue(
+        j => j.answers.basisOfClaim == Some(IncorrectEoriAndDan),
+        checkIsTrue(
+          _.answers.newEori.isDefined,
+          MISSING_NEW_EORI
+        )
+      ),
+      whenTrue(
+        j => j.answers.basisOfClaim == Some(IncorrectEoriAndDan),
+        checkIsTrue(
+          _.answers.newDan.isDefined,
+          MISSING_NEW_DAN
+        )
+      )
     )
 
 }

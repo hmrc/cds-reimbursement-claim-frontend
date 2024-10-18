@@ -51,10 +51,6 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
   ): SummaryList =
     SummaryList(
       Seq(
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.mrn-label"))),
-          value = Value(Text(declaration.displayResponseDetail.declarationId))
-        ).some.filter(_ => showImportMrn),
         declaration.getMaybeLRN match {
           case Some(lrn) =>
             SummaryListRow(
@@ -63,6 +59,10 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
             ).some
           case _         => None
         },
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.mrn-label"))),
+          value = Value(Text(declaration.displayResponseDetail.declarationId))
+        ).some.filter(_ => showImportMrn),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.import-date-label"))),
           value = Value(Text(toDisplayDate(declaration.displayResponseDetail.acceptanceDate)))

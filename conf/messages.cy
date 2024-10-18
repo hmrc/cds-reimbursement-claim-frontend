@@ -372,6 +372,11 @@ check-your-answers.single.mrn-label-plaintext=Cyfeirnod Symud (MRN)
 check-your-answers.special-circumstances.h2=Amgylchiadau arbennig
 check-your-answers.special-circumstances.label=Amgylchiadau arbennig sy’n ymwneud â’ch hawliad
 check-your-answers.title=Gwiriwch eich atebion cyn anfon eich hawliad
+check-your-answers.basis-of-claim=Sail yr hawliad
+check-your-answers.additional-info=Gwybodaeth ychwanegol am yr hawliad
+check-your-answers.claim-details=Manylion yr hawliad
+check-your-answers.new-eori=EORI newydd
+check-your-answers.new-dan=Rhif cyfrif gohirio newydd
 
 check-your-answers.pdf.total=Cyfanswm
 check-your-answers.pdf.additional-details=Manylion ychwanegol yr hawliad
@@ -1592,7 +1597,7 @@ select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Nid yw�
 select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Amgylchiadau arbennig
 select-basis-for-claim.rejected-goods.title=Pam rydych yn gwneud yr hawliad hwn?
 select-basis-for-claim.select-label=Dewiswch sail yr hawliad
-select-basis-for-claim.title=Dewiswch y rheswm dros wneud yr hawliad hwn
+select-basis-for-claim.title=Pam rydych yn gwneud yr hawliad hwn?
 
 select-duties.caption=ID y Blaendal Sicrwydd: {0}
 select-duties.duty.407=Cwrw wedi’i wneud yn y DU (cyfradd safonol, hynny yw, cynhyrchiad blynyddol o fwy na 60,000 hectolitr)

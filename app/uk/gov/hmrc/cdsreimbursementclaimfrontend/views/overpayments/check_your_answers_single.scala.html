@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -54,19 +55,16 @@
     @displayDeclarationOpt.map { displayDeclaration =>
         @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
         @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"check-your-answers.declaration-details", showImportMrn = false))
-    } 
+    }
 
     @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
     @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF)))
     
-    @subHeading(Html(messages(s"check-your-answers.basis.h2")))
-    @summary(BasisOfClaimSummary(claim.basisOfClaim,s"check-your-answers.basis", Some(routes.BasisForClaimController.show)))
-    
-    @subHeading(Html(messages(s"check-your-answers.additional-details.h2")))
-    @summary(AdditionalDetailsSummary(claim.additionalDetails, s"check-your-answers.additional-details", Some(routes.EnterAdditionalDetailsController.show)))
-    
+    @subHeading(Html(messages(s"check-your-answers.claim-details")))
+    @summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, Some(routes.BasisForClaimController.show), Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan))
+
     @subHeading(Html(messages(combine(s"check-your-answers.claim-calculation", subKey, "h2"))))
-    @summary(ClaimedReimbursementsAnswerSummary.fromReimbursements(claim.reimbursements, s"check-your-answers.claim-calculation", Some(routes.CheckClaimDetailsController.show)))
+    @summary(ClaimedReimbursementsAnswerSummary.fromReimbursementClaims(claim.reimbursements, Some(routes.CheckClaimDetailsController.show)))
 
     @subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
     @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)))

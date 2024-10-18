@@ -105,4 +105,48 @@ object ClaimedReimbursementsAnswerSummary {
           )
         )
     )
+
+  def fromReimbursementClaims(
+    reimbursements: Seq[Reimbursement],
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      reimbursements
+        .map { summary =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"tax-code.${summary.taxCode}"))),
+            value = Value(Text(summary.amount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"tax-code.${summary.taxCode}"))
+                  )
+                )
+              )
+            )
+          )
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
+            value = Value(Text(reimbursements.map(_.amount).sum.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.claim-total.total"))
+                  )
+                )
+              )
+            )
+          )
+        )
+    )
 }

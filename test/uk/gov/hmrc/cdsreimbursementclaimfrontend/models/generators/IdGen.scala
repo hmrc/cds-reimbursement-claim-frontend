@@ -23,8 +23,8 @@ import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object IdGen {
@@ -41,6 +41,12 @@ object IdGen {
 
   implicit lazy val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] =
     gen[NonEmptyList[AssociatedMrn]]
+
+  lazy val genDan: Gen[Dan] =
+    for {
+      n <- Gen.listOfN(7, Gen.numChar)
+      s <- Gen.const(n.mkString)
+    } yield Dan(s)
 
   lazy val genEori: Gen[Eori] =
     for {

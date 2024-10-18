@@ -497,7 +497,7 @@ class OverpaymentsSingleJourneySpec
       forAll(
         completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue,
         Gen.oneOf(
-          BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry - BasisOfOverpaymentClaim.IncorrectExciseValue
+          BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry - BasisOfOverpaymentClaim.IncorrectExciseValue - BasisOfOverpaymentClaim.IncorrectEoriAndDan
         )
       ) { (journey, basisOfClaim) =>
         val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
