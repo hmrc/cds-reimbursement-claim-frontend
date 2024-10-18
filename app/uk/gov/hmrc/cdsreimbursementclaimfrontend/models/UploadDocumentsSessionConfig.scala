@@ -73,7 +73,8 @@ object UploadDocumentsSessionConfig {
     showUploadMultiple: Boolean,
     showLanguageSelection: Boolean,
     showAddAnotherDocumentButton: Boolean,
-    showYesNoQuestionBeforeContinue: Boolean
+    showYesNoQuestionBeforeContinue: Boolean,
+    enableMultipleFilesPicker: Boolean
   )
 
   object Features {

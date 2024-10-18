@@ -137,7 +137,8 @@ class UploadMrnListController @Inject() (
         showUploadMultiple = true,
         showLanguageSelection = viewConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = false
+        showYesNoQuestionBeforeContinue = false,
+        enableMultipleFilesPicker = false
       )
     )
 
