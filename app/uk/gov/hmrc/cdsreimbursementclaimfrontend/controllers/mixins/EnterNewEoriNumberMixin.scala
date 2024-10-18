@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
@@ -31,6 +33,7 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
 
   type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
 
+  val eoriDetailsConnector: EoriDetailsConnector
   val newEoriPage: enter_new_eori_number
   val postAction: Call
   val continueAction: Call
@@ -70,10 +73,25 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
               )
             ),
           eori =>
-            Future.successful(
-              modifyJourney(journey, eori),
-              Redirect(continueAction)
-            )
+            eoriDetailsConnector.getEoriDetails(eori).flatMap {
+              case Some(_) =>
+                Future.successful(
+                  modifyJourney(journey, eori),
+                  Redirect(continueAction)
+                )
+              case None    =>
+                Future.successful(
+                  journey,
+                  BadRequest(
+                    newEoriPage(
+                      eoriNumberForm(formKey)
+                        .fill(eori)
+                        .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                      postAction
+                    )
+                  )
+                )
+            }
         )
     }
 }
