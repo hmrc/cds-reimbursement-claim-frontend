@@ -524,10 +524,10 @@ choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
 choose-files.if-skip.inset-text=You must add a commercial invoice to support your claim.
 choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
-choose-files.if-skip.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
+choose-files.if-skip.p2=You can use the ''Choose files'' button to upload or ''drag and drop'' multiple files.
 choose-files.if-skip.title=Upload documents to support your claim
 choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
-choose-files.p2=You can use the ''Choose file'' button to upload a single file or ''drag and drop'' multiple files.
+choose-files.p2=You can use the ''Choose files'' button to upload or ''drag and drop'' multiple files.
 choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
 

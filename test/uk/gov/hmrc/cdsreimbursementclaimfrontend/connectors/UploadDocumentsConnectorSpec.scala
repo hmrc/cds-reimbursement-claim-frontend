@@ -127,7 +127,8 @@ class UploadDocumentsConnectorSpec
           showUploadMultiple = true,
           showLanguageSelection = false,
           showAddAnotherDocumentButton = false,
-          showYesNoQuestionBeforeContinue = true
+          showYesNoQuestionBeforeContinue = true,
+          enableMultipleFilesPicker = true
         )
     )
 

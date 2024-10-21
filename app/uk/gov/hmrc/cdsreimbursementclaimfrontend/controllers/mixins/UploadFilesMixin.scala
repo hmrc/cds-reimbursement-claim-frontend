@@ -207,7 +207,8 @@ trait UploadFilesMixin extends JourneyBaseController {
         showUploadMultiple = true,
         showLanguageSelection = viewConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = showYesNoQuestionBeforeContinue
+        showYesNoQuestionBeforeContinue = showYesNoQuestionBeforeContinue,
+        enableMultipleFilesPicker = true
       )
     )
 
@@ -270,7 +271,8 @@ trait UploadFilesMixin extends JourneyBaseController {
         showUploadMultiple = true,
         showLanguageSelection = viewConfig.enableLanguageSwitching,
         showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = false
+        showYesNoQuestionBeforeContinue = false,
+        enableMultipleFilesPicker = true
       )
     )
 
