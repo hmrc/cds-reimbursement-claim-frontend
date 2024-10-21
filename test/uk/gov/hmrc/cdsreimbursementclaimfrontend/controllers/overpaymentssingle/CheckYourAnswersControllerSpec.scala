@@ -151,7 +151,7 @@ class CheckYourAnswersControllerSpec
           "Declarant address"            -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
           "Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
           "Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "Basis for claim"              -> Some(
+          "Basis of claim"               -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
           "Additional claim information" -> Some(claim.additionalDetails),
