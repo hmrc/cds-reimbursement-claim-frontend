@@ -495,10 +495,10 @@ choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
 choose-files.if-skip.inset-text=Mae’n rhaid i chi ychwanegu anfoneb fasnachol i ategu’ch hawliad.
 choose-files.if-skip.p1=Gall pob ffeil fod hyd at {0}.  Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
-choose-files.if-skip.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil.
+choose-files.if-skip.p2=Gallwch ddewis y botwm ‘Dewis ffeiliau’ i uwchlwytho neu lusgo a gollwng sawl ffeil.
 choose-files.if-skip.title=Uwchlwytho dogfennau i ategu’ch hawliad
 choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
-choose-files.p2=Gallwch ddewis y botwm dewis ffeiliau i uwchlwytho un ffeil neu gallwch lusgo a gollwng sawl ffeil.
+choose-files.p2=Gallwch ddewis y botwm ‘Dewis ffeiliau’ i uwchlwytho neu lusgo a gollwng sawl ffeil.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
 
