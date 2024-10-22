@@ -372,7 +372,7 @@ check-your-answers.single.mrn-label-plaintext=Cyfeirnod Symud (MRN)
 check-your-answers.special-circumstances.h2=Amgylchiadau arbennig
 check-your-answers.special-circumstances.label=Amgylchiadau arbennig sy’n ymwneud â’ch hawliad
 check-your-answers.title=Gwiriwch eich atebion cyn anfon eich hawliad
-check-your-answers.basis-of-claim=Manylion yr hawliad
+check-your-answers.basis-of-claim=Sail yr hawliad
 check-your-answers.additional-info=Gwybodaeth ychwanegol am yr hawliad
 check-your-answers.claim-details=Manylion yr hawliad
 check-your-answers.new-eori=EORI newydd
@@ -1173,6 +1173,10 @@ enter-new-dan.error.required=Nodwch rif cyfrif gohirio
 enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 1 i 9 yn unig
 
 
+enter-new-eori-number.title=Nodwch y rhif EORI newydd
+enter-new-eori-number.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r rhif EORI hwn.
+enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
+
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-new-eori-number.error.required=Nodwch rif EORI
 enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
@@ -1565,9 +1569,12 @@ select-basis-for-claim.InwardProcessingReliefFromCustomsDuty.bullet=Rhyddhad pro
 select-basis-for-claim.InwardProcessingReliefFromCustomsDuty.description=Oedi neu leihau tollau mewnforio neu TAW ar nwyddau a broseswyd neu a drwsiwyd.
 select-basis-for-claim.OutwardProcessingRelief.bullet=Rhyddhad prosesu allanol:
 select-basis-for-claim.OutwardProcessingRelief.description=Taliadau tollau, sydd wedi’u lleihau yn sgil hawliad, ar nwyddau a anfonwyd y tu allan i’r DU i’w prosesu neu’u trwsio, sydd wedi’u hailfewnforio.
+select-basis-for-claim.IncorrectEoriAndDan.bullet=Rhif EORI anghywir a rhif cyfrif gohirio anghywir:
+select-basis-for-claim.IncorrectEoriAndDan.description=Hawliad a wneir pan fydd masnachwr yn rhoi rhif EORI anghywir a rhif cyfrif gohirio anghywir
+
 select-basis-for-claim.error.number=Dewiswch y rheswm dros wneud yr hawliad hwn
 select-basis-for-claim.error.required=Dewiswch y rheswm dros wneud yr hawliad hwn
-select-basis-for-claim.heading=Enghreifftiau o sail yr hawliad
+select-basis-for-claim.heading=Enghreifftiau o resymau dros wneud hawliad
 select-basis-for-claim.help-text=Dewiswch un opsiwn o’r rhestr.
 select-basis-for-claim.reason.DuplicateEntry=Cyfeirnod Symud (MRN) dyblyg
 select-basis-for-claim.reason.DutySuspension=Gohirio tollau
