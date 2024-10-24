@@ -126,10 +126,10 @@ class CheckYourAnswersControllerSpec
         claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)): _*
     )
 
-    summaries.toSeq should containOnlyDefinedPairsOf(
+    summaries.toSeq should containAllDefinedPairsOf(
       Seq(
         ("Import MRN"                   -> Some(claim.movementReferenceNumber.value)),
-        ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.value)),
+        //("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
         ("Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
         ("Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
         ("Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value)),

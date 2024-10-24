@@ -41,7 +41,7 @@
         cyaCommon: check_your_answers_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 

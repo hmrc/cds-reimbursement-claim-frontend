@@ -49,7 +49,7 @@
         cyaCommon: check_your_answers_common
 )
 
-@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{
