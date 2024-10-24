@@ -437,7 +437,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           bankAccountDetails = Some(exampleBankAccountDetails),
           supportingEvidences = exampleSupportingEvidences,
           temporaryAdmissionMethodOfDisposal = Some(TemporaryAdmissionMethodOfDisposal.DeclaredToEndUse),
-          exportMovementReferenceNumber = Some(anotherExampleMrn)
+          exportMovementReferenceNumber = Some(Seq(anotherExampleMrn))
         )
 
       val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestJourneyAnalytics())

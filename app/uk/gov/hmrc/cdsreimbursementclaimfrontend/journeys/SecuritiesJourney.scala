@@ -409,7 +409,8 @@ final class SecuritiesJourney private (
           Right(
             this.copy(
               answers.copy(
-                exportMovementReferenceNumber = Some(exportMrn)
+                exportMovementReferenceNumber =
+                  Some(answers.exportMovementReferenceNumber.getOrElse(Seq.empty).:+(exportMrn))
               )
             )
           )
@@ -862,7 +863,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     payeeType: Option[PayeeType] = None,
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    exportMovementReferenceNumber: Option[MRN] =
+    exportMovementReferenceNumber: Option[Seq[MRN]] =
       None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration,
     temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -892,7 +893,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument],
     temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal],
-    exportMovementReferenceNumber: Option[MRN]
+    exportMovementReferenceNumber: Option[Seq[MRN]]
   )
 
   import JourneyValidationErrors._
@@ -995,7 +996,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
       .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
-      .flatMapWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
+      .flatMapEachWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
