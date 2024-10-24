@@ -33,13 +33,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 
 object SecuritiesCdsDisplayDeclarationSummary {
-//
-//  def apply(
-//    declaration: DisplayDeclaration,
-//    key: String
-//  )(implicit
-//    messages: Messages
-//  ): SummaryList = buildSummaryList(declaration, key)
 
   def apply(
     declaration: DisplayDeclaration,
