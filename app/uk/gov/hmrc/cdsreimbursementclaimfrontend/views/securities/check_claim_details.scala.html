@@ -51,9 +51,9 @@
             reclaims,
             displayDeclaration,
             s"check-your-answers.claim-for-security",
-            routes.ConfirmFullRepaymentController.show,
-            routes.SelectDutiesController.show,
-            routes.EnterClaimController.show
+            Some(routes.ConfirmFullRepaymentController.show),
+            Some(routes.SelectDutiesController.show),
+            Some(routes.EnterClaimController.show)
         ))
     }
 

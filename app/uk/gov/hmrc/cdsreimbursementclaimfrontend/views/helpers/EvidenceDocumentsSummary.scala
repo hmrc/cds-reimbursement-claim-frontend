@@ -73,7 +73,7 @@ object EvidenceDocumentsSummary {
   def forSecurities(
     answers: Seq[EvidenceDocument],
     key: String,
-    changeCall: Call
+    changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -89,7 +89,7 @@ object EvidenceDocumentsSummary {
               ).toString
             )
           ),
-          actions = Some(
+          actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(

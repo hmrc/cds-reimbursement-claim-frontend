@@ -1,0 +1,142 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Value
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+
+@this(
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+)
+
+@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPdf: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"check-your-answers"}
+
+@displayDeclarationOpt.map { displayDeclaration =>
+    @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
+    @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
+        displayDeclaration,
+        s"check-your-answers.declaration-details",
+        if(isPdf) None else Some(routes.EnterMovementReferenceNumberController.show),
+        if(isPdf) None else Some(routes.ChooseReasonForSecurityController.show)
+    ).rows ++
+            SecuritiesSelectionSummary(
+                claim.securitiesReclaims,
+                displayDeclaration,
+                key,
+                if(isPdf) None else Some(routes.SelectSecuritiesController.show)
+            ).rows ++
+            PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPdf) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
+            (
+                    if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
+                        Seq.empty[SummaryListRow]
+                    } else {
+                        Seq(
+                            SummaryListRow(
+                                key = Key(Text(messages(s"check-your-answers.payment-method.label"))),
+                                value = Value(Text(
+                                    messages(
+                                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet)) {
+                                            s"check-your-answers.payment-method.guarantee"
+                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(claim.securitiesReclaims.keySet)) {
+                                            s"check-your-answers.payment-method.bt"
+                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(claim.securitiesReclaims.keySet)) {
+                                            s"check-your-answers.payment-method.cash-account"
+                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(claim.securitiesReclaims.keySet)) {
+                                            s"check-your-answers.payment-method.duty-deferment"
+                                        } else {
+                                            s"check-your-answers.payment-method.unknown"
+                                        }
+                            ))))
+                        )
+                    }
+                    )))
+}
+
+@exportDeclarationMrnOpt.map { exportDeclarationMrns =>
+    @subHeading(Html(messages(s"check-your-answers.export-declaration-details.h2")))
+    @summary(SummaryList(exportDeclarationMrns.map(exportDeclarationMrn => SummaryListRow(
+        key = Key(HtmlContent(messages(s"check-your-answers.export-declaration-details.mrn"))),
+        value = Value(Text(exportDeclarationMrn.value)),
+        actions = if(isPdf) None else Some(Actions(
+            items = Seq(ActionItem(
+                href = routes.EnterExportMovementReferenceNumberController.show.url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"check-your-answers.export-declaration-details.mrn"))
+            ))))
+    ))))
+}
+
+@subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
+@summary(
+    if(isPdf)
+        ClaimantInformationSummary(
+            claimantInformation = claim.claimantInformation,
+            key = s"check-your-answers.contact-information"
+        )
+    else
+        ClaimantInformationSummary(
+            claimantInformation = claim.claimantInformation,
+            key = s"check-your-answers.contact-information",
+            changeContactDetailsCall = routes.EnterContactDetailsController.show,
+            changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF)
+        )
+)
+
+@displayDeclarationOpt.map { displayDeclaration =>
+    @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
+        @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", securityDepositId)))
+        @summary(SecuritiesReclaimDetailsSummary(
+            securityDepositId,
+            reclaims,
+            displayDeclaration,
+            s"check-your-answers.claim-for-security",
+            if(isPdf) None else Some(routes.ConfirmFullRepaymentController.show),
+            if(isPdf) None else Some(routes.SelectDutiesController.show),
+            if(isPdf) None else Some(routes.EnterClaimController.show)
+        ))
+    }
+}
+
+@claim.bankAccountDetails.map { bankAccountDetails =>
+    @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
+    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.BankDetailsChangeLetterOfAuthorityController.show)))
+}
+
+@subHeading(Html(messages(s"check-your-answers.documents.h2")))
+@summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
+
+

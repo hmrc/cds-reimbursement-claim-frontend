@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -716,6 +717,11 @@ final class OverpaymentsMultipleJourney private (
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
+          newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
+                                   case (IncorrectEoriAndDan, Some(newEori), Some(newDan)) =>
+                                     Some(NewEoriAndDan(newEori, newDan.value))
+                                   case _                                                  => None
+                                 }
         } yield OverpaymentsMultipleJourney.Output(
           movementReferenceNumbers = mrns,
           claimantType = getClaimantType,
@@ -726,7 +732,8 @@ final class OverpaymentsMultipleJourney private (
           reimbursementClaims = OrderedMap(getReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
-          bankAccountDetails = answers.bankAccountDetails
+          bankAccountDetails = answers.bankAccountDetails,
+          newEoriAndDan = newEoriAndDan
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -784,7 +791,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
     reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
+    supportingEvidences: Seq[EvidenceDocument],
+    newEoriAndDan: Option[NewEoriAndDan]
   )
 
   import com.github.arturopala.validator.Validator._
