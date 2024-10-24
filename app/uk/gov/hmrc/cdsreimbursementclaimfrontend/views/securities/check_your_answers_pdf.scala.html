@@ -38,7 +38,7 @@
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 
@@ -55,9 +55,9 @@
         )
     }
 
-    @exportDeclarationMrnOpt.map { exportDeclarationMrn =>
+    @exportDeclarationMrnOpt.map { exportDeclarationMrns =>
         @subHeading(Html(messages(s"check-your-answers.export-declaration-details.h2")))
-        @summary(SummaryList(Seq(SummaryListRow(
+        @summary(SummaryList(exportDeclarationMrns.map(exportDeclarationMrn => SummaryListRow(
             key = Key(HtmlContent(messages(s"check-your-answers.export-declaration-details.mrn"))),
             value = Value(Text(exportDeclarationMrn.value))
         ))))
