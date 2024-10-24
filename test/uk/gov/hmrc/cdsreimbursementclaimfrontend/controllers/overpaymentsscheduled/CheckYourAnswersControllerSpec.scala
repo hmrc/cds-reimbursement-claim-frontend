@@ -117,8 +117,7 @@ class CheckYourAnswersControllerSpec
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact information for this claim".expectedAlways,
-      "Basis for claim".expectedAlways,
-      "Reason for claim".expectedAlways,
+      "Claim details".expectedAlways,
       "Total repayment claim for all MRNs".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
@@ -146,26 +145,28 @@ class CheckYourAnswersControllerSpec
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Importer name"                      -> declaration.flatMap(_.consigneeName),
-          "Importer email"                     -> declaration.flatMap(_.consigneeEmail),
-          "Importer telephone"                 -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                   -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
-          "Declarant name"                     -> declaration.map(_.declarantName),
-          "Declarant address"                  -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
-          "Contact details"                    -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"                    -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "This is the basis behind the claim" -> Some(
+          "Importer name"                -> declaration.flatMap(_.consigneeName),
+          "Importer email"               -> declaration.flatMap(_.consigneeEmail),
+          "Importer telephone"           -> declaration.flatMap(_.consigneeTelephone),
+          "Importer address"             -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
+          "Declarant name"               -> declaration.map(_.declarantName),
+          "Declarant address"            -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
+          "Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "Basis of claim"               -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "This is the reason for the claim"   -> Some(claim.additionalDetails),
-          "EU Duty"                            -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "UK Duty"                            -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Excise Duty"                        -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Total"                              -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                           -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"                -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                          -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"                     -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
+          "Additional claim information" -> Some(claim.additionalDetails),
+          "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
+          "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
+          "EU Duty"                      -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "UK Duty"                      -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Excise Duty"                  -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
+          "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
+          "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
         )
     )
   }

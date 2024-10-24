@@ -33,106 +33,112 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 
 object SecuritiesCdsDisplayDeclarationSummary {
+//
+//  def apply(
+//    declaration: DisplayDeclaration,
+//    key: String
+//  )(implicit
+//    messages: Messages
+//  ): SummaryList = buildSummaryList(declaration, key)
 
   def apply(
     declaration: DisplayDeclaration,
     key: String,
-    mrnChangeCall: Call,
-    rfsChangeCall: Call
-  )(implicit
-    messages: Messages
-  ): SummaryList = SummaryList(
-    Seq(
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.securities.mrn-label"))),
-        value = Value(Text(declaration.displayResponseDetail.declarationId)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = mrnChangeCall.url,
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.mrn-label"))
-              )
-            )
-          )
-        )
-      ).some,
-      declaration.getMaybeLRN match {
-        case Some(lrn) =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.securities.lrn-label"))),
-            value = Value(Text(lrn))
-          ).some
-        case _         => None
-      },
-      declaration.consigneeName.map { name =>
+    mrnChangeCallOpt: Option[Call],
+    rfsChangeCallOpt: Option[Call]
+  )(implicit messages: Messages) =
+    SummaryList(
+      Seq(
         SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
-          value = Value(Text(name))
-        )
-      },
-      declaration.consigneeEmail.map { email =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
-          value = Value(Text(email))
-        )
-      },
-      declaration.consigneeTelephone.map { telephone =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
-          value = Value(Text(telephone))
-        )
-      },
-      declaration.consigneeAddress.map { address =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
-          value = Value(HtmlContent(address))
-        )
-      },
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
-        value = Value(Text(declaration.declarantName))
-      ).some,
-      declaration.declarantContactAddress.map { address =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
-          value = Value(HtmlContent(address))
-        )
-      },
-      declaration.getReasonForSecurity.map(rfs =>
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.reason-for-security-label"))),
-          value = Value(Text(messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          actions = Some(
+          key = Key(HtmlContent(messages(s"$key.securities.mrn-label"))),
+          value = Value(Text(declaration.displayResponseDetail.declarationId)),
+          actions = mrnChangeCallOpt.map(mrnChangeCall =>
             Actions(
               items = Seq(
                 ActionItem(
-                  href = rfsChangeCall.url,
+                  href = mrnChangeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.reason-for-security-label"))
+                  visuallyHiddenText = Some(messages(s"$key.mrn-label"))
                 )
               )
             )
           )
-        )
-      ),
-      DateUtils
-        .displayFormat(declaration.displayResponseDetail.acceptanceDate)
-        .map(formattedDate =>
+        ).some,
+        declaration.getMaybeLRN match {
+          case Some(lrn) =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.securities.lrn-label"))),
+              value = Value(Text(lrn))
+            ).some
+          case _         => None
+        },
+        declaration.consigneeName.map { name =>
           SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.acceptance-date-label"))),
-            value = Value(Text(toDisplayDate(formattedDate)))
+            key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
+            value = Value(Text(name))
+          )
+        },
+        declaration.consigneeEmail.map { email =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
+            value = Value(Text(email))
+          )
+        },
+        declaration.consigneeTelephone.map { telephone =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
+            value = Value(Text(telephone))
+          )
+        },
+        declaration.consigneeAddress.map { address =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
+            value = Value(HtmlContent(address))
+          )
+        },
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
+          value = Value(Text(declaration.declarantName))
+        ).some,
+        declaration.declarantContactAddress.map { address =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
+            value = Value(HtmlContent(address))
+          )
+        },
+        declaration.getReasonForSecurity.map(rfs =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.reason-for-security-label"))),
+            value = Value(Text(messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
+            actions = rfsChangeCallOpt.map(rfsChangeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = rfsChangeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-for-security-label"))
+                  )
+                )
+              )
+            )
           )
         ),
-      DateUtils
-        .displayFormat(declaration.displayResponseDetail.btaDueDate)
-        .map(formattedDate =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.bta-due-date-label"))),
-            value = Value(Text(toDisplayDate(formattedDate)))
+        DateUtils
+          .displayFormat(declaration.displayResponseDetail.acceptanceDate)
+          .map(formattedDate =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.acceptance-date-label"))),
+              value = Value(Text(toDisplayDate(formattedDate)))
+            )
+          ),
+        DateUtils
+          .displayFormat(declaration.displayResponseDetail.btaDueDate)
+          .map(formattedDate =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.bta-due-date-label"))),
+              value = Value(Text(toDisplayDate(formattedDate)))
+            )
           )
-        )
-    ).flatMap(_.toList)
-  )
+      ).flatMap(_.toList)
+    )
 }

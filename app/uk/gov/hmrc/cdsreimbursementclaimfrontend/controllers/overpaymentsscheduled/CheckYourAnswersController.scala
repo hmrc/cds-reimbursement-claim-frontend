@@ -23,6 +23,7 @@ import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -53,7 +54,7 @@ class CheckYourAnswersController @Inject() (
   auditService: AuditService,
   featureSwitchService: FeatureSwitchService,
   pdfGenerator: PdfGenerator
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends OverpaymentsScheduledJourneyBaseController {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
@@ -177,20 +178,24 @@ class CheckYourAnswersController @Inject() (
                 Redirect(routeForValidationErrors(errors)).asFuture
               },
               output =>
-                journey.caseNumber match {
-                  case Some(caseNumber) =>
+                (journey.caseNumber, journey.submissionDateTime) match {
+                  case (Some(caseNumber), Some(submissionDate)) =>
                     pdfGenerator
                       .ok(
                         checkYourAnswersPagePdf(
                           caseNumber,
                           journey.getTotalReimbursementAmount,
                           output,
-                          journey.getLeadDisplayDeclaration
+                          journey.getLeadDisplayDeclaration,
+                          journey.isSubsidyOnlyJourney,
+                          submissionDate
                         ),
                         selfUrl
                       )
                       .asFuture
-                  case None             => Redirect(checkYourAnswers).asFuture
+                  case _                                        =>
+                    logger.warn("Error fetching journey for PDF generation")
+                    errorHandler.errorResult().asFuture
                 }
             )
           )

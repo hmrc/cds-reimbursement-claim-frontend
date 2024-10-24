@@ -35,7 +35,8 @@ object ClaimDetailsSummary {
     newEoriAndDanOpt: Option[NewEoriAndDan]
   )(implicit
     messages: Messages
-  ): SummaryList =
+  ): SummaryList = {
+    val isPdf = additionalDetailsChangeCallOpt.isEmpty && basisOfClaimChangeCallOpt.isEmpty
     SummaryList(
       Seq(
         Some(
@@ -63,17 +64,20 @@ object ClaimDetailsSummary {
             value = Value(
               HtmlContent(newEoriAndDan.eori.value)
             ),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = routes.EnterNewEoriNumberController.show.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.new-eori"))
+            actions =
+              if (isPdf) None
+              else
+                Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = routes.EnterNewEoriNumberController.show.url,
+                        content = Text(messages("cya.change")),
+                        visuallyHiddenText = Some(messages("check-your-answers.new-eori"))
+                      )
+                    )
                   )
                 )
-              )
-            )
           )
         },
         newEoriAndDanOpt.map { newEoriAndDan =>
@@ -82,17 +86,20 @@ object ClaimDetailsSummary {
             value = Value(
               HtmlContent(newEoriAndDan.dan)
             ),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = routes.EnterNewDanController.show.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.new-dan"))
+            actions =
+              if (isPdf) None
+              else
+                Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = routes.EnterNewDanController.show.url,
+                        content = Text(messages("cya.change")),
+                        visuallyHiddenText = Some(messages("check-your-answers.new-dan"))
+                      )
+                    )
                   )
                 )
-              )
-            )
           )
         },
         Some(
@@ -116,4 +123,5 @@ object ClaimDetailsSummary {
         )
       ).flatten
     )
+  }
 }

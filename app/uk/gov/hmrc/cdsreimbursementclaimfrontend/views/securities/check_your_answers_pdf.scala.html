@@ -30,60 +30,26 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_common
+@import java.time.LocalDateTime
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        cyaCommon: check_your_answers_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 
 @layout() {
 
-    @heading(Html(messages("check-your-answers.pdf.title", caseNumber)))
+    @heading(Html(messages("check-your-answers.pdf.title")))
 
-    @summary(CheckYourAnswersPdfHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString))
+    @summary(CheckYourAnswersPdfHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString, submissionDate = submissionDate))
 
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-        @summary(
-            CheckYourAnswersPdfHelper.renderDeclarationDetailsForSecurities(displayDeclaration, claim, "check-your-answers.declaration-details")
-        )
-    }
-
-    @exportDeclarationMrnOpt.map { exportDeclarationMrn =>
-        @subHeading(Html(messages(s"check-your-answers.export-declaration-details.h2")))
-        @summary(SummaryList(Seq(SummaryListRow(
-            key = Key(HtmlContent(messages(s"check-your-answers.export-declaration-details.mrn"))),
-            value = Value(Text(exportDeclarationMrn.value))
-        ))))
-    }
-
-    @subHeading(Html(messages("check-your-answers.pdf.contact-details.header")))
-    @summary(CheckYourAnswersPdfHelper.renderContactInformationCommon(claim.claimantInformation, "check-your-answers.pdf"))
-
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
-            @subHeading(Html(messages(s"check-your-answers.pdf.security-deposit.h2", securityDepositId)))
-            @summary(CheckYourAnswersPdfHelper.renderSecurityDeposit(
-                securityDepositId,
-                reclaims,
-                displayDeclaration,
-                s"check-your-answers"
-            ))
-        }
-    }
-
-    @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(CheckYourAnswersPdfHelper.renderBankDetails(bankAccountDetails, s"check-your-answers.bank-details"))
-    }
-
-    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-    @summary(CheckYourAnswersPdfHelper.renderEvidenceForSecurities(claim.supportingEvidences))
-
+    @cyaCommon(claim, displayDeclarationOpt, exportDeclarationMrnOpt, isPdf = true)
 }

@@ -34,6 +34,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_common
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -44,7 +45,8 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         warning: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText,
-        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+        cyaCommon: check_your_answers_common
 )
 
 @(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[MRN], postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -61,91 +63,7 @@
 
     @heading(Html(title))
 
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-        @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
-            displayDeclaration,
-            s"check-your-answers.declaration-details",
-            routes.EnterMovementReferenceNumberController.show,
-            routes.ChooseReasonForSecurityController.show
-        ).rows ++
-                SecuritiesSelectionSummary(
-                    claim.securitiesReclaims,
-                    displayDeclaration,
-                    key,
-                    routes.SelectSecuritiesController.show
-                ).rows ++
-                PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)).rows ++
-                (
-                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
-                            Seq.empty[SummaryListRow]
-                        } else {
-                            Seq(
-                                SummaryListRow(
-                                    key = Key(Text(messages(s"check-your-answers.payment-method.label"))),
-                                    value = Value(Text(
-                                        messages(
-                                            if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet)) {
-                                                s"check-your-answers.payment-method.guarantee"
-                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(claim.securitiesReclaims.keySet)) {
-                                                s"check-your-answers.payment-method.bt"
-                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(claim.securitiesReclaims.keySet)) {
-                                                s"check-your-answers.payment-method.cash-account"
-                                            } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(claim.securitiesReclaims.keySet)) {
-                                                s"check-your-answers.payment-method.duty-deferment"
-                                            } else {
-                                                s"check-your-answers.payment-method.unknown"
-                                            }
-                                ))))
-                            )
-                        }
-                        )))
-    }
-
-    @exportDeclarationMrnOpt.map { exportDeclarationMrn =>
-        @subHeading(Html(messages(s"check-your-answers.export-declaration-details.h2")))
-        @summary(SummaryList(Seq(SummaryListRow(
-            key = Key(HtmlContent(messages(s"check-your-answers.export-declaration-details.mrn"))),
-            value = Value(Text(exportDeclarationMrn.value)),
-            actions = Some(Actions(
-                items = Seq(ActionItem(
-                    href = routes.EnterExportMovementReferenceNumberController.show.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"check-your-answers.export-declaration-details.mrn"))
-                ))))
-        ))))
-    }
-
-    @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(ClaimantInformationSummary(
-        claimantInformation = claim.claimantInformation,
-        key = s"check-your-answers.contact-information",
-        changeContactDetailsCall = routes.EnterContactDetailsController.show,
-        changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF)
-    ))
-
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
-            @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", securityDepositId)))
-            @summary(SecuritiesReclaimDetailsSummary(
-                securityDepositId,
-                reclaims,
-                displayDeclaration,
-                s"check-your-answers.claim-for-security",
-                routes.ConfirmFullRepaymentController.show,
-                routes.SelectDutiesController.show,
-                routes.EnterClaimController.show
-            ))
-        }
-    }
-
-    @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.BankDetailsChangeLetterOfAuthorityController.show)))
-    }
-
-    @subHeading(Html(messages(s"check-your-answers.documents.h2")))
-    @summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"check-your-answers.attached-documents", routes.UploadFilesController.summary))
+    @cyaCommon(claim, displayDeclarationOpt, exportDeclarationMrnOpt, isPdf = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

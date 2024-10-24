@@ -379,7 +379,7 @@ check-your-answers.claim-details=Claim details
 check-your-answers.new-eori=New EORI
 check-your-answers.new-dan=New deferment account number
 
-check-your-answers.pdf.title=Submitted claim - {0}
+check-your-answers.pdf.title=Your application details
 check-your-answers.pdf.amount-requested=Amount requested
 check-your-answers.pdf.claim-reference-number=Claim reference number
 check-your-answers.pdf.mrn=MRN
@@ -412,6 +412,7 @@ check-your-answers.pdf.tax-collection-date=Tax collection date
 check-your-answers.pdf.claim-for-security.total=Total value of selected security deposit IDs
 check-your-answers.pdf.security-deposit.h2=Security deposit ID: {0}
 check-your-answers.pdf.selected-charges=Selected charges
+check-your-answers.pdf.submitted=Submitted
 
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
@@ -866,6 +867,14 @@ cya.remove=Remove
 date.day=Day
 date.month=Month
 date.year=Year
+
+day-of-week.1=Monday
+day-of-week.2=Tuesday
+day-of-week.3=Wednesday
+day-of-week.4=Thursday
+day-of-week.5=Friday
+day-of-week.6=Saturday
+day-of-week.7=Sunday
 
 declaration-not-found.already-paid=If your shipment has an entry number and you paid security deposit to HMRC, you can <a class="govuk-link" rel="noreferrer noopener" href="{0}">make a claim for a refund here</a>
 declaration-not-found.because=This may be because:
@@ -1478,7 +1487,7 @@ select-basis-for-claim.IncorrectEoriAndDan.bullet=Incorrect EORI and deferment a
 select-basis-for-claim.IncorrectEoriAndDan.description=A claim made when a trader enters a wrong EORI and deferment account number
 select-basis-for-claim.error.number=Select the reason for making this claim
 select-basis-for-claim.error.required=Select the reason for making this claim
-select-basis-for-claim.heading=Examples of basis of claim
+select-basis-for-claim.heading=Examples of reasons for making a claim
 select-basis-for-claim.help-text=Select one option from list.
 select-basis-for-claim.reason.DuplicateEntry=Duplicate Movement Reference Number (MRN)
 select-basis-for-claim.reason.DutySuspension=Duty suspension

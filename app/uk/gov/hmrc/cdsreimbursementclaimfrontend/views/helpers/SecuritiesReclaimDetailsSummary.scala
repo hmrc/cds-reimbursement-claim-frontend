@@ -40,9 +40,9 @@ object SecuritiesReclaimDetailsSummary {
     reclaims: SortedMap[TaxCode, BigDecimal],
     declaration: DisplayDeclaration,
     key: String,
-    fullAmountChangeCall: String => Call,
-    dutiesSelectionChangeCall: String => Call,
-    reclaimAmountChangeCall: (String, TaxCode) => Call
+    fullAmountChangeCallOpt: Option[String => Call],
+    dutiesSelectionChangeCallOpt: Option[String => Call],
+    reclaimAmountChangeCallOpt: Option[(String, TaxCode) => Call]
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
@@ -59,7 +59,7 @@ object SecuritiesReclaimDetailsSummary {
             )
           )
         ),
-        actions = Some(
+        actions = fullAmountChangeCallOpt.map(fullAmountChangeCall =>
           Actions(
             items = Seq(
               ActionItem(
@@ -86,7 +86,7 @@ object SecuritiesReclaimDetailsSummary {
               .mkString("<br>")
           )
         ),
-        actions = Some(
+        actions = dutiesSelectionChangeCallOpt.map(dutiesSelectionChangeCall =>
           Actions(
             items = Seq(
               ActionItem(
@@ -108,7 +108,7 @@ object SecuritiesReclaimDetailsSummary {
       SummaryListRow(
         key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
         value = Value(Text(amount.toPoundSterlingString)),
-        actions = Some(
+        actions = reclaimAmountChangeCallOpt.map(reclaimAmountChangeCall =>
           Actions(
             items = Seq(
               ActionItem(

@@ -92,7 +92,7 @@
                 correctedAmounts,
                 displayDeclaration,
                 "check-your-answers",
-                routes.SelectSecuritiesController.show,
+                Some(routes.SelectSecuritiesController.show),
                 showTotalSecuritiesPaidAmount = true
             ).rows ++
             (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(correctedAmounts.keySet)) {

@@ -30,7 +30,10 @@ object DateFormatter {
 
   def parseYyyyMmDdToDisplayDate(dateString: String)(implicit messages: Messages): String = {
     val date = LocalDate.parse(dateString)
-    s"${date.getDayOfMonth} ${messages(s"month.${date.getMonth.name().toLowerCase(Locale.ENGLISH)}")} ${date.getYear}"
+    toDisplayDate(date)
   }
+
+  def toDisplayDate(date: LocalDate)(implicit messages: Messages): String =
+    s"${date.getDayOfMonth} ${messages(s"month.${date.getMonth.name().toLowerCase(Locale.ENGLISH)}")} ${date.getYear}"
 
 }

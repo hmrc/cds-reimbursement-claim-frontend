@@ -28,6 +28,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single_common
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,7 +38,8 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+    cyaCommon: check_your_answers_single_common
 )
 
 @(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
@@ -52,32 +54,8 @@
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
 
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"check-your-answers.declaration-details", showImportMrn = false))
-    }
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isSubsidy, displayDeclarationOpt, subKey, isPdf = false)
 
-    @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF)))
-    
-    @subHeading(Html(messages(s"check-your-answers.claim-details")))
-    @summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, Some(routes.BasisForClaimController.show), Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan))
-
-    @subHeading(Html(messages(combine(s"check-your-answers.claim-calculation", subKey, "h2"))))
-    @summary(ClaimedReimbursementsAnswerSummary.fromReimbursementClaims(claim.reimbursements, Some(routes.CheckClaimDetailsController.show)))
-
-    @subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
-    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)))
-    @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"check-your-answers.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
-
-    @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.CheckBankDetailsController.show)))
-    }
-
-    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", Some(routes.UploadFilesController.summary)))
-    
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 

@@ -34,7 +34,7 @@ object SecuritiesSelectionSummary {
     correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     declaration: DisplayDeclaration,
     key: String,
-    changeCall: String => Call,
+    changeCallOpt: Option[String => Call],
     showTotalSecuritiesPaidAmount: Boolean = false
   )(implicit
     messages: Messages
@@ -52,7 +52,7 @@ object SecuritiesSelectionSummary {
             )
           )
         ),
-        actions = Some(
+        actions = changeCallOpt.map(changeCall =>
           Actions(
             items = Seq(
               ActionItem(

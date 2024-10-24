@@ -27,40 +27,24 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple_common
+@import java.time.LocalDateTime
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    cyaCommon: check_your_answers_multiple_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration])(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
 
-    @heading(Html(messages("check-your-answers.pdf.title", caseNumber)))
+    @heading(Html(messages("check-your-answers.pdf.title")))
 
-    @summary(CheckYourAnswersPdfHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers))
+    @summary(CheckYourAnswersPdfHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers, submissionDate))
 
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-        @summary(CheckYourAnswersPdfHelper.renderDeclarationDetails(displayDeclaration, "check-your-answers.declaration-details"))
-    }
-
-    @subHeading(Html(messages("check-your-answers.pdf.contact-details.header")))
-    @summary(CheckYourAnswersPdfHelper.renderContactInformationCommon(claim.claimantInformation, "check-your-answers.pdf"))
-
-    @subHeading(Html(messages("check-your-answers.pdf.basis-of-claim-details.header")))
-    @summary(CheckYourAnswersPdfHelper.renderBasisOfClaimDetails(claim.basisOfClaim, claim.additionalDetails, "check-your-answers.pdf"))
-
-    @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-    @summary(CheckYourAnswersPdfHelper.renderClaimTotalsForMultiple(claim.reimbursementClaims, s"check-your-answers.claim-total"))
-
-    @subHeading(Html(messages("check-your-answers.reimbursement-method.h2")))
-    @summary(CheckYourAnswersPdfHelper.renderRepaymentDetails(claim.payeeType, claim.reimbursementMethod))
-
-    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", None))
-
+    @cyaCommon(claim, displayDeclarationOpt, isSubsidy, isPdf = true)
 }

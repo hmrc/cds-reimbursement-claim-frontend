@@ -35,6 +35,14 @@ object ClaimantInformationSummary {
 
   def apply(
     claimantInformation: ClaimantInformation,
+    key: String
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    buildSummaryList(key, getContactDataHtml(claimantInformation), getAddressDataHtml(claimantInformation))
+
+  def apply(
+    claimantInformation: ClaimantInformation,
     key: String,
     changeContactDetailsCall: Call,
     changeContactAddressCall: Option[Call]
@@ -70,6 +78,18 @@ object ClaimantInformationSummary {
       )
     }
 
+    buildSummaryList(key, contactData, addressData, contactAction, addressAction)
+  }
+
+  private def buildSummaryList(
+    key: String,
+    contactData: List[HtmlFormat.Appendable],
+    addressData: List[HtmlFormat.Appendable],
+    contactAction: Option[Actions] = None,
+    addressAction: Option[Actions] = None
+  )(implicit
+    messages: Messages
+  ) =
     SummaryList(
       Seq(
         SummaryListRow(
@@ -84,7 +104,6 @@ object ClaimantInformationSummary {
         )
       )
     )
-  }
 
   def getContactDataHtml(claimantInformation: ClaimantInformation): List[HtmlFormat.Appendable] = {
     val contactInformation = claimantInformation.contactInformation

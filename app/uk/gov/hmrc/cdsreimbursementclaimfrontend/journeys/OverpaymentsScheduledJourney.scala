@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -407,6 +408,11 @@ final class OverpaymentsScheduledJourney private (
           scheduledDocument   <- answers.scheduledDocument
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
+          newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
+                                   case (IncorrectEoriAndDan, Some(newEori), Some(newDan)) =>
+                                     Some(NewEoriAndDan(newEori, newDan.value))
+                                   case _                                                  => None
+                                 }
         } yield OverpaymentsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
@@ -418,7 +424,8 @@ final class OverpaymentsScheduledJourney private (
           reimbursementClaims = getReimbursementClaims,
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
-          bankAccountDetails = answers.bankAccountDetails
+          bankAccountDetails = answers.bankAccountDetails,
+          newEoriAndDan = newEoriAndDan
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -477,7 +484,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
     reimbursementMethod: ReimbursementMethod,
     bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
+    supportingEvidences: Seq[EvidenceDocument],
+    newEoriAndDan: Option[NewEoriAndDan]
   )
 
   import JourneyValidationErrors._

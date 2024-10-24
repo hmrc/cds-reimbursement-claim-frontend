@@ -125,7 +125,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           ),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = Some(exampleBankAccountDetails),
-          supportingEvidences = exampleSupportingEvidences
+          supportingEvidences = exampleSupportingEvidences,
+          newEoriAndDan = None
         )
 
       val log =
@@ -187,7 +188,8 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
           ),
           reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails = Some(exampleBankAccountDetails),
-          supportingEvidences = exampleSupportingEvidences
+          supportingEvidences = exampleSupportingEvidences,
+          newEoriAndDan = None
         )
 
       val log =
