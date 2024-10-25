@@ -98,7 +98,8 @@ class ChooseExportMethodController @Inject() (
                   updatedJourney =>
                     methodOfDisposal match {
                       case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
-                          TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments =>
+                          TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments |
+                          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
                         (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show))
                       case _ =>
                         (

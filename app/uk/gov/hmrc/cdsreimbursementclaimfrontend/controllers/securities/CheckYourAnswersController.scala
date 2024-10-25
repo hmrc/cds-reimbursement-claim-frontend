@@ -80,7 +80,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.answers.displayDeclaration,
-                  journey.answers.exportMovementReferenceNumber,
+                  journey.answers.exportMovementReferenceNumbers,
                   postAction,
                   showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
                 )
@@ -182,7 +182,7 @@ class CheckYourAnswersController @Inject() (
                           journey.getTotalReclaimAmount,
                           output,
                           journey.answers.displayDeclaration,
-                          journey.answers.exportMovementReferenceNumber,
+                          journey.answers.exportMovementReferenceNumbers,
                           submissionDate
                         ),
                         selfUrl

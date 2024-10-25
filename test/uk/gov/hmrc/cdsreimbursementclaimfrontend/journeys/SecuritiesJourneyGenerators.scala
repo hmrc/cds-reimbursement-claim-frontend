@@ -334,7 +334,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       rfs                         <- genReasonForSecurity
       methodOfDisposal            <-
         if (ReasonForSecurity.ntas.contains(rfs))
-          Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values).map(Some.apply)
+          Gen.oneOf(TemporaryAdmissionMethodOfDisposal.selectableValues).map(Some.apply)
         else Gen.const(None)
       exportMrns                  <-
         if (
@@ -421,7 +421,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           payeeType = Some(payeeType),
           similarClaimExistAlreadyInCDFPay = Some(false),
           eoriNumbersVerification = eoriNumbersVerification,
-          exportMovementReferenceNumber = exportMrns,
+          exportMovementReferenceNumbers = exportMrns,
           temporaryAdmissionMethodOfDisposal = methodOfDisposal,
           contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
           contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
