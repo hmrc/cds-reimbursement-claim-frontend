@@ -412,7 +412,7 @@ check-your-answers.pdf.tax-collection-date=Tax collection date
 check-your-answers.pdf.claim-for-security.total=Total value of selected security deposit IDs
 check-your-answers.pdf.security-deposit.h2=Security deposit ID: {0}
 check-your-answers.pdf.selected-charges=Selected charges
-check-your-answers.pdf.submitted=Submitted
+check-your-answers.pdf.submitted=SubmittedExportedInSingleOrMultipleShipments
 
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
@@ -434,6 +434,7 @@ choose-export-method.export-method-description.DeclaredToFreeCirculation=Declare
 choose-export-method.export-method-description.DeclaredToInwardProcessingRelief=Declared to Inward Processing Relief
 choose-export-method.export-method-description.DeclaredToOtherTraderUnderTemporaryAdmission=Declared to other trader under temporary admission
 choose-export-method.export-method-description.Destroyed=Destroyed
+choose-export-method.export-method-description.ExportedInSingleOrMultipleShipments=Exported in single or multiple shipments
 choose-export-method.export-method-description.ExportedInMultipleShipments=Exported in multiple shipments
 choose-export-method.export-method-description.ExportedInSingleShipment=Exported in single shipment
 choose-export-method.export-method-description.MultipleDisposalMethodsWereUsed=More than one of the above

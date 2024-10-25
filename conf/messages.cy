@@ -404,6 +404,7 @@ choose-export-method.export-method-description.DeclaredToFreeCirculation=Wedi’
 choose-export-method.export-method-description.DeclaredToInwardProcessingRelief=Wedi’u datgan i Ryddhad Prosesu Mewnol
 choose-export-method.export-method-description.DeclaredToOtherTraderUnderTemporaryAdmission=Wedi’u datgan i fasnachwr arall o dan fynediad dros dro
 choose-export-method.export-method-description.Destroyed=Wedi’u difetha
+choose-export-method.export-method-description.ExportedInSingleOrMultipleShipments=Wedi’u hallforio mewn llwyth sengl neu sawl llwyth
 choose-export-method.export-method-description.ExportedInMultipleShipments=Wedi’u hallforio mewn sawl llwyth
 choose-export-method.export-method-description.ExportedInSingleShipment=Wedi’u hallforio mewn un llwyth
 choose-export-method.export-method-description.MultipleDisposalMethodsWereUsed=Mwy nag un o’r uchod

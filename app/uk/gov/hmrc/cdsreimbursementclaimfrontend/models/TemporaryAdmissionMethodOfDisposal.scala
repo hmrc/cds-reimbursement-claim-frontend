@@ -24,6 +24,13 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
 
   case object ExportedInSingleShipment extends TemporaryAdmissionMethodOfDisposal
   case object ExportedInMultipleShipments extends TemporaryAdmissionMethodOfDisposal
+
+  /** WARNING: this combined export option shows only in a selector, should not be sent to the backend!
+    * @see ExportedInSingleShipment
+    * @see ExportedInMultipleShipments
+    */
+  case object ExportedInSingleOrMultipleShipments extends TemporaryAdmissionMethodOfDisposal
+
   case object DeclaredToOtherTraderUnderTemporaryAdmission extends TemporaryAdmissionMethodOfDisposal
   case object DeclaredToFreeCirculation extends TemporaryAdmissionMethodOfDisposal
   case object DeclaredToInwardProcessingRelief extends TemporaryAdmissionMethodOfDisposal
@@ -38,6 +45,21 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
     Set(
       ExportedInSingleShipment,
       ExportedInMultipleShipments,
+      ExportedInSingleOrMultipleShipments,
+      DeclaredToOtherTraderUnderTemporaryAdmission,
+      DeclaredToFreeCirculation,
+      DeclaredToInwardProcessingRelief,
+      DeclaredToEndUse,
+      DeclaredToAFreeZone,
+      DeclaredToACustomsWarehouse,
+      Destroyed,
+      Other,
+      MultipleDisposalMethodsWereUsed
+    )
+
+  val selectableValues: Set[TemporaryAdmissionMethodOfDisposal] =
+    Set(
+      ExportedInSingleOrMultipleShipments,
       DeclaredToOtherTraderUnderTemporaryAdmission,
       DeclaredToFreeCirculation,
       DeclaredToInwardProcessingRelief,
@@ -50,5 +72,5 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
     )
 
   val exportedMethodsOfDisposal: Set[TemporaryAdmissionMethodOfDisposal] =
-    Set(ExportedInSingleShipment, ExportedInMultipleShipments)
+    Set(ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments)
 }

@@ -409,8 +409,8 @@ final class SecuritiesJourney private (
           Right(
             this.copy(
               answers.copy(
-                exportMovementReferenceNumber =
-                  Some(answers.exportMovementReferenceNumber.getOrElse(Seq.empty).:+(exportMrn))
+                exportMovementReferenceNumbers =
+                  Some(answers.exportMovementReferenceNumbers.getOrElse(Seq.empty).:+(exportMrn))
               )
             )
           )
@@ -830,8 +830,18 @@ final class SecuritiesJourney private (
               answers.bankAccountDetails
             else None,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
-          temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal,
-          exportMovementReferenceNumber = answers.exportMovementReferenceNumber
+          temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal.map {
+            case TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
+              answers.exportMovementReferenceNumbers match {
+                case Some(exportMRNs) if exportMRNs.size > 1 =>
+                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+                case _                                       =>
+                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+              }
+
+            case other => other
+          },
+          exportMovementReferenceNumber = answers.exportMovementReferenceNumbers
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -863,7 +873,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     payeeType: Option[PayeeType] = None,
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    exportMovementReferenceNumber: Option[Seq[MRN]] =
+    exportMovementReferenceNumbers: Option[Seq[MRN]] =
       None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration,
     temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -940,8 +950,25 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     val hasExportMRNIfNeeded: Validate[SecuritiesJourney] =
       conditionally[SecuritiesJourney](
         _.needsExportMRNSubmission,
-        checkIsDefined(_.answers.exportMovementReferenceNumber, MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER),
-        checkIsEmpty(_.answers.exportMovementReferenceNumber, "unexpected export MRN, should be empty")
+        checkIsTrue(
+          _.answers.exportMovementReferenceNumbers.exists(_.nonEmpty),
+          MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER
+        ),
+        checkIsEmpty(_.answers.exportMovementReferenceNumbers, "unexpected export MRN, should be empty")
+      ) & whenTrue[SecuritiesJourney](
+        _.answers.temporaryAdmissionMethodOfDisposal
+          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment),
+        checkIsTrue(
+          _.answers.exportMovementReferenceNumbers.exists(_.size === 1),
+          EXPECTED_SINGLE_EXPORT_MOVEMENT_REFERENCE_NUMBER
+        )
+      ) & whenTrue[SecuritiesJourney](
+        _.answers.temporaryAdmissionMethodOfDisposal
+          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments),
+        checkIsTrue(
+          _.answers.exportMovementReferenceNumbers.exists(_.size > 1),
+          EXPECTED_MULTIPLE_EXPORT_MOVEMENT_REFERENCE_NUMBERS
+        )
       )
   }
 
@@ -996,7 +1023,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
       .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
-      .flatMapEachWhenDefined(answers.exportMovementReferenceNumber)(_.submitExportMovementReferenceNumber _)
+      .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers)(_.submitExportMovementReferenceNumber _)
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)

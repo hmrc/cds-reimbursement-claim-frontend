@@ -272,7 +272,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
           TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
         )
-        journey.answers.exportMovementReferenceNumber      shouldBe Some(Seq(exportMrn))
+        journey.answers.exportMovementReferenceNumbers     shouldBe Some(Seq(exportMrn))
       }
     }
 

@@ -30,8 +30,7 @@ object TemporaryAdmissionMethodOfDisposalSummary {
     form: Form[Option[TemporaryAdmissionMethodOfDisposal]]
   ): Seq[RadioItem] =
     List(
-      exportMethodItem(ExportedInSingleShipment),
-      exportMethodItem(ExportedInMultipleShipments),
+      exportMethodItem(ExportedInSingleOrMultipleShipments),
       exportMethodItem(DeclaredToOtherTraderUnderTemporaryAdmission),
       exportMethodItem(DeclaredToFreeCirculation),
       exportMethodItem(DeclaredToInwardProcessingRelief),

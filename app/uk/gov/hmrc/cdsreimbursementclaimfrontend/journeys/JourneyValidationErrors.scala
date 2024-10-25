@@ -41,6 +41,9 @@ object JourneyValidationErrors {
   val MISSING_NEW_EORI: String                         = "missingNewEori"
   val MISSING_NEW_DAN: String                          = "missingNewDan"
 
+  val EXPECTED_SINGLE_EXPORT_MOVEMENT_REFERENCE_NUMBER: String    = "expectedSingleExportMovementReferenceNumber"
+  val EXPECTED_MULTIPLE_EXPORT_MOVEMENT_REFERENCE_NUMBERS: String = "expectedMultipleExportMovementReferenceNumbers"
+
   val TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO: String              = "totalReimbursementAmountMustBeGreaterThanZero"
   val DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED: String                            =
     "declarantEoriNumberMustBeProvided if user's EORI is not matching those of ACC14 declarant or consignee"

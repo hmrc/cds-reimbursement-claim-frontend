@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number
@@ -65,15 +66,15 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   def show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
-      val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumber.flatMap(_.headOption))
+      val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumbers.flatMap(_.headOption))
       journey.getMethodOfDisposal match {
         case Some(mod) =>
           (mod match {
-            case ExportedInSingleShipment | ExportedInMultipleShipments =>
+            case ExportedInSingleShipment | ExportedInMultipleShipments | ExportedInSingleOrMultipleShipments =>
               (journey, getResultPage(journey, form, Ok))
-            case _                                                      =>
+            case _                                                                                            =>
               logger.error(
-                "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
+                "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
               )
               (journey, errorHandler.errorResult())
           }).asFuture
@@ -163,9 +164,10 @@ class EnterExportMovementReferenceNumberController @Inject() (
     journey.getMethodOfDisposal match {
       case Some(mod) =>
         mod match {
-          case ExportedInSingleShipment    => exportMovementReferenceNumberSingleForm
-          case ExportedInMultipleShipments => exportMovementReferenceNumberMultipleForm
-          case _                           => exportMovementReferenceNumberSingleForm
+          case ExportedInSingleShipment            => exportMovementReferenceNumberSingleForm
+          case ExportedInMultipleShipments         => exportMovementReferenceNumberMultipleForm
+          case ExportedInSingleOrMultipleShipments => exportMovementReferenceNumberSingleForm
+          case _                                   => exportMovementReferenceNumberSingleForm
         }
       case None      => exportMovementReferenceNumberSingleForm
     }
@@ -177,27 +179,29 @@ class EnterExportMovementReferenceNumberController @Inject() (
     journey.getMethodOfDisposal match {
       case Some(mod) =>
         mod match {
-          case ExportedInSingleShipment    =>
+          case ExportedInSingleShipment | ExportedInSingleOrMultipleShipments =>
             method(
               enterExportMovementReferenceNumberSinglePage(
                 form,
                 routes.EnterExportMovementReferenceNumberController.submit
               )
             )
-          case ExportedInMultipleShipments =>
+          case ExportedInMultipleShipments                                    =>
             method(
               enterExportMovementReferenceNumberMultiplePage(
                 form,
                 routes.EnterExportMovementReferenceNumberController.submit
               )
             )
-          case _                           =>
-            logger.error("Method of Disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]")
+          case _                                                              =>
+            logger.error(
+              "Method of Disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
+            )
             errorHandler.errorResult()
         }
       case None      =>
         logger.error(
-          "MethodOfDisposal is empty. Must be one of [ExportedInSingleShipment, ExportedInMultipleShipments]"
+          "MethodOfDisposal is empty. Must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
         )
         errorHandler.errorResult()
     }
