@@ -68,13 +68,11 @@ POST         /securities/choose-payee-type                             @uk.gov.h
 GET          /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.show
 POST         /securities/choose-bank-account-type                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseBankAccountTypeController.submit
 
-GET          /securities/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.show
-POST         /securities/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.submit
-
 GET          /securities/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.showWarning
 POST         /securities/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.submitWarning
 
 GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.show
+GET          /securities/enter-bank-account-details/return             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.returnToPage
 POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.submit
 
 GET          /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.show

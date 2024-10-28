@@ -21,7 +21,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 import play.api.data.Form
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -32,7 +31,6 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   val postAction: Call
   def continueRoute(journey: Journey): Call
   val changeBankAccountDetailsRoute: Call
-  val checkBankDetailsPage: check_bank_details
   val enterBankAccountDetailsRoute: Call
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
   def isCMA(journey: Journey): Boolean = false
@@ -41,78 +39,6 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
 
   final val bankDetailsAreYouSureForm: Form[YesNo] =
     YesOrNoQuestionForm("bank-details")
-
-  final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      journey.computeBankAccountDetails
-        .map { bankAccountDetails: BankAccountDetails =>
-          modifyJourney(journey, bankAccountDetails)
-            .fold(
-              _ => (journey, Redirect(continueRoute(journey))),
-              journeyWithBankDetails =>
-                (
-                  journeyWithBankDetails,
-                  Ok(
-                    checkBankDetailsPage(
-                      bankDetailsAreYouSureForm,
-                      bankAccountDetails.masked,
-                      isCMA(journey),
-                      postAction,
-                      changeBankAccountDetailsRoute
-                    )
-                  )
-                )
-            )
-        }
-        .getOrElse {
-          (
-            journey,
-            Redirect(
-              if (journey.needsBanksAccountDetailsSubmission)
-                enterBankAccountDetailsRoute
-              else
-                continueRoute(journey)
-            )
-          )
-        }
-        .asFuture
-    }
-
-  final val submit: Action[AnyContent] =
-    simpleActionReadWriteJourney(
-      body = { implicit request => journey =>
-        bankDetailsAreYouSureForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                journey,
-                journey.answers.bankAccountDetails
-                  .map { bankAccountDetails =>
-                    BadRequest(
-                      checkBankDetailsPage(
-                        formWithErrors,
-                        bankAccountDetails.masked,
-                        isCMA(journey),
-                        postAction,
-                        changeBankAccountDetailsRoute
-                      )
-                    )
-                  }
-                  .getOrElse(InternalServerError)
-              ),
-            answer =>
-              (
-                journey,
-                Redirect(answer match {
-                  case YesNo.Yes => continueRoute(journey)
-                  case YesNo.No  => changeBankAccountDetailsRoute
-                })
-              )
-          )
-      },
-      fastForwardToCYAEnabled = false
-    )
 
   final val showWarning: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
@@ -161,7 +87,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
               journey.answers.bankAccountDetails
                 .map { bankAccountDetails =>
                   BadRequest(
-                    checkBankDetailsPage(
+                    checkBankDetailsAreCorrectPage(
                       formWithErrors,
                       bankAccountDetails.masked,
                       isCMA(journey),

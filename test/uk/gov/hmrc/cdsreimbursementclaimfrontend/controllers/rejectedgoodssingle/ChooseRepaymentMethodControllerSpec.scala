@@ -123,7 +123,7 @@ class ChooseRepaymentMethodControllerSpec
           )
         }
 
-      "redirect to check bank details page if not all duties are CMA eligible" in
+      "redirect to enter bank details page if not all duties are CMA eligible" in
         forAll(journeyNotCMAEligibleGen) { journey =>
           inSequence {
             mockAuthWithNoRetrievals()
@@ -132,7 +132,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
     }
@@ -166,7 +166,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction("reimbursement-method" -> "0"),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
 
@@ -186,7 +186,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction("reimbursement-method" -> "1"),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
 

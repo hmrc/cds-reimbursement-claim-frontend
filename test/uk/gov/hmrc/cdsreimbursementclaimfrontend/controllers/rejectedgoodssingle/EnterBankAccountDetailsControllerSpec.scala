@@ -157,7 +157,7 @@ class EnterBankAccountDetailsControllerSpec
           .map(_._2)
 
       "personal account" must {
-        "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in
+        "redirect to the check answers page if a personal account that exists with a valid sort code is specified and all questions answered" in
           forAll(
             genBankAccountDetails,
             Gen.option(genPostcode),
@@ -176,7 +176,7 @@ class EnterBankAccountDetailsControllerSpec
 
             checkIsRedirect(
               validatedResult(bankDetails, Some(BankAccountType.Personal), postCode),
-              routes.CheckBankDetailsController.show
+              routes.CheckYourAnswersController.show
             )
           }
 
@@ -311,7 +311,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "business account" must {
-        "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
+        "redirect to the check answers page if a business account that exists with a valid sort code is specified and all questions answered" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode)
         ) { (bankAccountDetails, postCode) =>
@@ -328,7 +328,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             validatedResult(bankAccountDetails, Some(BankAccountType.Business), postCode),
-            routes.CheckBankDetailsController.show
+            routes.CheckYourAnswersController.show
           )
         }
 
@@ -473,7 +473,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          routes.CheckBankDetailsController.show
+          routes.ChooseFileTypeController.show
         )
 
       }

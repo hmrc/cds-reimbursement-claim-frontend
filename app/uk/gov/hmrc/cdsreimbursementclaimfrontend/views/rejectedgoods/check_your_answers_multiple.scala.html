@@ -93,7 +93,7 @@
 
     @claim.bankAccountDetails.map { bankAccountDetails =>
         @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.CheckBankDetailsController.show)))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.EnterBankAccountDetailsController.returnToPage)))
     }
     
     @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))

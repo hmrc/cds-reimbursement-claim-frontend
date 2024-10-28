@@ -38,7 +38,7 @@ class ChooseRepaymentMethodController @Inject() (
     extends OverpaymentsSingleJourneyBaseController
     with ChooseRepaymentMethodMixin {
 
-  override def checkBankDetailsRoute: Call = routes.CheckBankDetailsController.show
+  override def enterBankDetailsRoute: Call = routes.EnterBankAccountDetailsController.show
 
   override def modifyJourney(
     journey: OverpaymentsSingleJourney,

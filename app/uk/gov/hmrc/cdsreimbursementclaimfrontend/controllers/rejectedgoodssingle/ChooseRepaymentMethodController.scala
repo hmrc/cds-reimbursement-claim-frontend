@@ -40,7 +40,7 @@ class ChooseRepaymentMethodController @Inject() (
 
   override val postAction: Call = routes.ChooseRepaymentMethodController.submit
 
-  override def checkBankDetailsRoute: Call = routes.CheckBankDetailsController.show
+  override def enterBankDetailsRoute: Call = routes.EnterBankAccountDetailsController.show
 
   override def modifyJourney(
     journey: RejectedGoodsSingleJourney,

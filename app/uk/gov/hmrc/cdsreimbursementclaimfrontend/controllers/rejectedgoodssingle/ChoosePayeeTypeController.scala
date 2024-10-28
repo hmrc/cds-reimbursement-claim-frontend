@@ -45,7 +45,7 @@ class ChoosePayeeTypeController @Inject() (
     else if (journey.isAllSelectedDutiesAreCMAEligible)
       routes.ChooseRepaymentMethodController.show
     else if (journey.needsBanksAccountDetailsSubmission)
-      routes.CheckBankDetailsController.show
+      routes.EnterBankAccountDetailsController.show
     else
       routes.UploadFilesController.show
 

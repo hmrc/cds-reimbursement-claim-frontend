@@ -59,13 +59,11 @@ POST         /rejected-goods/multiple/enter-inspection-date                     
 GET          /rejected-goods/multiple/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChoosePayeeTypeController.show
 POST         /rejected-goods/multiple/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChoosePayeeTypeController.submit
 
-GET          /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.show
-POST         /rejected-goods/multiple/check-bank-details                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.submit
-
 GET          /rejected-goods/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.showWarning
 POST         /rejected-goods/multiple/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckBankDetailsController.submitWarning
 
 GET          /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.show
+GET          /rejected-goods/multiple/enter-bank-account-details/return             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.returnToPage
 POST         /rejected-goods/multiple/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterBankAccountDetailsController.submit
 
 GET          /rejected-goods/multiple/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseFileTypeController.show

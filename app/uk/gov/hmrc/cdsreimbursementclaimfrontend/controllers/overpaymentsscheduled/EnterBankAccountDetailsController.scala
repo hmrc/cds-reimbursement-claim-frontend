@@ -51,7 +51,7 @@ object EnterBankAccountDetailsController {
   val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
-    successPath = routes.CheckBankDetailsController.show,
+    successPath = routes.ChooseFileTypeController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit
   )
 }

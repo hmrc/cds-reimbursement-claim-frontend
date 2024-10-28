@@ -138,7 +138,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
     }
@@ -172,7 +172,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction("reimbursement-method" -> "0"),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
 
@@ -192,7 +192,7 @@ class ChooseRepaymentMethodControllerSpec
 
           checkIsRedirect(
             performAction("reimbursement-method" -> "1"),
-            routes.CheckBankDetailsController.show
+            routes.EnterBankAccountDetailsController.show
           )
         }
 

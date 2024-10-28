@@ -128,7 +128,7 @@ class ChoosePayeeTypeControllerSpec
 
         checkIsRedirect(
           submitPayeeType(formKey -> payeeType.toString),
-          routes.CheckBankDetailsController.show
+          routes.EnterBankAccountDetailsController.show
         )
       }
     }

@@ -33,7 +33,7 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
   type Journey <: journeys.Journey with journeys.JourneyBase with journeys.SingleVariantProperties
 
   def postAction: Call
-  def checkBankDetailsRoute: Call
+  def enterBankDetailsRoute: Call
   def chooseRepaymentMethodPage: choose_repayment_method
 
   def modifyJourney(journey: Journey, method: ReimbursementMethod): Either[String, Journey]
@@ -53,7 +53,7 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
             )
           )
         } else
-          Redirect(checkBankDetailsRoute)
+          Redirect(enterBankDetailsRoute)
       ).asFuture
     }
 
@@ -78,13 +78,13 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
                 case Right(modifiedJourney) =>
                   (
                     modifiedJourney,
-                    Redirect(checkBankDetailsRoute)
+                    Redirect(enterBankDetailsRoute)
                   ).asFuture
 
                 case Left("submitReimbursementMethod.notCMAEligible") =>
                   (
                     journey,
-                    Redirect(checkBankDetailsRoute)
+                    Redirect(enterBankDetailsRoute)
                   ).asFuture
 
                 case Left(error) =>

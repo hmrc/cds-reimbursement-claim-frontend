@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
 import scala.concurrent.ExecutionContext
@@ -33,7 +32,6 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CheckBankDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  val checkBankDetailsPage: check_bank_details,
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
@@ -49,7 +47,7 @@ class CheckBankDetailsController @Inject() (
     )
 
   final override val postAction: Call =
-    routes.CheckBankDetailsController.submit
+    routes.CheckBankDetailsController.submitWarning
 
   final override def continueRoute(journey: Journey): Call =
     if (journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection) {

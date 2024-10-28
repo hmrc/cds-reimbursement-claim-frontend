@@ -43,7 +43,7 @@ class ChoosePayeeTypeController @Inject() (
     if (journey.isSubsidyOnlyJourney)
       routes.UploadFilesController.show
     else if (journey.needsBanksAccountDetailsSubmission)
-      routes.CheckBankDetailsController.show
+      routes.EnterBankAccountDetailsController.show
     else
       routes.UploadFilesController.show
 
