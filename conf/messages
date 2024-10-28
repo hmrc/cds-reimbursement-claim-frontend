@@ -947,7 +947,7 @@ enter-bank-account-details.sort-code.error.required=Enter a sort code
 enter-bank-account-details.sort-code.help-text=Must be 6 digits long.
 enter-bank-account-details.sort-code.invalid=Enter a valid sort code like 309430
 enter-bank-account-details.sort-code.label=Sort code
-enter-bank-account-details.title=Enter your bank account details
+enter-bank-account-details.title=Enter the UK-based bank account details
 enter-bank-account-details.warning-text=Proof of authority: The claimant must provide a letter authorising HMRC to pay their bank instead of the party that paid duty and VAT in the original import.
 
 enter-claim.actual-amount=How much should have been paid, in pounds?
