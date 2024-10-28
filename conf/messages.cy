@@ -908,7 +908,7 @@ enter-bank-account-details.sort-code.error.required=Nodwch god didoli
 enter-bank-account-details.sort-code.help-text=Mae’n rhaid i hwn fod yn 6 digid.
 enter-bank-account-details.sort-code.invalid=Nodwch god didoli dilys, megis 309430
 enter-bank-account-details.sort-code.label=Cod didoli
-enter-bank-account-details.title=Nodwch fanylion eich cyfrif banc
+enter-bank-account-details.title=Nodwch fanylion cyfrif banc yn y DU
 enter-bank-account-details.warning-text=Tystiolaeth o awdurdod: Mae’n rhaid i’r hawliwr ddarparu llythyr sy’n rhoi awdurdod i CThEF wneud taliad i gyfrif banc yr hawliwr yn lle cyfrif banc y parti a dalodd y tollau a’r TAW ar y mewnforion gwreiddiol.
 
 
