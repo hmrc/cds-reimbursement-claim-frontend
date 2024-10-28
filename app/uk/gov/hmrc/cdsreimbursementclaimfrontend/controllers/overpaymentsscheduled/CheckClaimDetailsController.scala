@@ -53,7 +53,7 @@ class CheckClaimDetailsController @Inject() (
   final val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
   final val enterMrnAction: Call                          = routes.EnterMovementReferenceNumberController.show
   final val enterClaimAction: (DutyType, TaxCode) => Call = routes.EnterClaimController.show
-  final val nextAction: Call                              = routes.CheckBankDetailsController.show
+  final val nextAction: Call                              = routes.EnterBankAccountDetailsController.show
   final val postAction: Call                              = routes.CheckClaimDetailsController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.

@@ -144,7 +144,7 @@ class EnterBankAccountDetailsControllerSpec
           .submitBankAccountType(BankAccountType.Personal)
           .getOrFail
 
-        "redirect to the check bank accounts page if a personal account that exists with a valid sort code is specified" in forAll(
+        "redirect to the choose file type page if a personal account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
           Gen.oneOf(Yes, Indeterminate)
@@ -162,7 +162,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
-            routes.CheckBankDetailsController.show
+            routes.ChooseFileTypeController.show
           )
         }
 
@@ -341,7 +341,7 @@ class EnterBankAccountDetailsControllerSpec
           .submitBankAccountType(BankAccountType.Business)
           .getOrFail
 
-        "redirect to the check bank accounts page if a business account that exists with a valid sort code is specified" in forAll(
+        "redirect to the choose file type page if a business account that exists with a valid sort code is specified" in forAll(
           genBankAccountDetails,
           Gen.option(genPostcode),
           Gen.oneOf(Yes, Indeterminate)
@@ -359,7 +359,7 @@ class EnterBankAccountDetailsControllerSpec
 
           checkIsRedirect(
             controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
-            routes.CheckBankDetailsController.show
+            routes.ChooseFileTypeController.show
           )
         }
 
@@ -562,7 +562,7 @@ class EnterBankAccountDetailsControllerSpec
             "enter-bank-account-details.sort-code"      -> bankDetails.sortCode.value,
             "enter-bank-account-details.account-number" -> bankDetails.accountNumber.value
           ),
-          routes.CheckBankDetailsController.show
+          routes.ChooseFileTypeController.show
         )
 
       }

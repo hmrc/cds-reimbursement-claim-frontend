@@ -46,6 +46,6 @@ class ChoosePayeeTypeController @Inject() (
 
   final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
   final def nextPage(journey: Journey): Call =
-    routes.CheckBankDetailsController.show
+    routes.EnterBankAccountDetailsController.show
 
 }

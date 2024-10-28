@@ -33,13 +33,11 @@ POST        /overpayments/scheduled/choose-basis-for-claim                      
 GET         /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.show
 POST        /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.submit
 
-GET         /overpayments/scheduled/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckBankDetailsController.show
-POST        /overpayments/scheduled/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckBankDetailsController.submit
-
 GET         /overpayments/scheduled/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckBankDetailsController.showWarning
 POST        /overpayments/scheduled/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckBankDetailsController.submitWarning
 
 GET         /overpayments/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.show
+GET         /overpayments/scheduled/enter-bank-account-details/return                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.returnToPage
 POST        /overpayments/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.submit
 
 GET         /overpayments/scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.show

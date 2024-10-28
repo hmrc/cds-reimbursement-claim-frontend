@@ -46,13 +46,11 @@ POST        /overpayments/single/enter-new-dan                                  
 GET         /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.show
 POST        /overpayments/single/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChoosePayeeTypeController.submit
 
-GET         /overpayments/single/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.show
-POST        /overpayments/single/check-bank-details                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.submit
-
 GET         /overpayments/single/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.showWarning
 POST        /overpayments/single/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckBankDetailsController.submitWarning
 
 GET         /overpayments/single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterBankAccountDetailsController.show
+GET         /overpayments/single/enter-bank-account-details/return                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterBankAccountDetailsController.returnToPage
 POST        /overpayments/single/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterBankAccountDetailsController.submit
 
 GET         /overpayments/single/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterAdditionalDetailsController.show
