@@ -34,18 +34,6 @@ bank-details.yes=Iawn
 bank-service-unavailable.help=Cysylltwch â’r <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">tîm CDS (yn agor tab newydd)</a> os oes angen i chi wneud newid i’ch gwybodaeth cyfrif banc er mwyn cwblhau’r hawliad hwn.
 bank-service-unavailable.title=Mae’n ddrwg gennym, ond nid yw’r gwasanaeth ar gael
 
-bank_account_letter_of_authority.error.required=Dewiswch ''Iawn'' i fynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc
-bank_account_letter_of_authority.label=A ydych chi eisiau mynd yn eich blaen i ddiweddaru’ch manylion cyfrif banc?
-bank_account_letter_of_authority.no=Na
-bank_account_letter_of_authority.p1=Nid oes angen tystiolaeth o awdurdod os ydych yn diweddaru’ch manylion banc at ddibenion cyfrif personol neu fusnes o dan yr un enw.
-bank_account_letter_of_authority.p2=Er mwyn newid manylion banc i gyfrif o dan enw gwahanol, mae angen i ni gadarnhau bod gennych ganiatâd i wneud hyn.
-bank_account_letter_of_authority.p3=Bydd angen i chi ddarparu tystiolaeth o awdurdod i CThEF er mwyn diweddaru manylion y cyfrif banc ar gyfer yr hawliad hwn. Gallwch uwchlwytho’r ddogfen hon neu ei hanfon drwy’r post at CThEF ar ôl i’ch hawliad gael ei gyflwyno.
-bank_account_letter_of_authority.p4=Ni fydd eich hawliad yn cael ei brosesu hyd y bydd CThEF wedi cael y ddogfen hon.
-bank_account_letter_of_authority.subheading1=Cyfrif banc o dan yr un enw
-bank_account_letter_of_authority.subheading2=Cyfrif banc o dan enw gwahanol
-bank_account_letter_of_authority.title=A oes angen tystiolaeth o awdurdod?
-bank_account_letter_of_authority.yes=Iawn
-
 bill-of-discharge-error.bod3.p2=I gyflwyno hawliad newydd am ad-daliad o’ch blaendal sicrwydd neu warant yn ddiweddarach, bydd angen i chi lenwi ffurflen BOD3.
 bill-of-discharge-error.bod3.p3=Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau oedd wedi’u Prosesu’n Fewnol y gwnaethoch eu mewnforio gydag awdurdod drwy ddatganiad.
 bill-of-discharge-error.bod4.p2=I gyflwyno hawliad newydd am ad-daliad o’ch blaendal sicrwydd neu warant yn ddiweddarach, bydd angen i chi lenwi ffurflen BOD4.

@@ -60,7 +60,7 @@ class CheckBankDetailsController @Inject() (
     routes.EnterBankAccountDetailsController.show
 
   final override val changeBankAccountDetailsRoute: Call =
-    routes.BankDetailsChangeLetterOfAuthorityController.show
+    enterBankAccountDetailsRoute
 
   final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
     journey.submitBankAccountDetails(bankAccountDetails)
