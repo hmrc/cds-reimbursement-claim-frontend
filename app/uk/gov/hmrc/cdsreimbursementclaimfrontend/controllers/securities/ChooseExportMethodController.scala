@@ -100,7 +100,7 @@ class ChooseExportMethodController @Inject() (
                       case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
                           TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments |
                           TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
-                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.show))
+                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
                       case _ =>
                         (
                           updatedJourney.withEnterContactDetailsMode(true),

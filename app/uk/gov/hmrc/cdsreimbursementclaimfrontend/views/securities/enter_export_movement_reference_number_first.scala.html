@@ -36,7 +36,7 @@
 
 @(form: Form[MRN], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-export-movement-reference-number.multiple"}
+@key = @{"enter-export-movement-reference-number"}
 @subKey = @{
     Some("securities")
 }
@@ -56,13 +56,10 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(combine(key, subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
-
-        @paragraph(Html(messages(s"enter-export-movement-reference-number.multiple.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
-
         @dropdownDetails(summary = combine(key, subKey, "details.heading").head,
             html(
-                paragraph(Html(messages(combine(key, subKey, "details.paragraph").head)), Some("govuk-body"))
+                paragraph(Html(messages(combine(key, subKey, "details.paragraph.1").head)), Some("govuk-body")),
+                paragraph(Html(messages(combine(key, subKey, "details.paragraph.2").head)), Some("govuk-body"))
             ))
 
         @inputText(

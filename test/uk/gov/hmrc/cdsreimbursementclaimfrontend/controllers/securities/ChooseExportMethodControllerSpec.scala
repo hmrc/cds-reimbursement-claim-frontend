@@ -167,7 +167,7 @@ class ChooseExportMethodControllerSpec
 
         checkIsRedirect(
           performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)),
-          routes.EnterExportMovementReferenceNumberController.show
+          routes.EnterExportMovementReferenceNumberController.showFirst
         )
       }
 
@@ -185,7 +185,7 @@ class ChooseExportMethodControllerSpec
 
         checkIsRedirect(
           performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)),
-          routes.EnterExportMovementReferenceNumberController.show
+          routes.EnterExportMovementReferenceNumberController.showFirst
         )
       }
 

@@ -399,6 +399,7 @@ final class SecuritiesJourney private (
     }
 
   def submitExportMovementReferenceNumber(
+    index: Int,
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
@@ -409,8 +410,9 @@ final class SecuritiesJourney private (
           Right(
             this.copy(
               answers.copy(
-                exportMovementReferenceNumbers =
-                  Some(answers.exportMovementReferenceNumbers.getOrElse(Seq.empty).:+(exportMrn))
+                exportMovementReferenceNumbers = answers.exportMovementReferenceNumbers
+                  .map(mrns => (mrns.take(index) :+ exportMrn) ++ mrns.drop(index + 1))
+                  .orElse(Some(Seq(exportMrn)))
               )
             )
           )
@@ -1023,7 +1025,9 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
       .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
-      .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers)(_.submitExportMovementReferenceNumber _)
+      .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers.zipWithIndex)(j => { case (mrn: MRN, index: Int) =>
+        j.submitExportMovementReferenceNumber(index, mrn)
+      })
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
