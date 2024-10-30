@@ -28,6 +28,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,6 +38,8 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
  insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+ bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
@@ -70,6 +73,23 @@
         @errorSummary(form.errors)
 
         @heading(Html(title), caption = caption)
+
+        @dropdownDetails(
+            summary = "select-duties.details.title",
+            html(
+                paragraph(Html(messages("select-duties.details.p1"))),
+                paragraph(Html(messages("select-duties.details.p2"))),
+                paragraph(Html(messages("select-duties.details.p3"))),
+                bulletList(
+                    Seq(
+                        Html(messages("select-duties.details.p3.li1")),
+                        Html(messages("select-duties.details.p3.li2"))
+                    )
+                )
+            )
+        )
+
+
 
         @if(subKey.getOrElse("") == "multiple"){
             @indexAndMrnOpt.map{ case(_, mrn) =>
