@@ -96,7 +96,7 @@ class EnterExportMovementReferenceNumberControllerSpec
   val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
   val session: SessionData       = SessionData(journey)
 
-  def validateChooseExportMethodSinglePage(doc: Document): Assertion = {
+  def validateChooseExportMethodFirstPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
     val input          = doc.select(s"#$enterExportMovementReferenceNumberSingleKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
@@ -106,7 +106,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     continueButton      should contain(messages("button.continue"))
   }
 
-  def validateChooseExportMethodMultiplePage(doc: Document): Assertion = {
+  def validateChooseExportMethodNextPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-heading-xl").html()
     val input          = doc.select(s"#$enterExportMovementReferenceNumberMultipleKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
@@ -125,11 +125,13 @@ class EnterExportMovementReferenceNumberControllerSpec
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.show(FakeRequest())
+      def performAction(mrnIndex: Int): Future[Result] =
+        if (mrnIndex === 0) controller.showFirst(FakeRequest())
+        else controller.showNext(mrnIndex + 1)(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
+        status(performAction(0)) shouldBe NOT_FOUND
       }
 
       "display the page if acc14 is present (single shipment)" in forAllWith(
@@ -146,9 +148,9 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          performAction(0),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-          validateChooseExportMethodSinglePage
+          validateChooseExportMethodFirstPage
         )
       }
 
@@ -166,22 +168,23 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          performAction(1),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
-          validateChooseExportMethodMultiplePage
+          validateChooseExportMethodNextPage
         )
       }
     }
 
     "Submit MRN page" must {
 
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(mrnIndex: Int, data: (String, String)*): Future[Result] =
+        if (mrnIndex === 0) controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
+        else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
 
-        status(performAction()) shouldBe NOT_FOUND
+        status(performAction(0)) shouldBe NOT_FOUND
       }
 
       "save an export MRN if valid and continue to the check claimant details page (single shipment)" in forAllWith(
@@ -198,13 +201,13 @@ class EnterExportMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Left(Error("")))
           mockStoreSession(
             SessionData(
-              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(exampleMrn).getOrFail
+              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
             )
           )(Right(()))
         }
 
         checkIsRedirect(
-          performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
+          performAction(0, enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
           routes.EnterContactDetailsController.show
         )
       }
@@ -223,13 +226,13 @@ class EnterExportMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Left(Error("")))
           mockStoreSession(
             SessionData(
-              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(exampleMrn).getOrFail
+              journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
             )
           )(Right(()))
         }
 
         checkIsRedirect(
-          performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
+          performAction(1, enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
           routes.EnterContactDetailsController.show
         )
       }
@@ -250,6 +253,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(
+            0,
             enterExportMovementReferenceNumberSingleKey -> journey.answers.movementReferenceNumber.get.value
           ),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
@@ -277,6 +281,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(
+            1,
             enterExportMovementReferenceNumberMultipleKey -> journey.answers.movementReferenceNumber.get.value
           ),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
@@ -303,7 +308,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
+          performAction(0, enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -328,7 +333,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
+          performAction(1, enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -353,7 +358,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberSingleKey -> invalidMRN.value),
+          performAction(0, enterExportMovementReferenceNumberSingleKey -> invalidMRN.value),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -378,7 +383,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberMultipleKey -> invalidMRN.value),
+          performAction(1, enterExportMovementReferenceNumberMultipleKey -> invalidMRN.value),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -401,7 +406,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberSingleKey -> ""),
+          performAction(0, enterExportMovementReferenceNumberSingleKey -> ""),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
@@ -424,7 +429,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterExportMovementReferenceNumberMultipleKey -> ""),
+          performAction(1, enterExportMovementReferenceNumberMultipleKey -> ""),
           messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(

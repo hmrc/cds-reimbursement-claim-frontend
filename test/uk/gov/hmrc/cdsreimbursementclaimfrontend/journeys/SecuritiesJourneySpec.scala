@@ -266,7 +266,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(
             _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
           )
-          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
+          .flatMap(_.submitExportMovementReferenceNumber(0, exportMrn))
           .getOrFail
 
         journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
@@ -287,7 +287,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
+          .flatMap(_.submitExportMovementReferenceNumber(0, exportMrn))
 
         journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")
       }
@@ -308,7 +308,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal))
-          .flatMap(_.submitExportMovementReferenceNumber(exportMrn))
+          .flatMap(_.submitExportMovementReferenceNumber(0, exportMrn))
 
         journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")
       }
