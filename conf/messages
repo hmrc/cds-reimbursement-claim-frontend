@@ -1587,14 +1587,20 @@ select-duties.duty.B05=Value Added Tax
 select-duties.duty.caption=How much was paid: %s
 select-duties.duty.hint=This duty is not eligible for Current Month Adjustment (CMA) repayment.
 select-duties.error.required=Select one or more duty types you want to claim for
-select-duties.multiple.paragraph=Select all duty types you want to claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
+select-duties.multiple.paragraph=Select all that apply for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.multiple.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} MRN
-select-duties.paragraph=Select all of the duties you want to claim for.
+select-duties.paragraph=Select all that apply
 select-duties.securities.title=What do you want to claim?
 select-duties.subsidies.title=Duties shown are all covered by subsidy
-select-duties.title=Which duties do you want to claim for?
+select-duties.title=What do you want to claim?
 select-duties.title.caption=Claim details
+select-duties.details.title=If you''re a VAT registered business
+select-duties.details.p1=If you''re a VAT registered business, you must not use this service to claim a repayment of overpaid VAT.
+select-duties.details.p2=You''ll need to make an adjustment through your VAT return instead, following normal VAT rules. Overpaid import VAT is not due to HMRC so you cannot recover it as input tax.
+select-duties.details.p3=To claim a repayment you''ll need to:
+select-duties.details.p3.li1=reduce the amount of output tax due in Box 1 of the VAT return
+select-duties.details.p3.li2=keep an audit trail to support your claim
 
 select-duty-codes.details.heading=Find out more about duties
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct

@@ -1682,8 +1682,14 @@ select-duties.multiple.title=Dewiswch y tollau rydych am eu hawlio o dan {0} MRN
 select-duties.paragraph=Dewiswch yr holl dollau rydych am hawlio ar eu cyfer.
 select-duties.securities.title=Beth hoffech chi ei hawlio?
 select-duties.subsidies.title=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau
-select-duties.title=Pa dollau rydych am hawlio ar eu cyfer?
+select-duties.title=Beth hoffech chi ei hawlio?
 select-duties.title.caption=Manylion yr hawliad
+select-duties.details.title=Os ydych yn fusnes sydd wedi’i gofrestru ar gyfer TAW
+select-duties.details.p1=Os ydych yn fusnes sydd wedi’i gofrestru ar gyfer TAW, mae’n rhaid i chi beidio â defnyddio’r gwasanaeth hwn i hawlio ad-daliad ar gyfer TAW a ordalwyd.
+select-duties.details.p2=Yn lle hynny, bydd angen i chi wneud addasiad drwy’ch Ffurflen TAW, gan ddilyn rheolau TAW arferol. Nid yw TAW mewnforio a ordalwyd yn ddyledus i CThEF, felly ni allwch ei hadennill fel treth fewnbwn.
+select-duties.details.p3=Er mwyn hawlio ad-daliad, bydd angen i chi wneud y canlynol:
+select-duties.details.p3.li1=gostwng swm y dreth allbwn sy’n ddyledus ym Mlwch 1 o’r Ffurflen TAW
+select-duties.details.p3.li2=cadw llwybr archwilio er mwyn ategu’ch hawliad
 
 select-duty-codes.details.heading=Rhagor o wybodaeth am dollau
 select-duty-codes.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
