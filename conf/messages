@@ -358,6 +358,8 @@ check-your-answers.scheduled.mrn-label-plaintext=First Movement Reference Number
 check-your-answers.scheduled.title=Check your answers before sending your claim
 check-your-answers.single.mrn-label=MRN
 check-your-answers.single.mrn-label-plaintext=Movement Reference Number (MRN)
+check-your-answers.securities.claim-details.h2=Claim details
+check-your-answers.securities.claim-details.method-of-disposal=What did you do with the goods?
 check-your-answers.special-circumstances.h2=Special circumstances
 check-your-answers.special-circumstances.label=Any special circumstances relating to your claim
 check-your-answers.title=Check your answers before sending your claim
@@ -1319,6 +1321,7 @@ multiple-select-duties.help-text.1=These are the duties that have been paid unde
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
 notification-banner.important=Important
 ordinal-number-mrn={0} MRN
+ordinal-number-mrn.export={0} export MRN
 
 ordinal.label.0=zero
 ordinal.label.1=first

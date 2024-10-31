@@ -86,18 +86,32 @@
                     )))
 }
 
-@exportDeclarationMrnOpt.map { exportDeclarationMrns =>
-    @subHeading(Html(messages(s"check-your-answers.export-declaration-details.h2")))
-    @summary(SummaryList(exportDeclarationMrns.zipWithIndex.map{case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
-        key = Key(HtmlContent(messages(s"check-your-answers.export-declaration-details.mrn"))),
-        value = Value(Text(exportDeclarationMrn.value)),
-        actions = if(isPdf) None else Some(Actions(
-            items = Seq(ActionItem(
-                href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"check-your-answers.export-declaration-details.mrn"))
-            ))))
-    )}))
+@claim.temporaryAdmissionMethodOfDisposal.map{ mod => 
+    @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
+    @summary(SummaryList(
+        Seq(SummaryListRow(
+                    key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
+                    value = Value(Text(messages(s"choose-export-method.export-method-description.$mod"))),
+                    actions = if(isPdf) None else Some(Actions(
+                        items = Seq(ActionItem(
+                            href = routes.ChooseExportMethodController.show.url,
+                            content = Text(messages("cya.change")),
+                            visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))
+                ))))
+        )) ++
+        exportDeclarationMrnOpt.map { exportDeclarationMrns =>
+            exportDeclarationMrns.zipWithIndex.map{
+                case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
+                    key = Key(HtmlContent(OrdinalNumberExportMrnHelper(mrnIndex+1))),
+                    value = Value(Text(exportDeclarationMrn.value)),
+                    actions = if(isPdf) None else Some(Actions(
+                        items = Seq(ActionItem(
+                            href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
+                            content = Text(messages("cya.change")),
+                            visuallyHiddenText = Some(OrdinalNumberExportMrnHelper(mrnIndex+1))
+                ))))
+        )}
+    }.getOrElse(Seq.empty)))
 }
 
 @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
