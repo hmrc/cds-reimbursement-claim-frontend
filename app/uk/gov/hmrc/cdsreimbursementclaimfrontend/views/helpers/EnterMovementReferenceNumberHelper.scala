@@ -29,7 +29,8 @@ object EnterMovementReferenceNumberHelper {
       case "en" => titleMultipleEnglish(pageNumber, isSubsidy)
       case "cy" => titleMultipleWelsh(pageNumber, isSubsidy)
     }
-  def titleScheduled()(implicit messages: Messages): String                                   =
+
+  def titleScheduled()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.scheduled.title")
 
   private def titleMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
@@ -55,7 +56,8 @@ object EnterMovementReferenceNumberHelper {
       case "en" => labelMultipleEnglish(pageNumber, isSubsidy)
       case "cy" => labelMultipleWelsh(pageNumber, isSubsidy)
     }
-  def labelScheduled()(implicit messages: Messages): String                                   =
+
+  def labelScheduled()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.scheduled.label")
 
   private def labelMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
