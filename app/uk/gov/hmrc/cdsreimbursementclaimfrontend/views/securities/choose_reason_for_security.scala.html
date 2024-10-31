@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import scala.math.Ordering
 @import play.twirl.api.Html
 
 @this(
@@ -57,14 +58,19 @@
     }.toSeq.sortBy(_._1).map(_._2)
 }
 
+@reasonsDescriptions = @{
+    implicit val ordering: Ordering[String] = Ordering.String
+
+    reasonsForSecurity.map{ reason =>
+        messages(s"choose-reason-for-security.securities.details.${reason.acc14Code}")
+    }.toList.sorted
+}
+
 @bulletList = {
     @bullets(
-        Seq(
-            Html(messages("choose-reason-for-security.securities.details.li1")),
-            Html(messages("choose-reason-for-security.securities.details.li2")),
-            Html(messages("choose-reason-for-security.securities.details.li3")),
-            Html(messages("choose-reason-for-security.securities.details.li4"))
-        )
+        reasonsDescriptions.map{ rfs =>
+            Html(rfs)
+        }
     )
 }
 

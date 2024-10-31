@@ -42,6 +42,8 @@ object Feature extends EnumerationFormat[Feature] {
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
   case object SecurityReasonsNtas extends Feature { val name = "security-reasons.ntas" }
   case object SecurityReasonsNiru extends Feature { val name = "security-reasons.niru" }
+  case object SecurityReasonsNiruOpr extends Feature { val name = "security-reasons.niru-opr" }
+  case object SecurityReasonsNiruCsdr extends Feature { val name = "security-reasons.niru-csdr" }
   case object SecurityReasonsNidac extends Feature { val name = "security-reasons.nidac" }
   case object ShowPdfDownloadOption extends Feature { val name = "show-pdf-download-option" }
   case object ShowDanRadioOption extends Feature { val name = "show-dan-radio-option" }
@@ -65,6 +67,8 @@ object Feature extends EnumerationFormat[Feature] {
       SkipDocumentType,
       SecurityReasonsNtas,
       SecurityReasonsNiru,
+      SecurityReasonsNiruOpr,
+      SecurityReasonsNiruCsdr,
       SecurityReasonsNidac,
       ShowPdfDownloadOption,
       ShowDanRadioOption
