@@ -1006,14 +1006,14 @@ enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Mae’r Cy
 enter-duplicate-movement-reference-number.invalid.number=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI2
 enter-duplicate-movement-reference-number.title=Nodwch yr MRN dyblyg
 
-enter-export-movement-reference-number.error.required=Nodwch eich Cyfeirnod Symud Allforio
-enter-export-movement-reference-number.multiple.error.required=Nodwch eich Cyfeirnod Symud Allforio
+enter-export-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN) allforio
+enter-export-movement-reference-number.multiple.error.required=Nodwch Gyfeirnod Symud (MRN) allforio
 enter-export-movement-reference-number.multiple.inset-text=Byddwch yn gallu ychwanegu unrhyw MRNau allforio ychwanegol yn nes ymlaen.
 enter-export-movement-reference-number.multiple.securities.details.heading=Beth yw Cyfeirnod Symud (MRN)
 enter-export-movement-reference-number.multiple.securities.details.paragraph.1=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w hallforio yw MRN.
 enter-export-movement-reference-number.multiple.securities.details.paragraph.2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn allforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-export-movement-reference-number.multiple.securities.enter-mrn.label=Nodwch yr MRN allforio cyntaf
-enter-export-movement-reference-number.multiple.securities.error.import=Nodwch Gyfeirnod Symud (MRN) allforio
+enter-export-movement-reference-number.multiple.securities.error.import=Nodwch Gyfeirnod Symud (MRN) allforio sy’n ddilys
 enter-export-movement-reference-number.multiple.securities.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
 enter-export-movement-reference-number.multiple.securities.invalid.number=Nodwch yr MRN yn y fformat cywir
 enter-export-movement-reference-number.multiple.securities.title=Nodwch yr MRN allforio cyntaf yn y datganiad
@@ -1023,7 +1023,7 @@ enter-export-movement-reference-number.securities.details.paragraph.1=Rhif 18 di
 enter-export-movement-reference-number.securities.details.paragraph.2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn allforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-export-movement-reference-number.securities.error.import=Nodwch Gyfeirnod Symud (MRN) allforio
 enter-export-movement-reference-number.securities.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
-enter-export-movement-reference-number.securities.invalid.number=Nodwch yr MRN yn y fformat cywir
+enter-export-movement-reference-number.securities.invalid.number=Nodwch Gyfeirnod Symud (MRN) allforio sy’n ddilys
 enter-export-movement-reference-number.securities.title=Nodwch y Cyfeirnod Symud (MRN) allforio
 
 enter-importer-eori-number.caption=Rhif EORI y mewnforiwr

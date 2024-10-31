@@ -97,7 +97,7 @@ class EnterExportMovementReferenceNumberControllerSpec
   val session: SessionData       = SessionData(journey)
 
   def validateChooseExportMethodFirstPage(doc: Document): Assertion = {
-    val headerHtml     = doc.select(".govuk-heading-xl").html()
+    val headerHtml     = doc.select(".govuk-label--xl").html()
     val input          = doc.select(s"#$enterExportMovementReferenceNumberSingleKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
 
