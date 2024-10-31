@@ -98,13 +98,12 @@ class ChooseReasonForSecurityControllerSpec
     ("Temporary Admissions (2 months Expiration)", "TemporaryAdmission2M")
   )
 
-  //currently disabled
   private val niruOptions =
     Seq(
-      ("Missing document: Community System of Duty Relief (CSDR)", "CommunitySystemsOfDutyRelief"),
-      ("End Use Relief", "EndUseRelief"),
-      ("Inward Processing Relief (IPR)", "InwardProcessingRelief"),
-      ("Outward Processing Relief (OPR)", "OutwardProcessingRelief")
+//      ("Missing document — community system of duty relief (CSDR)", "CommunitySystemsOfDutyRelief"),   //currently disabled
+      ("Authorised-use/End-use relief", "EndUseRelief"),
+      ("Inward-processing relief (IPR)", "InwardProcessingRelief")
+//      ("Outward-processing relief (OPR)", "OutwardProcessingRelief")   //currently disabled
     )
 
   //currently disabled
@@ -147,7 +146,7 @@ class ChooseReasonForSecurityControllerSpec
       .returning(response)
 
   def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
-    radioItems(doc) should contain theSameElementsAs ntasOptions
+    radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions
 
     hasContinueButton(doc)
   }

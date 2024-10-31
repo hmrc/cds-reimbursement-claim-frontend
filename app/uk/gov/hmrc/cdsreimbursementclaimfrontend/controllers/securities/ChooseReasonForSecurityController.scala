@@ -39,6 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -78,10 +80,26 @@ class ChooseReasonForSecurityController @Inject() (
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
-  private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity]  =
+  private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     if (featureSwitchService.isEnabled(Feature.SecurityReasonsNtas)) ReasonForSecurity.ntas else Set.empty
-  private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity]  =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) ReasonForSecurity.niru else Set.empty
+  private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
+    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) filterDisabledNiruOptions(ReasonForSecurity.niru)
+    else Set.empty
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  private def filterDisabledNiruOptions(
+    options: Set[ReasonForSecurity]
+  )(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
+    options
+      .filterNot(rfs =>
+        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr)) { rfs == OutwardProcessingRelief }
+        else false
+      )
+      .filterNot(rfs =>
+        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr)) { rfs == CommunitySystemsOfDutyRelief }
+        else false
+      )
+
   private def nidacOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     if (featureSwitchService.isEnabled(Feature.SecurityReasonsNidac)) ReasonForSecurity.nidac else Set.empty
 
