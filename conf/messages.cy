@@ -185,6 +185,12 @@ check-eori-details.name.label=Enw
 check-eori-details.paragraph=Dyma’r rhif EORI sy’n gysylltiedig â’ch Cyfrif Porth y Llywodraeth.
 check-eori-details.title=Gwiriwch eich rhif EORI
 
+check-export-movement-reference-numbers.title=Cyfeirnodau Symud (MRNau) allforio wedi’u hychwanegu
+check-export-movement-reference-numbers.help-text=Dyma’r MRNau allforio rydych wedi’u hychwanegu at eich hawliad hyd yma. Gallwch ychwanegu rhagor os dymunwch wneud hynny.
+check-export-movement-reference-numbers.add-another-mrn-question=A ydych am ychwanegu MRN allforio arall?
+check-export-movement-reference-numbers.error.required=Dewiswch ‘Iawn’ i ychwanegu Cyfeirnod Symud (MRN) Allforio arall
+check-export-movement-reference-numbers.error.invalid=Dewiswch ‘Iawn’ i ychwanegu Cyfeirnod Symud (MRN) Allforio arall
+
 check-movement-reference-numbers.add-another-mrn-question=A ydych chi am ychwanegu MRN arall?
 check-movement-reference-numbers.error.invalid=Dewiswch ''Iawn'' os ydych am ychwanegu Cyfeirnod Symud (MRN) arall
 check-movement-reference-numbers.error.required=Dewiswch ''Iawn'' os ydych am ychwanegu Cyfeirnod Symud (MRN) arall

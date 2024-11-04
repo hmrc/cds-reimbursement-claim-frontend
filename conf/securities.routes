@@ -37,8 +37,9 @@ POST         /securities/enter-export-movement-reference-number        @uk.gov.h
 GET          /securities/enter-export-movement-reference-number/:pageIndex        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.showNext(pageIndex: Int)
 POST         /securities/enter-export-movement-reference-number/:pageIndex        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.submitNext(pageIndex: Int)
 
-GET          /securities/check-export-declaration-details              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckExportDeclarationDetailsController.show
-POST         /securities/check-export-declaration-details              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckExportDeclarationDetailsController.submit
+GET          /securities/check-export-movement-reference-numbers       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckExportMovementReferenceNumbersController.show
+POST         /securities/check-export-movement-reference-numbers       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckExportMovementReferenceNumbersController.submit
+GET          /securities/delete-export-movement-reference-number/:mrn  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckExportMovementReferenceNumbersController.delete(mrn: MRN)
 
 GET          /securities/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimantDetailsController.show
 POST         /securities/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimantDetailsController.submit

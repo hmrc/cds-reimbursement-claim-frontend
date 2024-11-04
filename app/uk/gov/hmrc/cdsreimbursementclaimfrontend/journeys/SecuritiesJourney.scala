@@ -319,6 +319,12 @@ final class SecuritiesJourney private (
       }
     }
 
+  def countOfExportMovementReferenceNumbers: Int =
+    answers.exportMovementReferenceNumbers.map(_.size).getOrElse(0)
+
+  def getIndexOfExportMovementReferenceNumber(mrn: MRN): Option[Int] =
+    answers.exportMovementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
+
   /** Resets the journey with the new MRN
     * or keep an existing journey if submitted the same MRN.
     */
@@ -418,6 +424,23 @@ final class SecuritiesJourney private (
           )
       else
         Left("submitExportMovementReferenceNumber.unexpected")
+    }
+
+  def removeExportMovementReferenceNumber(mrn: MRN): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
+      getIndexOfExportMovementReferenceNumber(mrn) match {
+        case None => Left("removeExportMovementReferenceNumber.notFound")
+
+        case Some(index) =>
+          Right(
+            this.copy(
+              answers.copy(
+                exportMovementReferenceNumbers = answers.exportMovementReferenceNumbers
+                  .map(mrns => mrns.take(index) ++ mrns.drop(index + 1))
+              )
+            )
+          )
+      }
     }
 
   def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
@@ -835,15 +858,24 @@ final class SecuritiesJourney private (
           temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal.map {
             case TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
               answers.exportMovementReferenceNumbers match {
-                case Some(exportMRNs) if exportMRNs.size > 1 =>
-                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-                case _                                       =>
+                case Some(exportMRNs) if exportMRNs.size == 1 =>
+                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+                case _                                        =>
                   TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
               }
 
             case other => other
           },
-          exportMovementReferenceNumber = answers.exportMovementReferenceNumbers
+          exportMovementReferenceNumber = answers.temporaryAdmissionMethodOfDisposal match {
+            case Some(
+                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments |
+                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
+                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+                ) =>
+              answers.exportMovementReferenceNumbers
+
+            case _ => None
+          }
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
