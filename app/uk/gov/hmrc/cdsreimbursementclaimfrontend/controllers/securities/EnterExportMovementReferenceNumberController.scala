@@ -22,8 +22,12 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.text
 import play.api.data.Form
 import play.api.data.FormError
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.ValidationError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
@@ -31,6 +35,8 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm.isBoolean
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -40,6 +46,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number_first
@@ -67,7 +76,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
-      val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumbers.flatMap(_.headOption))
+      val form = getForm(journey)
       journey.getMethodOfDisposal match {
         case Some(mod) =>
           (mod match {
@@ -99,7 +108,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
       Future.successful((journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)))
     else
       whenTemporaryAdmissionExported(journey) {
-        val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumbers.flatMap(_.headOption))
+        val form = getForm(journey)
         journey.getMethodOfDisposal match {
           case Some(mod) =>
             (mod match {
@@ -133,7 +142,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          (formWithErrors: Form[MRN]) =>
+          (formWithErrors: Form[(MRN, YesNo)]) =>
             (
               journey,
               BadRequest(
@@ -143,11 +152,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
                 )
               )
             ).asFuture,
-          mrn =>
+          answer =>
             claimService
-              .getDisplayDeclaration(mrn)
+              .getDisplayDeclaration(answer._1)
               .fold(
-                _ => submitMrnAndContinue(0, mrn, journey),
+                _ => submitMrnAndContinue(0, answer, journey),
                 _ => {
                   val formErrorKey =
                     if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
@@ -176,7 +185,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          (formWithErrors: Form[MRN]) =>
+          (formWithErrors: Form[(MRN, YesNo)]) =>
             (
               journey,
               BadRequest(
@@ -187,11 +196,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
                 )
               )
             ).asFuture,
-          mrn =>
+          answer =>
             claimService
-              .getDisplayDeclaration(mrn)
+              .getDisplayDeclaration(answer._1)
               .fold(
-                _ => submitMrnAndContinue(pageIndex - 1, mrn, journey),
+                _ => submitMrnAndContinue(pageIndex - 1, answer, journey),
                 _ => {
                   val formErrorKey =
                     if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
@@ -215,11 +224,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
     }
   }
 
-  private def submitMrnAndContinue(mrnIndex: Int, mrn: MRN, journey: SecuritiesJourney)(implicit
+  private def submitMrnAndContinue(mrnIndex: Int, answer: (MRN, YesNo), journey: SecuritiesJourney)(implicit
     request: Request[_]
   ): (SecuritiesJourney, Result) =
     journey
-      .submitExportMovementReferenceNumber(mrnIndex, mrn)
+      .submitExportMovementReferenceNumber(mrnIndex, answer._1)
       .fold(
         {
           case "submitExportMovementReferenceNumber.unexpected" =>
@@ -251,10 +260,19 @@ class EnterExportMovementReferenceNumberController @Inject() (
           if (updatedJourney.userHasSeenCYAPage) {
             (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
           } else {
-            (
-              updatedJourney.withEnterContactDetailsMode(true),
-              Redirect(nextStepInJourney)
-            )
+            answer._2 match {
+              case Yes =>
+                (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex + 1)))
+              case No  =>
+                if (mrnIndex === 0) {
+                  (
+                    updatedJourney.withEnterContactDetailsMode(true),
+                    Redirect(routes.EnterContactDetailsController.show)
+                  )
+                } else {
+                  ???
+                }
+            }
           }
       )
 
@@ -277,7 +295,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
   private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
     TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(mod)
 
-  private def getForm(journey: SecuritiesJourney): Form[MRN] =
+  private def getForm(journey: SecuritiesJourney): Form[(MRN, YesNo)] =
     journey.getMethodOfDisposal match {
       case Some(mod) =>
         mod match {
@@ -295,20 +313,24 @@ object EnterExportMovementReferenceNumberController {
   val enterExportMovementReferenceNumberSingleKey: String   = "enter-export-movement-reference-number"
   val enterExportMovementReferenceNumberMultipleKey: String = "enter-export-movement-reference-number.multiple"
 
-  val exportMovementReferenceNumberSingleForm: Form[MRN] =
+  val exportMovementReferenceNumberSingleForm: Form[(MRN, YesNo)] =
     Form(
       mapping(
-        enterExportMovementReferenceNumberSingleKey ->
+        enterExportMovementReferenceNumberSingleKey                                ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",
               str => str.isEmpty || MRN(str).isValid
             )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
+            .transform[MRN](MRN(_), _.value),
+        s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple" ->
+          YesOrNoQuestionForm.yesNoMapping(
+            s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple"
+          )
+      )(Tuple2.apply)(Tuple2.unapply)
     )
 
-  val exportMovementReferenceNumberMultipleForm: Form[MRN] =
+  val exportMovementReferenceNumberMultipleForm: Form[(MRN, YesNo)] =
     Form(
       mapping(
         enterExportMovementReferenceNumberMultipleKey ->
@@ -317,7 +339,11 @@ object EnterExportMovementReferenceNumberController {
               "securities.invalid.number",
               str => str.isEmpty || MRN(str).isValid
             )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
+            .transform[MRN](MRN(_), _.value),
+        enterExportMovementReferenceNumberSingleKey   ->
+          YesOrNoQuestionForm.yesNoMapping(
+            s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple"
+          )
+      )(Tuple2.apply)(Tuple2.unapply)
     )
 }

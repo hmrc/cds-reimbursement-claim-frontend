@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
+import play.api.data.Mapping
 import play.api.data.Forms.mapping
 import play.api.data.Forms.text
 import play.api.data.validation.Constraint
@@ -47,21 +48,24 @@ object YesOrNoQuestionForm {
     }
   }
 
+  def yesNoMapping(key: String): Mapping[YesNo] =
+    text()
+      .verifying(booleanThatExists)
+      .transform[YesNo](
+        {
+          case "true"  => Yes
+          case "false" => No
+        },
+        {
+          case Yes => "true"
+          case No  => "false"
+        }
+      )
+
   def apply(key: String): Form[YesNo] =
     Form(
       mapping(
-        key -> text()
-          .verifying(booleanThatExists)
-          .transform[YesNo](
-            {
-              case "true"  => Yes
-              case "false" => No
-            },
-            {
-              case Yes => "true"
-              case No  => "false"
-            }
-          )
+        key -> yesNoMapping(key)
       )(identity)(Some(_))
     )
 }
