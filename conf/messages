@@ -184,6 +184,12 @@ check-eori-details.name.label=Name
 check-eori-details.paragraph=This is the EORI number linked to your Government Gateway account.
 check-eori-details.title=Check your EORI number
 
+check-export-movement-reference-numbers.title=Export Movement Reference Numbers (MRNs) added
+check-export-movement-reference-numbers.help-text=These are the export MRNs that you have added to your claim so far. You can add more if you wish.
+check-export-movement-reference-numbers.add-another-mrn-question=Do you want to add another export MRN?
+check-export-movement-reference-numbers.error.required=Select yes to add another export Movement Reference Number (MRN)
+check-export-movement-reference-numbers.error.invalid=Select yes to add another export Movement Reference Number (MRN)
+
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.error.invalid=Select yes to add another Movement Reference Number (MRN)
 check-movement-reference-numbers.error.required=Select yes to add another Movement Reference Number (MRN)
@@ -572,10 +578,6 @@ choose-reason-for-security.securities.details.OPR=<span class="govuk-body govuk-
 choose-reason-for-security.securities.details.RED=<span class="govuk-body govuk-!-font-weight-bold">Revenue dispute or inland pre-clearance (IPC):</span> This is used where HMRC suspects that goods have been undervalued
 choose-reason-for-security.securities.details.CEP=<span class="govuk-body govuk-!-font-weight-bold">United Kingdom Advisory Panel (UKAP) entry price:</span> UKAP advises about the transmission and management of bloodborne viruses among healthcare workers
 choose-reason-for-security.securities.details.CSD=<span class="govuk-body govuk-!-font-weight-bold">United Kingdom Advisory Panel (UKAP) safeguard duties:</span> UKAP advises about the transmission and management of bloodborne viruses among healthcare workers
-
-
-
-
 
 choose-reason-for-security.securities.error.required=Choose the reason for security
 choose-reason-for-security.securities.hint=Select one option from the list.

@@ -208,6 +208,22 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     } yield (mrn, rfs, acc14)
 
+  lazy val mrnWithTaRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for {
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf[ReasonForSecurity](
+                 ReasonForSecurity.TemporaryAdmission2Y,
+                 ReasonForSecurity.TemporaryAdmission6M,
+                 ReasonForSecurity.TemporaryAdmission3M,
+                 ReasonForSecurity.TemporaryAdmission2M
+               )
+      acc14 <- securitiesDisplayDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    } yield (mrn, rfs, acc14)
+
   lazy val mrnWithIprRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for {
       mrn   <- IdGen.genMRN

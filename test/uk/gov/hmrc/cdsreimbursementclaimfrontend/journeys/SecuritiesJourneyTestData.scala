@@ -73,6 +73,47 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .getOrFail
   }
 
+  final def buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney = {
+    val journey    = buildSecuritiesJourneyReadyForSelectingSecurities(testParams)
+    val depositIds = journey.getSecurityDepositIds
+    journey
+      .submitCheckDeclarationDetailsChangeMode(false)
+      .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
+      .flatMap(
+        _.submitTemporaryAdmissionMethodOfDisposal(
+          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+        )
+      )
+      .getOrFail
+  }
+
+  final def buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+    exportMRNs: Seq[MRN]
+  )(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney = {
+    val journey    = buildSecuritiesJourneyReadyForSelectingSecurities(testParams)
+    val depositIds = journey.getSecurityDepositIds
+    journey
+      .submitCheckDeclarationDetailsChangeMode(false)
+      .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
+      .flatMap(
+        _.submitTemporaryAdmissionMethodOfDisposal(
+          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+        )
+      )
+      .flatMapEach(
+        exportMRNs.zipWithIndex,
+        (j: SecuritiesJourney) =>
+          { case (mrn: MRN, index: Int) =>
+            j.submitExportMovementReferenceNumber(index, mrn)
+          }: ((MRN, Int)) => Either[String, SecuritiesJourney]
+      )
+      .getOrFail
+  }
+
   final def buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)
   ): SecuritiesJourney = testParams match {

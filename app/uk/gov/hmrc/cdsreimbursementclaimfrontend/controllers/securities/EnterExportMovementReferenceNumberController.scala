@@ -63,6 +63,8 @@ class EnterExportMovementReferenceNumberController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
+  val nextStepInJourney = routes.EnterContactDetailsController.show
+
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
       val form = getForm(journey).withDefault(journey.answers.exportMovementReferenceNumbers.flatMap(_.headOption))
@@ -221,7 +223,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
       .fold(
         {
           case "submitExportMovementReferenceNumber.unexpected" =>
-            (journey, Redirect(routes.CheckClaimantDetailsController.show))
+            (journey, Redirect(nextStepInJourney))
           case _                                                =>
             val formErrorKey =
               if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
@@ -251,7 +253,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
           } else {
             (
               updatedJourney.withEnterContactDetailsMode(true),
-              Redirect(routes.EnterContactDetailsController.show)
+              Redirect(nextStepInJourney)
             )
           }
       )
@@ -265,11 +267,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
       case (Some(rfs), Some(mod)) if ntas.contains(rfs) && isExportedMod(mod)  =>
         body
       case (Some(rfs), Some(mod)) if ntas.contains(rfs) && !isExportedMod(mod) =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
+        (journey, Redirect(nextStepInJourney)).asFuture
       case (Some(rfs), None) if ntas.contains(rfs)                             =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _)                                                        =>
-        (journey, Redirect(routes.CheckClaimantDetailsController.show)).asFuture
+        (journey, Redirect(nextStepInJourney)).asFuture
     }
 
   private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
