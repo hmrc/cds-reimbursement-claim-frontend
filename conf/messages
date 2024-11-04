@@ -1076,6 +1076,7 @@ enter-new-eori-number.doesNotExist=The entered EORI number is not found in the s
 
 enter-export-movement-reference-number.error.required=Enter an export Movement Reference Number (MRN)
 enter-export-movement-reference-number.error.invalid=Enter a valid export Movement Reference Number (MRN)
+enter-export-movement-reference-number.securities.error.duplicate-number=This export Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-export-movement-reference-number.multiple.error.required=Enter an export Movement Reference Number (MRN)
 enter-export-movement-reference-number.multiple.inset-text=You will be able to add any additional export MRN later.
 enter-export-movement-reference-number.multiple.securities.details.heading=What is a Movement Reference Number (MRN)
@@ -1094,8 +1095,8 @@ enter-export-movement-reference-number.securities.error.import=Enter an export M
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.invalid.number=Enter a valid export Movement Reference Number (MRN)
 enter-export-movement-reference-number.securities.title=Enter the export Movement Reference Number (MRN)
-enter-export-movement-reference-number.securities.single-multiple=Do you want to add another export MRN?
-enter-export-movement-reference-number.securities.single-multiple.error.required=Select yes if you would like to add another export MRN
+enter-export-movement-reference-number.securities.yes-no=Do you want to add another export MRN?
+enter-export-movement-reference-number.securities.yes-no.error.required=Select yes if you would like to add another export MRN
 
 
 enter-importer-eori-number.caption=Importer EORI number

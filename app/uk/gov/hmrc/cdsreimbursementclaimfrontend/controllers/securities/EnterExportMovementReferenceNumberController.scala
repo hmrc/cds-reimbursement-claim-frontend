@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm.isBoolean
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -226,19 +225,38 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   private def submitMrnAndContinue(mrnIndex: Int, answer: (MRN, YesNo), journey: SecuritiesJourney)(implicit
     request: Request[_]
-  ): (SecuritiesJourney, Result) =
+  ): (SecuritiesJourney, Result) = {
+    val formErrorKey =
+      if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
+        enterExportMovementReferenceNumberMultipleKey
+      else enterExportMovementReferenceNumberSingleKey
+
     journey
       .submitExportMovementReferenceNumber(mrnIndex, answer._1)
       .fold(
         {
           case "submitExportMovementReferenceNumber.unexpected" =>
             (journey, Redirect(nextStepInJourney))
+          case "submitExportMovementReferenceNumber.duplicated" =>
+            val updatedForm = getForm(journey).withError(formErrorKey, "securities.error.duplicate-number")
+            (
+              journey,
+              BadRequest(
+                if (mrnIndex == 0)
+                  enterExportMovementReferenceNumberFirstPage(
+                    updatedForm,
+                    routes.EnterExportMovementReferenceNumberController.submitFirst
+                  )
+                else
+                  enterExportMovementReferenceNumberNextPage(
+                    mrnIndex + 1,
+                    updatedForm,
+                    routes.EnterExportMovementReferenceNumberController.submitNext(mrnIndex + 1)
+                  )
+              )
+            )
           case _                                                =>
-            val formErrorKey =
-              if (journey.getMethodOfDisposal.exists(_.value === ExportedInMultipleShipments))
-                enterExportMovementReferenceNumberMultipleKey
-              else enterExportMovementReferenceNumberSingleKey
-            val updatedForm  = getForm(journey).withError(formErrorKey, "securities.error.import")
+            val updatedForm = getForm(journey).withError(formErrorKey, "securities.error.import")
             (
               journey,
               BadRequest(
@@ -269,12 +287,15 @@ class EnterExportMovementReferenceNumberController @Inject() (
                     updatedJourney.withEnterContactDetailsMode(true),
                     Redirect(routes.EnterContactDetailsController.show)
                   )
-                } else {
-                  ???
-                }
+                } else
+                  (
+                    updatedJourney.withEnterContactDetailsMode(true),
+                    Redirect(routes.CheckExportMovementReferenceNumbersController.show)
+                  )
             }
           }
       )
+  }
 
   private def whenTemporaryAdmissionExported(
     journey: SecuritiesJourney
@@ -316,16 +337,16 @@ object EnterExportMovementReferenceNumberController {
   val exportMovementReferenceNumberSingleForm: Form[(MRN, YesNo)] =
     Form(
       mapping(
-        enterExportMovementReferenceNumberSingleKey                                ->
+        enterExportMovementReferenceNumberSingleKey                       ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",
               str => str.isEmpty || MRN(str).isValid
             )
             .transform[MRN](MRN(_), _.value),
-        s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple" ->
+        s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no" ->
           YesOrNoQuestionForm.yesNoMapping(
-            s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple"
+            s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no"
           )
       )(Tuple2.apply)(Tuple2.unapply)
     )
@@ -333,16 +354,16 @@ object EnterExportMovementReferenceNumberController {
   val exportMovementReferenceNumberMultipleForm: Form[(MRN, YesNo)] =
     Form(
       mapping(
-        enterExportMovementReferenceNumberMultipleKey ->
+        enterExportMovementReferenceNumberMultipleKey                       ->
           nonEmptyText
             .verifying(
               "securities.invalid.number",
               str => str.isEmpty || MRN(str).isValid
             )
             .transform[MRN](MRN(_), _.value),
-        enterExportMovementReferenceNumberSingleKey   ->
+        s"$enterExportMovementReferenceNumberMultipleKey.securities.yes-no" ->
           YesOrNoQuestionForm.yesNoMapping(
-            s"$enterExportMovementReferenceNumberSingleKey.securities.single-multiple"
+            s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no"
           )
       )(Tuple2.apply)(Tuple2.unapply)
     )
