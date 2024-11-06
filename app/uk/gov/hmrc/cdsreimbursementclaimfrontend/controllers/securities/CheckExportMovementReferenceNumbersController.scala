@@ -67,18 +67,21 @@ class CheckExportMovementReferenceNumbersController @Inject() (
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) { exportMRNs =>
-      (
-        journey,
-        Ok(
-          checkExportMovementReferenceNumbersPage(
-            exportMRNs,
-            checkExportMovementReferenceNumbersForm,
-            routes.CheckExportMovementReferenceNumbersController.submit,
-            routes.EnterExportMovementReferenceNumberController.showNext,
-            routes.CheckExportMovementReferenceNumbersController.delete
+      if (exportMRNs.isEmpty)
+        (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
+      else
+        (
+          journey,
+          Ok(
+            checkExportMovementReferenceNumbersPage(
+              exportMRNs,
+              checkExportMovementReferenceNumbersForm,
+              routes.CheckExportMovementReferenceNumbersController.submit,
+              routes.EnterExportMovementReferenceNumberController.showNext,
+              routes.CheckExportMovementReferenceNumbersController.delete
+            )
           )
-        )
-      ).asFuture
+        ).asFuture
     }
   }
 
