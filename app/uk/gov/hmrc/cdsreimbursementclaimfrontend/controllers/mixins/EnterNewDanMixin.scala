@@ -71,8 +71,10 @@ trait EnterNewDanMixin extends JourneyBaseController {
             ),
           dan =>
             Future.successful(
-              modifyJourney(journey, dan),
-              Redirect(continueAction)
+              (
+                modifyJourney(journey, dan),
+                Redirect(continueAction)
+              )
             )
         )
     }

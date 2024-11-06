@@ -409,20 +409,38 @@ final class SecuritiesJourney private (
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (needsExportMRNSubmission)
-        if (answers.movementReferenceNumber.contains(exportMrn))
-          Left("submitExportMovementReferenceNumber.duplicated")
-        else
-          Right(
-            this.copy(
-              answers.copy(
-                exportMovementReferenceNumbers = answers.exportMovementReferenceNumbers
-                  .map(mrns => (mrns.take(index) :+ exportMrn) ++ mrns.drop(index + 1))
-                  .orElse(Some(Seq(exportMrn)))
-              )
-            )
-          )
-      else
+      if (needsExportMRNSubmission) {
+        answers.exportMovementReferenceNumbers match {
+          case None if index === 0 =>
+            Right(this.copy(answers.copy(exportMovementReferenceNumbers = Some(Seq(exportMrn)))))
+
+          case Some(exportMRNs) if index >= 0 && index < exportMRNs.size =>
+            val existingMrn = exportMRNs(index)
+            if (exportMrn === existingMrn) Right(this)
+            else {
+              if (exportMRNs.indexOf(exportMrn) === index)
+                Left("submitExportMovementReferenceNumber.duplicated")
+              else
+                Right(
+                  this.copy(
+                    answers.copy(exportMovementReferenceNumbers =
+                      Some((exportMRNs.take(index) :+ exportMrn) ++ exportMRNs.drop(index + 1))
+                    )
+                  )
+                )
+            }
+
+          case Some(exportMRNs) if index === exportMRNs.size =>
+            if (exportMRNs.contains(exportMrn))
+              Left("submitExportMovementReferenceNumber.duplicated")
+            else
+              Right(this.copy(answers.copy(exportMovementReferenceNumbers = Some(exportMRNs :+ exportMrn))))
+
+          case _ =>
+            Left("submitExportMovementReferenceNumber.indexOutOfBounds")
+
+        }
+      } else
         Left("submitExportMovementReferenceNumber.unexpected")
     }
 
