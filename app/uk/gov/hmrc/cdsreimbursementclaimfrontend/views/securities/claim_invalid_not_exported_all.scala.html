@@ -22,17 +22,23 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
 @(securitiesStartPageUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
-@key = @{"claim-invalid-not-exported-all"}
 @title = @{messages(s"claim-invalid-not-exported-all.title")}
 
 @layout(pageTitle = Some(s"$title")) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph1")))
-    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph2", viewConfig.homePageUrl, securitiesStartPageUrl)))
-    @paragraph(Html(messages(s"claim-invalid-not-exported-all.paragraph3", viewConfig.contactCdsTeamUrl)))
+    @paragraph(Html(messages("claim-invalid-not-exported-all.p1")))
+    @paragraph(Html(messages("claim-invalid-not-exported-all.p2")))
+
+    @bulletList(
+        Seq(
+            Html(messages("claim-invalid-not-exported-all.p2.li1", securitiesStartPageUrl)),
+            Html(messages("claim-invalid-not-exported-all.p2.li2"))
+        )
+    )
 }

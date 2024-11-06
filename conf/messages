@@ -584,10 +584,11 @@ choose-reason-for-security.securities.hint=Select one option from the list.
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
 choose-reason-for-security.securities.title=Why was a security deposit or guarantee required?
 
-claim-invalid-not-exported-all.paragraph1=A claim for a security deposit or guarantee repayment under Inward Processing Relief or End-Use Relief will only be accepted when the imported goods have been discharged 100%.
-claim-invalid-not-exported-all.paragraph2=Go back to <a href="{0}" class="govuk-link">claim back import duty and VAT guidance</a> or  <a href="{1}" class="govuk-link">start a new security deposit claim</a>
-claim-invalid-not-exported-all.paragraph3=To update your claim or to discuss your security deposit or guarantee you can <a href="{0}" class="govuk-link" target="_blank">contact HMRC (opens in new tab)</a>
-claim-invalid-not-exported-all.title=Requirement for claiming back a security deposit or guarantee
+claim-invalid-not-exported-all.title=You cannot continue with your claim
+claim-invalid-not-exported-all.p1=HMRC will only accept a claim for a security deposit or guarantee repayment under inward-processing relief, authorised-use relief (Great Britain), or end-use relief (Northern Ireland) when all of the imported goods have been discharged.
+claim-invalid-not-exported-all.p2=You can:
+claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_blank" rel="nofollow noopener">start a new security deposit claim</a>
+claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">contact HMRC (opens in new tab)</a> to update your claim or to discuss your security deposit or guarantee
 
 confirm-full-repayment.caption=Security deposit ID: {0}
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount

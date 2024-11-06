@@ -542,10 +542,13 @@ choose-reason-for-security.securities.hint=Dewiswch un opsiwn o’r rhestr.
 choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio
 choose-reason-for-security.securities.title=Pam oedd angen blaendal sicrwydd neu warant?
 
-claim-invalid-not-exported-all.paragraph1=Bydd hawliad am ad-daliad sicrwydd neu ad-daliad gwarant o dan Ryddhad Prosesu Mewnol neu Ryddhad Defnydd Terfynol ond yn cael ei dderbyn pan fydd y nwyddau a fewnforiwyd wedi’u rhyddhau 100%.
-claim-invalid-not-exported-all.paragraph2=Ewch yn ôl <a href="{0}">i’r arweiniad ar hawlio tollau mewnforio a TAW yn ôl</a> neu <a href="{1}">ddechrau hawliad newydd am flaendal sicrwydd</a>
-claim-invalid-not-exported-all.paragraph3=I ddiweddaru eich hawliad neu i drafod eich blaendal sicrwydd neu warant, gallwch <a href="{0}" targed ="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
-claim-invalid-not-exported-all.title=Gofyniad o ran hawlio blaendal sicrwydd neu warant yn ôl
+claim-invalid-not-exported-all.title=Ni allwch barhau â’ch hawliad
+claim-invalid-not-exported-all.p1=Bydd CThEF ond yn derbyn hawliad am flaendal sicrwydd neu ad-daliad gwarant o dan Ryddhad Prosesu Mewnol, rhyddhad defnydd awdurdodedig (Prydain Fawr), neu ryddhad defnydd terfynol (Gogledd Iwerddon) pan fydd yr holl nwyddau a fewnforiwyd wedi’u rhyddhau.
+claim-invalid-not-exported-all.p2=Gallwch wneud y canlynol:
+claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_blank" rel="nofollow noopener">dechrau hawliad am flaendal sicrwydd newydd</a>
+claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">cysylltu â CThEF (yn agor tab newydd)</a> i ddiweddaru’ch hawliad neu i drafod eich blaendal sicrwydd neu warant
+
+
 
 confirm-full-repayment.caption=ID Blaendal sicrwydd: {0}
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
