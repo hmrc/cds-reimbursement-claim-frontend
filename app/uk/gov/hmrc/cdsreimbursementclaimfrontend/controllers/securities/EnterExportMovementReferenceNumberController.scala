@@ -224,7 +224,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                               // when there are already more export MRNs we must be in change mode and should display summary page
                               if (journey.answers.exportMovementReferenceNumbers.exists(_.size > 1))
                                 (
-                                  updatedJourney.withEnterContactDetailsMode(true),
+                                  updatedJourney,
                                   Redirect(routes.CheckExportMovementReferenceNumbersController.show)
                                 )
                               else
