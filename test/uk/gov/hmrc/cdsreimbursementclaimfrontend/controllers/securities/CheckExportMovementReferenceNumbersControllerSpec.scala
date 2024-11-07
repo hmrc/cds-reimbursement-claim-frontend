@@ -183,6 +183,11 @@ class CheckExportMovementReferenceNumbersControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(journey.withEnterContactDetailsMode(true))
+          )(
+            Right(())
+          )
         }
 
         checkIsRedirect(
