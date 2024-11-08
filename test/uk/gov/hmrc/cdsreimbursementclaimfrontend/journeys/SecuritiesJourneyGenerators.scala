@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 /** A collection of generators supporting the tests of SecuritiesJourney. */
 object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
 
-  def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
+  def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
     Gen
       .sequence(
         decl.getSecurityDepositIds
@@ -51,7 +51,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                 sd.taxDetails.halfNonEmpty.map(td =>
                   Gen
                     .choose(BigDecimal.exact("0.00"), td.getAmount - BigDecimal.exact("0.01"))
-                    .map(amount => (sd.securityDepositId, td.getTaxCode, amount))
+                    .map(amount => (sd.securityDepositId, td.getTaxCode, td.getAmount, amount))
                 )
               )
               .getOrElse(Seq.empty)
@@ -59,7 +59,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       )
       .map(_.asScala.toSeq)
 
-  def validSecurityReclaimsFullAmountGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal)]] =
+  def validSecurityReclaimsFullAmountGen(
+    decl: DisplayDeclaration
+  ): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
     Gen
       .const(
         decl.getSecurityDepositIds
@@ -67,7 +69,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           .flatMap(depositId =>
             decl
               .getSecurityDetailsFor(depositId)
-              .map(sd => sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, BigDecimal("0.00"))))
+              .map(sd =>
+                sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount, BigDecimal("0.00")))
+              )
               .getOrElse(Seq.empty)
           )
       )
@@ -266,21 +270,21 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     } yield (mrn, rfs, acc14, documentType)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
     for {
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 
   lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
     for {
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
     } yield (mrn, rfs, decl, reclaims)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal)])] =
+    : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
     for {
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationNotGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
@@ -410,7 +414,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           reclaims
             .groupBy(_._1)
             .view
-            .mapValues(s => SortedMap(s.map { case (_, taxCode, amount) => (taxCode, Option(amount)) }: _*))
+            .mapValues(s => SortedMap(s.map { case (_, taxCode, _, amount) => (taxCode, Option(amount)) }: _*))
             .toSeq: _*
         )
 

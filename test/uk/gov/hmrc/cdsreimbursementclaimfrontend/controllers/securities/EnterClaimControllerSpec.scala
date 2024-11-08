@@ -172,7 +172,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _) <- reclaims) {
+        for ((depositId, taxCode, _, _) <- reclaims) {
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -195,7 +195,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((_, taxCode, _) <- reclaims) {
+        for ((_, taxCode, _, _) <- reclaims) {
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -213,7 +213,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _) <- reclaims) {
+        for ((depositId, taxCode, _, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -238,7 +238,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _) <- reclaims) {
+        for ((depositId, taxCode, _, _) <- reclaims) {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
@@ -272,7 +272,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((_, taxCode, _) <- reclaims) {
+        for ((_, taxCode, _, _) <- reclaims) {
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -290,7 +290,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _) <- reclaims) {
+        for ((depositId, taxCode, _, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -315,7 +315,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _) <- reclaims) {
+        for ((depositId, taxCode, _, _) <- reclaims) {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head

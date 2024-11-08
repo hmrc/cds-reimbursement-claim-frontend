@@ -731,7 +731,7 @@ class OverpaymentsSingleJourneySpec
       }
     }
 
-    "submit valid amount for selected tax code" in {
+    "submit valid correct amount for selected tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = OverpaymentsSingleJourney
         .empty(exampleEori)
@@ -742,7 +742,19 @@ class OverpaymentsSingleJourneySpec
       journeyEither.isRight shouldBe true
     }
 
-    "submit valid amount for wrong tax code" in {
+    "submit valid claim amount for selected tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
+
+      journeyEither.isRight                               shouldBe true
+      journeyEither.getOrFail.getTotalReimbursementAmount shouldBe BigDecimal("6.66")
+    }
+
+    "submit valid correct amount for wrong tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
@@ -755,7 +767,20 @@ class OverpaymentsSingleJourneySpec
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
-    "submit invalid amount for selected tax code" in {
+    "submit valid claim amount for wrong tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("6.66")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "submit invalid correct amount for selected tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val declaration        = OverpaymentsSingleJourney
         .empty(exampleEori)
@@ -774,13 +799,43 @@ class OverpaymentsSingleJourneySpec
       journeyEitherTestGreater  shouldBe Left("submitCorrectAmount.invalidAmount")
     }
 
-    "submit invalid amount for wrong tax code" in {
+    "submit invalid claim amount for selected tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration        = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+
+      val journeyEitherTestZero     =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("0")))
+      val journeyEitherTestNegative =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("-0.01")))
+      val journeyEitherTestGreater  =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("10.01")))
+
+      journeyEitherTestZero     shouldBe Left("submitCorrectAmount.invalidAmount")
+      journeyEitherTestNegative shouldBe Left("submitCorrectAmount.invalidAmount")
+      journeyEitherTestGreater  shouldBe Left("submitCorrectAmount.invalidAmount")
+    }
+
+    "submit invalid correct amount for wrong tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = OverpaymentsSingleJourney
         .empty(exampleEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-        .flatMap(_.submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("0.00"))))
+        .flatMap(_.submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("10.0"))))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "submit invalid claim amount for wrong tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("0.00")))
 
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }

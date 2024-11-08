@@ -216,7 +216,7 @@ class EnterMovementReferenceNumberController @Inject() (
         routes.EnterImporterEoriNumberController.show
       } else {
         if (pageIndex === 1) routes.CheckDeclarationDetailsController.show
-        else if (journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty)
+        else if (journey.userHasSeenCYAPage && journey.getCorrectAmountsFor(mrn).isEmpty)
           routes.SelectDutiesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show
       }
