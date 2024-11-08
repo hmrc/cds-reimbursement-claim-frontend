@@ -197,7 +197,7 @@ class ConfirmFullRepaymentControllerSpec
                 .view
                 .filterKeys(depositIds.contains)
                 .view
-                .mapValues(_.map { case (_, tc, amount) => (tc, amount) })
+                .mapValues(_.map { case (_, tc, _, amount) => (tc, amount) })
                 .toSeq
             val journey: SecuritiesJourney                                             =
               emptyJourney
@@ -239,7 +239,7 @@ class ConfirmFullRepaymentControllerSpec
           ) {
             val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
             val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)
@@ -290,7 +290,7 @@ class ConfirmFullRepaymentControllerSpec
           ) {
             val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
             val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
             val journey: SecuritiesJourney                                             =
               emptyJourney
                 .submitMovementReferenceNumber(mrn)
@@ -375,7 +375,7 @@ class ConfirmFullRepaymentControllerSpec
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
           val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-            reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+            reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
           val journey: SecuritiesJourney                                             =
             emptyJourney

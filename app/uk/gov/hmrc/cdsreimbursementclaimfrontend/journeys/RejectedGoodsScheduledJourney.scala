@@ -323,6 +323,14 @@ final class RejectedGoodsScheduledJourney private (
         Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
+  def submitClaimAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    claimAmount: BigDecimal
+  ): Either[String, RejectedGoodsScheduledJourney] =
+    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
+
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledJourney =

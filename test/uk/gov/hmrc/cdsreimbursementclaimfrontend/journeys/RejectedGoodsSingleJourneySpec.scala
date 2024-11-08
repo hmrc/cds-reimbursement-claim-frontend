@@ -670,7 +670,7 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "submit valid amount for selected tax code" in {
+    "submit valid correct amount for selected tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
@@ -681,7 +681,19 @@ class RejectedGoodsSingleJourneySpec
       journeyEither.isRight shouldBe true
     }
 
-    "submit valid amount for wrong tax code" in {
+    "submit valid claim amount for selected tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
+
+      journeyEither.isRight                               shouldBe true
+      journeyEither.getOrFail.getTotalReimbursementAmount shouldBe BigDecimal("6.66")
+    }
+
+    "submit valid correct amount for wrong tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
@@ -694,7 +706,20 @@ class RejectedGoodsSingleJourneySpec
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
-    "submit invalid amount for selected tax code" in {
+    "submit valid claim amount for wrong tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("6.66")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "submit invalid correct amount for selected tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val declaration        = RejectedGoodsSingleJourney
         .empty(exampleEori)
@@ -713,18 +738,48 @@ class RejectedGoodsSingleJourneySpec
       journeyEitherTestGreater  shouldBe Left("submitCorrectAmount.invalidAmount")
     }
 
-    "submit invalid amount for wrong tax code" in {
+    "submit invalid claim amount for selected tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration        = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+
+      val journeyEitherTestZero     =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("0.00")))
+      val journeyEitherTestNegative =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("-0.01")))
+      val journeyEitherTestGreater  =
+        declaration.flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("10.01")))
+
+      journeyEitherTestZero     shouldBe Left("submitCorrectAmount.invalidAmount")
+      journeyEitherTestNegative shouldBe Left("submitCorrectAmount.invalidAmount")
+      journeyEitherTestGreater  shouldBe Left("submitCorrectAmount.invalidAmount")
+    }
+
+    "submit invalid correct amount for wrong tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
-        .flatMap(_.submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("0.00"))))
+        .flatMap(_.submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("10.00"))))
 
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
-    "change to valid amount for selected tax code" in {
+    "submit invalid claim amount for wrong tax code" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+        .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("0.00")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "change to valid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getSelectedTaxCodesWithCorrectAmount
@@ -738,7 +793,7 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "change to invalid amount for selected tax code" in {
+    "change to invalid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.get
 
@@ -752,7 +807,7 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "change to valid amount for the tax code not in ACC14" in {
+    "change to valid correct amount for the tax code not in ACC14" in {
       forAll(completeJourneyGen) { journey =>
         val taxCodeSet    = journey.getNdrcDetails.map(_.map(_.taxType).map(TaxCode.apply).toSet).getOrElse(Set.empty)
         val wrongTaxCode  = TaxCodes.all.find(taxCode => !taxCodeSet.contains(taxCode)).getOrElse(TaxCode.NI633)

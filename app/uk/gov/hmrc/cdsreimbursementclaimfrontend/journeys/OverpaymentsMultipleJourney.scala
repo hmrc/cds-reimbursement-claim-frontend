@@ -598,6 +598,46 @@ final class OverpaymentsMultipleJourney private (
       }
     }
 
+  def submitClaimAmount(
+    declarationId: MRN,
+    taxCode: TaxCode,
+    claimAmount: BigDecimal
+  ): Either[String, OverpaymentsMultipleJourney] =
+    whileClaimIsAmendable {
+      getDisplayDeclarationFor(declarationId) match {
+        case None =>
+          Left("submitCorrectAmount.missingDisplayDeclaration")
+
+        case Some(_) =>
+          getNdrcDetailsFor(declarationId, taxCode) match {
+            case None =>
+              Left("submitCorrectAmount.taxCodeNotInACC14")
+
+            case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
+              if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+                val correctAmount       = BigDecimal(ndrcDetails.amount) - claimAmount
+                val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
+                  case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
+                }
+                Right(
+                  this.copy(
+                    answers.copy(correctedAmounts =
+                      answers.correctedAmounts
+                        .orElse(Some(OrderedMap.empty[MRN, OrderedMap[TaxCode, Option[BigDecimal]]]))
+                        .map(_.updated(declarationId, newCorrectedAmounts))
+                    )
+                  )
+                )
+              } else
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+
+            case _ =>
+              Left("submitCorrectAmount.invalidReimbursementAmount")
+          }
+      }
+    }
+
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))

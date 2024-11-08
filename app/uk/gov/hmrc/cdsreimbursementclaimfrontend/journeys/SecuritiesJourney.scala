@@ -588,6 +588,9 @@ final class SecuritiesJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
     correctAmount >= 0 && correctAmount < taxDetails.getAmount
 
+  def isValidClaimAmount(claimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
+    claimAmount > 0 && claimAmount <= taxDetails.getAmount
+
   def submitCorrectAmount(
     securityDepositId: String,
     taxCode: TaxCode,
@@ -611,6 +614,53 @@ final class SecuritiesJourney private (
                 reclaims.map {
                   case (tc, _) if tc === taxCode => (tc, Some(correctAmount))
                   case other                     => other
+                }
+              )
+
+            case other => other
+          })
+
+        Right(
+          this.copy(
+            answers.copy(
+              correctedAmounts = updatedCorrectedAmounts
+            )
+          )
+        )
+      }
+    }
+
+  def submitClaimAmount(
+    securityDepositId: String,
+    taxCode: TaxCode,
+    claimAmount: BigDecimal
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if (!isValidSecurityDepositId(securityDepositId))
+        Left("submitCorrectAmount.invalidSecurityDepositId")
+      else if (!isSelectedDepositId(securityDepositId))
+        Left("submitCorrectAmount.securityDepositIdNotSelected")
+      else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
+        Left("submitCorrectAmount.invalidTaxCode")
+      else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidClaimAmount(claimAmount, _)))
+        Left("submitCorrectAmount.invalidAmount")
+      else {
+        val updatedCorrectedAmounts: Option[SortedMap[String, CorrectedAmounts]] =
+          answers.correctedAmounts.map(_.map {
+            case (sid, reclaims) if sid === securityDepositId =>
+              (
+                sid,
+                reclaims.map {
+                  case (tc, _) if tc === taxCode =>
+                    (
+                      tc,
+                      getSecurityTaxDetailsFor(sid, taxCode)
+                        .map { taxDetails =>
+                          taxDetails.getAmount - claimAmount
+                        }
+                    )
+
+                  case other => other
                 }
               )
 

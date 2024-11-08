@@ -276,6 +276,14 @@ final class OverpaymentsScheduledJourney private (
         Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
+  def submitClaimAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    claimAmount: BigDecimal
+  ): Either[String, OverpaymentsScheduledJourney] =
+    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
+
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))
