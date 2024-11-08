@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -124,28 +125,35 @@ class EnterContactDetailsControllerSpec
         )
       }
 
-      "submit valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(journey.withEnterContactDetailsMode(true)))
-          mockStoreSession(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction(
-            "enter-contact-details.contact-name"  -> name.toFullName,
-            "enter-contact-details.contact-email" -> email.value
-          ),
-          routes.CheckClaimantDetailsController.redirectToALF
-        )
-      }
-
-      "change valid contact details" in forAll(buildCompleteJourneyGen(), genEmail, genName) { (journey, email, name) =>
+      "submit a valid contact details" in forAll(
+        buildCompleteJourneyGen(submitContactAddress = false),
+        genEmail,
+        genName
+      ) { (journey, email, name) =>
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(SessionData(journey))
-          mockStoreSession(Right(()))
+          mockAuthWithNoRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            session.copy(overpaymentsScheduledJourney =
+              Some(
+                journey.submitContactDetails(
+                  Some(
+                    MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
+                      journey.answers.contactDetails
+                    )
+                  )
+                )
+              )
+            )
+          )(Right(()))
         }
+
+        checkPageIsDisplayed(
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-contact-details.title")
+        )
 
         checkIsRedirect(
           performAction(
@@ -154,6 +162,42 @@ class EnterContactDetailsControllerSpec
           ),
           routes.CheckClaimantDetailsController.show
         )
+      }
+
+      "fast forward to CYA page when claim is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
+        (journey, email, name) =>
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockAuthWithNoRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(
+              session.copy(overpaymentsScheduledJourney =
+                Some(
+                  journey.submitContactDetails(
+                    Some(
+                      MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
+                        journey.answers.contactDetails
+                      )
+                    )
+                  )
+                )
+              )
+            )(Right(()))
+          }
+
+          checkPageIsDisplayed(
+            controller.show()(FakeRequest()),
+            messageFromMessageKey("enter-contact-details.title")
+          )
+
+          checkIsRedirect(
+            performAction(
+              "enter-contact-details.contact-name"  -> name.toFullName,
+              "enter-contact-details.contact-email" -> email.value
+            ),
+            routes.CheckYourAnswersController.show
+          )
       }
     }
   }

@@ -92,7 +92,9 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
                     .computeChanges(previousDetails)
                 )
               )
-              if (journey.answers.enterContactDetailsMode) {
+              if (journey.userHasSeenCYAPage) {
+                Future.successful((updatedJourney, Redirect(checkYourAnswers)))
+              } else if (journey.answers.enterContactDetailsMode) {
                 Future.successful((updatedJourney, Redirect(continueRouteEnterAddress)))
               } else {
                 Future.successful((updatedJourney, Redirect(continueRouteChangeDetails)))
