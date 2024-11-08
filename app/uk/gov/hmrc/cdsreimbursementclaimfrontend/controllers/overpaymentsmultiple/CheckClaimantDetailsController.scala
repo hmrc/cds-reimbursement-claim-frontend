@@ -85,5 +85,9 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: OverpaymentsMultipleJourney): (OverpaymentsMultipleJourney, Result) =
-    (journey, Redirect(routes.CheckClaimantDetailsController.show))
+    if (journey.userHasSeenCYAPage) {
+      (journey, Redirect(routes.CheckYourAnswersController.show))
+    } else {
+      (journey, Redirect(routes.CheckClaimantDetailsController.show))
+    }
 }
