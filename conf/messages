@@ -1093,7 +1093,6 @@ enter-export-movement-reference-number.next.securities.label=Enter the {0} expor
 enter-export-movement-reference-number.securities.details.heading=What is a Movement Reference Number (MRN)
 enter-export-movement-reference-number.securities.details.paragraph.1=MRN is a unique 18-digit number that is issued when an export is declared.
 enter-export-movement-reference-number.securities.details.paragraph.2=You can find it in your initial export acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-export-movement-reference-number.securities.enter-mrn.label=Enter export MRN
 enter-export-movement-reference-number.securities.error.import=Enter an export Movement Reference Number (MRN)
 enter-export-movement-reference-number.securities.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-export-movement-reference-number.securities.invalid.number=Enter a valid export Movement Reference Number (MRN)

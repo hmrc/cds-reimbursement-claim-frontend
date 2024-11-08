@@ -17,7 +17,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.{Call, Request}
-@import play.twirl.api.Html
+@import play.twirl.api._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
@@ -46,9 +46,23 @@
 
 @label = @{EnterExportMovementReferenceNumberHelper.label(pageIndex)}
 
+@hintHtml = @{
+    HtmlFormat.fill(
+        Seq(
+            dropdownDetails(summary = "enter-export-movement-reference-number.securities.details.heading",
+            html(
+                paragraph(Html(messages("enter-export-movement-reference-number.securities.details.paragraph.1")), Some("govuk-body")),
+                paragraph(Html(messages("enter-export-movement-reference-number.securities.details.paragraph.2")), Some("govuk-body"))
+            )),
+            Html(messages("enter-export-movement-reference-number.securities.help"))
+        )
+    )
+}
+
 @hasErrors = @{
     form.hasErrors || form.hasGlobalErrors
 }
+
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -56,25 +70,15 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
-
-        @paragraph(Html(messages(s"enter-export-movement-reference-number.next.inset-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
-
-        @dropdownDetails(summary = combine(key, subKey, "details.heading").head,
-            html(
-                paragraph(Html(messages(combine(key, subKey, "details.paragraph.1").head)), Some("govuk-body")),
-                paragraph(Html(messages(combine(key, subKey, "details.paragraph.2").head)), Some("govuk-body"))
-            ))
-
         @inputText(
             form = form,
             id = key,
             name = key,
-            label = label,
-            doNotResolveLabel = true,
-            isPageHeading = false,
+            label = title,
+            isPageHeading = true,
             classes = Some("govuk-input--width-20"),
-            hint = Some(combine(key, subKey, "help").head)
+            hintHtml = Some(hintHtml),
+            doNotResolveLabel = true
         )
 
         @submitButton("button.continue")
