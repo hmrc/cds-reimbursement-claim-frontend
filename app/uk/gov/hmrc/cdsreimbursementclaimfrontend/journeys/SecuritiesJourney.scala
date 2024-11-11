@@ -210,6 +210,26 @@ final class SecuritiesJourney private (
       )
       .getOrElse(SortedMap.empty)
 
+  def getReclaimWithAmounts: SortedMap[String, List[ReclaimWithAmounts]] =
+    answers.correctedAmounts match {
+      case Some(correctedAmounts) =>
+        correctedAmounts.transform((key, value) => toClaimWithCorrectAmount(value, key))
+      case None                   => SortedMap.empty
+    }
+
+  private def toClaimWithCorrectAmount(
+    correctedAmounts: CorrectedAmounts,
+    securityDepositId: String
+  ): List[ReclaimWithAmounts] =
+    correctedAmounts.view.map { case (taxCode, Some(amount)) =>
+      val depositAmountsForSecurityDepositId = getSecurityDepositAmountsFor(securityDepositId)
+      ReclaimWithAmounts(
+        taxCode = taxCode,
+        claimAmount = amount,
+        youPaidAmount = depositAmountsForSecurityDepositId(taxCode)
+      )
+    }.toList
+
   def hasCompleteSecuritiesReclaims: Boolean =
     answers.correctedAmounts.nonEmpty &&
       answers.correctedAmounts.forall(m =>
@@ -642,7 +662,7 @@ final class SecuritiesJourney private (
             val fullAmountReclaims: CorrectedAmounts =
               SortedMap(
                 securityDetails.taxDetails
-                  .map(td => td.getTaxCode -> Some(ZERO)): _*
+                  .map(td => td.getTaxCode -> Some(td.getAmount)): _*
               )
             (
               securityDepositId,

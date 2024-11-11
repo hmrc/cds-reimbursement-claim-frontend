@@ -57,7 +57,7 @@ class CheckClaimDetailsController @Inject() (
                 .submitCheckClaimDetailsChangeMode(true)
                 .resetClaimFullAmountMode(),
               Ok(
-                checkClaimDetailsPage(displayDeclaration, journey.getSecuritiesReclaims, postAction)
+                checkClaimDetailsPage(displayDeclaration, journey.getReclaimWithAmounts, postAction)
               )
             )
           }

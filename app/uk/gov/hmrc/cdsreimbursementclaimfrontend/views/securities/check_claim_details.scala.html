@@ -24,6 +24,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import scala.collection.immutable.SortedMap
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -32,10 +35,11 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    govukTable: GovukTable
 )
 
-@(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, List[ReclaimWithAmounts]],postAction: Call)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-claim.securities"}
 @title = @{messages(s"check-claim.securities.title")}
@@ -45,17 +49,27 @@
     @heading(Html(title))
 
     @correctedAmounts.map { case (securityDepositId, reclaims) =>
-        @subHeading(Html(messages(s"check-claim.securities.claim-for-security.h2", securityDepositId)))
-        @summary(SecuritiesReclaimDetailsSummary(
+        @subHeading(id = s"security-deposit-id-h2-$securityDepositId", heading = Html(messages(s"check-claim.securities.claim-for-security.h2", securityDepositId)), classes = "govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2")
+        @summary(ClaimsTableHelper.makeSecurityClaimFullAmount(
             securityDepositId,
             reclaims,
             displayDeclaration,
-            s"check-your-answers.claim-for-security",
-            Some(routes.ConfirmFullRepaymentController.show),
-            Some(routes.SelectDutiesController.show),
-            Some(routes.EnterClaimController.show)
+            "check-your-answers.claim-for-security",
+            Some(routes.ConfirmFullRepaymentController.show)
         ))
+
+        @govukTable(Table(
+            rows = ClaimsTableHelper.claimsRowsForSecurities(securityDepositId, reclaims, routes.EnterClaimController.show),
+            head = Some(ClaimsTableHelper.claimsTableHeaders(s"-$securityDepositId")),
+            firstCellIsHeader = true,
+            attributes = Map("id" -> s"claims-table-$securityDepositId"),
+            classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4"
+        ))
+        <hr class="govuk-section-break govuk-section-break--visible">
+        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-7">
     }
+
+    @summary(SummaryList(rows = ClaimsTableHelper.claimsTotalSummary(correctedAmounts.values.flatten.map(_.claimAmount).sum), classes = "govuk-summary-list--no-border", attributes = Map("id" -> "repayment-total")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.continue")
