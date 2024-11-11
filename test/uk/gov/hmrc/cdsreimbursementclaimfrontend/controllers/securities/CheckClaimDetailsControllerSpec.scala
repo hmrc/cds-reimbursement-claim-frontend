@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -53,7 +54,8 @@ class CheckClaimDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with TestWithJourneyGenerator[SecuritiesJourney]
-    with SummaryMatchers {
+    with SummaryMatchers
+    with ClaimsTableValidator {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
 
@@ -82,41 +84,33 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: SecuritiesJourney
   ) = {
-    val headers = doc.select("h2.govuk-heading-m").eachText().asScala.toList
 
-    val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
-    val summaryValues = doc.select(".govuk-summary-list__value").eachText()
-    val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
+    val claims = journey.getReclaimWithAmounts
 
-    headers should not be empty
+    //verify claiming full amounts
+    claims.map { case (securityDepositId, reclaimsList) =>
+      doc
+        .getElementById(s"security-deposit-id-h2-$securityDepositId")
+        .text() shouldBe s"Security deposit ID: $securityDepositId"
 
-    val expectedHeaders: Seq[String] =
-      journey.getSelectedDepositIds.map((depositId: String) => s"Security deposit: $depositId").toList
+      reclaimsList.map { reclaim =>
+        val claimFullAmountElement = doc.getElementById(s"claim-full-amount-$securityDepositId")
+        claimFullAmountElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Claiming full amount?"
+        claimFullAmountElement
+          .getElementsByClass("govuk-summary-list__value")
+          .text()                                                                   shouldBe (if (journey.isFullSecurityAmountClaimed(securityDepositId)) "Yes" else "No")
+        val changeLink = claimFullAmountElement.getElementById(s"change-claim-full-amount-$securityDepositId")
+        changeLink.text()       shouldBe s"Change claim full amount for Security ID: $securityDepositId"
+        changeLink.attr("href") shouldBe routes.ConfirmFullRepaymentController.show(securityDepositId).url
+      }
+    }
 
-    headers should contain theSameElementsAs expectedHeaders
-
-    val expectedSummaries: Seq[(String, Option[String])] =
-      journey.getSelectedDepositIds.flatMap((sid: String) =>
-        Seq(
-          ("Claim full amount" -> Some(if (journey.isFullSecurityAmountClaimed(sid)) "Yes" else "No")),
-          ("Duties selected"   -> Some(
-            journey
-              .getSelectedDutiesFor(sid)
-              .get
-              .sorted
-              .map(taxCode => messages(s"tax-code.$taxCode"))
-              .mkString(" ")
-          )),
-          ("Total"             -> Some(journey.getTotalReclaimAmountFor(sid).getOrElse(BigDecimal("0.00")).toPoundSterlingString))
-        ) ++ journey.getSecuritiesReclaims
-          .get(sid)
-          .get
-          .map { case (taxCode, amount) =>
-            (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
-          }
-      )
-
-    summaries.toSeq should containOnlyDefinedPairsOf(expectedSummaries)
+    validateClaimsTablesForSecurities(doc, claims, routes.EnterClaimController.show)
+    val repaymentTotalElement = doc.getElementById("repayment-total")
+    repaymentTotalElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Repayment claim total"
+    repaymentTotalElement
+      .getElementsByClass("govuk-summary-list__value")
+      .text()                                                                  shouldBe journey.getReclaimWithAmounts.values.flatten.map(_.claimAmount).sum.toPoundSterlingString
 
   }
 

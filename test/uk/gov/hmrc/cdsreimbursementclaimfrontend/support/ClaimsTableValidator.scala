@@ -21,6 +21,7 @@ import org.scalatest.Assertion
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -43,14 +44,13 @@ trait ClaimsTableValidator {
 
     validateClaimsTableHeaders(doc)
 
-    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, correctedAmount, _) =>
+    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, _) =>
       doc
         .getElementById(s"selected-claim-$taxCode")
-        .text()                                                   shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$taxCode").text()        shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"you-should-have-paid-$taxCode").text() shouldBe correctedAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$taxCode").text()         shouldBe amount.toPoundSterlingString
-      doc.getElementById(s"change-$taxCode").html()               shouldBe m(
+        .text()                                            shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"what-you-paid-$taxCode").text() shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$taxCode").text()  shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$taxCode").html()        shouldBe m(
         "check-claim.table.change-link",
         claimAction(taxCode).url,
         s"change-link-$taxCode"
@@ -68,16 +68,15 @@ trait ClaimsTableValidator {
   )(implicit
     m: Messages
   ) =
-    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, correctedAmount, _) =>
+    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, _) =>
       val suffix = s"${mrn.value}-$taxCode"
 
       doc
         .getElementById(s"selected-claim-$suffix")
-        .text()                                                  shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$suffix").text()        shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"you-should-have-paid-$suffix").text() shouldBe correctedAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$suffix").text()         shouldBe amount.toPoundSterlingString
-      doc.getElementById(s"change-$suffix").html()               shouldBe m(
+        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()        shouldBe m(
         "check-claim.table.change-link",
         claimAction(index, taxCode).url,
         s"change-link-$suffix"
@@ -104,21 +103,19 @@ trait ClaimsTableValidator {
   )(implicit
     m: Messages
   ) =
-    reimbursements.map {
-      case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, correctedAmount, Some(dutyType)) =>
-        val suffix = s"$dutyType-$taxCode"
+    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, Some(dutyType)) =>
+      val suffix = s"$dutyType-$taxCode"
 
-        doc
-          .getElementById(s"selected-claim-$suffix")
-          .text()                                                  shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-        doc.getElementById(s"what-you-paid-$suffix").text()        shouldBe paidAmount.toPoundSterlingString
-        doc.getElementById(s"you-should-have-paid-$suffix").text() shouldBe correctedAmount.toPoundSterlingString
-        doc.getElementById(s"claim-amount-$suffix").text()         shouldBe amount.toPoundSterlingString
-        doc.getElementById(s"change-$suffix").html()               shouldBe m(
-          "check-claim.table.change-link",
-          claimAction(dutyType, taxCode).url,
-          s"change-link-$suffix"
-        )
+      doc
+        .getElementById(s"selected-claim-$suffix")
+        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()        shouldBe m(
+        "check-claim.table.change-link",
+        claimAction(dutyType, taxCode).url,
+        s"change-link-$suffix"
+      )
     }
 
   def validateClaimsTablesForScheduled(
@@ -134,6 +131,55 @@ trait ClaimsTableValidator {
       validateDutyTotalRow(doc, claims._2, s"${claims._1}")
     }
 
+  private def validateRowsForSecurities(
+    doc: Document,
+    securityDepositId: String,
+    reimbursements: List[ReclaimWithAmounts],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ) =
+    reimbursements.map { case ReclaimWithAmounts(taxCode, claimAmount, youPaidAmount) =>
+      val suffix = s"$securityDepositId-$taxCode"
+
+      doc
+        .getElementById(s"selected-claim-$suffix")
+        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe youPaidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe claimAmount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()        shouldBe m(
+        "check-claim.table.change-link",
+        claimAction(securityDepositId, taxCode).url,
+        s"change-link-$suffix"
+      )
+    }
+
+  private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String = "")(implicit
+    m: Messages
+  ) = {
+    doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
+    doc
+      .getElementById(s"what-you-paid-total-$suffix")
+      .text()                                        shouldBe claims.map(_.youPaidAmount).sum.toPoundSterlingString
+    doc
+      .getElementById(s"claim-amount-total-$suffix")
+      .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
+    doc.getElementById(s"blank-cell-$suffix").text() shouldBe ""
+  }
+
+  def validateClaimsTablesForSecurities(
+    doc: Document,
+    reimbursements: Map[String, List[ReclaimWithAmounts]],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ): immutable.Iterable[Assertion] =
+    reimbursements.map { case (securityDepositId, reclaimsList) =>
+      validateClaimsTableHeaders(doc, s"-$securityDepositId")
+      validateRowsForSecurities(doc, securityDepositId, reclaimsList, claimAction)
+      validateTotalRow(doc, reclaimsList, securityDepositId)
+    }
+
   def toReimbursementWithCorrectAmount(
     reimbursements: Seq[Reimbursement]
   ): Seq[ReimbursementWithCorrectAmount] =
@@ -147,11 +193,10 @@ trait ClaimsTableValidator {
     }
 
   private def validateClaimsTableHeaders(doc: Document, suffix: String = "")(implicit m: Messages) = {
-    doc.getElementById(s"selected-claim-header$suffix").text()   shouldBe m("check-claim.table-header.selected-charges")
-    doc.getElementById(s"you-paid-header$suffix").text()         shouldBe m("check-claim.table-header.you-paid")
-    doc.getElementById(s"should-have-paid-header$suffix").text() shouldBe m("check-claim.table-header.should-have-paid")
-    doc.getElementById(s"claim-amount-header$suffix").text()     shouldBe m("check-claim.table-header.claim-amount")
-    doc.getElementById(s"blank-header$suffix").text()            shouldBe ""
+    doc.getElementById(s"selected-claim-header$suffix").text() shouldBe m("check-claim.table-header.selected-charges")
+    doc.getElementById(s"you-paid-header$suffix").text()       shouldBe m("check-claim.table-header.you-paid")
+    doc.getElementById(s"claim-amount-header$suffix").text()   shouldBe m("check-claim.table-header.claim-amount")
+    doc.getElementById(s"blank-header$suffix").text()          shouldBe ""
   }
 
   private def validateDutyTotalRow(doc: Document, claims: Seq[ReimbursementWithCorrectAmount], suffix: String = "")(
@@ -161,9 +206,6 @@ trait ClaimsTableValidator {
     doc
       .getElementById(s"what-you-paid-total-$suffix")
       .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
-    doc
-      .getElementById(s"you-should-have-paid-total-$suffix")
-      .text()                                                shouldBe claims.map(_.correctedAmount).sum.toPoundSterlingString
     doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
     doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
   }

@@ -20,10 +20,11 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -31,7 +32,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.HeadCell
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import cats.syntax.eq._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
+import java.util.Locale
 import scala.collection.immutable.SortedMap
 
 object ClaimsTableHelper {
@@ -50,11 +53,6 @@ object ClaimsTableHelper {
         attributes = Map("id" -> s"you-paid-header$headerIdSuffix")
       ),
       HeadCell(
-        content = Text(messages("check-claim.table-header.should-have-paid")),
-        classes = "govuk-table__header govuk-table__header--numeric",
-        attributes = Map("id" -> s"should-have-paid-header$headerIdSuffix")
-      ),
-      HeadCell(
         content = Text(messages("check-claim.table-header.claim-amount")),
         classes = "govuk-table__header govuk-table__header--numeric",
         attributes = Map("id" -> s"claim-amount-header$headerIdSuffix")
@@ -69,8 +67,8 @@ object ClaimsTableHelper {
   def claimsRowsForSingle(claims: Seq[ReimbursementWithCorrectAmount], claimAction: TaxCode => Call)(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, _) =>
-      makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, taxCode.value) ++ Seq(
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, _) =>
+      makeCommonRowCells(taxCode, claimAmount, paidAmount, taxCode.value) ++ Seq(
         TableRow(
           content = HtmlContent(
             messages("check-claim.table.change-link", claimAction(taxCode).url, s"change-link-$taxCode")
@@ -89,9 +87,9 @@ object ClaimsTableHelper {
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, _) =>
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, _) =>
       val suffix = s"${mrn.value}-$taxCode"
-      makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
+      makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
         TableRow(
           content = HtmlContent(
             messages("check-claim.table.change-link", claimAction(index, taxCode).url, s"change-link-$suffix")
@@ -104,7 +102,6 @@ object ClaimsTableHelper {
       makeTotalRowCells(
         claims.map(_.amount).sum,
         claims.map(_.paidAmount).sum,
-        claims.map(_.correctedAmount).sum,
         s"${mrn.value}"
       )
     )
@@ -116,23 +113,21 @@ object ClaimsTableHelper {
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map {
-      case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, correctedAmount, Some(dutyType)) =>
-        val suffix = s"$dutyType-$taxCode"
-        makeCommonRowCells(taxCode, claimAmount, paidAmount, correctedAmount, suffix) ++ Seq(
-          TableRow(
-            content = HtmlContent(
-              messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
-            ),
-            attributes = Map("id" -> s"change-$suffix"),
-            classes = "govuk-link"
-          )
+    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, Some(dutyType)) =>
+      val suffix = s"$dutyType-$taxCode"
+      makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
+        TableRow(
+          content = HtmlContent(
+            messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
+          ),
+          attributes = Map("id" -> s"change-$suffix"),
+          classes = "govuk-link"
         )
+      )
     } ++ Seq(
       makeTotalRowCells(
         claims.map(_.amount).sum,
         claims.map(_.paidAmount).sum,
-        claims.map(_.correctedAmount).sum,
         s"$mainDutyType"
       )
     )
@@ -140,7 +135,6 @@ object ClaimsTableHelper {
   private def makeTotalRowCells(
     claimAmountTotal: BigDecimal,
     paidAmountTotal: BigDecimal,
-    correctedAmountTotal: BigDecimal,
     idSuffix: String
   )(implicit messages: Messages): Seq[TableRow] =
     Seq(
@@ -152,11 +146,6 @@ object ClaimsTableHelper {
       TableRow(
         content = Text(paidAmountTotal.toPoundSterlingString),
         attributes = Map("id" -> s"what-you-paid-total-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
-      ),
-      TableRow(
-        content = Text(correctedAmountTotal.toPoundSterlingString),
-        attributes = Map("id" -> s"you-should-have-paid-total-$idSuffix"),
         classes = "govuk-table__cell govuk-table__cell--numeric"
       ),
       TableRow(
@@ -175,7 +164,6 @@ object ClaimsTableHelper {
     taxCode: TaxCode,
     claimAmount: BigDecimal,
     paidAmount: BigDecimal,
-    correctedAmount: BigDecimal,
     idSuffix: String
   )(implicit messages: Messages): Seq[TableRow] =
     Seq(
@@ -187,34 +175,107 @@ object ClaimsTableHelper {
       TableRow(
         content = Text(paidAmount.toPoundSterlingString),
         attributes = Map("id" -> s"what-you-paid-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
-      ),
-      TableRow(
-        content = Text(correctedAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"you-should-have-paid-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
+        classes = "govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(claimAmount.toPoundSterlingString),
         attributes = Map("id" -> s"claim-amount-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
+        classes = "govuk-table__cell--numeric"
       )
     )
 
   def claimsTotalSummary(claims: Seq[ReimbursementWithCorrectAmount])(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] = claimsTotalSummary(claims.map(_.amount).sum)
+
+  def claimsTotalSummary(total: BigDecimal)(implicit
     messages: Messages
   ): Seq[SummaryListRow] =
     Seq(
       SummaryListRow(
         key = Key(
           content = HtmlContent(messages("check-claim.table.total")),
-          classes = "govuk-summary-list__key govuk-heading-m govuk-!-padding-bottom-3"
+          classes = "govuk-heading-m govuk-!-padding-bottom-3"
         ),
         value = Value(
-          content = Text(claims.map(_.amount).sum.toPoundSterlingString),
-          classes = "govuk-summary-list__value govuk-!-margin-bottom-3 govuk-heading-m govuk-summary-list__key"
+          content = Text(total.toPoundSterlingString),
+          classes = "govuk-!-margin-bottom-3 govuk-heading-m"
         ),
         classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-heading-l  govuk-summary-list--no-border"
+      )
+    )
+
+  def makeSecurityClaimFullAmount(
+    securityDepositId: String,
+    reclaims: List[ReclaimWithAmounts],
+    declaration: DisplayDeclaration,
+    key: String,
+    fullAmountChangeCallOpt: Option[String => Call]
+  )(implicit messages: Messages): SummaryList = SummaryList(
+    attributes = Map("id" -> s"claim-full-amount-$securityDepositId"),
+    classes = "govuk-summary-list--no-border",
+    rows = Seq(
+      SummaryListRow(
+        key = Key(HtmlContent(messages("check-claim.securities.claiming-full-amount"))),
+        value = Value(
+          Text(
+            messages(
+              if (declaration.isFullSecurityAmount(securityDepositId, reclaims.map(_.claimAmount).sum))
+                s"$key.claim-full-amount.yes"
+              else
+                s"$key.claim-full-amount.no"
+            )
+          )
+        ),
+        actions = fullAmountChangeCallOpt.map(fullAmountChangeCall =>
+          Actions(
+            items = Seq(
+              ActionItem(
+                attributes = Map("id" -> s"change-claim-full-amount-$securityDepositId"),
+                href = fullAmountChangeCall(securityDepositId).url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages(
+                    "check-claim.securities.hidden.claim-full-amount",
+                    messages(s"$key.claim-full-amount.label").toLowerCase(Locale.ROOT),
+                    securityDepositId
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+
+  def claimsRowsForSecurities(
+    securityDepositId: String,
+    claims: Seq[ReclaimWithAmounts],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    messages: Messages
+  ): Seq[Seq[TableRow]] =
+    claims.map { case ReclaimWithAmounts(taxCode, claimAmount, youPaidAmount) =>
+      val suffix = s"$securityDepositId-$taxCode"
+      makeCommonRowCells(taxCode, claimAmount, youPaidAmount, suffix) ++ Seq(
+        TableRow(
+          content = HtmlContent(
+            messages(
+              "check-claim.table.change-link",
+              claimAction(securityDepositId, taxCode).url,
+              s"change-link-$suffix"
+            )
+          ),
+          attributes = Map("id" -> s"change-$suffix"),
+          classes = "govuk-link govuk-table__cell--numeric"
+        )
+      )
+    } ++ Seq(
+      makeTotalRowCells(
+        claims.map(_.claimAmount).sum,
+        claims.map(_.youPaidAmount).sum,
+        securityDepositId
       )
     )
 
