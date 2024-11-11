@@ -839,30 +839,54 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
-    "submit valid amounts for selected tax codes" in {
+    "submit valid correct amounts for selected tax codes" in {
       def submitData(mrn: MRN)(journey: RejectedGoodsMultipleJourney)(data: (TaxCode, BigDecimal)) =
         journey.submitCorrectAmount(mrn, data._1, data._2)
 
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
-          val taxCodes             = journey.getAvailableDuties(mrn).map(_._1)
-          val paidAmounts          = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil)
-          val reimbursementAmounts = paidAmounts.map(_ / 2)
-          val taxCodesWithAmounts  = taxCodes.zip(reimbursementAmounts)
-          val modifiedJourney      = journey
+          val taxCodes            = journey.getAvailableDuties(mrn).map(_._1)
+          val paidAmounts         = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil)
+          val correctAmounts      = paidAmounts.map(_ / 2)
+          val taxCodesWithAmounts = taxCodes.zip(correctAmounts)
+          val modifiedJourney     = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
             .flatMapEach(taxCodesWithAmounts, submitData(mrn) _)
             .getOrFail
 
           modifiedJourney.hasCompleteAnswers                  shouldBe false
-          modifiedJourney.getTotalReimbursementAmountFor(mrn) shouldBe Some(reimbursementAmounts.sum)
-          modifiedJourney.getTotalReimbursementAmount         shouldBe reimbursementAmounts.sum
+          modifiedJourney.getTotalReimbursementAmountFor(mrn) shouldBe Some(correctAmounts.sum)
+          modifiedJourney.getTotalReimbursementAmount         shouldBe correctAmounts.sum
         }
       }
     }
 
-    "submit valid amount for wrong tax code" in {
+    "submit valid claim amounts for selected tax codes" in {
+      def submitData(mrn: MRN)(journey: RejectedGoodsMultipleJourney)(data: (TaxCode, BigDecimal)) =
+        journey.submitClaimAmount(mrn, data._1, data._2)
+
+      forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
+        mrns.size shouldBe MRNS_SIZE
+
+        mrns.foreach { mrn =>
+          val taxCodes            = journey.getAvailableDuties(mrn).map(_._1)
+          val paidAmounts         = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil)
+          val claimAmounts        = paidAmounts.map(a => (a / 4))
+          val taxCodesWithAmounts = taxCodes.zip(claimAmounts)
+          val modifiedJourney     = journey
+            .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
+            .flatMapEach(taxCodesWithAmounts, submitData(mrn) _)
+            .getOrFail
+
+          modifiedJourney.hasCompleteAnswers                  shouldBe false
+          modifiedJourney.getTotalReimbursementAmountFor(mrn) shouldBe Some(claimAmounts.sum)
+          modifiedJourney.getTotalReimbursementAmount         shouldBe claimAmounts.sum
+        }
+      }
+    }
+
+    "submit valid correct amount for wrong tax code" in {
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
@@ -877,7 +901,7 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
-    "submit invalid amount for the valid tax code" in {
+    "submit invalid correct amount for the valid tax code" in {
       forAll(incompleteJourneyWithMrnsGen(MRNS_SIZE)) { case (journey, mrns) =>
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
@@ -899,7 +923,7 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
-    "submit invalid amount for wrong tax code" in {
+    "submit invalid correct amount for wrong tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsMultipleJourney
         .empty(exampleEori)
@@ -910,7 +934,7 @@ class RejectedGoodsMultipleJourneySpec
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
-    "change to valid amount for selected tax code" in {
+    "change to valid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         journey.answers.movementReferenceNumbers.get.foreach { mrn =>
           val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
@@ -926,7 +950,7 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
-    "change to invalid amount for selected tax code" in {
+    "change to invalid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val leadMrn                              = journey.getLeadMovementReferenceNumber.get
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims(leadMrn).toSeq
@@ -939,7 +963,7 @@ class RejectedGoodsMultipleJourneySpec
       }
     }
 
-    "change to valid amount for the tax code not in ACC14" in {
+    "change to valid correct amount for the tax code not in ACC14" in {
       forAll(completeJourneyGen) { journey =>
         val leadMrn       = journey.getLeadMovementReferenceNumber.get
         val taxCodeSet    =
@@ -1033,7 +1057,7 @@ class RejectedGoodsMultipleJourneySpec
                 .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, updatedDd)
                 .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, taxCodes))
                 .getOrFail
-              val claimedReimbursement = journey.getReimbursementClaimsFor(exampleMrn).get
+              val claimedReimbursement = journey.getCorrectAmountsFor(exampleMrn).get
               val nextDetails          = journey.getNextNdrcDetailsToClaim(exampleMrn).get
               claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
               // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it

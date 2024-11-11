@@ -695,35 +695,87 @@ class RejectedGoodsScheduledJourneySpec
       }
     }
 
-    "submit valid amounts for selected duty types and tax codes" in {
+    "submit valid correct amounts for selected duty types and tax codes" in {
       forAll(dutyTypesWithTaxCodesWithClaimAmountsGen) { data =>
         val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
-        val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap { case (dt, tca) =>
-          tca.map { case (tc, pa, ca) => (dt, tc, pa, ca) }
+        val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap {
+          case (dutyType, tca) =>
+            tca.map { case (taxCode, paidAmount, correctAmount) => (dutyType, taxCode, paidAmount, correctAmount) }
         }
         val expectedTotalReimbursementAmount                                      =
-          taxCodesWithAmounts.map { case (_, _, pa, ca) => pa - ca }.sum
+          taxCodesWithAmounts.map { case (_, _, paidAmount, correctAmount) => paidAmount - correctAmount }.sum
 
         val journey                                                               = RejectedGoodsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            (j: RejectedGoodsScheduledJourney) =>
+              { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
+                j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
+              }: ((DutyType, Seq[TaxCode])) => Either[String, RejectedGoodsScheduledJourney]
           )
           .flatMapEach(
             taxCodesWithAmounts,
-            j => (d: (DutyType, TaxCode, BigDecimal, BigDecimal)) => j.submitCorrectAmount(d._1, d._2, d._3, d._4)
+            (j: RejectedGoodsScheduledJourney) =>
+              { case (dutyType: DutyType, taxCode: TaxCode, paidAmount: BigDecimal, correctAmount: BigDecimal) =>
+                j.submitCorrectAmount(dutyType, taxCode, paidAmount, correctAmount)
+              }: ((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, RejectedGoodsScheduledJourney]
           )
           .getOrFail
 
-        journey.getSelectedDutyTypes                      shouldBe Some(dutyTypes)
+        journey.getSelectedDutyTypes shouldBe Some(dutyTypes)
+
         dutyTypesWithTaxCodes.foreach { case (dutyType, taxCodes) =>
           journey.getSelectedDutiesFor(dutyType).get shouldBe taxCodes
           taxCodes.foreach(taxCode => journey.isDutySelected(dutyType, taxCode))
           TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(dutyType, taxCode))
         }
+
+        journey.getReimbursementClaims.map(_._2.size).sum shouldBe taxCodesWithAmounts.size
+        journey.getTotalReimbursementAmount               shouldBe expectedTotalReimbursementAmount
+      }
+    }
+
+    "submit valid claim amounts for selected duty types and tax codes" in {
+      forAll(dutyTypesWithTaxCodesWithClaimAmountsGen) { data =>
+        val dutyTypes: Seq[DutyType]                                              = data.map(_._1)
+        val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]                  = data.map { case (dt, tcs) => dt -> tcs.map(_._1) }
+        val taxCodesWithAmounts: Seq[(DutyType, TaxCode, BigDecimal, BigDecimal)] = data.flatMap {
+          case (dutyType, tca) =>
+            tca.map { case (taxCode, paidAmount, correctAmount) => (dutyType, taxCode, paidAmount, correctAmount) }
+        }
+        val expectedTotalReimbursementAmount                                      =
+          taxCodesWithAmounts.map { case (_, _, paidAmount, correctAmount) => paidAmount - correctAmount }.sum
+
+        val journey                                                               = RejectedGoodsScheduledJourney
+          .empty(exampleEori)
+          .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+          .flatMapEach(
+            dutyTypesWithTaxCodes,
+            (j: RejectedGoodsScheduledJourney) =>
+              { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
+                j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
+              }: ((DutyType, Seq[TaxCode])) => Either[String, RejectedGoodsScheduledJourney]
+          )
+          .flatMapEach(
+            taxCodesWithAmounts,
+            (j: RejectedGoodsScheduledJourney) =>
+              { case (dutyType: DutyType, taxCode: TaxCode, paidAmount: BigDecimal, correctAmount: BigDecimal) =>
+                j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)
+              }: ((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, RejectedGoodsScheduledJourney]
+          )
+          .getOrFail
+
+        journey.getSelectedDutyTypes shouldBe Some(dutyTypes)
+
+        dutyTypesWithTaxCodes.foreach { case (dutyType, taxCodes) =>
+          journey.getSelectedDutiesFor(dutyType).get shouldBe taxCodes
+          taxCodes.foreach(taxCode => journey.isDutySelected(dutyType, taxCode))
+          TaxCodes.allExcept(taxCodes.toSet).foreach(taxCode => !journey.isDutySelected(dutyType, taxCode))
+        }
+
         journey.getReimbursementClaims.map(_._2.size).sum shouldBe taxCodesWithAmounts.size
         journey.getTotalReimbursementAmount               shouldBe expectedTotalReimbursementAmount
       }

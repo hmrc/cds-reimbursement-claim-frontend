@@ -46,7 +46,7 @@ class EnterContactDetailsController @Inject() (
     routes.EnterContactDetailsController.submit
 
   final override val continueRouteEnterAddress: Call =
-    routes.CheckClaimantDetailsController.redirectToALF()
+    routes.CheckClaimantDetailsController.redirectToALF
 
   final override val continueRouteChangeDetails: Call =
     routes.CheckClaimantDetailsController.show

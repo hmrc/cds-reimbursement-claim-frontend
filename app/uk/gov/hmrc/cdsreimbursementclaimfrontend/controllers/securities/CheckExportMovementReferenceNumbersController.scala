@@ -56,7 +56,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val nextStepInJourney = routes.EnterContactDetailsController.show
+  val enterContactDetailsStep = routes.EnterContactDetailsController.show
 
   private val checkExportMovementReferenceNumbersKey: String = "check-export-movement-reference-numbers"
 
@@ -113,7 +113,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                   )
                 )
               case No  =>
-                (journey, Redirect(nextStepInJourney))
+                (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep))
             }
         )
         .asFuture
@@ -162,11 +162,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && isExportedMod(mod)             =>
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
       case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !isExportedMod(mod)               =>
-        (journey, Redirect(nextStepInJourney)).asFuture
+        (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
       case (Some(rfs), None, _) if ntas.contains(rfs)                                           =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _, _)                                                                      =>
-        (journey, Redirect(nextStepInJourney)).asFuture
+        (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
     }
 
   private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =

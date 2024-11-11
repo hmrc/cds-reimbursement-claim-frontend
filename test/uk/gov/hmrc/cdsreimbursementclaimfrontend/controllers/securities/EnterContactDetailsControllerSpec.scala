@@ -225,7 +225,7 @@ class EnterContactDetailsControllerSpec
               "enter-contact-details.contact-name"  -> name.toFullName,
               "enter-contact-details.contact-email" -> email.value
             ),
-            routes.CheckClaimantDetailsController.show
+            routes.CheckYourAnswersController.show
           )
       }
     }

@@ -450,6 +450,38 @@ final class OverpaymentsSingleJourney private (
       }
     }
 
+  def submitClaimAmount(
+    taxCode: TaxCode,
+    claimAmount: BigDecimal
+  ): Either[String, OverpaymentsSingleJourney] =
+    whileClaimIsAmendable {
+      getLeadDisplayDeclaration match {
+        case None =>
+          Left("submitCorrectAmount.missingDisplayDeclaration")
+
+        case Some(_) =>
+          getNdrcDetailsFor(taxCode) match {
+            case None =>
+              Left("submitCorrectAmount.taxCodeNotInACC14")
+
+            case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
+              if (getSelectedDuties.exists(_.contains(taxCode))) {
+                val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
+                val newCorrectedAmounts = answers.correctedAmounts match {
+                  case None                   => Map(taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) =>
+                    correctedAmounts + (taxCode -> Some(correctAmount))
+                }
+                Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
+              } else
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+
+            case _ =>
+              Left("submitCorrectAmount.invalidAmount")
+          }
+      }
+    }
+
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))

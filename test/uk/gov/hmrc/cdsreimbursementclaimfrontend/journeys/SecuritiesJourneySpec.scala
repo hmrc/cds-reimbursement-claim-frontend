@@ -470,7 +470,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 
@@ -495,7 +495,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .groupBy(_._1)
               .view
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _) => (tc, None) }: _*))
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }: _*))
               .toSeq: _*
           )
 
@@ -517,7 +517,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         assert(reclaims.nonEmpty)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
         assert(reclaimsBySecurityDepositId.nonEmpty)
         reclaimsBySecurityDepositId should not be empty
 
@@ -542,7 +542,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .groupBy(_._1)
               .view
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _) => (tc, None) }: _*))
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }: _*))
               .toSeq: _*
           )
 
@@ -567,7 +567,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(depositIds))
           .flatMapEach(
-            reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
+            reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq,
             (journey: SecuritiesJourney) =>
               (args: (String, Seq[(TaxCode, BigDecimal)])) =>
                 journey
@@ -589,7 +589,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             .flatMap(_.submitClaimDuplicateCheckStatus(false))
             .flatMap(_.selectSecurityDepositIds(depositIds))
             .flatMapEach(
-              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq,
+              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq,
               (journey: SecuritiesJourney) =>
                 (args: (String, Seq[(TaxCode, BigDecimal)])) =>
                   journey
@@ -682,12 +682,12 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
-    "accept submission of the valid reclaim amount for any valid securityDepositId and taxCode" in {
+    "accept submission of the valid correct amount for any valid securityDepositId and taxCode" in {
       forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 
@@ -716,7 +716,65 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             reclaims
               .groupBy(_._1)
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, amount) => (tc, Some(amount)) }: _*))
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }: _*))
+              .toSeq: _*
+          )
+
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.answers.reasonForSecurity.contains(rfs)       shouldBe true
+        journey.answers.displayDeclaration.contains(decl)     shouldBe true
+        journey.getSelectedDepositIds                           should contain theSameElementsAs depositIds
+        journey.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
+        journey.hasCompleteAnswers                            shouldBe false
+        journey.hasCompleteSupportingEvidences                shouldBe false
+        journey.hasCompleteSecuritiesReclaims                 shouldBe true
+        journey.isFinalized                                   shouldBe false
+        depositIds.foreach { depositId =>
+          journey.isFullSecurityAmountClaimed(depositId) shouldBe false
+        }
+      }
+    }
+
+    "accept submission of the valid claim amount for any valid securityDepositId and taxCode" in {
+      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        val depositIds: Seq[String] = reclaims.map(_._1).distinct
+
+        val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal, BigDecimal)])] =
+          reclaims
+            .groupBy(_._1)
+            .view
+            .mapValues(_.map { case (_, tc, paidAmount, amount) => (tc, paidAmount, amount) })
+            .toSeq
+
+        reclaimsBySecurityDepositId should not be empty
+
+        val journey =
+          emptyJourney
+            .submitMovementReferenceNumber(mrn)
+            .submitReasonForSecurityAndDeclaration(rfs, decl)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .flatMap(_.selectSecurityDepositIds(depositIds))
+            .flatMapEach(
+              reclaimsBySecurityDepositId,
+              (journey: SecuritiesJourney) =>
+                (args: (String, Seq[(TaxCode, BigDecimal, BigDecimal)])) =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+                    .flatMapEach(
+                      args._2,
+                      (journey: SecuritiesJourney) =>
+                        (args2: (TaxCode, BigDecimal, BigDecimal)) =>
+                          journey.submitClaimAmount(args._1, args2._1, args2._2 - args2._3)
+                    )
+            )
+            .getOrFail
+
+        val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
+          SortedMap(
+            reclaims
+              .groupBy(_._1)
+              .view
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }: _*))
               .toSeq: _*
           )
 
@@ -794,7 +852,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, _) => (tc, BigDecimal("0.00")) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 
@@ -831,7 +889,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, amount) => (tc, amount) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 
@@ -869,7 +927,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, _) => (tc, BigDecimal("0.00")) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 
@@ -901,7 +959,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _) => (tc, BigDecimal("0.00")) }).toSeq
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, _) => (tc, BigDecimal("0.00")) }).toSeq
 
         reclaimsBySecurityDepositId should not be empty
 

@@ -37,6 +37,9 @@ object AmountPaidWithCorrect {
 
   val unclaimed: AmountPaidWithCorrect = AmountPaidWithCorrect(paidAmount = 0, correctAmount = 0)
 
+  def fromClaimAmount(paidAmount: BigDecimal, claimAmount: BigDecimal): AmountPaidWithCorrect =
+    AmountPaidWithCorrect(paidAmount, paidAmount - claimAmount)
+
   implicit val semigroup: Semigroup[AmountPaidWithCorrect] =
     (x: AmountPaidWithCorrect, y: AmountPaidWithCorrect) =>
       AmountPaidWithCorrect(

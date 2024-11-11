@@ -49,7 +49,7 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
   }
 
   final val submit: Action[AnyContent] = simpleActionReadJourney { journey =>
-    if (journey.answers.checkYourAnswersChangeMode) {
+    if (journey.userHasSeenCYAPage) {
       Redirect(checkYourAnswers)
     } else {
       Redirect(nextPageInTheJourney)

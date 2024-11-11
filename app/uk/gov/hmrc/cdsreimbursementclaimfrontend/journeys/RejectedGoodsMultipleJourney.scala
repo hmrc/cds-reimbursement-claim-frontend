@@ -110,7 +110,7 @@ final class RejectedGoodsMultipleJourney private (
   override def getDisplayDeclarations: Seq[DisplayDeclaration] =
     answers.displayDeclarations.getOrElse(Seq.empty)
 
-  def getReimbursementClaimsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
+  def getCorrectAmountsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
     answers.correctedAmounts.flatMap(_.get(mrn))
 
   def getCorrectedAmountFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
@@ -205,7 +205,7 @@ final class RejectedGoodsMultipleJourney private (
       .getOrElse(Seq.empty)
 
   def getSelectedDuties(mrn: MRN): Option[Seq[TaxCode]] =
-    getReimbursementClaimsFor(mrn).map(_.keys.toSeq)
+    getCorrectAmountsFor(mrn).map(_.keys.toSeq)
 
   def getAllSelectedDuties: Seq[(MRN, Seq[TaxCode])] =
     answers.movementReferenceNumbers
@@ -224,14 +224,14 @@ final class RejectedGoodsMultipleJourney private (
       .exists(_.forall(_.isCmaEligible))
 
   def getNextNdrcDetailsToClaim(mrn: MRN): Option[NdrcDetails] =
-    getReimbursementClaimsFor(mrn)
+    getCorrectAmountsFor(mrn)
       .flatMap(
         _.collectFirst { case (taxCode, None) => taxCode }
           .flatMap(getNdrcDetailsFor(mrn, _))
       )
 
   def getTotalReimbursementAmountFor(mrn: MRN): Option[BigDecimal] =
-    getReimbursementClaimsFor(mrn).map(_.map(_._2.getOrElse(ZERO)).sum)
+    getReimbursementClaims.get(mrn).map(_.map(_._2).sum)
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.values.flatMap(_.values).sum
@@ -524,14 +524,14 @@ final class RejectedGoodsMultipleJourney private (
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(mrn, _).isDefined)
             if (allTaxCodesExistInACC14) {
-              val newReimbursementClaims: RejectedGoodsMultipleJourney.CorrectedAmounts =
-                getReimbursementClaimsFor(mrn) match {
-                  case None                      =>
+              val newCorrectAmounts: RejectedGoodsMultipleJourney.CorrectedAmounts =
+                getCorrectAmountsFor(mrn) match {
+                  case None                 =>
                     OrderedMap.from(taxCodes.map(taxCode => taxCode -> None))
 
-                  case Some(reimbursementClaims) =>
+                  case Some(correctAmounts) =>
                     OrderedMap.from(taxCodes.map { taxCode =>
-                      taxCode -> reimbursementClaims.get(taxCode).flatten
+                      taxCode -> correctAmounts.get(taxCode).flatten
                     })
                 }
 
@@ -539,8 +539,8 @@ final class RejectedGoodsMultipleJourney private (
                 this.copy(
                   answers.copy(correctedAmounts =
                     answers.correctedAmounts
-                      .map(_ + (mrn -> newReimbursementClaims))
-                      .orElse(Some(OrderedMap(mrn -> newReimbursementClaims)))
+                      .map(_ + (mrn -> newCorrectAmounts))
+                      .orElse(Some(OrderedMap(mrn -> newCorrectAmounts)))
                   )
                 )
               )
@@ -570,6 +570,46 @@ final class RejectedGoodsMultipleJourney private (
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
               if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+                val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
+                  case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
+                  case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
+                }
+                Right(
+                  this.copy(
+                    answers.copy(correctedAmounts =
+                      answers.correctedAmounts
+                        .orElse(Some(OrderedMap.empty[MRN, OrderedMap[TaxCode, Option[BigDecimal]]]))
+                        .map(_.updated(declarationId, newCorrectedAmounts))
+                    )
+                  )
+                )
+              } else
+                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+
+            case _ =>
+              Left("submitCorrectAmount.invalidReimbursementAmount")
+          }
+      }
+    }
+
+  def submitClaimAmount(
+    declarationId: MRN,
+    taxCode: TaxCode,
+    claimAmount: BigDecimal
+  ): Either[String, RejectedGoodsMultipleJourney] =
+    whileClaimIsAmendable {
+      getDisplayDeclarationFor(declarationId) match {
+        case None =>
+          Left("submitCorrectAmount.missingDisplayDeclaration")
+
+        case Some(_) =>
+          getNdrcDetailsFor(declarationId, taxCode) match {
+            case None =>
+              Left("submitCorrectAmount.taxCodeNotInACC14")
+
+            case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
+              if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+                val correctAmount       = BigDecimal(ndrcDetails.amount) - claimAmount
                 val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
                   case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
                   case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
