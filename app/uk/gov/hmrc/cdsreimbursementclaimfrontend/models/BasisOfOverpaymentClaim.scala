@@ -49,7 +49,8 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
   case object Preference extends BasisOfOverpaymentClaim { val order = 13 }
   case object ProofOfReturnRefundGiven extends BasisOfOverpaymentClaim { val order = 14 }
   case object RGR extends BasisOfOverpaymentClaim { val order = 15 }
-  case object Miscellaneous extends BasisOfOverpaymentClaim { val order = 16 }
+  case object Quota extends BasisOfOverpaymentClaim { val order = 16 }
+  case object Miscellaneous extends BasisOfOverpaymentClaim { val order = 17 }
 
   val values: Set[BasisOfOverpaymentClaim] =
     Set(
@@ -68,6 +69,7 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       Preference,
       ProofOfReturnRefundGiven,
       RGR,
+      Quota,
       Miscellaneous
     )
 

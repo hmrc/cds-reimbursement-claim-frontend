@@ -59,6 +59,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           Preference,
           ProofOfReturnRefundGiven,
           RGR,
+          Quota,
           Miscellaneous
         )
       )
@@ -81,6 +82,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           IncorrectEoriAndDan,
           ProofOfReturnRefundGiven,
           RGR,
+          Quota,
           Miscellaneous
         )
       )
@@ -104,6 +106,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           IncorrectEoriAndDan,
           ProofOfReturnRefundGiven,
           RGR,
+          Quota,
           Miscellaneous
         )
       )
