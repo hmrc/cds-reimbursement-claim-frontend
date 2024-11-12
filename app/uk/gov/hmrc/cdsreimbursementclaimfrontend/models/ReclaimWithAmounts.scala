@@ -22,10 +22,10 @@ import play.api.libs.json.Json
 final case class ReclaimWithAmounts(
   taxCode: TaxCode,
   claimAmount: BigDecimal,
-  youPaidAmount: BigDecimal
+  paidAmount: BigDecimal
 ) {
   override def toString =
-    s"$taxCode: claim amount = $claimAmount, you paid amount = $youPaidAmount \n"
+    s"$taxCode: claim amount = $claimAmount, paid amount = $paidAmount \n"
 }
 object ReclaimWithAmounts {
 

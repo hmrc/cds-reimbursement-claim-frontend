@@ -1063,7 +1063,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             decl.displayResponseDetail.securityDetails.getOrElse(Nil).map { sd =>
               (
                 sd.securityDepositId,
-                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(td.getAmount))): _*)
+                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(ZERO))): _*)
               )
             }: _*
           )

@@ -221,12 +221,13 @@ final class SecuritiesJourney private (
     correctedAmounts: CorrectedAmounts,
     securityDepositId: String
   ): List[ReclaimWithAmounts] =
-    correctedAmounts.view.map { case (taxCode, Some(amount)) =>
+    correctedAmounts.view.collect { case (taxCode, Some(correctAmount)) =>
       val depositAmountsForSecurityDepositId = getSecurityDepositAmountsFor(securityDepositId)
+      val paidAmount                         = depositAmountsForSecurityDepositId(taxCode)
       ReclaimWithAmounts(
         taxCode = taxCode,
-        claimAmount = amount,
-        youPaidAmount = depositAmountsForSecurityDepositId(taxCode)
+        claimAmount = paidAmount - correctAmount,
+        paidAmount = paidAmount
       )
     }.toList
 
@@ -712,7 +713,7 @@ final class SecuritiesJourney private (
             val fullAmountReclaims: CorrectedAmounts =
               SortedMap(
                 securityDetails.taxDetails
-                  .map(td => td.getTaxCode -> Some(td.getAmount)): _*
+                  .map(td => td.getTaxCode -> Some(ZERO)): _*
               )
             (
               securityDepositId,
