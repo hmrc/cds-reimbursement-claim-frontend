@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
@@ -46,7 +45,7 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[Journey]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val key: String                 = "enter-claim"
+  final val key: String                 = "enter-claim-amount"
   final val postAction: TaxCode => Call = routes.EnterClaimController.submit
 
   final val showFirst: Action[AnyContent] =
@@ -78,8 +77,10 @@ class EnterClaimController @Inject() (
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
-                Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
-              val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
+                Forms.claimAmountForm(key, amountPaid).withDefault(actualAmount.map(a => amountPaid - a))
+
+              val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
+
               Ok(
                 enterClaim(
                   form,
@@ -109,7 +110,7 @@ class EnterClaimController @Inject() (
               case Some(ndrcDetails) =>
                 val maybeMRN = journey.getLeadMovementReferenceNumber.map(_.value)
                 Forms
-                  .actualAmountForm(key, BigDecimal(ndrcDetails.amount))
+                  .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -128,13 +129,13 @@ class EnterClaimController @Inject() (
                           )
                         )
                       ),
-                    reimbursementAmount =>
+                    claimAmount =>
                       journey
                         .getNdrcDetailsFor(taxCode) match {
                         case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
                         case Some(_) =>
                           journey
-                            .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
+                            .submitClaimAmount(taxCode, claimAmount)
                             .fold(
                               error =>
                                 Future

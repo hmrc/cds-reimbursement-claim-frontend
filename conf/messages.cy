@@ -910,10 +910,15 @@ enter-bank-account-details.sort-code.label=Cod didoli
 enter-bank-account-details.title=Nodwch fanylion cyfrif banc yn y DU
 enter-bank-account-details.warning-text=Tystiolaeth o awdurdod: Mae’n rhaid i’r hawliwr ddarparu llythyr sy’n rhoi awdurdod i CThEF wneud taliad i gyfrif banc yr hawliwr yn lle cyfrif banc y parti a dalodd y tollau a’r TAW ar y mewnforion gwreiddiol.
 
-
 enter-claim.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.actual-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
+
+enter-claim-amount.label=Faint yr hoffech ei hawlio yn ôl mewn punnoedd?
+enter-claim-amount.error.invalid=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn rhif, megis 30 neu 60.55
+enter-claim-amount.error.required=Nodwch y swm rydych am ei hawlio yn ôl mewn punnoedd
+enter-claim-amount.error.amount=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai na’r swm a dalwyd
+
 enter-claim.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
 enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
@@ -922,6 +927,7 @@ enter-claim.help-text.excise=Dylech gynnwys manylion toll {0} ({1}).
 enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
+enter-claim.invalid.amount=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.mrn=MRN:
 enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>

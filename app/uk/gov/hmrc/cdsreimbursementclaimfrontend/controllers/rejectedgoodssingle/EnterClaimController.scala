@@ -32,7 +32,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 
 @Singleton
 class EnterClaimController @Inject() (
@@ -45,7 +44,7 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[Journey]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val key: String                 = "enter-claim"
+  final val key: String                 = "enter-claim-amount"
   final val postAction: TaxCode => Call = routes.EnterClaimController.submit
 
   final val showFirst: Action[AnyContent] =
@@ -77,7 +76,7 @@ class EnterClaimController @Inject() (
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
-                Forms.actualAmountForm(key, amountPaid).withDefault(actualAmount)
+                Forms.claimAmountForm(key, amountPaid).withDefault(actualAmount.map(a => amountPaid - a))
               val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
               Ok(
                 enterClaim(
@@ -110,7 +109,7 @@ class EnterClaimController @Inject() (
             journey.getNdrcDetailsFor(taxCode) match {
               case Some(ndrcDetails) =>
                 Forms
-                  .actualAmountForm(key, BigDecimal(ndrcDetails.amount))
+                  .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -129,13 +128,13 @@ class EnterClaimController @Inject() (
                           )
                         )
                       ),
-                    reimbursementAmount =>
+                    claimAmount =>
                       journey
                         .getNdrcDetailsFor(taxCode) match {
                         case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
                         case Some(_) =>
                           journey
-                            .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(reimbursementAmount))
+                            .submitClaimAmount(taxCode, claimAmount)
                             .fold(
                               error =>
                                 Future

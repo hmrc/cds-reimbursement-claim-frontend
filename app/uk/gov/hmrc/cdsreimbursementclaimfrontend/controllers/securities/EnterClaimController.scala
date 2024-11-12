@@ -73,7 +73,7 @@ class EnterClaimController @Inject() (
           identity,
           { case (existingCorrectedAmountOpt, totalAmount) =>
             val form = Forms
-              .claimAmountForm(key, totalAmount)
+              .securitiesAmountForm(key, totalAmount)
               .withDefault(existingCorrectedAmountOpt)
 
             Ok(
@@ -97,7 +97,7 @@ class EnterClaimController @Inject() (
           _.fold(
             result => (journey, result),
             { case (_, totalAmount) =>
-              val form = Forms.claimAmountForm(key, totalAmount)
+              val form = Forms.securitiesAmountForm(key, totalAmount)
               form
                 .bindFromRequest()
                 .fold(

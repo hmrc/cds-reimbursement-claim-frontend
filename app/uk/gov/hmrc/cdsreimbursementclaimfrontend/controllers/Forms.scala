@@ -285,7 +285,7 @@ object Forms {
           .transform[InspectionAddressType](InspectionAddressType.tryParse, InspectionAddressType.keyOf)
     )
 
-  def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
+  def securitiesAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
     Form(
       mapping(
         s"$key.claim-amount" -> moneyMapping(
@@ -302,6 +302,16 @@ object Forms {
           errorMsg = "actual-amount.error.invalid",
           allowZero = true
         ).verifying("invalid.claim", amount => amount >= 0 && amount < paidAmount)
+      )(identity)(Some.apply)
+    )
+
+  def claimAmountForm(key: String, paidAmount: BigDecimal): Form[BigDecimal] =
+    Form(
+      mapping(
+        s"$key" -> moneyMapping(
+          errorMsg = "error.invalid",
+          allowZero = true
+        ).verifying("error.amount", amount => amount > 0 && amount <= paidAmount)
       )(identity)(Some.apply)
     )
 
