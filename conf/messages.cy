@@ -1619,6 +1619,8 @@ select-basis-for-claim.OutwardProcessingRelief.bullet=Rhyddhad prosesu allanol:
 select-basis-for-claim.OutwardProcessingRelief.description=Taliadau tollau, sydd wedi’u lleihau yn sgil hawliad, ar nwyddau a anfonwyd y tu allan i’r DU i’w prosesu neu’u trwsio, sydd wedi’u hailfewnforio.
 select-basis-for-claim.IncorrectEoriAndDan.bullet=Rhif EORI anghywir a rhif cyfrif gohirio anghywir:
 select-basis-for-claim.IncorrectEoriAndDan.description=Hawliad a wneir pan fydd masnachwr yn rhoi rhif EORI anghywir a rhif cyfrif gohirio anghywir
+select-basis-for-claim.Quota.bullet=Cwota:
+select-basis-for-claim.Quota.description=Mae cwotâu tariffau’n caniatâu i chi fewnforio symiau cyfyngedig o nwyddau penodol (weithiau o wledydd penodol) ar gyfradd doll sy’n is na’r hyn a fyddai’n berthnasol fel arall
 
 select-basis-for-claim.error.number=Dewiswch y rheswm dros wneud yr hawliad hwn
 select-basis-for-claim.error.required=Dewiswch y rheswm dros wneud yr hawliad hwn
@@ -1639,6 +1641,7 @@ select-basis-for-claim.reason.PersonalEffects=Eiddo personol
 select-basis-for-claim.reason.Preference=Cyfradd tollau ffafriol
 select-basis-for-claim.reason.ProofOfReturnRefundGiven=Tystiolaeth o ran dychwelyd y nwyddau neu ad-daliad a roddwyd
 select-basis-for-claim.reason.RGR=Rhyddhad ar nwyddau a ddychwelwyd (RGR)
+select-basis-for-claim.reason.Quota=Cwota
 select-basis-for-claim.reason.IncorrectEoriAndDan=Rhif EORI anghywir a rhif cyfrif gohirio (DAN) anghywir
 select-basis-for-claim.reason.hint.IncorrectEoriAndDan=Yn berthnasol pan fydd yr EORI a’r DAN yn anghywir
 select-basis-for-claim.reason.hint.IncorrectAdditionalInformationCode=Ond yn berthnasol i nwyddau a symudwyd drwy Ogledd Iwerddon.
