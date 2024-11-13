@@ -1267,10 +1267,8 @@ inspection-address.type.error.required=Dewiswch y cyfeiriad lle mae modd archwil
 inspection-address.type.or=neu
 inspection-address.type.title=Dewiswch gyfeiriad ar gyfer yr archwiliad
 
-invalid-reason-for-security.because=Gallai hyn fod oherwydd y canlynol:
-invalid-reason-for-security.point.1=ni thalwyd unrhyw sicrwydd ar gyfer y Cyfeirnod Symud (MRN) hwn
-invalid-reason-for-security.point.2=cafodd yr MRN ei nodi’n anghywir
-invalid-reason-for-security.point.3=cafodd y rheswm dros y sicrwydd ei nodi’n anghywir
+invalid-reason-for-security.invalid-mrn=Nid yw MRN, <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>, yn ddilys neu nid oes blaendal sicrwydd yn yr MRN i’w hawlio.
+invalid-reason-for-security.help-links=Gallwch naill ai <a href="https://cds-viewupload.herokuapp.com/v10/view-upload?secure-messaging=off&newmessage=null" class="govuk-link">weld statws eich hawliad ar y dangosfwrdd hawliadau, rhoi MRN arall</a>, <a href="https://cds-reimbursement-prototype.herokuapp.com/v14-stable/securities/enter-movement-reference-number" class="govuk-link">rhoi MRN arall</a> neu gael help drwy <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" class="govuk-link">gysylltu â CThEF (yn agor tab newydd)</a>.
 invalid-reason-for-security.reason=Rheswm dros flaendal sicrwydd
 invalid-reason-for-security.submit=Nodwch MRN gwahanol
 invalid-reason-for-security.title=Mae problem gyda’ch hawliad
