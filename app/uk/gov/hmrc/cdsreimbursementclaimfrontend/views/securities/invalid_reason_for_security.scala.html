@@ -18,6 +18,7 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -28,22 +29,17 @@
         bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@(enterMRN: Call, reasonForSecurityDeposit: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+
+@(enterMRN: Call, mrn: Option[MRN], reasonForSecurityDeposit: Call)(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"invalid-reason-for-security"}
 @title = @{messages(s"invalid-reason-for-security.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"invalid-reason-for-security.because")))
+    @paragraph(Html(messages(s"invalid-reason-for-security.invalid-mrn", mrn.map(_.value).getOrElse(""))))
 
-    @bullets(
-        Seq(
-            Html(messages(s"invalid-reason-for-security.point.1")),
-            Html(messages(s"invalid-reason-for-security.point.2")),
-            Html(messages(s"invalid-reason-for-security.point.3"))
-        )
-    )
+    @paragraph(Html(messages(s"invalid-reason-for-security.help-links")))
 
 
     <div class="govuk-button-group">
