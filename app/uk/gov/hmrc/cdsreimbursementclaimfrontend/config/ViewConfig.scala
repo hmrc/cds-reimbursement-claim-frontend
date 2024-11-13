@@ -27,10 +27,13 @@ import javax.inject.Singleton
 import scala.concurrent.duration.Duration
 
 @Singleton
-class ViewConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
+class ViewConfig @Inject() (
+  val config: Configuration,
+  servicesConfig: ServicesConfig,
+  timeoutDialogConfig: uk.gov.hmrc.hmrcfrontend.config.TimeoutDialogConfig
+) {
 
-  private def getString(key: String): String     = servicesConfig.getString(key)
-  private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
+  private def getString(key: String): String = servicesConfig.getString(key)
 
   val en: String            = "en"
   val cy: String            = "cy"
@@ -54,11 +57,9 @@ class ViewConfig @Inject() (val config: Configuration, servicesConfig: ServicesC
   val authLoginStubSignInUrl: String =
     getString("auth-login-stub.signInUrl")
 
-  val ggTimeoutSeconds: Long =
-    servicesConfig.getDuration("gg.timeout").toSeconds
+  val ggTimeoutSeconds: Int = timeoutDialogConfig.timeoutInSeconds
 
-  val ggCountdownSeconds: Long =
-    servicesConfig.getDuration("gg.countdown").toSeconds
+  val ggCountdownSeconds: Int = timeoutDialogConfig.countdownInSeconds
 
   val ggKeepAliveUrl: String =
     s"$selfBaseUrl/claim-back-import-duty-vat" + baseRoutes.StartController.keepAlive().url
@@ -145,10 +146,6 @@ class ViewConfig @Inject() (val config: Configuration, servicesConfig: ServicesC
   val legacyC285FormUrl: String = getString("external-url.c285-form")
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
-
-  lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
-
-  lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

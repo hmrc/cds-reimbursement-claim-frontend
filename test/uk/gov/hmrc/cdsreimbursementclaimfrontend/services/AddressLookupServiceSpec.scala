@@ -78,7 +78,7 @@ class AddressLookupServiceSpec
 
   implicit val timeoutConfiguration: TimeoutConfig =
     TimeoutConfig(
-      timeoutAmount = viewConfig.timeout,
+      timeoutAmount = viewConfig.ggTimeoutSeconds,
       timeoutUrl = viewConfig.weSignedYouOutPageUrl,
       timeoutKeepAliveUrl = Some(viewConfig.ggKeepAliveUrl)
     )
