@@ -963,6 +963,12 @@ enter-bank-account-details.warning-text=Proof of authority: The claimant must pr
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.actual-amount.hint=The claim amount must be lower than the amount paid.
+
+enter-claim-amount.label=How much do you want to claim back, in pounds?
+enter-claim-amount.error.invalid=The amount that you want to claim back must be a number, like 30 or 60.55
+enter-claim-amount.error.required=Enter the amount you want to claim back, in pounds
+enter-claim-amount.error.amount=The amount that you want to claim back must be more than zero and less or equal to the amount paid
+
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
 enter-claim.exchange-rate-details.heading=Calculating your payment
@@ -971,6 +977,7 @@ enter-claim.help-text.excise=Include {0} duty details ({1}).
 enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
+enter-claim.invalid.amount=The amount that should have been paid must be less than the amount paid
 enter-claim.mrn=MRN:
 enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>

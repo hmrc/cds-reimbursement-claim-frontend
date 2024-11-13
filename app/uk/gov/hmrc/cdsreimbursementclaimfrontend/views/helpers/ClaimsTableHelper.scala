@@ -256,9 +256,9 @@ object ClaimsTableHelper {
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReclaimWithAmounts(taxCode, claimAmount, youPaidAmount) =>
+    claims.map { case ReclaimWithAmounts(taxCode, claimAmount, paidAmount) =>
       val suffix = s"$securityDepositId-$taxCode"
-      makeCommonRowCells(taxCode, claimAmount, youPaidAmount, suffix) ++ Seq(
+      makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
         TableRow(
           content = HtmlContent(
             messages(
@@ -274,7 +274,7 @@ object ClaimsTableHelper {
     } ++ Seq(
       makeTotalRowCells(
         claims.map(_.claimAmount).sum,
-        claims.map(_.youPaidAmount).sum,
+        claims.map(_.paidAmount).sum,
         securityDepositId
       )
     )

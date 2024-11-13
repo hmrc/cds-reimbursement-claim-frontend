@@ -81,6 +81,8 @@ class EnterClaimControllerSpec
         .map(BigDecimal.apply)
         .getOrElse(fail(s"Missing paid amount for $taxCode"))
 
+    val claimAmountOpt = actualAmountOpt.map(a => paidAmount - a)
+
     assertPageElementsByIdAndExpectedHtml(doc)(
       "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
       "enter-claim-how-much-was-paid"     ->
@@ -98,13 +100,12 @@ class EnterClaimControllerSpec
              messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
              taxCode.value
            )),
-      "enter-claim-label"                 -> m("enter-claim.actual-amount"),
-      "enter-claim-hint"                  -> m("enter-claim.actual-amount.hint", taxCode, m(s"select-duties.duty.$taxCode"))
+      "enter-claim-amount-label"          -> m("enter-claim-amount.label")
     )
 
     assertPageInputsByIdAndExpectedValue(doc)(
-      "enter-claim" ->
-        actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
+      "enter-claim-amount" ->
+        claimAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
     )
   }
 
@@ -298,13 +299,14 @@ class EnterClaimControllerSpec
                 actualAmount <-
                   Seq(paidAmount - BigDecimal("0.01"), BigDecimal("0.01"), ZERO)
               ) {
+                val claimAmount = paidAmount - actualAmount
                 inSequence {
                   mockAuthWithNoRetrievals()
                   mockGetSession(SessionData(journey))
                   mockStoreSession(
                     SessionData(
                       journey
-                        .submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(actualAmount))
+                        .submitClaimAmount(taxCode, claimAmount)
                         .getOrFail
                     )
                   )(
@@ -312,9 +314,9 @@ class EnterClaimControllerSpec
                   )
                 }
 
-                withClue(s"taxCode=$taxCode next=$nextTaxCode paid=$paidAmount amount=$actualAmount") {
+                withClue(s"taxCode=$taxCode next=$nextTaxCode paid=$paidAmount claim=$claimAmount") {
                   checkIsRedirect(
-                    performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
+                    performAction(taxCode, Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))),
                     routes.EnterClaimController.show(nextTaxCode)
                   )
                 }
@@ -329,15 +331,16 @@ class EnterClaimControllerSpec
               val paidAmount: BigDecimal =
                 BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
 
-              for (actualAmount <- Seq(paidAmount, paidAmount + BigDecimal("0.01"), paidAmount * 2, -paidAmount)) {
+              for (claimAmount <- Seq(ZERO, paidAmount + BigDecimal("0.01"))) {
+                val actualAmount = paidAmount - claimAmount
                 inSequence {
                   mockAuthWithNoRetrievals()
                   mockGetSession(SessionData(journey))
                 }
 
-                withClue(s"taxCode=$taxCode paid=$paidAmount amount=$actualAmount") {
+                withClue(s"taxCode=$taxCode paid=$paidAmount claim=$claimAmount") {
                   checkPageIsDisplayed(
-                    performAction(taxCode, Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))),
+                    performAction(taxCode, Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))),
                     if (TaxCodes.custom.contains(taxCode))
                       messageFromMessageKey(
                         "enter-claim.title",
@@ -353,7 +356,7 @@ class EnterClaimControllerSpec
                       ),
                     doc => {
                       assertPageContent(doc, journey, taxCode, Some(actualAmount))
-                      assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))
+                      assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))
                     },
                     expectedStatus = BAD_REQUEST
                   )
@@ -373,7 +376,7 @@ class EnterClaimControllerSpec
             journey.getSelectedDuties.get.head
 
           checkPageIsDisplayed(
-            performAction(taxCode, Seq("enter-claim" -> "")),
+            performAction(taxCode, Seq("enter-claim-amount" -> "")),
             if (TaxCodes.custom.contains(taxCode))
               messageFromMessageKey(
                 "enter-claim.title",
@@ -389,7 +392,7 @@ class EnterClaimControllerSpec
               ),
             doc => {
               assertPageContent(doc, journey, taxCode, None)
-              assertShowsInputError(doc, Some(m("enter-claim.error.required")))
+              assertShowsInputError(doc, Some(m("enter-claim-amount.error.required")))
             },
             expectedStatus = BAD_REQUEST
           )

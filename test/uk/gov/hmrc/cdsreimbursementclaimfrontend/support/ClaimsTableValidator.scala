@@ -139,13 +139,13 @@ trait ClaimsTableValidator {
   )(implicit
     m: Messages
   ) =
-    reimbursements.map { case ReclaimWithAmounts(taxCode, claimAmount, youPaidAmount) =>
+    reimbursements.map { case ReclaimWithAmounts(taxCode, claimAmount, paidAmount) =>
       val suffix = s"$securityDepositId-$taxCode"
 
       doc
         .getElementById(s"selected-claim-$suffix")
         .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe youPaidAmount.toPoundSterlingString
+      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
       doc.getElementById(s"claim-amount-$suffix").text()  shouldBe claimAmount.toPoundSterlingString
       doc.getElementById(s"change-$suffix").html()        shouldBe m(
         "check-claim.table.change-link",
@@ -160,7 +160,7 @@ trait ClaimsTableValidator {
     doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
     doc
       .getElementById(s"what-you-paid-total-$suffix")
-      .text()                                        shouldBe claims.map(_.youPaidAmount).sum.toPoundSterlingString
+      .text()                                        shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc
       .getElementById(s"claim-amount-total-$suffix")
       .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
