@@ -61,7 +61,7 @@ The feature set of the service is controlled by a host of feature flags defined 
 | features.overpayments_v2 | enables `Claim back import duty and VAT if you have overpaid` journey | 
 | features.rejected-goods | enables `Claim back customs charges paid on rejected goods` journey |
 | features.securities | enables `Claim back a security deposit` journey |
-| features.view-upload | enables `View claims or upload documents` dashboard |
+| features.view-upload | enables `Check your claim status and upload supporting files` dashboard |
 | features.block-subsidies | disables support for subsidies-related features |
 | subsidies-for-overpayments | enables subsidies-related features in `Claim back import duty and VAT if you have overpaid` |
 | features.subsidies-for-rejected-goods | enables subsidies-related features in `Claim back customs charges paid on rejected goods` |
