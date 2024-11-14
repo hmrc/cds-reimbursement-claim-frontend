@@ -1193,6 +1193,9 @@ error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this
 error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br><br>You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br><br>If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>
 error-claim-invalid-TPI04.para.1=This may be because:
 error-claim-invalid-TPI04.title=There is a problem with your claim
+error-claim-invalid-TPI04.green-button-text=Change reason for security deposit
+error-claim-invalid-TPI04.grey-button-text=Enter a different MRN
+
 error.summary.title=There is a problem
 exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)

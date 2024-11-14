@@ -1240,6 +1240,9 @@ error-claim-invalid-TPI04.bullet.1=Mae CThEF eisoes wedi casglu’r doll ar gyfe
 error-claim-invalid-TPI04.bullet.2=mae’r hawliad hwn eisoes wedi’i gyflwyno fel rhan o hawliad cyfan neu rannol.<br><br>Gallwch <a class="govuk-link" href="{0}">hawlio ad-daliad o doll mewnforio a TAW os ydych wedi gordalu (C285)</a>os yw CThEF wedi casglu’r dreth ar gyfer yr hawliad hwn yn barod.<br><br>Os ydych wedi gwneud hawliad rhannol o’r blaen ac eisiau hawlio mwy
 error-claim-invalid-TPI04.para.1=Gallai hyn fod oherwydd y canlynol:
 error-claim-invalid-TPI04.title=Mae problem gyda’ch hawliad
+error-claim-invalid-TPI04.green-button-text=Newid rheswm dros dalu blaendal sicrwydd
+error-claim-invalid-TPI04.grey-button-text=Nodwch MRN gwahanol
+
 error.summary.title=Mae problem wedi codi
 exit-survey.link-text=<a href="{0}" class="govuk-link">Beth oedd eich barn am y gwasanaeth hwn?</a>
 exitSurvey.linkText=Rhowch wybod sut y gallwn wella’r gwasanaeth (mae’n cymryd 1 munud)
