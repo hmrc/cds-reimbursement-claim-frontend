@@ -199,7 +199,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
           (journey: SecuritiesJourney) => journey.selectSecurityDepositId(_)
         )
         .flatMapEach(
-          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, paidAmount, amount) => (tc, amount) }).toSeq,
+          reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq,
           (journey: SecuritiesJourney) =>
             (args: (String, Seq[(TaxCode, BigDecimal)])) =>
               journey

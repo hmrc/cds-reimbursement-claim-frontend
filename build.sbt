@@ -5,6 +5,8 @@ import wartremover.Wart
 
 val appName = "cds-reimbursement-claim-frontend"
 
+Global / semanticdbEnabled := true
+
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml"        % VersionScheme.Always
 ThisBuild / scalafixDependencies += "com.github.liancheng"       %% "organize-imports" % "0.6.0"
 
@@ -59,7 +61,6 @@ lazy val scoverageSettings =
     ScoverageKeys.coverageHighlighting := true
   )
 
-
 ThisBuild / excludeDependencies ++= Seq(
   // As of Play 3.0, groupId has changed to org.playframework; exclude transitive dependencies to the old artifacts
   // Specifically affects play28-scala-pdf_2.13 and play-json-extensions
@@ -75,7 +76,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "2.13.14")
+  .settings(scalaVersion := "2.13.15")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(addCompilerPlugin(scalafixSemanticdb("4.9.9")))
   .settings(

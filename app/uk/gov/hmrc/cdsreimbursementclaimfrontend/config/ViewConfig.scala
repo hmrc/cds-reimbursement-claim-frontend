@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import scala.concurrent.duration.Duration
 
 @Singleton
 class ViewConfig @Inject() (

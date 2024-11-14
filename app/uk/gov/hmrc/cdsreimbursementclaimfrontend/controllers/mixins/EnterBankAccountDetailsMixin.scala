@@ -101,10 +101,6 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     fastForwardToCYAEnabled = false
   )
 
-  private def getBankAccountType(journey: Journey, getBankAccountTypePage: Call) =
-    journey.answers.bankAccountType
-      .toRight((journey, Redirect(getBankAccountTypePage)))
-
   def validateBankAccountDetails(
     journey: Journey,
     bankAccountDetails: BankAccountDetails,

@@ -154,7 +154,7 @@ trait ClaimsTableValidator {
       )
     }
 
-  private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String = "")(implicit
+  private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit
     m: Messages
   ) = {
     doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")

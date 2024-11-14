@@ -75,19 +75,18 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
           eori =>
             eoriDetailsConnector.getEoriDetails(eori).flatMap {
               case Some(_) =>
-                Future.successful(
-                  modifyJourney(journey, eori),
-                  Redirect(continueAction)
-                )
+                Future.successful((modifyJourney(journey, eori), Redirect(continueAction)))
               case None    =>
                 Future.successful(
-                  journey,
-                  BadRequest(
-                    newEoriPage(
-                      eoriNumberForm(formKey)
-                        .fill(eori)
-                        .withError(FormError("enter-new-eori-number", "doesNotExist")),
-                      postAction
+                  (
+                    journey,
+                    BadRequest(
+                      newEoriPage(
+                        eoriNumberForm(formKey)
+                          .fill(eori)
+                          .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                        postAction
+                      )
                     )
                   )
                 )

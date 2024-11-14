@@ -56,7 +56,7 @@ trait SessionSupport { this: MockFactory =>
 
   def sessionMatcher(expectedSession: SessionData) =
     new FunctionAdapter2[SessionData, HeaderCarrier, Boolean]({ case (actualSession, _) =>
-      if (actualSession !== expectedSession) {
+      if (actualSession != expectedSession) {
         val s1   = Json.prettyPrint(Json.toJson(expectedSession))
         val s2   = Json.prettyPrint(Json.toJson(actualSession))
         val diff = new Diff(s1, s2)
