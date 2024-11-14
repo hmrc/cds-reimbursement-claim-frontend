@@ -76,7 +76,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "2.13.14")
+  .settings(scalaVersion := "2.13.15")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(addCompilerPlugin(scalafixSemanticdb("4.9.9")))
   .settings(

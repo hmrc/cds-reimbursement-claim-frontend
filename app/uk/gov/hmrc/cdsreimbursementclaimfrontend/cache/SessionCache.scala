@@ -117,9 +117,9 @@ object HeaderCarrierCacheId extends CacheIdType[HeaderCarrier] {
   override def run: HeaderCarrier => String =
     _.sessionId
       .map(_.value)
-      .getOrElse(throw NoSessionException)
+      .getOrElse(throw new NoSessionException())
 
-  case object NoSessionException extends Exception("Could not find sessionId")
+  class NoSessionException() extends Exception("Could not find sessionId")
 }
 
 @Singleton
