@@ -96,7 +96,7 @@
         )), 
         userResearchBanner = Some(UserResearchBanner(url = viewConfig.researchUrl))
     ),
-    pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
+    pageTitle = Some(viewConfig.pageTitleWithServiceNameAndError(pageTitle.getOrElse(""), messages("service.title"), messages("service.title.error"), hasErrors)),
     isWelshTranslationAvailable = viewConfig.enableLanguageSwitching,
     backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")))) else None },
     templateOverrides = TemplateOverrides(

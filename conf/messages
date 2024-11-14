@@ -1708,6 +1708,7 @@ service.name=Claim back import duty and VAT
 service.signOut=Sign out
 service.text=service.text
 service.title=Claim back import duty and VAT
+service.title.error=Error:
 session-expired-message=For your security, we will time you out in
 
 session-expired.keep-alive-button-text=Continue
