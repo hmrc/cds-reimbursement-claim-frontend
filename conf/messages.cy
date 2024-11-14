@@ -1824,6 +1824,7 @@ service.name=Hawlio tollau mewnforio a TAW yn ôl
 service.signOut=Allgofnodi
 service.text=service.text
 service.title=Hawlio tollau mewnforio a TAW yn ôl
+service.title.error=Gwall:
 session-expired-message=Er eich diogelwch, byddwn yn dod â’ch sesiwn i ben ymhen
 
 session-expired.keep-alive-button-text=Yn eich blaen

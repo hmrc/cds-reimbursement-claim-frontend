@@ -94,8 +94,7 @@ class DefaultAddressLookupService @Inject() (
     viewConfig
       .pageTitleWithServiceName(
         messages(titleKey),
-        messages("service.title"),
-        hasErrors = false
+        messages("service.title")
       )
 
   private def pageHeading(titleKey: String, messages: Messages): String =

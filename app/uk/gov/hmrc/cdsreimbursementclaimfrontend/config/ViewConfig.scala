@@ -85,12 +85,23 @@ class ViewConfig @Inject() (
 
   private val contactFormServiceIdentifier = "CDSRC"
 
-  def pageTitleWithServiceName(pageTitle: String, serviceName: String, hasErrors: Boolean): String = {
-    val pageTitleNoHTML = pageTitle.replaceAll("\\<.*?\\>", "")
+  def pageTitleWithServiceNameAndError(
+    pageTitle: String,
+    serviceName: String,
+    errorPrefix: String,
+    hasErrors: Boolean
+  ): String =
     if (hasErrors)
-      s"Error: $pageTitleNoHTML - $serviceName - GOV.UK"
+      s"$errorPrefix ${pageTitleWithServiceName(pageTitle, serviceName)}"
     else
-      s"$pageTitleNoHTML - $serviceName - GOV.UK"
+      pageTitleWithServiceName(pageTitle, serviceName)
+
+  def pageTitleWithServiceName(
+    pageTitle: String,
+    serviceName: String
+  ): String = {
+    val pageTitleNoHTML = pageTitle.replaceAll("\\<.*?\\>", "")
+    s"$pageTitleNoHTML - $serviceName - GOV.UK"
   }
 
   val reportAProblemPartialUrl: String =
