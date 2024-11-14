@@ -73,7 +73,7 @@ class ClaimInvalidTPI04ControllerSpec
       contain(
         ("Enter a different MRN", "/claim-back-import-duty-vat/securities/enter-movement-reference-number")
       ) and contain(
-        ("Reason for security deposit", "/claim-back-import-duty-vat/securities/choose-reason-for-security")
+        ("Change reason for security deposit", "/claim-back-import-duty-vat/securities/choose-reason-for-security")
       )
     )
   }
