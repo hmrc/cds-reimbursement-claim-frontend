@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -38,9 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -48,12 +44,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
 
 class EnterExportMovementReferenceNumberControllerSpec
     extends PropertyBasedControllerSpec
@@ -114,12 +108,6 @@ class EnterExportMovementReferenceNumberControllerSpec
     input.attr("value") should ===("")
     continueButton      should contain(messages("button.continue"))
   }
-
-  private def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
-    (mockClaimsService
-      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
-      .expects(*, *)
-      .returning(EitherT.fromEither[Future](response))
 
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {

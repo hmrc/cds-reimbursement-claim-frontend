@@ -63,7 +63,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 @Singleton
 class DebuggingHttpClient @Inject() (
   config: Configuration,
-  override val httpAuditing: HttpAuditing,
+  val httpAuditing: HttpAuditing,
   override val wsClient: WSClient,
   override protected val actorSystem: ActorSystem
 ) extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem) {

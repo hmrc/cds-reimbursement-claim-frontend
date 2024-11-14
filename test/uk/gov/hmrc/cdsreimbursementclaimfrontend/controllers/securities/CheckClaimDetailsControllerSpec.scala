@@ -46,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 
 import scala.List
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec

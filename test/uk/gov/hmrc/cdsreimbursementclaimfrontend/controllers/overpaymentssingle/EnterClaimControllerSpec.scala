@@ -43,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
 class EnterClaimControllerSpec
