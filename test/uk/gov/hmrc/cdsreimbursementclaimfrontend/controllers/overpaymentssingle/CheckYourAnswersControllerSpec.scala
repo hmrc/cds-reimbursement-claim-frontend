@@ -155,6 +155,7 @@ class CheckYourAnswersControllerSpec
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
           "Additional claim information" -> Some(claim.additionalDetails),
+          "Duplicate MRN"                -> claim.duplicateMovementReferenceNumber.map(_.value),
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
