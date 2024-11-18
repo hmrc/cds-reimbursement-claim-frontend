@@ -19,33 +19,25 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(enterMRN: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(enterMRN: Call, mrn: Option[MRN])(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"declaration-not-found"}
 @title = @{messages(s"declaration-not-found.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
     @heading(Html(title))
-    @paragraph(Html(messages(s"declaration-not-found.because")))
-
-    @bullets(
-        Seq(
-            Html(messages(s"declaration-not-found.point.1"))
-        )
-    )
-
-    @paragraph(Html(messages(s"declaration-not-found.must-be")))
-    @paragraph(Html(messages(s"declaration-not-found.already-paid", routes.LandingPageController.showLandingPage().url)))
+    @paragraph(Html(messages("declaration-not-found.invalid-mrn", mrn.map(_.value).getOrElse(""))))
+    @paragraph(Html(messages("declaration-not-found.provide-another-mrn-or-contact", viewConfig.contactCdsTeamUrl)))
 
     @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
         @submitButton(s"declaration-not-found.submit")
