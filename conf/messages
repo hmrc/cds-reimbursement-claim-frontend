@@ -888,12 +888,10 @@ day-of-week.5=Friday
 day-of-week.6=Saturday
 day-of-week.7=Sunday
 
-declaration-not-found.already-paid=If your shipment has an entry number and you paid security deposit to HMRC, you can <a class="govuk-link" rel="noreferrer noopener" href="{0}">make a claim for a refund here</a>
-declaration-not-found.because=This may be because:
-declaration-not-found.must-be=An MRN must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DO12.
-declaration-not-found.point.1=the Movement Reference Number (MRN) has not been recognised
-declaration-not-found.submit=Enter a different MRN
-declaration-not-found.title=There is a problem with your claim
+declaration-not-found.title=There is a problem with this MRN
+declaration-not-found.invalid-mrn=The MRN <strong>{0}</strong> is invalid or there’s no security deposit in the MRN to claim.
+declaration-not-found.provide-another-mrn-or-contact=Please provide another MRN or you can get help by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contacting HMRC (opens in new tab)</a>
+declaration-not-found.submit=Provide another MRN
 
 duty-type.beer=Beer
 duty-type.biofuels=Biofuels

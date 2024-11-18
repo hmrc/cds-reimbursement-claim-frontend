@@ -838,12 +838,10 @@ date.day=Diwrnod
 date.month=Mis
 date.year=Blwyddyn
 
-declaration-not-found.already-paid=Os oes gan eich llwyth rif mynediad a’ch bod wedi talu blaendal sicrwydd i CThEF, gallwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">hawlio ad-daliad yma</a>
-declaration-not-found.because=Gallai hyn fod oherwydd y canlynol:
-declaration-not-found.must-be=Mae’n rhaid i MRN fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DO12.
-declaration-not-found.point.1=Nid yw’r Cyfeirnod Symud (MRN) wedi ei adnabod
-declaration-not-found.submit=Nodwch MRN gwahanol
-declaration-not-found.title=Mae problem gyda’ch hawliad
+declaration-not-found.title=Mae problem gyda’r MRN hwn
+declaration-not-found.invalid-mrn=Nid yw MRN, <strong>{0}</strong>, yn ddilys neu nid oes blaendal sicrwydd yn yr MRN i’w hawlio.
+declaration-not-found.provide-another-mrn-or-contact=Rhowch MRN arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">gysylltu â CThEF (yn agor tab newydd)</a>
+declaration-not-found.submit=Rhowch MRN gwahanol
 
 duty-type.beer=Cwrw
 duty-type.biofuels=Biodanwyddau
