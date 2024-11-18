@@ -309,6 +309,7 @@ check-your-answers.documents.hidden-label={0} o ddogfennau ategol
 check-your-answers.documents.label={0}
 check-your-answers.duplicate-declaration-details.l0=Rhif mynediad dyblyg
 check-your-answers.duplicate-declaration-details.label=Manylion y datganiad dyblyg
+check-your-answers.duplicate-mrn=Duplicate MRN
 check-your-answers.export-declaration-details.h2=Cyfeirnod Symud (MRN) Allforio
 check-your-answers.export-declaration-details.mrn=MRN Allforio
 check-your-answers.help-text=Dyma fanylion eich hawliad. Darllenwch y manylion yn ofalus a newid y rhai sy’n anghywir.

@@ -309,6 +309,7 @@ check-your-answers.documents.hidden-label={0} supporting documents
 check-your-answers.documents.label={0}
 check-your-answers.duplicate-declaration-details.l0=Duplicate Entry number
 check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
+check-your-answers.duplicate-mrn=Duplicate MRN
 check-your-answers.export-declaration-details.h2=Export Movement Reference Number (MRN)
 check-your-answers.export-declaration-details.mrn=Export MRN
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.

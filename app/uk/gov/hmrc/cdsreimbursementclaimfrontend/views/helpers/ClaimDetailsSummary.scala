@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 object ClaimDetailsSummary {
 
@@ -32,7 +33,8 @@ object ClaimDetailsSummary {
     additionalDetails: String,
     basisOfClaimChangeCallOpt: Option[Call],
     additionalDetailsChangeCallOpt: Option[Call],
-    newEoriAndDanOpt: Option[NewEoriAndDan]
+    newEoriAndDanOpt: Option[NewEoriAndDan],
+    duplicateMovementReferenceNumber: Option[MRN] = None
   )(implicit
     messages: Messages
   ): SummaryList = {
@@ -58,11 +60,30 @@ object ClaimDetailsSummary {
             )
           )
         ),
+        duplicateMovementReferenceNumber.map { duplicateMrn =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.duplicate-mrn"))),
+            value = Value(
+              Text(duplicateMrn.value)
+            ),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = routes.EnterDuplicateMovementReferenceNumberController.show.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.duplicate-mrn"))
+                  )
+                )
+              )
+            )
+          )
+        },
         newEoriAndDanOpt.map { newEoriAndDan =>
           SummaryListRow(
             key = Key(HtmlContent(messages("check-your-answers.new-eori"))),
             value = Value(
-              HtmlContent(newEoriAndDan.eori.value)
+              Text(newEoriAndDan.eori.value)
             ),
             actions =
               if (isPdf) None
@@ -84,7 +105,7 @@ object ClaimDetailsSummary {
           SummaryListRow(
             key = Key(HtmlContent(messages("check-your-answers.new-dan"))),
             value = Value(
-              HtmlContent(newEoriAndDan.dan)
+              Text(newEoriAndDan.dan)
             ),
             actions =
               if (isPdf) None
@@ -106,7 +127,7 @@ object ClaimDetailsSummary {
           SummaryListRow(
             key = Key(HtmlContent(messages("check-your-answers.additional-info"))),
             value = Value(
-              HtmlContent(additionalDetails)
+              Text(additionalDetails)
             ),
             actions = additionalDetailsChangeCallOpt.map(changeCall =>
               Actions(
