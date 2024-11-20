@@ -1225,8 +1225,6 @@ inspection-address.type.title=Choose an address for the inspection
 invalid-reason-for-security.invalid-mrn=The MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> is invalid or there''s no security deposit in the MRN to claim.
 # I am technically correct, the best kind of correct (don't forget the Welsh)
 invalid-reason-for-security.help-links=You can either <a href="{0}" class="govuk-link">view your claim status on the claims dashboard</a>, <a href="{1}" class="govuk-link">provide another MRN</a> or get help by <a href="{2}" target="_blank" class="govuk-link">contacting HMRC (opens in a new tab)</a>.
-invalid-reason-for-security.reason=Reason for security deposit
-invalid-reason-for-security.submit=Enter a different MRN
 invalid-reason-for-security.title=There is a problem with your claim
 
 landing-securities.title=Claim back an import security deposit or guarantee
