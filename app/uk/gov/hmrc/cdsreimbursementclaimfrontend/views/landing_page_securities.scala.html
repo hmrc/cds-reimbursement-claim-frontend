@@ -35,25 +35,77 @@
 @()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"landing-securities.title")}
-@dropdown = @{
-    HtmlContent(bulletList((1 to 12).map(i => Html(messages(s"landing-securities.supporting-documents.details.l$i")))))
-}
 
-@layout(pageTitle = Some(s"$title")) {
+@layout(pageTitle = Some(s"$title"), suppressBackLink = true, timeOut = false) {
 
-    @heading(Html(title))
-    @paragraph(Html(messages("landing-securities.p1")))
+<style>
+  .dash:before {
+    content: "—";
+    position: relative;
+  }
+  a {
+    text-size-adjust: 100%;
+    font-weight: 400;
+    list-style-type: none;
+    font-family: "GDS Transport", arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-decoration: underline;
+    text-decoration-thickness: max(1px, .0625rem);
+    text-underline-offset: 0.1em;
+    color: #1d70b8;
+  }
+</style>
 
-    @subHeading(Html(messages("landing-securities.who")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.who.p1")))
+<h1 class="govuk-heading-xl">Claim back a security deposit or guarantee</h1>
+<p class="govuk-body-l">
+  You can use this service to claim back an import security deposit or guarantee
+  you paid to HMRC for goods you brought into the UK to store, repair, process
+  or temporarily use.
+</p>
 
-    @subHeading(Html(messages("landing-securities.temporary-admissions")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.temporary-admissions.p1")))
+<hr
+  class="govuk-section-break govuk-section-break--m govuk-section-break--visible govuk-!-width-full"
+/>
+<ul class="govuk-list govuk-body">
+  <li id="contents" class="govuk-!-font-weight-bold">Contents</li>
+  <li class="dash">&nbsp; <a href="#1">What you’ll need</a></li>
+  <li class="dash">&nbsp; <a href="#2">Who can claim</a></li>
+  <li class="dash">&nbsp; <a href="#3">Types of claims</a></li>
+  <li class="dash">&nbsp; <a href="#4">Supporting documents examples</a></li>
+  <li class="dash">&nbsp; <a href="#5">What happens next</a></li>
+  <li class="dash">&nbsp; <a href="#6">If you need help</a></li>
+</ul>
 
-    @subHeading(Html(messages("landing-securities.before-you-start")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.before-you-start.p1")))
+<h2 class="govuk-heading-l" id="1">What you’ll need</h2>
+<p class="govuk-body">
+  Before you start, you must be
+  <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">
+  subscribed to the Customs Declaration Service
+</a>
+  and have a Government Gateway user ID and a password linked to your EORI
+  number.
+</p>
 
-    <p class="govuk-body">
+<p class="govuk-body">To claim a security deposit or guarantee you’ll need:</p>
+<ul class="govuk-list govuk-list--bullet">
+  <li>
+    an import and export Movement Reference Number (MRN) from the Customs
+    Declaration Service
+  </li>
+  <li>
+    to know how the goods will be received — for example, imported as freight or
+    post
+  </li>
+  <li>details of your guarantee (if applicable)</li>
+  <li>to know how long the goods will be in UK</li>
+  <li>to know what you did with the goods</li>
+  <li>your bank details</li>
+  <li>your contact and address details</li>
+  <li>duty or VAT amount due and paid to HMRC</li>
+  <li><a class="govuk-link" href="#4">supporting documents</a></li>
+</ul>
+
+<p class="govuk-body">
         <a href="@{routes.StartController.startNewClaim()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
             @messages("landing-securities.start-button")
             <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
@@ -62,24 +114,90 @@
         </a>
     </p>
 
-    @subHeading(Html(messages("landing-securities.what-you-need")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.what-you-need.p1")))
-    @bulletList((1 to 9).map(i => Html(messages(s"landing-securities.what-you-need.l$i"))))
+<h2 class="govuk-heading-l" id="2">Who can claim</h2>
+<p class="govuk-body">
+  You can claim if you are an importer, a customs agent, freight forwarder or
+  fast parcel operator, acting on behalf of the importer.
+</p>
 
-    @insetText(content = HtmlContent(messages("landing-securities.inset-text")))
+<h2 class="govuk-heading-l" id="3">Types of claims</h2>
+<h3 class="govuk-heading-m">Temporary admission</h3>
+<p class="govuk-body">
+  A temporary admission authorisation allows you to import goods into the UK for
+  a set period of time before re-exporting them.
+</p>
+<p class="govuk-body">
+  Temporary admissions can be for 2, 3 or 6 months, or 2 years. You can submit a
+  claim when the time period comes to an end and you no longer have the goods.
+</p>
+<h3 class="govuk-heading-m">Inward processing</h3>
+<p class="govuk-body">
+  Inward processing allows you to import goods into the UK to process or repair
+  them. To submit a claim, you have to tell HMRC how you disposed of the goods.
+</p>
+<h3 class="govuk-heading-m">
+  Authorised use (Great Britain) or end use (Northern Ireland)
+</h3>
+<p class="govuk-body">
+  You can pay less duty on some goods you import from outside the UK if they’re
+  going to be processed or put to a specific use. You can submit a claim once
+  the goods have been used as specified.
+</p>
 
-    @subHeading(Html(messages("landing-securities.supporting-documents")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.supporting-documents.p1")))
+<h2 class="govuk-heading-l" id="4">Supporting documents examples</h2>
+<p class="govuk-body">Files can be up to 9MB each and can include:</p>
+<ul class="govuk-list govuk-list--bullet">
+  <li>commercial invoices</li>
+  <li>import or export declaration</li>
+  <li>packing lists</li>
+  <li>PIM/PIEX international consignment notes</li>
+  <li>sea or air waybill</li>
+  <li>bill of lading</li>
+  <li>international consignment note</li>
+  <li>customers order or sales contract</li>
+  <li>correspondence between companies</li>
+  <li>substitute or diversion entry</li>
+  <li>proof of authority to update bank account details</li>
+  <li>other documents that support your claim</li>
+</ul>
 
-    @govukDetails(Details(summary = HtmlContent(messages("landing-securities.supporting-documents.details")), content = dropdown))
+<h2 class="govuk-heading-l" id="5">What happens next</h2>
+<p class="govuk-body">
+  HMRC will review your claim. To find out more about the status of your claim,
+  <a
+    href="@viewConfig.viewUploadUrl"
+    class="govuk-link"
+    >visit the claims dashboard</a
+  >. We will contact you to either:
+</p>
+<ul class="govuk-list govuk-list--bullet">
+  <li>confirm your claim and refund of deposit or guarantee</li>
+  <li>ask for more information</li>
+  <li>explain why your claim was rejected</li>
+</ul>
 
-    @subHeading(Html(messages("landing-securities.what-happens-next")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.what-happens-next.p1")))
-    @paragraph(Html(messages("landing-securities.what-happens-next.p2")))
-    @bulletList((1 to 3).map(i => Html(messages(s"landing-securities.what-happens-next.p2.l$i"))))
-
-    @subHeading(Html(messages("landing-securities.need-help")), classes = "govuk-heading-m")
-    @paragraph(Html(messages("landing-securities.need-help.p1")))
-    @paragraph(Html(messages("landing-securities.need-help.p2")))
+<h2 class="govuk-heading-l" id="6">If you need help</h2>
+<p class="govuk-body">
+  Find out more information about
+  <a
+    href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries"
+  >
+    importing goods into the UK</a
+  >.
+</p>
+<p class="govuk-body">
+  For general enquiries about importing, you can
+  <a
+    href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries"
+    target="_blank"
+  >
+    contact HMRC (opens in new tab)</a
+  >.
+</p>
+<p class="govuk-body">
+  Online services may be slow during busy times. Check if there are any
+  <a href="#" class="govuk-link">problems with this service</a>.
+</p>
+      
 
 }
