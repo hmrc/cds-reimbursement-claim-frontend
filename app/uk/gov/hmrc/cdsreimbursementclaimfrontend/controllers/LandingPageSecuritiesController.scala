@@ -20,48 +20,29 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SecuritiesJourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page_securities
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class LandingPageSecuritiesController @Inject() (
-  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
-  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
-  val jcc: JourneyControllerComponents,
+  val controllerComponents: MessagesControllerComponents,
   val featureSwitchService: FeatureSwitchService,
   landingPageSecurities: landing_page_securities
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with WithAuthRetrievalsAndSessionDataAction
-    with SessionUpdates
+    extends FrontendBaseController
     with Logging {
 
-  private val securitiesAccessEoriSet =
-    EnrolmentConfig.getLimitedAccessEoriSet(viewConfig.config)
-
   final val showLandingPageSecurities: Action[AnyContent] =
-    authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      val userIsAuthorisedSecuritiesLimitedAccess =
-        request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
-
+    Action { implicit request =>
       if (featureSwitchService.isEnabled(Feature.Securities)) {
-        if (featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) {
-          if (userIsAuthorisedSecuritiesLimitedAccess)
-            Ok(landingPageSecurities())
-          else Redirect(routes.UnauthorisedController.unauthorised())
-        } else {
-          Ok(landingPageSecurities())
-        }
+        Ok(landingPageSecurities())
       } else Redirect(routes.UnauthorisedController.unauthorised())
     }
 }
