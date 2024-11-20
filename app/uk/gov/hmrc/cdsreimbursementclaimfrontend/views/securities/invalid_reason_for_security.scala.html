@@ -39,7 +39,7 @@
     @heading(Html(title))
     @paragraph(Html(messages(s"invalid-reason-for-security.invalid-mrn", mrn.map(_.value).getOrElse(""))))
 
-    @paragraph(Html(messages(s"invalid-reason-for-security.help-links")))
+    @paragraph(Html(messages(s"invalid-reason-for-security.help-links", viewConfig.viewUploadUrl, enterMRN, viewConfig.contactCdsTeamUrl)))
 
 
     <div class="govuk-button-group">
