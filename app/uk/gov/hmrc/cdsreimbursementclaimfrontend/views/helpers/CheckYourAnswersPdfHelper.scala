@@ -115,7 +115,7 @@ object CheckYourAnswersPdfHelper {
   }
 
   private def getFormattedSubmissionDate(submissionDate: LocalDateTime)(implicit messages: Messages): String = {
-    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+    val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
     s"${submissionDate.format(timeFormatter)}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
       "<br/>" ++ toDisplayDate(submissionDate.toLocalDate)
   }
