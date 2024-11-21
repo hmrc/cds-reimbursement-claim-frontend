@@ -79,6 +79,35 @@ object InspectionDateAndAddressSummary {
         )
       )
 
+    buildSummaryList(
+      inspectionDate,
+      inspectionAddress,
+      key,
+      maybeChangeInspectionAddressCall,
+      Some(changeInspectionDateAction),
+      Some(changeInspectionAddressTypeAction),
+      Some(changeInspectionAddressAction)
+    )
+  }
+
+  def apply(
+    inspectionDate: InspectionDate,
+    inspectionAddress: InspectionAddress,
+    key: String
+  )(implicit
+    messages: Messages
+  ): SummaryList = buildSummaryList(inspectionDate, inspectionAddress, key)
+
+  private def buildSummaryList(
+    inspectionDate: InspectionDate,
+    inspectionAddress: InspectionAddress,
+    key: String,
+    maybeChangeInspectionAddressCall: Option[Call] = None,
+    changeInspectionDateAction: Option[Actions] = None,
+    changeInspectionAddressTypeAction: Option[Actions] = None,
+    changeInspectionAddressAction: Option[Actions] = None
+  )(implicit messages: Messages) = {
+
     val addressData = List(
       inspectionAddress.addressLine1.map(Paragraph(_)),
       inspectionAddress.addressLine2.map(Paragraph(_)),
@@ -93,19 +122,19 @@ object InspectionDateAndAddressSummary {
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.inspection-date"))),
           value = Value(Text(toDisplayDate(InspectionDate(inspectionDate.value).checkYourDetailsDisplayFormat))),
-          actions = Some(changeInspectionDateAction)
+          actions = changeInspectionDateAction
         ),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.inspection-address-type"))),
           value = Value(Text(messages(s"inspection-address.type.${inspectionAddress.addressType}"))),
-          actions = Some(changeInspectionAddressTypeAction)
+          actions = changeInspectionAddressTypeAction
         ),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.inspection-address"))),
           value = Value(HtmlContent(HtmlFormat.fill(addressData))),
           actions = (inspectionAddress.addressType, maybeChangeInspectionAddressCall) match {
-            case (Other, Some(_)) => Some(changeInspectionAddressAction)
-            case (Other, None)    => Some(changeInspectionAddressTypeAction)
+            case (Other, Some(_)) => changeInspectionAddressAction
+            case (Other, None)    => changeInspectionAddressTypeAction
             case _                => None
           }
         )

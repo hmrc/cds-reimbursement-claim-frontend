@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -32,6 +33,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoute}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedSingleRoute}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoute}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoute}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoute}
@@ -105,15 +107,16 @@ object CheckYourAnswersPdfHelper {
     )
 
   def getPdfUrl(journey: JourneyBase): String = journey match {
-    case journey: OverpaymentsSingleJourney    => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
-    case journey: OverpaymentsMultipleJourney  => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
-    case journey: SecuritiesJourney            => securitiesRoute.CheckYourAnswersController.showPdf.url
-    case journey: OverpaymentsScheduledJourney => overpaymentsScheduledRoute.CheckYourAnswersController.showPdf.url
+    case _: OverpaymentsSingleJourney    => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
+    case _: OverpaymentsMultipleJourney  => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
+    case _: OverpaymentsScheduledJourney => overpaymentsScheduledRoute.CheckYourAnswersController.showPdf.url
+    case _: SecuritiesJourney            => securitiesRoute.CheckYourAnswersController.showPdf.url
+    case _: RejectedGoodsSingleJourney   => rejectedSingleRoute.CheckYourAnswersController.showPdf.url
   }
 
   private def getFormattedSubmissionDate(submissionDate: LocalDateTime)(implicit messages: Messages): String = {
-    val timeFormatter = DateTimeFormatter.ofPattern("h:m a")
-    s"${submissionDate.format(timeFormatter)}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++ "<br/>" ++
-      toDisplayDate(submissionDate.toLocalDate)
+    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+    s"${submissionDate.format(timeFormatter)}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
+      "<br/>" ++ toDisplayDate(submissionDate.toLocalDate)
   }
 }

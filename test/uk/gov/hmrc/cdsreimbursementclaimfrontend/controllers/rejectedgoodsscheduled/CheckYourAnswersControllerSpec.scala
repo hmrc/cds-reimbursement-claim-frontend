@@ -120,7 +120,7 @@ class CheckYourAnswersControllerSpec
       "Lead Movement Reference Number (MRN)".expectedAlways,
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
-      "Contact information for this claim".expectedAlways,
+      "Contact details for this claim".expectedAlways,
       "Basis for claim".expectedAlways,
       "Disposal method".expectedAlways,
       "Details of rejected goods".expectedAlways,

@@ -20,6 +20,8 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -145,4 +147,91 @@ object ClaimDetailsSummary {
       ).flatten
     )
   }
+
+  def apply(
+    basisOfClaim: BasisOfRejectedGoodsClaim,
+    basisOfClaimSpecialCircumstances: Option[String],
+    detailsOfRejectedGoods: String,
+    methodOfDisposal: MethodOfDisposal,
+    basisOfClaimChangeCallOpt: Option[Call],
+    basisOfClaimSpecialCircumstancesChangeCallOpt: Option[Call],
+    detailsOfRejectedGoodsChangeCallOpt: Option[Call],
+    methodOfDisposalChangeCallOpt: Option[Call]
+  )(implicit messages: Messages): SummaryList =
+    SummaryList(
+      Seq(
+        Some(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.basis-of-claim"))),
+            value = Value(
+              HtmlContent(messages(s"select-basis-for-claim.rejected-goods.reason.$basisOfClaim"))
+            ),
+            actions = basisOfClaimChangeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.basis-of-claim"))
+                  )
+                )
+              )
+            )
+          )
+        ),
+        basisOfClaimSpecialCircumstances.map { sc =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.special-circumstances"))),
+            value = Value(Text(sc)),
+            actions = basisOfClaimSpecialCircumstancesChangeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.special-circumstances"))
+                  )
+                )
+              )
+            )
+          )
+        },
+        Some(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.additional-info"))),
+            value = Value(
+              Text(detailsOfRejectedGoods)
+            ),
+            actions = detailsOfRejectedGoodsChangeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.additional-info"))
+                  )
+                )
+              )
+            )
+          )
+        ),
+        Some(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.disposal-method.label"))),
+            value = Value(Text(messages(s"select-method-of-disposal.rejected-goods.method.$methodOfDisposal"))),
+            actions = methodOfDisposalChangeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages("check-your-answers.disposal-method.label"))
+                  )
+                )
+              )
+            )
+          )
+        )
+      ).flatten
+    )
 }
