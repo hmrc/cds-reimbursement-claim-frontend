@@ -116,7 +116,7 @@ class CheckYourAnswersControllerSpec
       "Lead Movement Reference Number (MRN)".expectedAlways,
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
-      "Contact information for this claim".expectedAlways,
+      "Contact details for this claim".expectedAlways,
       "Claim details".expectedAlways,
       "Total repayment claim for all MRNs".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
@@ -156,7 +156,7 @@ class CheckYourAnswersControllerSpec
           "Basis of claim"               -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "Additional claim information" -> Some(claim.additionalDetails),
+          "Additional claim details"     -> Some(claim.additionalDetails),
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "EU Duty"                      -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),

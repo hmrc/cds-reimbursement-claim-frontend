@@ -118,7 +118,7 @@ class CheckYourAnswersControllerSpec
     headers should containOnlyDefinedElementsOf(
       "Movement Reference Numbers (MRNs)".expectedAlways,
       "Declaration details".expectedAlways,
-      "Contact information for this claim".expectedAlways,
+      "Contact details for this claim".expectedAlways,
       "Claim details".expectedAlways,
       "Claim total".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
@@ -161,7 +161,7 @@ class CheckYourAnswersControllerSpec
           "Basis of claim"               -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "Additional claim information" -> Some(claim.additionalDetails),
+          "Additional claim details"     -> Some(claim.additionalDetails),
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),

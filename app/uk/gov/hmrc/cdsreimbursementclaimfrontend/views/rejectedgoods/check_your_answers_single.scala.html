@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single_common
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,7 +37,8 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
+    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
+    cyaCommon: check_your_answers_single_common
 )
 
 @(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
@@ -51,45 +53,7 @@
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number", subKey, if (isSubsidy) "h2-subsidy" else "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
 
-    @displayDeclarationOpt.map { displayDeclaration =>
-        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-        @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"check-your-answers.declaration-details", showImportMrn = false))
-    } 
-
-    @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF)))
-
-    @subHeading(Html(messages(s"check-your-answers.basis.h2")))
-    @summary(BasisOfRejectedGoodsClaimSummary(claim.basisOfClaim, s"check-your-answers.basis", subKey, routes.BasisForClaimController.show))
-
-    @claim.basisOfClaimSpecialCircumstances.map { specialCircumstances =>
-        @subHeading(Html(messages(s"check-your-answers.special-circumstances.h2")))
-        @summary(SpecialCircumstancesSummary(specialCircumstances,s"check-your-answers.special-circumstances", subKey, routes.EnterSpecialCircumstancesController.show))
-    }
-
-    @subHeading(Html(messages(s"check-your-answers.disposal-method.h2")))
-    @summary(DisposalMethodSummary(claim.methodOfDisposal,s"check-your-answers.disposal-method", subKey, routes.DisposalMethodController.show))
-
-    @subHeading(Html(messages(s"check-your-answers.details-rejected-goods.h2")))
-    @summary(DetailsOfRejectedGoodsSummary(claim.detailsOfRejectedGoods, s"check-your-answers.details-rejected-goods", subKey, routes.EnterRejectedGoodsDetailsController.show))
-    
-    @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-    @summary(ReimbursementsClaimsSummary.singleForCYA(claim.reimbursements, s"check-your-answers.claim-total", Some(routes.CheckClaimDetailsController.show)))
-
-    @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
-    @summary(InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show))
-
-    @subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
-    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", Some(routes.ChoosePayeeTypeController.show)))
-    @summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"check-your-answers.repayment-method", if (isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
-
-    @claim.bankAccountDetails.map { bankAccountDetails =>
-        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", Some(routes.EnterBankAccountDetailsController.returnToPage)))
-    }
-    
-    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-    @summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", Some(routes.UploadFilesController.summary)))
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, displayDeclarationOpt, subKey, isSubsidy, isPdf = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

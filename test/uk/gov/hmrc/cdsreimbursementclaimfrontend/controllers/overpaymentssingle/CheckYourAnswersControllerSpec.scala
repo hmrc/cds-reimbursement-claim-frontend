@@ -114,7 +114,7 @@ class CheckYourAnswersControllerSpec
     headers.toSeq should containOnlyDefinedElementsOf(
       "Movement Reference Number (MRN)".expectedAlways,
       "Declaration details".expectedAlways,
-      "Contact information for this claim".expectedAlways,
+      "Contact details for this claim".expectedAlways,
       "Claim details".expectedAlways,
       "Claim total".expectedAlways,
       "Repayment details".expectedAlways,
@@ -154,7 +154,7 @@ class CheckYourAnswersControllerSpec
           "Basis of claim"               -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "Additional claim information" -> Some(claim.additionalDetails),
+          "Additional claim details"     -> Some(claim.additionalDetails),
           "Duplicate MRN"                -> claim.duplicateMovementReferenceNumber.map(_.value),
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),

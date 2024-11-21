@@ -110,7 +110,7 @@ class CheckYourAnswersControllerSpec
     headers.asScala.toSeq should contain allOf (
       "Movement Reference Numbers (MRNs)",
       "Declaration details",
-      "Contact information for this claim",
+      "Contact details for this claim",
       "Basis for claim",
       "Disposal method",
       "Details of rejected goods",

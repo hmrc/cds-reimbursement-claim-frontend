@@ -118,7 +118,7 @@ class CheckYourAnswersControllerSpec
       (Seq(
         "Declaration details".expectedAlways,
         "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodOfDisposal),
-        "Contact information for this claim".expectedAlways,
+        "Contact details for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Documents".expectedAlways,
         "Now send your claim".expectedAlways

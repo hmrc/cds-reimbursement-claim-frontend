@@ -19,9 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
@@ -29,12 +31,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single_pdf
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 import scala.concurrent.ExecutionContext
 
@@ -44,16 +49,19 @@ class CheckYourAnswersController @Inject() (
   rejectedGoodsSingleClaimConnector: RejectedGoodsSingleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_single,
+  checkYourAnswersPagePdf: check_your_answers_single_pdf,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
+  pdfGenerator: PdfGenerator,
   featureSwitchService: FeatureSwitchService
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends RejectedGoodsSingleJourneyBaseController
     with Logging {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
+  private val selfUrl: String              = jcc.servicesConfig.getString("self.url")
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
@@ -81,7 +89,8 @@ class CheckYourAnswersController @Inject() (
                   journey.isAllSelectedDutiesAreCMAEligible,
                   journey.answers.displayDeclaration,
                   postAction,
-                  isSubsidy = journey.isSubsidyOnlyJourney
+                  isSubsidy = journey.isSubsidyOnlyJourney,
+                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
                 )
               )
             )
@@ -148,11 +157,52 @@ class CheckYourAnswersController @Inject() (
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
-                    subKey = Some("single")
+                    subKey = Some("single"),
+                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
+                    pdfUrl = getPdfUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
+          }
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  final val showPdf: Action[AnyContent] =
+    jcc
+      .authenticatedActionWithSessionData(requiredFeature)
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getJourney)
+          .map { journey =>
+            journey.toOutput.fold(
+              errors => {
+                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+                Redirect(routeForValidationErrors(errors)).asFuture
+              },
+              output =>
+                (journey.caseNumber, journey.submissionDateTime) match {
+                  case (Some(caseNumber), Some(submissionDate)) =>
+                    pdfGenerator
+                      .ok(
+                        checkYourAnswersPagePdf(
+                          caseNumber = caseNumber,
+                          claim = output,
+                          isAllSelectedDutiesAreCMAEligible = journey.isAllSelectedDutiesAreCMAEligible,
+                          displayDeclarationOpt = journey.answers.displayDeclaration,
+                          subKey = Some("single"),
+                          isSubsidy = journey.isSubsidyOnlyJourney,
+                          submissionDate = submissionDate
+                        ),
+                        selfUrl
+                      )
+                      .asFuture
+                  case _                                        =>
+                    logger.warn("Error fetching journey for PDF generation")
+                    errorHandler.errorResult().asFuture
+                }
+            )
+
           }
           .getOrElse(redirectToTheStartOfTheJourney)
       }
