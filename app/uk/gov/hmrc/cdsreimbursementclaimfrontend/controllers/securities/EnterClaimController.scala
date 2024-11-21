@@ -51,7 +51,7 @@ class EnterClaimController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  private val key: String = "enter-claim.securities"
+  private val key: String = "enter-claim-amount"
 
   final def showFirst(securityDepositId: String): Action[AnyContent] = simpleActionReadJourney(journey =>
     journey
@@ -71,17 +71,17 @@ class EnterClaimController @Inject() (
       validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
         _.fold(
           identity,
-          { case (existingCorrectedAmountOpt, totalAmount) =>
+          { case (correctAmountOpt, paidAmount) =>
             val form = Forms
-              .securitiesAmountForm(key, totalAmount)
-              .withDefault(existingCorrectedAmountOpt)
+              .claimAmountForm(key, paidAmount)
+              .withDefault(correctAmountOpt.map(a => paidAmount - a))
 
             Ok(
               enterClaimPage(
                 form,
                 securityDepositId,
                 taxCode,
-                totalAmount,
+                paidAmount,
                 routes.EnterClaimController.submit(securityDepositId, taxCode)
               )
             )
@@ -97,7 +97,7 @@ class EnterClaimController @Inject() (
           _.fold(
             result => (journey, result),
             { case (_, totalAmount) =>
-              val form = Forms.securitiesAmountForm(key, totalAmount)
+              val form = Forms.claimAmountForm(key, totalAmount)
               form
                 .bindFromRequest()
                 .fold(
@@ -114,14 +114,14 @@ class EnterClaimController @Inject() (
                         )
                       )
                     ),
-                  reclaimAmount => {
+                  claimAmount => {
                     val amountHasChanged: Boolean =
                       !journey
-                        .getReclaimAmountFor(securityDepositId, taxCode)
-                        .exists(_ === reclaimAmount)
+                        .getClaimAmountFor(securityDepositId, taxCode)
+                        .exists(_ === claimAmount)
                     if (amountHasChanged)
                       journey
-                        .submitCorrectAmount(securityDepositId, taxCode, reclaimAmount)
+                        .submitClaimAmount(securityDepositId, taxCode, claimAmount)
                         .fold(
                           error =>
                             (
@@ -149,10 +149,10 @@ class EnterClaimController @Inject() (
   private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
     implicit request: Request[_]
   ): Future[Either[Result, (Option[BigDecimal], BigDecimal)]] = {
-    val reclaimsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
+    val correctAmountsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
       journey.answers.correctedAmounts.flatMap(_.get(securityDepositId))
 
-    (reclaimsForDepositId match {
+    (correctAmountsForDepositId match {
       case None =>
         if (journey.getSecurityDepositIds.contains(securityDepositId))
           Left(Redirect(routes.ConfirmFullRepaymentController.show(securityDepositId)))
@@ -164,16 +164,16 @@ class EnterClaimController @Inject() (
             )
           )
 
-      case Some(reclaims) =>
-        reclaims.get(taxCode) match {
+      case Some(correctAmounts) =>
+        correctAmounts.get(taxCode) match {
           case None =>
             Left(Redirect(routes.SelectDutiesController.show(securityDepositId)))
 
-          case Some(reclaimAmountOpt) =>
-            val totalAmountOnDeclaration =
+          case Some(correctAmountOpt) =>
+            val paidAmountOnDeclaration =
               journey.getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
-            totalAmountOnDeclaration match {
+            paidAmountOnDeclaration match {
               case None =>
                 Left(
                   logAndDisplayError(
@@ -182,8 +182,8 @@ class EnterClaimController @Inject() (
                   )
                 )
 
-              case Some(totalAmount) =>
-                Right((reclaimAmountOpt, totalAmount))
+              case Some(paidAmount) =>
+                Right((correctAmountOpt, paidAmount))
             }
 
         }

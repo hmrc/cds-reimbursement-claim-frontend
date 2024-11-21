@@ -999,9 +999,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val depositId: String                     = journey.getSelectedDepositIds.head
         val taxCode: TaxCode                      = journey.getSecurityTaxCodesFor(depositId).head
         val depositAmount: BigDecimal             = journey.getSecurityDepositAmountFor(depositId, taxCode).get
-        val currentAmount: BigDecimal             = journey.getReclaimAmountFor(depositId, taxCode).get
+        val currentAmount: BigDecimal             = journey.getClaimAmountFor(depositId, taxCode).get
         val newCorrectAmount: BigDecimal          = depositAmount / 3
-        val currentTotalReclaimAmount: BigDecimal = journey.getTotalReclaimAmount
+        val currentTotalReclaimAmount: BigDecimal = journey.getTotalClaimAmount
         val newTotalReclaimAmount: BigDecimal     =
           currentTotalReclaimAmount - currentAmount + (depositAmount - newCorrectAmount)
 
@@ -1009,7 +1009,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitCorrectAmount(depositId, taxCode, newCorrectAmount)
           .getOrFail
 
-        modifiedJourney.getTotalReclaimAmount shouldBe newTotalReclaimAmount
+        modifiedJourney.getTotalClaimAmount shouldBe newTotalReclaimAmount
 
         modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.hasCompleteSecuritiesReclaims  shouldBe true
