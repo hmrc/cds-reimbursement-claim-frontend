@@ -1272,6 +1272,7 @@ invalid-reason-for-security.help-links=Gallwch naill ai <a href="{0}" class="gov
 invalid-reason-for-security.title=Mae problem gyda’ch hawliad
 
 landing-securities.title=Hawlio gwarant neu flaendal sicrwydd mewnforio yn ôl
+landing-securities.start-button=Dechrau nawr
 
 landing-securities.what.heading=Yr hyn y mae angen i chi ei wybod
 landing-securities.what.l1=gall hawliadau gymryd 30 diwrnod i’w prosesu, neu’n hirach os bydd angen i ni gysylltu â chi
