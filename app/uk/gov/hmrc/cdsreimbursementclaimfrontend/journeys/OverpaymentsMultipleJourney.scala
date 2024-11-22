@@ -666,6 +666,13 @@ final class OverpaymentsMultipleJourney private (
       else Left("submitBankAccountDetails.unexpected")
     }
 
+  def removeBankAccountDetails(): OverpaymentsMultipleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(bankAccountDetails = None)
+      )
+    }
+
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)

@@ -36,6 +36,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   def isCMA(journey: Journey): Boolean = false
 
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
+  def modifyJourneyRemoveBankDetails(journey: Journey): Journey
 
   final val bankDetailsAreYouSureForm: Form[YesNo] =
     YesOrNoQuestionForm("bank-details")

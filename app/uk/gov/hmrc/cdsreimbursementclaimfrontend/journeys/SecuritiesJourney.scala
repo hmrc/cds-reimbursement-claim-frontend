@@ -807,6 +807,13 @@ final class SecuritiesJourney private (
       else Left("submitBankAccountDetails.unexpected")
     }
 
+  def removeBankAccountDetails(): SecuritiesJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(bankAccountDetails = None)
+      )
+    }
+
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)
