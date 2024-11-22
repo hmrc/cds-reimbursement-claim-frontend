@@ -27,48 +27,31 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_multiple_common
+@import java.time.LocalDateTime
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
     cyaCommon: check_your_answers_multiple_common
 )
 
 @(
+    caseNumber: String,
+    amountRequested: BigDecimal,
     claim: RejectedGoodsMultipleJourney.Output,
     displayDeclarationOpt: Option[DisplayDeclaration],
     isSubsidyOnly: Option[Boolean],
-    postAction: Call, subKey: Option[String] = None, showPdfOption: Boolean = false
+    subKey: Option[String] = None,
+    submissionDate: LocalDateTime
 )(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
-@key = @{"check-your-answers"}
-@title = @{messages(s"check-your-answers.title")}
-@subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
-@isSubsidy = @{if (isSubsidyOnly contains(true)) true else false}
+@layout() {
 
-@layout(pageTitle = Some(s"$title")) {
+    @heading(Html(messages("check-your-answers.pdf.title")))
 
-    @heading(Html(title))
+    @summary(CheckYourAnswersPdfHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers, submissionDate))
 
-    @subHeading(Html(messages(combine(s"check-your-answers.reference-number.multiple", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"check-your-answers.reference-number.rejectedgoodsmultiple", subKey, Some(routes.CheckMovementReferenceNumbersController.show)))
+    @cyaCommon(claim, displayDeclarationOpt, isSubsidyOnly, subKey, isPdf = true)
 
-    @cyaCommon(claim, displayDeclarationOpt, isSubsidyOnly, subKey, isPdf = false)
-
-    @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
-    @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
-
-    @if(showPdfOption){
-        @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
-    }
-
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        @submitButton("button.accept-and-send")
-    }
 }
