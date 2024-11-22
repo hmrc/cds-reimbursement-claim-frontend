@@ -439,7 +439,11 @@ class EnterClaimControllerSpec
           val amount = initialJourney.getSecurityDepositAmountFor(depositId, taxCode)
 
           checkPageWithErrorIsDisplayed(
-            performAction(depositId, taxCode, "enter-claim-amount" -> (amount.get.doubleValue + 0.01).toString()),
+            performAction(
+              depositId,
+              taxCode,
+              "enter-claim-amount" -> (amount.get + BigDecimal("0.01")).doubleValue.toString()
+            ),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
             "The amount that you want to claim back must be more than zero and less or equal to the amount paid"
           )
