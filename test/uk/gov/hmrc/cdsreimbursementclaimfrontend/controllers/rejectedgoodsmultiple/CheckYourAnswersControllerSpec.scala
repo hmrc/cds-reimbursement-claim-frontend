@@ -111,9 +111,7 @@ class CheckYourAnswersControllerSpec
       "Movement Reference Numbers (MRNs)",
       "Declaration details",
       "Contact details for this claim",
-      "Basis for claim",
-      "Disposal method",
-      "Details of rejected goods",
+      "Claim details",
       "Claim total",
       "Details of inspection",
       "Supporting documents",
@@ -127,9 +125,9 @@ class CheckYourAnswersControllerSpec
       "Contact details",
       "Contact address",
       (mrnKeys ++ Seq(
-        "This is the basis behind the claim",
-        "This is how the goods will be disposed of",
-        "These are the details of the rejected goods",
+        "Basis of claim",
+        "Disposal method",
+        "Additional claim details",
         "Total",
         "Inspection date",
         "Inspection address type",
@@ -141,20 +139,20 @@ class CheckYourAnswersControllerSpec
       summary(key) shouldBe mrn.value
     }
 
-    summary("Contact details")                             shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
-    summary("Contact address")                             shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
-    summary("This is the basis behind the claim")          shouldBe messages(
+    summary("Contact details")          shouldBe ClaimantInformationSummary.getContactDataString(claim.claimantInformation)
+    summary("Contact address")          shouldBe ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)
+    summary("Basis of claim")           shouldBe messages(
       s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}"
     )
-    summary("This is how the goods will be disposed of")   shouldBe messages(
+    summary("Disposal method")          shouldBe messages(
       s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}"
     )
-    summary("These are the details of the rejected goods") shouldBe claim.detailsOfRejectedGoods
-    summary("Inspection date")                             shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
-    summary("Inspection address type")                     shouldBe messages(
+    summary("Additional claim details") shouldBe claim.detailsOfRejectedGoods
+    summary("Inspection date")          shouldBe claim.inspectionDate.checkYourDetailsDisplayFormat
+    summary("Inspection address type")  shouldBe messages(
       s"inspection-address.type.${claim.inspectionAddress.addressType}"
     )
-    summary("Inspection address")                          shouldBe summaryAddress(claim.inspectionAddress, " ")
+    summary("Inspection address")       shouldBe summaryAddress(claim.inspectionAddress, " ")
 
     claim.reimbursementClaims.foreachEntry { case (mrn, claims) =>
       summary(mrn.value) shouldBe claims.values.sum.toPoundSterlingString
@@ -171,9 +169,8 @@ class CheckYourAnswersControllerSpec
     }
 
     claim.basisOfClaimSpecialCircumstances.foreach { value =>
-      headers                                                       should contain("Special circumstances")
-      summaryKeys                                                   should contain("Any special circumstances relating to your claim")
-      summary("Any special circumstances relating to your claim") shouldBe value
+      summaryKeys                        should contain("Special circumstances")
+      summary("Special circumstances") shouldBe value
     }
   }
 
