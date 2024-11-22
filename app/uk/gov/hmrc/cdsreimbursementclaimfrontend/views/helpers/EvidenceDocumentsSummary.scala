@@ -69,38 +69,4 @@ object EvidenceDocumentsSummary {
         )
       )
     )
-
-  def forSecurities(
-    answers: Seq[EvidenceDocument],
-    key: String,
-    changeCallOpt: Option[Call]
-  )(implicit
-    messages: Messages
-  ): SummaryList =
-    SummaryList(
-      answers.map(document =>
-        SummaryListRow(
-          key = Key(Text(messages(s"choose-file-type.file-type.${document.documentType}"))),
-          value = Value(
-            HtmlContent(
-              Paragraph(
-                document.fileName,
-                messages(s"choose-file-type.file-type.${document.documentType}")
-              ).toString
-            )
-          ),
-          actions = changeCallOpt.map(changeCall =>
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = changeCall.url,
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.hidden-label"))
-                )
-              )
-            )
-          )
-        )
-      )
-    )
 }

@@ -150,7 +150,7 @@
     @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.returnToPage)))
 }
 
-@subHeading(Html(messages(s"check-your-answers.documents.h2")))
-@summary(EvidenceDocumentsSummary.forSecurities(claim.supportingEvidences, s"check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
+@subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
+@summary(EvidenceDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
 
 

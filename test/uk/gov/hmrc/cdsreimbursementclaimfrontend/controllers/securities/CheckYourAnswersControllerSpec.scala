@@ -120,11 +120,17 @@ class CheckYourAnswersControllerSpec
         "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodOfDisposal),
         "Contact details for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
-        "Documents".expectedAlways,
+        "Supporting documents".expectedAlways,
         "Now send your claim".expectedAlways
       ) ++
         claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)): _*
     )
+
+    val expectedDocuments: Seq[String] =
+      journey.answers.supportingEvidences.map { uploadDocument =>
+        s"${uploadDocument.fileName} ${uploadDocument.documentType
+          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+      }
 
     summaries.toSeq should containAllDefinedPairsOf(
       Seq(
@@ -132,6 +138,7 @@ class CheckYourAnswersControllerSpec
         //("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
         ("Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
         ("Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
+        ("Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" ")))),
         ("Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value)),
         ("Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked)),
         ("Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked)),
@@ -208,14 +215,7 @@ class CheckYourAnswersControllerSpec
             reclaims.map { case (taxCode, amount) =>
               (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
             }
-        } ++
-        claim.supportingEvidences
-          .map(document =>
-            (messages(s"choose-file-type.file-type.${document.documentType}") -> Some(
-              document.fileName + " " +
-                messages(s"choose-file-type.file-type.${document.documentType}")
-            ))
-          )
+        }
     )
   }
 
