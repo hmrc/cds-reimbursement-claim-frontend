@@ -224,7 +224,7 @@ class CheckYourAnswersControllerSpec
     val mrn = journey.getLeadMovementReferenceNumber.get.value
     mrn.isEmpty shouldBe false
 
-    val claimAmount = journey.getTotalReclaimAmount.toPoundSterlingString
+    val claimAmount = journey.getTotalClaimAmount.toPoundSterlingString
 
     summaryKeyValueList(doc) should containOnlyPairsOf(
       Seq(

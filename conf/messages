@@ -980,6 +980,7 @@ enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited 
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 enter-claim.invalid.amount=The amount that should have been paid must be less than the amount paid
 enter-claim.mrn=MRN:
+
 enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
@@ -997,6 +998,7 @@ enter-claim.paid-amount.duty-type.spirits=Spirits
 enter-claim.paid-amount.duty-type.tobacco=Tobacco products
 enter-claim.paid-amount.duty-type.uk-duty=UK Duty
 enter-claim.paid-amount.duty-type.wine=Wine
+
 enter-claim.rejected-goods.claim-amount=How much should have been paid, in pounds?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Claim amount must be equal to or less than the amount paid
 enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Claim amount must be less than the amount paid
@@ -1009,6 +1011,7 @@ enter-claim.rejected-goods.inset-text=HMRC does not refund agents’ fees.
 enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} MRN
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
+
 enter-claim.scheduled.actual-amount=How much should have been paid, in pounds?
 enter-claim.scheduled.actual-amount.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.scheduled.actual-amount.error.required=Enter the amount that should have been paid, in pounds
@@ -1027,15 +1030,11 @@ enter-claim.scheduled.paid-amount.excise=How much {0} duty {1} was paid, in poun
 enter-claim.scheduled.subsidy-inset-text=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.scheduled.title={0} {1} - {2}
 enter-claim.scheduled.title.excise={0} - {1} {2}
-enter-claim.securities.claim-amount=How much should have been paid, in pounds?
-enter-claim.securities.claim-amount.error.invalid-amount=Claim amount must be lower than or equal to the amount paid
-enter-claim.securities.claim-amount.error.invalid-text=Claim amount must be a number, like 30
-enter-claim.securities.claim-amount.error.required=Enter the claim amount, in pounds
-enter-claim.securities.claim-amount.error.zero=Claim amount must be 0.01 or more
-enter-claim.securities.claim-amount.hint=The claim amount must be lower than the amount paid.
+
 enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=Security deposit ID: {0}
 enter-claim.securities.title={0} - {1}
+
 enter-claim.title={0} - {1}
 enter-claim.title.caption=Claim details
 enter-claim.title.excise={0} - {1} {2}

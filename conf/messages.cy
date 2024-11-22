@@ -916,7 +916,7 @@ enter-claim.actual-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r
 enter-claim-amount.label=Faint yr hoffech ei hawlio yn ôl mewn punnoedd?
 enter-claim-amount.error.invalid=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn rhif, megis 30 neu 60.55
 enter-claim-amount.error.required=Nodwch y swm rydych am ei hawlio yn ôl mewn punnoedd
-enter-claim-amount.error.amount=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai na’r swm a dalwyd
+enter-claim-amount.error.amount=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai neu’n hafal i’r swm a dalwyd
 
 enter-claim.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
@@ -945,6 +945,7 @@ enter-claim.paid-amount.duty-type.spirits=Gwirodydd
 enter-claim.paid-amount.duty-type.tobacco=Cynhyrchion tybaco
 enter-claim.paid-amount.duty-type.uk-duty=doll y DU
 enter-claim.paid-amount.duty-type.wine=Gwin
+
 enter-claim.rejected-goods.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Mae’n rhaid i swm yr hawliad fod yr un peth neu’n llai na’r swm a dalwyd
 enter-claim.rejected-goods.claim-amount.error.invalid-amount-less-only=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd
@@ -957,6 +958,7 @@ enter-claim.rejected-goods.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.rejected-goods.multiple.title=Manylion yr hawliad ar gyfer {0} - {1} o dan MRN {2}
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
+
 enter-claim.scheduled.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.scheduled.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.actual-amount.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
@@ -975,15 +977,11 @@ enter-claim.scheduled.paid-amount.excise=Faint o doll {0} {1} a dalwyd, mewn pun
 enter-claim.scheduled.subsidy-inset-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.scheduled.title={0} {1} - {2}
 enter-claim.scheduled.title.excise={0} - {1} {2}
-enter-claim.securities.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
-enter-claim.securities.claim-amount.error.invalid-amount=Mae’n rhaid i swm yr hawliad fod yn llai na neu’n hafal i’r swm a dalwyd
-enter-claim.securities.claim-amount.error.invalid-text=Mae’n rhaid i swm yr hawliad fod yn rhif, megis 30
-enter-claim.securities.claim-amount.error.required=Nodwch swm yr hawliad, mewn punnoedd
-enter-claim.securities.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn 0.01 neu fwy
-enter-claim.securities.claim-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
+
 enter-claim.securities.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=ID y Blaendal Sicrwydd: {0}
 enter-claim.securities.title={0} - {1}
+
 enter-claim.title={0} - {1}
 enter-claim.title.caption=Manylion yr hawliad
 enter-claim.title.excise={0} - {1} {2}

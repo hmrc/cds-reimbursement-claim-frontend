@@ -93,9 +93,9 @@ class EnterClaimControllerSpec
     caption shouldBe List(expectedCaption)
     heading shouldBe List(s"$expectedCaption $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
 
-    doc.select("#amount-paid").text()                                       shouldBe amount.toPoundSterlingString
-    doc.select("input[name='enter-claim.securities.claim-amount']").`val`() shouldBe ""
-    doc.select("form").attr("action")                                       shouldBe routes.EnterClaimController.submit(securityDepositId, taxCode).url
+    doc.select("#amount-paid").text()                      shouldBe amount.toPoundSterlingString
+    doc.select("input[name='enter-claim-amount']").`val`() shouldBe ""
+    doc.select("form").attr("action")                      shouldBe routes.EnterClaimController.submit(securityDepositId, taxCode).url
   }
 
   "EnterClaimController" when {
@@ -213,7 +213,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _, _) <- reclaims) {
+        for ((depositId, _, _, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -238,7 +238,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _, _) <- reclaims) {
+        for ((depositId, _, _, _) <- reclaims) {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
@@ -256,7 +256,7 @@ class EnterClaimControllerSpec
       }
     }
 
-    "submit reclaim amount" must {
+    "submit claim amount" must {
 
       def performAction(id: String, taxCode: TaxCode, data: (String, String)*): Future[Result] =
         controller.submit(id, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -290,7 +290,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _, _) <- reclaims) {
+        for ((depositId, _, _, _) <- reclaims) {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -315,7 +315,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _, _) <- reclaims) {
+        for ((depositId, _, _, _) <- reclaims) {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
@@ -332,7 +332,7 @@ class EnterClaimControllerSpec
         }
       }
 
-      "save reclaim amount and progress to the next page" in forAllWith(
+      "save claim amount and progress to the next page" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
@@ -350,7 +350,7 @@ class EnterClaimControllerSpec
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(
               SessionData(
-                initialJourney.submitCorrectAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
               )
             )(Right(()))
 
@@ -368,14 +368,14 @@ class EnterClaimControllerSpec
           }
 
           checkIsRedirect(
-            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> "0.01"),
+            performAction(depositId, taxCode, "enter-claim-amount" -> "0.01"),
             expectedNextRoute
           )
         }
 
       }
 
-      "save reclaim amount in change mode and progress to the next page" in forAllWith(
+      "save claim amount in change mode and progress to the next page" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
@@ -388,7 +388,7 @@ class EnterClaimControllerSpec
 
           val updatedJourney = initialJourney
             .submitCheckClaimDetailsChangeMode(true)
-            .submitCorrectAmount(depositId, taxCode, BigDecimal("0.01"))
+            .submitClaimAmount(depositId, taxCode, BigDecimal("0.01"))
             .getOrFail
 
           val next: Option[Either[String, (String, TaxCode)]] = updatedJourney.getNextDepositIdAndTaxCodeToClaim
@@ -416,14 +416,14 @@ class EnterClaimControllerSpec
           }
 
           checkIsRedirect(
-            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> "0.01"),
+            performAction(depositId, taxCode, "enter-claim-amount" -> "0.01"),
             expectedNextRoute
           )
         }
 
       }
 
-      "re-display the page with error message if claimed amount is full amount" in forSomeWith(
+      "re-display the page with error message if claimed amount is greater then the deposit amount" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
@@ -439,9 +439,9 @@ class EnterClaimControllerSpec
           val amount = initialJourney.getSecurityDepositAmountFor(depositId, taxCode)
 
           checkPageWithErrorIsDisplayed(
-            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> amount.get.doubleValue.toString),
+            performAction(depositId, taxCode, "enter-claim-amount" -> (amount.get.doubleValue + 0.01).toString()),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            "Claim amount must be lower than or equal to the amount paid"
+            "The amount that you want to claim back must be more than zero and less or equal to the amount paid"
           )
         }
       }
@@ -460,23 +460,20 @@ class EnterClaimControllerSpec
           }
 
           checkPageWithErrorIsDisplayed(
-            performAction(depositId, taxCode, "enter-claim.securities.claim-amount" -> ""),
+            performAction(depositId, taxCode, "enter-claim-amount" -> ""),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            "Enter the claim amount, in pounds"
+            "Enter the amount you want to claim back, in pounds"
           )
         }
       }
 
-      "re-display the page with error message if claimed amount is greater then the deposit amount" in forSomeWith(
+      "re-display the page with error message if claimed amount is zero" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
         for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
-
-          val claimAmount =
-            initialJourney.getSecurityDepositAmountFor(depositId, taxCode).get + BigDecimal("0.01")
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -487,10 +484,10 @@ class EnterClaimControllerSpec
             performAction(
               depositId,
               taxCode,
-              "enter-claim.securities.claim-amount" -> claimAmount.doubleValue.toString()
+              "enter-claim-amount" -> "0"
             ),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            "Claim amount must be lower than or equal to the amount paid"
+            "The amount that you want to claim back must be more than zero and less or equal to the amount paid"
           )
         }
       }
@@ -512,10 +509,10 @@ class EnterClaimControllerSpec
             performAction(
               depositId,
               taxCode,
-              "enter-claim.securities.claim-amount" -> "2+1"
+              "enter-claim-amount" -> "2+1"
             ),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            "Claim amount must be a number, like 30"
+            "The amount that you want to claim back must be a number, like 30 or 60.55"
           )
         }
       }
@@ -532,7 +529,7 @@ class EnterClaimControllerSpec
               performAction(
                 depositId,
                 taxCode,
-                "enter-claim.securities.claim-amount" -> claimAmount.doubleValue.toString()
+                "enter-claim-amount" -> claimAmount.doubleValue.toString()
               ),
               routes.CheckYourAnswersController.show
             )
@@ -549,7 +546,7 @@ class EnterClaimControllerSpec
                 mockGetSession(SessionData(initialJourney))
                 mockStoreSession(
                   SessionData(
-                    initialJourney.submitCorrectAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                    initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
                   )
                 )(Right(()))
               }
@@ -558,7 +555,7 @@ class EnterClaimControllerSpec
                 performAction(
                   depositId,
                   taxCode,
-                  "enter-claim.securities.claim-amount" -> "0.01"
+                  "enter-claim-amount" -> "0.01"
                 ),
                 routes.CheckClaimDetailsController.show
               )

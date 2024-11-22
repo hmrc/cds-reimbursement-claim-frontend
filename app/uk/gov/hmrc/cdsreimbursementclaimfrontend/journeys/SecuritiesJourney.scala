@@ -151,7 +151,7 @@ final class SecuritiesJourney private (
       })
       .getOrElse(Seq.empty)
 
-  def getTotalReclaimAmount: BigDecimal =
+  def getTotalClaimAmount: BigDecimal =
     answers.correctedAmounts
       .map(_.map { case (sid, correctAmounts) =>
         val depositAmounts = getSecurityDepositAmountsFor(sid)
@@ -161,7 +161,7 @@ final class SecuritiesJourney private (
       }.sum)
       .getOrElse(ZERO)
 
-  def getTotalReclaimAmountFor(securityDepositId: String): Option[BigDecimal] = {
+  def getTotalClaimAmountFor(securityDepositId: String): Option[BigDecimal] = {
     val depositAmounts = getSecurityDepositAmountsFor(securityDepositId)
     answers.correctedAmounts
       .flatMap(_.get(securityDepositId).flatMap(_.noneIfEmpty))
@@ -170,7 +170,7 @@ final class SecuritiesJourney private (
       }.sum)
   }
 
-  def getReclaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+  def getClaimAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
     answers.correctedAmounts
       .flatMap(_.get(securityDepositId))
       .flatMap(_.get(taxCode))
@@ -178,13 +178,13 @@ final class SecuritiesJourney private (
       .flatMap(amount => getSecurityDepositAmountFor(securityDepositId, taxCode).map(_ - amount))
 
   def isFullSecurityAmountClaimed(securityDepositId: String): Boolean =
-    (getTotalSecurityDepositAmountFor(securityDepositId), getTotalReclaimAmountFor(securityDepositId)) match {
+    (getTotalSecurityDepositAmountFor(securityDepositId), getTotalClaimAmountFor(securityDepositId)) match {
       case (Some(declarationAmount), Some(claimAmount)) if declarationAmount === claimAmount => true
       case _                                                                                 => false
     }
 
   def getClaimFullAmountStatus(securityDepositId: String): Option[YesNo] =
-    getTotalReclaimAmountFor(securityDepositId)
+    getTotalClaimAmountFor(securityDepositId)
       .map(claimAmount => getTotalSecurityDepositAmountFor(securityDepositId).contains(claimAmount))
       .map(YesNo.of)
 
@@ -1054,7 +1054,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
       checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
         checkIsTrue[SecuritiesJourney](
-          _.getTotalReclaimAmount > 0,
+          _.getTotalClaimAmount > 0,
           TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
         )
 

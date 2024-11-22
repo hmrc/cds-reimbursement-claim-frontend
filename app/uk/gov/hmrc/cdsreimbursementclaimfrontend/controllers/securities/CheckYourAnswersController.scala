@@ -145,7 +145,7 @@ class CheckYourAnswersController @Inject() (
               case Some(caseNumber) =>
                 Ok(
                   confirmationOfSubmissionPage(
-                    journey.getTotalReclaimAmount,
+                    journey.getTotalClaimAmount,
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
@@ -179,7 +179,7 @@ class CheckYourAnswersController @Inject() (
                       .ok(
                         checkYourAnswersPagePdf(
                           caseNumber,
-                          journey.getTotalReclaimAmount,
+                          journey.getTotalClaimAmount,
                           output,
                           journey.answers.displayDeclaration,
                           journey.answers.exportMovementReferenceNumbers,

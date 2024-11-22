@@ -43,7 +43,6 @@
 @title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
 @caption = @{messages("enter-claim.securities.securityIdLabel", securityDepositId)}
 @pageTitleWithCaption = @{s"$caption: $title"}
-@hintText = @{Html(messages(s"enter-claim.securities.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
@@ -64,13 +63,13 @@
 
         @inputText(
             form = form,
-            id = s"enter-claim.securities.claim-amount",
-            name = s"enter-claim.securities.claim-amount",
-            label = s"enter-claim.securities.claim-amount",
+            id = s"enter-claim-amount",
+            name = s"enter-claim-amount",
+            label = s"enter-claim-amount.label",
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-10"),
-            hintHtml = Some(hintText),
+            hintHtml = None,
             labelClasses = Some("govuk-label govuk-label--m"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
