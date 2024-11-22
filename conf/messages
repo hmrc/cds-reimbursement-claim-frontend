@@ -1229,6 +1229,7 @@ invalid-reason-for-security.help-links=You can either <a href="{0}" class="govuk
 invalid-reason-for-security.title=There is a problem with your claim
 
 landing-securities.title=Claim back an import security deposit or guarantee
+landing-securities.start-button=Start now
 
 landing.before.heading=Before you start
 landing.before.l1=Government Gateway credentials
