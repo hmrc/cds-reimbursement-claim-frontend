@@ -48,6 +48,12 @@ object SecurityDetailsSummary {
           key = Key(HtmlContent(messages(s"$key.mrn-label"))),
           value = Value(Text(declaration.displayResponseDetail.declarationId))
         ).some,
+        declaration.displayResponseDetail.declarantReferenceNumber.map(lrn =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.lrn-label"))),
+            value = Value(Text(lrn))
+          )
+        ),
         declaration.getReasonForSecurity.map(rfs =>
           SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.reason-for-security-label"))),
@@ -61,29 +67,6 @@ object SecurityDetailsSummary {
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.paid-amount-label"))),
           value = Value(Text(declaration.getSecurityPaidValueFor(securityDepositId).toPoundSterlingString))
-        ).some,
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.payment-reference-label"))),
-          value = Value(Text(securityDetailsOpt.map(_.paymentReference).getOrElse("")))
-        ).some,
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.payment-method-label"))),
-          value = Value(
-            Text(
-              messages(
-                if (securityDetailsOpt.exists(_.isBankAccountPayment))
-                  s"$key.payment-method.bank-account"
-                else if (securityDetailsOpt.exists(_.isGuaranteeEligible))
-                  s"$key.payment-method.guarantee"
-                else if (securityDetailsOpt.exists(_.isDefermentAccount))
-                  s"$key.payment-method.duty-deferment"
-                else if (securityDetailsOpt.exists(_.isCashAccount))
-                  s"$key.payment-method.cash-account"
-                else
-                  s"$key.payment-method.unavailable"
-              )
-            )
-          )
         ).some,
         DateUtils
           .displayFormat(declaration.displayResponseDetail.acceptanceDate)
