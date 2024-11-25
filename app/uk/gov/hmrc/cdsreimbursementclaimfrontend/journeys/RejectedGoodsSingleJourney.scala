@@ -369,6 +369,13 @@ final class RejectedGoodsSingleJourney private (
       else Left("submitBankAccountDetails.unexpected")
     }
 
+  def removeBankAccountDetails(): RejectedGoodsSingleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(bankAccountDetails = None)
+      )
+    }
+
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       if (needsBanksAccountDetailsSubmission)

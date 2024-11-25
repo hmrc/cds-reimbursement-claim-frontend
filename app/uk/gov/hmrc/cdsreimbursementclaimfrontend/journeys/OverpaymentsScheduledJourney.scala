@@ -310,6 +310,13 @@ final class OverpaymentsScheduledJourney private (
       )
     }
 
+  def removeBankAccountDetails(): OverpaymentsScheduledJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(bankAccountDetails = None)
+      )
+    }
+
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       Right(

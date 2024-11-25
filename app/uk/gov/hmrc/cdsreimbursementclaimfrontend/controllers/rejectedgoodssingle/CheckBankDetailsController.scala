@@ -59,6 +59,9 @@ class CheckBankDetailsController @Inject() (
   final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
     journey.submitBankAccountDetails(bankAccountDetails)
 
+  final override def modifyJourneyRemoveBankDetails(journey: Journey): Journey =
+    journey.removeBankAccountDetails()
+
   final override def isCMA(journey: Journey): Boolean =
     journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
