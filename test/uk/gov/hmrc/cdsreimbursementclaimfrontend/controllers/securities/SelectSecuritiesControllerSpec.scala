@@ -98,19 +98,15 @@ class SelectSecuritiesControllerSpec
     journey.getSecurityDetailsFor(securityDepositId).foreach { securityDetails =>
       summaries.toSeq should containOnlyDefinedPairsOf(
         Seq(
-          ("Import MRN"                   -> journey.getLeadMovementReferenceNumber
+          ("Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber
             .map(_.value)),
-          ("Reason for security deposit"  -> journey.answers.reasonForSecurity
+          ("Reason for security deposit"     -> journey.answers.reasonForSecurity
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total security deposit value" -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
-          ("Security deposit paid"        -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
-          ("Payment reference"            -> Some(securityDetails.paymentReference)),
-          ("Payment method"               -> Some(
-            if (securityDetails.isGuaranteeEligible) "Guarantee" else "Bank account"
-          )),
-          ("Acceptance date"              -> journey.getLeadDisplayDeclaration
+          ("Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
+          ("Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
+          ("Acceptance date"                 -> journey.getLeadDisplayDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
-          ("Date duty collected"          -> journey.getLeadDisplayDeclaration
+          ("Security deposit payment date"   -> journey.getLeadDisplayDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
         )
       )
