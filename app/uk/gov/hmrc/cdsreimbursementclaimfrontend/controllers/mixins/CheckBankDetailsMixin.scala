@@ -54,7 +54,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                   Ok(
                     checkBankDetailsAreCorrectPage(
                       bankDetailsAreYouSureForm,
-                      bankAccountDetails.masked,
+                      bankAccountDetails,
                       isCMA(journey),
                       postAction,
                       changeBankAccountDetailsRoute

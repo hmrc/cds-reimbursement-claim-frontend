@@ -172,8 +172,8 @@ class CheckYourAnswersControllerSpec
             }),
           "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked(messages))
+          "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
+          "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)
         )
         ++ claim.reimbursements.map { r =>
           m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)

@@ -164,8 +164,8 @@ class CheckYourAnswersControllerSpec
       headers                          should contain("Bank details")
       summaryKeys                      should contain allOf ("Name on the account", "Sort code", "Account number")
       summary("Name on the account") shouldBe value.accountName.value
-      summary("Sort code")           shouldBe value.sortCode.masked
-      summary("Account number")      shouldBe value.accountNumber.masked
+      summary("Sort code")           shouldBe value.sortCode.value
+      summary("Account number")      shouldBe value.accountNumber.value
     }
 
     claim.basisOfClaimSpecialCircumstances.foreach { value =>
