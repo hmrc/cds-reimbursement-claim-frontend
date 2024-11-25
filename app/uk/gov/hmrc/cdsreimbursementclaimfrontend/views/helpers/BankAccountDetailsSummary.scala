@@ -41,12 +41,12 @@ object BankAccountDetailsSummary {
         ),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.sort-code.label"))),
-          value = Value(Text(bankAccountDetails.sortCode.masked)),
+          value = Value(Text(bankAccountDetails.sortCode.value)),
           classes = "govuk-summary-list__row--no-border"
         ),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.account-number.label"))),
-          value = Value(Text(bankAccountDetails.accountNumber.masked)),
+          value = Value(Text(bankAccountDetails.accountNumber.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
