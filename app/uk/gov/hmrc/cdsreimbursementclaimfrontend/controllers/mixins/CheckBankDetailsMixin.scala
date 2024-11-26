@@ -100,13 +100,10 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                 .getOrElse(InternalServerError)
             ),
           answer =>
-            (
-              journey,
-              Redirect(answer match {
-                case YesNo.Yes => continueRoute(journey)
-                case YesNo.No  => changeBankAccountDetailsRoute
-              })
-            )
+            answer match {
+              case YesNo.Yes => (journey, Redirect(continueRoute(journey)))
+              case YesNo.No  => (modifyJourneyRemoveBankDetails(journey), Redirect(changeBankAccountDetailsRoute))
+            }
         )
     }
 }

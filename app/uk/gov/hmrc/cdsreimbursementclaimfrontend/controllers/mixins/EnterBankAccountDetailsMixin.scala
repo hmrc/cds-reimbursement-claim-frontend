@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.implicits._
-import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -60,24 +59,14 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    showPage(journey, None)
-  }
-
-  final val returnToPage: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    showPage(journey, journey.computeBankAccountDetails)
-  }
-
-  private def showPage(journey: Journey, bankAccountDetails: Option[BankAccountDetails])(implicit
-    request: Request[_],
-    messages: Messages
-  ) =
     Ok(
       enterBankAccountDetailsPage(
-        enterBankDetailsForm.withDefault(bankAccountDetails),
+        enterBankDetailsForm.withDefault(journey.answers.bankAccountDetails),
         isCMA(journey),
         routesPack.submitPath
       )
     ).asFuture
+  }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
     { implicit request => implicit journey =>

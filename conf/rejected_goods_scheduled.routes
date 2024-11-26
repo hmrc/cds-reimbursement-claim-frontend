@@ -62,7 +62,6 @@ GET          /rejected-goods/scheduled/check-these-bank-details-are-correct-bars
 POST         /rejected-goods/scheduled/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckBankDetailsController.submitWarning
 
 GET          /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterBankAccountDetailsController.show
-GET          /rejected-goods/scheduled/enter-bank-account-details/return             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterBankAccountDetailsController.returnToPage
 POST         /rejected-goods/scheduled/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.EnterBankAccountDetailsController.submit
 
 GET          /rejected-goods/scheduled/upload-mrn-list                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.UploadMrnListController.show

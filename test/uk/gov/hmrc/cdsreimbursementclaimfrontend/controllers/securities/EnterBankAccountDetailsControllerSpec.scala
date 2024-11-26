@@ -78,8 +78,7 @@ class EnterBankAccountDetailsControllerSpec
 
   def validateEnterBankAccountDetailsPage(
     doc: Document,
-    expectedBankAccountDetails: BankAccountDetails =
-      BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
+    expectedBankAccountDetails: Option[BankAccountDetails],
     error: Boolean = false
   ): Assertion = {
     val title         = doc.select("title").first().text()
@@ -95,9 +94,9 @@ class EnterBankAccountDetailsControllerSpec
        else "") + "Enter the UK-based bank account details - Claim back import duty and VAT - GOV.UK"
     )
     heading       should ===(List("Enter the UK-based bank account details"))
-    accountName   should ===(expectedBankAccountDetails.accountName.value)
-    sortCode      should ===(expectedBankAccountDetails.sortCode.value)
-    accountNumber should ===(expectedBankAccountDetails.accountNumber.value)
+    accountName   should ===(expectedBankAccountDetails.map(_.accountName.value).getOrElse(""))
+    sortCode      should ===(expectedBankAccountDetails.map(_.sortCode.value).getOrElse(""))
+    accountNumber should ===(expectedBankAccountDetails.map(_.accountNumber.value).getOrElse(""))
   }
 
   "Enter Bank Account Details Controller" when {
@@ -122,7 +121,7 @@ class EnterBankAccountDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateEnterBankAccountDetailsPage(doc)
+            doc => validateEnterBankAccountDetailsPage(doc, journey.answers.bankAccountDetails)
           )
         }
       }
@@ -237,7 +236,7 @@ class EnterBankAccountDetailsControllerSpec
               doc => {
                 validateEnterBankAccountDetailsPage(
                   doc,
-                  BankAccountDetails(AccountName(""), SortCode(""), AccountNumber("")),
+                  Some(BankAccountDetails(AccountName(""), SortCode(""), AccountNumber(""))),
                   error = true
                 )
                 doc

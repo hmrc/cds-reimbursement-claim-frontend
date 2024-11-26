@@ -111,7 +111,11 @@ class EnterBankAccountDetailsControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => selectedInput(doc) shouldBe empty
+          doc => {
+            selectedInputBox(doc, "enter-bank-account-details.account-name")   shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")      shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-number") shouldBe Some("")
+          }
         )
       }
 
@@ -127,9 +131,9 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-account-details.account-name")   shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-account-details.sort-code")      shouldBe Some("")
-            selectedInputBox(doc, "enter-bank-account-details.account-number") shouldBe Some("")
+            selectedInputBox(doc, "enter-bank-account-details.account-name")    shouldBe journey.answers.bankAccountDetails.map(_.accountName.value)
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")       shouldBe journey.answers.bankAccountDetails.map(_.sortCode.value)
+            selectedInputBox(doc, "enter-bank-account-details.account-number")  shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
           }
         )
       }

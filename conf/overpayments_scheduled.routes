@@ -37,7 +37,6 @@ GET         /overpayments/scheduled/check-these-bank-details-are-correct-bars-va
 POST        /overpayments/scheduled/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckBankDetailsController.submitWarning
 
 GET         /overpayments/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.show
-GET         /overpayments/scheduled/enter-bank-account-details/return                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.returnToPage
 POST        /overpayments/scheduled/enter-bank-account-details                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterBankAccountDetailsController.submit
 
 GET         /overpayments/scheduled/enter-additional-details                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterAdditionalDetailsController.show
