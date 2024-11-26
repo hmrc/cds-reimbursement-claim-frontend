@@ -65,7 +65,7 @@
 
 @claim.bankAccountDetails.map { bankAccountDetails =>
     @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.returnToPage)))
+    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.show)))
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))

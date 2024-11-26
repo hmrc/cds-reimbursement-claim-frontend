@@ -172,8 +172,8 @@ class CheckYourAnswersControllerSpec
           "Total"                    -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
           "Uploaded"                 -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"      -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.masked(messages)),
+          "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.value),
+          "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.value),
           "Inspection date"          -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
           "Inspection address type"  -> Some(
             m(s"inspection-address.type.${claim.inspectionAddress.addressType}")

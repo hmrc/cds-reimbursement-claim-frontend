@@ -36,6 +36,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   def isCMA(journey: Journey): Boolean = false
 
   def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
+  def modifyJourneyRemoveBankDetails(journey: Journey): Journey
 
   final val bankDetailsAreYouSureForm: Form[YesNo] =
     YesOrNoQuestionForm("bank-details")
@@ -53,7 +54,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                   Ok(
                     checkBankDetailsAreCorrectPage(
                       bankDetailsAreYouSureForm,
-                      bankAccountDetails.masked,
+                      bankAccountDetails,
                       isCMA(journey),
                       postAction,
                       changeBankAccountDetailsRoute
@@ -99,13 +100,10 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
                 .getOrElse(InternalServerError)
             ),
           answer =>
-            (
-              journey,
-              Redirect(answer match {
-                case YesNo.Yes => continueRoute(journey)
-                case YesNo.No  => changeBankAccountDetailsRoute
-              })
-            )
+            answer match {
+              case YesNo.Yes => (journey, Redirect(continueRoute(journey)))
+              case YesNo.No  => (modifyJourneyRemoveBankDetails(journey), Redirect(changeBankAccountDetailsRoute))
+            }
         )
     }
 }

@@ -140,8 +140,8 @@ class CheckYourAnswersControllerSpec
         ("Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
         ("Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" ")))),
         ("Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value)),
-        ("Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.masked)),
-        ("Account number"               -> claim.bankAccountDetails.map(_.accountNumber.masked)),
+        ("Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value)),
+        ("Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)),
         ("Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName)),
         ("Importer email"               -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail)),
         ("Importer address"             -> journey.answers.displayDeclaration.flatMap(d =>
