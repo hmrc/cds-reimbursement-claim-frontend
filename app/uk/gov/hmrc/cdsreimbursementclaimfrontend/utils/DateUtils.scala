@@ -30,6 +30,6 @@ object DateUtils {
       t <- Try(LocalDate.parse(date, DateTimeFormatter.ofPattern("u-M-d")))
       f <- Try(DateTimeFormatter.ofPattern("d MMMM yyyy").format(t))
     } yield f
-    result.toOption
+    result.toOption.orElse(Some(date))
   }
 }
