@@ -1710,8 +1710,8 @@ select-method-of-disposal.rejected-goods.method.PostalExport=Dychwelyd y nwyddau
 select-method-of-disposal.rejected-goods.p1=Dewiswch un opsiwn o’r rhestr
 select-method-of-disposal.rejected-goods.title=Sut y byddwch yn cael gwared ar y nwyddau?
 
-select-securities.acceptance-date-label=Dyddiad derbyn
-select-securities.bta-due-date-label=Dyddiad talu’r blaendal sicrwydd
+select-securities.acceptance-date-label=Dyddiad talu’r blaendal sicrwydd
+select-securities.bta-due-date-label=Dyddiad dod i ben y blaendal sicrwydd	
 select-securities.error.required=Dewiswch ''Iawn'' os ydych yn hawlio am y Sicrwydd hwn
 select-securities.legend=A ydych chi am gynnwys y sicrwydd hwn?
 select-securities.lrn-label=Cyfeirnod Lleol (LRN)

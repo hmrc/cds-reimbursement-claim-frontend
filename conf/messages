@@ -1638,8 +1638,8 @@ select-method-of-disposal.rejected-goods.method.PostalExport=Return the goods by
 select-method-of-disposal.rejected-goods.p1=Select one option from the list
 select-method-of-disposal.rejected-goods.title=How will you dispose of the goods?
 
-select-securities.acceptance-date-label=Acceptance date
-select-securities.bta-due-date-label=Security deposit payment date
+select-securities.acceptance-date-label=Security deposit payment date
+select-securities.bta-due-date-label=Security deposit expiry date
 select-securities.error.required=Select Yes if you are claiming for this Security
 select-securities.legend=Do you want to include this security?
 select-securities.lrn-label=Local Reference Number (LRN)
