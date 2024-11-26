@@ -104,9 +104,9 @@ class SelectSecuritiesControllerSpec
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
           ("Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
           ("Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
-          ("Acceptance date"                 -> journey.getLeadDisplayDeclaration
-            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
           ("Security deposit payment date"   -> journey.getLeadDisplayDeclaration
+            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
+          ("Security deposit expiry date"    -> journey.getLeadDisplayDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
         )
       )
