@@ -28,9 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
@@ -50,7 +48,6 @@ class CheckYourAnswersController @Inject() (
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  featureSwitchService: FeatureSwitchService,
   pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
@@ -81,8 +78,7 @@ class CheckYourAnswersController @Inject() (
                   output,
                   journey.answers.displayDeclaration,
                   journey.answers.exportMovementReferenceNumbers,
-                  postAction,
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                  postAction
                 )
               )
             )
@@ -150,7 +146,6 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("securities"),
-                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
                     pdfUrl = getPdfUrl(journey)
                   )
                 )

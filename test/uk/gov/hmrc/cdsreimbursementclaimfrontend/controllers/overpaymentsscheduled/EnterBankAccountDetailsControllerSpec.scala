@@ -130,9 +130,14 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-account-details.account-name")    shouldBe journey.answers.bankAccountDetails.map(_.accountName.value)
-            selectedInputBox(doc, "enter-bank-account-details.sort-code")       shouldBe journey.answers.bankAccountDetails.map(_.sortCode.value)
-            selectedInputBox(doc, "enter-bank-account-details.account-number")  shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
+            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe journey.answers.bankAccountDetails
+              .map(_.accountName.value)
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe journey.answers.bankAccountDetails
+              .map(_.sortCode.value)
+            selectedInputBox(
+              doc,
+              "enter-bank-account-details.account-number"
+            )                                                                shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
           }
         )
       }
