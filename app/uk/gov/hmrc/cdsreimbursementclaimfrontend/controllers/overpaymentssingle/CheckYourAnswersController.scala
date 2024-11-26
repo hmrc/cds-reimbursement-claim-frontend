@@ -25,7 +25,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsSingleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -39,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 
 import scala.concurrent.ExecutionContext
 import _root_.com.hhandoko.play.pdf.PdfGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 @Singleton
@@ -52,8 +50,7 @@ class CheckYourAnswersController @Inject() (
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  pdfGenerator: PdfGenerator,
-  featureSwitchService: FeatureSwitchService
+  pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends OverpaymentsSingleJourneyBaseController {
 
@@ -88,8 +85,7 @@ class CheckYourAnswersController @Inject() (
                   journey.isAllSelectedDutiesAreCMAEligible,
                   journey.isSubsidyOnlyJourney,
                   journey.answers.displayDeclaration,
-                  postAction,
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                  postAction
                 )
               )
             )
@@ -157,7 +153,6 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("single"),
-                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
                     pdfUrl = getPdfUrl(journey)
                   )
                 )

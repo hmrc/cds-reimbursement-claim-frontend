@@ -26,7 +26,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsScheduledClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -37,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled_pdf
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.ShowPdfDownloadOption
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
 
 import scala.concurrent.ExecutionContext
@@ -52,7 +50,6 @@ class CheckYourAnswersController @Inject() (
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService,
-  featureSwitchService: FeatureSwitchService,
   pdfGenerator: PdfGenerator
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends OverpaymentsScheduledJourneyBaseController {
@@ -86,8 +83,7 @@ class CheckYourAnswersController @Inject() (
                   output,
                   journey.answers.displayDeclaration,
                   journey.isSubsidyOnlyJourney,
-                  postAction,
-                  showPdfOption = featureSwitchService.isEnabled(ShowPdfDownloadOption)
+                  postAction
                 )
               )
             )
@@ -155,7 +151,6 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("scheduled"),
-                    featureSwitchService.isEnabled(ShowPdfDownloadOption),
                     pdfUrl = getPdfUrl(journey)
                   )
                 )

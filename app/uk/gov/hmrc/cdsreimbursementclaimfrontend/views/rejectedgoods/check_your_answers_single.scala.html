@@ -41,7 +41,7 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false, showPdfOption: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None, isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.title")}
@@ -58,9 +58,7 @@
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))
 
-    @if(showPdfOption){
-        @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
-    }
+    @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
