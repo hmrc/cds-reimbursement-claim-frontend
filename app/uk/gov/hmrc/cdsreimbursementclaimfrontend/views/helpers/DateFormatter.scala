@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
-
+import cats.syntax.eq._
 import java.time.LocalDate
 import java.util.Locale
 
@@ -25,7 +25,9 @@ object DateFormatter {
 
   def toDisplayDate(dateString: String)(implicit messages: Messages): String = {
     val split = dateString.trim.split(" ")
-    s"${split(0)} ${messages(s"month.${split(1).toLowerCase(Locale.ENGLISH)}")} ${split(2)}"
+    if (split.length === 3)
+      s"${split(0)} ${messages(s"month.${split(1).toLowerCase(Locale.ENGLISH)}")} ${split(2)}"
+    else dateString
   }
 
   def parseYyyyMmDdToDisplayDate(dateString: String)(implicit messages: Messages): String = {
