@@ -76,7 +76,6 @@ GET          /securities/check-these-bank-details-are-correct-bars-validation   
 POST         /securities/check-these-bank-details-are-correct-bars-validation     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckBankDetailsController.submitWarning
 
 GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.show
-GET          /securities/enter-bank-account-details/return             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.returnToPage
 POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.submit
 
 GET          /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.show
