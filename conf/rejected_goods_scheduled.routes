@@ -79,6 +79,7 @@ GET          /rejected-goods/scheduled/upload-summary                           
 
 POST         /rejected-goods/scheduled/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.submit
 GET          /rejected-goods/scheduled/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.showConfirmation
+GET          /rejected-goods/scheduled/check-your-answers/print-or-download          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.showPdf
 GET          /rejected-goods/scheduled/check-your-answers                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckYourAnswersController.show
 
 GET          /rejected-goods/scheduled/new-tax-type-code-validation                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.ProblemWithDeclarationController.show

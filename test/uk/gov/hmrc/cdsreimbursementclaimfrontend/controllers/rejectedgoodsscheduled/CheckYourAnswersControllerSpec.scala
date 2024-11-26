@@ -121,10 +121,7 @@ class CheckYourAnswersControllerSpec
       "Scheduled document".expectedAlways,
       "Declaration details".expectedAlways,
       "Contact details for this claim".expectedAlways,
-      "Basis for claim".expectedAlways,
-      "Disposal method".expectedAlways,
-      "Details of rejected goods".expectedAlways,
-      "Special circumstances".expectedWhen(claim.basisOfClaimSpecialCircumstances),
+      "Claim details".expectedAlways,
       "Details of inspection".expectedAlways,
       "Total repayment claim for all MRNs".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
@@ -153,35 +150,35 @@ class CheckYourAnswersControllerSpec
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Importer name"                                    -> declaration.flatMap(_.consigneeName),
-          "Importer email"                                   -> declaration.flatMap(_.consigneeEmail),
-          "Importer telephone"                               -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"                                 -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
-          "Declarant name"                                   -> declaration.map(_.declarantName),
-          "Declarant address"                                -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
-          "Contact details"                                  -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"                                  -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "This is the basis behind the claim"               -> Some(
+          "Importer name"            -> declaration.flatMap(_.consigneeName),
+          "Importer email"           -> declaration.flatMap(_.consigneeEmail),
+          "Importer telephone"       -> declaration.flatMap(_.consigneeTelephone),
+          "Importer address"         -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
+          "Declarant name"           -> declaration.map(_.declarantName),
+          "Declarant address"        -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
+          "Contact details"          -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Contact address"          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "Basis of claim"           -> Some(
             m(s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}")
           ),
-          "This is how the goods will be disposed of"        -> Some(
+          "Disposal method"          -> Some(
             m(s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}")
           ),
-          "Any special circumstances relating to your claim" -> claim.basisOfClaimSpecialCircumstances,
-          "These are the details of the rejected goods"      -> Some(claim.detailsOfRejectedGoods),
-          "EU Duty"                                          -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "UK Duty"                                          -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Excise Duty"                                      -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
-          "Total"                                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                                         -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"                              -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                                        -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
-          "Account number"                                   -> claim.bankAccountDetails.map(_.accountNumber.masked(messages)),
-          "Inspection date"                                  -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
-          "Inspection address type"                          -> Some(
+          "Special circumstances"    -> claim.basisOfClaimSpecialCircumstances,
+          "Additional claim details" -> Some(claim.detailsOfRejectedGoods),
+          "EU Duty"                  -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "UK Duty"                  -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Excise Duty"              -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
+          "Total"                    -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "Uploaded"                 -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Name on the account"      -> claim.bankAccountDetails.map(_.accountName.value),
+          "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.masked(messages)),
+          "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.masked(messages)),
+          "Inspection date"          -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
+          "Inspection address type"  -> Some(
             m(s"inspection-address.type.${claim.inspectionAddress.addressType}")
           ),
-          "Inspection address"                               -> Some(summaryAddress(claim.inspectionAddress, " "))
+          "Inspection address"       -> Some(summaryAddress(claim.inspectionAddress, " "))
         )
     )
 
