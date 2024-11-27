@@ -42,18 +42,15 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-
         @errorSummary(form.errors)
-
-        @heading(Html(title))
 
         @radios(
             form = form,
             name = key,
-            legend = "",
-            legendAsHeading = false,
+            legend = title,
+            legendAsHeading = true,
             hintKey = Some(s"choose-export-method.help-text"),
-            classes = "govuk-fieldset__legend govuk-fieldset__legend--m",
+            classes = "govuk-fieldset__legend govuk-fieldset__legend--l",
             inline = false,
             items = radioItems
         )
