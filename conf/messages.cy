@@ -548,12 +548,11 @@ claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/org
 
 
 
-confirm-full-repayment.caption=ID Blaendal sicrwydd: {0}
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
 confirm-full-repayment.mrn=MRN
-confirm-full-repayment.question=A ydych chi am hawlio’r blaendal sicrwydd cyfan yn ôl?
+confirm-full-repayment.title=Hawlio ID blaendal diogelwch yn ôl: {0}
+confirm-full-repayment.question=Ydych chi am hawlio’r swm llawn yn ôl?
 confirm-full-repayment.securityDeposit=Blaendal sicrwydd
-confirm-full-repayment.title=Hawlio’r blaendal sicrwydd hwn yn ôl?
 
 confirmation-of-submission.claim-reference=Cyfeirnod hawlio
 confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.

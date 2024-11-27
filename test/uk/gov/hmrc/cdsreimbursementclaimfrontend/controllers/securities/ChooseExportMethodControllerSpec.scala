@@ -77,7 +77,7 @@ class ChooseExportMethodControllerSpec
   }
 
   def validateChooseExportMethodPage(doc: Document, isError: Boolean = false) = {
-    val header         = doc.select(".govuk-heading-xl").eachText().asScala
+    val header         = doc.select(".govuk-fieldset__legend--l").eachText().asScala
     val radioLabels    = doc.select(".govuk-radios__item label").eachText().asScala
     val radioInputs    = doc.select(".govuk-radios__item input").eachAttr("value").asScala
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList

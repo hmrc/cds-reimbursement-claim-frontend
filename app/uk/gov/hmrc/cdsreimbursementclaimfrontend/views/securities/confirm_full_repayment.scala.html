@@ -43,9 +43,7 @@
 @(form: Form[YesNo], model: ConfirmFullRepaymentModel, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"confirm-full-repayment"}
-@title = @{messages("confirm-full-repayment.question")}
-@caption = @{messages(s"confirm-full-repayment.caption", model.securityId)}
-@pageTitleWithCaption = @{s"$caption: $title"}
+@title = @{messages("confirm-full-repayment.title", model.securityId)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -56,19 +54,21 @@
     )
 }
 
-@layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @errorSummary(form.errors)
 
-        @heading(Html(title), caption)
+        @heading(Html(title))
 
         @summary(summaryItems)
 
         @radios(
             form = form,
             name = key,
+            legend = messages(s"$key.question"),
+            legendAsHeading = false,
             hintKey = None,
             inline = true,
             items = Seq(

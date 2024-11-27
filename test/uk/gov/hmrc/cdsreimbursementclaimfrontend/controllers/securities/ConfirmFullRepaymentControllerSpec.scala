@@ -95,7 +95,6 @@ class ConfirmFullRepaymentControllerSpec
     isError: Boolean = false
   ) = {
     val title               = doc.select("title").first().text()
-    val caption             = doc.select("span.govuk-caption-xl").eachText().asScala.toList
     val heading             = doc.select(".govuk-heading-xl").eachText().asScala.toList
     val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
     val summaryKeys         = doc.select(".govuk-summary-list__key").eachText().asScala.toList
@@ -107,21 +106,18 @@ class ConfirmFullRepaymentControllerSpec
     title           should ===(
       (if (isError) "Error: "
        else
-         "") + s"Security deposit ID: $securityId: Do you want to claim back all of this security deposit? - Claim back import duty and VAT - GOV.UK"
-    )
-    caption         should ===(
-      List(s"Security deposit ID: $securityId")
+         "") + s"Claiming back security deposit ID: $securityId - Claim back import duty and VAT - GOV.UK"
     )
     heading         should ===(
       List(
-        s"Security deposit ID: $securityId Do you want to claim back all of this security deposit?"
+        s"Claiming back security deposit ID: $securityId"
       )
     )
     summaryKeys     should ===(List("MRN", "Security deposit"))
     summaryValues   should ===(
       List(journey.getDisplayDeclarationIfValidSecurityDepositId(securityId).value.getMRN.value, amountPaidFormatted)
     )
-    legend          should ===(List())
+    legend          should ===(List("Do you want to claim back the full amount?"))
     radioItems(doc) should contain theSameElementsAs Seq(
       ("Yes", "true"),
       ("No", "false")
@@ -149,7 +145,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId),
-            messageFromMessageKey(s"$confirmFullRepaymentKey.question"),
+            messageFromMessageKey(s"$confirmFullRepaymentKey.title", securityId),
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey)
           )
         }
@@ -364,7 +360,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
-            messageFromMessageKey(s"$confirmFullRepaymentKey.question"),
+            messageFromMessageKey(s"$confirmFullRepaymentKey.title", securityId),
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey, isError = true),
             400
           )
@@ -402,7 +398,7 @@ class ConfirmFullRepaymentControllerSpec
 
           checkPageIsDisplayed(
             performAction(securityId, Seq()),
-            "Do you want to claim back all of this security deposit?",
+            messageFromMessageKey(s"$confirmFullRepaymentKey.title", securityId),
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey, isError = true),
             400
           )
