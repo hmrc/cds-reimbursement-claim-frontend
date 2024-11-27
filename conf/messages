@@ -44,7 +44,7 @@ bill-of-discharge-error.title=You have chosen not to continue with your claim
 
 bill-of-discharge.bod3.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to claim back your security deposit or guarantee. <br/><br/> This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
 bill-of-discharge.bod3.title=Inward Processing bill of discharge (BOD3 form)
-bill-of-discharge.bod4.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 form (opens in new tab)</a> to claim back your security deposit or guarantee. <br/><br/> This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under authorised-use relief (Great Britain) or end-use relief (Northern Ireland).
+bill-of-discharge.bod4.p1=You need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 form (opens in new tab)</a> to claim back your security deposit or guarantee. <br/><br/> This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under authorised-use relief (Great Britain) or end-use relief (Northern Ireland).
 bill-of-discharge.bod4.title=Bill of discharge for authorised use or end use (BOD4 form)
 bill-of-discharge.error.required=Select yes to continue with this claim
 bill-of-discharge.no=No
