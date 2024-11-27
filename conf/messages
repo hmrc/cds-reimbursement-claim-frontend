@@ -42,14 +42,14 @@ bill-of-discharge-error.p4=Find out more information about <a href="{0}" class="
 bill-of-discharge-error.p5=For general enquiries about importing, you can <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">Contact HMRC (opens in new tab)</a>
 bill-of-discharge-error.title=You have chosen not to continue with your claim
 
-bill-of-discharge.bod3.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
+bill-of-discharge.bod3.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to claim back your security deposit or guarantee. <br/><br/> This tells HMRC how you disposed of Inward Processing goods that you imported using authorisation by declaration.
 bill-of-discharge.bod3.title=Inward Processing bill of discharge (BOD3 form)
-bill-of-discharge.bod4.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 form (opens in new tab)</a> to claim back your security deposit or guarantee. This tells HMRC how you disposed of the End Use goods you imported using authorisation by declaration.
-bill-of-discharge.bod4.title=End-Use bill of discharge (BOD4 form)
+bill-of-discharge.bod4.p1=You will need to complete a <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 form (opens in new tab)</a> to claim back your security deposit or guarantee. <br/><br/> This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under authorised-use relief (Great Britain) or end-use relief (Northern Ireland).
+bill-of-discharge.bod4.title=Bill of discharge for authorised use or end use (BOD4 form)
 bill-of-discharge.error.required=Select yes to continue with this claim
 bill-of-discharge.no=No
 bill-of-discharge.p2=We will ask you to upload this along with other supporting documents later in this claim.
-bill-of-discharge.subheading=Continue with this claim?
+bill-of-discharge.subheading=Do you want to continue with this claim?
 bill-of-discharge.yes=Yes
 
 button.accept-and-send=Accept and send
@@ -206,8 +206,8 @@ check-movement-reference-numbers.title=Movement Reference Numbers (MRNs) added t
 
 check-total-import-discharged.error.invalid=Select yes if 100% of the imported goods have been discharged
 check-total-import-discharged.error.required=Select yes if 100% of the imported goods have been discharged
-check-total-import-discharged.help-text=Any claim for a refund will only be accepted when all of the imported goods have been fully discharged
-check-total-import-discharged.title=Have you discharged all of the imported goods?
+check-total-import-discharged.help-text=HMRC will only accept a claim for a refund once you no longer have any of the goods
+check-total-import-discharged.title=Have you disposed of all the imported goods?
 
 check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.additional-details.label=This is the reason for the claim
@@ -586,7 +586,7 @@ choose-reason-for-security.securities.paragraph=Tell us why HMRC required a secu
 choose-reason-for-security.securities.title=Why was a security deposit or guarantee required?
 
 claim-invalid-not-exported-all.title=You cannot continue with your claim
-claim-invalid-not-exported-all.p1=HMRC will only accept a claim for a security deposit or guarantee repayment under inward-processing relief, authorised-use relief (Great Britain), or end-use relief (Northern Ireland) when all of the imported goods have been discharged.
+claim-invalid-not-exported-all.p1=HMRC will only accept a claim for a security deposit or guarantee repayment under inward-processing relief, authorised-use relief (Great Britain), or end-use relief (Northern Ireland) once you have disposed of all the imported goods.
 claim-invalid-not-exported-all.p2=You can:
 claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_blank" rel="nofollow noopener">start a new security deposit claim</a>
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">contact HMRC (opens in new tab)</a> to update your claim or to discuss your security deposit or guarantee
