@@ -43,14 +43,14 @@ bill-of-discharge-error.p4=Dewch o hyd i ragor o wybodaeth am <a href="{0}">fewn
 bill-of-discharge-error.p5=Ar gyfer ymholiadau cyffredinol ynglŷn â mewnforio, gallwch <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
 bill-of-discharge-error.title=Rydych wedi dewis peidio â pharhau â’ch hawliad
 
-bill-of-discharge.bod3.p1=Bydd angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD3 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl. Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau oedd wedi’u Prosesu’n Fewnol y gwnaethoch eu mewnforio gydag awdurdod drwy ddatganiad.
-bill-of-discharge.bod3.title=Bil rhyddhau Prosesu Mewnol (ffurflen BOD3)
-bill-of-discharge.bod4.p1=Bydd angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD4 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl. Mae hyn yn dweud wrth CThEF sut y gwnaethoch gael gwared ar nwyddau Defnydd Terfynol y gwnaethoch eu mewnforio gan ddefnyddio awdurdod drwy ddatganiad.
-bill-of-discharge.bod4.title=Bil rhyddhau Defnydd Terfynol (ffurflen BOD4)
+bill-of-discharge.bod3.p1=Mae angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD3 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl.<br/><br/> Mae hyn yn rhoi gwybod i CThEF sut y gwnaethoch waredu’r nwyddau y gwnaethoch eu mewnforio gan ddefnyddio awdurdodiad drwy ddatganiad o dan ryddhad prosesu mewnol (IPR).
+bill-of-discharge.bod3.title=Bil rhyddhau ar gyfer prosesu mewnol (ffurflen BOD3)
+bill-of-discharge.bod4.p1=Mae angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD4 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl.<br/><br/> Mae hyn yn rhoi gwybod i CThEF sut y gwnaethoch waredu’r nwyddau y gwnaethoch eu mewnforio gan ddefnyddio awdurdodiad drwy ddatganiad o dan ryddhad defnydd awdurdodedig (Prydain Fawr), neu ryddhad defnydd terfynol (Gogledd Iwerddon).
+bill-of-discharge.bod4.title=Bil rhyddhau ar gyfer defnydd awdurdodedig neu ddefnydd terfynol (ffurflen BOD4)
 bill-of-discharge.error.required=Dewiswch ''Iawn'' i barhau â’r hawliad hwn
 bill-of-discharge.no=Na
 bill-of-discharge.p2=Byddwn yn gofyn i chi uwchlwytho hwn, ynghyd â’ch dogfennau ategol eraill yn hwyrach ymlaen yn yr hawliad hwn.
-bill-of-discharge.subheading=Parhau â’r hawliad hwn?
+bill-of-discharge.subheading=A hoffech fynd yn eich blaen â’r hawliad hwn?
 bill-of-discharge.yes=Iawn
 
 button.accept-and-send=Derbyn ac anfon
@@ -206,8 +206,8 @@ check-movement-reference-numbers.title=Cyfeirnodau Symud (MRNau) wedi’u hychwa
 
 check-total-import-discharged.error.invalid=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
 check-total-import-discharged.error.required=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
-check-total-import-discharged.help-text=Bydd unrhyw hawliad am ad-daliad ond yn cael ei dderbyn pan fydd yr holl nwyddau a fewnforiwyd wedi’u rhyddhau’n llawn
-check-total-import-discharged.title=A ydych chi wedi rhyddhau yr holl nwyddau a fewnforiwyd?
+check-total-import-discharged.help-text=Bydd CThEF dim ond yn derbyn hawl am ad-daliad ar ôl i chi gadarnhau nad oes gennych unrhyw un o’r nwyddau bellach
+check-total-import-discharged.title=A ydych chi wedi gwaredu’r holl nwyddau a fewnforiwyd?
 
 check-your-answers.additional-details.h2=Rheswm dros hawlio
 check-your-answers.additional-details.label=Dyma’r rheswm dros yr hawliad
@@ -541,7 +541,7 @@ choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen bl
 choose-reason-for-security.securities.title=Pam oedd angen blaendal sicrwydd neu warant?
 
 claim-invalid-not-exported-all.title=Ni allwch barhau â’ch hawliad
-claim-invalid-not-exported-all.p1=Bydd CThEF ond yn derbyn hawliad am flaendal sicrwydd neu ad-daliad gwarant o dan Ryddhad Prosesu Mewnol, rhyddhad defnydd awdurdodedig (Prydain Fawr), neu ryddhad defnydd terfynol (Gogledd Iwerddon) pan fydd yr holl nwyddau a fewnforiwyd wedi’u rhyddhau.
+claim-invalid-not-exported-all.p1=Bydd CThEF dim ond yn derbyn hawl am ad-daliad blaendal sicrwydd neu warant o dan ryddhad prosesu mewnol, rhyddhad defnydd awdurdodedig (Prydain Fawr), neu ryddhad defnydd terfynol (Gogledd Iwerddon), a hynny ar ôl i chi waredu’r holl nwyddau a fewnforiwyd.
 claim-invalid-not-exported-all.p2=Gallwch wneud y canlynol:
 claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_blank" rel="nofollow noopener">dechrau hawliad am flaendal sicrwydd newydd</a>
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">cysylltu â CThEF (yn agor tab newydd)</a> i ddiweddaru’ch hawliad neu i drafod eich blaendal sicrwydd neu warant
