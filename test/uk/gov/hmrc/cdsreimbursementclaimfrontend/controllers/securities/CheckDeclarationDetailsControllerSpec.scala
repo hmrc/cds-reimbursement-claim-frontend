@@ -101,33 +101,33 @@ class CheckDeclarationDetailsControllerSpec
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "Import MRN"                   -> journey.getLeadMovementReferenceNumber.map(_.value),
-        "Importer name"                -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
-        "Importer email"               -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
-        "Importer address"             -> journey.answers.displayDeclaration.flatMap(d =>
+        "Import Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber.map(_.value),
+        "Importer name"                          -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
+        "Importer email"                         -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
+        "Importer address"                       -> journey.answers.displayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
         ),
-        "Importer telephone"           -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
-        "Declarant name"               -> journey.answers.displayDeclaration.map(_.declarantName),
-        "Declarant address"            -> journey.answers.displayDeclaration.map(d =>
+        "Importer telephone"                     -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
+        "Declarant name"                         -> journey.answers.displayDeclaration.map(_.declarantName),
+        "Declarant address"                      -> journey.answers.displayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         ),
-        "Reason for security deposit"  -> journey.answers.reasonForSecurity.map(rfs =>
+        "Reason for security deposit"            -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         ),
-        "Date duty to be collected"    -> journey.answers.displayDeclaration
+        "Date duty to be collected"              -> journey.answers.displayDeclaration
           .map(_.displayResponseDetail.acceptanceDate)
           .flatMap(DateUtils.displayFormat),
-        "Date security deposit made"   -> journey.answers.displayDeclaration
+        "Date security deposit made"             -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat),
-        "Total security deposit value" -> journey.answers.displayDeclaration
+        "Total security deposit value"           -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Total security deposit paid"  -> journey.answers.displayDeclaration
+        "Total security deposit paid"            -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Method of payment"            -> (if (correctedAmounts.isEmpty)
+        "Method of payment"                      -> (if (correctedAmounts.isEmpty)
                                   Some("Unavailable")
                                 else
                                   journey.answers.displayDeclaration
