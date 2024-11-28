@@ -461,7 +461,7 @@ class OverpaymentsScheduledJourneySpec
       forAll(
         completeJourneyGen,
         Gen.oneOf(
-          BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue
+          BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue - BasisOfOverpaymentClaim.IncorrectEoriAndDan
         )
       ) { (journey, basisOfClaim) =>
         val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)

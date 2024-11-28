@@ -63,7 +63,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           journeyAnswers.displayDeclaration
         )
 
-      codes.size shouldBe 16
+      codes.size shouldBe 17
       codes        should contain(IncorrectExciseValue)
       codes        should contain(IncorrectAdditionalInformationCode)
     }
@@ -89,7 +89,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
           journeyAnswers.displayDeclaration
         )
 
-      codes.size shouldBe 15
+      codes.size shouldBe 16
       codes        should contain(IncorrectAdditionalInformationCode)
     }
 

@@ -17,23 +17,26 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.jdk.CollectionConverters._
 import scala.util.Random
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of OverpaymentsMultipleJourney. */
 object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with JourneyTestData {
@@ -219,6 +222,11 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
+      newEoriAndDan                = basisOfClaim match {
+                                       case boc if boc == IncorrectEoriAndDan =>
+                                         Some(NewEoriAndDan(IdGen.genEori.sample.get, IdGen.genDan.sample.get.value))
+                                       case _                                 => None
+                                     }
     } yield {
 
       val paidDuties: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])] =
@@ -287,7 +295,9 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
           bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
-          modes = JourneyModes(checkYourAnswersChangeMode = true)
+          modes = JourneyModes(checkYourAnswersChangeMode = true),
+          newEori = newEoriAndDan.map(_.eori),
+          newDan = newEoriAndDan.map(d => Dan(d.dan))
         )
 
       answers

@@ -68,7 +68,7 @@ class EnterAdditionalDetailsControllerSpec
     buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
       .flatMap(j =>
         Gen
-          .oneOf(j.getAvailableClaimTypes())
+          .oneOf(j.getAvailableClaimTypes)
           .map(b => j.submitBasisOfClaim(b))
       )
 

@@ -20,45 +20,31 @@ import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.OverpaymentsBasisForClaimMixin
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterNewDanMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.hasMRNAndDisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
-import cats.syntax.eq._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class BasisForClaimController @Inject() (
+class EnterNewDanController @Inject() (
   val jcc: JourneyControllerComponents,
-  override val basisForClaimPage: select_basis_for_claim,
-  override val featureSwitchService: FeatureSwitchService
+  val newDanPage: enter_new_dan
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController
-    with OverpaymentsBasisForClaimMixin {
+    with EnterNewDanMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+    Some(hasMRNAndDisplayDeclaration)
 
-  final override val postAction: Call =
-    routes.BasisForClaimController.submit
+  final override val postAction: Call     = routes.EnterNewDanController.submit
+  final override val continueAction: Call = routes.EnterAdditionalDetailsController.show
 
-  final override def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call =
-    if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan)
-      routes.EnterNewEoriNumberController.show
-    else
-      routes.EnterAdditionalDetailsController.show
-
-  final override def modifyJourney(
-    journey: Journey,
-    basisOfClaim: BasisOfOverpaymentClaim
-  ): Journey =
-    journey.submitBasisOfClaim(basisOfClaim)
-
+  final override def modifyJourney(journey: Journey, dan: Dan): Journey =
+    journey.submitNewDan(dan)
 }

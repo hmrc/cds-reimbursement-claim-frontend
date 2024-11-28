@@ -18,7 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => singleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => multipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => scheduledRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
@@ -36,6 +38,7 @@ object ClaimDetailsSummary {
     basisOfClaimChangeCallOpt: Option[Call],
     additionalDetailsChangeCallOpt: Option[Call],
     newEoriAndDanOpt: Option[NewEoriAndDan],
+    journeyType: String,
     duplicateMovementReferenceNumber: Option[MRN] = None
   )(implicit
     messages: Messages
@@ -72,7 +75,7 @@ object ClaimDetailsSummary {
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = routes.EnterDuplicateMovementReferenceNumberController.show.url,
+                    href = singleRoutes.EnterDuplicateMovementReferenceNumberController.show.url,
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages("check-your-answers.duplicate-mrn"))
                   )
@@ -94,7 +97,7 @@ object ClaimDetailsSummary {
                   Actions(
                     items = Seq(
                       ActionItem(
-                        href = routes.EnterNewEoriNumberController.show.url,
+                        href = getNewEoriPageUrl(journeyType),
                         content = Text(messages("cya.change")),
                         visuallyHiddenText = Some(messages("check-your-answers.new-eori"))
                       )
@@ -116,7 +119,7 @@ object ClaimDetailsSummary {
                   Actions(
                     items = Seq(
                       ActionItem(
-                        href = routes.EnterNewDanController.show.url,
+                        href = getNewDanPageUrl(journeyType),
                         content = Text(messages("cya.change")),
                         visuallyHiddenText = Some(messages("check-your-answers.new-dan"))
                       )
@@ -146,6 +149,18 @@ object ClaimDetailsSummary {
         )
       ).flatten
     )
+  }
+
+  private def getNewEoriPageUrl(journey: String): String = journey match {
+    case "single"    => singleRoutes.EnterNewEoriNumberController.show.url
+    case "multiple"  => multipleRoutes.EnterNewEoriNumberController.show.url
+    case "scheduled" => scheduledRoutes.EnterNewEoriNumberController.show.url
+  }
+
+  private def getNewDanPageUrl(journey: String): String = journey match {
+    case "single"    => singleRoutes.EnterNewDanController.show.url
+    case "multiple"  => multipleRoutes.EnterNewDanController.show.url
+    case "scheduled" => scheduledRoutes.EnterNewDanController.show.url
   }
 
   def apply(

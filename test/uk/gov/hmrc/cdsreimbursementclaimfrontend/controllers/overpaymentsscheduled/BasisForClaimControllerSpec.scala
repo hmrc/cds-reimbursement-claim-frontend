@@ -185,7 +185,9 @@ class BasisForClaimControllerSpec
 
         checkIsRedirect(
           performAction("select-basis-for-claim" -> basisOfClaim.toString),
-          routes.EnterAdditionalDetailsController.show
+          if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+            routes.EnterNewEoriNumberController.show
+          else routes.EnterAdditionalDetailsController.show
         )
       }
 

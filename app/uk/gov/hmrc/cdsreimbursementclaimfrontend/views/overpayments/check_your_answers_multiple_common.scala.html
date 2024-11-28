@@ -50,7 +50,7 @@
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
-@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan))
+@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "multiple"))
 
 @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
 @summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", if(isPdf) None else Some(routes.CheckClaimDetailsController.show)))

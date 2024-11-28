@@ -52,7 +52,7 @@
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
-@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan))
+@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "scheduled"))
 
 @subHeading(Html(messages(s"check-your-answers.claim-calculation.scheduled.h2")))
 @summary(ReimbursementsClaimsSummary.scheduledForCYA(claim.reimbursementClaims, s"check-your-answers.claim-calculation", if(isPdf) None else Some(routes.CheckClaimDetailsController.show)))

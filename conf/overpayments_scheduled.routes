@@ -30,6 +30,12 @@ POST        /overpayments/scheduled/claimant-details/confirm-contact-details    
 GET         /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.show
 POST        /overpayments/scheduled/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.BasisForClaimController.submit
 
+GET         /overpayments/scheduled/enter-new-eori                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterNewEoriNumberController.show
+POST        /overpayments/scheduled/enter-new-eori                                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterNewEoriNumberController.submit
+
+GET         /overpayments/scheduled/enter-new-dan                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterNewDanController.show
+POST        /overpayments/scheduled/enter-new-dan                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterNewDanController.submit
+
 GET         /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.show
 POST        /overpayments/scheduled/choose-payee-type                                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ChoosePayeeTypeController.submit
 
