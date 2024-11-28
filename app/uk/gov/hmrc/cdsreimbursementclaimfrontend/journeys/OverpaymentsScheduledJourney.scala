@@ -68,14 +68,6 @@ final class OverpaymentsScheduledJourney private (
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
 
-  def getAvailableClaimTypes(showDanOption: Boolean = false): Set[BasisOfOverpaymentClaim] =
-    BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(
-        hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration,
-        hasDanOption = false
-      )
-
   def removeUnsupportedTaxCodes(): OverpaymentsScheduledJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
@@ -181,6 +173,20 @@ final class OverpaymentsScheduledJourney private (
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
+    }
+
+  def submitNewEori(eori: Eori): OverpaymentsScheduledJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newEori = Some(eori))
+      )
+    }
+
+  def submitNewDan(dan: Dan): OverpaymentsScheduledJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newDan = Some(dan))
+      )
     }
 
   def submitAdditionalDetails(
@@ -528,7 +534,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded
     )
 
   import JourneyFormats._
@@ -596,6 +603,8 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .mapWhenDefined(answers.newEori)(_.submitNewEori)
+      .mapWhenDefined(answers.newDan)(_.submitNewDan)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

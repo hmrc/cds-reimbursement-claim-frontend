@@ -54,7 +54,7 @@
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
-@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, claim.duplicateMovementReferenceNumber))
+@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "single", claim.duplicateMovementReferenceNumber))
 
 @subHeading(Html(messages(combine(s"check-your-answers.claim-calculation", subKey, "h2"))))
 @summary(ClaimedReimbursementsAnswerSummary.fromReimbursementClaims(claim.reimbursements, if(isPdf) None else Some(routes.CheckClaimDetailsController.show)))

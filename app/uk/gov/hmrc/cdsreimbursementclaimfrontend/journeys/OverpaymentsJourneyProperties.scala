@@ -29,7 +29,7 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
 
-  def getAvailableClaimTypes(showDanOption: Boolean = false): Set[BasisOfOverpaymentClaim]
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
   final def isSubsidyOnlyJourney: Boolean =
     features.exists(_.shouldAllowSubsidyOnlyPayments) &&

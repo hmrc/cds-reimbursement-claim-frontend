@@ -261,12 +261,11 @@ final class OverpaymentsMultipleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  def getAvailableClaimTypes(showDanOption: Boolean = false): Set[BasisOfOverpaymentClaim] =
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration,
-        hasDanOption = false
+        getLeadDisplayDeclaration
       )
 
   def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
@@ -506,6 +505,20 @@ final class OverpaymentsMultipleJourney private (
             )
           )
       }
+    }
+
+  def submitNewEori(eori: Eori): OverpaymentsMultipleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newEori = Some(eori))
+      )
+    }
+
+  def submitNewDan(dan: Dan): OverpaymentsMultipleJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(newDan = Some(dan))
+      )
     }
 
   def submitAdditionalDetails(
@@ -868,7 +881,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       supportingEvidenceHasBeenProvided,
       hasMultipleMovementReferenceNumbers,
       whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded
     )
 
   import JourneyFormats._
@@ -932,6 +946,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .mapWhenDefined(answers.newEori)(_.submitNewEori)
+      .mapWhenDefined(answers.newDan)(_.submitNewDan)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

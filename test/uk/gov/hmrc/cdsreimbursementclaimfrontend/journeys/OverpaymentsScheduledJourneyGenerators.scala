@@ -18,13 +18,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -33,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyModes
 
 /** A collection of generators supporting the tests of OverpaymentsSingleJourney. */
 object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators with JourneyTestData {
@@ -228,6 +231,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
+      newEoriAndDan                = basisOfClaim match {
+                                       case boc if boc == IncorrectEoriAndDan =>
+                                         Some(NewEoriAndDan(IdGen.genEori.sample.get, IdGen.genDan.sample.get.value))
+                                       case _                                 => None
+                                     }
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
@@ -302,7 +310,9 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
             if (submitBankAccountType)
               Some(bankAccountType)
             else None,
-          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode)
+          modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode),
+          newEori = newEoriAndDan.map(_.eori),
+          newDan = newEoriAndDan.map(d => Dan(d.dan))
         )
 
       answers
