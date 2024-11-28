@@ -11,13 +11,14 @@ import scala.io.AnsiColor.*
 // ./utils/findAndReplaceInMessages.sc --lang=en --find='MRN' --replace='Movement Reference Number (MRN)' --key='.title'  --value-not='Movement Reference Number' --key-not='error' --key-not='help' --key-not='hint'
 
 val save = optionalScriptFlag('s',"save")(args)
+val verbose = optionalScriptFlag('v',"verbose")(args)
 val language = requiredScriptParameter('l',"lang")(args)
 val existingWord = requiredScriptParameter('f',"find")(args)
 val replacementWord = requiredScriptParameter('r',"replace")(args)
-val ifValueContains = multipleScriptParameters('v',"value")(args)
+val ifValueContains = multipleScriptParameters('m',"value")(args)
 val ifKeyContains = multipleScriptParameters('k',"key")(args)
 val ifValueNotContains = multipleScriptParameters('n',"value-not")(args)
-val ifKeyNotContains = multipleScriptParameters('m',"key-not")(args)
+val ifKeyNotContains = multipleScriptParameters('j',"key-not")(args)
 
 val messagesFilePath = language.match {
     case "cy" => os.pwd/"conf"/"messages.cy"
@@ -47,6 +48,15 @@ var counter = 0
 var previousPrefix = ""
 var blockLineCount = 0
 
+println(s"Find $YELLOW$existingWord$RESET")
+println(s"Replace with $GREEN$replacementWord$RESET")
+println(s"""Searching messages in $CYAN${messagesFilePath}$RESET using criteria: 
+  ${if(ifKeyContains.nonEmpty) then ifKeyContains.map(k => s"\'$YELLOW$k$RESET\'").mkString("- key must contain "," and ","") else ""}
+  ${if(ifKeyNotContains.nonEmpty) then ifKeyNotContains.map(k => s"\'$YELLOW$k$RESET\'").mkString("- key must NOT contain "," nor ","") else ""}
+  ${if(ifValueContains.nonEmpty) then ifValueContains.map(k => s"\'$YELLOW$k$RESET\'").mkString("- message must contain "," and ","") else ""}
+  ${if(ifValueNotContains.nonEmpty) then ifValueNotContains.map(k => s"\'$YELLOW$k$RESET\'").mkString("- message must NOT contain "," nor ","") else ""}
+""".linesIterator.filterNot(_.isBlank()).mkString("\n"))
+
 messages.foreach{ case (key, value) =>
 
     if(save) then
@@ -60,12 +70,12 @@ messages.foreach{ case (key, value) =>
         }
 
     if(
-        ifKeyContains.forall(key.contains)
+        ifKeyContains.forall(s => key.contains(s))
         && ifValueContains.forall(value.contains)
         && !ifKeyNotContains.exists(key.contains)
         && !ifValueNotContains.exists(value.contains)
     ) then
-        val newValue = value.replaceFirst(existingWord, if(save) then replacementWord else s"$RED$CROSSED$existingWord$RESET$GREEN$replacementWord$YELLOW")
+        val newValue = value.replace(existingWord, if(save) then replacementWord else s"$RED$CROSSED$existingWord$RESET$GREEN$replacementWord$YELLOW")
         val replaced = newValue!=value
         if(replaced) then counter = counter + 1
         if(save || replaced) then 
@@ -75,6 +85,13 @@ messages.foreach{ case (key, value) =>
             builder.append("=")
             if(debug) builder.append(YELLOW)
             if(replaced) then builder.append(newValue) else builder.append(value)
+            if(debug) builder.append(RESET)
+            builder.append("\n")
+        else if(debug && verbose) 
+            builder.append(BLUE)
+            builder.append(key)
+            builder.append("=")
+            builder.append(value)
             if(debug) builder.append(RESET)
             builder.append("\n")
     else 
