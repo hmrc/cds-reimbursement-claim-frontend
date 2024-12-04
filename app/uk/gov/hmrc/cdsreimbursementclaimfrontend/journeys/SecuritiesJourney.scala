@@ -883,6 +883,15 @@ final class SecuritiesJourney private (
       this.copy(answers.copy(modes = answers.modes.copy(checkClaimDetailsChangeMode = enabled)))
     }
 
+  def submitAdditionalDetails(
+    additionalDetails: String
+  ): SecuritiesJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(additionalDetails = Some(additionalDetails))
+      )
+    }
+
   def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
       validate(this)
@@ -971,7 +980,8 @@ final class SecuritiesJourney private (
               answers.exportMovementReferenceNumbers
 
             case _ => None
-          }
+          },
+          additionalDetails = answers.additionalDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -1013,6 +1023,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     supportingEvidences: Seq[UploadedFile] = Seq.empty,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
+    additionalDetails: Option[String] = None,
     modes: SecuritiesJourneyModes = SecuritiesJourneyModes()
   ) extends CommonAnswers {
 
@@ -1033,7 +1044,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument],
     temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal],
-    exportMovementReferenceNumber: Option[Seq[MRN]]
+    exportMovementReferenceNumber: Option[Seq[MRN]],
+    additionalDetails: Option[String] = None
   )
 
   import JourneyValidationErrors._
@@ -1187,6 +1199,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
           (e: UploadedFile) =>
             j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
+      .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }
