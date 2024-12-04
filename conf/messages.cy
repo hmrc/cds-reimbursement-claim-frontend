@@ -71,7 +71,7 @@ check-claim.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.change-amount=Newid y swm
 check-claim.duty-code.row.key={0} - ad-daliad
 check-claim.duty-code.total.key=cyfanswm ad-daliad yr hawliadau o {0}
-check-claim.duty.label=MRN: {0}
+check-claim.duty.label=Cyfeirnod Symud (MRN): {0}
 check-claim.error.invalid=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.error.required=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.eu-duty.label=Toll yr UE
@@ -551,7 +551,7 @@ claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/org
 
 
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
-confirm-full-repayment.mrn=MRN
+confirm-full-repayment.mrn=Cyfeirnod Symud (MRN)
 confirm-full-repayment.title=Hawlio ID blaendal diogelwch yn ôl: {0}
 confirm-full-repayment.question=Ydych chi am hawlio’r swm llawn yn ôl?
 confirm-full-repayment.securityDeposit=Blaendal sicrwydd
@@ -559,8 +559,8 @@ confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 confirmation-of-submission.claim-reference=Cyfeirnod hawlio
 confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.
 confirmation-of-submission.feedback-link=Beth oedd eich barn am y gwasanaeth hwn?
-confirmation-of-submission.mrn=MRN
-confirmation-of-submission.multiple.mrn=Yr MRN cyntaf
+confirmation-of-submission.mrn=Cyfeirnod Symud (MRN)
+confirmation-of-submission.multiple.mrn=Yr Cyfeirnod Symud (MRN)
 confirmation-of-submission.next-steps=Y camau nesaf
 confirmation-of-submission.reimbursement-amount=Swm y gwnaethpwyd cais amdano
 confirmation-of-submission.title=Hawliad wedi ei gyflwyno’n llwyddiannus
@@ -925,7 +925,7 @@ enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.invalid.amount=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
-enter-claim.mrn=MRN:
+enter-claim.mrn=Cyfeirnod Symud (MRN):
 enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=Faint o {1} - {2} a dalwyd drwy gymhorthdal: <span id="paid-amount">{0}</span>

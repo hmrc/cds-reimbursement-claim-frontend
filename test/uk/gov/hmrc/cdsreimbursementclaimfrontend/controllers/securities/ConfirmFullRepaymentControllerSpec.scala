@@ -113,7 +113,7 @@ class ConfirmFullRepaymentControllerSpec
         s"Claiming back security deposit ID: $securityId"
       )
     )
-    summaryKeys     should ===(List("MRN", "Security deposit"))
+    summaryKeys     should ===(List("Movement Reference Number (MRN)", "Security deposit"))
     summaryValues   should ===(
       List(journey.getDisplayDeclarationIfValidSecurityDepositId(securityId).value.getMRN.value, amountPaidFormatted)
     )
