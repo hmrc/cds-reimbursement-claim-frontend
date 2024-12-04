@@ -54,6 +54,7 @@ class UploadFilesController @Inject() (
   final val precedingAction: Call              = routes.CheckClaimDetailsController.show
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show
   final val callbackAction: Call               = routes.UploadFilesController.submit
+  final val nextPageInJourney: Call            = routes.EnterAdditionalDetailsController.show
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
     documentType => messages => upload_files_description(documentType)(messages)
