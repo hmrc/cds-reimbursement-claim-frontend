@@ -85,10 +85,11 @@ class EnterAdditionalDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page" in {
+      "display the page when additional details given" in {
         forAll(buildCompleteJourneyGen()) { journey =>
-          mockCompleteJourney(journey)
-          val additionalDetails = journey.answers.additionalDetails
+          val modifiedJourney   = journey.submitAdditionalDetails("additional details")
+          mockCompleteJourney(modifiedJourney)
+          val additionalDetails = modifiedJourney.answers.additionalDetails
 
           checkPageIsDisplayed(
             performAction(),
@@ -97,6 +98,22 @@ class EnterAdditionalDetailsControllerSpec
               doc
                 .select("form textarea[name='enter-additional-details']")
                 .`val`() shouldBe additionalDetails.get
+          )
+        }
+      }
+
+      "display the page when no additional details" in {
+        forAll(buildCompleteJourneyGen()) { journey =>
+          val modifiedJourney = journey.submitAdditionalDetails("")
+          mockCompleteJourney(modifiedJourney)
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("enter-additional-details.securities.title"),
+            doc =>
+              doc
+                .select("form textarea[name='enter-additional-details']")
+                .`val`() shouldBe ""
           )
         }
       }
