@@ -43,6 +43,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       emptyJourney.answers.userEoriNumber                                         shouldBe exampleEori
       emptyJourney.answers.bankAccountDetails                                     shouldBe None
       emptyJourney.answers.bankAccountType                                        shouldBe None
+      emptyJourney.answers.additionalDetails                                      shouldBe None
       emptyJourney.answers.contactAddress                                         shouldBe None
       emptyJourney.answers.contactDetails                                         shouldBe None
       emptyJourney.answers.contactAddress                                         shouldBe None
@@ -74,6 +75,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         output.securitiesReclaims                           shouldBe journey.getSecuritiesReclaims
         output.supportingEvidences                          shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
         output.bankAccountDetails                           shouldBe journey.answers.bankAccountDetails
+        output.additionalDetails                            shouldBe journey.answers.additionalDetails
         output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
         output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
         output.exportMovementReferenceNumber.isDefined      shouldBe journey.needsMethodOfDisposalSubmission && journey.answers.temporaryAdmissionMethodOfDisposal
@@ -1440,5 +1442,24 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       }
     }
 
+    "submit additional details" in {
+      val journey = SecuritiesJourney
+        .empty(exampleEori)
+        .submitAdditionalDetails("foo bar")
+
+      journey.answers.additionalDetails shouldBe Some("foo bar")
+    }
+
+    "change additional details" in {
+      forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, additionalDetails) =>
+        val modifiedJourney = journey.submitAdditionalDetails(additionalDetails)
+
+        modifiedJourney.hasCompleteAnswers                  shouldBe true
+        if (additionalDetails.isBlank)
+          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(None)
+        else
+          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(Some(additionalDetails))
+      }
+    }
   }
 }

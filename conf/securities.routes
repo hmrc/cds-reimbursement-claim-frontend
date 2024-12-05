@@ -81,6 +81,9 @@ POST         /securities/enter-bank-account-details                    @uk.gov.h
 GET          /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.show
 POST         /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.submit
 
+GET          /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.show
+POST         /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.submit
+
 GET          /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadFilesController.show
 +nocsrf
 POST         /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadFilesController.submit
