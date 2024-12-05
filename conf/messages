@@ -918,7 +918,7 @@ enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.title=Additional claim details
 
 enter-additional-details.securities.title=Do you need to provide more detail?
-enter-additional-details.securities.hint=Let HMRC know if there's anything else you want to add to your claim (optional)
+enter-additional-details.securities.hint=Let HMRC know if there’s anything else you want to add to your claim (optional)
 
 enter-associated-mrn.details.heading=Finding your MRN
 enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
