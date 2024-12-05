@@ -39,9 +39,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
@@ -122,6 +124,7 @@ class ChooseReasonForSecurityController @Inject() (
     ).asFuture
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     form
       .bindFromRequest()
@@ -145,7 +148,26 @@ class ChooseReasonForSecurityController @Inject() (
               mrn                          <- getMovementReferenceNumber(journey)
               declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
               _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-              updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, declaration)
+              updatedDeclaration            = reasonForSecurity match {
+                                                case EndUseRelief =>
+                                                  val updatedSecurityDetails =
+                                                    declaration.displayResponseDetail.securityDetails.map { securityDetails =>
+                                                      securityDetails.map(sd =>
+                                                        sd.copy(taxDetails =
+                                                          sd.taxDetails.filterNot(td =>
+                                                            TaxCodes.vatTaxCodes.contains(td.getTaxCode)
+                                                          )
+                                                        )
+                                                      )
+                                                    }
+                                                  declaration.copy(
+                                                    displayResponseDetail = declaration.displayResponseDetail.copy(
+                                                      securityDetails = updatedSecurityDetails
+                                                    )
+                                                  )
+                                                case _            => declaration
+                                              }
+              updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, updatedDeclaration)
               journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
               updatedJourneyWithRedirect   <-
                 if (
