@@ -183,6 +183,12 @@ object Forms {
       .verifying(maxLength(500))
   )
 
+  val enterAdditionalDetailsSecuritiesForm: Form[String] = Form(
+    "enter-additional-details" -> text()
+      .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
+      .verifying(maxLength(500))
+  )
+
   val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
   val chooseExportMethodForm: Form[Option[TemporaryAdmissionMethodOfDisposal]] = Form(
     mapping(

@@ -52,7 +52,7 @@ class EnterAdditionalDetailsController @Inject() (
     actionReadJourney { implicit request => journey =>
       Future.successful {
         val form: Form[String] =
-          Forms.enterAdditionalDetailsForm.withDefault(journey.answers.additionalDetails)
+          Forms.enterAdditionalDetailsSecuritiesForm.withDefault(journey.answers.additionalDetails)
         Ok(
           enterAdditionalDetailsPage(
             form,
@@ -64,7 +64,7 @@ class EnterAdditionalDetailsController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      Forms.enterAdditionalDetailsForm
+      Forms.enterAdditionalDetailsSecuritiesForm
         .bindFromRequest()
         .fold(
           formWithErrors =>

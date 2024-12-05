@@ -888,7 +888,7 @@ final class SecuritiesJourney private (
   ): SecuritiesJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(additionalDetails = Some(additionalDetails))
+        answers.copy(additionalDetails = if (additionalDetails.isBlank) None else Some(additionalDetails))
       )
     }
 
