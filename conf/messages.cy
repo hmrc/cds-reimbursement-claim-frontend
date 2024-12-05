@@ -870,6 +870,9 @@ enter-additional-details.hint=Manylion ychwanegol
 enter-additional-details.label=Darparwch fanylion ychwanegol am yr hawliad hwn
 enter-additional-details.title=Manylion ychwanegol yr hawliad
 
+enter-additional-details.securities.title=A oes angen i chi roi rhagor o wybodaeth?
+enter-additional-details.securities.hint=Rhowch wybod i CThEF os ydych am ychwanegu unrhyw fanylion eraill at eich hawliad (dewisol)
+
 enter-associated-mrn.details.heading=Dewch o hyd i’ch MRN
 enter-associated-mrn.details.para=Gallwch ddod o hyd i’ch MRN yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-associated-mrn.enter-mrn.label=Nodwch {0} MRN
