@@ -397,8 +397,7 @@ final class RejectedGoodsSingleJourney private (
           Right(
             this.copy(
               answers.copy(
-                reimbursementMethod = Some(reimbursementMethod),
-                bankAccountDetails = computeBankAccountDetails
+                reimbursementMethod = Some(reimbursementMethod)
               )
             )
           )
@@ -408,8 +407,7 @@ final class RejectedGoodsSingleJourney private (
         Right(
           this.copy(
             answers.copy(
-              reimbursementMethod = Some(reimbursementMethod),
-              bankAccountDetails = computeBankAccountDetails
+              reimbursementMethod = Some(reimbursementMethod)
             )
           )
         )

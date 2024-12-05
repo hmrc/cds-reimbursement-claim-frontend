@@ -43,7 +43,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
 
   final val showWarning: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      journey.computeBankAccountDetails
+      journey.answers.bankAccountDetails
         .map { bankAccountDetails: BankAccountDetails =>
           modifyJourney(journey, bankAccountDetails)
             .fold(
