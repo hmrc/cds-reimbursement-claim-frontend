@@ -211,6 +211,9 @@ check-total-import-discharged.title=A ydych chi wedi gwaredu’r holl nwyddau a 
 
 check-your-answers.additional-details.h2=Rheswm dros hawlio
 check-your-answers.additional-details.label=Dyma’r rheswm dros yr hawliad
+check-your-answers.additional-details.securities.h2=Manylion ychwanegol
+check-your-answers.additional-details.securities.label=Gwybodaeth a allai ategu’r hawliad
+check-your-answers.none=Dim
 check-your-answers.attached-documents.empty=Nid oes dogfennau ynghlwm
 check-your-answers.attached-documents.h2=Dogfennau ategol
 check-your-answers.attached-documents.hidden-label=dogfennau ategol wedi’u huwchlwytho
