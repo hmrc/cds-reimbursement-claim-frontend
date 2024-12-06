@@ -129,12 +129,12 @@ final case class DisplayDeclaration(
     getSecurityDetailsFor(securityDepositId).map(_.paymentReference).getOrElse("")
 
   def getTotalSecuritiesAmountFor(securityDepositIds: Set[String]): BigDecimal =
-    securityDepositIds
+    securityDepositIds.toList
       .map(getSecurityDetailsFor(_).map(_.getTotalAmount).getOrElse(BigDecimal("0.00")))
       .sum
 
   def getTotalSecuritiesPaidAmountFor(securityDepositIds: Set[String]): BigDecimal =
-    securityDepositIds
+    securityDepositIds.toList
       .map(getSecurityDetailsFor(_).map(_.getPaidAmount).getOrElse(BigDecimal("0.00")))
       .sum
 
