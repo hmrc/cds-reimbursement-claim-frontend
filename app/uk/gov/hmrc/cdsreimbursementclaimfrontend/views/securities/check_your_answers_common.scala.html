@@ -152,5 +152,5 @@
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
 @summary(EvidenceDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
-
-
+@subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))
+@summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show)))

@@ -156,7 +156,10 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          selfUrl + nextPageInJourney.url
+          if (journey.userHasSeenCYAPage)
+            selfUrl + checkYourAnswers.url
+          else
+            selfUrl + nextPageInJourney.url
 
         uploadDocumentsConnector
           .initialize(

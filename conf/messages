@@ -210,6 +210,9 @@ check-total-import-discharged.title=Have you disposed of all the imported goods?
 
 check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.additional-details.label=This is the reason for the claim
+check-your-answers.additional-details.securities.h2=Additional details
+check-your-answers.additional-details.securities.label=Any information that may support the claim
+check-your-answers.none=None
 check-your-answers.attached-documents.empty=No documents attached
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.hidden-label=uploaded supporting documents
