@@ -42,6 +42,7 @@ trait UploadFilesMixin extends JourneyBaseController {
   val fileUploadConfig: FileUploadConfig
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
+  val nextPageInJourney: Call
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
   def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate: Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable
@@ -67,6 +68,7 @@ trait UploadFilesMixin extends JourneyBaseController {
               .Request(
                 uploadDocumentsSessionConfigIfSkipDocumentType(
                   journey.getDocumentTypesIfRequired.getOrElse(Seq.empty),
+                  nextPageInJourney.url,
                   journey.answers.nonce
                 ),
                 journey.answers.supportingEvidences
@@ -88,7 +90,7 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          selfUrl + checkYourAnswers.url
+          selfUrl + nextPageInJourney.url
 
         uploadDocumentsConnector
           .initialize(
@@ -154,7 +156,7 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          selfUrl + checkYourAnswers.url
+          selfUrl + nextPageInJourney.url
 
         uploadDocumentsConnector
           .initialize(
@@ -191,7 +193,7 @@ trait UploadFilesMixin extends JourneyBaseController {
       nonce = nonce,
       continueUrl = continueAfterNoAnswerUrl,
       continueAfterYesAnswerUrl = Some(continueAfterYesAnswerUrl),
-      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      continueWhenFullUrl = selfUrl + continueAfterNoAnswerUrl,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = minimumNumberOfFiles,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
@@ -249,13 +251,14 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   def uploadDocumentsSessionConfigIfSkipDocumentType(
     documentTypes: Seq[UploadDocumentType],
+    nextPageInJourneyUrl: String,
     nonce: Nonce
   )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
-      continueUrl = selfUrl + checkYourAnswers.url,
+      continueUrl = selfUrl + nextPageInJourneyUrl,
       continueAfterYesAnswerUrl = None,
-      continueWhenFullUrl = selfUrl + checkYourAnswers.url,
+      continueWhenFullUrl = selfUrl + nextPageInJourneyUrl,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 1,
       maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),

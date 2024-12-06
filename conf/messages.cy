@@ -71,7 +71,7 @@ check-claim.are-duties-correct=A yw’r tollau hyn yn gywir?
 check-claim.change-amount=Newid y swm
 check-claim.duty-code.row.key={0} - ad-daliad
 check-claim.duty-code.total.key=cyfanswm ad-daliad yr hawliadau o {0}
-check-claim.duty.label=MRN: {0}
+check-claim.duty.label=Cyfeirnod Symud (MRN): {0}
 check-claim.error.invalid=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.error.required=Dewiswch ''Iawn'' os yw manylion yr hawliad yn gywir
 check-claim.eu-duty.label=Toll yr UE
@@ -306,7 +306,7 @@ check-your-answers.documents-none-p1=Nid ydych wedi dewis unrhyw ddogfennau i’
 check-your-answers.documents-none-p2=Mae’n bosib y bydd CThEF yn cysylltu â chi am ragor o wybodaeth neu i ofyn am unrhyw ddogfennau sydd ar goll. Os na fyddwch yn gallu darparu’r rhain, mae’n bosib y caiff eich hawliad ei wrthod gan CThEF.
 check-your-answers.duplicate-declaration-details.l0=Rhif mynediad dyblyg
 check-your-answers.duplicate-declaration-details.label=Manylion y datganiad dyblyg
-check-your-answers.duplicate-mrn=Duplicate MRN
+check-your-answers.duplicate-mrn=MRN dyblyg
 check-your-answers.export-declaration-details.h2=Cyfeirnod Symud (MRN) Allforio
 check-your-answers.export-declaration-details.mrn=MRN Allforio
 check-your-answers.help-text=Dyma fanylion eich hawliad. Darllenwch y manylion yn ofalus a newid y rhai sy’n anghywir.
@@ -551,7 +551,7 @@ claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/org
 
 
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
-confirm-full-repayment.mrn=MRN
+confirm-full-repayment.mrn=Cyfeirnod Symud (MRN)
 confirm-full-repayment.title=Hawlio ID blaendal diogelwch yn ôl: {0}
 confirm-full-repayment.question=Ydych chi am hawlio’r swm llawn yn ôl?
 confirm-full-repayment.securityDeposit=Blaendal sicrwydd
@@ -559,8 +559,8 @@ confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 confirmation-of-submission.claim-reference=Cyfeirnod hawlio
 confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Gwiriwch y ffolder sbam neu cysylltwch â CThEF os na chewch hyn.
 confirmation-of-submission.feedback-link=Beth oedd eich barn am y gwasanaeth hwn?
-confirmation-of-submission.mrn=MRN
-confirmation-of-submission.multiple.mrn=Yr MRN cyntaf
+confirmation-of-submission.mrn=Cyfeirnod Symud (MRN)
+confirmation-of-submission.multiple.mrn=Yr Cyfeirnod Symud (MRN)
 confirmation-of-submission.next-steps=Y camau nesaf
 confirmation-of-submission.reimbursement-amount=Swm y gwnaethpwyd cais amdano
 confirmation-of-submission.title=Hawliad wedi ei gyflwyno’n llwyddiannus
@@ -870,6 +870,9 @@ enter-additional-details.hint=Manylion ychwanegol
 enter-additional-details.label=Darparwch fanylion ychwanegol am yr hawliad hwn
 enter-additional-details.title=Manylion ychwanegol yr hawliad
 
+enter-additional-details.securities.title=A oes angen i chi roi rhagor o wybodaeth?
+enter-additional-details.securities.hint=Rhowch wybod i CThEF os ydych am ychwanegu unrhyw fanylion eraill at eich hawliad (dewisol)
+
 enter-associated-mrn.details.heading=Dewch o hyd i’ch MRN
 enter-associated-mrn.details.para=Gallwch ddod o hyd i’ch MRN yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-associated-mrn.enter-mrn.label=Nodwch {0} MRN
@@ -925,7 +928,7 @@ enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.invalid.amount=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
-enter-claim.mrn=MRN:
+enter-claim.mrn=Cyfeirnod Symud (MRN):
 enter-claim.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=Faint o doll {1} {2} a dalwyd: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=Faint o {1} - {2} a dalwyd drwy gymhorthdal: <span id="paid-amount">{0}</span>

@@ -456,6 +456,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
             if (submitBankAccountType && (!allDutiesGuaranteeEligible))
               Some(bankAccountType)
             else None,
+          additionalDetails = Some("additional details"),
           modes = SecuritiesJourneyModes(
             checkDeclarationDetailsChangeMode = false,
             checkClaimDetailsChangeMode = true,

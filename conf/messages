@@ -69,7 +69,7 @@ check-claim.are-duties-correct=Are these duties correct?
 check-claim.change-amount=Change amount
 check-claim.duty-code.row.key={0} repayment
 check-claim.duty-code.total.key={0} claims total repayment
-check-claim.duty.label=MRN: {0}
+check-claim.duty.label=Movement Reference Number (MRN): {0}
 check-claim.error.invalid=Select yes if the claim details are correct
 check-claim.error.required=Select yes if the claim details are correct
 check-claim.eu-duty.label=EU Duty
@@ -286,7 +286,7 @@ check-your-answers.declaration-details.paid-vat-charges-label=VAT paid
 check-your-answers.declaration-details.reason-for-security-label=Reason for security deposit
 check-your-answers.declaration-details.scheduled.mrn-label=First MRN
 check-your-answers.declaration-details.securities.lrn-label=Local Reference Number (LRN)
-check-your-answers.declaration-details.securities.mrn-label=Import MRN
+check-your-answers.declaration-details.securities.mrn-label=Import Movement Reference Number (MRN)
 check-your-answers.declaration-details.subsidy-label=Subsidy
 check-your-answers.declaration-details.subsidy-status-label=Subsidy status
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
@@ -589,7 +589,7 @@ claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">contact HMRC (opens in new tab)</a> to update your claim or to discuss your security deposit or guarantee
 
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
-confirm-full-repayment.mrn=MRN
+confirm-full-repayment.mrn=Movement Reference Number (MRN)
 confirm-full-repayment.title=Claiming back security deposit ID: {0}
 confirm-full-repayment.question=Do you want to claim back the full amount?
 confirm-full-repayment.securityDeposit=Security deposit
@@ -598,8 +598,8 @@ confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.
 confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Print or download full details of your claim (opens in new tab)</a>
 confirmation-of-submission.feedback-link=What did you think of this service?
-confirmation-of-submission.mrn=MRN
-confirmation-of-submission.multiple.mrn=First MRN
+confirmation-of-submission.mrn=Movement Reference Number (MRN)
+confirmation-of-submission.multiple.mrn=First Movement Reference Number (MRN)
 confirmation-of-submission.next-steps=Next steps
 confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.title=Claim successfully submitted
@@ -917,6 +917,9 @@ enter-additional-details.hint=Additional details
 enter-additional-details.label=Provide additional details about this claim
 enter-additional-details.title=Additional claim details
 
+enter-additional-details.securities.title=Do you need to provide more detail?
+enter-additional-details.securities.hint=Let HMRC know if there’s anything else you want to add to your claim (optional)
+
 enter-associated-mrn.details.heading=Finding your MRN
 enter-associated-mrn.details.para=You can find your MRN in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
@@ -972,7 +975,7 @@ enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.invalid.claim=The amount that should have been paid must be less than the amount paid
 enter-claim.invalid.amount=The amount that should have been paid must be less than the amount paid
-enter-claim.mrn=MRN:
+enter-claim.mrn=Movement Reference Number (MRN):
 enter-claim.paid-amount-label=How much {1} - {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.excise=How much {1} duty {2} was paid: <span id="paid-amount">{0}</span>
 enter-claim.paid-amount-label.subsidy=How much {1} - {2} was paid by subsidy: <span id="paid-amount">{0}</span>
@@ -1598,7 +1601,7 @@ select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.wine=wine
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-codes.p1=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
+select-duty-codes.p1=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
 select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
 select-duty-codes.title=Which {0} duties do you want to claim for?
 select-duty-codes.title.caption=Claim details
@@ -1610,7 +1613,7 @@ select-duty-types.details.heading=Find out more about duties
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.error.required=Choose the duties you want to include in your claim
 select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-types.inset=Select all duty types you want to claim for all MRNs in the claim summary file you uploaded.
+select-duty-types.inset=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
 select-duty-types.title=Which duties do you want to claim for?
 select-duty-types.title.caption=Claim details
 select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
