@@ -53,7 +53,6 @@ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components
         messages(s"enter-claim.title.excise", messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"), messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), taxCode.value)
     }
 @caption = @{messages(s"enter-claim.title.caption")}
-@hintText = @{Html(messages(s"enter-claim.actual-amount.hint", taxCode.value, messages(s"select-duties.duty.$taxCode")))}
 
 @inset = {
     @if(isSubsidyOnly){
@@ -100,13 +99,13 @@ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components
         
         @inputText(
             form = form,
-            id = s"enter-claim",
-            name = s"enter-claim",
-            label = s"enter-claim.actual-amount",
+            id = s"enter-claim-amount",
+            name = s"enter-claim-amount",
+            label = s"enter-claim-amount.label",
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
-            hintHtml = Some(hintText),
+            hintHtml = None,
             labelClasses = Some("govuk-label govuk-label--m"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )

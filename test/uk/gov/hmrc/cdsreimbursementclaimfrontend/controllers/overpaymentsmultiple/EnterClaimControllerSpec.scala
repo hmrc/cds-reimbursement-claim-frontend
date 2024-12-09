@@ -75,15 +75,10 @@ class EnterClaimControllerSpec
     assertPageElementsByIdAndExpectedText(doc)(
       "MRN"                               -> mrn.value,
       "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
-      "enter-claim-label"                 -> m("enter-claim.actual-amount"),
-      "enter-claim-hint"                  -> m(
-        "enter-claim.actual-amount.hint",
-        taxCode,
-        m(s"select-duties.duty.$taxCode")
-      )
+      "enter-claim-amount-label"          -> m("enter-claim-amount.label")
     )
     assertPageInputsByIdAndExpectedValue(doc)(
-      "enter-claim"                       ->
+      "enter-claim-amount"                ->
         actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
     )
   }
@@ -169,7 +164,13 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                     taxCode.value
                   ),
-                doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
+                doc => {
+                  val amount = for {
+                    amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
+                    correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
+                  } yield amountPaid - correctAmount
+                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
+                }
               )
             }
           }
@@ -208,8 +209,13 @@ class EnterClaimControllerSpec
                       messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                       taxCode.value
                     ),
-                  doc =>
-                    validateEnterClaimPage(doc, pageIndex, mrn, taxCode, journey.getCorrectedAmountFor(mrn, taxCode))
+                  doc => {
+                    val amount = for {
+                      amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
+                      correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
+                    } yield amountPaid - correctAmount
+                    validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
+                  }
                 )
               }
             }
@@ -236,8 +242,8 @@ class EnterClaimControllerSpec
                 .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
 
             selectedTaxCodes.zipWithIndex.foreach { case (taxCode, dutyIndex) =>
-              val pageIndex    = mrnIndex + 1
-              val actualAmount = BigDecimal("0.01")
+              val pageIndex   = mrnIndex + 1
+              val claimAmount = BigDecimal("0.01")
 
               val expectedRoute =
                 if (dutyIndex == selectedTaxCodes.size - 1) {
@@ -255,7 +261,7 @@ class EnterClaimControllerSpec
                 mockStoreSession(
                   SessionData(
                     journey
-                      .submitCorrectAmount(mrn, taxCode, actualAmount)
+                      .submitClaimAmount(mrn, taxCode, claimAmount)
                       .getOrFail
                   )
                 )(
@@ -267,7 +273,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("enter-claim" -> actualAmount.toPoundSterlingString.drop(1))
+                  Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))
                 ),
                 expectedRoute
               )
@@ -296,7 +302,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("enter-claim" -> paidAmount.toPoundSterlingString.drop(1))
+                  Seq("enter-claim-amount" -> (paidAmount + BigDecimal("0.01")).toPoundSterlingString.drop(1))
                 ),
                 if (TaxCodes.custom.contains(taxCode))
                   messageFromMessageKey(
@@ -312,8 +318,8 @@ class EnterClaimControllerSpec
                     taxCode.value
                   ),
                 doc => {
-                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount))
-                  assertShowsInputError(doc, Some(m("enter-claim.invalid.claim")))
+                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount + BigDecimal("0.01")))
+                  assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))
                 },
                 expectedStatus = BAD_REQUEST
               )

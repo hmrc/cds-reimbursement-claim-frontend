@@ -177,14 +177,13 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
-      depositDetails =
-        reasonForSecurity match {
-          case EndUseRelief =>
-            reclaimsDetails.map { rcd =>
-              (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
-            }
-          case _            => reclaimsDetails
-        },
+      depositDetails = reasonForSecurity match {
+        case EndUseRelief =>
+          reclaimsDetails.map { rcd =>
+            (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
+          }
+        case _            => reclaimsDetails
+      },
       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
       declarantContact = Some(declarantContact)
     )
