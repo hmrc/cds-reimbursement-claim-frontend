@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -155,12 +156,31 @@ class ConfirmFullRepaymentController @Inject() (
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (if (journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId))
-       (
-         journey.submitClaimFullAmountMode(false),
-         Redirect(routes.SelectDutiesController.show(securityId))
-       )
-     else
+    (if (journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId)) {
+       if (journey.getSecurityTaxCodesFor(securityId).size == 1)
+         journey
+           .submitClaimFullAmountMode(false)
+           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
+             securityId,
+             journey.getSecurityTaxCodesFor(securityId)
+           )
+           .fold(
+             error => {
+               logger.warn(error)
+               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+             },
+             updatedJourney =>
+               (
+                 updatedJourney,
+                 Redirect(routes.EnterClaimController.showFirst(securityId))
+               )
+           )
+       else
+         (
+           journey.submitClaimFullAmountMode(false),
+           Redirect(routes.SelectDutiesController.show(securityId))
+         )
+     } else
        (
          journey,
          Redirect(routes.CheckClaimDetailsController.show)

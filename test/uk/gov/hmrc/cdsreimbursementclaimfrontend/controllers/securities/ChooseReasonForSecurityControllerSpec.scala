@@ -53,6 +53,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -465,7 +466,14 @@ class ChooseReasonForSecurityControllerSpec
           val updatedDeclaration = declaration
             .copy(displayResponseDetail =
               declaration.displayResponseDetail
-                .copy(securityReason = Some(rfs.acc14Code))
+                .copy(
+                  securityReason = Some(rfs.acc14Code),
+                  securityDetails = declaration.displayResponseDetail.securityDetails.map { securityDetails =>
+                    securityDetails.map(sd =>
+                      sd.copy(taxDetails = sd.taxDetails.filterNot(td => TaxCodes.vatTaxCodes.contains(td.getTaxCode)))
+                    )
+                  }
+                )
             )
 
           val initialJourney =

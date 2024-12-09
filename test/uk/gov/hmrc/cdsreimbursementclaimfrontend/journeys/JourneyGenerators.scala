@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
@@ -176,7 +177,14 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
-      depositDetails = reclaimsDetails,
+      depositDetails =
+        reasonForSecurity match {
+          case EndUseRelief =>
+            reclaimsDetails.map { rcd =>
+              (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
+            }
+          case _            => reclaimsDetails
+        },
       allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
       declarantContact = Some(declarantContact)
     )
