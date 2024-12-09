@@ -358,12 +358,12 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
 
   def incompleteJourneyWithCompleteClaimsGen(n: Int): Gen[(OverpaymentsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: OverpaymentsMultipleJourney)(data: (MRN, TaxCode, BigDecimal)) =
-      journey.submitCorrectAmount(data._1, data._2, data._3)
+      journey.submitClaimAmount(data._1, data._2, data._3)
 
     incompleteJourneyWithSelectedDutiesGen(n).map { case (journey, mrns) =>
       val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
         journey.getSelectedDuties(mrn).get.map { taxCode =>
-          (mrn, taxCode, BigDecimal(formatAmount(journey.getAmountPaidFor(mrn, taxCode).get / 2)))
+          (mrn, taxCode, journey.getAmountPaidFor(mrn, taxCode).get)
         }
       }
       (journey.flatMapEach(data, submitData).getOrFail, mrns)

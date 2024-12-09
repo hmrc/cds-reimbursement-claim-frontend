@@ -47,14 +47,13 @@ class EnterClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val subKey: Option[String] = Some("multiple")
-
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show
   val selectDutiesAction: Int => Call           = routes.SelectDutiesController.show
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
 
-  val formKey: String = "enter-claim"
+  val key: String            = "enter-claim-amount"
+  val subKey: Option[String] = Some("multiple")
 
   final val showFirst: Action[AnyContent] =
     showFirstByIndex(1)
@@ -82,22 +81,24 @@ class EnterClaimController @Inject() (
               logger.warn(s"Claim data for selected MRN and tax code $taxCode does not exist.")
               Redirect(selectDutiesAction(pageIndex))
 
-            case Some(paidAmount) =>
-              val actualAmountOpt =
+            case Some(amountPaid) =>
+              val actualAmount =
                 journey.getCorrectedAmountFor(mrn, taxCode)
 
-              val form                   =
+              val form =
                 Forms
-                  .actualAmountForm(formKey, paidAmount)
-                  .withDefault(actualAmountOpt)
+                  .claimAmountForm(key, amountPaid)
+                  .withDefault(actualAmount.map(a => amountPaid - a))
+
               val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
+
               Ok(
                 enterMultipleClaims(
                   form,
                   pageIndex,
                   mrn,
                   taxCode,
-                  paidAmount,
+                  amountPaid,
                   isSubsidyOnly,
                   submitClaimAction(pageIndex, taxCode)
                 )
@@ -118,10 +119,10 @@ class EnterClaimController @Inject() (
                 // case when tax code not selectable nor selected
                 (journey, Redirect(selectDutiesAction(pageIndex)))
 
-              case Some(paidAmount) =>
+              case Some(amountPaid) =>
                 val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
                 Forms
-                  .actualAmountForm(formKey, paidAmount)
+                  .claimAmountForm(key, amountPaid)
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
@@ -133,7 +134,7 @@ class EnterClaimController @Inject() (
                             pageIndex,
                             mrn,
                             taxCode,
-                            paidAmount,
+                            amountPaid,
                             isSubsidyOnly,
                             submitClaimAction(pageIndex, taxCode)
                           )
@@ -141,7 +142,7 @@ class EnterClaimController @Inject() (
                       ),
                     amount =>
                       journey
-                        .submitCorrectAmount(mrn, taxCode, amount)
+                        .submitClaimAmount(mrn, taxCode, amount)
                         .fold(
                           error => {
                             logger.error(s"Error submitting reimbursement claim amount - $error")
