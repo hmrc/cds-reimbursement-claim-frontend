@@ -576,6 +576,12 @@ confirmation-of-submission.what-next.p1=Bydd CThEF yn adolygu eich hawliad a byd
 confirmation-of-submission.what-next.p2=Byddwn yn cysylltu â chi naill ai i:
 confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf?
 confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Argraffwch neu lawrlwythwch holl fanylion eich hawliad (yn agor tab newydd)</a>
+
+confirmation-of-submission.securities.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}. Os nad ydych wedi ei gael, edrychwch yn eich ffolder sbam neu cysylltwch â CThEF.
+confirmation-of-submission.securities.what-next.p1=Bydd CThEF yn adolygu’ch hawliad. I gael gwybod mwy am statws eich hawliad, <a class="govuk-link" rel="noreferrer noopener" href="{0}">ewch i’r dangosfwrdd hawliadau.</a>
+confirmation-of-submission.securities.what-next.l1=cadarnhau eich hawliad ac ad-daliad o flaendal neu warant
+
+
 country.AD=Andorra
 country.AE=Yr Emiradau Arabaidd Unedig
 country.AF=Affganistan

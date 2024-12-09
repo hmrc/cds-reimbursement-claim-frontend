@@ -1,0 +1,81 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+)
+
+@(totalReimbursementAmount: BigDecimal, caseNumber: String, maybeMrn: Option[String] = None, maybeEmail: Option[String] = None, subKey: Option[String] = None, pdfUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+
+    @key=@{"confirmation-of-submission"}
+    @title = @{ messages(s"confirmation-of-submission.title") }
+
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
+
+        <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
+            <h1 class="govuk-panel__title">@title</h1>
+        </div>
+
+        @summary(
+            ConfirmationOfSubmissionClaimDetailsSummary (
+                key,
+                totalReimbursementAmount,
+                caseNumber,
+                maybeMrn,
+                subKey
+            )
+        )
+
+        @paragraph(Html(messages(s"confirmation-of-submission.securities.email-sent", maybeEmail.getOrElse(""))))
+
+        @paragraph(Html(messages("confirmation-of-submission.print-pdf", pdfUrl)))
+
+        @subHeading(Html(messages(s"confirmation-of-submission.whatNext")), classes = "govuk-heading-m")
+
+        @paragraph(Html(messages(s"confirmation-of-submission.securities.what-next.p1", viewConfig.viewUploadUrl)))
+        
+        @paragraph(Html(messages(s"confirmation-of-submission.what-next.p2")))
+
+        @bulletList(
+            Seq(
+                Html(messages(s"confirmation-of-submission.securities.what-next.l1")),
+                Html(messages(s"confirmation-of-submission.what-next.l2")),
+                Html(messages(s"confirmation-of-submission.what-next.l3"))
+            )
+        )
+
+        @subHeading(Html(messages(s"confirmation-of-submission.next-steps")), classes = "govuk-heading-s")
+
+        @paragraph(Html(messages(s"confirmation-of-submission.view-upload", viewConfig.viewUploadUrl)))
+
+        @paragraph(Html(messages(s"confirmation-of-submission.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)))
+
+        <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-5"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"confirmation-of-submission.feedback-link")</a></p>
+
+}
