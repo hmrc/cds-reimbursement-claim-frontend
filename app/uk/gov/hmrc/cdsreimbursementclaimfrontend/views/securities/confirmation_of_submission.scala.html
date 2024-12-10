@@ -19,7 +19,6 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoute}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -53,19 +52,19 @@
             )
         )
 
-        @paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
+@paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
 
         @paragraph(Html(messages("confirmation-of-submission.print-pdf", pdfUrl)))
 
         @subHeading(Html(messages(s"confirmation-of-submission.whatNext")), classes = "govuk-heading-m")
 
-        @paragraph(Html(messages(s"confirmation-of-submission.what-next.p1")))
+        @paragraph(Html(messages(s"confirmation-of-submission.securities.what-next.p1", viewConfig.viewUploadUrl)))
         
         @paragraph(Html(messages(s"confirmation-of-submission.what-next.p2")))
 
         @bulletList(
             Seq(
-                Html(messages(s"confirmation-of-submission.what-next.l1")),
+                Html(messages(s"confirmation-of-submission.securities.what-next.l1")),
                 Html(messages(s"confirmation-of-submission.what-next.l2")),
                 Html(messages(s"confirmation-of-submission.what-next.l3"))
             )
