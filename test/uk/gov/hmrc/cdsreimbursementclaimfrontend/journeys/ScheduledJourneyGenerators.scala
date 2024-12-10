@@ -34,6 +34,13 @@ trait ScheduledJourneyGenerators extends JourneyGenerators {
       paidAmount     = random + correctAmount
     } yield AmountPaidWithCorrect(paidAmount, correctAmount)
 
+  final val amountPaidWithClaimGen: Gen[(BigDecimal, BigDecimal)] =
+    for {
+      claimAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
+      random      <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))
+      paidAmount   = random + claimAmount
+    } yield (paidAmount, claimAmount)
+
   final val dutyTypesGen: Gen[Seq[DutyType]] =
     for {
       n   <- Gen.choose(2, DutyTypes.all.size - 1)

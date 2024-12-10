@@ -103,7 +103,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                 )
               ),
             reimbursement =>
-              modifyJourney(journey, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.correctAmount)
+              modifyJourney(journey, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
                 .fold(
                   errors => {
                     logger.error(s"Error updating reimbursement selection - $errors")
@@ -152,7 +152,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
   ): Form[AmountPaidWithCorrect] = {
     val errors: Seq[FormError] = formWithErrors.errors.map {
       case formError if formError.messages.contains("invalid.claim") =>
-        formError.copy(key = s"${formError.key}.actual-amount")
+        formError.copy(key = s"${formError.key}.claim-amount")
 
       case formError => formError
     }

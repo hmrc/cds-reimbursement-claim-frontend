@@ -597,7 +597,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
         j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
           .flatMapEachWhenMappingDefined(reimbursements)(j => {
             case (taxCode, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
-              j.submitCorrectAmount(dutyType, taxCode, paidAmount, correctAmount)
+              j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)
           })
       })
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)

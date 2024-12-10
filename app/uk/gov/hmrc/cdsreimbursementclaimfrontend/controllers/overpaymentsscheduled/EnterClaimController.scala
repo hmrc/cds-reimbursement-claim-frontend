@@ -49,14 +49,14 @@ class EnterClaimController @Inject() (
     dutyType: DutyType,
     taxCode: TaxCode,
     paidAmount: BigDecimal,
-    correctAmount: BigDecimal
+    claimAmount: BigDecimal
   ): Either[String, Journey] =
     journey
-      .submitCorrectAmount(
+      .submitClaimAmount(
         dutyType,
         taxCode,
         paidAmount,
-        correctAmount
+        claimAmount
       )
 }
 
