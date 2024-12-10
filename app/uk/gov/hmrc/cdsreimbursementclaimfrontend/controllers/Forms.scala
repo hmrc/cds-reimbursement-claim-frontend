@@ -274,9 +274,9 @@ object Forms {
   val enterScheduledClaimForm: Form[AmountPaidWithCorrect] = Form(
     "enter-claim.scheduled" ->
       mapping(
-        "paid-amount"   -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
-        "actual-amount" -> moneyMapping("error.invalid", allowZero = true)
-      )(AmountPaidWithCorrect.apply)(AmountPaidWithCorrect.unapply)
+        "paid-amount"  -> moneyMapping("error.invalid", zeroErrorMsg = Some("error.zero")),
+        "claim-amount" -> moneyMapping("error.invalid", allowZero = true)
+      )(AmountPaidWithCorrect.fromPaidAndClaimAmount)(AmountPaidWithCorrect.toPaidAndClaimAmount)
         .verifying(
           "invalid.claim",
           _.isValid

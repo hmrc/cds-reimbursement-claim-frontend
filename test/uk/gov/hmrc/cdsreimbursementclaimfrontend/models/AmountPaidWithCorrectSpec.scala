@@ -46,7 +46,7 @@ class AmountPaidWithCorrectSpec extends AnyWordSpec with ScalaCheckPropertyCheck
 
     "have refund total as subtraction of should paid amount from paid amount" in forAll {
       (paidAmount: BigDecimal, shouldPaidAmount: BigDecimal) =>
-        AmountPaidWithCorrect(paidAmount, shouldPaidAmount).refundAmount should be(paidAmount - shouldPaidAmount)
+        AmountPaidWithCorrect(paidAmount, shouldPaidAmount).claimAmount should be(paidAmount - shouldPaidAmount)
     }
   }
 }

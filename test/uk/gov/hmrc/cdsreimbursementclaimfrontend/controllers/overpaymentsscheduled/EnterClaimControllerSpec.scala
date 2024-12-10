@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -119,11 +118,11 @@ class EnterClaimControllerSpec
       }
 
       "the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
-        val dutyType: DutyType                   = journey.getReimbursementClaims.head._1
-        val taxCode: TaxCode                     = journey.getReimbursementClaimsFor(dutyType).get.head._1
-        val reimbursement: AmountPaidWithCorrect = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
-        val paidAmount: BigDecimal               = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
-        val correctAmount: BigDecimal            = reimbursement.correctAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        val dutyType: DutyType      = journey.getReimbursementClaims.head._1
+        val taxCode: TaxCode        = journey.getReimbursementClaimsFor(dutyType).get.head._1
+        val reimbursement           = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
+        val paidAmount: BigDecimal  = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        val claimAmount: BigDecimal = reimbursement.claimAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -149,7 +148,7 @@ class EnterClaimControllerSpec
           doc => {
             val elements = doc.select("input")
             BigDecimal(elements.get(0).`val`()) should be(paidAmount)
-            BigDecimal(elements.get(1).`val`()) should be(correctAmount)
+            BigDecimal(elements.get(1).`val`()) should be(claimAmount)
           }
         )
       }
@@ -162,89 +161,87 @@ class EnterClaimControllerSpec
         controller.submit(dutyType, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
-        forAll(journeyGen, amountPaidWithCorrectGen) {
-          case (initialJourney, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
-            initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
-              taxCodes.take(taxCodes.length - 1).foreach { taxCode =>
-                val updatedJourney = initialJourney
-                  .submitCorrectAmount(
-                    dutyType,
-                    taxCode,
-                    paidAmount,
-                    correctAmount
-                  )
-                  .getOrFail
+        forAll(journeyGen, amountPaidWithClaimGen) { case (initialJourney, (paidAmount, claimAmount)) =>
+          initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
+            taxCodes.take(taxCodes.length - 1).foreach { taxCode =>
+              val updatedJourney = initialJourney
+                .submitClaimAmount(
+                  dutyType,
+                  taxCode,
+                  paidAmount,
+                  claimAmount
+                )
+                .getOrFail
 
-                inSequence {
-                  mockAuthWithNoRetrievals()
-                  mockGetSession(SessionData(initialJourney))
-                  mockStoreSession(SessionData(updatedJourney))(Right(()))
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(initialJourney))
+                mockStoreSession(SessionData(updatedJourney))(Right(()))
+              }
+
+              val expectedRoute: Call =
+                updatedJourney.findNextSelectedTaxCodeAfter(dutyType, taxCode) match {
+                  case Some((nextDutyType, nextTaxCode)) =>
+                    routes.EnterClaimController.show(nextDutyType, nextTaxCode)
+                  case None                              =>
+                    updatedJourney.findNextSelectedDutyAfter(dutyType) match {
+                      case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
+                      case None               => routes.CheckClaimDetailsController.show
+                    }
+
                 }
 
-                val expectedRoute: Call =
-                  updatedJourney.findNextSelectedTaxCodeAfter(dutyType, taxCode) match {
-                    case Some((nextDutyType, nextTaxCode)) =>
-                      routes.EnterClaimController.show(nextDutyType, nextTaxCode)
-                    case None                              =>
-                      updatedJourney.findNextSelectedDutyAfter(dutyType) match {
-                        case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
-                        case None               => routes.CheckClaimDetailsController.show
-                      }
-
-                  }
-
-                checkIsRedirect(
-                  performAction(
-                    dutyType,
-                    taxCode,
-                    Seq(
-                      "enter-claim.scheduled.paid-amount"   -> paidAmount.toString,
-                      "enter-claim.scheduled.actual-amount" -> correctAmount.toString
-                    )
-                  ),
-                  expectedRoute
-                )
-              }
+              checkIsRedirect(
+                performAction(
+                  dutyType,
+                  taxCode,
+                  Seq(
+                    "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
+                    "enter-claim.scheduled.claim-amount" -> claimAmount.toString
+                  )
+                ),
+                expectedRoute
+              )
             }
+          }
         }
       }
 
       "save user defined amounts and redirect to the check claim details page" in {
-        forAll(completeJourneyGen, amountPaidWithCorrectGen) {
-          case (initialJourney, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
-            initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
-              taxCodes.foreach { taxCode =>
-                val updatedJourney = initialJourney
-                  .submitCorrectAmount(
-                    dutyType,
-                    taxCode,
-                    paidAmount,
-                    correctAmount
-                  )
-                  .getOrFail
-
-                inSequence {
-                  mockAuthWithNoRetrievals()
-                  mockGetSession(SessionData(initialJourney))
-                  mockStoreSession(SessionData(updatedJourney))(Right(()))
-                }
-
-                val expectedRoute: Call =
-                  routes.CheckClaimDetailsController.show
-
-                checkIsRedirect(
-                  performAction(
-                    dutyType,
-                    taxCode,
-                    Seq(
-                      "enter-claim.scheduled.paid-amount"   -> paidAmount.toString,
-                      "enter-claim.scheduled.actual-amount" -> correctAmount.toString
-                    )
-                  ),
-                  expectedRoute
+        forAll(completeJourneyGen, amountPaidWithClaimGen) { case (initialJourney, (paidAmount, claimAmount)) =>
+          initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
+            taxCodes.foreach { taxCode =>
+              val updatedJourney = initialJourney
+                .submitClaimAmount(
+                  dutyType,
+                  taxCode,
+                  paidAmount,
+                  claimAmount
                 )
+                .getOrFail
+
+              inSequence {
+                mockAuthWithNoRetrievals()
+                mockGetSession(SessionData(initialJourney))
+                mockStoreSession(SessionData(updatedJourney))(Right(()))
               }
+
+              val expectedRoute: Call =
+                routes.CheckClaimDetailsController.show
+
+              checkIsRedirect(
+                performAction(
+                  dutyType,
+                  taxCode,
+                  Seq(
+                    "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
+                    "enter-claim.scheduled.claim-amount" -> claimAmount.toString
+                  )
+                ),
+                expectedRoute
+              )
             }
+          }
         }
       }
 
@@ -261,8 +258,8 @@ class EnterClaimControllerSpec
                 controller.submit(dutyType, taxCode)(
                   FakeRequest().withFormUrlEncodedBody(
                     Seq(
-                      "enter-claim.scheduled.paid-amount"   -> "",
-                      "enter-claim.scheduled.actual-amount" -> "bad"
+                      "enter-claim.scheduled.paid-amount"  -> "",
+                      "enter-claim.scheduled.claim-amount" -> "bad"
                     ): _*
                   )
                 ),
@@ -286,7 +283,7 @@ class EnterClaimControllerSpec
                     .text() shouldBe messageFromMessageKey("enter-claim.scheduled.paid-amount.error.required")
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(2) > a")
-                    .text() shouldBe messageFromMessageKey("enter-claim.scheduled.actual-amount.error.invalid")
+                    .text() shouldBe messageFromMessageKey("enter-claim.scheduled.claim-amount.error.invalid")
                 },
                 BAD_REQUEST
               )
@@ -300,8 +297,8 @@ class EnterClaimControllerSpec
                 controller.submit(dutyType, taxCode)(
                   FakeRequest().withFormUrlEncodedBody(
                     Seq(
-                      s"$enterClaimKey.paid-amount"   -> "0.00",
-                      s"$enterClaimKey.actual-amount" -> "0.00"
+                      s"$enterClaimKey.paid-amount"  -> "0.00",
+                      s"$enterClaimKey.claim-amount" -> "0.00"
                     ): _*
                   )
                 ),
@@ -335,8 +332,8 @@ class EnterClaimControllerSpec
                 controller.submit(dutyType, taxCode)(
                   FakeRequest().withFormUrlEncodedBody(
                     Seq(
-                      s"$enterClaimKey.paid-amount"   -> "12.34",
-                      s"$enterClaimKey.actual-amount" -> "12.34"
+                      s"$enterClaimKey.paid-amount"  -> "12.34",
+                      s"$enterClaimKey.claim-amount" -> "12.35"
                     ): _*
                   )
                 ),
@@ -357,7 +354,7 @@ class EnterClaimControllerSpec
                 doc =>
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                    .text() shouldBe messageFromMessageKey(s"$enterClaimKey.actual-amount.invalid.claim"),
+                    .text() shouldBe messageFromMessageKey(s"$enterClaimKey.invalid.claim"),
                 BAD_REQUEST
               )
             }

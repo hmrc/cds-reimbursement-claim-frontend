@@ -968,11 +968,12 @@ enter-claim.rejected-goods.multiple.title=Manylion yr hawliad ar gyfer {0} - {1}
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 
-enter-claim.scheduled.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
-enter-claim.scheduled.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
-enter-claim.scheduled.actual-amount.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
-enter-claim.scheduled.actual-amount.hint=Mae’n rhaid i swm yr hawliad fod yn llai na’r swm a dalwyd.
-enter-claim.scheduled.actual-amount.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
+enter-claim.scheduled.claim-amount=Faint yr hoffech ei hawlio yn ôl mewn punnoedd?
+enter-claim.scheduled.claim-amount.error.invalid=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn rhif, megis 30 neu 60.55
+enter-claim.scheduled.claim-amount.error.required=Nodwch y swm rydych am ei hawlio yn ôl mewn punnoedd
+enter-claim.scheduled.claim-amount.hint=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai neu’n hafal i’r swm a dalwyd
+enter-claim.scheduled.claim-amount.invalid.claim=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai neu’n hafal i’r swm a dalwyd
+
 enter-claim.scheduled.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn fwy na sero
 enter-claim.scheduled.help-text=Dylech gynnwys manylion {0} {1} ar gyfer pob cyfeirnod symud yn y ffeil rydych wedi’i huwchlwytho.
 enter-claim.scheduled.help-text.excise=Dylech gynnwys manylion toll {0} ({1}) ar gyfer pob cyfeirnod symud nwyddau yn y ffeil rydych wedi’i huwchlwytho.
@@ -1059,8 +1060,6 @@ enter-export-movement-reference-number.next.securities.title.17=Nodwch yr ail ar
 enter-export-movement-reference-number.next.securities.title.18=Nodwch y deunawfed Cyfeirnod Symud (MRN) allforio
 enter-export-movement-reference-number.next.securities.title.19=Nodwch y pedwerydd ar bymtheg Cyfeirnod Symud (MRN) allforio
 enter-export-movement-reference-number.next.securities.title.20=Nodwch yr ugeinfed Cyfeirnod Symud (MRN) allforio
-
-
 
 enter-export-movement-reference-number.securities.details.heading=Beth yw Cyfeirnod Symud (MRN)
 enter-export-movement-reference-number.securities.enter-mrn.label=Nodwch yr MRN allforio

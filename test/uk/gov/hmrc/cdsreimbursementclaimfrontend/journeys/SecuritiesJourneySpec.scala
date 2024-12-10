@@ -980,15 +980,21 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                     .flatMapEach(
                       args._2,
                       (journey: SecuritiesJourney) =>
-                        (args2: (TaxCode, BigDecimal)) =>
-                          journey.submitCorrectAmount(
-                            args._1,
+                        (args2: (TaxCode, BigDecimal)) => {
+                          val notSelectedTaxCodes =
                             journey
                               .getSecurityTaxCodesFor(args._1)
                               .takeExcept(journey.getSelectedDutiesFor(args._1).get)
-                              .head,
-                            args2._2
-                          )
+
+                          if (notSelectedTaxCodes.isEmpty)
+                            Left("submitCorrectAmount.invalidTaxCode")
+                          else
+                            journey.submitCorrectAmount(
+                              args._1,
+                              notSelectedTaxCodes.head,
+                              args2._2
+                            )
+                        }
                     )
             )
 

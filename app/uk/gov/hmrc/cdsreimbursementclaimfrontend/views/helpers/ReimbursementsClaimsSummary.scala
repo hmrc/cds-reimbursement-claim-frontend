@@ -199,7 +199,7 @@ object ReimbursementsClaimsSummary {
       reimbursementClaims.iterator
         .foreach { case (dutyType, reimbursements) =>
           val category = DutyTypes.categoryOf(dutyType)
-          val amount   = reimbursements.map(_._2.refundAmount).sum
+          val amount   = reimbursements.map(_._2.claimAmount).sum
           m.update(category, m.getOrElse(category, BigDecimal("0.00")) + amount)
         }
       m.toSeq

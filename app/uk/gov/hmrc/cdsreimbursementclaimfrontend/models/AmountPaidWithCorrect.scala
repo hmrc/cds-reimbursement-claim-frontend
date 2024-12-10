@@ -23,22 +23,25 @@ import play.api.libs.json.OFormat
 
 final case class AmountPaidWithCorrect(paidAmount: BigDecimal, correctAmount: BigDecimal) {
 
-  val refundAmount: BigDecimal = paidAmount - correctAmount
+  val claimAmount: BigDecimal = paidAmount - correctAmount
 
   def isUnclaimed: Boolean = paidAmount === 0 && correctAmount === 0
 
   def isValid: Boolean = correctAmount >= 0 && correctAmount < paidAmount
 
   override def toString(): String =
-    s"AmountPaidWithCorrect(paid=$paidAmount, correct=$correctAmount, refund=$refundAmount)"
+    s"AmountPaidWithCorrect(paid=$paidAmount, correct=$correctAmount, claim=$claimAmount)"
 }
 
 object AmountPaidWithCorrect {
 
   val unclaimed: AmountPaidWithCorrect = AmountPaidWithCorrect(paidAmount = 0, correctAmount = 0)
 
-  def fromClaimAmount(paidAmount: BigDecimal, claimAmount: BigDecimal): AmountPaidWithCorrect =
+  def fromPaidAndClaimAmount(paidAmount: BigDecimal, claimAmount: BigDecimal): AmountPaidWithCorrect =
     AmountPaidWithCorrect(paidAmount, paidAmount - claimAmount)
+
+  def toPaidAndClaimAmount(value: AmountPaidWithCorrect): Option[(BigDecimal, BigDecimal)] =
+    Some((value.paidAmount, value.claimAmount))
 
   implicit val semigroup: Semigroup[AmountPaidWithCorrect] =
     (x: AmountPaidWithCorrect, y: AmountPaidWithCorrect) =>

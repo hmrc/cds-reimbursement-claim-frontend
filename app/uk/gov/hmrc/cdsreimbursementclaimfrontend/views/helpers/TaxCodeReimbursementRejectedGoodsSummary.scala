@@ -54,7 +54,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
 
         SummaryListRow(
           key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
-          value = Value(Text(reimbursement.refundAmount.toPoundSterlingString)),
+          value = Value(Text(reimbursement.claimAmount.toPoundSterlingString)),
           actions = Some(
             Actions(
               items = Seq(
@@ -75,7 +75,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
               value = Value(
                 Text(
                   claimsMadeAgainstTaxCodes.values
-                    .foldLeft(BigDecimal(0))((total, claim) => total + claim.refundAmount)
+                    .foldLeft(BigDecimal(0))((total, claim) => total + claim.claimAmount)
                     .toPoundSterlingString
                 )
               )

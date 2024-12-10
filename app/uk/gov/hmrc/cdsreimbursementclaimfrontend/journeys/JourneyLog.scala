@@ -180,7 +180,7 @@ object JourneyLog {
       reasonForSecurity = None,
       temporaryAdmissionMethodOfDisposal = None,
       reimbursementMethod = output.reimbursementMethod.toString,
-      claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.refundAmount).sum).sum),
+      claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.claimAmount).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
       uploads = Uploads(
@@ -285,7 +285,7 @@ object JourneyLog {
       reasonForSecurity = None,
       temporaryAdmissionMethodOfDisposal = None,
       reimbursementMethod = output.reimbursementMethod.toString,
-      claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.refundAmount).sum).sum),
+      claimedAmountThreshold = threshold(output.reimbursementClaims.map(_._2.map(_._2.claimAmount).sum).sum),
       claimedDuties = output.reimbursementClaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.reimbursementClaims.map(_._2.size).sum,
       uploads = Uploads(

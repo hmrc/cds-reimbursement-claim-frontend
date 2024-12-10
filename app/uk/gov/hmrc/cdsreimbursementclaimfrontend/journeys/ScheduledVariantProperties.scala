@@ -150,7 +150,7 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
 
   private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
     val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
-      if (include(dutyType)) reimbursements.map(_._2.refundAmount).sum else ZERO
+      if (include(dutyType)) reimbursements.map(_._2.claimAmount).sum else ZERO
     }.sum
     if (total === ZERO) None else Some(total)
   }
@@ -166,11 +166,11 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
 
   def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
     taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
-      total + claim.refundAmount
+      total + claim.claimAmount
     }
 
   def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.refundAmount)).sum
+    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.claimAmount)).sum
 
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
