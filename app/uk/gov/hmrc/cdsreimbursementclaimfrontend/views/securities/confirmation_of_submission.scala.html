@@ -52,7 +52,7 @@
             )
         )
 
-        @paragraph(Html(messages(s"confirmation-of-submission.securities.email-sent", maybeEmail.getOrElse(""))))
+@paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
 
         @paragraph(Html(messages("confirmation-of-submission.print-pdf", pdfUrl)))
 

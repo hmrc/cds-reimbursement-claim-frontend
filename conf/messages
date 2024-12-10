@@ -598,7 +598,7 @@ confirm-full-repayment.question=Do you want to claim back the full amount?
 confirm-full-repayment.securityDeposit=Security deposit
 
 confirmation-of-submission.claim-reference=Claim reference number
-confirmation-of-submission.email-sent=We have sent a confirmation email to {0}. Check the spam folder or contact HMRC if this is not received.
+confirmation-of-submission.email-sent=We have sent a confirmation email to {0}<br> Check your spam folder or contact HMRC if you haven’t received it.
 confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Print or download full details of your claim (opens in new tab)</a>
 confirmation-of-submission.feedback-link=What did you think of this service?
 confirmation-of-submission.mrn=Movement Reference Number (MRN)
@@ -615,7 +615,6 @@ confirmation-of-submission.what-next.p1=Your claim will be reviewed by HMRC and 
 confirmation-of-submission.what-next.p2=We will contact you to either:
 confirmation-of-submission.whatNext=What happens next?
 
-confirmation-of-submission.securities.email-sent=We have sent a confirmation email to {0}. Check your spam folder or contact HMRC if you haven’t received it.
 confirmation-of-submission.securities.what-next.p1=HMRC will review your claim. To find out more about the status of your claim, <a class="govuk-link" rel="noreferrer noopener" href="{0}">visit the claims dashboard.</a>
 confirmation-of-submission.securities.what-next.l1=confirm your claim and refund of deposit or guarantee
 

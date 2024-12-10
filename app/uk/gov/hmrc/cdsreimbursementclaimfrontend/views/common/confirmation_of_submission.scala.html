@@ -72,12 +72,10 @@
         )
 
         @subHeading(Html(messages(s"confirmation-of-submission.next-steps")), classes = "govuk-heading-s")
-        @bulletList(
-            Seq(
-                Html(messages(s"confirmation-of-submission.view-upload", viewConfig.viewUploadUrl)),
-                Html(messages(s"confirmation-of-submission.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)),
-            )
-        )
+
+        @paragraph(Html(messages(s"confirmation-of-submission.view-upload", viewConfig.viewUploadUrl)))
+
+        @paragraph(Html(messages(s"confirmation-of-submission.what-next.link.1.start-another-claim", routes.LandingPageController.showLandingPage().url)))
 
         <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-5"><a href="@{viewConfig.feedbackUrl}" class="govuk-link">@messages(s"confirmation-of-submission.feedback-link")</a></p>
 
