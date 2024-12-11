@@ -51,7 +51,7 @@
 }
 
 @caption = @{messages(s"enter-claim.title.caption")}
-@hintText = @{Html(messages(s"enter-claim.scheduled.actual-amount.hint"))}
+@hintText = @{Html(messages(s"enter-claim.scheduled.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
@@ -97,9 +97,9 @@
 
         @inputText(
             form = form,
-            id = s"enter-claim.scheduled.actual-amount",
-            name = s"enter-claim.scheduled.actual-amount",
-            label = s"enter-claim.scheduled.actual-amount",
+            id = s"enter-claim.scheduled.claim-amount",
+            name = s"enter-claim.scheduled.claim-amount",
+            label = s"enter-claim.scheduled.claim-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             inputMode = Some("numeric"),
             isPageHeading = false,

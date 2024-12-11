@@ -55,7 +55,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
 
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
-          value = Value(Text(reimbursement.refundAmount.toPoundSterlingString)),
+          value = Value(Text(reimbursement.claimAmount.toPoundSterlingString)),
           actions = Some(
             Actions(
               items = Seq(
@@ -87,7 +87,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
     /** Calculates claimed amount total against given tax code */
     def subtotal: BigDecimal =
       value.values.foldLeft(BigDecimal(0)) { (total, claim) =>
-        total + claim.refundAmount
+        total + claim.claimAmount
       }
   }
 }
