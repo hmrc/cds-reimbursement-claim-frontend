@@ -1041,6 +1041,7 @@ enter-contact-details.contact-email.error.maxLength=Email address must be 241 ch
 enter-contact-details.contact-email.error.required=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.invalid=Enter an email address in the correct format, like name@example.com
 enter-contact-details.contact-email.label=Email address
+enter-contact-details.contact-email.hint=This can be a shared email address
 enter-contact-details.contact-name.error.maxLength=Full name must be 512 characters or less
 enter-contact-details.contact-name.error.required=Enter your full name
 enter-contact-details.contact-name.label=Full name

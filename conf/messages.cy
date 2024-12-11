@@ -1000,6 +1000,7 @@ enter-contact-details.contact-email.error.maxLength=Mae’n rhaid i’r cyfeiria
 enter-contact-details.contact-email.error.required=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 enter-contact-details.contact-email.invalid=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 enter-contact-details.contact-email.label=Cyfeiriad e-bost
+enter-contact-details.contact-email.hint=Gall hyn fod yn gyfeiriad e-bost sy’n cael ei rannu
 enter-contact-details.contact-name.error.maxLength=Mae’n rhaid i’r enw llawn fod yn 512 o gymeriadau neu lai
 enter-contact-details.contact-name.error.required=Nodwch eich enw llawn
 enter-contact-details.contact-name.label=Enw llawn
