@@ -1303,6 +1303,7 @@ multiple-select-duties.help-text.1=These are the duties that have been paid unde
 multiple-select-duties.title=Select the duties you want to claim for under {0} Movement Reference Number (MRN)
 
 notification-banner.important=Important
+ordinal-number-mrn-first-on-page=First Movement Reference Number (MRN)
 ordinal-number-mrn={0} MRN
 ordinal-number-mrn.export={0} export MRN
 
@@ -1576,7 +1577,7 @@ select-duties.duty.B05=Value Added Tax
 select-duties.duty.caption=How much was paid: %s
 select-duties.duty.hint=This duty is not eligible for Current Month Adjustment (CMA) repayment.
 select-duties.error.required=Select one or more duty types you want to claim for
-select-duties.multiple.paragraph=Select all that apply for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
+select-duties.multiple.paragraph=Select all that apply for Movement Reference Number (MRN): <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.multiple.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} Movement Reference Number (MRN)
 select-duties.paragraph=Select all that apply

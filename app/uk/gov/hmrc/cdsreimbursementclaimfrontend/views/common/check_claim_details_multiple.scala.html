@@ -65,7 +65,7 @@
             firstCellIsHeader = true,
             attributes = Map("id" -> s"claims-table-${mrn.value}"),
             classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4",
-            caption = Some(messages(s"check-claim.multiple.duty.label", OrdinalNumberMrnHelper(index), mrn.value)),
+            caption = Some(messages(s"check-claim.multiple.duty.label", OrdinalNumberMrnHelper(index, isFirstOnPage = true), mrn.value)),
             captionClasses = "govuk-table__caption govuk-!-margin-top-9 govuk-table__caption--m"
         ))
 

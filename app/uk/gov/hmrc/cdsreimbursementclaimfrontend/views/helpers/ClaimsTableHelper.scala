@@ -38,6 +38,7 @@ import java.util.Locale
 import scala.collection.immutable.SortedMap
 
 object ClaimsTableHelper {
+
   def claimsTableHeaders(headerIdSuffix: String = "")(implicit
     messages: Messages
   ): Seq[HeadCell] =

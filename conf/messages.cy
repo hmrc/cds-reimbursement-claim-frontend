@@ -1383,6 +1383,7 @@ multiple-select-duties.help-text.1=Dyma’r tollau sydd wedi’u talu o dan MRN:
 multiple-select-duties.title=Dewiswch y tollau rydych am eu hawlio o dan {0} MRN
 notification-banner.important=Pwysig
 
+ordinal-number-mrn-first-on-page=Yr Cyfeirnod Symud (MRN)
 ordinal-number-mrn.1=Yr MRN cyntaf
 ordinal-number-mrn.10=Y degfed MRN
 ordinal-number-mrn.11=Yr unfed MRN ar ddeg
@@ -1663,7 +1664,7 @@ select-duties.duty.B05=Treth Ar Werth
 select-duties.duty.caption=Faint a dalwyd: %s
 select-duties.duty.hint=Nid yw’r doll hon yn gymwys ar gyfer ad-daliad Addasiad Mis Cyfredol (CMA).
 select-duties.error.required=Dewiswch un math neu’n fwy o dollau rydych am hawlio ar eu cyfer
-select-duties.multiple.paragraph=Dewiswch bob math o dollau rydych am ei hawlio ar gyfer MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span
+select-duties.multiple.paragraph=Dewiswch bob math o dollau rydych am ei hawlio ar gyfer Cyfeirnod Symud (MRN): <span id="MRN" class="govuk-!-font-weight-bold">{0}</span
 select-duties.multiple.subsidies.title=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau
 select-duties.multiple.title=Dewiswch y tollau rydych am eu hawlio o dan {0} MRN
 select-duties.paragraph=Dewiswch yr holl dollau rydych am hawlio ar eu cyfer.
