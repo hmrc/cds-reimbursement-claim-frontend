@@ -1012,10 +1012,9 @@ enter-claim.rejected-goods.multiple.title=Claim details for {0} - {1} under {2} 
 enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
 
-enter-claim.scheduled.claim-amount=How much do you want to claim back in pounds?
+enter-claim.scheduled.claim-amount=How much do you want to claim back, in pounds?
 enter-claim.scheduled.claim-amount.error.invalid=The amount that you want to claim back must be a number, like 30 or 60.55
 enter-claim.scheduled.claim-amount.error.required=Enter the amount you want to claim back, in pounds
-enter-claim.scheduled.claim-amount.hint=The amount must be more than zero and less or equal to the amount paid
 enter-claim.scheduled.claim-amount.invalid.claim=The amount that you want to claim back must be more than zero and less or equal to the amount paid
 
 enter-claim.scheduled.help-text=Include {0} {1} details for all Movement Reference Numbers (MRNs) in the file you uploaded.
