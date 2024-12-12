@@ -16,26 +16,33 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
+import cats.syntax.eq._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 
 object OrdinalNumberMrnHelper {
 
-  def apply(number: Int)(implicit messages: Messages): String =
+  def apply(number: Int, isFirstOnPage: Boolean = false)(implicit messages: Messages): String =
     messages.lang.language match {
-      case "en" => applyEnglish(number)
-      case "cy" => applyWelsh(number)
+      case "en" => applyEnglish(number, isFirstOnPage)
+      case "cy" => applyWelsh(number, isFirstOnPage)
     }
 
-  private def applyWelsh(number: Int)(implicit messages: Messages): String =
+  private def applyWelsh(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
     if (number <= 20) {
-      messages(s"ordinal-number-mrn.$number")
+      if (isFirstOnPage && number === 1)
+        messages(s"ordinal-number-mrn-first-on-page")
+      else
+        messages(s"ordinal-number-mrn.$number")
     } else {
       messages(s"ordinal-number-mrn.default")
     }
 
-  private def applyEnglish(number: Int)(implicit messages: Messages): String = {
-    val ordinalNumber = OrdinalNumber(number)
-    messages("ordinal-number-mrn", ordinalNumber.capitalize)
-  }
+  private def applyEnglish(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
+    if (isFirstOnPage && number === 1)
+      messages("ordinal-number-mrn-first-on-page")
+    else {
+      val ordinalNumber = OrdinalNumber(number)
+      messages("ordinal-number-mrn", ordinalNumber.capitalize)
+    }
 }
