@@ -29,7 +29,7 @@ object AuthenticatedUserGen {
 
     email <- genEmail
     eori  <- genEori
-    name  <- genName
+    name  <- genStringWithMaxSizeOfN(20)
   } yield AuthenticatedUser.Individual(Some(email), eori, Some(name))
 
   implicit lazy val arbitraryIndividual: Arbitrary[Individual] = Arbitrary(individualGen)
@@ -38,7 +38,7 @@ object AuthenticatedUserGen {
 
     email <- genEmail
     eori  <- genEori
-    name  <- genName
+    name  <- genStringWithMaxSizeOfN(20)
   } yield AuthenticatedUser.Organisation(Some(email), eori, Some(name))
 
   lazy val authenticatedUserGen: Gen[AuthenticatedUser] =

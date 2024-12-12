@@ -28,10 +28,10 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.RetrievalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -42,8 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,14 +54,15 @@ class AuthenticatedActionWithRetrievedDataSpec
     with SessionSupport
     with AuthActionSpec {
 
-  val retrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =
+  val retrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials]] =
     Retrievals.affinityGroup and
       Retrievals.email and
       Retrievals.allEnrolments and
-      Retrievals.credentials and
-      Retrievals.name
+      Retrievals.credentials
 
   val emptyEnrolments: Enrolments = Enrolments(Set.empty)
+
+  val mockEoriDetailsConnector: EoriDetailsConnector = mock[EoriDetailsConnector]
 
   def eoriEnrolment(eori: String): Enrolments = Enrolments(
     Set(
@@ -95,6 +96,24 @@ class AuthenticatedActionWithRetrievedDataSpec
     )
   )
 
+  def mockGetEoriDetails(eori: Eori, name: String = "John Smith") =
+    (mockEoriDetailsConnector
+      .getCurrentUserEoriDetails(_: HeaderCarrier))
+      .expects(*)
+      .returning(
+        Future.successful(
+          Some(
+            EoriDetailsConnector
+              .Response(
+                eoriGB = eori,
+                eoriXI = None,
+                fullName = name,
+                eoriEndDate = None
+              )
+          )
+        )
+      )
+
   implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
 
   val ggCredentials = Credentials("id", "GovernmentGateway")
@@ -109,7 +128,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           config,
           instanceOf[ErrorHandler],
           mockSessionCache,
-          new TestFeatureSwitchService()
+          new TestFeatureSwitchService(),
+          mockEoriDetailsConnector
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
@@ -131,7 +151,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and emptyEnrolments and Some(
               Credentials("id", providerType)
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
 
@@ -155,9 +175,10 @@ class AuthenticatedActionWithRetrievedDataSpec
               eori.value
             ) and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
+          mockGetEoriDetails(eori)
 
           val result = performAction(FakeRequest())
 
@@ -167,7 +188,7 @@ class AuthenticatedActionWithRetrievedDataSpec
               .Individual(
                 Some(Email("email")),
                 eori,
-                Some(contactdetails.Name(Some("John Smith"), Some("Smith")))
+                Some("John Smith")
               )
           )
         }
@@ -178,9 +199,10 @@ class AuthenticatedActionWithRetrievedDataSpec
               eori.value
             ) and Some(
               ggCredentials
-            ) and None)
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
+          mockGetEoriDetails(eori)
 
           val result = performAction(FakeRequest())
 
@@ -190,7 +212,7 @@ class AuthenticatedActionWithRetrievedDataSpec
               .Organisation(
                 Some(Email("email")),
                 eori,
-                None
+                Some("John Smith")
               )
           )
         }
@@ -202,7 +224,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and emptyEnrolments and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           inSequence {
             mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
@@ -223,7 +245,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and someOtherEnrolment and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           inSequence {
             mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
@@ -297,7 +319,8 @@ class AuthenticatedActionWithRetrievedDataSpec
           config,
           instanceOf[ErrorHandler],
           mockSessionCache,
-          new TestFeatureSwitchService(Feature.LimitedAccess)
+          new TestFeatureSwitchService(Feature.LimitedAccess),
+          mockEoriDetailsConnector
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
@@ -319,7 +342,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and emptyEnrolments and Some(
               Credentials("id", providerType)
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
 
@@ -332,14 +355,16 @@ class AuthenticatedActionWithRetrievedDataSpec
       "handling a logged in user with an eori enrolment" must {
 
         "return the signed in details for an individual" in {
+          val eoriNumber       = "GB000000000000001"
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and eoriEnrolment(
-              "GB000000000000001"
+              eoriNumber
             ) and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
+          mockGetEoriDetails(Eori(eoriNumber))
 
           val result = performAction(FakeRequest())
 
@@ -349,20 +374,22 @@ class AuthenticatedActionWithRetrievedDataSpec
               .Individual(
                 Some(Email("email")),
                 Eori("GB000000000000001"),
-                Some(contactdetails.Name(Some("John Smith"), Some("Smith")))
+                Some("John Smith")
               )
           )
         }
 
         "return the signed in details for an organisation" in {
+          val eoriNumber       = "GB000000000000002"
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and eoriEnrolment(
-              "GB000000000000002"
+              eoriNumber
             ) and Some(
               ggCredentials
-            ) and None)
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
+          mockGetEoriDetails(Eori(eoriNumber))
 
           val result = performAction(FakeRequest())
 
@@ -372,7 +399,7 @@ class AuthenticatedActionWithRetrievedDataSpec
               .Organisation(
                 Some(Email("email")),
                 Eori("GB000000000000002"),
-                None
+                Some("John Smith")
               )
           )
         }
@@ -383,7 +410,7 @@ class AuthenticatedActionWithRetrievedDataSpec
               "GB000000000000003"
             ) and Some(
               ggCredentials
-            ) and None)
+            ))
 
           mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
 
@@ -400,7 +427,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and emptyEnrolments and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           inSequence {
             mockAuth(EmptyPredicate, retrievals)(retrievalsResult)
@@ -421,7 +448,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and someOtherEnrolment and Some(
               ggCredentials
-            ) and Some(Name(Some("John Smith"), Some("Smith"))))
+            ))
 
           inSequence {
             mockAuth(EmptyPredicate, retrievals)(retrievalsResult)

@@ -39,6 +39,7 @@ import play.api.MarkerContext
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
@@ -77,7 +78,8 @@ class ChooseClaimTypeControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
 
   private val exampleEoriWithoutSecuritiesAccess = IdGen.genEori.sample.get
@@ -167,8 +169,10 @@ class ChooseClaimTypeControllerSpec
     def performAction(): Future[Result] = controller.show(FakeRequest())
 
     "display the page" in {
+      val eori: Eori = Eori("AB12345678901234Z")
       inSequence {
-        mockAuthWithEoriEnrolmentRetrievals()
+        mockAuthWithEoriEnrolmentRetrievals(eori)
+        mockGetEoriDetails(eori)
         mockGetSession(SessionData.empty)
       }
 
@@ -194,8 +198,10 @@ class ChooseClaimTypeControllerSpec
     }
 
     "display the page when features switched off" in {
+      val eori: Eori = Eori("AB12345678901234Z")
       inSequence {
-        mockAuthWithEoriEnrolmentRetrievals()
+        mockAuthWithEoriEnrolmentRetrievals(eori)
+        mockGetEoriDetails(eori)
         mockGetSession(SessionData.empty)
       }
 
@@ -223,6 +229,7 @@ class ChooseClaimTypeControllerSpec
     "display the page without securities if securities limited access is enabled and user doesn't have access" in {
       inSequence {
         mockAuthWithEoriEnrolmentRetrievals(exampleEoriWithoutSecuritiesAccess)
+        mockGetEoriDetails(exampleEoriWithoutSecuritiesAccess)
         mockGetSession(SessionData.empty)
       }
 
@@ -242,6 +249,7 @@ class ChooseClaimTypeControllerSpec
 
       inSequence {
         mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+        mockGetEoriDetails(exampleEori)
         mockGetSession(SessionData.empty)
       }
 
@@ -269,6 +277,7 @@ class ChooseClaimTypeControllerSpec
       "Redirect to SelectNumberOfClaims if user chooses C285" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -279,6 +288,7 @@ class ChooseClaimTypeControllerSpec
       "Redirect to View Upload if user chooses ViewUpload" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -289,6 +299,7 @@ class ChooseClaimTypeControllerSpec
       "Redirect to choose how many mrns if user chooses C&E1179" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -302,6 +313,7 @@ class ChooseClaimTypeControllerSpec
       "Redirect to the enter mrn if user chooses Securities" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
           mockStoreSession(
             SessionData(
@@ -323,6 +335,7 @@ class ChooseClaimTypeControllerSpec
       "Show error page when no data selected" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 
@@ -337,6 +350,7 @@ class ChooseClaimTypeControllerSpec
       "Raise an exception if the data received is not expected" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 

@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
@@ -72,27 +71,27 @@ class CheckEoriDetailsController @Inject() (
 
   protected def getPage(
     eori: Eori,
-    name: Option[Name],
+    name: Option[String],
     form: Form[YesNo]
   )(implicit
     request: Request[_],
     messages: Messages
   ): Appendable = checkEoriDetailsPage(
     eori,
-    name.map(_.toFullName).getOrElse("No name"),
+    name.getOrElse("No name"),
     form,
     routes.CheckEoriDetailsController.submit
   )
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      request.whenAuthorisedUser { (eori: Eori, name: Option[Name]) =>
+      request.whenAuthorisedUser { (eori: Eori, name: Option[String]) =>
         Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
       }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
     }
 
   final val submit: Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-    request.whenAuthorisedUser { (eori: Eori, name: Option[Name]) =>
+    request.whenAuthorisedUser { (eori: Eori, name: Option[String]) =>
       whetherEoriDetailsCorrect
         .bindFromRequest()
         .fold(

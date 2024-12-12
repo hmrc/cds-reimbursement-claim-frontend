@@ -39,7 +39,7 @@ final case class RequestWithSessionDataAndRetrievedData[A](
   override def messagesApi: MessagesApi =
     authenticatedRequest.request.messagesApi
 
-  def whenAuthorisedUser(f: (Eori, Option[Name]) => Future[Result])(resultIfUnsupportedUser: => Result)(implicit
+  def whenAuthorisedUser(f: (Eori, Option[String]) => Future[Result])(resultIfUnsupportedUser: => Result)(implicit
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
     request.authenticatedRequest.journeyUserType match {
