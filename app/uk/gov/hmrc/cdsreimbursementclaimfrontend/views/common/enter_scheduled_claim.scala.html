@@ -51,7 +51,6 @@
 }
 
 @caption = @{messages(s"enter-claim.title.caption")}
-@hintText = @{Html(messages(s"enter-claim.scheduled.claim-amount.hint"))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
@@ -104,7 +103,7 @@
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
-            hintHtml = Some(hintText),
+            hintHtml = None,
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
