@@ -30,12 +30,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.session
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.EnrolmentIdentifier
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -43,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -71,7 +70,8 @@ class CheckEoriDetailsControllerSpec
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[VerifiedEmailAddressService].toInstance(mockVerifiedEmailAddressService)
+      bind[VerifiedEmailAddressService].toInstance(mockVerifiedEmailAddressService),
+      bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
@@ -90,17 +90,16 @@ class CheckEoriDetailsControllerSpec
       .returning(Future.successful(response))
       .once()
 
-  def mockAuthRequiredRetrievals(eori: Eori, name: contactdetails.Name) =
+  def mockAuthRequiredRetrievals(eori: Eori) =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       Some("email"),
       Set(Enrolment("HMRC-CUS-ORG", Seq(EnrolmentIdentifier("EORINumber", eori.value)), "Activated", None)),
-      Some(Credentials("credId", "GovernmentGateway")),
-      Some(Name(name.name, name.lastName))
+      Some(Credentials("credId", "GovernmentGateway"))
     )
 
-  def mockC285AuthRequiredRetrievals(eori: Eori, contactName: ContactName) =
-    mockAuthRequiredRetrievals(eori, contactdetails.Name(Some(contactName.value), None))
+  def mockC285AuthRequiredRetrievals(eori: Eori) =
+    mockAuthRequiredRetrievals(eori)
 
   "Check Eori Details Controller" must {
 
@@ -125,7 +124,8 @@ class CheckEoriDetailsControllerSpec
 
       "The user is logged with CDS enrolment" in forAll { (eori: Eori, name: contactdetails.Name) =>
         inSequence {
-          mockAuthRequiredRetrievals(eori, name)
+          mockAuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, name.toFullName)
           mockGetSession(SessionData.empty)
         }
 
@@ -143,7 +143,8 @@ class CheckEoriDetailsControllerSpec
         val session = SessionData(OverpaymentsSingleJourney.empty(eori))
 
         inSequence {
-          mockAuthRequiredRetrievals(eori, name)
+          mockAuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, name.toFullName)
           mockGetSession(session)
         }
 
@@ -161,7 +162,8 @@ class CheckEoriDetailsControllerSpec
         val session = SessionData(RejectedGoodsSingleJourney.empty(eori))
 
         inSequence {
-          mockAuthRequiredRetrievals(eori, name)
+          mockAuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, name.toFullName)
           mockGetSession(session)
         }
 
@@ -189,7 +191,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
           mockGetEmail(Right(Some(CdsVerifiedEmail(verifiedEmail, ""))))
         }
@@ -205,7 +208,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
           mockGetEmail(Right(None))
         }
@@ -221,7 +225,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
           mockGetEmail(Left(Error("Cannot verify email address")))
         }
@@ -235,7 +240,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
         }
 
@@ -249,7 +255,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
         }
 
@@ -271,7 +278,8 @@ class CheckEoriDetailsControllerSpec
         val contactName = ContactName("John Smith")
 
         inSequence {
-          mockC285AuthRequiredRetrievals(eori, contactName)
+          mockC285AuthRequiredRetrievals(eori)
+          mockGetEoriDetails(eori, contactName.value)
           mockGetSession(SessionData.empty)
         }
 

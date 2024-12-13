@@ -29,11 +29,11 @@ import play.api.test.Helpers.status
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 import scala.concurrent.Future
@@ -43,7 +43,8 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
 
   implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
@@ -84,12 +85,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         "redirect the individual to the check EORI details page" in {
 
+          val eori                      = Eori("AB12345678901234Z")
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
               AuthenticatedUser.Individual(
                 None,
-                Eori("AB12345678901234Z"),
-                Some(Name(Some("John Smith"), Some("Smith")))
+                eori,
+                Some("John Smith")
               ),
               Some(UserType.Individual),
               messagesRequest
@@ -101,6 +103,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
+            mockGetEoriDetails(eori)
             mockGetSession(sessionData)
           }
 
@@ -114,12 +117,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         "redirect the organisation to the check EORI details page" in {
 
+          val eori                      = Eori("AB12345678901234Z")
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
               AuthenticatedUser.Organisation(
                 Some(Email("email")),
-                Eori("AB12345678901234Z"),
-                Some(Name(Some("John Smith"), Some("Smith")))
+                eori,
+                Some("John Smith")
               ),
               Some(UserType.Organisation),
               messagesRequest
@@ -129,6 +133,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
+            mockGetEoriDetails(eori)
             mockGetSession(SessionData.empty)
           }
 
@@ -159,8 +164,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         )
 
       "kill the session and redirect to service" in {
+        val eori = Eori("AB12345678901234Z")
         inSequence {
-          mockAuthWithEoriEnrolmentRetrievals()
+          mockAuthWithEoriEnrolmentRetrievals(eori)
+          mockGetEoriDetails(eori)
           mockGetSession(SessionData.empty)
         }
 

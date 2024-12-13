@@ -19,11 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
 sealed trait AuthenticatedUser {
-  def name: Option[Name]
+  def name: Option[String]
   def email: Option[Email]
   def eoriOpt: Option[Eori] = None
 
@@ -36,7 +35,7 @@ object AuthenticatedUser {
   final case class Individual(
     email: Option[Email],
     eori: Eori,
-    name: Option[Name]
+    name: Option[String]
   ) extends AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
@@ -48,7 +47,7 @@ object AuthenticatedUser {
   final case class Organisation(
     email: Option[Email],
     eori: Eori,
-    name: Option[Name]
+    name: Option[String]
   ) extends AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
@@ -58,7 +57,7 @@ object AuthenticatedUser {
   }
 
   final case class NonGovernmentGatewayAuthenticatedUser(authProvider: String) extends AuthenticatedUser {
-    override val name: Option[Name]   = None
+    override val name: Option[String] = None
     override val email: Option[Email] = None
   }
 

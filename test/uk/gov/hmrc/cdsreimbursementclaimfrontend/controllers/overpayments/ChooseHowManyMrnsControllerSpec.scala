@@ -33,6 +33,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
@@ -67,7 +68,8 @@ class ChooseHowManyMrnsControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
@@ -107,6 +109,7 @@ class ChooseHowManyMrnsControllerSpec
     "display the page" in {
       inSequence {
         mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+        mockGetEoriDetails(exampleEori)
         mockGetSession(SessionData.empty)
       }
 
@@ -139,6 +142,7 @@ class ChooseHowManyMrnsControllerSpec
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -153,6 +157,7 @@ class ChooseHowManyMrnsControllerSpec
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -166,6 +171,7 @@ class ChooseHowManyMrnsControllerSpec
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -178,6 +184,7 @@ class ChooseHowManyMrnsControllerSpec
       "Show error message when no data selected" in {
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
           mockGetSession(SessionData.empty)
         }
 

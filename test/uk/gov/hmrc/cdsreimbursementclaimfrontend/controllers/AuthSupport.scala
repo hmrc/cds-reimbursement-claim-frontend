@@ -24,6 +24,7 @@ import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
@@ -37,12 +38,15 @@ trait AuthSupport {
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
+  val mockEoriDetailsConnector: EoriDetailsConnector = mock[EoriDetailsConnector]
+
   lazy val testAuthenticatedAction = new AuthenticatedActionWithRetrievedData(
     mockAuthConnector,
     instanceOf[Configuration],
     instanceOf[ErrorHandler],
     mockSessionCache,
-    new TestFeatureSwitchService()
+    new TestFeatureSwitchService(),
+    mockEoriDetailsConnector
   )(instanceOf[ExecutionContext])
 
   def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
@@ -68,22 +72,20 @@ trait AuthSupport {
       )
     )
 
-  val expectedRetrievals
-    : Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =
-    Retrievals.affinityGroup and Retrievals.email and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.name
+  val expectedRetrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials]] =
+    Retrievals.affinityGroup and Retrievals.email and Retrievals.allEnrolments and Retrievals.credentials
 
   def mockAuthWithAllRetrievals(
     retrievedAffinityGroup: Option[AffinityGroup],
     retrievedEmail: Option[String],
     retrievedEnrolments: Set[Enrolment],
-    retrievedCredentials: Option[Credentials],
-    retrievedName: Option[Name]
+    retrievedCredentials: Option[Credentials]
   ): Any =
     mockAuth(EmptyPredicate, expectedRetrievals)(
       Future successful (
         new ~(retrievedAffinityGroup, retrievedEmail) and Enrolments(
           retrievedEnrolments
-        ) and retrievedCredentials and retrievedName
+        ) and retrievedCredentials
       )
     )
 
@@ -96,8 +98,7 @@ trait AuthSupport {
       Some(AffinityGroup.Individual),
       retrievedEmail,
       Set.empty,
-      Some(retrievedCredentials),
-      Some(retrievedName)
+      Some(retrievedCredentials)
     )
 
   def mockAuthWithEoriEnrolmentRetrievals(eori: Eori = Eori("AB12345678901234Z")): Any =
@@ -116,8 +117,7 @@ trait AuthSupport {
           ""
         )
       ),
-      Some(Credentials("gg-cred-id", "GovernmentGateway")),
-      Some(Name(Some("John Smith"), Some("Smith")))
+      Some(Credentials("gg-cred-id", "GovernmentGateway"))
     )
 
   def mockAuthWithOrgWithEoriEnrolmentRetrievals(): Any =
@@ -136,8 +136,7 @@ trait AuthSupport {
           ""
         )
       ),
-      Some(Credentials("gg-cred-id", "GovernmentGateway")),
-      Some(Name(Some("John Smith"), Some("Smith")))
+      Some(Credentials("gg-cred-id", "GovernmentGateway"))
     )
 
   def mockAuthWithNonGGUserRetrievals(): Any =
@@ -145,15 +144,12 @@ trait AuthSupport {
       None,
       None,
       Set.empty,
-      Some(Credentials("id", "NonGG")),
-      None
+      Some(Credentials("id", "NonGG"))
     )
 
   def mockAuthorisedUserWithEoriNumber(
     eori: Eori,
-    email: String,
-    firstName: Option[String],
-    lastName: Option[String]
+    email: String
   ) =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
@@ -162,8 +158,25 @@ trait AuthSupport {
         Enrolment(EoriEnrolment.key)
           .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)
       ),
-      Some(Credentials("id", "GovernmentGateway")),
-      Some(Name(firstName, lastName))
+      Some(Credentials("id", "GovernmentGateway"))
     )
+
+  def mockGetEoriDetails(eori: Eori, name: String = "John Smith") =
+    (mockEoriDetailsConnector
+      .getCurrentUserEoriDetails(_: HeaderCarrier))
+      .expects(*)
+      .returning(
+        Future.successful(
+          Some(
+            EoriDetailsConnector
+              .Response(
+                eoriGB = eori,
+                eoriXI = None,
+                fullName = name,
+                eoriEndDate = None
+              )
+          )
+        )
+      )
 
 }

@@ -33,6 +33,7 @@ import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
@@ -76,7 +77,8 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   val config: Configuration,
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
-  featureSwitchService: FeatureSwitchService
+  featureSwitchService: FeatureSwitchService,
+  eoriDetailsConnector: EoriDetailsConnector
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequestWithRetrievedData] {
 
@@ -95,9 +97,8 @@ class AuthenticatedActionWithRetrievedData @Inject() (
         Retrievals.affinityGroup and
           Retrievals.email and
           Retrievals.allEnrolments and
-          Retrievals.credentials and
-          Retrievals.name
-      ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds ~ name =>
+          Retrievals.credentials
+      ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds =>
         withGGCredentials(creds, request) {
           affinityGroup match {
 
@@ -106,7 +107,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 Right(AffinityGroup.Individual),
                 maybeEmail,
                 enrolments,
-                name,
                 request
               )
 
@@ -115,7 +115,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 Left(AffinityGroup.Organisation),
                 maybeEmail,
                 enrolments,
-                name,
                 request
               )
 
@@ -135,21 +134,22 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     ],
     maybeEmail: Option[String],
     enrolments: Enrolments,
-    name: Option[Name],
     request: MessagesRequest[A]
   )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
-    hasEoriEnrolment(enrolments) map {
-      case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
+    hasEoriEnrolment(enrolments) flatMap {
+      case Left(_)           => Future.successful(Left(Redirect(routes.UnauthorisedController.unauthorised())))
       case Right(Some(eori)) =>
         if (
           featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
           checkEoriIsAllowed(eori.value)
         )
-          handleSignedInUser(eori, affinityGroup, maybeEmail, name, request)
+          eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
+            handleSignedInUser(eori, affinityGroup, maybeEmail, eoriDetailsOpt.map(_.fullName), request)
+          }
         else
-          Left(Results.Redirect(limitedAccessErrorPage))
+          Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
       case Right(None)       =>
-        Left(Redirect(unauthorizedErrorPage))
+        Future.successful(Left(Redirect(unauthorizedErrorPage)))
     }
 
   private def hasEoriEnrolment[A](
@@ -176,16 +176,17 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       Individual
     ],
     maybeEmail: Option[String],
-    name: Option[Name],
+    name: Option[String],
     request: MessagesRequest[A]
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
+
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser.Individual(
             maybeEmail.map(Email(_)),
             eori,
-            models.contactdetails.Name.fromGGName(name)
+            name
           ),
           Some(userType),
           request
@@ -194,7 +195,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       } else {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser
-            .Organisation(maybeEmail.map(Email(_)), eori, models.contactdetails.Name.fromGGName(name)),
+            .Organisation(maybeEmail.map(Email(_)), eori, name),
           Some(userType),
           request
         )

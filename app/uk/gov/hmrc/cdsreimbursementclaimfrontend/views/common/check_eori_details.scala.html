@@ -63,11 +63,11 @@
             SummaryList(
                 Seq(
                     SummaryListRow(
-                        Key(HtmlContent(messages("check-eori-details.eori-number.label"))),
+                        Key(HtmlContent(messages("check-eori-details.eori-number.label")), classes = "govuk-!-width-one-half"),
                         Value(Text(eori.value))
                     ),
                     SummaryListRow(
-                        Key(content = HtmlContent(messages("check-eori-details.name.label"))),
+                        Key(content = HtmlContent(messages("check-eori-details.name.label")), classes = "govuk-!-width-one-half"),
                         Value(Text(name))
                     )
                 )

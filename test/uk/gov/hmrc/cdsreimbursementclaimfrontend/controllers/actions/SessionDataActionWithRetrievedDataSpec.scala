@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,7 +52,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
         AuthenticatedUser.Individual(
           Some(Email("email")),
           Eori("Some eori"),
-          Some(Name(Some("John Smith"), Some("Smith")))
+          Some("John Smith")
         ),
         Some(UserType.Individual),
         messagesRequest

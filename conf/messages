@@ -180,7 +180,7 @@ check-eori-details.eori-number.label=EORI number
 check-eori-details.error.invalid=Select yes if the EORI details are correct
 check-eori-details.error.required=Select yes if the EORI details are correct
 check-eori-details.gateway-id.label=Government Gateway user ID
-check-eori-details.name.label=Name
+check-eori-details.name.label=Name linked to this EORI number
 check-eori-details.paragraph=This is the EORI number linked to your Government Gateway account.
 check-eori-details.title=Check your EORI number
 
