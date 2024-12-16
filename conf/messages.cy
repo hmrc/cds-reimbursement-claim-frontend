@@ -181,7 +181,7 @@ check-eori-details.eori-number.label=Rhif EORI
 check-eori-details.error.invalid=Dewiswch ''Iawn'' os yw’r manylion EORI yn gywir
 check-eori-details.error.required=Dewiswch ''Iawn'' os yw’r manylion EORI yn gywir
 check-eori-details.gateway-id.label=Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth
-check-eori-details.name.label=Enw
+check-eori-details.name.label=Enw sy’n gysylltiedig â’r rhif EORI hwn
 check-eori-details.paragraph=Dyma’r rhif EORI sy’n gysylltiedig â’ch Cyfrif Porth y Llywodraeth.
 check-eori-details.title=Gwiriwch eich rhif EORI
 
