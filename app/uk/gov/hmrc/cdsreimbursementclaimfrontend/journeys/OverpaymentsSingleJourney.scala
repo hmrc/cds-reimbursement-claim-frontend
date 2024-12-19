@@ -247,7 +247,7 @@ final class OverpaymentsSingleJourney private (
         case BasisOfOverpaymentClaim.DuplicateEntry =>
           this.copy(answers.copy(basisOfClaim = Some(basisOfClaim), newEori = None, newDan = None))
 
-        case BasisOfOverpaymentClaim.IncorrectEoriAndDan if answers.basisOfClaim == IncorrectEoriAndDan =>
+        case BasisOfOverpaymentClaim.IncorrectEoriAndDan if answers.basisOfClaim.contains(IncorrectEoriAndDan) =>
           this.copy(answers.copy(basisOfClaim = Some(basisOfClaim), duplicateDeclaration = None))
 
         case BasisOfOverpaymentClaim.IncorrectExciseValue =>
@@ -419,6 +419,7 @@ final class OverpaymentsSingleJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: ReimbursementClaim
@@ -435,11 +436,7 @@ final class OverpaymentsSingleJourney private (
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
-                val newCorrectedAmounts = answers.correctedAmounts match {
-                  case None                   => Map(taxCode -> Some(correctAmount))
-                  case Some(correctedAmounts) =>
-                    correctedAmounts + (taxCode -> Some(correctAmount))
-                }
+                val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
                 Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -450,6 +447,7 @@ final class OverpaymentsSingleJourney private (
       }
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitClaimAmount(
     taxCode: TaxCode,
     claimAmount: BigDecimal
@@ -467,11 +465,7 @@ final class OverpaymentsSingleJourney private (
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
                 val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
-                val newCorrectedAmounts = answers.correctedAmounts match {
-                  case None                   => Map(taxCode -> Some(correctAmount))
-                  case Some(correctedAmounts) =>
-                    correctedAmounts + (taxCode -> Some(correctAmount))
-                }
+                val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
                 Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -485,7 +479,7 @@ final class OverpaymentsSingleJourney private (
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+        Right(this)
       else
         Right(
           copy(newAnswers =
@@ -499,15 +493,13 @@ final class OverpaymentsSingleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountDetails =
-              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
-            )
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
           )
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def removeBankAccountDetails(): OverpaymentsSingleJourney =
@@ -519,13 +511,11 @@ final class OverpaymentsSingleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def submitReimbursementMethod(
@@ -759,19 +749,6 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
               DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED
             )
           )
-        ),
-        whenFalse(
-          _.answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry),
-          all(
-            checkIsEmpty(
-              _.answers.duplicateDeclaration.map(_.movementReferenceNumber),
-              DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_NOT_BE_DEFINED
-            ),
-            checkIsEmpty(
-              _.answers.duplicateDeclaration.map(_.displayDeclaration),
-              DUPLICATE_DISPLAY_DECLARATION_MUST_NOT_BE_DEFINED
-            )
-          )
         )
       )
 
@@ -836,7 +813,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       supportingEvidenceHasBeenProvided,
       whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
       payeeTypeIsDefined,
-      newEoriAndDanProvidedIfNeeded
+      newEoriAndDanProvidedIfNeeded,
+      duplicateMovementReferenceNumberHasBeenProvidedIfNeeded
     )
 
   import JourneyFormats._

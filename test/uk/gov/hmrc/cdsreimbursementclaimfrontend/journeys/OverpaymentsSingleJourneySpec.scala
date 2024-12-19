@@ -122,6 +122,21 @@ class OverpaymentsSingleJourneySpec
       }
     }
 
+    "fail to finalize invalid journey" in {
+      completeJourneyGen.sample.get
+        .removeBankAccountDetails()
+        .finalizeJourneyWith("foo")
+        .isLeft shouldBe true
+    }
+
+    "have working equals method" in {
+      val journey = completeJourneyGen.sample.get
+      journey.equals(completeJourneyGen.sample.get) shouldBe false
+      journey.equals(journey)                       shouldBe true
+      journey.equals("foo")                         shouldBe false
+      journey.hashCode()                            shouldBe journey.answers.hashCode
+    }
+
     "accept submission of a new MRN" in {
       forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
         val journey = emptyJourney
@@ -421,6 +436,18 @@ class OverpaymentsSingleJourneySpec
       journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
     }
 
+    "submit declarant eori number" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
+      val journeyEither      =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
+
+      journeyEither.getOrFail.answers.eoriNumbersVerification.get.declarantEoriNumber shouldBe Some(anotherExampleEori)
+    }
+
     "fail if submitted declarant EORI is not needed" in {
       val displayDeclaration =
         buildDisplayDeclaration(declarantEORI = exampleEori)
@@ -526,6 +553,21 @@ class OverpaymentsSingleJourneySpec
       }
     }
 
+    "change basis of claim if IncorrectEoriAndDan" in {
+      val basisOfClaim  = BasisOfOverpaymentClaim.IncorrectEoriAndDan
+      val journeyEither = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitBasisOfClaim(basisOfClaim)
+        .submitNewDan(exampleDan)
+        .submitNewEori(exampleEori)
+
+      val modifiedJourney = journeyEither.submitBasisOfClaim(basisOfClaim)
+
+      modifiedJourney.answers.basisOfClaim shouldBe Some(basisOfClaim)
+      modifiedJourney.answers.newEori      shouldBe Some(exampleEori)
+      modifiedJourney.answers.newDan       shouldBe Some(exampleDan)
+    }
+
     "submit duplicate mrn and declaration" in {
       val journeyEither = OverpaymentsSingleJourney
         .empty(exampleEori)
@@ -539,6 +581,23 @@ class OverpaymentsSingleJourneySpec
         )
 
       journeyEither.isRight shouldBe true
+    }
+
+    "remove duplicated declaration when basis of claim changes" in {
+      val journeyEither = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+        .flatMap(
+          _.submitDuplicateMovementReferenceNumberAndDeclaration(
+            anotherExampleMrn,
+            exampleDisplayDeclaration.withDeclarationId(anotherExampleMrn.value)
+          )
+        )
+        .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.EndUseRelief))
+
+      journeyEither.isRight                                shouldBe true
+      journeyEither.getOrFail.answers.duplicateDeclaration shouldBe None
     }
 
     "reject duplicate mrn and declaration if same mrn as main" in {
@@ -611,7 +670,69 @@ class OverpaymentsSingleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
 
-      journeyEither.isRight shouldBe true
+      journeyEither.isRight                    shouldBe true
+      journeyEither.getOrFail.getAvailableDuties should contain theSameElementsAs Seq(
+        (TaxCode.A00, false),
+        (TaxCode.A90, false)
+      )
+    }
+
+    "return left when selecting valid tax codes for reimbursement without a display declaration" in {
+      val journeyEither = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+    }
+
+    "return left when selecting empty list of tax codes for reimbursement" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq.empty))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
+    }
+
+    "select valid tax codes for reimbursement when none yet selected with excise code in declaration" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.NI407)))
+
+      journeyEither.isRight                    shouldBe true
+      journeyEither.getOrFail.getAvailableDuties should contain theSameElementsAs Seq((TaxCode.NI407, false))
+    }
+
+    "return all available claim types when excise code in declaration" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+
+      journeyEither.isRight                        shouldBe true
+      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs BasisOfOverpaymentClaim.values
+    }
+
+    "return all available claim types except IncorrectExciseValue when no excise code in declaration" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+
+      journeyEither.isRight                        shouldBe true
+      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue)
     }
 
     "replace valid tax codes for reimbursement" in {
@@ -778,6 +899,42 @@ class OverpaymentsSingleJourneySpec
         .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("6.66")))
 
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "return left when submitting valid correct amount with missing display declaration" in {
+      val journeyEither = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("5.00")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid claim amount with missing display declaration" in {
+      val journeyEither = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitClaimAmount(TaxCode.A80, BigDecimal("6.66"))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid correct amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitCorrectAmount(TaxCode.A00, DefaultMethodReimbursementClaim(BigDecimal("5.00"))))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
+    }
+
+    "return left when submitting valid claim amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
     }
 
     "submit invalid correct amount for selected tax code" in {
@@ -971,8 +1128,9 @@ class OverpaymentsSingleJourneySpec
             .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
             .flatMap(_.submitPayeeType(PayeeType.Declarant))
 
-        journeyEither.isRight                                shouldBe true
-        journeyEither.toOption.get.computeBankAccountDetails shouldBe Some(exampleDeclarantBankAccountDetails)
+        journeyEither.isRight                                                shouldBe true
+        journeyEither.toOption.get.computeBankAccountDetails                 shouldBe Some(exampleDeclarantBankAccountDetails)
+        journeyEither.getOrFail.submitPayeeType(PayeeType.Declarant).isRight shouldBe true
       }
     }
 
@@ -1218,5 +1376,194 @@ class OverpaymentsSingleJourneySpec
         ) shouldBe Validator.Valid
       }
     }
+
+    "complete journey has new eori and dan when basis of claim is IncorrectEoriAndDan" in {
+      forAll(completeJourneyCMAEligibleGen) { journey =>
+        val modifiedJourney = journey
+          .submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+          .submitNewEori(exampleEori)
+          .submitNewDan(exampleDan)
+
+        modifiedJourney.hasCompleteAnswers shouldBe true
+      }
+    }
+
+    "return MISSING_NEW_EORI when complete journey basis of claim is IncorrectEoriAndDan and new eori is not set" in {
+      forAll(
+        completeJourneyGen.suchThat(j => !j.answers.basisOfClaim.contains(BasisOfOverpaymentClaim.IncorrectEoriAndDan))
+      ) { journey =>
+        val modifiedJourney = journey
+          .submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+          .submitNewDan(exampleDan)
+
+        OverpaymentsSingleJourney.Checks.newEoriAndDanProvidedIfNeeded.apply(
+          modifiedJourney
+        ) shouldBe Validator.Invalid(MISSING_NEW_EORI)
+      }
+    }
+
+    "return MISSING_NEW_DAN when complete journey basis of claim is IncorrectEoriAndDan and new dan is not set" in {
+      forAll(
+        completeJourneyGen.suchThat(j => !j.answers.basisOfClaim.contains(BasisOfOverpaymentClaim.IncorrectEoriAndDan))
+      ) { journey =>
+        val modifiedJourney = journey
+          .submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+          .submitNewEori(exampleEori)
+
+        OverpaymentsSingleJourney.Checks.newEoriAndDanProvidedIfNeeded.apply(
+          modifiedJourney
+        ) shouldBe Validator.Invalid(MISSING_NEW_DAN)
+      }
+    }
+
+    "submit document type selection" in {
+      val documentType = UploadDocumentType.overpaymentsSingleDocumentTypes(0)
+      val journey      =
+        OverpaymentsSingleJourney
+          .empty(exampleEori)
+          .submitDocumentTypeSelection(documentType)
+
+      journey.answers.selectedDocumentType shouldBe Some(documentType)
+    }
+  }
+
+  "change document type selection" in {
+    val newDocumentType = UploadDocumentType.overpaymentsSingleDocumentTypes(1)
+    val journey         =
+      OverpaymentsSingleJourney
+        .empty(exampleEori)
+        .submitDocumentTypeSelection(UploadDocumentType.overpaymentsSingleDocumentTypes.head)
+
+    val modifiedJourney = journey.submitDocumentTypeSelection(newDocumentType)
+
+    modifiedJourney.answers.selectedDocumentType shouldBe Some(newDocumentType)
+  }
+
+  "reset reimbursement method" in {
+    val journeyEither = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer)
+      .flatMap(_.submitBankAccountType(BankAccountType.Business))
+      .flatMap(_.submitBankAccountDetails(BankAccountGen.genBankAccountDetails.sample.get))
+      .getOrFail
+      .resetReimbursementMethod()
+
+    journeyEither.answers.reimbursementMethod shouldBe None
+    journeyEither.answers.bankAccountType     shouldBe None
+    journeyEither.answers.bankAccountDetails  shouldBe None
+  }
+
+  "remove bank account details" in {
+    val journeyEither = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitBankAccountDetails(BankAccountGen.genBankAccountDetails.sample.get)
+      .getOrFail
+      .removeBankAccountDetails()
+
+    journeyEither.answers.bankAccountDetails shouldBe None
+  }
+
+  "remove unsupported tax codes" in {
+    val journey = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumberAndDeclaration(
+        exampleMrn,
+        exampleDisplayDeclarationWithSomeUnsupportedCode
+      )
+      .getOrFail
+      .removeUnsupportedTaxCodes()
+
+    journey.containsUnsupportedTaxCode shouldBe false
+  }
+
+  "return left checking consignee eori with duplicate declaration when consignee eori doesn't match declaration eori" in {
+    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    )
+    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    ).optionallyWithMRN(Some(anotherExampleMrn))
+      .withConsigneeEori(anotherExampleEori)
+      .withDeclarantEori(yetAnotherExampleEori)
+    val journeyEither               = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+
+    journeyEither.getOrFail.checkConsigneeEoriNumberWithDuplicateDeclaration(exampleEori) shouldBe Left(
+      "checkConsigneeEoriNumberWithDuplicateDeclaration.shouldMatchConsigneeEoriFromACC14"
+    )
+  }
+
+  "return left checking declarant eori with duplicate declaration when consignee eori doesn't match declaration eori" in {
+    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    )
+    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    ).optionallyWithMRN(Some(anotherExampleMrn))
+      .withConsigneeEori(anotherExampleEori)
+      .withDeclarantEori(yetAnotherExampleEori)
+    val journeyEither               = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+
+    journeyEither.getOrFail.checkDeclarantEoriNumberWithDuplicateDeclaration(exampleEori) shouldBe Left(
+      "checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14"
+    )
+  }
+
+  "successfully accept declarant eori with duplicate declaration when no previous consignee check" in {
+    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    )
+    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+      Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+    ).optionallyWithMRN(Some(anotherExampleMrn))
+      .withConsigneeEori(anotherExampleEori)
+      .withDeclarantEori(yetAnotherExampleEori)
+    val journeyEither               = OverpaymentsSingleJourney
+      .empty(exampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+
+    journeyEither.getOrFail
+      .checkDeclarantEoriNumberWithDuplicateDeclaration(yetAnotherExampleEori)
+      .isRight shouldBe true
+  }
+
+  "receive uploaded files" in {
+    val journey      = completeJourneyGen.sample.get
+    val uploadedFile = exampleUploadedFile
+
+    val modifiedJourney = journey
+      .receiveUploadedFiles(None, journey.answers.nonce, Seq(uploadedFile))
+
+    modifiedJourney.isRight                             shouldBe true
+    modifiedJourney.getOrFail.answers.supportingEvidences should contain theSameElementsAs Seq(uploadedFile)
+  }
+
+  "receive uploaded files and set document type if not set" in {
+    val journey      = completeJourneyGen.sample.get
+    val uploadedFile = exampleUploadedFile.copy(cargo = None)
+    val newFileType  = UploadDocumentType.overpaymentsSingleDocumentTypes.head
+
+    val modifiedJourney = journey
+      .receiveUploadedFiles(Some(newFileType), journey.answers.nonce, Seq(uploadedFile))
+
+    modifiedJourney.getOrFail.answers.supportingEvidences.head.cargo shouldBe Some(newFileType)
+  }
+
+  "return left when receiving uploaded files with invalid nonce" in {
+    val journey      = completeJourneyGen.sample.get
+    val uploadedFile = exampleUploadedFile
+
+    journey.receiveUploadedFiles(None, Nonce.random, Seq(uploadedFile)) shouldBe Left(
+      "receiveUploadedFiles.invalidNonce"
+    )
   }
 }
