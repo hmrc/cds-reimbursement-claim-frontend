@@ -21,6 +21,6 @@
 
 @this(govukButton: GovukButton)
 
-@(msg: String, href: Option[String] = None, classes: Option[String] = None, name: Option[String] = None, preventDoubleClick: Boolean = true)(implicit messages: Messages)
+@(msg: String, href: Option[String] = None, classes: Option[String] = None, name: Option[String] = None, preventDoubleClick: Boolean = true, id: Option[String] = None)(implicit messages: Messages)
 
-@govukButton(Button(content = Text(messages(msg)), href = href, classes = classes.getOrElse(""), name = name, preventDoubleClick = Some(preventDoubleClick)))
+@govukButton(Button(content = Text(messages(msg)), href = href, classes = classes.getOrElse(""), name = name, preventDoubleClick = Some(preventDoubleClick), id = id))

@@ -74,11 +74,15 @@
             padding-right: none;
             float: left;
         }
+        .govuk-grid-column-two-thirds {
+            width: 100%;
+            float: left;
+        }
     </style>
 }
 
 @printButton = @{
-    button("check-your-answers.print-view.print", href = Some("javascript:window.print()"), classes = Some("govuk-button--secondary govuk-!-display-none-print"))
+    button("check-your-answers.print-view.print", href = Some("#printButton"), classes = Some("govuk-button--secondary govuk-!-display-none-print"), id = Some("printButton"))
 }
 
 @layout(pageTitle = Some(title), headBlock = Some(printStyles), suppressBackLink = true, suppressLanguageToggle = true, suppressSignOutLink = true) {
@@ -86,4 +90,12 @@
     @heading(Html(title), classes="govuk-heading-l")
     @contentBlock
     @printButton
+
+
+    <script @CSPNonce.attr>
+       document.getElementById("printButton").addEventListener("click", function(event) {
+         event.preventDefault()
+         window.print()
+       });
+    </script>
 }
