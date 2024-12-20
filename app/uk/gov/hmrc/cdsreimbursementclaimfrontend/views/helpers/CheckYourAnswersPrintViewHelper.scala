@@ -45,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-object CheckYourAnswersPdfHelper {
+object CheckYourAnswersPrintViewHelper {
 
   def renderClaimDetails(
     caseNumber: String,
@@ -71,7 +71,7 @@ object CheckYourAnswersPdfHelper {
           value = Value(Text(amountRequested))
         ),
         SummaryListRow(
-          key = Key(HtmlContent(messages("check-your-answers.pdf.submitted"))),
+          key = Key(HtmlContent(messages("check-your-answers.print-view.submitted"))),
           value = Value(HtmlContent(getFormattedSubmissionDate(submissionDate)))
         )
       )
@@ -104,20 +104,20 @@ object CheckYourAnswersPdfHelper {
           value = Value(Text(amountRequested.toPoundSterlingString))
         ),
         SummaryListRow(
-          key = Key(HtmlContent(messages("check-your-answers.pdf.submitted"))),
+          key = Key(HtmlContent(messages("check-your-answers.print-view.submitted"))),
           value = Value(HtmlContent(getFormattedSubmissionDate(submissionDate)))
         )
       )
     )
 
-  def getPdfUrl(journey: JourneyBase): String = journey match {
-    case _: OverpaymentsSingleJourney     => overpaymentsSingleRoute.CheckYourAnswersController.showPdf.url
-    case _: OverpaymentsMultipleJourney   => overpaymentsMultipleRoute.CheckYourAnswersController.showPdf.url
-    case _: OverpaymentsScheduledJourney  => overpaymentsScheduledRoute.CheckYourAnswersController.showPdf.url
-    case _: SecuritiesJourney             => securitiesRoute.CheckYourAnswersController.showPdf.url
-    case _: RejectedGoodsSingleJourney    => rejectedSingleRoute.CheckYourAnswersController.showPdf.url
-    case _: RejectedGoodsMultipleJourney  => rejectedMultipleRoute.CheckYourAnswersController.showPdf.url
-    case _: RejectedGoodsScheduledJourney => rejectedScheduledRoute.CheckYourAnswersController.showPdf.url
+  def getPrintViewUrl(journey: JourneyBase): String = journey match {
+    case _: OverpaymentsSingleJourney     => overpaymentsSingleRoute.CheckYourAnswersController.showPrintView.url
+    case _: OverpaymentsMultipleJourney   => overpaymentsMultipleRoute.CheckYourAnswersController.showPrintView.url
+    case _: OverpaymentsScheduledJourney  => overpaymentsScheduledRoute.CheckYourAnswersController.showPrintView.url
+    case _: SecuritiesJourney             => securitiesRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsSingleJourney    => rejectedSingleRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsMultipleJourney  => rejectedMultipleRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsScheduledJourney => rejectedScheduledRoute.CheckYourAnswersController.showPrintView.url
   }
 
   private def getFormattedSubmissionDate(submissionDate: LocalDateTime)(implicit messages: Messages): String =

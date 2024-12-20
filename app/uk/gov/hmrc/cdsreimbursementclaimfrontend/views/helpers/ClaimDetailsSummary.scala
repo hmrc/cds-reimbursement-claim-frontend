@@ -43,7 +43,7 @@ object ClaimDetailsSummary {
   )(implicit
     messages: Messages
   ): SummaryList = {
-    val isPdf = additionalDetailsChangeCallOpt.isEmpty && basisOfClaimChangeCallOpt.isEmpty
+    val isPrintView = additionalDetailsChangeCallOpt.isEmpty && basisOfClaimChangeCallOpt.isEmpty
     SummaryList(
       Seq(
         Some(
@@ -91,7 +91,7 @@ object ClaimDetailsSummary {
               Text(newEoriAndDan.eori.value)
             ),
             actions =
-              if (isPdf) None
+              if (isPrintView) None
               else
                 Some(
                   Actions(
@@ -113,7 +113,7 @@ object ClaimDetailsSummary {
               Text(newEoriAndDan.dan)
             ),
             actions =
-              if (isPdf) None
+              if (isPrintView) None
               else
                 Some(
                   Actions(

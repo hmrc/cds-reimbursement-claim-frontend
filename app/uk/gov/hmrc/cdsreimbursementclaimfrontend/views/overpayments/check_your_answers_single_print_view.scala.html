@@ -19,33 +19,28 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single_common
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import java.time.LocalDateTime
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_single_common
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PrintViewLayout,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     cyaCommon: check_your_answers_single_common
 )
 
-@(caseNumber: String, claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], subKey: Option[String] = None, isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
-@layout(){
+@layout() {
 
-    @heading(Html(messages("check-your-answers.pdf.title")))
+    @summary(CheckYourAnswersPrintViewHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, claim.reimbursements.map(_.amount).sum.toPoundSterlingString, submissionDate = submissionDate))
 
-    @summary(CheckYourAnswersPdfHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, claim.reimbursements.map(_.amount).sum.toPoundSterlingString, submissionDate = submissionDate))
-
-    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, displayDeclarationOpt, subKey, isSubsidy, isPdf = true)
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isSubsidy, displayDeclarationOpt, isPrintView = true)
 
 }

@@ -38,7 +38,7 @@
     displayDeclarationOpt: Option[DisplayDeclaration],
     isSubsidyOnly: Option[Boolean],
     subKey: Option[String] = None,
-    isPdf: Boolean = false
+    isPrintView: Boolean = false
 )(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
@@ -51,7 +51,7 @@
 
 @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
 @summary(
-    if(isPdf)
+    if(isPrintView)
         ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
     else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
 )
@@ -63,32 +63,32 @@
         claim.basisOfClaimSpecialCircumstances,
         claim.detailsOfRejectedGoods,
         claim.methodOfDisposal,
-        if(isPdf) None else Some(routes.BasisForClaimController.show),
-        if(isPdf) None else Some(routes.EnterSpecialCircumstancesController.show),
-        if(isPdf) None else Some(routes.EnterRejectedGoodsDetailsController.show),
-        if(isPdf) None else Some(routes.DisposalMethodController.show)
+        if(isPrintView) None else Some(routes.BasisForClaimController.show),
+        if(isPrintView) None else Some(routes.EnterSpecialCircumstancesController.show),
+        if(isPrintView) None else Some(routes.EnterRejectedGoodsDetailsController.show),
+        if(isPrintView) None else Some(routes.DisposalMethodController.show)
     )
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-@summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", if(isPdf) None else Some(routes.CheckClaimDetailsController.show)))
+@summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", if(isPrintView) None else Some(routes.CheckClaimDetailsController.show)))
 
 @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
 @summary(
-    if(isPdf) InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, "check-your-answers.inspection")
+    if(isPrintView) InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, "check-your-answers.inspection")
     else InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show)
 )
 
 @if(isSubsidyOnly contains(true)){
     @subHeading(Html(messages(s"check-your-answers.repayment-method.h2")))
-    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPdf) None else Some(routes.ChoosePayeeTypeController.show)))
+    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)))
     @summary(RepaymentMethodSummary(s"check-your-answers.repayment-method"))
 }
 
 @claim.bankAccountDetails.map { bankAccountDetails =>
     @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.show)))
+    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
+@summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))

@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import org.apache.pekko.actor.ActorSystem
 import com.google.inject.AbstractModule
-import com.hhandoko.play.pdf.PdfGenerator
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.Configuration
@@ -48,14 +47,13 @@ import scala.util.Success
 import scala.util.Try
 import scala.annotation.nowarn
 
-class Module(environment: Environment, configuration: Configuration) extends AbstractModule {
+class Module extends AbstractModule {
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   @nowarn
   override def configure(): Unit = {
     bind(classOf[HttpClient]).to(classOf[DebuggingHttpClient])
     bind(classOf[HttpClientV2]).to(classOf[DebuggingHttpClientV2])
-    bind(classOf[PdfGenerator]).toInstance(new PdfGenerator(environment))
     ()
   }
 }

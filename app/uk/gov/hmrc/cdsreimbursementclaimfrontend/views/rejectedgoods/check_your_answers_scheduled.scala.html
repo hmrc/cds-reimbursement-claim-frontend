@@ -58,7 +58,7 @@
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number.rejectedgoods", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
     @summary(MovementReferenceNumberSummary.scheduled(claim.movementReferenceNumber, s"check-your-answers.reference-number.rejectedgoods", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
 
-    @cyaCommon(claim, isSubsidyOnly, displayDeclarationOpt, subKey, isPdf = false)
+    @cyaCommon(claim, isSubsidyOnly, displayDeclarationOpt, subKey, isPrintView = false)
 
     @subHeading(Html(messages(combine(s"check-your-answers", subKey, "confirmation-statement.h2"))))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

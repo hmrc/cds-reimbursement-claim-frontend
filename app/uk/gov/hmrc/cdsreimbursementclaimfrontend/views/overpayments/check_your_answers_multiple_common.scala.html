@@ -35,7 +35,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, isPdf: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @displayDeclarationOpt.map { displayDeclaration =>
     @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
@@ -44,27 +44,27 @@
 
 @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
 @summary(
-    if(isPdf)
+    if(isPrintView)
         ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
     else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
-@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPdf) None else Some(routes.BasisForClaimController.show), if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "multiple"))
+@summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPrintView) None else Some(routes.BasisForClaimController.show), if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "multiple"))
 
 @subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-@summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", if(isPdf) None else Some(routes.CheckClaimDetailsController.show)))
+@summary(ReimbursementsClaimsSummary.multipleForCYA(claim.reimbursementClaims, s"check-your-answers.claim-total", if(isPrintView) None else Some(routes.CheckClaimDetailsController.show)))
 
 @if(isSubsidy){
     @subHeading(Html(messages(s"check-your-answers.repayment-method.h2")))
-    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPdf) None else Some(routes.ChoosePayeeTypeController.show)))
+    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)))
     @summary(RepaymentMethodSummary(s"check-your-answers.repayment-method"))
 }
 
 @claim.bankAccountDetails.map { bankAccountDetails =>
     @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.show)))
+    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
+@summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
