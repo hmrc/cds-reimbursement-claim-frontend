@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -33,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_pdf
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_print_view
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 
 import scala.concurrent.ExecutionContext
 
@@ -44,11 +43,10 @@ class CheckYourAnswersController @Inject() (
   securitiesClaimConnector: SecuritiesClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers,
-  checkYourAnswersPagePdf: check_your_answers_pdf,
+  checkYourAnswersPagePrintView: check_your_answers_print_view,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService,
-  pdfGenerator: PdfGenerator
+  auditService: AuditService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController
     with Logging {
@@ -146,7 +144,7 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("securities"),
-                    pdfUrl = getPdfUrl(journey)
+                    printViewUrl = getPrintViewUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
@@ -155,7 +153,7 @@ class CheckYourAnswersController @Inject() (
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  val showPdf: Action[AnyContent] =
+  val showPrintView: Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
       .async { implicit request =>
@@ -170,21 +168,18 @@ class CheckYourAnswersController @Inject() (
               output =>
                 (journey.caseNumber, journey.submissionDateTime) match {
                   case (Some(caseNumber), Some(submissionDate)) =>
-                    pdfGenerator
-                      .ok(
-                        checkYourAnswersPagePdf(
-                          caseNumber,
-                          journey.getTotalClaimAmount,
-                          output,
-                          journey.answers.displayDeclaration,
-                          journey.answers.exportMovementReferenceNumbers,
-                          submissionDate
-                        ),
-                        selfUrl
+                    Ok(
+                      checkYourAnswersPagePrintView(
+                        caseNumber,
+                        journey.getTotalClaimAmount,
+                        output,
+                        journey.answers.displayDeclaration,
+                        journey.answers.exportMovementReferenceNumbers,
+                        submissionDate
                       )
-                      .asFuture
+                    ).asFuture
                   case _                                        =>
-                    logger.warn("Error fetching journey for PDF generation")
+                    logger.warn("Error fetching journey for print view")
                     errorHandler.errorResult().asFuture
                 }
             )

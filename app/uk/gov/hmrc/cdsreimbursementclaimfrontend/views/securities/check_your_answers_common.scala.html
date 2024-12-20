@@ -41,7 +41,7 @@
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPdf: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 
@@ -50,16 +50,16 @@
     @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
         displayDeclaration,
         s"check-your-answers.declaration-details",
-        if(isPdf) None else Some(routes.EnterMovementReferenceNumberController.show),
-        if(isPdf) None else Some(routes.ChooseReasonForSecurityController.show)
+        if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
+        if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)
     ).rows ++
             SecuritiesSelectionSummary(
                 claim.securitiesReclaims,
                 displayDeclaration,
                 key,
-                if(isPdf) None else Some(routes.SelectSecuritiesController.show)
+                if(isPrintView) None else Some(routes.SelectSecuritiesController.show)
             ).rows ++
-            PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPdf) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
+            PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
             (
                     if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
                         Seq.empty[SummaryListRow]
@@ -92,7 +92,7 @@
         Seq(SummaryListRow(
                     key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
                     value = Value(Text(messages(s"choose-export-method.export-method-description.$mod"))),
-                    actions = if(isPdf) None else Some(Actions(
+                    actions = if(isPrintView) None else Some(Actions(
                         items = Seq(ActionItem(
                             href = routes.ChooseExportMethodController.show.url,
                             content = Text(messages("cya.change")),
@@ -104,7 +104,7 @@
                 case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
                     key = Key(HtmlContent(OrdinalNumberExportMrnHelper(mrnIndex+1))),
                     value = Value(Text(exportDeclarationMrn.value)),
-                    actions = if(isPdf) None else Some(Actions(
+                    actions = if(isPrintView) None else Some(Actions(
                         items = Seq(ActionItem(
                             href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
                             content = Text(messages("cya.change")),
@@ -116,7 +116,7 @@
 
 @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
 @summary(
-    if(isPdf)
+    if(isPrintView)
         ClaimantInformationSummary(
             claimantInformation = claim.claimantInformation,
             key = s"check-your-answers.contact-information"
@@ -138,19 +138,19 @@
             reclaims,
             displayDeclaration,
             s"check-your-answers.claim-for-security",
-            if(isPdf) None else Some(routes.ConfirmFullRepaymentController.show),
-            if(isPdf) None else Some(routes.SelectDutiesController.show),
-            if(isPdf) None else Some(routes.EnterClaimController.show)
+            if(isPrintView) None else Some(routes.ConfirmFullRepaymentController.show),
+            if(isPrintView) None else Some(routes.SelectDutiesController.show),
+            if(isPrintView) None else Some(routes.EnterClaimController.show)
         ))
     }
 }
 
 @claim.bankAccountDetails.map { bankAccountDetails =>
     @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPdf) None else Some(routes.EnterBankAccountDetailsController.show)))
+    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPdf) None else Some(routes.UploadFilesController.summary)))
+@summary(EvidenceDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
 @subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))
-@summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPdf) None else Some(routes.EnterAdditionalDetailsController.show)))
+@summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))

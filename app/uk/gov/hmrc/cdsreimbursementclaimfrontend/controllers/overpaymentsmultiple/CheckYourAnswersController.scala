@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.hhandoko.play.pdf.PdfGenerator
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -32,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPdfHelper.getPdfUrl
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple_pdf
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple_print_view
 
 import scala.concurrent.ExecutionContext
 
@@ -46,11 +45,10 @@ class CheckYourAnswersController @Inject() (
   overpaymentsMultipleClaimConnector: OverpaymentsMultipleClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_multiple,
-  checkYourAnswersPagePdf: check_your_answers_multiple_pdf,
+  checkYourAnswersPagePrintView: check_your_answers_multiple_print_view,
   confirmationOfSubmissionPage: confirmation_of_submission,
   submitClaimFailedPage: submit_claim_error,
-  auditService: AuditService,
-  pdfGenerator: PdfGenerator
+  auditService: AuditService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends OverpaymentsMultipleJourneyBaseController {
 
@@ -156,7 +154,7 @@ class CheckYourAnswersController @Inject() (
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("multiple"),
-                    pdfUrl = getPdfUrl(journey)
+                    printViewUrl = getPrintViewUrl(journey)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
@@ -165,7 +163,7 @@ class CheckYourAnswersController @Inject() (
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  final val showPdf: Action[AnyContent] =
+  final val showPrintView: Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
       .async { implicit request =>
@@ -180,21 +178,18 @@ class CheckYourAnswersController @Inject() (
               output =>
                 (journey.caseNumber, journey.submissionDateTime) match {
                   case (Some(caseNumber), Some(submissionDate)) =>
-                    pdfGenerator
-                      .ok(
-                        checkYourAnswersPagePdf(
-                          caseNumber,
-                          journey.getTotalReimbursementAmount,
-                          output,
-                          journey.getLeadDisplayDeclaration,
-                          journey.isSubsidyOnlyJourney,
-                          submissionDate
-                        ),
-                        selfUrl
+                    Ok(
+                      checkYourAnswersPagePrintView(
+                        caseNumber,
+                        journey.getTotalReimbursementAmount,
+                        output,
+                        journey.getLeadDisplayDeclaration,
+                        journey.isSubsidyOnlyJourney,
+                        submissionDate
                       )
-                      .asFuture
+                    ).asFuture
                   case _                                        =>
-                    logger.warn("Error fetching journey for PDF generation")
+                    logger.warn("Error fetching journey for print view")
                     errorHandler.errorResult().asFuture
                 }
             )

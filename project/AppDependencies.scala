@@ -14,10 +14,7 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"         %% "cats-core"                  % "2.12.0",
     "com.github.kxbmap"     %% "configs"                    % "0.6.1",
-    "com.github.arturopala" %% "validator"                  % "0.23.0",
-    "io.github.arturopala"  %% "play3-scala-pdf"            % "4.3.1" excludeAll ("org.scala-lang.modules" %% "scala-xml", "org.bouncycastle"),
-    "org.bouncycastle"       % "bcprov-jdk18on"             % "1.79", //Overrides the old version brought in transitively above
-    "org.bouncycastle"       % "bcpkix-jdk18on"             % "1.79" //Overrides the old version brought in transitively above)
+    "com.github.arturopala" %% "validator"                  % "0.23.0"
   )
 
   val test = Seq(

@@ -22,30 +22,24 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_scheduled_common
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple_common
 @import java.time.LocalDateTime
 
-
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PdfLayout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PrintViewLayout,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    cyaCommon: check_your_answers_scheduled_common
+    cyaCommon: check_your_answers_multiple_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
+    @summary(CheckYourAnswersPrintViewHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers, submissionDate))
 
-    @heading(Html(messages("check-your-answers.pdf.title")))
-    @summary(CheckYourAnswersPdfHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString, "check-your-answers.scheduled.mrn-label", submissionDate))
-
-    @cyaCommon(claim, displayDeclarationOpt, isSubsidy, isPdf = true)
+    @cyaCommon(claim, displayDeclarationOpt, isSubsidy, isPrintView = true)
 }

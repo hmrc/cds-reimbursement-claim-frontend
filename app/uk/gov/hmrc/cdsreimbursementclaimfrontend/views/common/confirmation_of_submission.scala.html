@@ -32,7 +32,7 @@
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
 )
 
-@(totalReimbursementAmount: BigDecimal, caseNumber: String, maybeMrn: Option[String] = None, maybeEmail: Option[String] = None, subKey: Option[String] = None, pdfUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(totalReimbursementAmount: BigDecimal, caseNumber: String, maybeMrn: Option[String] = None, maybeEmail: Option[String] = None, subKey: Option[String] = None, printViewUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
     @key=@{"confirmation-of-submission"}
     @title = @{ messages(s"confirmation-of-submission.title") }
@@ -55,7 +55,7 @@
 
         @paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
 
-        @paragraph(Html(messages("confirmation-of-submission.print-pdf", pdfUrl)))
+        @paragraph(Html(messages("confirmation-of-submission.print-view", printViewUrl)))
 
         @subHeading(Html(messages(s"confirmation-of-submission.whatNext")), classes = "govuk-heading-m")
 

@@ -375,13 +375,13 @@ check-your-answers.claim-details=Manylion yr hawliad
 check-your-answers.new-eori=EORI newydd
 check-your-answers.new-dan=Rhif cyfrif gohirio newydd
 
-check-your-answers.pdf.title=Manylion eich cais
-check-your-answers.pdf.total=Cyfanswm
-check-your-answers.pdf.additional-details=Manylion ychwanegol yr hawliad
-check-your-answers.pdf.contact-address=Cyfeiriad cyswllt
-check-your-answers.pdf.basis-of-claim-details.header=Manylion yr hawliad
-check-your-answers.pdf.selected-charges=Taliadau a ddewiswyd
-check-your-answers.pdf.submitted=Wedi cyflwyno
+check-your-answers.print-view.title=Manylion eich cais
+check-your-answers.print-view.total=Cyfanswm
+check-your-answers.print-view.additional-details=Manylion ychwanegol yr hawliad
+check-your-answers.print-view.contact-address=Cyfeiriad cyswllt
+check-your-answers.print-view.basis-of-claim-details.header=Manylion yr hawliad
+check-your-answers.print-view.selected-charges=Taliadau a ddewiswyd
+check-your-answers.print-view.submitted=Wedi cyflwyno
 
 choose-claim-type.c285.hint=Ar gyfer nwyddau rydych wedi’u mewnforio neu eu cael o dramor.
 choose-claim-type.c285.title=Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu
@@ -575,7 +575,7 @@ confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-
 confirmation-of-submission.what-next.p1=Bydd CThEF yn adolygu eich hawliad a byddwn yn anfon y canlyniad atoch dros e-bost neu drwy’r post o fewn 30 diwrnod gwaith.
 confirmation-of-submission.what-next.p2=Byddwn yn cysylltu â chi naill ai i:
 confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf?
-confirmation-of-submission.print-pdf=<a class="govuk-link" href="{0}" target="_blank">Argraffwch neu lawrlwythwch holl fanylion eich hawliad (yn agor tab newydd)</a>
+confirmation-of-submission.print-view=<a class="govuk-link" href="{0}" target="_blank">Argraffwch neu lawrlwythwch holl fanylion eich hawliad (yn agor tab newydd)</a>
 
 confirmation-of-submission.securities.what-next.p1=Bydd CThEF yn adolygu’ch hawliad. I gael gwybod mwy am statws eich hawliad, <a class="govuk-link" rel="noreferrer noopener" href="{0}">ewch i’r dangosfwrdd hawliadau.</a>
 confirmation-of-submission.securities.what-next.l1=cadarnhau eich hawliad ac ad-daliad o flaendal neu warant
