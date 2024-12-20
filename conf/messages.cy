@@ -844,6 +844,14 @@ date.day=Diwrnod
 date.month=Mis
 date.year=Blwyddyn
 
+day-of-week.1=Dydd Llun
+day-of-week.2=Dydd Mawrth
+day-of-week.3=Dydd Mercher
+day-of-week.4=Dydd Iau
+day-of-week.5=Dydd Gwener
+day-of-week.6=Dydd Sadwrn
+day-of-week.7=Dydd Sul
+
 declaration-not-found.title=Mae problem gyda’r MRN hwn
 declaration-not-found.invalid-mrn=Nid yw MRN, <strong>{0}</strong>, yn ddilys neu nid oes blaendal sicrwydd yn yr MRN i’w hawlio.
 declaration-not-found.provide-another-mrn-or-contact=Rhowch MRN arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">gysylltu â CThEF (yn agor tab newydd)</a>
