@@ -25,6 +25,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
@@ -141,6 +142,21 @@ class RejectedGoodsSingleJourneySpec
         modifiedJourney.hasCompleteAnswers             shouldBe true
         modifiedJourney.finalizeJourneyWith("bar")     shouldBe Left(JOURNEY_ALREADY_FINALIZED)
       }
+    }
+
+    "fail to finalize invalid journey" in {
+      completeJourneyGen.sample.get
+        .removeBankAccountDetails()
+        .finalizeJourneyWith("foo")
+        .isLeft shouldBe true
+    }
+
+    "have working equals method" in {
+      val journey = completeJourneyGen.sample.get
+      journey.equals(completeJourneyGen.sample.get) shouldBe false
+      journey.equals(journey)                       shouldBe true
+      journey.equals("foo")                         shouldBe false
+      journey.hashCode()                            shouldBe journey.answers.hashCode
     }
 
     "accept submission of a new MRN" in {
@@ -552,6 +568,26 @@ class RejectedGoodsSingleJourneySpec
       journeyEither.isRight shouldBe true
     }
 
+    "return left when selecting valid tax codes for reimbursement without a display declaration" in {
+      val journeyEither = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+    }
+
+    "return left when selecting empty list of tax codes for reimbursement" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq.empty))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
+    }
+
     "replace valid tax codes for reimbursement" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails =
         Seq(
@@ -779,6 +815,42 @@ class RejectedGoodsSingleJourneySpec
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
+    "return left when submitting valid correct amount with missing display declaration" in {
+      val journeyEither = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitCorrectAmount(TaxCode.A80, DefaultMethodReimbursementClaim(BigDecimal("5.00")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid claim amount with missing display declaration" in {
+      val journeyEither = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitClaimAmount(TaxCode.A80, BigDecimal("6.66"))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid correct amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitCorrectAmount(TaxCode.A00, DefaultMethodReimbursementClaim(BigDecimal("5.00"))))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
+    }
+
+    "return left when submitting valid claim amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
+    }
+
     "change to valid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
@@ -858,7 +930,7 @@ class RejectedGoodsSingleJourneySpec
       val displayDeclarationAllCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
       val journeyEither                    =
-        OverpaymentsSingleJourney
+        RejectedGoodsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
@@ -872,7 +944,7 @@ class RejectedGoodsSingleJourneySpec
       val displayDeclarationNotCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
       val journeyEither                    =
-        OverpaymentsSingleJourney
+        RejectedGoodsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
@@ -886,7 +958,7 @@ class RejectedGoodsSingleJourneySpec
       val displayDeclarationAllCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
       val journeyEither                    =
-        OverpaymentsSingleJourney
+        RejectedGoodsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
@@ -900,7 +972,7 @@ class RejectedGoodsSingleJourneySpec
       val displayDeclarationNotCMAEligible =
         buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
       val journeyEither                    =
-        OverpaymentsSingleJourney
+        RejectedGoodsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
@@ -1125,6 +1197,53 @@ class RejectedGoodsSingleJourneySpec
           journey
         ) shouldBe Validator.Valid
       }
+    }
+
+    "remove bank account details" in {
+      val journeyEither = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitBankAccountDetails(BankAccountGen.genBankAccountDetails.sample.get)
+        .getOrFail
+        .removeBankAccountDetails()
+
+      journeyEither.answers.bankAccountDetails shouldBe None
+    }
+
+    "remove unsupported tax codes" in {
+      val journey = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(
+          exampleMrn,
+          exampleDisplayDeclarationWithSomeUnsupportedCode
+        )
+        .getOrFail
+        .removeUnsupportedTaxCodes()
+
+      journey.containsUnsupportedTaxCode shouldBe false
+    }
+
+    "remove bank account details when submitting a different payeeType" in {
+      val journey = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitPayeeType(PayeeType.Consignee)
+        .getOrFail
+        .submitBankAccountDetails(exampleBankAccountDetails)
+        .getOrFail
+        .submitPayeeType(PayeeType.Declarant)
+
+      journey.getOrFail.answers.bankAccountDetails shouldBe None
+    }
+
+    "keep bank account details when submitting the same payeeType" in {
+      val journey = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitPayeeType(PayeeType.Consignee)
+        .getOrFail
+        .submitBankAccountDetails(exampleBankAccountDetails)
+        .getOrFail
+        .submitPayeeType(PayeeType.Consignee)
+
+      journey.getOrFail.answers.bankAccountDetails shouldBe Some(exampleBankAccountDetails)
     }
   }
 }
