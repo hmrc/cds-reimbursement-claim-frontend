@@ -262,6 +262,7 @@ final class RejectedGoodsSingleJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: ReimbursementClaim
@@ -278,11 +279,7 @@ final class RejectedGoodsSingleJourney private (
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
-                val newCorrectedAmounts = answers.correctedAmounts match {
-                  case None                   => Map(taxCode -> Some(correctAmount))
-                  case Some(correctedAmounts) =>
-                    correctedAmounts + (taxCode -> Some(correctAmount))
-                }
+                val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
                 Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -293,6 +290,7 @@ final class RejectedGoodsSingleJourney private (
       }
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitClaimAmount(
     taxCode: TaxCode,
     claimAmount: BigDecimal
@@ -310,11 +308,7 @@ final class RejectedGoodsSingleJourney private (
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
               if (getSelectedDuties.exists(_.contains(taxCode))) {
                 val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
-                val newCorrectedAmounts = answers.correctedAmounts match {
-                  case None                   => Map(taxCode -> Some(correctAmount))
-                  case Some(correctedAmounts) =>
-                    correctedAmounts + (taxCode -> Some(correctAmount))
-                }
+                val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else
                 Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -344,7 +338,7 @@ final class RejectedGoodsSingleJourney private (
   def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+        Right(this)
       else
         Right(
           copy(newAnswers =
@@ -358,15 +352,13 @@ final class RejectedGoodsSingleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountDetails =
-              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
-            )
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
           )
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def removeBankAccountDetails(): RejectedGoodsSingleJourney =
@@ -378,13 +370,11 @@ final class RejectedGoodsSingleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def submitReimbursementMethod(
