@@ -95,7 +95,7 @@ class UploadFilesControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockInitializeCall()
         }
@@ -127,7 +127,7 @@ class UploadFilesControllerSpec
       )
     ) { case (journey, (_, _, _, documentType)) =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(SessionData(journey))
         mockStoreSession(
           SessionData(
@@ -148,7 +148,7 @@ class UploadFilesControllerSpec
       )
     ) { case (journey, (_, _, _, documentType)) =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(
           SessionData(journey)
         )
@@ -164,7 +164,7 @@ class UploadFilesControllerSpec
       )
     ) { case (journey, _) =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(
           SessionData(journey)
         )
@@ -181,7 +181,7 @@ class UploadFilesControllerSpec
       )
     ) { case (journey, _) =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(
           SessionData(journey)
         )

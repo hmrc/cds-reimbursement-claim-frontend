@@ -118,7 +118,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, _) =>
         for (depositId <- initialJourney.getSelectedDepositIds) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -145,7 +145,7 @@ class EnterClaimControllerSpec
 
         for (depositId <- depositIdsWithNoneDutiesSelected) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -174,7 +174,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, (_, _, _, reclaims)) =>
         for ((depositId, taxCode, _, _) <- reclaims) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -197,7 +197,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, (_, _, _, reclaims)) =>
         for ((_, taxCode, _, _) <- reclaims) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -221,7 +221,7 @@ class EnterClaimControllerSpec
           val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -244,7 +244,7 @@ class EnterClaimControllerSpec
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -274,7 +274,7 @@ class EnterClaimControllerSpec
       ) { case (initialJourney, (_, _, _, reclaims)) =>
         for ((_, taxCode, _, _) <- reclaims) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -298,7 +298,7 @@ class EnterClaimControllerSpec
           val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -321,7 +321,7 @@ class EnterClaimControllerSpec
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -346,7 +346,7 @@ class EnterClaimControllerSpec
           val next = allSelectedDuties.nextAfter((depositId, taxCode))
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(
               SessionData(
@@ -394,7 +394,7 @@ class EnterClaimControllerSpec
           val next: Option[Either[String, (String, TaxCode)]] = updatedJourney.getNextDepositIdAndTaxCodeToClaim
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
             mockStoreSession(
               SessionData(
@@ -432,7 +432,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -459,7 +459,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -480,7 +480,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -505,7 +505,7 @@ class EnterClaimControllerSpec
         for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -525,7 +525,7 @@ class EnterClaimControllerSpec
         initialJourney.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
           reclaims.foreachEntry { case (taxCode, claimAmount) =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
             }
 
@@ -546,7 +546,7 @@ class EnterClaimControllerSpec
           reclaims.foreachEntry { case (taxCode, claimAmount) =>
             whenever(claimAmount > BigDecimal("0.01")) {
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(initialJourney))
                 mockStoreSession(
                   SessionData(

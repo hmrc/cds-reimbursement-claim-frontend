@@ -78,7 +78,7 @@ class ChoosePayeeTypeControllerSpec
 
     "display page" in forAll { maybePayeeType: Option[PayeeType] =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
             session.copy(overpaymentsSingleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
@@ -95,7 +95,7 @@ class ChoosePayeeTypeControllerSpec
     "fail to submit payee type" when {
       "nothing is selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -116,7 +116,7 @@ class ChoosePayeeTypeControllerSpec
     "successfully submit bank account type" when {
       "one of the options selected" in forAll { payeeType: PayeeType =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(
             session.copy(

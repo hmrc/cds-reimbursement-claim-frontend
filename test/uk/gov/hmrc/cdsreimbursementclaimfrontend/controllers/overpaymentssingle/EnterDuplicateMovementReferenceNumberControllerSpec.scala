@@ -119,7 +119,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -143,7 +143,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -163,7 +163,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             .submitBasisOfClaim(BasisOfOverpaymentClaim.DutySuspension)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -192,7 +192,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -212,7 +212,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -232,7 +232,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(None))
         }
@@ -257,7 +257,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
@@ -288,7 +288,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
                 .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
               mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
               mockStoreSession(SessionData(updatedJourney))(Right(()))
@@ -317,7 +317,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             .withSomeSubsidiesPaymentMethod()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }

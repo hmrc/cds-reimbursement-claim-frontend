@@ -112,7 +112,7 @@ class ChooseRepaymentMethodControllerSpec
       "display the page if all duties are are CMA eligible" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -126,7 +126,7 @@ class ChooseRepaymentMethodControllerSpec
       "redirect to enter bank details page if not all duties are CMA eligible" in
         forAll(journeyNotCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -153,7 +153,7 @@ class ChooseRepaymentMethodControllerSpec
       "accept selection of Current Method Adjustment" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(
               SessionData(
@@ -173,7 +173,7 @@ class ChooseRepaymentMethodControllerSpec
       "accept selection of Bank Account Transfer" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(
               SessionData(
@@ -193,7 +193,7 @@ class ChooseRepaymentMethodControllerSpec
       "reject invalid selection" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -211,7 +211,7 @@ class ChooseRepaymentMethodControllerSpec
       "reject empty selection" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 

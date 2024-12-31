@@ -95,7 +95,7 @@ class ChooseFileTypeControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -111,7 +111,7 @@ class ChooseFileTypeControllerSpec
         forAll(completeJourneyGen) { journey =>
           whenever(journey.needsDocumentTypeSelection) {
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -143,7 +143,7 @@ class ChooseFileTypeControllerSpec
       ) { case (journey, _) =>
         journey.getDocumentTypesIfRequired.get.foreach { documentType =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(
               SessionData(journey.submitDocumentTypeSelection(documentType).getOrFail)
@@ -163,7 +163,7 @@ class ChooseFileTypeControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
         checkPageIsDisplayed(
@@ -181,7 +181,7 @@ class ChooseFileTypeControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
         checkPageIsDisplayed(
@@ -199,7 +199,7 @@ class ChooseFileTypeControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
         checkPageIsDisplayed(
@@ -214,7 +214,7 @@ class ChooseFileTypeControllerSpec
         forAll(completeJourneyGen) { journey =>
           journey.getDocumentTypesIfRequired.get.foreach { documentType =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
               mockStoreSession(
                 SessionData(journey.submitDocumentTypeSelection(documentType).getOrFail)

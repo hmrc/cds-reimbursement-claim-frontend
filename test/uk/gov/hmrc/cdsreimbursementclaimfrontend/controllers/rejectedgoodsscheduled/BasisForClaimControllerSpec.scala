@@ -84,7 +84,7 @@ class BasisForClaimControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -101,7 +101,7 @@ class BasisForClaimControllerSpec
           val session       = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
           }
 
@@ -127,7 +127,7 @@ class BasisForClaimControllerSpec
 
       "reject an empty basis for claim" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -143,7 +143,7 @@ class BasisForClaimControllerSpec
       "reject an invalid basis for claim" in forAll(alphaNumGenerator(20)) { invalidBasis =>
         whenever(invalidBasis.nonEmpty && !BasisOfRejectedGoodsClaim.has(invalidBasis)) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
           }
 
@@ -165,7 +165,7 @@ class BasisForClaimControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(updatedSession)(Right(()))
         }

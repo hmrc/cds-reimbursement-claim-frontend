@@ -84,7 +84,7 @@ class CheckClaimDetailsControllerSpec
     "redirect to the select duty types page" when {
       "the user has not entered reimbursement amounts" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -99,7 +99,7 @@ class CheckClaimDetailsControllerSpec
       "duties, tax codes and amounts have been filled" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -125,7 +125,7 @@ class CheckClaimDetailsControllerSpec
           val incompleteJourney = completeJourney.submitContactDetails(None)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(incompleteJourney))
           }
 
@@ -137,7 +137,7 @@ class CheckClaimDetailsControllerSpec
           assert(journey.hasCompleteReimbursementClaims)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -150,7 +150,7 @@ class CheckClaimDetailsControllerSpec
           assert(journey.hasCompleteReimbursementClaims)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }

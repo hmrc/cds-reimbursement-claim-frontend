@@ -22,6 +22,7 @@ import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
@@ -29,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.RetrievalOps
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -60,30 +62,35 @@ trait AuthSupport {
       .expects(predicate, retrieval, *, *)
       .returning(result)
 
-  def mockAuthWithNoRetrievals(): Any =
-    mockAuth(EmptyPredicate, Retrievals.allEnrolments)(
-      Future.successful(
-        Enrolments(
-          Set(
-            Enrolment(EoriEnrolment.key)
-              .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, "GB0000000001")
-          )
+  def mockAuthWithDefaultRetrievals(): Any =
+    mockAuthWithAllRetrievals(
+      Some(AffinityGroup.Individual),
+      Set(
+        Enrolment(
+          EoriEnrolment.key,
+          Seq(
+            EnrolmentIdentifier(
+              EoriEnrolment.eoriEnrolmentIdentifier,
+              "AB12345678901234Z"
+            )
+          ),
+          ""
         )
-      )
+      ),
+      Some(Credentials("gg-cred-id", "GovernmentGateway"))
     )
 
-  val expectedRetrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials]] =
-    Retrievals.affinityGroup and Retrievals.email and Retrievals.allEnrolments and Retrievals.credentials
+  val expectedRetrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
+    Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials
 
   def mockAuthWithAllRetrievals(
     retrievedAffinityGroup: Option[AffinityGroup],
-    retrievedEmail: Option[String],
     retrievedEnrolments: Set[Enrolment],
     retrievedCredentials: Option[Credentials]
   ): Any =
     mockAuth(EmptyPredicate, expectedRetrievals)(
       Future successful (
-        new ~(retrievedAffinityGroup, retrievedEmail) and Enrolments(
+        retrievedAffinityGroup and Enrolments(
           retrievedEnrolments
         ) and retrievedCredentials
       )
@@ -96,7 +103,6 @@ trait AuthSupport {
   ): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
-      retrievedEmail,
       Set.empty,
       Some(retrievedCredentials)
     )
@@ -104,7 +110,6 @@ trait AuthSupport {
   def mockAuthWithEoriEnrolmentRetrievals(eori: Eori = Eori("AB12345678901234Z")): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
-      None,
       Set(
         Enrolment(
           EoriEnrolment.key,
@@ -123,7 +128,6 @@ trait AuthSupport {
   def mockAuthWithOrgWithEoriEnrolmentRetrievals(): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Organisation),
-      None,
       Set(
         Enrolment(
           EoriEnrolment.key,
@@ -142,7 +146,6 @@ trait AuthSupport {
   def mockAuthWithNonGGUserRetrievals(): Any =
     mockAuthWithAllRetrievals(
       None,
-      None,
       Set.empty,
       Some(Credentials("id", "NonGG"))
     )
@@ -153,7 +156,6 @@ trait AuthSupport {
   ) =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
-      Some(email),
       Set(
         Enrolment(EoriEnrolment.key)
           .withIdentifier(EoriEnrolment.eoriEnrolmentIdentifier, eori.value)

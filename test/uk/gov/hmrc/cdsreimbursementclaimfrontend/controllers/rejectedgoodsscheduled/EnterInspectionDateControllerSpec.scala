@@ -88,7 +88,7 @@ class EnterInspectionDateControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -109,7 +109,7 @@ class EnterInspectionDateControllerSpec
         val updatedSession = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -142,7 +142,7 @@ class EnterInspectionDateControllerSpec
 
       "the user submits an empty date" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -159,7 +159,7 @@ class EnterInspectionDateControllerSpec
 
       "the user submits an invalid date" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -198,7 +198,7 @@ class EnterInspectionDateControllerSpec
             val updatedSession = SessionData(updatedJourney)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(initialSession)
               mockStoreSession(updatedSession)(Right(()))
             }
@@ -235,7 +235,7 @@ class EnterInspectionDateControllerSpec
           val updatedSession = SessionData(updatedJourney)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(initialSession)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -256,7 +256,7 @@ class EnterInspectionDateControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
           mockStoreSession(updatedSession)(Right(()))
         }

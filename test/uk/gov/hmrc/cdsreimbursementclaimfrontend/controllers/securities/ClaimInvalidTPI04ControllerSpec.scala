@@ -93,7 +93,7 @@ class ClaimInvalidTPI04ControllerSpec
         forAll(completeJourneyGen) { journey =>
           val session = SessionData(journey)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
           }
           checkPageIsDisplayed(

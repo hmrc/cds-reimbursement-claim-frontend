@@ -87,7 +87,7 @@ class SelectDutiesControllerSpec
           .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -109,7 +109,7 @@ class SelectDutiesControllerSpec
           val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -134,7 +134,7 @@ class SelectDutiesControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -170,7 +170,7 @@ class SelectDutiesControllerSpec
           initialJourney.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)).getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
@@ -196,7 +196,7 @@ class SelectDutiesControllerSpec
           initialJourney.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(taxCode)).getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }
@@ -218,7 +218,7 @@ class SelectDutiesControllerSpec
           .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 

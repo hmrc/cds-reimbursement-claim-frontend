@@ -91,7 +91,7 @@ class EnterInspectionDateControllerSpec
     "display the page" when {
       "the user has not answered this question before" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -112,7 +112,7 @@ class EnterInspectionDateControllerSpec
         val updatedSession = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -158,7 +158,7 @@ class EnterInspectionDateControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -196,7 +196,7 @@ class EnterInspectionDateControllerSpec
         val updatedSession  = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(requiredSession)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -215,7 +215,7 @@ class EnterInspectionDateControllerSpec
     "show an error summary" when {
       "the user submits an empty date" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -237,7 +237,7 @@ class EnterInspectionDateControllerSpec
         val sessionWithInspectionDate = SessionData(journeyWithInspectionDate)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(sessionWithInspectionDate)(Right(()))
         }

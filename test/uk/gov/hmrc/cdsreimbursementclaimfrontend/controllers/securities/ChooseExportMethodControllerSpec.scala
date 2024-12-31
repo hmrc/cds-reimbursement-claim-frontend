@@ -115,7 +115,7 @@ class ChooseExportMethodControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -142,7 +142,7 @@ class ChooseExportMethodControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -160,7 +160,7 @@ class ChooseExportMethodControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(Right(()))
         }
@@ -178,7 +178,7 @@ class ChooseExportMethodControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(Right(()))
         }
@@ -196,7 +196,7 @@ class ChooseExportMethodControllerSpec
         )
       ) { case (journey, (_, _, _, methodOfDisposal)) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(Right(()))
         }

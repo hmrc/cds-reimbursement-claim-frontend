@@ -127,7 +127,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -162,7 +162,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -181,7 +181,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(journey.withEnterContactDetailsMode(true))
@@ -205,7 +205,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 

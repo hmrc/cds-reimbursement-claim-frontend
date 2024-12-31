@@ -93,7 +93,6 @@ class CheckEoriDetailsControllerSpec
   def mockAuthRequiredRetrievals(eori: Eori) =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
-      Some("email"),
       Set(Enrolment("HMRC-CUS-ORG", Seq(EnrolmentIdentifier("EORINumber", eori.value)), "Activated", None)),
       Some(Credentials("credId", "GovernmentGateway"))
     )

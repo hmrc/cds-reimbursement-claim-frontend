@@ -19,21 +19,28 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import play.api.mvc.Results.Redirect
+import play.api.mvc.MessagesRequest
+import play.api.mvc.Result
+import play.api.mvc.WrappedRequest
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -69,6 +76,7 @@ class AuthenticatedAction @Inject() (
     auth: AuthorisedFunctions,
     request: MessagesRequest[A]
   ): Future[Either[Result, AuthenticatedRequest[A]]] = {
+
     implicit val hc: HeaderCarrier =
       if (headersFromRequestOnly)
         HeaderCarrierConverter.fromRequest(request)
@@ -76,35 +84,98 @@ class AuthenticatedAction @Inject() (
         HeaderCarrierConverter
           .fromRequestAndSession(request, request.session)
 
-    if (featureSwitchService.isDisabled(Feature.LimitedAccess))
-      auth
-        .authorised()
-        .retrieve(
-          Retrievals.allEnrolments
-        ) { case enrolments =>
-          Future.successful(Right(AuthenticatedRequest(request, getEori(enrolments))))
+    auth
+      .authorised()
+      .retrieve(
+        Retrievals.affinityGroup and
+          Retrievals.allEnrolments and
+          Retrievals.credentials
+      ) { case affinityGroup ~ enrolments ~ creds =>
+        withGGCredentials(creds, request) {
+          affinityGroup match {
+            case Some(AffinityGroup.Individual) | Some(AffinityGroup.Organisation) =>
+              handleUser(
+                enrolments,
+                request
+              )
+
+            case other =>
+              logger.warn(s"User has unsupported affinity group type $other")
+              Future.successful(Left(errorHandler.errorResult()(request)))
+          }
         }
-    else
-      auth
-        .authorised()
-        .retrieve(
-          Retrievals.allEnrolments
-        ) { case enrolments =>
-          if (checkUserHasAccess(enrolments))
-            Future.successful(Right(AuthenticatedRequest(request, getEori(enrolments))))
-          else
-            Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
-        }
+
+      }
   }
 
-  def getEori(enrolments: Enrolments): Option[Eori] =
+  private def handleUser[A](
+    enrolments: Enrolments,
+    request: MessagesRequest[A]
+  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequest[A]]] =
+    hasEoriEnrolment(enrolments) map {
+      case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
+      case Right(Some(eori)) =>
+        if (
+          featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
+          checkEoriIsAllowed(eori.value)
+        )
+          Right(
+            AuthenticatedRequest(
+              request,
+              Some(eori)
+            )
+          )
+        else
+          Left(Results.Redirect(limitedAccessErrorPage))
+      case Right(None)       =>
+        Left(Redirect(unauthorizedErrorPage))
+    }
+
+  private def hasEoriEnrolment[A](
+    enrolments: Enrolments
+  ): Future[Either[Result, Option[Eori]]] =
     enrolments.getEnrolment(EoriEnrolment.key) match {
       case Some(eori) =>
         eori.getIdentifier(EoriEnrolment.eoriEnrolmentIdentifier) match {
-          case Some(eori) => Some(Eori(eori.value))
-          case None       => None
+          case Some(eori) =>
+            Future.successful(Right(Some(Eori(eori.value))))
+          case None       =>
+            logger.warn("EORI is missing from the enrolment")
+            Future.successful(Left(Redirect(unauthorizedErrorPage)))
         }
-      case None       => None
+      case None       =>
+        logger.warn("No EORI enrolment")
+        Future.successful(Left(Redirect(unauthorizedErrorPage)))
+    }
+
+  private def withGGCredentials[A](
+    credentials: Option[Credentials],
+    request: MessagesRequest[A]
+  )(
+    f: => Future[
+      Either[Result, AuthenticatedRequest[A]]
+    ]
+  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequest[A]]] =
+    credentials match {
+      case None =>
+        logger.warn("No credentials were retrieved")
+        Future.successful(Left(errorHandler.errorResult()(request)))
+
+      case Some(Credentials(_, "GovernmentGateway")) =>
+        f
+
+      case Some(Credentials(_, _)) =>
+        Future.successful(
+          if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
+            Right(
+              AuthenticatedRequest(
+                request,
+                None
+              )
+            )
+          else
+            Left(Results.Redirect(limitedAccessErrorPage))
+        )
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -120,9 +191,4 @@ class AuthenticatedAction @Inject() (
       ) {
         override val headersFromRequestOnly: Boolean = b
       }
-
-}
-
-object AuthenticatedAction {
-  final case class OnlyRequest(val value: Boolean) extends AnyVal
 }

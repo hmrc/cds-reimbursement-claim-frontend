@@ -81,7 +81,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -99,7 +99,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         val journey = session.rejectedGoodsScheduledJourney.get.submitDetailsOfRejectedGoods(details)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -126,7 +126,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
       "reject an empty form" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -140,7 +140,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
       "reject an too large an amount of text" in forAll(alphaNumGenerator(600)) { details =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -157,7 +157,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(updatedSession)(Right(()))
         }

@@ -121,7 +121,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -150,7 +150,7 @@ class EnterMovementReferenceNumberControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -197,7 +197,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "reject an empty MRN" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -213,7 +213,7 @@ class EnterMovementReferenceNumberControllerSpec
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -230,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "reject an unknown mrn or mrn without declaration" in forAll { (mrn: MRN) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(mrn, Right(None))
         }
@@ -248,7 +248,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(leadMrn, Right(Some(getDisplayDeclarationForMrn(leadMrn))))
           mockStoreSession(updatedSession)(Right(()))
@@ -274,7 +274,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
           mockStoreSession(updatedSession)(Right(()))
@@ -301,7 +301,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
           mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
@@ -329,7 +329,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
           mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
@@ -354,7 +354,7 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedSessionWithSecondMrn = SessionData(updatedJourneyWithSecondMrn)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSessionWithLeadMrn)
           mockGetDisplayDeclaration(secondMrn, Right(Some(getDisplayDeclarationForMrn(secondMrn))))
           mockStoreSession(updatedSessionWithSecondMrn)(Right(()))
@@ -393,7 +393,7 @@ class EnterMovementReferenceNumberControllerSpec
           val updatedSession = SessionData(updatedJourney)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockGetDisplayDeclaration(correctedDD.getMRN, Right(Some(correctedDD)))
             mockStoreSession(updatedSession)(Right(()))
@@ -428,7 +428,7 @@ class EnterMovementReferenceNumberControllerSpec
             .withSomeSubsidiesPaymentMethod()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }
@@ -458,7 +458,7 @@ class EnterMovementReferenceNumberControllerSpec
             .withSomeSubsidiesPaymentMethod()
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
         }

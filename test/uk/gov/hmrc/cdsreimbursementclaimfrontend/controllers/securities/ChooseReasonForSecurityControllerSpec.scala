@@ -167,7 +167,7 @@ class ChooseReasonForSecurityControllerSpec
       "display the page for the first time" in {
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -191,7 +191,7 @@ class ChooseReasonForSecurityControllerSpec
 
       "reject an empty reason selection" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -223,7 +223,7 @@ class ChooseReasonForSecurityControllerSpec
             )
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
@@ -268,7 +268,7 @@ class ChooseReasonForSecurityControllerSpec
             )
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
@@ -305,7 +305,7 @@ class ChooseReasonForSecurityControllerSpec
             )
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockStoreSession(updatedJourney)(Right(()))
@@ -348,7 +348,7 @@ class ChooseReasonForSecurityControllerSpec
             )
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
@@ -378,7 +378,7 @@ class ChooseReasonForSecurityControllerSpec
                 .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
             }
 
@@ -406,7 +406,7 @@ class ChooseReasonForSecurityControllerSpec
                 .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
             }
 
@@ -443,7 +443,7 @@ class ChooseReasonForSecurityControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
@@ -489,7 +489,7 @@ class ChooseReasonForSecurityControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
@@ -519,7 +519,7 @@ class ChooseReasonForSecurityControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
             mockStoreSession(updatedJourney)(Right(()))
@@ -550,7 +550,7 @@ class ChooseReasonForSecurityControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
@@ -577,7 +577,7 @@ class ChooseReasonForSecurityControllerSpec
         val rfsToSelect = ReasonForSecurity.values.filter(_ =!= declaration.getReasonForSecurity.get).head
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetDisplayDeclarationWithErrorCodes(Left(GetDeclarationError.invalidReasonForSecurity))
         }
@@ -600,7 +600,7 @@ class ChooseReasonForSecurityControllerSpec
           val rfsToSelect = ReasonForSecurity.values.filter(_ =!= declaration.getReasonForSecurity.get).head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockGetDisplayDeclarationWithErrorCodes(
               Left(GetDeclarationError.declarationNotFound)

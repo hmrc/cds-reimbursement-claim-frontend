@@ -85,8 +85,12 @@ class CheckEoriDetailsController @Inject() (
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      request.whenAuthorisedUser { (eori: Eori, name: Option[String]) =>
-        Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
+      request.whenAuthorisedUser {
+        (
+          eori: Eori,
+          name: Option[String]
+        ) => //fixme fetch name from sub09 (eoriDetailsConnector.getCurrentUserEoriDetails....)
+          Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
       }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
     }
 

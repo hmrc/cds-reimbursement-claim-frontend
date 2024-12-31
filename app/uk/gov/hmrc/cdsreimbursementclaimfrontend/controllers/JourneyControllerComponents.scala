@@ -26,12 +26,9 @@ import play.api.mvc.MessagesRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.FeatureSwitchProtectedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -42,8 +39,6 @@ import scala.concurrent.ExecutionContext
 class JourneyControllerComponents @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
-  sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val controllerComponents: MessagesControllerComponents,
   val sessionCache: SessionCache,
   val featureSwitchService: FeatureSwitchService,
@@ -52,7 +47,7 @@ class JourneyControllerComponents @Inject() (
   val servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext) {
 
-  final val actionBuilder: ActionBuilder[MessagesRequest, AnyContent] =
+  private final val actionBuilder: ActionBuilder[MessagesRequest, AnyContent] =
     controllerComponents.messagesActionBuilder
       .compose(controllerComponents.actionBuilder)
 
@@ -71,22 +66,5 @@ class JourneyControllerComponents @Inject() (
         actionBuilder
           .andThen(authenticatedAction.readHeadersFromRequestOnly(isCallback))
           .andThen(sessionDataAction.readHeadersFromRequestOnly(isCallback))
-    }
-
-  final def authenticatedActionWithRetrievedDataAndSessionData(
-    featureOpt: Option[Feature]
-  ): ActionBuilder[RequestWithSessionDataAndRetrievedData, AnyContent] =
-    featureOpt match {
-      case Some(feature) =>
-        actionBuilder
-          .andThen(new FeatureSwitchProtectedAction(feature, featureSwitchService, errorHandler))
-          .andThen(authenticatedActionWithRetrievedData)
-          .andThen(sessionDataActionWithRetrievedData)
-
-      case None =>
-        actionBuilder
-          .andThen(authenticatedActionWithRetrievedData)
-          .andThen(sessionDataActionWithRetrievedData)
-
     }
 }

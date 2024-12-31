@@ -23,11 +23,16 @@ import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -40,6 +45,9 @@ import scala.concurrent.Future
 class AuthenticatedActionSpec extends ControllerSpec with MockFactory with SessionSupport with AuthActionSpec {
 
   "AuthenticatedAction" when {
+
+    val retrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
+      Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials
 
     "limited access disabled" must {
 
@@ -76,7 +84,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
             SessionRecordNotFound()
           ).foreach { e =>
             withClue(s"For error $e: ") {
-              mockAuth(EmptyPredicate, Retrievals.allEnrolments)(Future.failed(e))
+              mockAuth(EmptyPredicate, retrievals)(Future.failed(e))
 
               val result = performAction(FakeRequest("GET", requestUri))
               status(result) shouldBe SEE_OTHER
@@ -93,14 +101,9 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
       "handling a logged in user" must {
 
         "effect the request action" in {
-          mockAuth(EmptyPredicate, Retrievals.allEnrolments)(
+          mockAuth(EmptyPredicate, retrievals)(
             Future.successful(
-              Enrolments(
-                Set(
-                  Enrolment(EnrolmentConfig.EoriEnrolment.key)
-                    .withIdentifier(EnrolmentConfig.EoriEnrolment.eoriEnrolmentIdentifier, "GB0000000001")
-                )
-              )
+              retrievedData("GB0000000001")
             )
           )
 
@@ -123,7 +126,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
           ).foreach { e =>
             withClue(s"For error $e: ") {
               val exception = intercept[AuthorisationException] {
-                mockAuth(EmptyPredicate, Retrievals.allEnrolments)(Future.failed(e))
+                mockAuth(EmptyPredicate, retrievals)(Future.failed(e))
                 await(performAction(FakeRequest()))
               }
 
@@ -157,9 +160,6 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
         )
       }
 
-      val retrievals: Retrieval[Enrolments] =
-        Retrievals.allEnrolments
-
       "handling a not logged in user" must {
 
         "redirect to the login page" in {
@@ -188,38 +188,22 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
 
       "handling a logged in user" must {
 
-        def eoriEnrolment(eori: String): Enrolments = Enrolments(
-          Set(
-            Enrolment(
-              "HMRC-CUS-ORG",
-              Seq(
-                EnrolmentIdentifier(
-                  "EORINumber",
-                  eori
-                )
-              ),
-              "Activated",
-              None
-            )
-          )
-        )
-
         "effect the request action when user is on the allow list #1" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(eoriEnrolment("GB000000000000001")))
+          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000001")))
 
           val result = performAction(FakeRequest())
           status(result) shouldBe OK
         }
 
         "effect the request action when user is on the allow list #2" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(eoriEnrolment("GB000000000000002")))
+          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000002")))
 
           val result = performAction(FakeRequest())
           status(result) shouldBe OK
         }
 
         "redirect to the start page when user is NOT on the allow list" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(eoriEnrolment("GB000000000000003")))
+          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000003")))
 
           val result = performAction(FakeRequest())
           status(result)           shouldBe SEE_OTHER
@@ -251,6 +235,22 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
 
       }
     }
+
+    def retrievedData(eori: String): Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] =
+      Some(Organisation) and Enrolments(
+        Set(
+          Enrolment(
+            EoriEnrolment.key,
+            Seq(
+              EnrolmentIdentifier(
+                EoriEnrolment.eoriEnrolmentIdentifier,
+                eori
+              )
+            ),
+            ""
+          )
+        )
+      ) and Some(Credentials("gg-cred-id", "GovernmentGateway"))
 
   }
 

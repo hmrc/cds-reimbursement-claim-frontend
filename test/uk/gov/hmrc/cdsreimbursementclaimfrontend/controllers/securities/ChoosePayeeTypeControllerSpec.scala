@@ -113,7 +113,7 @@ class ChoosePayeeTypeControllerSpec
 
     "display page" in forAll { maybePayeeType: Option[PayeeType] =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(sessionNonGuarantee)((session, payeeType) =>
             session.copy(securitiesJourney = initialJourneyNonGuarantee.submitPayeeType(payeeType).toOption)
@@ -130,7 +130,7 @@ class ChoosePayeeTypeControllerSpec
     "fail to submit payee type" when {
       "nothing is selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionNonGuarantee)
         }
 
@@ -151,7 +151,7 @@ class ChoosePayeeTypeControllerSpec
     "successfully submit bank account type" when {
       "one of the options selected and payment type is non-guarantee" in forAll { payeeType: PayeeType =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionNonGuarantee)
           mockStoreSession(
             sessionNonGuarantee.copy(
@@ -168,7 +168,7 @@ class ChoosePayeeTypeControllerSpec
 
       "one of the options selected and payment type is guarantee" in forAll { payeeType: PayeeType =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionGuarantee)
           mockStoreSession(
             sessionGuarantee.copy(

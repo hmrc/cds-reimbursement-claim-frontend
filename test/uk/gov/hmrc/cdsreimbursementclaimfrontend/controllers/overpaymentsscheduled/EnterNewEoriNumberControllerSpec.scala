@@ -102,7 +102,7 @@ class EnterNewEoriNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -136,7 +136,7 @@ class EnterNewEoriNumberControllerSpec
 
       "reject an empty Eori" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -152,7 +152,7 @@ class EnterNewEoriNumberControllerSpec
         val invalidEori = Eori("invalid-eori")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -172,7 +172,7 @@ class EnterNewEoriNumberControllerSpec
       ) { journey =>
         val eori = Eori("GB123456123456")
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetEoriDetails(eori)(Future.successful(None))
         }
@@ -194,7 +194,7 @@ class EnterNewEoriNumberControllerSpec
       ) { journey =>
         val eori = Eori("GB123456123456")
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockGetEoriDetails(eori)(
             Future.successful(

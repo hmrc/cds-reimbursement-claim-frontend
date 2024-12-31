@@ -96,7 +96,7 @@ class CheckDeclarationDetailsControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -113,7 +113,7 @@ class CheckDeclarationDetailsControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -138,7 +138,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "redirect to the enter movement reference if no declaration present" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -164,7 +164,7 @@ class CheckDeclarationDetailsControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -181,7 +181,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "submit when user selects Yes" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(
             session.copy(
@@ -199,7 +199,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "submit when user selects No" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

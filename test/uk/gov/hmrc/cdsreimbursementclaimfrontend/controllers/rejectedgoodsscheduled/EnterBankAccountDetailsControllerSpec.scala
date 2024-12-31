@@ -103,7 +103,7 @@ class EnterBankAccountDetailsControllerSpec
 
       "the user has not answered this question before" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -122,7 +122,7 @@ class EnterBankAccountDetailsControllerSpec
         val updatedSession = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -561,7 +561,7 @@ class EnterBankAccountDetailsControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(requiredSession)
           mockBankAccountReputationV2(bankDetails, None, Right(expectedSuccessfulResponse))
           mockStoreSession(updatedSession)(Right(()))
@@ -587,7 +587,7 @@ class EnterBankAccountDetailsControllerSpec
         val boom = new BadRequestException("Boom!")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(requiredSession)
           mockBankAccountReputationV2(
             bankDetails,

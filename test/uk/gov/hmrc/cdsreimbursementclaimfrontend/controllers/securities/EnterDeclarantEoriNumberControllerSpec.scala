@@ -96,7 +96,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -127,7 +127,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -154,7 +154,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -181,7 +181,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -210,7 +210,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -236,7 +236,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val invalidEori = Eori("INVALID_EORI")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -250,7 +250,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "reject an empty EORI" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -264,7 +264,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "submit a valid EORI and user is not the declarant" in forAll { (eori: Eori) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -293,7 +293,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -322,7 +322,7 @@ class EnterDeclarantEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

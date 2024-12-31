@@ -126,7 +126,7 @@ class EnterClaimControllerSpec
 
       "display the page" in forAll(journeyGen) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -142,7 +142,7 @@ class EnterClaimControllerSpec
       "display the page back in the change mode" in
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -158,7 +158,7 @@ class EnterClaimControllerSpec
       "redirect to select duties page if no claims selected" in
         forAll(buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -184,7 +184,7 @@ class EnterClaimControllerSpec
       "display the page" in forAll(journeyGen) { journey =>
         journey.getSelectedDuties.get.foreach { taxCode =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -212,7 +212,7 @@ class EnterClaimControllerSpec
         forAll(completeJourneyGen) { journey =>
           journey.getSelectedDuties.get.foreach { taxCode =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -244,7 +244,7 @@ class EnterClaimControllerSpec
           val selected = journey.getSelectedDuties.get
           val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -259,7 +259,7 @@ class EnterClaimControllerSpec
           val selected = journey.getSelectedDuties.get
           val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -300,7 +300,7 @@ class EnterClaimControllerSpec
               ) {
                 val claimAmount = paidAmount - actualAmount
                 inSequence {
-                  mockAuthWithNoRetrievals()
+                  mockAuthWithDefaultRetrievals()
                   mockGetSession(SessionData(journey))
                   mockStoreSession(
                     SessionData(
@@ -333,7 +333,7 @@ class EnterClaimControllerSpec
               for (claimAmount <- Seq(ZERO, paidAmount + BigDecimal("0.01"))) {
                 val actualAmount = paidAmount - claimAmount
                 inSequence {
-                  mockAuthWithNoRetrievals()
+                  mockAuthWithDefaultRetrievals()
                   mockGetSession(SessionData(journey))
                 }
 
@@ -367,7 +367,7 @@ class EnterClaimControllerSpec
       "reject empty amount and display error" in
         forAll(journeyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 

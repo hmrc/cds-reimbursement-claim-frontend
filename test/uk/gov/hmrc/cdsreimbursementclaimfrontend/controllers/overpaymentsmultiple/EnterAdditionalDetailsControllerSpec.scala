@@ -98,7 +98,7 @@ class EnterAdditionalDetailsControllerSpec
       "display page the first time" in {
         forAll(journeyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -113,7 +113,7 @@ class EnterAdditionalDetailsControllerSpec
       "display page back with details populated" in {
         forAll(journeyGen.map(_.submitAdditionalDetails("foo bar 123"))) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -128,7 +128,7 @@ class EnterAdditionalDetailsControllerSpec
       "display page back in the change mode" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -157,7 +157,7 @@ class EnterAdditionalDetailsControllerSpec
 
       "submit additional details" in forAll(journeyGen) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(journey.submitAdditionalDetails(loremIpsum))

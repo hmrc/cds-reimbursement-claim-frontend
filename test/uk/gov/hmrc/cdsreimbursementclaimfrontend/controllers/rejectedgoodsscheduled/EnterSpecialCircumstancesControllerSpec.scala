@@ -79,7 +79,7 @@ class EnterSpecialCircumstancesControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -95,7 +95,7 @@ class EnterSpecialCircumstancesControllerSpec
 
       "display the page on a change journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -121,7 +121,7 @@ class EnterSpecialCircumstancesControllerSpec
 
       "reject submit if no special circumstances entered" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -135,7 +135,7 @@ class EnterSpecialCircumstancesControllerSpec
 
       "reject submit if the special circumstances are too long" in forAll(alphaNumGenerator(600)) { details =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -154,7 +154,7 @@ class EnterSpecialCircumstancesControllerSpec
         val journey = session.rejectedGoodsScheduledJourney.get.submitBasisOfClaim(basisOfClaim)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -174,7 +174,7 @@ class EnterSpecialCircumstancesControllerSpec
           .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }

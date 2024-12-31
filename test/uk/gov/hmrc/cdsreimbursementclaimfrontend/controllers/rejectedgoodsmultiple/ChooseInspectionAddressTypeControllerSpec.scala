@@ -113,7 +113,7 @@ class ChooseInspectionAddressTypeControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -146,7 +146,7 @@ class ChooseInspectionAddressTypeControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -188,7 +188,7 @@ class ChooseInspectionAddressTypeControllerSpec
           val updatedJourney        = journey.submitInspectionAddress(address)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -221,7 +221,7 @@ class ChooseInspectionAddressTypeControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -238,7 +238,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
       "redirect to the address lookup page if no addresses present" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -257,7 +257,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
       "the user submits an empty form" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -298,7 +298,7 @@ class ChooseInspectionAddressTypeControllerSpec
           val updatedJourney        = journey.submitInspectionAddress(address)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(updatedJourney))(Right(()))
           }
@@ -311,7 +311,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
       "the user selects 'other' address" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

@@ -93,7 +93,7 @@ class UploadFilesControllerSpec
             .getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
               journey.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
@@ -115,7 +115,7 @@ class UploadFilesControllerSpec
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
               journey
@@ -140,7 +140,7 @@ class UploadFilesControllerSpec
       "redirect to 'Upload Documents' if journey has complete answers and document type set" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(
               SessionData(
                 journey.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
@@ -159,7 +159,7 @@ class UploadFilesControllerSpec
       "redirect to document type selection if journey has complete answers but document type not set" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -187,7 +187,7 @@ class UploadFilesControllerSpec
       "return 204 if callback accepted" in {
         val journey = journeyWithMrnAndDeclaration
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(
@@ -207,7 +207,7 @@ class UploadFilesControllerSpec
 
       "return 400 if callback rejected because of invalid nonce" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(journeyWithMrnAndDeclaration)
           )
@@ -218,7 +218,7 @@ class UploadFilesControllerSpec
 
       "return 400 if callback rejected because of invalid request" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(journeyWithMrnAndDeclaration)
           )

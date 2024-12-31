@@ -129,7 +129,7 @@ class CheckClaimDetailsControllerSpec
         )
       ) { case (initialJourney, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
           mockStoreSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))(Right(()))
         }
@@ -158,7 +158,7 @@ class CheckClaimDetailsControllerSpec
         )
       ) { case (initialJourney, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
         }
 
@@ -170,7 +170,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to the CYA page when in change your answers mode" in forAll(completeJourneyGen) { initialJourney =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 

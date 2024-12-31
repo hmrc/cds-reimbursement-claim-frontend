@@ -89,7 +89,7 @@ class EnterClaimControllerSpec
         val session = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -105,7 +105,7 @@ class EnterClaimControllerSpec
       "the user has selected duty and tax codes for the first time" in forAll(journeyGen) { journey =>
         journey.getFirstDutyToClaim.map { case (dutyType: DutyType, taxCode: TaxCode) =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -125,7 +125,7 @@ class EnterClaimControllerSpec
         val claimAmount: BigDecimal = reimbursement.claimAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -174,7 +174,7 @@ class EnterClaimControllerSpec
                 .getOrFail
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(initialJourney))
                 mockStoreSession(SessionData(updatedJourney))(Right(()))
               }
@@ -221,7 +221,7 @@ class EnterClaimControllerSpec
                 .getOrFail
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(initialJourney))
                 mockStoreSession(SessionData(updatedJourney))(Right(()))
               }
@@ -250,7 +250,7 @@ class EnterClaimControllerSpec
           journey.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
             taxCodes.foreach { taxCode =>
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
@@ -289,7 +289,7 @@ class EnterClaimControllerSpec
               )
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
@@ -324,7 +324,7 @@ class EnterClaimControllerSpec
               )
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 

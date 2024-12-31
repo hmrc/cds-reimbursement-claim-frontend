@@ -131,7 +131,7 @@ class SelectSecuritiesControllerSpec
         )
       ) { case (initialJourney, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -151,7 +151,7 @@ class SelectSecuritiesControllerSpec
 
         for (depositId <- depositIds) {
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -183,7 +183,7 @@ class SelectSecuritiesControllerSpec
           val secondDepositId = depositIds(1)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
           }
@@ -209,7 +209,7 @@ class SelectSecuritiesControllerSpec
           val secondDepositId = depositIds(1)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -233,7 +233,7 @@ class SelectSecuritiesControllerSpec
           val lastDepositId = depositIds.last
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(lastDepositId).getOrFail))(Right(()))
           }
@@ -257,7 +257,7 @@ class SelectSecuritiesControllerSpec
           val lastDepositId = depositIds.last
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(lastDepositId).getOrFail))(Right(()))
           }
@@ -281,7 +281,7 @@ class SelectSecuritiesControllerSpec
           val firstDepositId = depositIds(0)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(firstDepositId).getOrFail))(Right(()))
           }
@@ -306,7 +306,7 @@ class SelectSecuritiesControllerSpec
           val depositId = depositIds.last
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(depositId).getOrFail))(Right(()))
           }
@@ -326,7 +326,7 @@ class SelectSecuritiesControllerSpec
         for (depositId <- selected) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.removeSecurityDepositId(depositId).getOrFail))(Right(()))
           }
@@ -345,7 +345,7 @@ class SelectSecuritiesControllerSpec
         for (depositId <- unselected) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(depositId).getOrFail))(Right(()))
           }
@@ -364,7 +364,7 @@ class SelectSecuritiesControllerSpec
         for (depositId <- unselected) {
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))
             mockStoreSession(
               SessionData(

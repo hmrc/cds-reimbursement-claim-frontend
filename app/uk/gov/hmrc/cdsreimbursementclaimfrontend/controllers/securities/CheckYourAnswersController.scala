@@ -53,7 +53,6 @@ class CheckYourAnswersController @Inject() (
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
-  final val selfUrl: String                = jcc.servicesConfig.getString("self.url")
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>

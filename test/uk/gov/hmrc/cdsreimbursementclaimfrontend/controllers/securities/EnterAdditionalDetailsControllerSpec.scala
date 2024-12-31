@@ -70,7 +70,7 @@ class EnterAdditionalDetailsControllerSpec
 
   private def mockCompleteJourney(journey: SecuritiesJourney) =
     inSequence {
-      mockAuthWithNoRetrievals()
+      mockAuthWithDefaultRetrievals()
       mockGetSession(SessionData(journey))
     }
 
@@ -135,9 +135,9 @@ class EnterAdditionalDetailsControllerSpec
           .map(_.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity))
       ) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(
@@ -161,9 +161,9 @@ class EnterAdditionalDetailsControllerSpec
 
       "submit valid additional details when journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             session.copy(securitiesJourney =

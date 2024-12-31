@@ -103,7 +103,7 @@ class CheckClaimDetailsControllerSpec
         forAll(incompleteJourneyWithCompleteClaimsGen(9)) { case (journey, _) =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -134,7 +134,7 @@ class CheckClaimDetailsControllerSpec
         forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -149,7 +149,7 @@ class CheckClaimDetailsControllerSpec
         forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }
@@ -165,7 +165,7 @@ class CheckClaimDetailsControllerSpec
         forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -180,7 +180,7 @@ class CheckClaimDetailsControllerSpec
         forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }

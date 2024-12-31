@@ -139,7 +139,7 @@ class ConfirmFullRepaymentControllerSpec
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -171,7 +171,7 @@ class ConfirmFullRepaymentControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
           }
 
@@ -214,7 +214,7 @@ class ConfirmFullRepaymentControllerSpec
             val securityId                                                             = journey.getSelectedDepositIds.last
             val sessionData                                                            = SessionData(journey)
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(sessionData)
               mockStoreSession(Right(()))
             }
@@ -255,7 +255,7 @@ class ConfirmFullRepaymentControllerSpec
             val securityId                                                             = journey.getSecurityDepositIds.head
             val sessionData                                                            = SessionData(journey)
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(sessionData)
               mockStoreSession(Right(()))
             }
@@ -306,7 +306,7 @@ class ConfirmFullRepaymentControllerSpec
             val securityId                                                             = journey.getSecurityDepositIds.head
             val sessionData                                                            = SessionData(journey)
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(sessionData)
               mockStoreSession(Right(()))
             }
@@ -336,7 +336,7 @@ class ConfirmFullRepaymentControllerSpec
           val securityId = journey.getSecurityDepositIds.head
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(journey.submitClaimFullAmountMode(false)))(Right(()))
           }
@@ -354,7 +354,7 @@ class ConfirmFullRepaymentControllerSpec
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -392,7 +392,7 @@ class ConfirmFullRepaymentControllerSpec
           val securityId                                                             = journey.getSecurityDepositIds.head
           val sessionData                                                            = SessionData(journey)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
           }
 
@@ -409,7 +409,7 @@ class ConfirmFullRepaymentControllerSpec
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
           val securityId = journey.getSelectedDepositIds.head
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(SessionData(journey.submitClaimFullAmountMode(false)))(Right(()))
           }
@@ -425,7 +425,7 @@ class ConfirmFullRepaymentControllerSpec
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
           for (securityId <- journey.getSelectedDepositIds) {
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
               mockStoreSession(Right(()))
             }
@@ -444,7 +444,7 @@ class ConfirmFullRepaymentControllerSpec
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
           for (securityId <- journey.getSelectedDepositIds) {
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -462,7 +462,7 @@ class ConfirmFullRepaymentControllerSpec
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
           for (securityId <- journey.getSelectedDepositIds) {
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 

@@ -88,7 +88,7 @@ class EnterNewDanControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -122,7 +122,7 @@ class EnterNewDanControllerSpec
 
       "reject an empty Dan" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -138,7 +138,7 @@ class EnterNewDanControllerSpec
         val invalidDan = Dan("invalid")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -157,7 +157,7 @@ class EnterNewDanControllerSpec
         val invalidDan = Dan("12345678890")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -177,7 +177,7 @@ class EnterNewDanControllerSpec
       ) { journey =>
         val dan = Dan("1234567")
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(SessionData(journey.submitNewDan(dan)))(Right(()))
         }

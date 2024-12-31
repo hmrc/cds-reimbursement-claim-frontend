@@ -113,7 +113,7 @@ class CheckClaimDetailsControllerSpec
           val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
 
           }
@@ -142,7 +142,7 @@ class CheckClaimDetailsControllerSpec
 
       "reject an empty response" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
         }
 
@@ -156,7 +156,7 @@ class CheckClaimDetailsControllerSpec
 
       "accept YES response and redirect to enter inspection date page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
         }
 
@@ -168,7 +168,7 @@ class CheckClaimDetailsControllerSpec
 
       "accept NO response and redirect to enter inspection date page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
           mockStoreSession(SessionData(journeyWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
         }
