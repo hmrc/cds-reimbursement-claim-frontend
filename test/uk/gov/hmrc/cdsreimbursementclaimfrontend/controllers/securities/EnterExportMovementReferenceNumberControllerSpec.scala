@@ -130,7 +130,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         val session = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -152,7 +152,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         val session = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

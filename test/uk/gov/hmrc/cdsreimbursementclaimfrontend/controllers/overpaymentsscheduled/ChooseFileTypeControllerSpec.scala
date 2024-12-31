@@ -98,7 +98,7 @@ class ChooseFileTypeControllerSpec
 
       "display the page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
@@ -113,7 +113,7 @@ class ChooseFileTypeControllerSpec
       "display the page when in change mode" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -138,7 +138,7 @@ class ChooseFileTypeControllerSpec
 
       "redirect to choose files when valid document type selection" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(
             SessionData(
@@ -154,7 +154,7 @@ class ChooseFileTypeControllerSpec
 
       "re-display the page when invalid document type selection" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(
@@ -167,7 +167,7 @@ class ChooseFileTypeControllerSpec
 
       "re-display the page when nothing has been selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(

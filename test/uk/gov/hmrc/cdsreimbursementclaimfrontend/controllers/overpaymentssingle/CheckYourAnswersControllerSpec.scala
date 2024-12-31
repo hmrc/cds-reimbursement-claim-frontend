@@ -213,7 +213,7 @@ class CheckYourAnswersControllerSpec
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -247,7 +247,7 @@ class CheckYourAnswersControllerSpec
           val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -277,7 +277,7 @@ class CheckYourAnswersControllerSpec
         val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -296,7 +296,7 @@ class CheckYourAnswersControllerSpec
         val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -310,7 +310,7 @@ class CheckYourAnswersControllerSpec
               journey.finalizeJourneyWith("dummy case reference").toOption
             )
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -329,7 +329,7 @@ class CheckYourAnswersControllerSpec
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
             mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(claim))(
               Future.successful(OverpaymentsSingleClaimConnector.Response("foo-123-abc"))
@@ -351,7 +351,7 @@ class CheckYourAnswersControllerSpec
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
             mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(claim))(
               Future.failed(new Exception("blah"))
@@ -379,7 +379,7 @@ class CheckYourAnswersControllerSpec
           val updatedSession =
             SessionData.empty.copy(overpaymentsSingleJourney = journey.finalizeJourneyWith(caseNumber).toOption)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -395,7 +395,7 @@ class CheckYourAnswersControllerSpec
         forAll(completeJourneyGen) { journey =>
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 

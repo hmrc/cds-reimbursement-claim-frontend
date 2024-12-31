@@ -28,7 +28,6 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
@@ -38,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
@@ -95,17 +93,15 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       .authorised()
       .retrieve(
         Retrievals.affinityGroup and
-          Retrievals.email and
           Retrievals.allEnrolments and
           Retrievals.credentials
-      ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds =>
+      ) { case affinityGroup ~ enrolments ~ creds =>
         withGGCredentials(creds, request) {
           affinityGroup match {
 
             case Some(AffinityGroup.Individual) =>
               handleIndividualOrOrganisation(
                 Right(AffinityGroup.Individual),
-                maybeEmail,
                 enrolments,
                 request
               )
@@ -113,7 +109,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
             case Some(AffinityGroup.Organisation) =>
               handleIndividualOrOrganisation(
                 Left(AffinityGroup.Organisation),
-                maybeEmail,
                 enrolments,
                 request
               )
@@ -132,7 +127,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       Organisation,
       Individual
     ],
-    maybeEmail: Option[String],
     enrolments: Enrolments,
     request: MessagesRequest[A]
   )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
@@ -144,7 +138,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
           checkEoriIsAllowed(eori.value)
         )
           eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
-            handleSignedInUser(eori, affinityGroup, maybeEmail, eoriDetailsOpt.map(_.fullName), request)
+            handleSignedInUser(eori, affinityGroup, eoriDetailsOpt.map(_.fullName), request)
           }
         else
           Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
@@ -175,7 +169,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       Organisation,
       Individual
     ],
-    maybeEmail: Option[String],
     name: Option[String],
     request: MessagesRequest[A]
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
@@ -184,7 +177,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser.Individual(
-            maybeEmail.map(Email(_)),
+            None,
             eori,
             name
           ),
@@ -195,7 +188,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       } else {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser
-            .Organisation(maybeEmail.map(Email(_)), eori, name),
+            .Organisation(None, eori, name),
           Some(userType),
           request
         )

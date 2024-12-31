@@ -81,7 +81,7 @@ class DisposalMethodControllerSpec
       "display the page" in {
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -105,7 +105,7 @@ class DisposalMethodControllerSpec
 
       "reject an empty disposal method" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -126,7 +126,7 @@ class DisposalMethodControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -142,7 +142,7 @@ class DisposalMethodControllerSpec
           val sessionWitJourney = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWitJourney)
           }
 

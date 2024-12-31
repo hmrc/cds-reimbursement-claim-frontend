@@ -108,7 +108,7 @@ class EnterClaimControllerSpec
 
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
@@ -146,7 +146,7 @@ class EnterClaimControllerSpec
 
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 
@@ -191,7 +191,7 @@ class EnterClaimControllerSpec
 
               selectedTaxCodes.foreach { taxCode =>
                 inSequence {
-                  mockAuthWithNoRetrievals()
+                  mockAuthWithDefaultRetrievals()
                   mockGetSession(SessionData(journey))
                 }
 
@@ -266,7 +266,7 @@ class EnterClaimControllerSpec
                     .show(pageIndex, selectedTaxCodes(dutyIndex + 1)) // input amount for the next duty of current MRN
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
                 mockStoreSession(
                   SessionData(
@@ -304,7 +304,7 @@ class EnterClaimControllerSpec
               val paidAmount = journey.getAmountPaidFor(mrn, taxCode).get
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
               }
 

@@ -71,7 +71,7 @@ class EnterContactDetailsControllerSpec
 
   private def mockCompleteJourney(journey: RejectedGoodsMultipleJourney) =
     inSequence {
-      mockAuthWithNoRetrievals()
+      mockAuthWithDefaultRetrievals()
       mockGetSession(SessionData(journey))
     }
 
@@ -120,9 +120,9 @@ class EnterContactDetailsControllerSpec
 
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey.submitContactDetails(None)))
         }
 
@@ -152,9 +152,9 @@ class EnterContactDetailsControllerSpec
         genName
       ) { (journey, email, name) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             session.copy(rejectedGoodsMultipleJourney =
@@ -188,9 +188,9 @@ class EnterContactDetailsControllerSpec
       "fast forward to CYA page when claim is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
         (journey, email, name) =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockStoreSession(
               session.copy(rejectedGoodsMultipleJourney =

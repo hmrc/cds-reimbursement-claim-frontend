@@ -86,7 +86,7 @@ class UploadMrnListControllerSpec
       "redirect to 'Upload Mrn List' when no file uploaded yet" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockInitializeCall()
         }
@@ -100,7 +100,7 @@ class UploadMrnListControllerSpec
       "redirect to 'Upload Mrn List' when some file uploaded already" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(journey.receiveScheduledDocument(journey.answers.nonce, exampleUploadedFile).getOrFail)
           )
@@ -116,7 +116,7 @@ class UploadMrnListControllerSpec
       "redirect to 'Upload Mrn List' if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
             mockInitializeCall(journey.answers.scheduledDocument)
           }
@@ -144,7 +144,7 @@ class UploadMrnListControllerSpec
       "return 204 if callback accepted" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(
@@ -161,7 +161,7 @@ class UploadMrnListControllerSpec
       "return 400 if callback rejected because of invalid nonce" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(journey)
           )
@@ -173,7 +173,7 @@ class UploadMrnListControllerSpec
       "return 400 if callback rejected because of invalid request" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(journey)
           )

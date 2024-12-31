@@ -221,7 +221,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
       "return an ok response with an empty body" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(Right(None))
         }
 

@@ -56,7 +56,6 @@ class CheckYourAnswersController @Inject() (
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
-  private val selfUrl: String              = jcc.servicesConfig.getString("self.url")
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =

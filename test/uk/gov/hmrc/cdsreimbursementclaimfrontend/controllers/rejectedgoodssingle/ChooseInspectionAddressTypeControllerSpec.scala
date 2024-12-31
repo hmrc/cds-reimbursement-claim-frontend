@@ -100,7 +100,7 @@ class ChooseInspectionAddressTypeControllerSpec
     "skip page" when {
       "no ACC14 addresses available" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -121,7 +121,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
         ) { displayDeclaration =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(
               session.copy(rejectedGoodsSingleJourney =
                 RejectedGoodsSingleJourney
@@ -157,7 +157,7 @@ class ChooseInspectionAddressTypeControllerSpec
     "call ALF" when {
       "other address type is selected" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -192,7 +192,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWithDeclaration)
             mockStoreSession(sessionWithInspectionAddress)(Right(()))
           }
@@ -232,7 +232,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWithDeclaration)
             mockStoreSession(sessionWithInspectionAddress)(Right(()))
           }
@@ -276,7 +276,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWithDeclaration)
             mockStoreSession(sessionWithInspectionAddress)(Right(()))
           }
@@ -332,7 +332,7 @@ class ChooseInspectionAddressTypeControllerSpec
           )
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWithDeclaration)
             mockStoreSession(sessionWithInspectionAddress)(Right(()))
           }
@@ -348,7 +348,7 @@ class ChooseInspectionAddressTypeControllerSpec
     "update inspection address once address lookup complete" in {
       val contactAddress: ContactAddress = genContactAddress.sample.get
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(session)
         mockAddressRetrieve(Right(contactAddress))
         mockStoreSession(
@@ -374,7 +374,7 @@ class ChooseInspectionAddressTypeControllerSpec
           val sessionWithJourney = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionWithJourney)
             mockStoreSession(
               sessionWithJourney.copy(rejectedGoodsSingleJourney =

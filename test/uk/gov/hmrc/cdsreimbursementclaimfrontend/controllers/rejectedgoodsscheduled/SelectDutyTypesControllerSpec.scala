@@ -80,7 +80,7 @@ class SelectDutyTypesControllerSpec
 
       "display the page for the first time" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
@@ -102,7 +102,7 @@ class SelectDutyTypesControllerSpec
           val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedJourney))
           }
 
@@ -127,7 +127,7 @@ class SelectDutyTypesControllerSpec
 
       "reject an empty duty type selection" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
         }
 
@@ -144,7 +144,7 @@ class SelectDutyTypesControllerSpec
           journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journeyWithMrnAndDeclaration))
           mockStoreSession(SessionData(updatedJourney))(Right(()))
         }

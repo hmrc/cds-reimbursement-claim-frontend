@@ -109,7 +109,7 @@ class SelectDutiesControllerSpec
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -128,7 +128,7 @@ class SelectDutiesControllerSpec
             journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
           }
 
@@ -161,7 +161,7 @@ class SelectDutiesControllerSpec
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -191,7 +191,7 @@ class SelectDutiesControllerSpec
           val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(initialSession)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -225,7 +225,7 @@ class SelectDutiesControllerSpec
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 

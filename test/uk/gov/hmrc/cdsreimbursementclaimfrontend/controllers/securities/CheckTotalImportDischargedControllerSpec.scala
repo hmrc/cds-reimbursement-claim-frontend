@@ -122,7 +122,7 @@ class CheckTotalImportDischargedControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -153,7 +153,7 @@ class CheckTotalImportDischargedControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -170,7 +170,7 @@ class CheckTotalImportDischargedControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -187,7 +187,7 @@ class CheckTotalImportDischargedControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -204,7 +204,7 @@ class CheckTotalImportDischargedControllerSpec
         )
       ) { case (journey, _) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 

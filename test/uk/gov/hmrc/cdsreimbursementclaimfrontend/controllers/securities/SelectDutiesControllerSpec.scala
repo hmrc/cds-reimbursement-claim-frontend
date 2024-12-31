@@ -148,7 +148,7 @@ class SelectDutiesControllerSpec
             (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
           ) { securityId =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(updatedSession)
             }
 
@@ -176,7 +176,7 @@ class SelectDutiesControllerSpec
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           securityIdWithTaxCodes(journey).fold {
             inAnyOrder {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(updatedSession)
             }
             checkIsRedirect(
@@ -223,7 +223,7 @@ class SelectDutiesControllerSpec
                 val updatedSession =
                   SessionData.empty.copy(securitiesJourney = Some(updatedJourney))
                 inAnyOrder {
-                  mockAuthWithNoRetrievals()
+                  mockAuthWithDefaultRetrievals()
                   mockGetSession(updatedSession)
                 }
                 checkIsRedirect(
@@ -242,7 +242,7 @@ class SelectDutiesControllerSpec
           ) { securityId =>
             val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(updatedSession)
             }
             checkPageIsDisplayed(
@@ -261,7 +261,7 @@ class SelectDutiesControllerSpec
               journey.getSelectedDutiesFor(securityId).get
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -283,7 +283,7 @@ class SelectDutiesControllerSpec
 
           whenever(selectedDuties.size > 1) {
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
               mockStoreSession(Right(()))
             }
@@ -311,7 +311,7 @@ class SelectDutiesControllerSpec
 
             (availableDuties -- selectedDuties).foreach { taxCode =>
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
                 mockStoreSession(Right(()))
               }

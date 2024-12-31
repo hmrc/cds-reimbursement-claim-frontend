@@ -115,7 +115,7 @@ class SelectDutiesControllerSpec
 
       "display the page the first time" in forAll(journeyGen) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -130,7 +130,7 @@ class SelectDutiesControllerSpec
         journeyWithNIExciseCodesGen
       ) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -147,7 +147,7 @@ class SelectDutiesControllerSpec
             journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -180,7 +180,7 @@ class SelectDutiesControllerSpec
         val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -210,7 +210,7 @@ class SelectDutiesControllerSpec
           val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = updatedJourney.toOption)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(initialSession)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -244,7 +244,7 @@ class SelectDutiesControllerSpec
         val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 

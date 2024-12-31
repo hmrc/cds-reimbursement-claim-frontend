@@ -105,7 +105,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           journeyGen.sample.getOrElse(fail("Journey building has failed."))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -132,7 +132,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
             .get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -150,7 +150,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
             .get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -176,7 +176,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
             .getOrFail).sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -202,7 +202,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 
@@ -222,7 +222,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(
@@ -242,7 +242,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           journeyGen.sample.get
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 

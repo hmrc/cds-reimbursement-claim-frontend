@@ -71,7 +71,7 @@ class EnterRejectedGoodsDetailsControllerSpec
     "display the page" when {
       "the user has not answered this question before" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -89,7 +89,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         val updatedSession = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -105,7 +105,7 @@ class EnterRejectedGoodsDetailsControllerSpec
       "the user submits empty details" in {
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -124,7 +124,7 @@ class EnterRejectedGoodsDetailsControllerSpec
         val answer = List.fill(600)('c').mkString(" ")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

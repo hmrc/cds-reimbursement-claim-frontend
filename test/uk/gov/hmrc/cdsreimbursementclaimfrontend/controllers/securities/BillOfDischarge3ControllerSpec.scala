@@ -93,7 +93,7 @@ class BillOfDischarge3ControllerSpec
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -118,7 +118,7 @@ class BillOfDischarge3ControllerSpec
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -132,7 +132,7 @@ class BillOfDischarge3ControllerSpec
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 
@@ -159,7 +159,7 @@ class BillOfDischarge3ControllerSpec
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
 

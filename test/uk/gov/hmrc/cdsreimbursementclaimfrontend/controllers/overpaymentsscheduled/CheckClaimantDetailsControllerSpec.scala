@@ -93,7 +93,7 @@ class CheckClaimantDetailsControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -108,7 +108,7 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
         forAll(genEori) { eori =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(OverpaymentsScheduledJourney.empty(eori)))
           }
 
@@ -150,7 +150,7 @@ class CheckClaimantDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -173,7 +173,7 @@ class CheckClaimantDetailsControllerSpec
           val session = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
             mockStoreSession(Right(()))
           }
@@ -191,7 +191,7 @@ class CheckClaimantDetailsControllerSpec
 
     "start successfully" in forAll(genUrl) { lookupUrl =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockAddressLookup(Right(lookupUrl))
       }
 
@@ -200,7 +200,7 @@ class CheckClaimantDetailsControllerSpec
 
     "fail to start if error response received from downstream ALF service" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockAddressLookup(Left(Error("Request was not accepted")))
       }
 
@@ -209,7 +209,7 @@ class CheckClaimantDetailsControllerSpec
 
     "update an address once complete" in forAll(genContactAddress) { address =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(session)
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
@@ -225,7 +225,7 @@ class CheckClaimantDetailsControllerSpec
       val addressId = UUID.randomUUID()
 
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(session)
         mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
       }

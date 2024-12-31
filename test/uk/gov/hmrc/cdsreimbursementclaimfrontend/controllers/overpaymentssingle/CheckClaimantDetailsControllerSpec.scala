@@ -96,7 +96,7 @@ class CheckClaimantDetailsControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -111,7 +111,7 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
         forAll(genEori) { eori =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(SessionData(OverpaymentsSingleJourney.empty(eori)))
           }
 
@@ -149,7 +149,7 @@ class CheckClaimantDetailsControllerSpec
             val session = SessionData(journey)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithOrgWithEoriEnrolmentRetrievals()
               mockGetSession(session)
             }
 
@@ -181,7 +181,7 @@ class CheckClaimantDetailsControllerSpec
             val updatedSession         = SessionData(expectedJourney)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithOrgWithEoriEnrolmentRetrievals()
               mockGetSession(session)
               mockStoreSession(updatedSession)(Right(()))
             }
@@ -205,7 +205,7 @@ class CheckClaimantDetailsControllerSpec
           val session = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(session)
             mockStoreSession(Right(()))
           }
@@ -223,7 +223,7 @@ class CheckClaimantDetailsControllerSpec
 
     "start successfully" in forAll(genUrl) { lookupUrl =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithOrgWithEoriEnrolmentRetrievals()
         mockAddressLookup(Right(lookupUrl))
       }
 
@@ -232,7 +232,7 @@ class CheckClaimantDetailsControllerSpec
 
     "fail to start if error response received from downstream ALF service" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithOrgWithEoriEnrolmentRetrievals()
         mockAddressLookup(Left(Error("Request was not accepted")))
       }
 
@@ -241,7 +241,7 @@ class CheckClaimantDetailsControllerSpec
 
     "update an address once complete" in forAll(genContactAddress) { address =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithOrgWithEoriEnrolmentRetrievals()
         mockGetSession(session)
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
@@ -257,7 +257,7 @@ class CheckClaimantDetailsControllerSpec
       val addressId = UUID.randomUUID()
 
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithOrgWithEoriEnrolmentRetrievals()
         mockGetSession(session)
         mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
       }

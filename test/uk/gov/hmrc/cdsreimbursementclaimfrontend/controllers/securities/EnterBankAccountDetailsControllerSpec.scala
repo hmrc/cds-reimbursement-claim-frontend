@@ -115,7 +115,7 @@ class EnterBankAccountDetailsControllerSpec
         forAll(completeJourneyGen) { journey =>
           val session = SessionData(journey)
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
           }
           checkPageIsDisplayed(
@@ -227,7 +227,7 @@ class EnterBankAccountDetailsControllerSpec
               "enter-bank-account-details.account-number" -> ""
             )
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(session)
             }
             checkPageIsDisplayed(

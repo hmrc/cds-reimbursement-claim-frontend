@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
 sealed trait AuthenticatedUser {
   def name: Option[String]
-  def email: Option[Email]
+  def email: Option[Email] //fixme email can go
   def eoriOpt: Option[Eori] = None
 
   final def asVerifiedEmail: Option[CdsVerifiedEmail] =
@@ -31,6 +31,8 @@ sealed trait AuthenticatedUser {
 }
 
 object AuthenticatedUser {
+
+  //fixme no need to have Individual and Organisation (we treat them the same way)
 
   final case class Individual(
     email: Option[Email],

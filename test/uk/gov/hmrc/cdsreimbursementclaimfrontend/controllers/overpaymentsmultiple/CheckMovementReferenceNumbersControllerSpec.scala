@@ -131,7 +131,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "redirect to enter mrn page if no MRNs contained in journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -151,7 +151,7 @@ class CheckMovementReferenceNumbersControllerSpec
           )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -177,7 +177,7 @@ class CheckMovementReferenceNumbersControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -214,7 +214,7 @@ class CheckMovementReferenceNumbersControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -258,7 +258,7 @@ class CheckMovementReferenceNumbersControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -282,7 +282,7 @@ class CheckMovementReferenceNumbersControllerSpec
           val sessionToAmend = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -305,7 +305,7 @@ class CheckMovementReferenceNumbersControllerSpec
             SessionData(journey.withEnterContactDetailsMode(true))
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
           }
 
@@ -318,7 +318,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "redirect to enter mrn page if no MRNs contained in journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -359,7 +359,7 @@ class CheckMovementReferenceNumbersControllerSpec
             val updatedSession = SessionData(updatedJourney)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(sessionToAmend)
               mockStoreSession(updatedSession)(Right(()))
             }
@@ -374,7 +374,7 @@ class CheckMovementReferenceNumbersControllerSpec
       "redirect to ineligible page if anything is wrong with the attempt to remove the MRN" in forAll(genMRN) {
         mrn: MRN =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
           }
 

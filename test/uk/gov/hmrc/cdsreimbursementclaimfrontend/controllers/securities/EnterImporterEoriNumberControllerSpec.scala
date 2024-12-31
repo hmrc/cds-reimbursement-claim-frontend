@@ -106,7 +106,7 @@ class EnterImporterEoriNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -142,7 +142,7 @@ class EnterImporterEoriNumberControllerSpec
         )
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -174,7 +174,7 @@ class EnterImporterEoriNumberControllerSpec
         val sessionToAmend = initialSession.copy(securitiesJourney = Some(journey))
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -204,7 +204,7 @@ class EnterImporterEoriNumberControllerSpec
 
       "reject an empty Eori" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -220,7 +220,7 @@ class EnterImporterEoriNumberControllerSpec
         val invalidEori = Eori("INVALID_MRN")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
         }
 
@@ -261,7 +261,7 @@ class EnterImporterEoriNumberControllerSpec
           val updatedSession  = initialSession.copy(securitiesJourney = Some(updatedJourney))
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(requiredSession)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -295,7 +295,7 @@ class EnterImporterEoriNumberControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 

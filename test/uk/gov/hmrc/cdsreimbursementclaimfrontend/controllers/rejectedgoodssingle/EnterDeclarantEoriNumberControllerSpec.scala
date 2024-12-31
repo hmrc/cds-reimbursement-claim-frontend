@@ -94,7 +94,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -113,7 +113,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "redirect to basis of claim selection when eori check not needed (user eori is declarant eori)" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
               RejectedGoodsSingleJourney
@@ -135,7 +135,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "redirect to basis of claim selection when eori check not needed (user eori is consignee eori)" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
               RejectedGoodsSingleJourney
@@ -165,7 +165,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -195,7 +195,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "reject an empty Eori" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -211,7 +211,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val invalidEori = Eori("INVALID_MRN")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -242,7 +242,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val updatedSession                = SessionData(updatedJourney)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(requiredSession)
           mockStoreSession(updatedSession)(Right(()))
         }
@@ -271,7 +271,7 @@ class EnterDeclarantEoriNumberControllerSpec
             val requiredSession               = SessionData(journey)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(requiredSession)
             }
 

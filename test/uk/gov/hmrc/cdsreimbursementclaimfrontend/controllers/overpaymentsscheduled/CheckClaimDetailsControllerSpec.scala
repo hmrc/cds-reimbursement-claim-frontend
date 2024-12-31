@@ -115,7 +115,7 @@ class CheckClaimDetailsControllerSpec
       "display the page" in
         forAll(journeyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -129,7 +129,7 @@ class CheckClaimDetailsControllerSpec
       "display the page in the change mode" in
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -157,7 +157,7 @@ class CheckClaimDetailsControllerSpec
       "accept YES response and redirect to the next page" in
         forAll(journeyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -170,7 +170,7 @@ class CheckClaimDetailsControllerSpec
       "accept YES response and redirect to the CYA page when in change mode" in
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -183,7 +183,7 @@ class CheckClaimDetailsControllerSpec
       "accept NO response and redirect to select duties page" in {
         val journey = journeyGen.sample.get
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
         }

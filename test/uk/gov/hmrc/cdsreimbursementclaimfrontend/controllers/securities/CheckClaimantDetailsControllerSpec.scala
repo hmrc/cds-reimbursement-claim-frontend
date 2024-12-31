@@ -107,7 +107,7 @@ class CheckClaimantDetailsControllerSpec
               val session = SessionData(journey)
 
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(session)
               }
 
@@ -122,7 +122,7 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
         }
 
@@ -167,7 +167,7 @@ class CheckClaimantDetailsControllerSpec
             val session = SessionData(journey)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(session)
             }
 
@@ -209,7 +209,7 @@ class CheckClaimantDetailsControllerSpec
           val updatedSession         = SessionData(expectedJourney)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -242,7 +242,7 @@ class CheckClaimantDetailsControllerSpec
           val session = SessionData(journey)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(session)
             mockStoreSession(Right(()))
           }
@@ -261,7 +261,7 @@ class CheckClaimantDetailsControllerSpec
 
     "start successfully" in forAll(genUrl) { lookupUrl =>
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockAddressLookup(Right(lookupUrl))
       }
 
@@ -270,7 +270,7 @@ class CheckClaimantDetailsControllerSpec
 
     "fail to start if error response received from downstream ALF service" in {
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockAddressLookup(Left(Error("Request was not accepted")))
       }
 
@@ -282,7 +282,7 @@ class CheckClaimantDetailsControllerSpec
         securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
 
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(SessionData(initialJourney))
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
@@ -301,7 +301,7 @@ class CheckClaimantDetailsControllerSpec
       val addressId = UUID.randomUUID()
 
       inSequence {
-        mockAuthWithNoRetrievals()
+        mockAuthWithDefaultRetrievals()
         mockGetSession(SessionData(initialJourney))
         mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
       }

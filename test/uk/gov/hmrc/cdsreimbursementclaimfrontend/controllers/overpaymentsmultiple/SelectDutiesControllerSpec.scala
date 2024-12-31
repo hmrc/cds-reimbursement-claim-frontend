@@ -100,7 +100,7 @@ class SelectDutiesControllerSpec
       "display the page with no duty selected" in {
         forAll(incompleteJourneyWithMrnsGen(2)) { case (journey, mrns) =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -118,7 +118,7 @@ class SelectDutiesControllerSpec
       "display the page with some duties selected" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, _) =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -141,7 +141,7 @@ class SelectDutiesControllerSpec
       "display the page with some duties selected when in change mode" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -178,7 +178,7 @@ class SelectDutiesControllerSpec
         forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -198,7 +198,7 @@ class SelectDutiesControllerSpec
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -221,7 +221,7 @@ class SelectDutiesControllerSpec
         forAll(completeJourneyGen) { journey =>
           journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -264,7 +264,7 @@ class SelectDutiesControllerSpec
               displayedTaxCodes.take(Math.max(1, displayedTaxCodes.size / 2))
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
               mockStoreSession(
                 SessionData(
@@ -287,7 +287,7 @@ class SelectDutiesControllerSpec
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
             }
 
@@ -308,7 +308,7 @@ class SelectDutiesControllerSpec
             val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
             if (newSelectedTaxCodes.nonEmpty) {
               inSequence {
-                mockAuthWithNoRetrievals()
+                mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
                 mockStoreSession(
                   SessionData(

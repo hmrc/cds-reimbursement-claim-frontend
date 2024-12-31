@@ -110,7 +110,7 @@ class BasisForClaimControllerSpec
       "display page the first time" in {
         forAll(journeyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -129,7 +129,7 @@ class BasisForClaimControllerSpec
               journey.submitBasisOfClaim(basisOfClaim)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journeyWithBasisOfClaim))
             }
 
@@ -148,7 +148,7 @@ class BasisForClaimControllerSpec
       "display page back in the change mode" in {
         forAll(completeJourneyGen) { journey =>
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
 
@@ -176,7 +176,7 @@ class BasisForClaimControllerSpec
         journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))
       ) { case (journey, basisOfClaim) =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
           mockStoreSession(
             SessionData(journey.submitBasisOfClaim(basisOfClaim))
@@ -193,7 +193,7 @@ class BasisForClaimControllerSpec
 
       "submit an invalid basis for claim index" in forAll(journeyGen) { journey =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
         }
 

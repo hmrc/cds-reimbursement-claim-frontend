@@ -59,8 +59,6 @@ class CheckYourAnswersController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val selfUrl: String = jcc.servicesConfig.getString("self.url")
-
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       journey

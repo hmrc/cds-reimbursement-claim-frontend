@@ -96,7 +96,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -115,7 +115,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "redirect to the upload mrn list page when eori check not needed (user eori is declarant eori)" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
               RejectedGoodsScheduledJourney
@@ -145,7 +145,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -175,7 +175,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "reject an empty Eori" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -191,7 +191,7 @@ class EnterDeclarantEoriNumberControllerSpec
         val invalidEori = Eori("INVALID_EORI")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -225,7 +225,7 @@ class EnterDeclarantEoriNumberControllerSpec
           val updatedSession  = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(requiredSession)
             mockStoreSession(updatedSession)(Right(()))
           }
@@ -255,7 +255,7 @@ class EnterDeclarantEoriNumberControllerSpec
             val requiredSession = SessionData(journey)
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(requiredSession)
             }
 

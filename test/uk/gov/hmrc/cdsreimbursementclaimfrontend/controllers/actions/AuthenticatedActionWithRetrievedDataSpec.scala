@@ -30,6 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
@@ -54,9 +55,8 @@ class AuthenticatedActionWithRetrievedDataSpec
     with SessionSupport
     with AuthActionSpec {
 
-  val retrievals: Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials]] =
+  val retrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
     Retrievals.affinityGroup and
-      Retrievals.email and
       Retrievals.allEnrolments and
       Retrievals.credentials
 
@@ -149,7 +149,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "return the auth provider id" in {
           val providerType     = "other provider"
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments and Some(
               Credentials("id", providerType)
             ))
 
@@ -171,7 +171,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "return the signed in details for an individual" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and eoriEnrolment(
+            Future successful (Some(AffinityGroup.Individual) and eoriEnrolment(
               eori.value
             ) and Some(
               ggCredentials
@@ -186,7 +186,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Individual](
             AuthenticatedUser
               .Individual(
-                Some(Email("email")),
+                None,
                 eori,
                 Some("John Smith")
               )
@@ -195,7 +195,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "return the signed in details for an organisation" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and eoriEnrolment(
+            Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               eori.value
             ) and Some(
               ggCredentials
@@ -210,7 +210,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Organisation](
             AuthenticatedUser
               .Organisation(
-                Some(Email("email")),
+                None,
                 eori,
                 Some("John Smith")
               )
@@ -222,7 +222,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments and Some(
               ggCredentials
             ))
 
@@ -243,7 +243,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and someOtherEnrolment and Some(
+            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment and Some(
               ggCredentials
             ))
 
@@ -340,7 +340,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "redirect to the start page" in {
           val providerType     = "other provider"
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments and Some(
               Credentials("id", providerType)
             ))
 
@@ -357,7 +357,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "return the signed in details for an individual" in {
           val eoriNumber       = "GB000000000000001"
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and eoriEnrolment(
+            Future successful (Some(AffinityGroup.Individual) and eoriEnrolment(
               eoriNumber
             ) and Some(
               ggCredentials
@@ -372,7 +372,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Individual](
             AuthenticatedUser
               .Individual(
-                Some(Email("email")),
+                None,
                 Eori("GB000000000000001"),
                 Some("John Smith")
               )
@@ -382,7 +382,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "return the signed in details for an organisation" in {
           val eoriNumber       = "GB000000000000002"
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and eoriEnrolment(
+            Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               eoriNumber
             ) and Some(
               ggCredentials
@@ -397,7 +397,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Organisation](
             AuthenticatedUser
               .Organisation(
-                Some(Email("email")),
+                None,
                 Eori("GB000000000000002"),
                 Some("John Smith")
               )
@@ -406,7 +406,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to the start page when user NOT on the allow list" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Organisation), Some("email")) and eoriEnrolment(
+            Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               "GB000000000000003"
             ) and Some(
               ggCredentials
@@ -425,7 +425,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments and Some(
               ggCredentials
             ))
 
@@ -446,7 +446,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (new ~(Some(AffinityGroup.Individual), Some("email")) and someOtherEnrolment and Some(
+            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment and Some(
               ggCredentials
             ))
 

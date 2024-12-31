@@ -87,7 +87,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "display the page on a new journey" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -112,7 +112,7 @@ class EnterMovementReferenceNumberControllerSpec
         val sessionToAmend = SessionData(journey)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(sessionToAmend)
         }
 
@@ -137,7 +137,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "save an MRN if valid and continue to the choose reason for security page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(
             SessionData(journey.submitMovementReferenceNumber(exampleMrn))
@@ -156,7 +156,7 @@ class EnterMovementReferenceNumberControllerSpec
             .submitMovementReferenceNumber(exampleMrn)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -173,7 +173,7 @@ class EnterMovementReferenceNumberControllerSpec
             .submitCheckDeclarationDetailsChangeMode(true)
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -187,7 +187,7 @@ class EnterMovementReferenceNumberControllerSpec
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 
@@ -206,7 +206,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "reject an empty MRN" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

@@ -77,7 +77,7 @@ class ProblemWithAddressControllerSpec
 
       "display the page" in {
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(session)
         }
 

@@ -181,53 +181,6 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
         )
       }
 
-  /** Async GET action to show page based on the current user's auth data and journey state. */
-  final def actionReadJourneyAndUser(
-    body: Request[_] => Journey => AuthenticatedUser => Option[CdsVerifiedEmail] => Future[Result]
-  ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
-      .async { implicit request =>
-        getJourney(request.sessionData)
-          .map((journey: Journey) =>
-            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
-            else
-              checkIfMaybeActionPreconditionFails(journey) match {
-                case None         =>
-                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
-                    request.sessionData.verifiedEmail
-                  )
-                case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
-              }
-          )
-          .getOrElse(redirectToTheStartOfTheJourney)
-      }
-
-  /** Simple GET action to show page based on the current user's auth data and journey state. */
-  final def simpleActionReadJourneyAndUser(
-    body: Journey => AuthenticatedUser => Option[CdsVerifiedEmail] => Result
-  ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
-      .apply { implicit request =>
-        getJourney(request.sessionData)
-          .map((journey: Journey) =>
-            if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
-            else
-              checkIfMaybeActionPreconditionFails(journey) match {
-                case None         =>
-                  body(journey)(request.authenticatedRequest.journeyUserType)(
-                    request.sessionData.verifiedEmail
-                  )
-                case Some(errors) => Redirect(routeForValidationErrors(errors))
-              }
-          )
-          .getOrElse {
-            logger.warn(MISSING_JOURNEY_DATA_LOG_MESSAGE)
-            Redirect(startOfTheJourney)
-          }
-      }
-
   /** Async GET action to show page based on the request and the current journey state. */
   final def actionReadJourney(
     body: Request[_] => Journey => Future[Result]
@@ -288,43 +241,6 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
           .getOrElse(redirectToTheStartOfTheJourney)
       }
 
-  /** Simple POST to submit form and update the current journey, can use current user's auth data. */
-  final def simpleActionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => AuthenticatedUser => Option[
-      CdsVerifiedEmail
-    ] => (
-      Journey,
-      Result
-    ),
-    fastForwardToCYAEnabled: Boolean = true
-  ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
-      .async { implicit request =>
-        getJourney(request.sessionData)
-          .map((journey: Journey) =>
-            if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
-            else
-              checkIfMaybeActionPreconditionFails(journey) match {
-                case None         =>
-                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
-                    request.sessionData.verifiedEmail
-                  )
-                case Some(errors) => (journey, Redirect(routeForValidationErrors(errors)))
-              }
-          )
-          .map { case (modifiedJourney, result) =>
-            storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
-              .flatMap(
-                _.fold(
-                  error => Future.failed(error.toException),
-                  _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
-                )
-              )
-          }
-          .getOrElse(redirectToTheStartOfTheJourney)
-      }
-
   /** Async POST action to submit form and update journey. */
   final def actionReadWriteJourney(
     body: Request[_] => Journey => Future[(Journey, Result)],
@@ -356,78 +272,6 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
           )
           .getOrElse(redirectToTheStartOfTheJourney)
 
-      }
-
-  /** Async POST action to submit form and update the journey, or clear the session. */
-  final def actionReadWriteJourneyOrClearSession(
-    body: Request[_] => Journey => Future[Either[Result, (Journey, Result)]],
-    fastForwardToCYAEnabled: Boolean = true
-  ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
-      .async { implicit request =>
-        request.sessionData
-          .flatMap(sessionData =>
-            getJourney(sessionData)
-              .map((journey: Journey) =>
-                if (journey.isFinalized) Future.successful(Right((journey, Redirect(claimSubmissionConfirmation))))
-                else
-                  checkIfMaybeActionPreconditionFails(journey) match {
-                    case None         => body(request)(journey)
-                    case Some(errors) => Future.successful(Right((journey, Redirect(routeForValidationErrors(errors)))))
-                  }
-              )
-              .map(_.flatMap {
-                case Right((modifiedJourney, result)) =>
-                  storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
-                    .flatMap(
-                      _.fold(
-                        error => Future.failed(error.toException),
-                        _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
-                      )
-                    )
-                case Left(result)                     =>
-                  jcc.sessionCache
-                    .store(SessionData.empty)
-                    .map(_ => result)
-              })
-          )
-          .getOrElse(redirectToTheStartOfTheJourney)
-
-      }
-
-  /** Async POST action to submit form and update the journey, can use the current user's auth data. */
-  final def actionReadWriteJourneyAndUser(
-    body: RequestWithSessionDataAndRetrievedData[_] => Journey => AuthenticatedUser => Option[
-      CdsVerifiedEmail
-    ] => Future[
-      (Journey, Result)
-    ],
-    fastForwardToCYAEnabled: Boolean = true
-  ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
-      .async { implicit request =>
-        getJourney(request.sessionData)
-          .fold(redirectToTheStartOfTheJourney) { (journey: Journey) =>
-            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
-            else
-              (checkIfMaybeActionPreconditionFails(journey) match {
-                case None         =>
-                  body(request)(journey)(request.authenticatedRequest.journeyUserType)(
-                    request.sessionData.verifiedEmail
-                  )
-                case Some(errors) => Future.successful((journey, Redirect(routeForValidationErrors(errors))))
-              }).flatMap { case (modifiedJourney, result) =>
-                storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
-                  .flatMap(
-                    _.fold(
-                      error => Future.failed(error.toException),
-                      _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
-                    )
-                  )
-              }
-          }
       }
 
   final def getReimbursementWithCorrectAmount(

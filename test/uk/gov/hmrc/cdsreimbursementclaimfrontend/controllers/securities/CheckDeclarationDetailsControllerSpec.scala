@@ -175,7 +175,7 @@ class CheckDeclarationDetailsControllerSpec
         val initialJourney = emptyJourney
 
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
@@ -197,7 +197,7 @@ class CheckDeclarationDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
             }
 
@@ -221,7 +221,7 @@ class CheckDeclarationDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
             }
@@ -244,7 +244,7 @@ class CheckDeclarationDetailsControllerSpec
             .getOrFail
 
           inSequence {
-            mockAuthWithNoRetrievals()
+            mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
             mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
           }
@@ -289,7 +289,7 @@ class CheckDeclarationDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockStoreSession(
                 SessionData(
@@ -324,7 +324,7 @@ class CheckDeclarationDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
             }
@@ -350,7 +350,7 @@ class CheckDeclarationDetailsControllerSpec
               .getOrFail
 
             inSequence {
-              mockAuthWithNoRetrievals()
+              mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialJourney))
               mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
             }
@@ -365,7 +365,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "redirect to the CYA page when in change your answers mode" in forAll(completeJourneyGen) { initialJourney =>
         inSequence {
-          mockAuthWithNoRetrievals()
+          mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(initialJourney))
         }
 
