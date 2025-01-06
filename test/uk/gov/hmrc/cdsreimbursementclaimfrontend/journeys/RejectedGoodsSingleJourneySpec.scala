@@ -1029,28 +1029,6 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "getNextNdrcDetailsToClaim" when {
-      "return the next Ndrc Details to claim" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
-            whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
-              val taxCodes             = ndrcDetails.map(details => TaxCode(details.taxType))
-              val drd                  = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
-              val journey              = RejectedGoodsSingleJourney
-                .empty(exampleEori)
-                .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
-                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
-                .getOrFail
-              val claimedReimbursement = journey.answers.correctedAmounts.get
-              val nextDetails          = journey.getNextNdrcDetailsToClaim.get
-              claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
-              // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
-            }
-        }
-      }
-    }
-
     "hasCompleteReimbursementClaims" when {
       "return true if all claim amounts are present" in {
         forAll(completeJourneyGen) { journey =>

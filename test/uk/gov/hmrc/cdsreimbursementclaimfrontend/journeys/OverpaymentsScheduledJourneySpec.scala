@@ -1151,8 +1151,6 @@ class OverpaymentsScheduledJourneySpec
 
           journey.getNdrcDetailsFor(taxCode) shouldBe Some(ndrcDetails)
 
-          journey.getNextNdrcDetailsToClaim shouldBe Some(ndrcDetails)
-
           journey.getReimbursementFor(dutyType, taxCode) shouldBe None
 
           journey = journey
@@ -1172,7 +1170,6 @@ class OverpaymentsScheduledJourneySpec
       }
 
       journey.findNextDutyToSelectDuties shouldBe None
-      journey.getNextNdrcDetailsToClaim  shouldBe None
 
       previousDuty.foreach { pdt =>
         journey.findNextSelectedDutyAfter(pdt) shouldBe None

@@ -223,13 +223,6 @@ final class RejectedGoodsMultipleJourney private (
       })
       .exists(_.forall(_.isCmaEligible))
 
-  def getNextNdrcDetailsToClaim(mrn: MRN): Option[NdrcDetails] =
-    getCorrectAmountsFor(mrn)
-      .flatMap(
-        _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor(mrn, _))
-      )
-
   def getTotalReimbursementAmountFor(mrn: MRN): Option[BigDecimal] =
     getReimbursementClaims.get(mrn).map(_.map(_._2).sum)
 
@@ -271,10 +264,8 @@ final class RejectedGoodsMultipleJourney private (
         "submitMovementReferenceNumber.needsNonSubsidy"
       } { leadNdrcDetails: List[NdrcDetails] =>
         leadNdrcDetails.map(_.paymentMethod).distinct match {
-          case a if a.contains("006")                                           => "submitMovementReferenceNumber.needsSubsidy"
-          case b if b.contains("001") || b.contains("002") || b.contains("003") =>
-            "submitMovementReferenceNumber.needsNonSubsidy"
-          case _                                                                => "submitMovementReferenceNumber.needsNonSubsidy"
+          case a if a.contains("006") => "submitMovementReferenceNumber.needsSubsidy"
+          case _                      => "submitMovementReferenceNumber.needsNonSubsidy"
         }
       }
 
