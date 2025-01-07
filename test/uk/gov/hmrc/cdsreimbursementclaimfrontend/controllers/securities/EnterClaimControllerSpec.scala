@@ -218,17 +218,19 @@ class EnterClaimControllerSpec
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
 
-          val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
+          availableDuties
+            .filterNot(selectedDuties.contains)
+            .foreach { unselectedDuty =>
+              inSequence {
+                mockAuthWithDefaultRetrievals()
+                mockGetSession(SessionData(initialJourney))
+              }
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-          }
-
-          checkIsRedirect(
-            performAction(depositId, unselectedDuty),
-            routes.SelectDutiesController.show(depositId)
-          )
+              checkIsRedirect(
+                performAction(depositId, unselectedDuty),
+                routes.SelectDutiesController.show(depositId)
+              )
+            }
         }
       }
 
