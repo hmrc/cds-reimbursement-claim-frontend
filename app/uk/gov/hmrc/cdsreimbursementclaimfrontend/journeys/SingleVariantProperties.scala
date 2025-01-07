@@ -85,13 +85,6 @@ trait SingleVariantProperties extends CommonJourneyProperties {
       .collect { case Some(d) => d }
       .forall(_.isCmaEligible)
 
-  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.correctedAmounts
-      .flatMap(
-        _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
-      )
-
   def getSelectedTaxCodesWithCorrectAmount: Seq[(TaxCode, BigDecimal)] =
     answers.correctedAmounts
       .map(

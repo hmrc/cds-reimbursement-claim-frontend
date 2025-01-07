@@ -238,14 +238,6 @@ final class OverpaymentsMultipleJourney private (
     toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect: _*))
   }
 
-  def getNextNdrcDetailsToClaim(declarationId: MRN): Option[NdrcDetails] =
-    answers.correctedAmounts
-      .flatMap(_.get(declarationId))
-      .flatMap(
-        _.collectFirst { case (taxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor(declarationId, _))
-      )
-
   def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
     getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
@@ -294,10 +286,8 @@ final class OverpaymentsMultipleJourney private (
         "submitMovementReferenceNumber.needsNonSubsidy"
       } { leadNdrcDetails: List[NdrcDetails] =>
         leadNdrcDetails.map(_.paymentMethod).distinct match {
-          case a if a.contains("006")                                           => "submitMovementReferenceNumber.needsSubsidy"
-          case b if b.contains("001") || b.contains("002") || b.contains("003") =>
-            "submitMovementReferenceNumber.needsNonSubsidy"
-          case _                                                                => "submitMovementReferenceNumber.needsNonSubsidy"
+          case a if a.contains("006") => "submitMovementReferenceNumber.needsSubsidy"
+          case _                      => "submitMovementReferenceNumber.needsNonSubsidy"
         }
       }
 
@@ -654,7 +644,7 @@ final class OverpaymentsMultipleJourney private (
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
       if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+        Right(this)
       else
         Right(
           copy(newAnswers =
@@ -668,15 +658,13 @@ final class OverpaymentsMultipleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountDetails =
-              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
-            )
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
           )
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def removeBankAccountDetails(): OverpaymentsMultipleJourney =
@@ -688,13 +676,11 @@ final class OverpaymentsMultipleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, OverpaymentsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
-        Right(
-          this.copy(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): OverpaymentsMultipleJourney =

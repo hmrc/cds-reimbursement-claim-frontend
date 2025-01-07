@@ -155,15 +155,6 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
     if (total === ZERO) None else Some(total)
   }
 
-  def getNextNdrcDetailsToClaim: Option[NdrcDetails] =
-    answers.correctedAmounts
-      .flatMap(
-        _.values
-          .flatMap(_.toSeq)
-          .collectFirst { case (taxCode: TaxCode, None) => taxCode }
-          .flatMap(getNdrcDetailsFor)
-      )
-
   def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
     taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
       total + claim.claimAmount

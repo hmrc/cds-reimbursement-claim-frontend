@@ -121,6 +121,21 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
+    "fail to finalize invalid journey" in {
+      completeJourneyGen.sample.get
+        .removeBankAccountDetails()
+        .finalizeJourneyWith("foo")
+        .isLeft shouldBe true
+    }
+
+    "have working equals method" in {
+      val journey = completeJourneyGen.sample.get
+      journey.equals(completeJourneyGen.sample.get) shouldBe false
+      journey.equals(journey)                       shouldBe true
+      journey.equals("foo")                         shouldBe false
+      journey.hashCode()                            shouldBe journey.answers.hashCode
+    }
+
     "accept submission of a new MRN" in {
       forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
         val journey = emptyJourney
@@ -134,12 +149,80 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
-    "decline submission of a wrong display declaration" in {
+    "decline submission of a wrong display declaration mrn" in {
       forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
         val journeyEither = emptyJourney
           .submitMovementReferenceNumberAndDeclaration(mrn, decl.withDeclarationId("foo"))
 
         journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+      }
+    }
+
+    "decline submission of a wrong display declaration eori" in {
+      val displayDeclaration  =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
+      val displayDeclaration2 =
+        buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = Some(exampleEori))
+      val journeyEither       =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, exampleMrn, displayDeclaration2)
+
+      journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
+    }
+
+    "decline submission of a display declaration with subsidy only payments enabled and non-matching payment methods" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(
+          generateSubsidyPayments = GenerateSubsidyPayments.None
+        )
+      val journeyEither      =
+        OverpaymentsMultipleJourney
+          .empty(
+            exampleEori,
+            features = Some(
+              OverpaymentsMultipleJourney.Features(shouldAllowSubsidyOnlyPayments = true, shouldBlockSubsidies = false)
+            )
+          )
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, exampleMrn, displayDeclaration)
+
+      journeyEither shouldBe Left("submitMovementReferenceNumber.needsNonSubsidy")
+    }
+
+    "decline submission of a display declaration with an already existing MRN" in {
+      val displayDeclaration  =
+        buildDisplayDeclaration(id = exampleMrnAsString)
+      val displayDeclaration2 =
+        buildDisplayDeclaration(id = exampleMrnAsString)
+      val journeyEither       =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, exampleMrn, displayDeclaration2)
+
+      journeyEither shouldBe Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
+    }
+
+    "decline submission of declaration at a negative index" in {
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumberAndDeclaration(-1, mrn, decl)
+
+        journey shouldBe Left("submitMovementReferenceNumber.negativeIndex")
+      }
+    }
+
+    "decline submission of declaration at an invalid index" in {
+      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumberAndDeclaration(1, mrn, decl)
+
+        journey shouldBe Left("submitMovementReferenceNumber.invalidIndex")
       }
     }
 
@@ -154,6 +237,23 @@ class OverpaymentsMultipleJourneySpec
         modifiedJourney.hasCompleteReimbursementClaims                    shouldBe false
         modifiedJourney.hasCompleteSupportingEvidences                    shouldBe false
       }
+    }
+
+    "decline change of the MRN if it already exists at a different index" in {
+      val displayDeclaration  =
+        buildDisplayDeclaration(id = exampleMrnAsString)
+      val displayDeclaration2 =
+        buildDisplayDeclaration(id = anotherExampleMrn.value)
+      val journeyEither       =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, anotherExampleMrn, displayDeclaration2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(0, anotherExampleMrn, displayDeclaration2)
+
+      journeyEither shouldBe Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
     }
 
     "accept change of the MRN when user has XI eori" in {
@@ -475,7 +575,29 @@ class OverpaymentsMultipleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00, TaxCode.A90)))
 
-      journeyEither.isRight shouldBe true
+      journeyEither.isRight                                                       shouldBe true
+      journeyEither.getOrFail.getAmountPaidForIfSelected(exampleMrn, TaxCode.A00) shouldBe Some(BigDecimal("10.00"))
+      journeyEither.getOrFail.getAmountPaidForIfSelected(exampleMrn, TaxCode.A20) shouldBe None
+    }
+
+    "return left when selecting valid tax codes for reimbursement without a display declaration" in {
+      val journeyEither = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq(TaxCode.A00, TaxCode.A90))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+    }
+
+    "return left when selecting empty list of tax codes for reimbursement" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, Seq.empty))
+
+      journeyEither shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
     }
 
     "replace valid tax codes for reimbursement" in {
@@ -572,6 +694,24 @@ class OverpaymentsMultipleJourneySpec
         .flatMap(_.submitCorrectAmount(exampleMrn, TaxCode.A80, BigDecimal("5.00")))
 
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
+    }
+
+    "return left when submitting valid correct amount with missing display declaration" in {
+      val journeyEither = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitCorrectAmount(exampleMrn, TaxCode.A80, BigDecimal("5.00"))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid correct amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitCorrectAmount(exampleMrn, TaxCode.A00, BigDecimal("5.00")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
     }
 
     "submit invalid correct amount for selected tax code" in {
@@ -671,6 +811,24 @@ class OverpaymentsMultipleJourneySpec
       journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotInACC14")
     }
 
+    "return left when submitting valid claim amount with missing display declaration" in {
+      val journeyEither = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitClaimAmount(exampleMrn, TaxCode.A80, BigDecimal("5.00"))
+
+      journeyEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+    }
+
+    "return left when submitting valid claim amount for with no tax code selected" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .flatMap(_.submitClaimAmount(exampleMrn, TaxCode.A00, BigDecimal("5.00")))
+
+      journeyEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
+    }
+
     "submit invalid claim amount for selected tax code" in {
       val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val declaration        = OverpaymentsMultipleJourney
@@ -748,28 +906,6 @@ class OverpaymentsMultipleJourneySpec
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 
         journeyEither.isRight shouldBe journey.needsBanksAccountDetailsSubmission
-      }
-    }
-
-    "getNextNdrcDetailsToClaim" when {
-      "return the next Ndrc Details to claim" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
-            whenever(ndrcDetails.size > 1 && ndrcDetails.map(_.taxType).toSet.size == ndrcDetails.size) {
-              val taxCodes             = ndrcDetails.map(details => TaxCode(details.taxType))
-              val drd                  = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd            = displayDeclaration.copy(displayResponseDetail = drd)
-              val journey              = RejectedGoodsMultipleJourney
-                .empty(exampleEori)
-                .submitMovementReferenceNumberAndDeclaration(0, exampleMrn, updatedDd)
-                .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(exampleMrn, taxCodes))
-                .getOrFail
-              val claimedReimbursement = journey.getCorrectAmountsFor(exampleMrn).get
-              val nextDetails          = journey.getNextNdrcDetailsToClaim(exampleMrn).get
-              claimedReimbursement.get(TaxCode(nextDetails.taxType)) shouldBe Some(None)
-              // Some states that the tax code exists and the inner None tells us that no claim amount has been submitted for it
-            }
-        }
       }
     }
 
@@ -920,6 +1056,287 @@ class OverpaymentsMultipleJourneySpec
         OverpaymentsMultipleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
           journey
         ) shouldBe Validator.Valid
+      }
+    }
+
+    "remove MRN and display declaration" in {
+      val mrnDisplayDec1 = mrnWithDisplayDeclarationGen.sample.get
+      val mrnDisplayDec2 = mrnWithDisplayDeclarationGen.sample.get
+      val mrnDisplayDec3 = mrnWithDisplayDeclarationGen.sample.get
+      val journey        =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(mrnDisplayDec1._1, mrnDisplayDec1._2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, mrnDisplayDec2._1, mrnDisplayDec2._2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(2, mrnDisplayDec3._1, mrnDisplayDec3._2)
+          .getOrFail
+
+      journey.getDisplayDeclarationFor(mrnDisplayDec3._1) shouldBe Some(mrnDisplayDec3._2)
+
+      val modifiedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrnDisplayDec3._1)
+
+      modifiedJourney.getOrFail.getDisplayDeclarationFor(mrnDisplayDec3._1) shouldBe None
+    }
+
+    "return left when attempting to remove first MRN and display declaration" in {
+      val mrnDisplayDec1 = mrnWithDisplayDeclarationGen.sample.get
+      val mrnDisplayDec2 = mrnWithDisplayDeclarationGen.sample.get
+      val journey        =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(mrnDisplayDec1._1, mrnDisplayDec1._2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, mrnDisplayDec2._1, mrnDisplayDec2._2)
+          .getOrFail
+
+      journey.removeMovementReferenceNumberAndDisplayDeclaration(mrnDisplayDec1._1) shouldBe Left(
+        "removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN"
+      )
+    }
+
+    "return left when attempting to remove second MRN and display declaration" in {
+      val mrnDisplayDec1 = mrnWithDisplayDeclarationGen.sample.get
+      val mrnDisplayDec2 = mrnWithDisplayDeclarationGen.sample.get
+      val journey        =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(mrnDisplayDec1._1, mrnDisplayDec1._2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, mrnDisplayDec2._1, mrnDisplayDec2._2)
+          .getOrFail
+
+      journey.removeMovementReferenceNumberAndDisplayDeclaration(mrnDisplayDec2._1) shouldBe Left(
+        "removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN"
+      )
+    }
+
+    "return left when attempting to remove MRN and display declaration that doesn't exist" in {
+      val mrnDisplayDec1 = mrnWithDisplayDeclarationGen.sample.get
+      val mrnDisplayDec2 = mrnWithDisplayDeclarationGen.sample.get
+      val journey        =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(mrnDisplayDec1._1, mrnDisplayDec1._2)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, mrnDisplayDec2._1, mrnDisplayDec2._2)
+          .getOrFail
+
+      journey.removeMovementReferenceNumberAndDisplayDeclaration(exampleMrn) shouldBe Left(
+        "removeMovementReferenceNumberAndDisplayDeclaration.notFound"
+      )
+    }
+
+    "remove unsupported tax codes" in {
+      val journey = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(
+          exampleMrn,
+          exampleDisplayDeclarationWithSomeUnsupportedCode
+        )
+        .getOrFail
+        .removeUnsupportedTaxCodes()
+
+      journey.containsUnsupportedTaxCode shouldBe false
+    }
+
+    "remove bank account details" in {
+      val journeyEither = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitBankAccountDetails(BankAccountGen.genBankAccountDetails.sample.get)
+        .getOrFail
+        .removeBankAccountDetails()
+
+      journeyEither.answers.bankAccountDetails shouldBe None
+    }
+
+    "remove bank account details when submitting a different payeeType" in {
+      val journey = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitPayeeType(PayeeType.Consignee)
+        .getOrFail
+        .submitBankAccountDetails(exampleBankAccountDetails)
+        .getOrFail
+        .submitPayeeType(PayeeType.Declarant)
+
+      journey.getOrFail.answers.bankAccountDetails shouldBe None
+    }
+
+    "keep bank account details when submitting the same payeeType" in {
+      val journey = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitPayeeType(PayeeType.Consignee)
+        .getOrFail
+        .submitBankAccountDetails(exampleBankAccountDetails)
+        .getOrFail
+        .submitPayeeType(PayeeType.Consignee)
+
+      journey.getOrFail.answers.bankAccountDetails shouldBe Some(exampleBankAccountDetails)
+    }
+
+    "get display declaration by index" in {
+      val displayDeclaration  = buildDisplayDeclaration(id = exampleMrnAsString)
+      val displayDeclaration2 = buildDisplayDeclaration(id = anotherExampleMrn.value)
+      val journey             =
+        OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(1, anotherExampleMrn, displayDeclaration2)
+          .getOrFail
+
+      journey.getNthDisplayDeclaration(1) shouldBe Some(displayDeclaration2)
+    }
+
+    "needsDuplicateMrnAndDeclaration" when {
+      "basis of claim is not DuplicateEntry return false" in {
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectEoriAndDan)
+
+        journey.needsDuplicateMrnAndDeclaration shouldBe false
+      }
+
+      "basis of claim is DuplicateEntry return true" in {
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
+
+        journey.needsDuplicateMrnAndDeclaration shouldBe true
+      }
+    }
+
+    "isAllSelectedDutiesAreCMAEligible" when {
+      "all entries are CMA eligible return true" in {
+        val displayDec = displayDeclarationCMAEligibleGen.sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDec.getMRN, displayDec)
+          .getOrFail
+
+        journey.isAllSelectedDutiesAreCMAEligible                    shouldBe true
+        journey.isAllSelectedDutiesAreCMAEligible(displayDec.getMRN) shouldBe true
+      }
+
+      "not all entries are CMA eligible return false" in {
+        val displayDecCMA    = displayDeclarationCMAEligibleGen.sample.get
+        val displayDecNotCMA = displayDeclarationNotCMAEligibleGen.sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDecCMA.getMRN, displayDecCMA)
+          .getOrFail
+          .submitMovementReferenceNumberAndDeclaration(displayDecNotCMA.getMRN, displayDecNotCMA)
+          .getOrFail
+
+        journey.isAllSelectedDutiesAreCMAEligible                          shouldBe false
+        journey.isAllSelectedDutiesAreCMAEligible(displayDecNotCMA.getMRN) shouldBe false
+      }
+    }
+
+    "isPaymentMethodsMatching" when {
+      "lead display declaration and given display declaration payment methods are both subsidies only return true" in {
+        val leadDisplayDec = displayDeclarationSubsidyOnly.sample.get
+        val displayDec     = displayDeclarationSubsidyOnly.sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
+          .getOrFail
+
+        journey.isPaymentMethodsMatching(displayDec) shouldBe true
+      }
+
+      "lead display declaration and given display declaration payment methods are both non subsidies return true" in {
+        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
+        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
+          .getOrFail
+
+        journey.isPaymentMethodsMatching(displayDec) shouldBe true
+      }
+
+      "lead display declaration and given display declaration payment methods are subsidy and non subsidy return false" in {
+        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
+        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
+          .getOrFail
+
+        journey.isPaymentMethodsMatching(displayDec) shouldBe false
+      }
+    }
+
+    "getSubsidyError" when {
+      "non matching payment methods return needsSubsidy error message" in {
+        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
+        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
+          .getOrFail
+
+        journey.isPaymentMethodsMatching(displayDec) shouldBe false
+        journey.getSubsidyError                      shouldBe "submitMovementReferenceNumber.needsSubsidy"
+      }
+
+      "non matching payment methods return needsNonSubsidy error message" in {
+        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
+        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
+          .getOrFail
+
+        journey.isPaymentMethodsMatching(displayDec) shouldBe false
+        journey.getSubsidyError                      shouldBe "submitMovementReferenceNumber.needsNonSubsidy"
+      }
+    }
+
+    "getAvailableDuties" when {
+      "there are available duties return tax code with cmaEligible" in {
+        val details         = Seq((TaxCode.A00, BigDecimal(200), true))
+        val expectedDetails = Seq((TaxCode.A00, true))
+        val displayDec      = buildDisplayDeclaration(dutyDetails = details)
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDec.getMRN, displayDec)
+          .getOrFail
+
+        journey.getAvailableDuties(displayDec.getMRN) shouldBe expectedDetails
+      }
+
+      "there are no duties return empty sequence" in {
+        val displayDec = buildDisplayDeclaration(dutyDetails = Seq.empty)
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDec.getMRN, displayDec)
+          .getOrFail
+
+        journey.getAvailableDuties(displayDec.getMRN) shouldBe Seq.empty
+      }
+
+      "there are no matching duties return empty sequence" in {
+        val details    = Seq((TaxCode("foo"), BigDecimal(200), true))
+        val displayDec = buildDisplayDeclaration(dutyDetails = details)
+
+        val journey = OverpaymentsMultipleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDec.getMRN, displayDec)
+          .getOrFail
+
+        journey.getAvailableDuties(displayDec.getMRN) shouldBe Seq.empty
       }
     }
   }
