@@ -104,7 +104,7 @@ class EnterClaimControllerSpec
 
     assertPageInputsByIdAndExpectedValue(doc)(
       "enter-claim-amount" ->
-        claimAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
+        claimAmountOpt.fold("")(a => formatAmount(a))
     )
   }
 
@@ -315,7 +315,7 @@ class EnterClaimControllerSpec
 
                 withClue(s"taxCode=$taxCode next=$nextTaxCode paid=$paidAmount claim=$claimAmount") {
                   checkIsRedirect(
-                    performAction(taxCode, Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))),
+                    performAction(taxCode, Seq("enter-claim-amount" -> formatAmount(claimAmount))),
                     routes.EnterClaimController.show(nextTaxCode)
                   )
                 }
@@ -339,7 +339,7 @@ class EnterClaimControllerSpec
 
                 withClue(s"taxCode=$taxCode paid=$paidAmount claim=$claimAmount") {
                   checkPageIsDisplayed(
-                    performAction(taxCode, Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))),
+                    performAction(taxCode, Seq("enter-claim-amount" -> formatAmount(claimAmount))),
                     if (TaxCodes.custom.contains(taxCode))
                       messageFromMessageKey(
                         "enter-claim.title",

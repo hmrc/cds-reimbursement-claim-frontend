@@ -79,7 +79,7 @@ class EnterClaimControllerSpec
     )
     assertPageInputsByIdAndExpectedValue(doc)(
       "enter-claim-amount"                ->
-        actualAmountOpt.fold("")(a => s"${a.toPoundSterlingString.drop(1)}")
+        actualAmountOpt.fold("")(a => formatAmount(a))
     )
   }
 
@@ -273,7 +273,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("enter-claim-amount" -> claimAmount.toPoundSterlingString.drop(1))
+                  Seq("enter-claim-amount" -> formatAmount(claimAmount))
                 ),
                 expectedRoute
               )
@@ -302,7 +302,7 @@ class EnterClaimControllerSpec
                 performAction(
                   pageIndex,
                   taxCode,
-                  Seq("enter-claim-amount" -> (paidAmount + BigDecimal("0.01")).toPoundSterlingString.drop(1))
+                  Seq("enter-claim-amount" -> formatAmount(paidAmount + BigDecimal("0.01")))
                 ),
                 if (TaxCodes.custom.contains(taxCode))
                   messageFromMessageKey(
