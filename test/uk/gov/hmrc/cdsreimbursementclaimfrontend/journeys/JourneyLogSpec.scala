@@ -88,7 +88,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "CurrentMonthAdjustment"
       log.claimedAmountThreshold                shouldBe "4"
       log.claimedDuties                         shouldBe Seq("A00", "A30")
@@ -142,7 +142,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "6"
       log.claimedDuties                         shouldBe Seq("A00", "A30", "A90")
@@ -205,7 +205,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "6"
       log.claimedDuties                         shouldBe Seq("A00", "A30")
@@ -276,7 +276,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "4"
       log.claimedDuties                         shouldBe Seq("A00", "A20", "A90")
@@ -333,7 +333,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "6"
       log.claimedDuties                         shouldBe Seq("A00", "A30", "A90")
@@ -399,7 +399,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
       log.reasonForSecurity                     shouldBe None
-      log.temporaryAdmissionMethodOfDisposal    shouldBe None
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe None
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "6"
       log.claimedDuties                         shouldBe Seq("A80", "A90")
@@ -438,7 +438,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
             ),
           bankAccountDetails = Some(exampleBankAccountDetails),
           supportingEvidences = exampleSupportingEvidences,
-          temporaryAdmissionMethodOfDisposal = Some(TemporaryAdmissionMethodOfDisposal.DeclaredToEndUse),
+          temporaryAdmissionMethodsOfDisposal = Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToEndUse)),
           exportMovementReferenceNumber = Some(Seq(anotherExampleMrn))
         )
 
@@ -454,7 +454,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
       log.reasonForSecurity                     shouldBe Some("MissingLicenseQuota")
-      log.temporaryAdmissionMethodOfDisposal    shouldBe Some("DeclaredToEndUse")
+      log.temporaryAdmissionMethodsOfDisposal   shouldBe Some(List("DeclaredToEndUse"))
       log.reimbursementMethod                   shouldBe "BankAccountTransfer"
       log.claimedAmountThreshold                shouldBe "5"
       log.claimedDuties                         shouldBe Seq("A30", "A45", "A90")

@@ -45,7 +45,7 @@ class ChooseExportMethodController @Inject() (
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
-  private val form: Form[Option[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
+  private val form: Form[List[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
 
   override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
@@ -59,7 +59,7 @@ class ChooseExportMethodController @Inject() (
         journey,
         Ok(
           chooseExportMethodPage(
-            chooseExportMethodForm,
+            chooseExportMethodForm.withDefault(journey.answers.temporaryAdmissionMethodsOfDisposal),
             routes.ChooseExportMethodController.submit
           )
         )
@@ -82,33 +82,24 @@ class ChooseExportMethodController @Inject() (
                 )
               )
             ),
-          {
-            case None                   =>
-              logger
-                .warn("no value was submitted for TemporaryAdmissionMethodOfDisposal, but there were no form errors")
-              (journey, errorHandler.errorResult())
-            case Some(methodOfDisposal) =>
-              journey
-                .submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal)
-                .fold(
-                  error => {
-                    logger.warn(error)
-                    (journey, errorHandler.errorResult())
-                  },
-                  updatedJourney =>
-                    methodOfDisposal match {
-                      case TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
-                          TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments |
-                          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
-                        (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
-                      case _ =>
-                        (
-                          updatedJourney.withEnterContactDetailsMode(true),
-                          Redirect(routes.EnterContactDetailsController.show)
-                        )
-                    }
-                )
-          }
+          methodsOfDisposal =>
+            journey
+              .submitTemporaryAdmissionMethodsOfDisposal(methodsOfDisposal)
+              .fold(
+                error => {
+                  logger.warn(error)
+                  (journey, errorHandler.errorResult())
+                },
+                updatedJourney =>
+                  if (TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal(methodsOfDisposal)) {
+                    (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
+                  } else {
+                    (
+                      updatedJourney.withEnterContactDetailsMode(true),
+                      Redirect(routes.EnterContactDetailsController.show)
+                    )
+                  }
+              )
         )
     }
   }

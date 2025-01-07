@@ -21,38 +21,50 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal._
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 object TemporaryAdmissionMethodOfDisposalSummary {
 
   def apply(implicit
     messages: Messages,
-    form: Form[Option[TemporaryAdmissionMethodOfDisposal]]
-  ): Seq[RadioItem] =
+    form: Form[List[TemporaryAdmissionMethodOfDisposal]]
+  ): Seq[CheckboxItem] =
     List(
       exportMethodItem(ExportedInSingleOrMultipleShipments),
+      exportMethodItem(DeclaredToACustomsWarehouse, hasHintText = true),
+      exportMethodItem(DeclaredToAFreeZone, hasHintText = true),
+      exportMethodItem(DeclaredToEndUse, hasHintText = true),
+      exportMethodItem(DeclaredToFreeCirculation, hasHintText = true),
+      exportMethodItem(DeclaredToInwardProcessingRelief, hasHintText = true),
       exportMethodItem(DeclaredToOtherTraderUnderTemporaryAdmission),
-      exportMethodItem(DeclaredToFreeCirculation),
-      exportMethodItem(DeclaredToInwardProcessingRelief),
-      exportMethodItem(DeclaredToEndUse),
-      exportMethodItem(DeclaredToAFreeZone),
-      exportMethodItem(DeclaredToACustomsWarehouse),
       exportMethodItem(Destroyed),
-      exportMethodItem(Other),
-      RadioItem(divider = Some(messages("choose-export-method.radio-or"))),
-      exportMethodItem(MultipleDisposalMethodsWereUsed)
+      exportMethodItem(Other)
     )
 
   private def exportMethodItem(
-    exportMethod: TemporaryAdmissionMethodOfDisposal
-  )(implicit form: Form[Option[TemporaryAdmissionMethodOfDisposal]], messages: Messages): RadioItem =
-    RadioItem(
-      value = Some(TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)),
+    exportMethod: TemporaryAdmissionMethodOfDisposal,
+    hasHintText: Boolean = false
+  )(implicit form: Form[List[TemporaryAdmissionMethodOfDisposal]], messages: Messages): CheckboxItem =
+    CheckboxItem(
+      value = TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod),
       content = Text(
         messages(
           s"choose-export-method.export-method-description.${TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)}"
         )
       ),
-      checked = form.value.flatten.contains(exportMethod)
+      hint =
+        if (hasHintText)
+          Some(
+            Hint(content =
+              Text(
+                messages(
+                  s"choose-export-method.export-method-hint.${TemporaryAdmissionMethodOfDisposal.keyOf(exportMethod)}"
+                )
+              )
+            )
+          )
+        else None,
+      checked = form.value.exists(mods => mods.contains(exportMethod))
     )
 }

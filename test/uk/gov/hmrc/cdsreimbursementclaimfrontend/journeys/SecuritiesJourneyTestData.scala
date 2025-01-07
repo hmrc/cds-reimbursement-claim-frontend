@@ -82,8 +82,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .submitCheckDeclarationDetailsChangeMode(false)
       .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
       .flatMap(
-        _.submitTemporaryAdmissionMethodOfDisposal(
-          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+        _.submitTemporaryAdmissionMethodsOfDisposal(
+          List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments)
         )
       )
       .getOrFail
@@ -100,8 +100,8 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
       .submitCheckDeclarationDetailsChangeMode(false)
       .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
       .flatMap(
-        _.submitTemporaryAdmissionMethodOfDisposal(
-          TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+        _.submitTemporaryAdmissionMethodsOfDisposal(
+          List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments)
         )
       )
       .flatMapEach(
@@ -126,7 +126,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
   ): SecuritiesJourney = testParams match {
     case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, mfd: TemporaryAdmissionMethodOfDisposal) =>
       buildSecuritiesJourneyWithSomeSecuritiesSelected((mrn, rfs, acc14))
-        .submitTemporaryAdmissionMethodOfDisposal(mfd)
+        .submitTemporaryAdmissionMethodsOfDisposal(List(mfd))
         .getOrFail
   }
   final def buildSecuritiesJourneyInChangeDeclarationDetailsMode(
