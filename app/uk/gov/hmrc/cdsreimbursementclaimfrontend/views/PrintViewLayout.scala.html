@@ -89,13 +89,11 @@
 
 
     <script @CSPNonce.attr>
-       document.getElementById("printButtonTop").addEventListener("click", function(event) {
-         event.preventDefault()
-         window.print()
-       });
-       document.getElementById("printButtonBottom").addEventListener("click", function(event) {
-         event.preventDefault()
-         window.print()
-       });
+        [document.getElementById("printButtonTop"), document.getElementById("printButtonBottom") ].forEach(function(element) {
+           element.addEventListener("click", function(event) {
+            event.preventDefault()
+            window.print()
+           });
+        });
     </script>
 }
