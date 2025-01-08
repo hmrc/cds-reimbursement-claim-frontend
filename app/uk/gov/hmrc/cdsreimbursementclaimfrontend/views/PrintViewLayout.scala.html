@@ -81,21 +81,19 @@
     </style>
 }
 
-@printButton = @{
-    button("check-your-answers.print-view.print", href = Some("#printButton"), classes = Some("govuk-button--secondary govuk-!-display-none-print"), id = Some("printButton"))
-}
-
 @layout(pageTitle = Some(title), headBlock = Some(printStyles), suppressBackLink = true, suppressLanguageToggle = true, suppressSignOutLink = true) {
-    @printButton
+    @button("check-your-answers.print-view.print", href = Some("#printButtonTop"), classes = Some("govuk-button--secondary govuk-!-display-none-print"), id = Some("printButtonTop"))
     @heading(Html(title), classes="govuk-heading-l")
     @contentBlock
-    @printButton
+    @button("check-your-answers.print-view.print", href = Some("#printButtonBottom"), classes = Some("govuk-button--secondary govuk-!-display-none-print"), id = Some("printButtonBottom"))
 
 
     <script @CSPNonce.attr>
-       document.getElementById("printButton").addEventListener("click", function(event) {
-         event.preventDefault()
-         window.print()
-       });
+        [document.getElementById("printButtonTop"), document.getElementById("printButtonBottom") ].forEach(function(element) {
+           element.addEventListener("click", function(event) {
+            event.preventDefault()
+            window.print()
+           });
+        });
     </script>
 }
