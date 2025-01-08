@@ -77,15 +77,15 @@ class ChooseExportMethodControllerSpec
   }
 
   def validateChooseExportMethodPage(doc: Document, isError: Boolean = false) = {
-    val header         = doc.select(".govuk-fieldset__legend--l").eachText().asScala
-    val radioLabels    = doc.select(".govuk-radios__item label").eachText().asScala
-    val radioInputs    = doc.select(".govuk-radios__item input").eachAttr("value").asScala
-    val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
+    val header           = doc.select(".govuk-fieldset__legend--l").eachText().asScala
+    val checkBoxesLabels = doc.select(".govuk-checkboxes__item label").eachText().asScala
+    val checkBoxItems    = doc.select(".govuk-checkboxes__item input").eachAttr("value").asScala
+    val continueButton   = doc.select("button.govuk-button").eachText().asScala.toList
 
-    header             should ===(List(messages(s"$messagesKey.title")))
-    radioInputs.length should ===(10)
-    radioLabels.length should ===(10)
-    continueButton     should contain(messages("button.continue"))
+    header                  should ===(List(messages(s"$messagesKey.title")))
+    checkBoxItems.length    should ===(9)
+    checkBoxesLabels.length should ===(9)
+    continueButton          should contain(messages("button.continue"))
 
     if (isError) {
       val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
@@ -129,10 +129,13 @@ class ChooseExportMethodControllerSpec
     }
 
     "submit page" must {
-      def performAction(methodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal]): Future[Result] =
+      def performAction(
+        methodOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]],
+        formKey: String = "choose-export-method[]"
+      ): Future[Result] =
         controller.submit(
           FakeRequest()
-            .withFormUrlEncodedBody(messagesKey -> methodOfDisposal.map(_.toString).getOrElse(""))
+            .withFormUrlEncodedBody(formKey -> methodOfDisposal.map(_.mkString(",")).getOrElse(""))
         )
 
       "show an error if no export method is selected" in forAllWith(
@@ -147,7 +150,7 @@ class ChooseExportMethodControllerSpec
         }
 
         checkPageWithErrorIsDisplayed(
-          performAction(None),
+          performAction(None, messagesKey),
           messages(s"$messagesKey.title"),
           messages(s"$messagesKey.error.required")
         )
@@ -166,7 +169,7 @@ class ChooseExportMethodControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)),
+          performAction(Some(List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment))),
           routes.EnterExportMovementReferenceNumberController.showFirst
         )
       }
@@ -184,7 +187,7 @@ class ChooseExportMethodControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Some(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)),
+          performAction(Some(List(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments))),
           routes.EnterExportMovementReferenceNumberController.showFirst
         )
       }
@@ -202,7 +205,7 @@ class ChooseExportMethodControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Some(methodOfDisposal)),
+          performAction(Some(List(methodOfDisposal))),
           routes.EnterContactDetailsController.show
         )
       }

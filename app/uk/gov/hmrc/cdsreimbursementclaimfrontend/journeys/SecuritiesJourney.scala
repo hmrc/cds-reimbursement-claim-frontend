@@ -19,6 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq._
 import com.github.arturopala.validator.Validator
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
@@ -276,20 +280,23 @@ final class SecuritiesJourney private (
   def needsMethodOfDisposalSubmission: Boolean =
     getReasonForSecurity.exists(ReasonForSecurity.ntas)
 
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
   def needsExportMRNSubmission: Boolean =
-    needsMethodOfDisposalSubmission &&
-      answers.temporaryAdmissionMethodOfDisposal.exists(
-        TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains
-      )
+    (needsMethodOfDisposalSubmission, answers.temporaryAdmissionMethodsOfDisposal) match {
+      case (true, Some(methods)) =>
+        methods.filter(method => TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(method)).nonEmpty
+      case _                     => false
+    }
 
-  def getMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = answers.temporaryAdmissionMethodOfDisposal
+  def getMethodOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]] =
+    answers.temporaryAdmissionMethodsOfDisposal
 
   def needsDocumentTypeSelection: Boolean =
     getReasonForSecurity.exists(
       UploadDocumentType
         .securitiesDocumentTypes(
           _,
-          answers.temporaryAdmissionMethodOfDisposal,
+          answers.temporaryAdmissionMethodsOfDisposal,
           needsProofOfAuthorityForBankAccountDetailsChange
         )
         .isDefined
@@ -312,7 +319,7 @@ final class SecuritiesJourney private (
       .flatMap(rfs =>
         UploadDocumentType.securitiesDocumentTypes(
           rfs,
-          answers.temporaryAdmissionMethodOfDisposal,
+          answers.temporaryAdmissionMethodsOfDisposal,
           needsProofOfAuthorityForBankAccountDetailsChange
         )
       )
@@ -321,7 +328,7 @@ final class SecuritiesJourney private (
     getReasonForSecurity.flatMap { rfs =>
       UploadDocumentType.securitiesDocumentTypes(
         rfs,
-        answers.temporaryAdmissionMethodOfDisposal,
+        answers.temporaryAdmissionMethodsOfDisposal,
         needsDocumentTypeSelection
       ) match {
         case None =>
@@ -409,20 +416,20 @@ final class SecuritiesJourney private (
       )
     }
 
-  def submitTemporaryAdmissionMethodOfDisposal(
-    methodOfDisposal: TemporaryAdmissionMethodOfDisposal
+  def submitTemporaryAdmissionMethodsOfDisposal(
+    methodsOfDisposal: List[TemporaryAdmissionMethodOfDisposal]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if (needsMethodOfDisposalSubmission) {
         Right(
           this.copy(
             answers.copy(
-              temporaryAdmissionMethodOfDisposal = Some(methodOfDisposal)
+              temporaryAdmissionMethodsOfDisposal = Some(methodsOfDisposal)
             )
           )
         )
       } else
-        Left("submitTemporaryAdmissionMethodOfDisposal.unexpected")
+        Left("submitTemporaryAdmissionMethodsOfDisposal.unexpected")
     }
 
   def submitExportMovementReferenceNumber(
@@ -937,7 +944,7 @@ final class SecuritiesJourney private (
   override def toString: String = s"SecuritiesJourney($answers, $caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
   def toOutput: Either[Seq[String], SecuritiesJourney.Output] =
     validate(this).left
       .map(_.messages)
@@ -960,26 +967,23 @@ final class SecuritiesJourney private (
               answers.bankAccountDetails
             else None,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
-          temporaryAdmissionMethodOfDisposal = answers.temporaryAdmissionMethodOfDisposal.map {
-            case TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments =>
+          temporaryAdmissionMethodsOfDisposal = answers.temporaryAdmissionMethodsOfDisposal match {
+            case Some(mods) if mods.contains(ExportedInSingleOrMultipleShipments) =>
+              def updateModsWith(
+                methodOfDisposal: TemporaryAdmissionMethodOfDisposal
+              ): List[TemporaryAdmissionMethodOfDisposal] =
+                mods.filterNot(mod => mod == ExportedInSingleOrMultipleShipments) :+ methodOfDisposal
+
               answers.exportMovementReferenceNumbers match {
-                case Some(exportMRNs) if exportMRNs.size == 1 =>
-                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-                case _                                        =>
-                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+                case Some(exportMRNs) if exportMRNs.size == 1 => Some(updateModsWith(ExportedInSingleShipment))
+                case _                                        => Some(updateModsWith(ExportedInMultipleShipments))
               }
 
             case other => other
           },
-          exportMovementReferenceNumber = answers.temporaryAdmissionMethodOfDisposal match {
-            case Some(
-                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments |
-                  TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment |
-                  TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-                ) =>
-              answers.exportMovementReferenceNumbers
-
-            case _ => None
+          exportMovementReferenceNumber = answers.temporaryAdmissionMethodsOfDisposal match {
+            case Some(mods) if containsExportedMethodsOfDisposal(mods) => answers.exportMovementReferenceNumbers
+            case _                                                     => None
           },
           additionalDetails = answers.additionalDetails
         )).toRight(
@@ -1015,7 +1019,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     exportMovementReferenceNumbers: Option[Seq[MRN]] =
       None, // mandatory for some reasons, see ReasonForSecurity.requiresExportDeclaration,
-    temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal] = None,
+    temporaryAdmissionMethodsOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     correctedAmounts: Option[SortedMap[String, CorrectedAmounts]] = None,
@@ -1043,7 +1047,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     securitiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument],
-    temporaryAdmissionMethodOfDisposal: Option[TemporaryAdmissionMethodOfDisposal],
+    temporaryAdmissionMethodsOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]],
     exportMovementReferenceNumber: Option[Seq[MRN]],
     additionalDetails: Option[String] = None
   )
@@ -1085,8 +1089,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     val hasMethodOfDisposalIfNeeded: Validate[SecuritiesJourney] =
       conditionally[SecuritiesJourney](
         _.needsMethodOfDisposalSubmission,
-        checkIsDefined(_.answers.temporaryAdmissionMethodOfDisposal, MISSING_METHOD_OF_DISPOSAL),
-        checkIsEmpty(_.answers.temporaryAdmissionMethodOfDisposal, "unexpected method of disposal, should be empty")
+        checkIsDefined(_.answers.temporaryAdmissionMethodsOfDisposal, MISSING_METHOD_OF_DISPOSAL),
+        checkIsEmpty(_.answers.temporaryAdmissionMethodsOfDisposal, "unexpected method of disposal, should be empty")
       )
 
     val hasExportMRNIfNeeded: Validate[SecuritiesJourney] =
@@ -1098,15 +1102,15 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         ),
         checkIsEmpty(_.answers.exportMovementReferenceNumbers, "unexpected export MRN, should be empty")
       ) & whenTrue[SecuritiesJourney](
-        _.answers.temporaryAdmissionMethodOfDisposal
-          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment),
+        _.answers.temporaryAdmissionMethodsOfDisposal
+          .fold(false)(mods => mods.contains(ExportedInSingleShipment)),
         checkIsTrue(
           _.answers.exportMovementReferenceNumbers.exists(_.size === 1),
           EXPECTED_SINGLE_EXPORT_MOVEMENT_REFERENCE_NUMBER
         )
       ) & whenTrue[SecuritiesJourney](
-        _.answers.temporaryAdmissionMethodOfDisposal
-          .contains(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments),
+        _.answers.temporaryAdmissionMethodsOfDisposal
+          .fold(false)(mods => mods.contains(ExportedInMultipleShipments)),
         checkIsTrue(
           _.answers.exportMovementReferenceNumbers.exists(_.size > 1),
           EXPECTED_MULTIPLE_EXPORT_MOVEMENT_REFERENCE_NUMBERS
@@ -1164,7 +1168,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         j.submitReasonForSecurityAndDeclaration(rfs, decl)
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
-      .flatMapWhenDefined(answers.temporaryAdmissionMethodOfDisposal)(_.submitTemporaryAdmissionMethodOfDisposal _)
+      .flatMapWhenDefined(answers.temporaryAdmissionMethodsOfDisposal)(_.submitTemporaryAdmissionMethodsOfDisposal _)
       .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers.zipWithIndex)(j => { case (mrn: MRN, index: Int) =>
         j.submitExportMovementReferenceNumber(index, mrn)
       })

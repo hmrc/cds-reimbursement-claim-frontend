@@ -73,4 +73,12 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
 
   val exportedMethodsOfDisposal: Set[TemporaryAdmissionMethodOfDisposal] =
     Set(ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments)
+
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  def containsExportedMethodsOfDisposal(mods: List[TemporaryAdmissionMethodOfDisposal]) =
+    mods.filter(mod => exportedMethodsOfDisposal.contains(mod)).nonEmpty
+
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  def containsMultipleExportedMethodsOfDisposal(mods: List[TemporaryAdmissionMethodOfDisposal]) =
+    mods.filter(mod => mod == ExportedInMultipleShipments || mod == ExportedInSingleOrMultipleShipments).nonEmpty
 }

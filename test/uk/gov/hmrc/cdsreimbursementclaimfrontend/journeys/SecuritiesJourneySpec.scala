@@ -69,17 +69,17 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         val output: SecuritiesJourney.Output =
           journey.toOutput.fold(e => fail(s"Cannot build output because of $e"), identity)
 
-        output.movementReferenceNumber                      shouldBe journey.answers.movementReferenceNumber.get
-        output.reasonForSecurity                            shouldBe journey.answers.reasonForSecurity.get
-        output.claimantType                                 shouldBe journey.getClaimantType
-        output.securitiesReclaims                           shouldBe journey.getSecuritiesReclaims
-        output.supportingEvidences                          shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
-        output.bankAccountDetails                           shouldBe journey.answers.bankAccountDetails
-        output.additionalDetails                            shouldBe journey.answers.additionalDetails
-        output.claimantInformation.eori                     shouldBe journey.answers.userEoriNumber
-        output.temporaryAdmissionMethodOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
-        output.exportMovementReferenceNumber.isDefined      shouldBe journey.needsMethodOfDisposalSubmission && journey.answers.temporaryAdmissionMethodOfDisposal
-          .exists(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains)
+        output.movementReferenceNumber                       shouldBe journey.answers.movementReferenceNumber.get
+        output.reasonForSecurity                             shouldBe journey.answers.reasonForSecurity.get
+        output.claimantType                                  shouldBe journey.getClaimantType
+        output.securitiesReclaims                            shouldBe journey.getSecuritiesReclaims
+        output.supportingEvidences                           shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
+        output.bankAccountDetails                            shouldBe journey.answers.bankAccountDetails
+        output.additionalDetails                             shouldBe journey.answers.additionalDetails
+        output.claimantInformation.eori                      shouldBe journey.answers.userEoriNumber
+        output.temporaryAdmissionMethodsOfDisposal.isDefined shouldBe journey.needsMethodOfDisposalSubmission
+        output.exportMovementReferenceNumber.isDefined       shouldBe journey.needsMethodOfDisposalSubmission && TemporaryAdmissionMethodOfDisposal
+          .containsExportedMethodsOfDisposal(journey.answers.temporaryAdmissionMethodsOfDisposal.get)
       }
     }
 
@@ -136,8 +136,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         journey.isFinalized                                   shouldBe false
         journey.needsExportMRNSubmission                      shouldBe (ReasonForSecurity.ntas(
           rfs
-        ) && journey.answers.temporaryAdmissionMethodOfDisposal.contains(
-          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        ) && journey.answers.temporaryAdmissionMethodsOfDisposal.exists(mods =>
+          mods.contains(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
         ))
       }
     }
@@ -227,12 +227,14 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(
-            _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+            _.submitTemporaryAdmissionMethodsOfDisposal(
+              List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+            )
           )
           .getOrFail
 
-        journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
-          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        journey.answers.temporaryAdmissionMethodsOfDisposal shouldBe Some(
+          List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
         )
       }
     }
@@ -241,16 +243,16 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.ntas),
-        Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values),
+        Gen.listOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values)),
         securitiesDisplayDeclarationGen
-      ) { case (mrn, rfs, methodOfDisposal, decl) =>
+      ) { case (mrn, rfs, methodsOfDisposal, decl) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal))
+          .flatMap(_.submitTemporaryAdmissionMethodsOfDisposal(methodsOfDisposal))
 
-        journeyResult shouldBe Left("submitTemporaryAdmissionMethodOfDisposal.unexpected")
+        journeyResult shouldBe Left("submitTemporaryAdmissionMethodsOfDisposal.unexpected")
       }
     }
 
@@ -266,15 +268,17 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(
-            _.submitTemporaryAdmissionMethodOfDisposal(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+            _.submitTemporaryAdmissionMethodsOfDisposal(
+              List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+            )
           )
           .flatMap(_.submitExportMovementReferenceNumber(0, exportMrn))
           .getOrFail
 
-        journey.answers.temporaryAdmissionMethodOfDisposal shouldBe Some(
-          TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+        journey.answers.temporaryAdmissionMethodsOfDisposal shouldBe Some(
+          List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
         )
-        journey.answers.exportMovementReferenceNumbers     shouldBe Some(Seq(exportMrn))
+        journey.answers.exportMovementReferenceNumbers      shouldBe Some(Seq(exportMrn))
       }
     }
 
@@ -299,17 +303,19 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.ntas),
-        Gen.oneOf(
-          TemporaryAdmissionMethodOfDisposal.values.diff(exportedMethodsOfDisposal)
+        Gen.listOf(
+          Gen.oneOf(
+            TemporaryAdmissionMethodOfDisposal.values.diff(exportedMethodsOfDisposal)
+          )
         ),
         securitiesDisplayDeclarationGen,
         exportMrnTrueGen
-      ) { case (mrn, rfs, methodOfDisposal, decl, exportMrn) =>
+      ) { case (mrn, rfs, methodsOfDisposal, decl, exportMrn) =>
         val journeyResult = emptyJourney
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl.withReasonForSecurity(rfs).withDeclarationId(mrn.value))
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-          .flatMap(_.submitTemporaryAdmissionMethodOfDisposal(methodOfDisposal))
+          .flatMap(_.submitTemporaryAdmissionMethodsOfDisposal(methodsOfDisposal))
           .flatMap(_.submitExportMovementReferenceNumber(0, exportMrn))
 
         journeyResult shouldBe Left("submitExportMovementReferenceNumber.unexpected")

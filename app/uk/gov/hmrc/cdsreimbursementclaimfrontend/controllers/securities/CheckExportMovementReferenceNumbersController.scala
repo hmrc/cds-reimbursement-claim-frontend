@@ -155,22 +155,27 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     body: Seq[MRN] => Future[(SecuritiesJourney, Result)]
   )(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
     (journey.getReasonForSecurity, journey.getMethodOfDisposal, journey.answers.exportMovementReferenceNumbers) match {
-      case (None, _, _)                                                                         =>
+      case (None, _, _)                                                                                 =>
         (journey, errorHandler.errorResult()).asFuture
-      case (Some(rfs), Some(mod), Some(exportMRNs)) if ntas.contains(rfs) && isExportedMod(mod) =>
+      case (Some(rfs), Some(mods), Some(exportMRNs)) if ntas.contains(rfs) && containsExportedMod(mods) =>
         body(exportMRNs)
-      case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && isExportedMod(mod)             =>
+      case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && containsExportedMod(mod)               =>
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
-      case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !isExportedMod(mod)               =>
+      case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !containsExportedMod(mod)                 =>
         (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
-      case (Some(rfs), None, _) if ntas.contains(rfs)                                           =>
+      case (Some(rfs), None, _) if ntas.contains(rfs)                                                   =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
-      case (Some(_), _, _)                                                                      =>
+      case (Some(_), _, _)                                                                              =>
         (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
     }
 
-  private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
-    mod === TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments ||
-      mod === TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =
+    mods
+      .filter(mod =>
+        mod === TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments ||
+          mod === TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
+      )
+      .nonEmpty
 
 }

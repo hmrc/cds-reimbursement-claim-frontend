@@ -86,12 +86,12 @@
                     )))
 }
 
-@claim.temporaryAdmissionMethodOfDisposal.map{ mod => 
+@claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>
     @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
     @summary(SummaryList(
         Seq(SummaryListRow(
                     key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
-                    value = Value(Text(messages(s"choose-export-method.export-method-description.$mod"))),
+                    value = Value(HtmlContent(mods.map(mod => messages(s"choose-export-method.export-method-description.$mod")).mkString("<br/>"))),
                     actions = if(isPrintView) None else Some(Actions(
                         items = Seq(ActionItem(
                             href = routes.ChooseExportMethodController.show.url,

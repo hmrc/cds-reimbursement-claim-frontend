@@ -189,16 +189,18 @@ object Forms {
       .verifying(maxLength(500))
   )
 
-  val confirmFullRepaymentForm: Form[YesNo]                                    = YesOrNoQuestionForm("confirm-full-repayment")
-  val chooseExportMethodForm: Form[Option[TemporaryAdmissionMethodOfDisposal]] = Form(
-    mapping(
-      "choose-export-method" -> nonEmptyText
-        .transform[Option[models.TemporaryAdmissionMethodOfDisposal]](
-          (key: String) => if (key === noneString) None else TemporaryAdmissionMethodOfDisposal.parse(key),
-          (value: Option[models.TemporaryAdmissionMethodOfDisposal]) =>
-            value.map(TemporaryAdmissionMethodOfDisposal.keyOf).getOrElse(noneString)
-        )
-    )(identity)(x => Some(x))
+  val confirmFullRepaymentForm: Form[YesNo] = YesOrNoQuestionForm("confirm-full-repayment")
+
+  val chooseExportMethodForm: Form[List[TemporaryAdmissionMethodOfDisposal]] = Form(
+    "choose-export-method" -> list(
+      mapping(
+        "" -> nonEmptyText
+          .transform[models.TemporaryAdmissionMethodOfDisposal](
+            (key: String) => TemporaryAdmissionMethodOfDisposal.tryParse(key),
+            (value: models.TemporaryAdmissionMethodOfDisposal) => TemporaryAdmissionMethodOfDisposal.keyOf(value)
+          )
+      )(identity)(x => Some(x))
+    ).verifying("error.required", _.nonEmpty)
   )
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")

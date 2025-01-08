@@ -21,21 +21,31 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.TemporaryAdmissionMethodOfDisposalSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukCheckboxes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.Checkboxes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
 @this(
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    govukCheckboxes: GovukCheckboxes,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[Option[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[List[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-export-method"}
 @title = @{messages(s"choose-export-method.title")}
-@radioItems = @{TemporaryAdmissionMethodOfDisposalSummary(messages, form)}
+@items = @{TemporaryAdmissionMethodOfDisposalSummary(messages, form)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
@@ -44,16 +54,26 @@
 
         @errorSummary(form.errors)
 
-        @radios(
-            form = form,
-            name = key,
-            legend = title,
-            legendAsHeading = true,
-            hintKey = Some(s"choose-export-method.help-text"),
-            classes = "govuk-fieldset__legend govuk-fieldset__legend--l",
-            inline = false,
-            items = radioItems
-        )
+        @govukCheckboxes(Checkboxes(
+            fieldset = Some(Fieldset(
+              legend = Some(Legend(
+                content = Text(title),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+              ))
+            )),
+            hint = Some(Hint(
+              content = Text(messages("choose-export-method.help-text"))
+            )),
+            name = "choose-export-method[]",
+            items = items,
+            idPrefix = Some("choose-export-method"),
+            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-export-method.error.required")))) else None
+        ))
+
+
+
+
 
         @submitButton("button.continue")
     }

@@ -37,9 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Chec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsMultipleExportedMethodsOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -85,25 +84,25 @@ class EnterExportMovementReferenceNumberController @Inject() (
       }
 
       journey.getMethodOfDisposal match {
-        case Some(mod) =>
-          (mod match {
-            case ExportedInSingleShipment | ExportedInMultipleShipments | ExportedInSingleOrMultipleShipments =>
-              (
-                journey,
-                Ok(
-                  enterFirstExportMovementReferenceNumberPage(
-                    form,
-                    routes.EnterExportMovementReferenceNumberController.submitFirst
-                  )
-                )
-              )
-            case _                                                                                            =>
-              logger.error(
-                "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
-              )
-              (journey, errorHandler.errorResult())
-          }).asFuture
-        case None      =>
+        case Some(mods) =>
+          (if (containsExportedMethodsOfDisposal(mods)) {
+             (
+               journey,
+               Ok(
+                 enterFirstExportMovementReferenceNumberPage(
+                   form,
+                   routes.EnterExportMovementReferenceNumberController.submitFirst
+                 )
+               )
+             )
+           } else {
+             logger.error(
+               "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
+             )
+             (journey, errorHandler.errorResult())
+
+           }).asFuture
+        case None       =>
           logger.error("Should not reach this page as method of disposal has not been selected yet.")
           (journey, errorHandler.errorResult()).asFuture
       }
@@ -117,38 +116,37 @@ class EnterExportMovementReferenceNumberController @Inject() (
           journey.answers.exportMovementReferenceNumbers.flatMap(_.drop(pageIndex - 1).headOption)
         )
       journey.getMethodOfDisposal match {
-        case Some(mod) =>
-          (mod match {
-            case ExportedInMultipleShipments | ExportedInSingleOrMultipleShipments =>
-              if (journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1))
-                (
-                  journey,
-                  Ok(
-                    enterNextExportMovementReferenceNumberPage(
-                      pageIndex,
-                      form,
-                      routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                    )
-                  )
-                )
-              else
-                // if pageIndex is outside the bounds
-                (
-                  journey,
-                  Redirect(
-                    journey.answers.exportMovementReferenceNumbers match {
-                      case None       => routes.EnterExportMovementReferenceNumberController.showFirst
-                      case Some(mrns) => routes.EnterExportMovementReferenceNumberController.showNext(mrns.size + 1)
-                    }
-                  )
-                )
-            case _                                                                 =>
-              logger.error(
-                "Should not reach this page as Method of disposal must be one of [ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
-              )
-              (journey, errorHandler.errorResult())
-          }).asFuture
-        case None      =>
+        case Some(mods) =>
+          (if (containsMultipleExportedMethodsOfDisposal(mods)) {
+             if (journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1))
+               (
+                 journey,
+                 Ok(
+                   enterNextExportMovementReferenceNumberPage(
+                     pageIndex,
+                     form,
+                     routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
+                   )
+                 )
+               )
+             else
+               // if pageIndex is outside the bounds
+               (
+                 journey,
+                 Redirect(
+                   journey.answers.exportMovementReferenceNumbers match {
+                     case None       => routes.EnterExportMovementReferenceNumberController.showFirst
+                     case Some(mrns) => routes.EnterExportMovementReferenceNumberController.showNext(mrns.size + 1)
+                   }
+                 )
+               )
+           } else {
+             logger.error(
+               "Should not reach this page as Method of disposal must be one of [ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
+             )
+             (journey, errorHandler.errorResult())
+           }).asFuture
+        case None       =>
           logger.error("Should not reach this page as method of disposal has not been selected yet.")
           (journey, errorHandler.errorResult()).asFuture
       }
@@ -344,21 +342,18 @@ class EnterExportMovementReferenceNumberController @Inject() (
   private def whenTemporaryAdmissionExported(
     journey: SecuritiesJourney
   )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
-    (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodOfDisposal) match {
-      case (None, _)                                                           =>
+    (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodsOfDisposal) match {
+      case (None, _)                                                                                 =>
         (journey, errorHandler.errorResult()).asFuture
-      case (Some(rfs), Some(mod)) if ntas.contains(rfs) && isExportedMod(mod)  =>
+      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && containsExportedMethodsOfDisposal(mods)  =>
         body
-      case (Some(rfs), Some(mod)) if ntas.contains(rfs) && !isExportedMod(mod) =>
+      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && !containsExportedMethodsOfDisposal(mods) =>
         (journey, Redirect(nextStepInJourney)).asFuture
-      case (Some(rfs), None) if ntas.contains(rfs)                             =>
+      case (Some(rfs), None) if ntas.contains(rfs)                                                   =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
-      case (Some(_), _)                                                        =>
+      case (Some(_), _)                                                                              =>
         (journey, Redirect(nextStepInJourney)).asFuture
     }
-
-  private def isExportedMod(mod: TemporaryAdmissionMethodOfDisposal) =
-    TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(mod)
 
 }
 

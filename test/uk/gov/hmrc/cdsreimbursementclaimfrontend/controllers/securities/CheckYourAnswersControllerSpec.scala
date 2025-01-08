@@ -117,7 +117,7 @@ class CheckYourAnswersControllerSpec
     headers.toSeq should containOnlyDefinedElementsOf(
       (Seq(
         "Declaration details".expectedAlways,
-        "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodOfDisposal),
+        "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodsOfDisposal),
         "Contact details for this claim".expectedAlways,
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Supporting documents".expectedAlways,

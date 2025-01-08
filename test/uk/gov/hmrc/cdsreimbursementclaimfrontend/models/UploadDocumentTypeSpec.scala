@@ -46,7 +46,7 @@ class UploadDocumentTypeSpec extends AnyWordSpec with JsonFormatTest with Matche
     "have no duplicates in the securitiesDocumentTypes" in {
       for {
         rfs <- ReasonForSecurity.values
-        mod <- TemporaryAdmissionMethodOfDisposal.values.map(Option.apply) + None
+        mod  = Some(TemporaryAdmissionMethodOfDisposal.values.toList)
         poa <- Set(true, false)
       } UploadDocumentType
         .securitiesDocumentTypes(rfs, mod, poa)

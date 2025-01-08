@@ -25,6 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import cats.kernel.Eq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
 
 sealed trait UploadDocumentType
 
@@ -141,10 +143,12 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
   val rejectedGoodsScheduledDocumentTypes: Seq[UploadDocumentType] =
     rejectedGoodsSingleDocumentTypes
 
-  val securitiesDocumentTypes
-    : (ReasonForSecurity, Option[TemporaryAdmissionMethodOfDisposal], Boolean) => Option[Seq[UploadDocumentType]] = {
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  val securitiesDocumentTypes: (ReasonForSecurity, Option[List[TemporaryAdmissionMethodOfDisposal]], Boolean) => Option[
+    Seq[UploadDocumentType]
+  ] = {
     val pf: PartialFunction[
-      (ReasonForSecurity, Option[TemporaryAdmissionMethodOfDisposal], Option[UploadDocumentType]),
+      (ReasonForSecurity, Option[List[TemporaryAdmissionMethodOfDisposal]], Option[UploadDocumentType]),
       Seq[
         UploadDocumentType
       ]
@@ -173,12 +177,9 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       case (
             ReasonForSecurity.TemporaryAdmission2M | ReasonForSecurity.TemporaryAdmission3M |
             ReasonForSecurity.TemporaryAdmission6M | ReasonForSecurity.TemporaryAdmission2Y,
-            Some(
-              TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments |
-              TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
-            ),
+            Some(mods),
             proofOfAuthorityOpt
-          ) =>
+          ) if mods.exists(mod => mod == ExportedInMultipleShipments || mod == MultipleDisposalMethodsWereUsed) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
           ImportDeclaration,
