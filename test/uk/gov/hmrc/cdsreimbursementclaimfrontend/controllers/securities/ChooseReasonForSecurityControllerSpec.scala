@@ -102,7 +102,7 @@ class ChooseReasonForSecurityControllerSpec
   private val niruOptions =
     Seq(
 //      ("Missing document — community system of duty relief (CSDR)", "CommunitySystemsOfDutyRelief"),   //currently disabled
-      ("Authorised-use/End-use relief", "EndUseRelief"),
+      ("Authorised-use relief (Great Britain) or end-use relief (Northern Ireland)", "EndUseRelief"),
       ("Inward-processing relief (IPR)", "InwardProcessingRelief")
 //      ("Outward-processing relief (OPR)", "OutwardProcessingRelief")   //currently disabled
     )
