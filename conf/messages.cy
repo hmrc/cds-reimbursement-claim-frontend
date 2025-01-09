@@ -387,13 +387,9 @@ choose-claim-type.c285.hint=Ar gyfer nwyddau rydych wedi’u mewnforio neu eu ca
 choose-claim-type.c285.title=Hawlio tollau mewnforio a TAW yn ôl os ydych wedi gordalu
 choose-claim-type.ce1179.hint=Os nad yw’r nwyddau wedi bodloni amodau contract, yn ddiffygiol neu wedi’u difrodi cyn clirio’r tollau.
 choose-claim-type.ce1179.title=Hawlio taliadau tollau yn ôl ar nwyddau wedi’u gwrthod
-choose-claim-type.error.required=Dewiswch y rheswm dros wneud yr hawliad hwn
-choose-claim-type.error.unknown=Dewiswch y rheswm dros wneud yr hawliad hwn
 choose-claim-type.securities.hint=Os oedd angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio.
 choose-claim-type.securities.title=Hawlio blaendal sicrwydd yn ôl
 choose-claim-type.title=Dechrau hawliad newydd
-choose-claim-type.view.hint=Wedi uwchlwytho ffeiliau pan rydym wedi gofyn i chi wneud hynny a gwirio statws eich hawliad.
-choose-claim-type.view.title=Gwirio statws eich hawliad ac uwchlwytho ffeiliau ategol
 
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau

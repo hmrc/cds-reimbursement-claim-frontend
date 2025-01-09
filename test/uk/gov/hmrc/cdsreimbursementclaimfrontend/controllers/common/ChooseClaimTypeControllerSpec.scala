@@ -153,8 +153,7 @@ class ChooseClaimTypeControllerSpec
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
-      chooseClaimTypePage,
-      featureSwitch
+      chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger
     }
@@ -184,15 +183,13 @@ class ChooseClaimTypeControllerSpec
           val c285Button          = extractButton(buttons, "C285")
           val rejectedGoodsButton = extractButton(buttons, "RejectedGoods")
           val securitiesButton    = extractButton(buttons, "Securities")
-          val viewUploadButton    = extractButton(buttons, "ViewUpload")
-          extractLabel(c285Button)          shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)           shouldBe messageFromMessageKey(s"$formKey.c285.hint")
-          extractLabel(rejectedGoodsButton) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
-          extractHint(rejectedGoodsButton)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
-          extractLabel(securitiesButton)    shouldBe messageFromMessageKey(s"$formKey.securities.title")
-          extractHint(securitiesButton)     shouldBe messageFromMessageKey(s"$formKey.securities.hint")
-          extractLabel(viewUploadButton)    shouldBe messageFromMessageKey(s"$formKey.view.title")
-          extractHint(viewUploadButton)     shouldBe messageFromMessageKey(s"$formKey.view.hint")
+          extractLabel(c285Button)                       shouldBe messageFromMessageKey(s"$formKey.c285.title")
+          extractHint(c285Button)                        shouldBe messageFromMessageKey(s"$formKey.c285.hint")
+          extractLabel(rejectedGoodsButton)              shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
+          extractHint(rejectedGoodsButton)               shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
+          extractLabel(securitiesButton)                 shouldBe messageFromMessageKey(s"$formKey.securities.title")
+          extractHint(securitiesButton)                  shouldBe messageFromMessageKey(s"$formKey.securities.hint")
+          doc.select(".govuk-inset-text").text().isEmpty shouldBe false
         }
       )
     }
@@ -216,12 +213,12 @@ class ChooseClaimTypeControllerSpec
         doc => {
           val buttons    = radioButtons(doc)
           val c285Button = extractButton(buttons, "C285")
-          hasButton(buttons, "C285")          shouldBe true
-          hasButton(buttons, "RejectedGoods") shouldBe false
-          hasButton(buttons, "Securities")    shouldBe false
-          hasButton(buttons, "ViewUpload")    shouldBe false
-          extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
+          hasButton(buttons, "C285")                     shouldBe true
+          hasButton(buttons, "RejectedGoods")            shouldBe false
+          hasButton(buttons, "Securities")               shouldBe false
+          doc.select(".govuk-inset-text").text().isEmpty shouldBe true
+          extractLabel(c285Button)                       shouldBe messageFromMessageKey(s"$formKey.c285.title")
+          extractHint(c285Button)                        shouldBe messageFromMessageKey(s"$formKey.c285.hint")
         }
       )
     }
@@ -283,17 +280,6 @@ class ChooseClaimTypeControllerSpec
 
         val result = performAction(Seq(dataKey -> C285.toString))
         checkIsRedirect(result, overpaymentsRoutes.ChooseHowManyMrnsController.show)
-      }
-
-      "Redirect to View Upload if user chooses ViewUpload" in {
-        inSequence {
-          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-          mockGetEoriDetails(exampleEori)
-          mockGetSession(SessionData.empty)
-        }
-
-        val result = performAction(Seq(dataKey -> ViewUpload.toString))
-        checkIsRedirect(result, viewConfig.viewUploadUrl)
       }
 
       "Redirect to choose how many mrns if user chooses C&E1179" in {

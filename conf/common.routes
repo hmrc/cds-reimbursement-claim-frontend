@@ -1,8 +1,8 @@
 GET         /check-eori-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.show
 POST        /check-eori-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.submit
 
-GET         /select-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.show
-POST        /select-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.submit
+GET         /choose-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.show
+POST        /choose-claim-type                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.submit
 
 GET         /bank-account-verification-unavailable uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.BankAccountVerificationUnavailable.show
 
