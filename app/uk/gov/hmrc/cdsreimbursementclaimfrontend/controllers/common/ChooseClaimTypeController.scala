@@ -39,10 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -58,8 +56,7 @@ class ChooseClaimTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  chooseClaimTypePage: choose_claim_type,
-  featureSwitchService: FeatureSwitchService
+  chooseClaimTypePage: choose_claim_type
 )(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendBaseController
     with WithAuthAndSessionDataAction
@@ -85,7 +82,9 @@ class ChooseClaimTypeController @Inject() (
           formWithErrors => {
             if (formWithErrors.data.nonEmpty)
               logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
-            Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
+            val userIsAuthorisedSecuritiesLimitedAccess =
+              request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
+            Future.successful(BadRequest(chooseClaimTypePage(formWithErrors, userIsAuthorisedSecuritiesLimitedAccess)))
           },
           {
             case C285 =>
@@ -104,12 +103,6 @@ class ChooseClaimTypeController @Inject() (
                     )
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show))
                 }
-            case ViewUpload =>
-              if (featureSwitchService.isEnabled(Feature.ViewUpload))
-                Future.successful(Redirect(viewConfig.viewUploadUrl))
-              else
-                Future.failed(new Exception("Invalid option selected"))
-
           }
         )
     }
@@ -121,9 +114,8 @@ object ChooseClaimTypeController {
   case object C285 extends ClaimForm
   case object RejectedGoods extends ClaimForm
   case object Securities extends ClaimForm
-  case object ViewUpload extends ClaimForm
 
-  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities", "ViewUpload")
+  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities")
 
   val dataKey: String = "choose-claim-type"
 
@@ -137,7 +129,6 @@ object ChooseClaimTypeController {
               case "C285"          => C285
               case "RejectedGoods" => RejectedGoods
               case "Securities"    => Securities
-              case "ViewUpload"    => ViewUpload
             },
             _.toString
           )

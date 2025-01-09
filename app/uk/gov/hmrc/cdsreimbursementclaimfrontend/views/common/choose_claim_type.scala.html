@@ -17,6 +17,7 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes
@@ -28,12 +29,15 @@
 @import uk.gov.hmrc.http.HeaderCarrier
 
 @this(
-        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        featureSwitchService: FeatureSwitchService
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    featureSwitchService: FeatureSwitchService,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading
 )
 
 @(form: Form[ClaimForm], userIsAuthorisedSecuritiesLimitedAccess: Boolean = false)(implicit request: Request[_], hc: HeaderCarrier, messages: Messages, viewConfig: ViewConfig)
@@ -52,7 +56,7 @@
     )
 }
 
-@normalRadioItems = @{
+@radioItems = @{
     Seq(
         Some(
             RadioItem(
@@ -82,46 +86,44 @@
                 Some(securitiesRadioButton)
             }
         } else None
-    ).filter(_.isDefined).map(_.get)}
-
-@dividerRadio = @{RadioItem(
- divider = Some(messages("radio.divider"))
-)}
-
-@viewUploadRadio = @{RadioItem(
- id = Some(s"choose-claim-type-viewupload"),
- value = Some(ViewUpload.toString),
- content = HtmlContent(messages(s"choose-claim-type.view.title")),
- hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.view.hint")))),
- checked = form.value.contains(ViewUpload)
-)}
-
-@radioItems = @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
- normalRadioItems :+ dividerRadio :+ viewUploadRadio
-else
- normalRadioItems
+    ).filter(_.isDefined).map(_.get)
 }
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
- @errorSummary(form.errors)
+    @errorSummary(form.errors)
 
- @formWithCSRF(routes.ChooseClaimTypeController.submit, 'novalidate -> "novalidate") {
+    @heading(Html(title), classes="govuk-heading-l")
 
+    @paragraph(Html(messages("choose-claim-type.p1")))
 
-  @radios(
-   form = form,
-   name = key,
-   legend = title,
-   legendAsHeading = true,
-   classes = "govuk-fieldset__legend--xl",
-   paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
-   hintKey = None,
-   items = radioItems
-  )
+    @bulletList(
+        Seq(
+            Html(messages("choose-claim-type.l1")),
+            Html(messages("choose-claim-type.l2")),
+            Html(messages("choose-claim-type.l3"))
+        )
+    )
 
-  @submitButton("button.continue")
+    @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
+        paragraph(Html(messages("choose-claim-type.view-upload-inset", viewConfig.viewUploadUrl)), Some("govuk-inset-text govuk-!-margin-bottom-5"))
+    else
+        None
+    }
 
- }
+    @formWithCSRF(routes.ChooseClaimTypeController.submit, 'novalidate -> "novalidate") {
 
+        @radios(
+            form = form,
+            name = key,
+            legend = messages("choose-claim-type.legend"),
+            legendAsHeading = false,
+            classes = "govuk-fieldset__legend--m",
+            paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
+            hintKey = None,
+            items = radioItems
+        )
+
+        @submitButton("button.continue")
+    }
 }

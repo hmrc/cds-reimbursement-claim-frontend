@@ -413,17 +413,21 @@ check-your-answers.print-view.security-deposit.h2=Security deposit ID: {0}
 check-your-answers.print-view.selected-charges=Selected charges
 check-your-answers.print-view.submitted=Submitted
 
+choose-claim-type.p1=You will need the import Movement Reference Number (MRN) and any supporting documents, such as:
+choose-claim-type.l1=invoices
+choose-claim-type.l2=proof of disposal
+choose-claim-type.l3=proof of authority (to update bank account details)
+choose-claim-type.view-upload-inset=You can also <a class="govuk-link" rel="noreferrer noopener" href={0}>check the status of an existing claim</a>.
+choose-claim-type.legend=What type of claim do you want to make?
 choose-claim-type.c285.hint=For goods you imported or received from abroad.
 choose-claim-type.c285.title=Claim back import duty and VAT if you have overpaid
 choose-claim-type.ce1179.hint=If the goods have not met contract conditions, were defective or damaged before customs clearance.
 choose-claim-type.ce1179.title=Claim back customs charges paid on rejected goods
-choose-claim-type.error.required=Select the reason for making this claim
-choose-claim-type.error.unknown=Select the reason for making this claim
+choose-claim-type.error.required=Select a type of claim
+choose-claim-type.error.unknown=Select a type of claim
 choose-claim-type.securities.hint=If HMRC required a security deposit or guarantee for goods you imported.
 choose-claim-type.securities.title=Claim back a security deposit
 choose-claim-type.title=Start a new claim
-choose-claim-type.view.hint=Upload files when we’ve asked you and check your claim status.
-choose-claim-type.view.title=Check your claim status and upload supporting files
 
 choose-export-method.error.required=Select what you did with the goods
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Declared to a customs warehouse
