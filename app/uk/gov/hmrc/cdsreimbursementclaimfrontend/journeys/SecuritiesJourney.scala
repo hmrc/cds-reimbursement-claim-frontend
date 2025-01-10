@@ -424,7 +424,11 @@ final class SecuritiesJourney private (
         Right(
           this.copy(
             answers.copy(
-              temporaryAdmissionMethodsOfDisposal = Some(methodsOfDisposal)
+              temporaryAdmissionMethodsOfDisposal = Some(methodsOfDisposal),
+              exportMovementReferenceNumbers =
+                if (methodsOfDisposal.contains(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal))
+                  answers.exportMovementReferenceNumbers
+                else None
             )
           )
         )
