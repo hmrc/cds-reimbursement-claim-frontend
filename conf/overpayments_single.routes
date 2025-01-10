@@ -78,7 +78,7 @@ GET         /overpayments/single/upload-summary                                 
 
 POST        /overpayments/single/submit-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.submit
 GET         /overpayments/single/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.showConfirmation
-GET         /overpayments/single/check-your-answers/print-or-download                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.showPrintView
+GET         /overpayments/single/check-your-answers/claim-details                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.showPrintView
 GET         /overpayments/single/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckYourAnswersController.show
 
 GET         /overpayments/single/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithDeclarationController.show
