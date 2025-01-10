@@ -375,6 +375,7 @@ check-your-answers.claim-details=Manylion yr hawliad
 check-your-answers.new-eori=EORI newydd
 check-your-answers.new-dan=Rhif cyfrif gohirio newydd
 
+check-your-answers.print-view.title=Manylion eich hawliad
 check-your-answers.print-view.print=Argraffu’r dudalen hon
 check-your-answers.print-view.total=Cyfanswm
 check-your-answers.print-view.additional-details=Manylion ychwanegol yr hawliad
