@@ -47,7 +47,7 @@ class SelectDutiesController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    if (journey.isDutyTypeSelected) {
+    if journey.isDutyTypeSelected then {
       val postAction: Call                     = routes.SelectDutiesController.submit(dutyType)
       val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
       val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
@@ -61,7 +61,7 @@ class SelectDutiesController @Inject() (
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
-    if (journey.isDutyTypeSelected) {
+    if journey.isDutyTypeSelected then {
       Future.successful(
         selectDutyCodesForm
           .bindFromRequest()

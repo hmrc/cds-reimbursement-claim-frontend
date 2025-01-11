@@ -103,10 +103,8 @@ class CheckClaimDetailsController @Inject() (
                   (
                     journey.withDutiesChangeMode(false),
                     Redirect(
-                      if (journey.userHasSeenCYAPage)
-                        checkYourAnswers
-                      else
-                        routes.ChoosePayeeTypeController.show
+                      if journey.userHasSeenCYAPage then checkYourAnswers
+                      else routes.ChoosePayeeTypeController.show
                     )
                   ).asFuture
                 case No  =>

@@ -104,7 +104,7 @@ class CheckClaimDetailsController @Inject() (
                       (
                         journey,
                         Redirect(
-                          if (journey.userHasSeenCYAPage) checkYourAnswers
+                          if journey.userHasSeenCYAPage then checkYourAnswers
                           else routes.EnterInspectionDateController.show
                         )
                       ).asFuture

@@ -35,7 +35,7 @@ final case class ContactDetails(
 
   def maybeEmailAddress: Option[String] =
     emailAddress
-      .flatMap(s => if (s.trim.isEmpty) None else Some(s))
+      .flatMap(s => if s.trim.isEmpty then None else Some(s))
 
   def showAddress: Option[String] =
     addressLine1 *> postalCode *> Some(

@@ -133,15 +133,13 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     hasEoriEnrolment(enrolments) flatMap {
       case Left(_)           => Future.successful(Left(Redirect(routes.UnauthorisedController.unauthorised())))
       case Right(Some(eori)) =>
-        if (
-          featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
+        if featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
           checkEoriIsAllowed(eori.value)
-        )
+        then
           eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
             handleSignedInUser(eori, affinityGroup, eoriDetailsOpt.map(_.fullName), request)
           }
-        else
-          Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
+        else Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
       case Right(None)       =>
         Future.successful(Left(Redirect(unauthorizedErrorPage)))
     }
@@ -174,7 +172,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
 
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
-      if (userType === UserType.Individual) {
+      if userType === UserType.Individual then {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser.Individual(
             None,
@@ -221,7 +219,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       case Some(Credentials(_, otherProvider)) =>
         Future.successful(
-          if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
+          if featureSwitchService.isDisabled(models.Feature.LimitedAccess) then
             Right(
               AuthenticatedRequestWithRetrievedData(
                 AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(
@@ -231,8 +229,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 request
               )
             )
-          else
-            Left(Results.Redirect(limitedAccessErrorPage))
+          else Left(Results.Redirect(limitedAccessErrorPage))
         )
     }
 }

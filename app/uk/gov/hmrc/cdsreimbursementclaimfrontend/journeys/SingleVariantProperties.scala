@@ -63,7 +63,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
               .map(taxCode => (taxCode, ndrc.isCmaEligible))
           )
           .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
+        if taxCodes.isEmpty then None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
 
@@ -125,7 +125,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   }
 
   def getDefaultReimbursementMethod: ReimbursementMethod =
-    if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+    if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
     else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
 
   def getUKDutyReimbursementTotal: Option[BigDecimal] =
@@ -139,7 +139,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
 
   private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
     getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _, _, _)) =>
-      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      if include(taxCode) then Some(a.getOrElse(BigDecimal("0.00")) + amount)
       else a
     }
 

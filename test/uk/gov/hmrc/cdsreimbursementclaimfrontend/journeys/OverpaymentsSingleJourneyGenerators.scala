@@ -107,18 +107,18 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       completeJourneyNotCMAEligibleGen
     )
 
-  val completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue: Gen[OverpaymentsSingleJourney] = for {
+  val completeJourneyGenWithoutDuplicateEntryAndIncorrectExciseValue: Gen[OverpaymentsSingleJourney] = for
     journey      <- completeJourneyGen
     basisOfClaim <-
       Gen.oneOf(
         BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.DuplicateEntry - BasisOfOverpaymentClaim.IncorrectExciseValue
       )
-  } yield journey.submitBasisOfClaim(basisOfClaim)
+  yield journey.submitBasisOfClaim(basisOfClaim)
 
-  val completeJourneyGenWithDuplicateEntry: Gen[OverpaymentsSingleJourney] = for {
-    journey <- completeJourneyGen
-  } yield journey
-    .submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
+  val completeJourneyGenWithDuplicateEntry: Gen[OverpaymentsSingleJourney] =
+    for journey <- completeJourneyGen
+    yield journey
+      .submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
   // .fold(error => throw new Exception(error), identity)
 
   def buildCompleteJourneyGen(
@@ -216,25 +216,26 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     payeeType: PayeeType = PayeeType.Declarant
   ): Gen[OverpaymentsSingleJourney.Answers] =
-    for {
+    for
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
-      declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      declarantEORI               <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI               <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim                <- Gen.oneOf(BasisOfOverpaymentClaim.values)
-      numberOfTaxCodes            <- Gen.choose(if (generateSubsidyPayments == GenerateSubsidyPayments.Some) 2 else 1, 5)
-      taxCodes                    <- Gen
-                                       .pick(
-                                         numberOfTaxCodes,
-                                         if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
-                                       )
-                                       .map(_ ++ forcedTaxCodes)
+      numberOfTaxCodes            <- Gen.choose(if generateSubsidyPayments == GenerateSubsidyPayments.Some then 2 else 1, 5)
+      taxCodes                    <-
+        Gen
+          .pick(
+            numberOfTaxCodes,
+            if basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue then TaxCodes.excise else taxCodes
+          )
+          .map(_ ++ forcedTaxCodes)
       paidAmounts                 <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       correctAmount               <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
-      duplicateMrn                <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
+      duplicateMrn                <- if basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry then IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
       reimbursementMethod         <-
         reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
@@ -257,7 +258,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
                                          Some(NewEoriAndDan(IdGen.genEori.sample.get, IdGen.genDan.sample.get.value))
                                        case _                                 => None
                                      }
-    } yield {
+    yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
@@ -275,9 +276,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
-          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
           paidDuties,
-          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          consigneeContact = if submitConsigneeDetails then consigneeContact else None,
           declarantContact = declarantContact,
           generateSubsidyPayments = generateSubsidyPayments
         )
@@ -290,11 +291,9 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         }.toSeq
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       val answers =
@@ -305,8 +304,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           displayDeclaration = Some(displayDeclaration),
           payeeType = Some(payeeType),
           eoriNumbersVerification = eoriNumbersVerification,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+          contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
@@ -314,16 +313,16 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
           supportingEvidences =
-            if (submitEvidence) supportingEvidencesExpanded
+            if submitEvidence then supportingEvidencesExpanded
             else Seq.empty,
           bankAccountDetails =
-            if (submitBankAccountDetails) Some(exampleBankAccountDetails)
+            if submitBankAccountDetails then Some(exampleBankAccountDetails)
             else None,
           bankAccountType =
-            if (submitBankAccountType) Some(bankAccountType)
+            if submitBankAccountType then Some(bankAccountType)
             else None,
           reimbursementMethod =
-            if (submitReimbursementMethod && allDutiesCmaEligible) Some(reimbursementMethod)
+            if submitReimbursementMethod && allDutiesCmaEligible then Some(reimbursementMethod)
             else None,
           modes = JourneyModes(checkYourAnswersChangeMode = checkYourAnswersChangeMode),
           newEori = newEoriAndDan.map(_.eori),
@@ -355,17 +354,17 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsSingleJourney.Answers] =
-    for {
+    for
       userEoriNumber   <- IdGen.genEori
       mrn              <- IdGen.genMRN
-      declarantEORI    <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI    <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      declarantEORI    <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI    <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes <- Gen.choose(1, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, taxCodes).map(_ ++ forcedTaxCodes)
       paidAmounts      <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       consigneeContact <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact <- Gen.option(Acc14Gen.genContactDetails)
-    } yield {
+    yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
@@ -374,20 +373,18 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
-          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
           paidDuties,
-          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          consigneeContact = if submitConsigneeDetails then consigneeContact else None,
           declarantContact = declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       OverpaymentsSingleJourney.Answers(
@@ -396,8 +393,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         movementReferenceNumber = Some(mrn),
         displayDeclaration = Some(displayDeclaration),
         eoriNumbersVerification = eoriNumbersVerification,
-        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+        contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
         modes = JourneyModes(checkYourAnswersChangeMode = false)
       )
     }
@@ -414,26 +411,27 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsSingleJourney.Answers] =
-    for {
+    for
       userEoriNumber           <- IdGen.genEori
       mrn                      <- IdGen.genMRN
-      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      declarantEORI            <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim             <- Gen.oneOf(BasisOfOverpaymentClaim.values)
       numberOfTaxCodes         <- Gen.choose(1, 5)
-      taxCodes                 <- Gen
-                                    .pick(
-                                      numberOfTaxCodes,
-                                      if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
-                                    )
-                                    .map(_ ++ forcedTaxCodes)
+      taxCodes                 <-
+        Gen
+          .pick(
+            numberOfTaxCodes,
+            if basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue then TaxCodes.excise else taxCodes
+          )
+          .map(_ ++ forcedTaxCodes)
       paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
-      duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
+      duplicateMrn             <- if basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry then IdGen.genMRN.map(Option.apply)
                                   else Gen.const(None)
       numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
       consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
-    } yield {
+    yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
@@ -450,20 +448,18 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
-          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
           paidDuties,
-          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          consigneeContact = if submitConsigneeDetails then consigneeContact else None,
           declarantContact = declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       val answers =
@@ -473,8 +469,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+          contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
@@ -498,30 +494,31 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty
   ): Gen[OverpaymentsSingleJourney.Answers] =
-    for {
+    for
       userEoriNumber           <- IdGen.genEori
       mrn                      <- IdGen.genMRN
-      declarantEORI            <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI            <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      declarantEORI            <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI            <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       basisOfClaim             <- Gen.oneOf(BasisOfOverpaymentClaim.values)
       numberOfTaxCodes         <- Gen.choose(1, 5)
-      taxCodes                 <- Gen
-                                    .pick(
-                                      numberOfTaxCodes,
-                                      if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue) TaxCodes.excise else taxCodes
-                                    )
-                                    .map(_ ++ forcedTaxCodes)
+      taxCodes                 <-
+        Gen
+          .pick(
+            numberOfTaxCodes,
+            if basisOfClaim === BasisOfOverpaymentClaim.IncorrectExciseValue then TaxCodes.excise else taxCodes
+          )
+          .map(_ ++ forcedTaxCodes)
       paidAmounts              <- listOfExactlyN(numberOfTaxCodes, amountNumberGen)
       correctAmount            <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(ZERO, a - BigDecimal("0.01")))
         )
-      duplicateMrn             <- if (basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry) IdGen.genMRN.map(Option.apply)
+      duplicateMrn             <- if basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry then IdGen.genMRN.map(Option.apply)
                                   else Gen.const(None)
       numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
       consigneeContact         <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
-    } yield {
+    yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
@@ -539,20 +536,18 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
-          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+          if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
           paidDuties,
-          consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+          consigneeContact = if submitConsigneeDetails then consigneeContact else None,
           declarantContact = declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       val answers =
@@ -562,8 +557,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           movementReferenceNumber = Some(mrn),
           displayDeclaration = Some(displayDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+          contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
             duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),

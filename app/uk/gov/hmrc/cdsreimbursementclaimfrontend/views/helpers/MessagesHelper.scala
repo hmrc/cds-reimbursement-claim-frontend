@@ -27,7 +27,7 @@ object MessagesHelper {
       case None     => List(default)
     }
     val candidates = keys.filter(key => messages.isDefinedAt(key))
-    if (candidates.isEmpty) List(s"cannot find any of messages: ${keys.mkString(",")}")
+    if candidates.isEmpty then List(s"cannot find any of messages: ${keys.mkString(",")}")
     else candidates
   }
 

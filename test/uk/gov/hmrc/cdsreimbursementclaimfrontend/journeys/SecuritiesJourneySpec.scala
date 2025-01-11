@@ -992,8 +992,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                               .getSecurityTaxCodesFor(args._1)
                               .takeExcept(journey.getSelectedDutiesFor(args._1).get)
 
-                          if (notSelectedTaxCodes.isEmpty)
-                            Left("submitCorrectAmount.invalidTaxCode")
+                          if notSelectedTaxCodes.isEmpty then Left("submitCorrectAmount.invalidTaxCode")
                           else
                             journey.submitCorrectAmount(
                               args._1,
@@ -1466,11 +1465,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, additionalDetails) =>
         val modifiedJourney = journey.submitAdditionalDetails(additionalDetails)
 
-        modifiedJourney.hasCompleteAnswers                  shouldBe true
-        if (additionalDetails.isBlank)
-          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(None)
-        else
-          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(Some(additionalDetails))
+        modifiedJourney.hasCompleteAnswers                                                  shouldBe true
+        if additionalDetails.isBlank then modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(None)
+        else modifiedJourney.toOutput.map(_.additionalDetails)                              shouldBe Right(Some(additionalDetails))
       }
     }
   }

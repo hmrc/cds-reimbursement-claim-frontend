@@ -85,11 +85,11 @@ package object generators {
   implicit lazy val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
   lazy val genUrl: Gen[URL] =
-    for {
+    for
       protocol <- Gen.oneOf("http", "https")
       hostname <- genStringWithMaxSizeOfN(7)
       domain   <- Gen.oneOf("com", "co.uk", "lv")
-    } yield URI.create(s"$protocol://$hostname.$domain").toURL
+    yield URI.create(s"$protocol://$hostname.$domain").toURL
 
   implicit lazy val arbitraryUrl: Arbitrary[URL] = Arbitrary(genUrl)
 }

@@ -48,7 +48,7 @@ class SelectDutyTypesController @Inject() (
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val form = selectDutyTypesForm
 
-    if (journey.isSubsidyOnlyJourney) {
+    if journey.isSubsidyOnlyJourney then {
       journey
         .selectAndReplaceDutyTypeSetForReimbursement(List(DutyType.EuDuty))
         .fold(

@@ -44,13 +44,14 @@ class UploadDocumentTypeSpec extends AnyWordSpec with JsonFormatTest with Matche
     }
 
     "have no duplicates in the securitiesDocumentTypes" in {
-      for {
+      for
         rfs <- ReasonForSecurity.values
         mod  = Some(TemporaryAdmissionMethodOfDisposal.values.toList)
         poa <- Set(true, false)
-      } UploadDocumentType
-        .securitiesDocumentTypes(rfs, mod, poa)
-        .foreach(dts => withClue(s"${dts.mkString(",")}")(dts.distinct.size.shouldBe(dts.size)))
+      do
+        UploadDocumentType
+          .securitiesDocumentTypes(rfs, mod, poa)
+          .foreach(dts => withClue(s"${dts.mkString(",")}")(dts.distinct.size.shouldBe(dts.size)))
     }
 
     "have no duplicates in the rejectedGoodsScheduledDocumentTypes" in {

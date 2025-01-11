@@ -49,7 +49,7 @@ trait SessionDataActionBase[R[_] <: Request[_], P[_] <: Request[_]] extends Acti
   override protected def refine[A](request: R[A]): Future[Either[Result, P[A]]] = {
 
     implicit val hc: HeaderCarrier =
-      if (headersFromRequestOnly)
+      if headersFromRequestOnly then
         HeaderCarrierConverter
           .fromRequest(request)
       else

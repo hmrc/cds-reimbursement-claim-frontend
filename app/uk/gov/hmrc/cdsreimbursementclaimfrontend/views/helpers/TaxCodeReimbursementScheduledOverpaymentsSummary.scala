@@ -69,7 +69,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
           )
         )
       }.toSeq ++ (
-        if (claimsMadeAgainstTaxCodes.size > 1) {
+        if claimsMadeAgainstTaxCodes.size > 1 then {
           Seq(
             SummaryListRow(
               key = Key(HtmlContent(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),

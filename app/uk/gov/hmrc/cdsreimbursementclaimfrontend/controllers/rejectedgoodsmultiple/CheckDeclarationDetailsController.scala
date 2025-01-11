@@ -48,10 +48,8 @@ class CheckDeclarationDetailsController @Inject() (
 
   final override def continueRoute(journey: Journey): Call = {
     val numOfMRNs = journey.countOfMovementReferenceNumbers
-    if (numOfMRNs > 1)
-      routes.CheckMovementReferenceNumbersController.show
-    else
-      routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
+    if numOfMRNs > 1 then routes.CheckMovementReferenceNumbersController.show
+    else routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
   }
 
   final override val enterMovementReferenceNumberRoute: Call =

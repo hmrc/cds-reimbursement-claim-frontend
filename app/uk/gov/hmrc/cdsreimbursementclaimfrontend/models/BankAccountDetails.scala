@@ -82,14 +82,13 @@ object BankAccountDetails {
     maybeBankDetails
       .toValidNel(MissingAnswerError("Bank account details"))
       .andThen(bankDetails =>
-        if (!AccountName.isValid(bankDetails.accountName.value))
+        if !AccountName.isValid(bankDetails.accountName.value) then
           invalidNel(IncorrectAnswerError("Account name", "Invalid"))
-        else if (!AccountNumber.isValid(bankDetails.accountNumber.value))
+        else if !AccountNumber.isValid(bankDetails.accountNumber.value) then
           invalidNel(IncorrectAnswerError("Account number", "Invalid"))
-        else if (!SortCode.isValid(bankDetails.sortCode.value))
+        else if !SortCode.isValid(bankDetails.sortCode.value) then
           invalidNel(IncorrectAnswerError("Sort code", "Invalid"))
-        else
-          Valid(Some(bankDetails))
+        else Valid(Some(bankDetails))
       )
   implicit val equality: Eq[BankAccountDetails]        =
     Eq.fromUniversalEquals[BankAccountDetails]

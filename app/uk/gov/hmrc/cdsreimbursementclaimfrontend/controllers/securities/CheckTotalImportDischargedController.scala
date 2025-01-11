@@ -74,8 +74,8 @@ class CheckTotalImportDischargedController @Inject() (
         {
           case Yes =>
             {
-              if (journey.reasonForSecurityIsIPR) successResultBOD3
-              else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+              if journey.reasonForSecurityIsIPR then successResultBOD3
+              else if journey.reasonForSecurityIsEndUseRelief then successResultBOD4
               else {
                 logAndDisplayError(
                   "Invalid journey routing",

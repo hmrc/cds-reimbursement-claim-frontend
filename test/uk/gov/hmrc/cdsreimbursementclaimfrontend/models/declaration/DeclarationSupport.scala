@@ -29,10 +29,8 @@ trait DeclarationSupport {
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
           declaration.displayResponseDetail.ndrcDetails.map(_.zipWithIndex.map { case (ndrcDetails, index) =>
-            if (index % 2 == 0)
-              ndrcDetails.copy(paymentMethod = "006")
-            else
-              ndrcDetails
+            if index % 2 == 0 then ndrcDetails.copy(paymentMethod = "006")
+            else ndrcDetails
           })
         )
       )

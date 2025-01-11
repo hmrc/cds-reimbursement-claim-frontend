@@ -28,21 +28,21 @@ final case class Flags private (flags: Long) {
     ((flags >>> pos) & 1L) == 1L
 
   def set(pos: Int): Flags =
-    if (pos < 0 || pos >= 64) throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
+    if pos < 0 || pos >= 64 then throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
     else new Flags(flags | (1L << pos))
 
   def unset(pos: Int): Flags =
-    if (pos < 0 || pos >= 64) throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
+    if pos < 0 || pos >= 64 then throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
     else new Flags(flags & ~(1L << pos))
 
   /** Check whether all flags are set up to the given position */
 
   def checkAllSet(maxPos: Int): Boolean =
-    if (maxPos < 0 || maxPos >= 64) throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
+    if maxPos < 0 || maxPos >= 64 then throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
     else {
       var i = 0
       var c = true
-      while (c && (i <= maxPos)) {
+      while c && (i <= maxPos) do {
         c = c & ((flags >>> i) & 1L) == 1L
         i = i + 1
       }
@@ -50,33 +50,33 @@ final case class Flags private (flags: Long) {
     }
 
   def firstSet: Option[Int] =
-    if (flags == 0L) None
-    else if (flags == -1L) { Some(0) }
+    if flags == 0L then None
+    else if flags == -1L then { Some(0) }
     else {
       var i = -1
       var c = true
       var f = flags
-      while (c) {
+      while c do {
         i = i + 1
         c = (f & 1L) != 1L
         f = f >>> 1
       }
-      if (c) None else Some(i)
+      if c then None else Some(i)
     }
 
   def firstNotSet: Option[Int] =
-    if (flags == 0L) Some(0)
-    else if (flags == -1L) { None }
+    if flags == 0L then Some(0)
+    else if flags == -1L then { None }
     else {
       var i = -1
       var c = true
       var f = flags
-      while (c) {
+      while c do {
         i = i + 1
         c = (f & 1L) == 1L
         f = f >>> 1
       }
-      if (c) None else Some(i)
+      if c then None else Some(i)
     }
 
   override def toString: String =

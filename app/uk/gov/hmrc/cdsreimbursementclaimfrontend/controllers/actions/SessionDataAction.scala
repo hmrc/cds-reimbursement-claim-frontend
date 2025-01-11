@@ -55,7 +55,7 @@ class SessionDataAction @Inject() (
     RequestWithSessionData(sessionData, request)
 
   def readHeadersFromRequestOnly(b: Boolean): SessionDataAction =
-    if (b == this.headersFromRequestOnly) this
+    if b == this.headersFromRequestOnly then this
     else
       new SessionDataAction(sessionStore, errorHandler) {
         override val headersFromRequestOnly: Boolean = b

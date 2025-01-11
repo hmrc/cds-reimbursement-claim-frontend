@@ -66,9 +66,7 @@ class ChooseInspectionAddressTypeController @Inject() (
   override def redirectToTheNextPage(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) =
     (
       journey,
-      if (journey.hasCompleteAnswers)
-        Redirect(checkYourAnswers)
-      else
-        Redirect(nextPage)
+      if journey.hasCompleteAnswers then Redirect(checkYourAnswers)
+      else Redirect(nextPage)
     )
 }

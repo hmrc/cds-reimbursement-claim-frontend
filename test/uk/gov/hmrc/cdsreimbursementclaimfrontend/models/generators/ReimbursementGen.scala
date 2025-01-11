@@ -22,11 +22,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 
 object ReimbursementGen {
 
-  lazy val genReimbursement: Gen[AmountPaidWithCorrect] = for {
+  lazy val genReimbursement: Gen[AmountPaidWithCorrect] = for
     shouldPaidAmount <- genBigDecimal
     random           <- Gen.choose(1, 100)
     paidAmount        = random + shouldPaidAmount
-  } yield AmountPaidWithCorrect(paidAmount, shouldPaidAmount)
+  yield AmountPaidWithCorrect(paidAmount, shouldPaidAmount)
 
   implicit lazy val arbitraryReimbursementClaim: Arbitrary[AmountPaidWithCorrect] =
     Arbitrary(genReimbursement)

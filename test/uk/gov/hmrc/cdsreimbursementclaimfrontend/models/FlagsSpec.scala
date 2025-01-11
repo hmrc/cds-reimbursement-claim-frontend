@@ -58,15 +58,15 @@ class FlagsSpec extends AnyWordSpec with Matchers {
 
       var f = Flags.empty
       (0 to 63).foreach { i =>
-        f.check(i)                       shouldBe false
+        f.check(i)                          shouldBe false
         f = f.set(i)
         (0 to i).foreach { j =>
           f.check(j)       shouldBe true
           f.checkAllSet(j) shouldBe true
         }
-        if (i < 63) f.checkAllSet(i + 1) shouldBe false
+        if i < 63 then f.checkAllSet(i + 1) shouldBe false
 
-        f.firstNotSet shouldBe (if (i < 63) Some(i + 1) else None)
+        f.firstNotSet shouldBe (if i < 63 then Some(i + 1) else None)
         val f2 = f.unset(i)
         f2.check(i)    shouldBe false
         f2.firstNotSet shouldBe Some(i)
@@ -90,7 +90,7 @@ class FlagsSpec extends AnyWordSpec with Matchers {
         f.firstNotSet shouldBe Some(0)
         val f2 = f.set(i)
         f2.check(i)    shouldBe true
-        f2.firstNotSet shouldBe (if (i > 0) Some(0) else None)
+        f2.firstNotSet shouldBe (if i > 0 then Some(0) else None)
         Json
           .parse(Json.stringify(Json.toJson(f)))
           .as[Flags]   shouldBe f

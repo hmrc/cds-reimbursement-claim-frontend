@@ -50,7 +50,7 @@ object EstablishmentAddress {
 
   private def combineAddressLines(line2: Option[String], line3: Option[String]): Option[String] = {
     val lines = List(line2, line3).flatten(Option.option2Iterable)
-    if (lines.length === 0) None else Some(lines.mkString(", "))
+    if lines.length === 0 then None else Some(lines.mkString(", "))
   }
 
   def fromContactAddress(contactAddress: ContactAddress): EstablishmentAddress =

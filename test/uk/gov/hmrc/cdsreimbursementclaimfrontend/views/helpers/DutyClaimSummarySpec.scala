@@ -69,11 +69,11 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
 object DutyClaimSummarySpec {
 
   def genReimbursements(codes: Seq[TaxCode]): Gen[List[ClaimedReimbursement]] =
-    for {
+    for
       n       <- Gen.choose(1, codes.length)
       picked  <- Gen.pick(n, codes)
       amounts <- Gen.listOfN(n, BigDecimalGen.amountNumberGen)
-    } yield (picked zip amounts).map { case (taxCode, amount) =>
+    yield (picked zip amounts).map { case (taxCode, amount) =>
       ClaimedReimbursement(
         taxCode = taxCode,
         claimAmount = amount,

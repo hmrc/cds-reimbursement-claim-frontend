@@ -53,7 +53,7 @@ class SelectDutiesController @Inject() (
       .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
         val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
-        if (availableDuties.isEmpty) {
+        if availableDuties.isEmpty then {
           logger.warn("No available duties")
           Redirect(baseRoutes.IneligibleController.ineligible)
         } else {
@@ -81,7 +81,7 @@ class SelectDutiesController @Inject() (
           .getNthMovementReferenceNumber(pageIndex - 1)
           .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
             val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
-            if (availableDuties.isEmpty) {
+            if availableDuties.isEmpty then {
               logger.warn("No available duties")
               (journey, Redirect(baseRoutes.IneligibleController.ineligible))
             } else {

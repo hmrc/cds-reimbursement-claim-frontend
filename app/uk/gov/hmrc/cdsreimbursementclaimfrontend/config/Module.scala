@@ -82,7 +82,7 @@ class DebuggingHook(config: Configuration) extends HttpHook {
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Unit = {
-    if (shouldDebug && !url.getPath().contains("/auth/authorise")) {
+    if shouldDebug && !url.getPath().contains("/auth/authorise") then {
       responseF.andThen {
         case Success(response) =>
           Logger("OutboundRequest").debug(s"""$printRequest  

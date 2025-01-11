@@ -36,22 +36,22 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     Gen.sequence((1 to n).map(_ => gen)).map(_.asScala.toList)
 
   final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       acc14 <- displayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                )
-    } yield (mrn, acc14)
+    yield (mrn, acc14)
 
   final lazy val mrnWithDisplayDeclarationSubsidyOnlyGen: Gen[(MRN, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       acc14 <- displayDeclarationSubsidyOnly.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                )
-    } yield (mrn, acc14)
+    yield (mrn, acc14)
 
   final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
     buildDisplayDeclarationGen(cmaEligible = true)
@@ -84,33 +84,33 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     displayDeclarationGen.sample.get
 
   final def exampleDisplayDeclarationWithNIExciseCodes: DisplayDeclaration =
-    (for {
+    (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(TaxCodes.excise)
-    } yield buildDisplayDeclaration(
+    yield buildDisplayDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = (paidAmounts :+ ((TaxCode.A00, BigDecimal("1.01")))).map { case (t, a) => (t, a, false) }
     )).sample.get
 
   final def exampleDisplayDeclarationWithSomeUnsupportedCode: DisplayDeclaration =
-    (for {
+    (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.A00, TaxCode.UnsupportedTaxCode("foo")))
-    } yield buildDisplayDeclaration(
+    yield buildDisplayDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
     )).sample.get
 
   final def exampleDisplayDeclarationWithOnlyUnsupportedCodes: DisplayDeclaration =
-    (for {
+    (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.UnsupportedTaxCode("foo"), TaxCode.UnsupportedTaxCode("bar")))
-    } yield buildDisplayDeclaration(
+    yield buildDisplayDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
@@ -120,7 +120,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     securitiesDisplayDeclarationGen.sample.get
 
   final def taxCodesWithAmountsGen: Gen[Seq[(TaxCode, BigDecimal)]] =
-    for {
+    for
       numberOfTaxCodes <- Gen.choose(2, 5)
       taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
       amounts          <-
@@ -128,10 +128,10 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts).toSeq
+    yield taxCodes.zip(amounts).toSeq
 
   final def taxCodesWithAmountsGen(taxCodes: Seq[TaxCode]): Gen[Seq[(TaxCode, BigDecimal)]] =
-    for {
+    for
       numberOfTaxCodes <- Gen.choose(2, Math.min(5, taxCodes.size))
       taxCodes         <- Gen.pick(numberOfTaxCodes, taxCodes)
       amounts          <-
@@ -139,17 +139,17 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           numberOfTaxCodes,
           amountNumberGen
         )
-    } yield taxCodes.zip(amounts).toSeq
+    yield taxCodes.zip(amounts).toSeq
 
   final def buildDisplayDeclarationGen(
     cmaEligible: Boolean,
     subsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): Gen[DisplayDeclaration] =
-    for {
+    for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen
-    } yield buildDisplayDeclaration(
+    yield buildDisplayDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) },
@@ -162,7 +162,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
     )
 
   final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
-    for {
+    for
       reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
@@ -173,7 +173,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
           Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
       declarantContact   <- Acc14Gen.genContactDetails
-    } yield buildSecuritiesDisplayDeclaration(
+    yield buildSecuritiesDisplayDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),

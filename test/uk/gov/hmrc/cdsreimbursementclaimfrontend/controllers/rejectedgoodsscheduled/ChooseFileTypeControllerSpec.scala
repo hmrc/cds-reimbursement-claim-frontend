@@ -76,10 +76,8 @@ class ChooseFileTypeControllerSpec
       ("Proof of authority", "LetterOfAuthority"),
       ("Proof of export or destruction", "ProofOfExportOrDestruction")
     ) ++ (
-      if (journey.answers.supportingEvidences.nonEmpty)
-        List(("I have no more documents to upload", "none"))
-      else
-        Nil
+      if journey.answers.supportingEvidences.nonEmpty then List(("I have no more documents to upload", "none"))
+      else Nil
     )
     hasContinueButton(doc)
   }

@@ -35,26 +35,26 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 object DisplayResponseDetailGen {
 
   lazy val genDeclarantDetails: Gen[DeclarantDetails] =
-    for {
+    for
       eori                 <- genEori.map(_.value)
       legalName            <- genStringWithMaxSizeOfN(10)
       establishmentAddress <- genEstablishmentAddress
       contactDetails       <- Gen.option(genContactDetails)
-    } yield DeclarantDetails(eori, legalName, establishmentAddress, contactDetails)
+    yield DeclarantDetails(eori, legalName, establishmentAddress, contactDetails)
 
-  lazy val genConsigneeDetails: Gen[ConsigneeDetails] = for {
+  lazy val genConsigneeDetails: Gen[ConsigneeDetails] = for
     eori                 <- genEori.map(_.value)
     legalName            <- genStringWithMaxSizeOfN(10)
     establishmentAddress <- genEstablishmentAddress
     contactDetails       <- genContactDetails
-  } yield ConsigneeDetails(eori, legalName, establishmentAddress, Some(contactDetails))
+  yield ConsigneeDetails(eori, legalName, establishmentAddress, Some(contactDetails))
 
   lazy val genBankAccountDetails: Gen[BankAccountDetails] =
-    for {
+    for
       accountHolderName <- genStringWithMaxSizeOfN(15)
       sortCode          <- genSortCode
       accountNumber     <- genAccountNumber
-    } yield BankAccountDetails(
+    yield BankAccountDetails(
       AccountName(accountHolderName),
       sortCode,
       accountNumber
@@ -64,10 +64,10 @@ object DisplayResponseDetailGen {
     genBankAccountDetails.map(mask)
 
   lazy val genBankDetails: Gen[BankDetails] =
-    for {
+    for
       consigneeBankDetails <- Gen.option(genBankAccountDetails)
       declarantBankDetails <- Gen.option(genBankAccountDetails)
-    } yield BankDetails(
+    yield BankDetails(
       consigneeBankDetails = consigneeBankDetails,
       declarantBankDetails = declarantBankDetails
     )
@@ -89,7 +89,7 @@ object DisplayResponseDetailGen {
     )
 
   lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
-    for {
+    for
       declarationId            <- genMRN
       acceptanceDate           <- genAcceptanceDate
       declarantReferenceNumber <- Gen.option(genStringWithMaxSizeOfN(10))
@@ -102,7 +102,7 @@ object DisplayResponseDetailGen {
       bankDetails              <- Gen.option(genBankDetails)
       maskedBankDetails        <- Gen.const(bankDetails.map(mask))
       ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
-    } yield DisplayResponseDetail(
+    yield DisplayResponseDetail(
       declarationId = declarationId.value,
       acceptanceDate = acceptanceDate,
       declarantReferenceNumber = declarantReferenceNumber,

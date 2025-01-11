@@ -66,14 +66,12 @@ class ChooseInspectionAddressTypeController @Inject() (
     journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
 
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
-    if (journey.hasCompleteAnswers)
+    if journey.hasCompleteAnswers then
       (
         journey,
         Redirect(
-          if (journey.needsBanksAccountDetailsSubmission)
-            checkYourAnswers
-          else
-            routes.ChoosePayeeTypeController.show
+          if journey.needsBanksAccountDetailsSubmission then checkYourAnswers
+          else routes.ChoosePayeeTypeController.show
         )
       )
     else (journey, Redirect(routes.ChoosePayeeTypeController.show))

@@ -41,8 +41,8 @@ object YesOrNoQuestionForm {
   private def booleanThatExists: Constraint[String] = {
     lazy val errorMessage: String = "error.invalid"
     Constraint[String]("constraint.yesno") { s =>
-      if (s === null) Invalid(ValidationError(errorMessage))
-      else if (s.trim.isEmpty) Invalid(ValidationError(errorMessage))
+      if s === null then Invalid(ValidationError(errorMessage))
+      else if s.trim.isEmpty then Invalid(ValidationError(errorMessage))
       else isBoolean(s)
     }
   }

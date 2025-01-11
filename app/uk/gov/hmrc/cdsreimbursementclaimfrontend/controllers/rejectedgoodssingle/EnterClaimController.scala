@@ -163,15 +163,13 @@ class EnterClaimController @Inject() (
 
   private def redirectWhenInvalidTaxCode(journey: Journey): Result =
     Redirect {
-      if (journey.hasCompleteReimbursementClaims)
-        routes.CheckClaimDetailsController.show
-      else
-        routes.SelectDutiesController.show
+      if journey.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+      else routes.SelectDutiesController.show
     }
 
   private def redirectToNextPage(journey: Journey, taxCode: TaxCode): Result =
     Redirect {
-      if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
+      if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then
         routes.CheckClaimDetailsController.show
       else {
         val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)

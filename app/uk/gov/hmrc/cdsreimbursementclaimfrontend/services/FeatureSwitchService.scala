@@ -40,7 +40,7 @@ trait FeatureSwitchService {
   def isEnabledForApplication(feature: Feature): Boolean
 
   final def optionally[A](feature: Feature, value: A)(implicit hc: HeaderCarrier): Option[A] =
-    if (isEnabled(feature)) Some(value) else None
+    if isEnabled(feature) then Some(value) else None
 
   /** Enable feature switch for the current session */
   def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit

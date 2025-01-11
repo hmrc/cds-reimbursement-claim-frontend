@@ -62,7 +62,7 @@ class CheckClaimDetailsController @Inject() (
     val reimbursementTotal = journey.getTotalReimbursementAmount
     (
       journey.withDutiesChangeMode(false),
-      if (!journey.hasCompleteReimbursementClaims) Redirect(selectDutiesAction)
+      if !journey.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
       else {
         Ok(
           checkClaimDetailsPage(
@@ -83,7 +83,7 @@ class CheckClaimDetailsController @Inject() (
         val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
         val reimbursementTotal = journey.getTotalReimbursementAmount
 
-        if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
+        if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction)).asFuture
         else {
           checkClaimDetailsForm
             .bindFromRequest()
@@ -106,10 +106,8 @@ class CheckClaimDetailsController @Inject() (
                   (
                     journey.withDutiesChangeMode(false),
                     Redirect(
-                      if (journey.hasCompleteAnswers)
-                        checkYourAnswers
-                      else
-                        routes.EnterInspectionDateController.show
+                      if journey.hasCompleteAnswers then checkYourAnswers
+                      else routes.EnterInspectionDateController.show
                     )
                   )
                 case No  =>

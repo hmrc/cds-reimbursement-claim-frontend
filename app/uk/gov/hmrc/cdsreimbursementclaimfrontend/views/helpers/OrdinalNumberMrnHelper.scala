@@ -29,18 +29,15 @@ object OrdinalNumberMrnHelper {
     }
 
   private def applyWelsh(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
-    if (number <= 20) {
-      if (isFirstOnPage && number === 1)
-        messages(s"ordinal-number-mrn-first-on-page")
-      else
-        messages(s"ordinal-number-mrn.$number")
+    if number <= 20 then {
+      if isFirstOnPage && number === 1 then messages(s"ordinal-number-mrn-first-on-page")
+      else messages(s"ordinal-number-mrn.$number")
     } else {
       messages(s"ordinal-number-mrn.default")
     }
 
   private def applyEnglish(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
-    if (isFirstOnPage && number === 1)
-      messages("ordinal-number-mrn-first-on-page")
+    if isFirstOnPage && number === 1 then messages("ordinal-number-mrn-first-on-page")
     else {
       val ordinalNumber = OrdinalNumber(number)
       messages("ordinal-number-mrn", ordinalNumber.capitalize)

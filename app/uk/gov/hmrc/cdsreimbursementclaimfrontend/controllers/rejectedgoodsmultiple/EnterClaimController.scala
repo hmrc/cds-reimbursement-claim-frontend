@@ -161,8 +161,7 @@ class EnterClaimController @Inject() (
     )
 
   private def decideNextRoute(journey: RejectedGoodsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
-    if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
-      claimsSummaryAction
+    if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then claimsSummaryAction
     else {
       val selectedTaxCodes = journey.getSelectedDuties(mrn).getOrElse(Seq.empty)
       selectedTaxCodes.indexOf(taxCode) match {

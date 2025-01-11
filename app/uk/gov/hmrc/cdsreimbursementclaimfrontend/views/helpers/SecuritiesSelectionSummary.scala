@@ -45,10 +45,8 @@ object SecuritiesSelectionSummary {
         value = Value(
           Text(
             messages(
-              if (correctedAmounts.contains(securityDepositId))
-                s"$key.claim-for-security.yes"
-              else
-                s"$key.claim-for-security.no"
+              if correctedAmounts.contains(securityDepositId) then s"$key.claim-for-security.yes"
+              else s"$key.claim-for-security.no"
             )
           )
         ),
@@ -73,7 +71,7 @@ object SecuritiesSelectionSummary {
           )
         )
       )
-      ++ (if (showTotalSecuritiesPaidAmount)
+      ++ (if showTotalSecuritiesPaidAmount then
             Seq(
               SummaryListRow(
                 key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),

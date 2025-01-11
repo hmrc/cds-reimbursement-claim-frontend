@@ -107,13 +107,11 @@ class CheckYourAnswersControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala).toSeq
 
-    headers              should not be empty
-    summaryKeys          should not be empty
-    summaryValues        should not be empty
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys.size shouldBe (summaryValues.size - 1)
-    else
-      summaryKeys.size shouldBe summaryValues.size
+    headers                                                      should not be empty
+    summaryKeys                                                  should not be empty
+    summaryValues                                                should not be empty
+    if claim.supportingEvidences.isEmpty then summaryKeys.size shouldBe (summaryValues.size - 1)
+    else summaryKeys.size                                      shouldBe summaryValues.size
 
     headers should containOnlyDefinedElementsOf(
       "Movement Reference Numbers (MRNs)".expectedAlways,
@@ -165,7 +163,7 @@ class CheckYourAnswersControllerSpec
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Uploaded"                     -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)

@@ -91,7 +91,7 @@ final class RejectedGoodsScheduledJourney private (
               getLeadDisplayDeclaration.contains(displayDeclaration) =>
           Right(this)
         case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
+          if mrn =!= displayDeclaration.getMRN then
             Left(
               "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
             )
@@ -125,13 +125,12 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -147,8 +146,8 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -224,8 +223,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
       else
         Right(
           copy(newAnswers =
@@ -241,8 +239,7 @@ final class RejectedGoodsScheduledJourney private (
     dutyTypes: Seq[DutyType]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyTypes.isEmpty)
-        Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+      if dutyTypes.isEmpty then Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
         val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
           SortedMap(
@@ -261,13 +258,12 @@ final class RejectedGoodsScheduledJourney private (
     taxCodes: Seq[TaxCode]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
+      if !getSelectedDutyTypes.exists(_.contains(dutyType)) then
         Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
-      else if (taxCodes.isEmpty)
-        Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
       else {
         val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
-        if (allTaxCodesMatchDutyType) {
+        if allTaxCodesMatchDutyType then {
           val newReimbursementClaims =
             answers.correctedAmounts
               .map { rc =>
@@ -280,8 +276,7 @@ final class RejectedGoodsScheduledJourney private (
                 }: _*)
               }
           Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-        } else
-          Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+        } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
@@ -296,10 +291,10 @@ final class RejectedGoodsScheduledJourney private (
     correctAmount: BigDecimal
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyType.taxCodes.contains(taxCode)) {
-        if (isDutySelected(dutyType, taxCode)) {
+      if dutyType.taxCodes.contains(taxCode) then {
+        if isDutySelected(dutyType, taxCode) then {
           val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
-          if (amounts.isValid) {
+          if amounts.isValid then {
             val newReimbursementClaims =
               answers.correctedAmounts
                 .map(rc =>
@@ -314,12 +309,9 @@ final class RejectedGoodsScheduledJourney private (
                   }: _*)
                 )
             Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-          } else
-            Left("submitAmountForReimbursement.invalidReimbursementAmount")
-        } else
-          Left("submitAmountForReimbursement.taxCodeNotSelected")
-      } else
-        Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
+          } else Left("submitAmountForReimbursement.invalidReimbursementAmount")
+        } else Left("submitAmountForReimbursement.taxCodeNotSelected")
+      } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
   def submitClaimAmount(
@@ -348,7 +340,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountDetails =
@@ -368,7 +360,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
@@ -382,7 +374,7 @@ final class RejectedGoodsScheduledJourney private (
     uploadedFile: UploadedFile
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         Right(
           this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
@@ -405,7 +397,7 @@ final class RejectedGoodsScheduledJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -443,7 +435,7 @@ final class RejectedGoodsScheduledJourney private (
     }
 
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[RejectedGoodsScheduledJourney]) {
+    if obj.isInstanceOf[RejectedGoodsScheduledJourney] then {
       val that = obj.asInstanceOf[RejectedGoodsScheduledJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -457,7 +449,7 @@ final class RejectedGoodsScheduledJourney private (
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                    <- getLeadMovementReferenceNumber
           basisOfClaim           <- answers.basisOfClaim
           methodOfDisposal       <- answers.methodOfDisposal
@@ -467,7 +459,7 @@ final class RejectedGoodsScheduledJourney private (
           scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
           payeeType              <- answers.payeeType
-        } yield RejectedGoodsScheduledJourney.Output(
+        yield RejectedGoodsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
@@ -482,10 +474,10 @@ final class RejectedGoodsScheduledJourney private (
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
-            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
             else ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails =
-            if (isSubsidyOnlyJourney) None
+            if isSubsidyOnlyJourney then None
             else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")

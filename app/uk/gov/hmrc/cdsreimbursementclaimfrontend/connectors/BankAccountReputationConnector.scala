@@ -59,7 +59,7 @@ class BankAccountReputationConnector @Inject() (
     data: BarsBusinessAssessRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val url = getUri("bank-account-reputation", "business")
-    for {
+    for
       httpResponse     <- getReputation(data, url)
       businessResponse <-
         EitherT.fromEither[Future](
@@ -68,14 +68,14 @@ class BankAccountReputationConnector @Inject() (
             .map(_.toCommonResponse())
             .leftMap(ConnectorFailure(_): ConnectorError)
         )
-    } yield businessResponse
+    yield businessResponse
   }
 
   def getPersonalReputation(
     data: BarsPersonalAssessRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val url = getUri("bank-account-reputation", "personal")
-    for {
+    for
       httpResponse     <- getReputation(data, url)
       personalResponse <-
         EitherT.fromEither[Future](
@@ -84,7 +84,7 @@ class BankAccountReputationConnector @Inject() (
             .map(_.toCommonResponse())
             .leftMap(ConnectorFailure(_): ConnectorError)
         )
-    } yield personalResponse
+    yield personalResponse
   }
 
   private def getUri(serviceName: String, apiName: String): String =

@@ -71,8 +71,7 @@ object CheckYourAnswersSummarySpec extends HtmlParseSupport {
           val value      = element.select("dd").not(".govuk-summary-list__actions")
           val paragraphs = value.select("p")
 
-          if (paragraphs.isEmpty)
-            Seq((label, value.text()))
+          if paragraphs.isEmpty then Seq((label, value.text()))
           else
             paragraphs.content.map { s =>
               (label, s.replace("<br>", " "))

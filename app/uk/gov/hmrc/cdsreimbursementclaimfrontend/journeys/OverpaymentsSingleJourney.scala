@@ -73,7 +73,7 @@ final class OverpaymentsSingleJourney private (
     val wasIncorrectExciseCodeSelected: Boolean =
       answers.basisOfClaim.exists(_ === BasisOfOverpaymentClaim.IncorrectExciseValue)
 
-    if (wasIncorrectExciseCodeSelected) {
+    if wasIncorrectExciseCodeSelected then {
       duties.filter { case (duty, _) =>
         TaxCodes.exciseTaxCodeSet.contains(duty)
       }
@@ -155,7 +155,7 @@ final class OverpaymentsSingleJourney private (
               getLeadDisplayDeclaration.contains(displayDeclaration) =>
           Right(this)
         case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
+          if mrn =!= displayDeclaration.getMRN then
             Left(
               "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
             )
@@ -189,13 +189,12 @@ final class OverpaymentsSingleJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -211,8 +210,8 @@ final class OverpaymentsSingleJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -287,7 +286,7 @@ final class OverpaymentsSingleJourney private (
             "submitDuplicateMovementReferenceNumberAndDeclaration.mustBeDifferent"
           )
         case _                                                 =>
-          if (duplicateMrn =!= duplicateDisplayDeclaration.getMRN)
+          if duplicateMrn =!= duplicateDisplayDeclaration.getMRN then
             Left(
               "submitDuplicateMovementReferenceNumberAndDeclaration.wrongDisplayDeclarationMrn"
             )
@@ -304,10 +303,8 @@ final class OverpaymentsSingleJourney private (
                   .copy(duplicateDeclaration =
                     modifiedJourney.answers.duplicateDeclaration.map(
                       _.copy(verificationStatus =
-                        if (modifiedJourney.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
-                          None
-                        else
-                          Some(DuplicateDeclarationVerificationStatus.verified)
+                        if modifiedJourney.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then None
+                        else Some(DuplicateDeclarationVerificationStatus.verified)
                       )
                     )
                   )
@@ -321,8 +318,9 @@ final class OverpaymentsSingleJourney private (
     consigneeEoriNumber: Eori
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
-        if (answers.duplicateDeclaration.flatMap(_.displayDeclaration.getConsigneeEori).contains(consigneeEoriNumber))
+      if needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then
+        if answers.duplicateDeclaration.flatMap(_.displayDeclaration.getConsigneeEori).contains(consigneeEoriNumber)
+        then
           Right(
             this.copy(
               answers.copy(duplicateDeclaration =
@@ -339,8 +337,7 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
-        else
-          Left("checkConsigneeEoriNumberWithDuplicateDeclaration.shouldMatchConsigneeEoriFromACC14")
+        else Left("checkConsigneeEoriNumberWithDuplicateDeclaration.shouldMatchConsigneeEoriFromACC14")
       else Right(this)
     }
 
@@ -348,8 +345,8 @@ final class OverpaymentsSingleJourney private (
     declarantEoriNumber: Eori
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration)
-        if (answers.duplicateDeclaration.map(_.displayDeclaration.getDeclarantEori).contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then
+        if answers.duplicateDeclaration.map(_.displayDeclaration.getDeclarantEori).contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(duplicateDeclaration =
@@ -366,8 +363,7 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
-        else
-          Left("checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14")
+        else Left("checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14")
       else Right(this)
     }
 
@@ -386,11 +382,10 @@ final class OverpaymentsSingleJourney private (
         case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
-          if (taxCodes.isEmpty)
-            Left("selectTaxCodeSetForReimbursement.emptySelection")
+          if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
-            if (allTaxCodesExistInACC14) {
+            if allTaxCodesExistInACC14 then {
               val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
                   Map(taxCodes.map(taxCode => taxCode -> None): _*)
@@ -402,14 +397,12 @@ final class OverpaymentsSingleJourney private (
 
               Right(
                 this.copy(
-                  if (!isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
+                  if !isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts) then
                     answers.copy(correctedAmounts = Some(newCorrectedAmounts), reimbursementMethod = None)
-                  else
-                    answers.copy(correctedAmounts = Some(newCorrectedAmounts))
+                  else answers.copy(correctedAmounts = Some(newCorrectedAmounts))
                 )
               )
-            } else
-              Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
+            } else Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
       }
     }
@@ -432,11 +425,10 @@ final class OverpaymentsSingleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
-              if (getSelectedDuties.exists(_.contains(taxCode))) {
+              if getSelectedDuties.exists(_.contains(taxCode)) then {
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidAmount")
@@ -459,12 +451,11 @@ final class OverpaymentsSingleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
-              if (getSelectedDuties.exists(_.contains(taxCode))) {
+              if getSelectedDuties.exists(_.contains(taxCode)) then {
                 val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidAmount")
@@ -474,8 +465,7 @@ final class OverpaymentsSingleJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(this)
+      if answers.payeeType.contains(payeeType) then Right(this)
       else
         Right(
           copy(newAnswers =
@@ -518,8 +508,8 @@ final class OverpaymentsSingleJourney private (
     reimbursementMethod: ReimbursementMethod
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment) {
-        if (isAllSelectedDutiesAreCMAEligible)
+      if reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment then {
+        if isAllSelectedDutiesAreCMAEligible then
           Right(
             this.copy(
               answers.copy(
@@ -527,8 +517,7 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
-        else
-          Left("submitReimbursementMethod.notCMAEligible")
+        else Left("submitReimbursementMethod.notCMAEligible")
       } else
         Right(
           this.copy(
@@ -561,7 +550,7 @@ final class OverpaymentsSingleJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, OverpaymentsSingleJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -599,7 +588,7 @@ final class OverpaymentsSingleJourney private (
     }
 
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[OverpaymentsSingleJourney]) {
+    if obj.isInstanceOf[OverpaymentsSingleJourney] then {
       val that = obj.asInstanceOf[OverpaymentsSingleJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -613,13 +602,15 @@ final class OverpaymentsSingleJourney private (
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                 <- getLeadMovementReferenceNumber
           basisOfClaim        <- answers.basisOfClaim
           additionalDetails   <- answers.additionalDetails
           supportingEvidences  =
             answers.supportingEvidences
-              .map(file => if (file.documentType.isEmpty) file.copy(cargo = Some(UploadDocumentType.Other)) else file)
+              .map(file =>
+                if file.documentType.isEmpty then file.copy(cargo = Some(UploadDocumentType.Other)) else file
+              )
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
           newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
@@ -627,7 +618,7 @@ final class OverpaymentsSingleJourney private (
                                      Some(NewEoriAndDan(newEori, newDan.value))
                                    case _                                                  => None
                                  }
-        } yield OverpaymentsSingleJourney.Output(
+        yield OverpaymentsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,

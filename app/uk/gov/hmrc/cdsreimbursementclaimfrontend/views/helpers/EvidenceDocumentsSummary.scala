@@ -38,10 +38,9 @@ object EvidenceDocumentsSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(if (answers.isEmpty) Empty else Text(messages(s"$key.label"))),
+          key = Key(if answers.isEmpty then Empty else Text(messages(s"$key.label"))),
           value = Value(
-            if (answers.isEmpty)
-              Text(messages(s"$key.empty"))
+            if answers.isEmpty then Text(messages(s"$key.empty"))
             else
               HtmlContent(
                 answers

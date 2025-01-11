@@ -73,7 +73,7 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
           Seq("Accept-Language" -> "en")
         )
     ).flatMap(response =>
-      if (response.status === 200)
+      if response.status === 200 then
         response
           .parseJSON[Response]()
           .fold(error => Future.failed(Exception(error)), Future.successful)

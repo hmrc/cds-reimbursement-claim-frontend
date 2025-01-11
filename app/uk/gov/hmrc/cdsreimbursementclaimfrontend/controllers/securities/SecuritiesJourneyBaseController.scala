@@ -50,7 +50,7 @@ trait SecuritiesJourneyBaseController extends JourneyBaseController with Securit
     sessionData.copy(securitiesJourney = Some(journey))
 
   final override def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] =
-    if (jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) Some(validateUserEoriIsOnTheAllowList)
+    if jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities) then Some(validateUserEoriIsOnTheAllowList)
     else None
 
   private val validateUserEoriIsOnTheAllowList: Validate[SecuritiesJourney] = {

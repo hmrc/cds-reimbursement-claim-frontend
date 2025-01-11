@@ -43,36 +43,36 @@ object IdGen {
     GeneratorUtils.gen[NonEmptyList[AssociatedMrn]]
 
   lazy val genDan: Gen[Dan] =
-    for {
+    for
       n <- Gen.listOfN(7, Gen.numChar)
       s <- Gen.const(n.mkString)
-    } yield Dan(s)
+    yield Dan(s)
 
   lazy val genEori: Gen[Eori] =
-    for {
+    for
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"GB${n.mkString}")
-    } yield Eori(s)
+    yield Eori(s)
 
   lazy val genXiEori: Gen[Eori] =
-    for {
+    for
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"XI${n.mkString}")
-    } yield Eori(s)
+    yield Eori(s)
 
   implicit lazy val arbitraryEori: Arbitrary[Eori] = Arbitrary(genEori)
 
-  lazy val genMRN: Gen[MRN] = for {
+  lazy val genMRN: Gen[MRN] = for
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)
     d2      <- Gen.listOfN(1, Gen.numChar)
-  } yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
+  yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
 
-  lazy val genName: Gen[Name] = for {
+  lazy val genName: Gen[Name] = for
     name     <- genStringWithMaxSizeOfN(20)
     lastName <- genStringWithMaxSizeOfN(20)
-  } yield Name(Some(name), Some(lastName))
+  yield Name(Some(name), Some(lastName))
 
   implicit lazy val arbitraryName: Arbitrary[Name] = Arbitrary(genName)
 

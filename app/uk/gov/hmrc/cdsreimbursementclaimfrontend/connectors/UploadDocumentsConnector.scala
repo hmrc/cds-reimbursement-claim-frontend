@@ -87,7 +87,7 @@ class UploadDocumentsConnectorImpl @Inject() (
       http
         .POST[Request, HttpResponse](java.net.URL(uploadDocumentsConfig.initializationUrl), request)
     ).flatMap[Response](response =>
-      if (response.status === 201) {
+      if response.status === 201 then {
         val maybeUrl: Option[String] =
           response
             .header(HeaderNames.LOCATION)
@@ -106,7 +106,7 @@ class UploadDocumentsConnectorImpl @Inject() (
       http
         .POST[String, HttpResponse](java.net.URL(uploadDocumentsConfig.wipeOutUrl), "")
     ).map[Unit](response =>
-      if (response.status === 204) ()
+      if response.status === 204 then ()
       else {
         Logger(getClass).error(
           s"Request to POST ${uploadDocumentsConfig.wipeOutUrl} failed because of $response ${response.body.take(1024)}"

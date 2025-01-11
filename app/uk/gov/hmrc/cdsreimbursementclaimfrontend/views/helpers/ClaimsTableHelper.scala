@@ -221,10 +221,9 @@ object ClaimsTableHelper {
         value = Value(
           Text(
             messages(
-              if (declaration.isFullSecurityAmount(securityDepositId, reclaims.map(_.claimAmount).sum))
+              if declaration.isFullSecurityAmount(securityDepositId, reclaims.map(_.claimAmount).sum) then
                 s"$key.claim-full-amount.yes"
-              else
-                s"$key.claim-full-amount.no"
+              else s"$key.claim-full-amount.no"
             )
           )
         ),

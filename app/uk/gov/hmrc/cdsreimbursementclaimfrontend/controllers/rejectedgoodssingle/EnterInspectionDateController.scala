@@ -71,7 +71,7 @@ class EnterInspectionDateController @Inject() (
           date =>
             (
               journey.submitInspectionDate(date),
-              if (journey.needsDeclarantAndConsigneePostCode)
+              if journey.needsDeclarantAndConsigneePostCode then
                 Redirect(routes.ChooseInspectionAddressTypeController.show)
               else {
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())

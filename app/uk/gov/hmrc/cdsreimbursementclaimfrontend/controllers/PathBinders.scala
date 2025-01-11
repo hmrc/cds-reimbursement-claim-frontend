@@ -59,10 +59,10 @@ object PathBinders {
   implicit def associatedMrnIndexPathBinder(implicit intBinder: PathBindable[Int]): PathBindable[AssociatedMrnIndex] =
     new PathBindable[AssociatedMrnIndex] {
       def bind(key: String, value: String): Either[String, AssociatedMrnIndex] =
-        for {
+        for
           index <- intBinder.bind(key, value)
           user  <- Either.cond(index >= 2, AssociatedMrnIndex.fromUrlIndex(index), "Invalid MRN index")
-        } yield user
+        yield user
 
       def unbind(key: String, associatedMrnIndex: AssociatedMrnIndex): String =
         AssociatedMrnIndex.toUrlIndex(associatedMrnIndex).toString

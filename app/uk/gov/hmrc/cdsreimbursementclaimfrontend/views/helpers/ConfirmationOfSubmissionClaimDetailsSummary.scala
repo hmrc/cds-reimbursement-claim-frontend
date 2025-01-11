@@ -44,7 +44,7 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
         value = Value(Text(caseNumber))
       ),
       SummaryListRow(
-        key = if (subKey.getOrElse("") == "multiple") {
+        key = if subKey.getOrElse("") == "multiple" then {
           Key(HtmlContent(messages(s"$key.multiple.mrn")))
         } else {
           Key(HtmlContent(messages(s"$key.mrn")))

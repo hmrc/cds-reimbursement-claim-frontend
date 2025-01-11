@@ -62,7 +62,7 @@ class EnterMovementReferenceNumberController @Inject() (
   final val showFirst: Action[AnyContent] = show(1)
 
   final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
+    (if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
        Redirect(routes.CheckMovementReferenceNumbersController.show)
      else {
        val mrnIndex: Int = pageIndex - 1
@@ -80,7 +80,7 @@ class EnterMovementReferenceNumberController @Inject() (
   }
 
   final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1)
+    if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
       (
         journey,
         Redirect(routes.CheckMovementReferenceNumbersController.show)
@@ -104,7 +104,7 @@ class EnterMovementReferenceNumberController @Inject() (
             ).asFuture,
           mrn =>
             {
-              for {
+              for
                 maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
                 _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
                                      journey,
@@ -112,10 +112,10 @@ class EnterMovementReferenceNumberController @Inject() (
                                    )
                 updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
                 updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
-              } yield updatedJourney2
+              yield updatedJourney2
             }.fold(
               error =>
-                if (error.message.startsWith("error.")) {
+                if error.message.startsWith("error.") then {
                   (
                     journey,
                     BadRequest(
@@ -127,21 +127,21 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     )
                   )
-                } else if (error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori") {
+                } else if error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori" then {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
-                } else if (error.message === "submitMovementReferenceNumber.needsSubsidy") {
+                } else if error.message === "submitMovementReferenceNumber.needsSubsidy" then {
                   (
                     journey,
                     BadRequest(customError(mrn, pageIndex, "error.needsSubsidy"))
                   )
-                } else if (error.message === "submitMovementReferenceNumber.needsNonSubsidy") {
+                } else if error.message === "submitMovementReferenceNumber.needsNonSubsidy" then {
                   (
                     journey,
                     BadRequest(
                       customError(mrn, pageIndex, "error.needsNonSubsidy")
                     )
                   )
-                } else if (error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists") {
+                } else if error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists" then {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
@@ -185,14 +185,14 @@ class EnterMovementReferenceNumberController @Inject() (
     pageIndex: Int
   ): Result =
     Redirect(
-      if (updatedJourney.containsUnsupportedTaxCodeFor(mrn)) {
-        if (pageIndex === 1) routes.ProblemWithDeclarationController.show
+      if updatedJourney.containsUnsupportedTaxCodeFor(mrn) then {
+        if pageIndex === 1 then routes.ProblemWithDeclarationController.show
         else routes.ProblemWithDeclarationController.showNth(pageIndex)
-      } else if (updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex)) {
+      } else if updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex) then {
         routes.EnterImporterEoriNumberController.show
       } else {
-        if (pageIndex === 1) routes.CheckDeclarationDetailsController.show
-        else if (journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty)
+        if pageIndex === 1 then routes.CheckDeclarationDetailsController.show
+        else if journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty then
           routes.SelectDutiesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show
       }

@@ -116,7 +116,7 @@ class EnterClaimControllerSpec
 
               checkPageIsDisplayed(
                 performAction(pageIndex, taxCode),
-                if (TaxCodes.custom.contains(taxCode))
+                if TaxCodes.custom.contains(taxCode) then
                   messageFromMessageKey(
                     "enter-claim.title",
                     taxCode.value,
@@ -128,7 +128,8 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                     messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, None)
               )
             }
@@ -154,7 +155,7 @@ class EnterClaimControllerSpec
 
               checkPageIsDisplayed(
                 performAction(pageIndex, taxCode),
-                if (TaxCodes.custom.contains(taxCode))
+                if TaxCodes.custom.contains(taxCode) then
                   messageFromMessageKey(
                     "enter-claim.title",
                     taxCode.value,
@@ -166,12 +167,13 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                     messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc => {
-                  val amount = for {
+                  val amount = for
                     amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
                     correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
-                  } yield amountPaid - correctAmount
+                  yield amountPaid - correctAmount
                   validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
                 }
               )
@@ -199,7 +201,7 @@ class EnterClaimControllerSpec
 
                 checkPageIsDisplayed(
                   performAction(pageIndex, taxCode),
-                  if (TaxCodes.custom.contains(taxCode))
+                  if TaxCodes.custom.contains(taxCode) then
                     messageFromMessageKey(
                       "enter-claim.title",
                       taxCode.value,
@@ -211,12 +213,13 @@ class EnterClaimControllerSpec
                       messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                       messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                       taxCode.value
-                    ),
+                    )
+                  ,
                   doc => {
-                    val amount = for {
+                    val amount = for
                       amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
                       correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
-                    } yield amountPaid - correctAmount
+                    yield amountPaid - correctAmount
                     validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
                   }
                 )
@@ -256,11 +259,9 @@ class EnterClaimControllerSpec
               val claimAmount = BigDecimal("0.01")
 
               val expectedRoute =
-                if (dutyIndex == selectedTaxCodes.size - 1) {
-                  if (mrnIndex == mrns.size - 1)
-                    routes.CheckClaimDetailsController.show
-                  else
-                    routes.SelectDutiesController.show(pageIndex + 1) // select duties for the next MRN
+                if dutyIndex == selectedTaxCodes.size - 1 then {
+                  if mrnIndex == mrns.size - 1 then routes.CheckClaimDetailsController.show
+                  else routes.SelectDutiesController.show(pageIndex + 1) // select duties for the next MRN
                 } else
                   routes.EnterClaimController
                     .show(pageIndex, selectedTaxCodes(dutyIndex + 1)) // input amount for the next duty of current MRN
@@ -314,7 +315,7 @@ class EnterClaimControllerSpec
                   taxCode,
                   Seq("enter-claim-amount" -> formatAmount(paidAmount + BigDecimal("0.01")))
                 ),
-                if (TaxCodes.custom.contains(taxCode))
+                if TaxCodes.custom.contains(taxCode) then
                   messageFromMessageKey(
                     "enter-claim.title",
                     taxCode.value,
@@ -326,7 +327,8 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                     messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc => {
                   validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount + BigDecimal("0.01")))
                   assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))

@@ -50,8 +50,8 @@ class CheckMovementReferenceNumbersController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.getMovementReferenceNumbers
         .map { mrns =>
-          if (journey.hasCompleteMovementReferenceNumbers)
-            if (journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori) {
+          if journey.hasCompleteMovementReferenceNumbers then
+            if journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori then {
               Redirect(routes.EnterImporterEoriNumberController.show)
             } else
               Ok(
@@ -63,8 +63,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                   routes.CheckMovementReferenceNumbersController.delete
                 )
               )
-          else
-            Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
+          else Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
         }
         .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
         .asFuture
@@ -99,7 +98,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                     )
                   )
                 case No  =>
-                  if (shouldForwardToCYA(journey)) (journey, Redirect(checkYourAnswers))
+                  if shouldForwardToCYA(journey) then (journey, Redirect(checkYourAnswers))
                   else (journey.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
               }
           )
@@ -126,7 +125,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   private def nextPageOnDelete(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) = (
     journey,
-    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show)
+    if journey.hasCompleteAnswers then Redirect(routes.CheckClaimDetailsController.show)
     else Redirect(routes.CheckMovementReferenceNumbersController.show)
   )
 }

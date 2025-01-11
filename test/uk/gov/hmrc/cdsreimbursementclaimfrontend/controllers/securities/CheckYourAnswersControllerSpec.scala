@@ -139,7 +139,7 @@ class CheckYourAnswersControllerSpec
         // ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
         "Contact details"                            -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
         "Contact address"                            -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-        "Uploaded"                                   -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+        "Uploaded"                                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
         "Any information that may support the claim" -> claim.additionalDetails.map(_.value),
         "Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value),
         "Sort code"                                  -> claim.bankAccountDetails.map(_.sortCode.value),
@@ -172,14 +172,11 @@ class CheckYourAnswersControllerSpec
           case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
         },
         "Payment method"                             -> Some(
-          if (
-            journey.answers.displayDeclaration
+          if journey.answers.displayDeclaration
               .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet))
               .getOrElse(false)
-          )
-            "Guarantee"
-          else
-            "Bank account transfer"
+          then "Guarantee"
+          else "Bank account transfer"
         )
       ) ++
         journey.answers.displayDeclaration
@@ -187,23 +184,18 @@ class CheckYourAnswersControllerSpec
           .getOrElse(Seq.empty)
           .map { sid =>
             s"Claim for $sid" -> Some(
-              if (claim.securitiesReclaims.contains(sid))
-                "Yes"
-              else
-                "No"
+              if claim.securitiesReclaims.contains(sid) then "Yes"
+              else "No"
             )
           } ++
         claim.securitiesReclaims.flatMap { case (sid, reclaims) =>
           Seq(
             "Claim full amount" -> Some(
-              if (
-                journey.answers.displayDeclaration
+              if journey.answers.displayDeclaration
                   .map(_.isFullSecurityAmount(sid, reclaims.values.sum))
                   .getOrElse(false)
-              )
-                "Yes"
-              else
-                "No"
+              then "Yes"
+              else "No"
             ),
             "Duties selected"   -> Some(
               reclaims.keys.toList.sorted

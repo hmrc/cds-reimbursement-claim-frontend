@@ -59,9 +59,8 @@ object Nonce {
 
   final class Strict(val value: Int) extends Nonce {
     final override def equals(obj: scala.Any): Boolean =
-      if (obj.isInstanceOf[Any.type]) true
-      else if (obj.isInstanceOf[Nonce])
-        obj.asInstanceOf[Nonce].value == value
+      if obj.isInstanceOf[Any.type] then true
+      else if obj.isInstanceOf[Nonce] then obj.asInstanceOf[Nonce].value == value
       else false
   }
 

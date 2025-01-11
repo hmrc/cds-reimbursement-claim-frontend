@@ -40,7 +40,7 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   final def show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      if (journey.answers.enterContactDetailsMode) {
+      if journey.answers.enterContactDetailsMode then {
         Future.successful(
           Ok(
             enterOrChangeContactDetailsPage(
@@ -93,9 +93,9 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
                       .computeChanges(previousDetails)
                   )
                 )
-                if (journey.userHasSeenCYAPage) {
+                if journey.userHasSeenCYAPage then {
                   Future.successful((updatedJourney, Redirect(checkYourAnswers)))
-                } else if (journey.answers.enterContactDetailsMode) {
+                } else if journey.answers.enterContactDetailsMode then {
                   Future.successful((updatedJourney, Redirect(continueRouteEnterAddress)))
                 } else {
                   Future.successful((updatedJourney, Redirect(continueRouteChangeDetails)))

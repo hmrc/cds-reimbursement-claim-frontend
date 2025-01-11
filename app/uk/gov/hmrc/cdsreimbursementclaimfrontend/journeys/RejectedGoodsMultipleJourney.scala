@@ -82,7 +82,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def getNthMovementReferenceNumber(index: Int): Option[MRN] =
     answers.movementReferenceNumbers.flatMap { mrns =>
-      if (index >= 0 && index < mrns.size) Some(mrns(index))
+      if index >= 0 && index < mrns.size then Some(mrns(index))
       else None
     }
 
@@ -102,10 +102,10 @@ final class RejectedGoodsMultipleJourney private (
     getNthMovementReferenceNumber(index).flatMap(getDisplayDeclarationFor)
 
   def getDisplayDeclarationFor(mrn: MRN): Option[DisplayDeclaration] =
-    for {
+    for
       declarations <- answers.displayDeclarations
       declaration  <- declarations.find(_.getMRN === mrn)
-    } yield declaration
+    yield declaration
 
   override def getDisplayDeclarations: Seq[DisplayDeclaration] =
     answers.displayDeclarations.getOrElse(Seq.empty)
@@ -114,11 +114,11 @@ final class RejectedGoodsMultipleJourney private (
     answers.correctedAmounts.flatMap(_.get(mrn))
 
   def getCorrectedAmountFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
-    for {
+    for
       all           <- answers.correctedAmounts
       thisMrn       <- all.get(mrn)
       correctAmount <- thisMrn.get(taxCode).flatten
-    } yield correctAmount
+    yield correctAmount
 
   def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
     getDisplayDeclarationFor(declarationId)
@@ -134,10 +134,10 @@ final class RejectedGoodsMultipleJourney private (
           mrn,
           correctedAmountsPerMrn
             .map { case (taxCode, correctAmountOpt) =>
-              for {
+              for
                 correctAmount <- correctAmountOpt
                 paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
-              } yield (taxCode, paidAmount - correctAmount)
+              yield (taxCode, paidAmount - correctAmount)
             }
             .collect { case Some(x) => x }
             .toMap
@@ -164,7 +164,7 @@ final class RejectedGoodsMultipleJourney private (
     !this.isSubsidyOnlyJourney
 
   def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
-    if (pageIndex === 1) needsDeclarantAndConsigneeEoriSubmission else false
+    if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
 
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
@@ -184,8 +184,7 @@ final class RejectedGoodsMultipleJourney private (
   def getAmountPaidForIfSelected(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getSelectedDuties(mrn)
       .flatMap(selectedTaxCodes =>
-        if (selectedTaxCodes.contains(taxCode))
-          getAmountPaidFor(mrn, taxCode)
+        if selectedTaxCodes.contains(taxCode) then getAmountPaidFor(mrn, taxCode)
         else None
       )
 
@@ -199,7 +198,7 @@ final class RejectedGoodsMultipleJourney private (
               .map(taxCode => (taxCode, ndrc.isCmaEligible))
           )
           .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
+        if taxCodes.isEmpty then None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
 
@@ -286,19 +285,18 @@ final class RejectedGoodsMultipleJourney private (
     displayDeclaration: DisplayDeclaration
   ) =
     whileClaimIsAmendable {
-      if (index < 0)
-        Left("submitMovementReferenceNumber.negativeIndex")
-      else if (index > countOfMovementReferenceNumbers)
-        Left("submitMovementReferenceNumber.invalidIndex")
-      else if (mrn =!= displayDeclaration.getMRN)
+      if index < 0 then Left("submitMovementReferenceNumber.negativeIndex")
+      else if index > countOfMovementReferenceNumbers then Left("submitMovementReferenceNumber.invalidIndex")
+      else if mrn =!= displayDeclaration.getMRN then
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
         )
-      else if (index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs))
+      else if index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs) then
         Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
-      else if (
-        index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(displayDeclaration)
-      ) {
+      else if index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(
+          displayDeclaration
+        )
+      then {
         Left(getSubsidyError)
       } else
         getNthMovementReferenceNumber(index) match {
@@ -310,9 +308,9 @@ final class RejectedGoodsMultipleJourney private (
 
           // change an existing MRN
           case Some(existingMrn) =>
-            if (getIndexOfMovementReferenceNumber(mrn).exists(_ =!= index))
+            if getIndexOfMovementReferenceNumber(mrn).exists(_ =!= index) then
               Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
-            else if (index === 0) {
+            else if index === 0 then {
               // first MRN change resets all the journey
               Right(
                 new RejectedGoodsMultipleJourney(
@@ -346,7 +344,7 @@ final class RejectedGoodsMultipleJourney private (
 
           // add new MRN
           case None              =>
-            if (getIndexOfMovementReferenceNumber(mrn).isDefined)
+            if getIndexOfMovementReferenceNumber(mrn).isDefined then
               Left("submitMovementReferenceNumber.movementReferenceNumberAlreadyExists")
             else
               Right(
@@ -400,13 +398,12 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -425,8 +422,8 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -509,11 +506,10 @@ final class RejectedGoodsMultipleJourney private (
           Left("selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
-          if (taxCodes.isEmpty)
-            Left("selectTaxCodeSetForReimbursement.emptySelection")
+          if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(mrn, _).isDefined)
-            if (allTaxCodesExistInACC14) {
+            if allTaxCodesExistInACC14 then {
               val newCorrectAmounts: RejectedGoodsMultipleJourney.CorrectedAmounts =
                 getCorrectAmountsFor(mrn) match {
                   case None =>
@@ -534,8 +530,7 @@ final class RejectedGoodsMultipleJourney private (
                   )
                 )
               )
-            } else
-              Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
+            } else Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
       }
     }
@@ -559,7 +554,7 @@ final class RejectedGoodsMultipleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
-              if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+              if getSelectedDuties(declarationId).exists(_.contains(taxCode)) then {
                 val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
                   case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
                   case Some(correctedAmounts) => correctedAmounts + (taxCode -> Some(correctAmount))
@@ -573,8 +568,7 @@ final class RejectedGoodsMultipleJourney private (
                     )
                   )
                 )
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidReimbursementAmount")
@@ -598,7 +592,7 @@ final class RejectedGoodsMultipleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
-              if (getSelectedDuties(declarationId).exists(_.contains(taxCode))) {
+              if getSelectedDuties(declarationId).exists(_.contains(taxCode)) then {
                 val correctAmount       = BigDecimal(ndrcDetails.amount) - claimAmount
                 val newCorrectedAmounts = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
                   case None                   => OrderedMap[TaxCode, Option[BigDecimal]](taxCode -> Some(correctAmount))
@@ -613,8 +607,7 @@ final class RejectedGoodsMultipleJourney private (
                     )
                   )
                 )
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidReimbursementAmount")
@@ -640,8 +633,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
       else
         Right(
           copy(newAnswers =
@@ -655,7 +647,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountDetails =
@@ -675,7 +667,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
@@ -695,7 +687,7 @@ final class RejectedGoodsMultipleJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -733,7 +725,7 @@ final class RejectedGoodsMultipleJourney private (
     }
 
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[RejectedGoodsMultipleJourney]) {
+    if obj.isInstanceOf[RejectedGoodsMultipleJourney] then {
       val that = obj.asInstanceOf[RejectedGoodsMultipleJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -747,7 +739,7 @@ final class RejectedGoodsMultipleJourney private (
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           movementReferenceNumbers <- answers.movementReferenceNumbers
           basisOfClaim             <- answers.basisOfClaim
           methodOfDisposal         <- answers.methodOfDisposal
@@ -757,7 +749,7 @@ final class RejectedGoodsMultipleJourney private (
           payeeType                <- answers.payeeType
           supportingEvidences       = answers.supportingEvidences
           claimantInformation      <- getClaimantInformation
-        } yield RejectedGoodsMultipleJourney.Output(
+        yield RejectedGoodsMultipleJourney.Output(
           movementReferenceNumbers = movementReferenceNumbers,
           claimantType = getClaimantType,
           payeeType = payeeType,
@@ -771,10 +763,10 @@ final class RejectedGoodsMultipleJourney private (
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
-            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
             else ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails =
-            if (isSubsidyOnlyJourney) None
+            if isSubsidyOnlyJourney then None
             else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")

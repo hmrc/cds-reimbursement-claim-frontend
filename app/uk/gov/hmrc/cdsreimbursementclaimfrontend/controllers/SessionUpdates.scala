@@ -40,10 +40,8 @@ trait SessionUpdates {
     val session        = sessionProvider.toSession(request)
     val updatedSession = update(session)
 
-    if (session === updatedSession)
-      Future.successful(Right(()))
-    else
-      sessionCache.store(updatedSession)
+    if session === updatedSession then Future.successful(Right(()))
+    else sessionCache.store(updatedSession)
   }
 
 }

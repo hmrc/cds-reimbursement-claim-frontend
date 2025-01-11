@@ -78,11 +78,11 @@ class SecuritiesClaimConnectorSpec
 
   val expectedUrl = "http://host3:123/foo-claim/claims/securities"
 
-  val requestGen: Gen[SecuritiesClaimConnector.Request] = for {
-    journey <- SecuritiesJourneyGenerators.completeJourneyGen
-  } yield SecuritiesClaimConnector.Request(
-    journey.toOutput.getOrElse(fail("Could not generate journey output!"))
-  )
+  val requestGen: Gen[SecuritiesClaimConnector.Request] =
+    for journey <- SecuritiesJourneyGenerators.completeJourneyGen
+    yield SecuritiesClaimConnector.Request(
+      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+    )
 
   val sampleRequest: SecuritiesClaimConnector.Request = sample(requestGen)
   val validResponseBody                               = """{"caseNumber":"ABC123"}"""

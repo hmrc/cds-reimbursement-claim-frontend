@@ -78,11 +78,11 @@ class RejectedGoodsScheduledClaimConnectorSpec
 
   val expectedUrl = "http://host-2:312/foo-claim-scheduled/claims/rejected-goods-scheduled"
 
-  val requestGen: Gen[RejectedGoodsScheduledClaimConnector.Request] = for {
-    journey <- RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
-  } yield RejectedGoodsScheduledClaimConnector.Request(
-    journey.toOutput.getOrElse(fail("Could not generate journey output!"))
-  )
+  val requestGen: Gen[RejectedGoodsScheduledClaimConnector.Request] =
+    for journey <- RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
+    yield RejectedGoodsScheduledClaimConnector.Request(
+      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+    )
 
   val sampleRequest: RejectedGoodsScheduledClaimConnector.Request = sample(requestGen)
   val validResponseBody                                           = """{"caseNumber":"ABC312"}"""

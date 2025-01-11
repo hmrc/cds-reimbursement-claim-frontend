@@ -36,13 +36,10 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
       declarationsHasOnlySubsidyPayments
 
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if (
-      !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
+    if !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
         declaration.hasOnlySubsidyPayments) &&
       features.exists(_.shouldBlockSubsidies) &&
       declaration.hasSomeSubsidyPayment
-    )
-      Some("error.subsidy-payment-found")
-    else
-      None
+    then Some("error.subsidy-payment-found")
+    else None
 }

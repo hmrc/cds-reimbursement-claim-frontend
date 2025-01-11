@@ -91,7 +91,7 @@ object ClaimDetailsSummary {
               Text(newEoriAndDan.eori.value)
             ),
             actions =
-              if (isPrintView) None
+              if isPrintView then None
               else
                 Some(
                   Actions(
@@ -113,7 +113,7 @@ object ClaimDetailsSummary {
               Text(newEoriAndDan.dan)
             ),
             actions =
-              if (isPrintView) None
+              if isPrintView then None
               else
                 Some(
                   Actions(

@@ -79,7 +79,7 @@ class ChooseHowManyMrnsController @Inject() (
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
     val skipDocumentType         = featureSwitchService.isEnabled(Feature.SkipDocumentType)
-    if (blockSubsidies || subsidiesForOverpayments || skipDocumentType)
+    if blockSubsidies || subsidiesForOverpayments || skipDocumentType then
       Some(
         OverpaymentsSingleJourney
           .Features(
@@ -96,7 +96,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[OverpaymentsMultipleJourney.Features] = {
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
-    if (blockSubsidies || subsidiesForOverpayments)
+    if blockSubsidies || subsidiesForOverpayments then
       Some(
         OverpaymentsMultipleJourney
           .Features(
@@ -112,7 +112,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[OverpaymentsScheduledJourney.Features] = {
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
-    if (blockSubsidies || subsidiesForOverpayments)
+    if blockSubsidies || subsidiesForOverpayments then
       Some(
         OverpaymentsScheduledJourney
           .Features(
@@ -145,36 +145,33 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if (request.sessionData.overpaymentsSingleJourney.isEmpty)
+                  (if request.sessionData.overpaymentsSingleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsSingleJourney.empty(eori, features = overpaymentsSingleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
+                  (if request.sessionData.overpaymentsMultipleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsMultipleJourney.empty(eori, features = overpaymentsMultipleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
-                  (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
+                  (if request.sessionData.overpaymentsScheduledJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsScheduledJourney.empty(eori, features = overpaymentsScheduledJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show))
               }
             )

@@ -52,10 +52,8 @@ trait FeaturesCache {
       get().flatMap {
         case Right(value) =>
           val newFeatureSet = modify(value)
-          if (newFeatureSet =!= value)
-            store(newFeatureSet)
-          else
-            Future.successful(Right(()))
+          if newFeatureSet =!= value then store(newFeatureSet)
+          else Future.successful(Right(()))
 
         case Left(error) =>
           Future.successful(Left(error))

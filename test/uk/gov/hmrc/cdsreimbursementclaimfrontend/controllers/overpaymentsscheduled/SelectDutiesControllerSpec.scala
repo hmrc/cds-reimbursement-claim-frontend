@@ -244,9 +244,9 @@ class SelectDutiesControllerSpec
 
 object SelectDutiesControllerSpec {
 
-  lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for {
+  lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for
     duty    <- genDuty
     taxCode <- Gen.oneOf(duty.taxCodes)
-  } yield (duty, taxCode)
+  yield (duty, taxCode)
 
 }

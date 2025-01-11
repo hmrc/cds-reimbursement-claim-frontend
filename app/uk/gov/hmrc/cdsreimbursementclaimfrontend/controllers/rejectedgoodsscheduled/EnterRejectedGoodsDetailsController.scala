@@ -72,7 +72,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
           details => {
             val updatedJourney = journey
               .submitDetailsOfRejectedGoods(details)
-            if (journey.isSubsidyOnlyJourney) {
+            if journey.isSubsidyOnlyJourney then {
               updatedJourney
                 .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.EuDuty))
                 .fold(

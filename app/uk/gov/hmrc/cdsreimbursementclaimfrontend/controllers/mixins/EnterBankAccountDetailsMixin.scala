@@ -135,7 +135,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                     (Some(Yes) | Some(Partial) | None)
                   ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
                 Redirect(
-                  if (journey.userHasSeenCYAPage) checkYourAnswers
+                  if journey.userHasSeenCYAPage then checkYourAnswers
                   else nextPage.successPath
                 )
 

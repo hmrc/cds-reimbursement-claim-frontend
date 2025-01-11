@@ -56,7 +56,7 @@ object ReimbursementClaim {
     Format(
       Reads {
         case json @ JsObject(fields) =>
-          if (fields.contains("parts")) splitMethodReimbursementClaimFormat.reads(json)
+          if fields.contains("parts") then splitMethodReimbursementClaimFormat.reads(json)
           else defaultMethodReimbursementClaimFormat.reads(json)
 
         case other =>

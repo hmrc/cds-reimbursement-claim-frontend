@@ -92,7 +92,7 @@ class CheckMovementReferenceNumbersControllerSpec
     val journey2            = journey
       .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
 
-    if (submitEORIs)
+    if submitEORIs then
       journey2
         .flatMapWhenDefined(adjustedDeclaration.getConsigneeEori)(j => j.submitConsigneeEoriNumber(_))
         .flatMap(_.submitDeclarantEoriNumber(adjustedDeclaration.getDeclarantEori))
@@ -110,7 +110,7 @@ class CheckMovementReferenceNumbersControllerSpec
         div.select("dd:nth-of-type(2)").select("a").attr("href") shouldBe routes.EnterMovementReferenceNumberController
           .show(index + 1)
           .url
-        if (hasDeleteLink) {
+        if hasDeleteLink then {
           div.select("dd:nth-of-type(3) a").isEmpty shouldBe false
           val mrn = MRN(div.select("dd:nth-of-type(1)").text())
           possibleMrns should contain(mrn)
@@ -162,14 +162,14 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
-          val journey = (for {
+          val journey = (for
             j1 <- addAcc14(
                     journey = session.rejectedGoodsMultipleJourney.get,
                     acc14Declaration = firstMrn,
                     submitEORIs = true
                   )
             j2 <- addAcc14(j1, secondMrn)
-          } yield j2).getOrFail
+          yield j2).getOrFail
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
           val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
 

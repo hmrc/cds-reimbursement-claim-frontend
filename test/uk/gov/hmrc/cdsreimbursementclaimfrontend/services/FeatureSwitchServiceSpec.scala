@@ -138,7 +138,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
         def filter[A](input: Request[A]): Future[Option[Result]] = {
           implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(input, input.session)
-          if (fs.isEnabled(feature)) Future.successful(None)
+          if fs.isEnabled(feature) then Future.successful(None)
           else errorHandler.notFoundTemplate(input).map(c => Some(NotFound(c)))
         }
 

@@ -132,7 +132,7 @@ object AssociatedMrnIndexSpec {
 
   implicit class IntegerOps(private val n: Int) {
     def truncateToEndWithPrecision(x: Int): Int =
-      (n / 10) * 10 + (if (n >= 0) x else -x)
+      (n / 10) * 10 + (if n >= 0 then x else -x)
   }
 
   implicit class StringOps(private val s: String) {

@@ -104,9 +104,8 @@ class ConfirmFullRepaymentControllerSpec
       journey.getSecurityDetailsFor(securityId).value.getTotalAmount
     )
     title           should ===(
-      (if (isError) "Error: "
-       else
-         "") + s"Claiming back security deposit ID: $securityId - Claim back import duty and VAT - GOV.UK"
+      (if isError then "Error: "
+       else "") + s"Claiming back security deposit ID: $securityId - Claim back import duty and VAT - GOV.UK"
     )
     heading         should ===(
       List(
@@ -423,7 +422,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
@@ -442,7 +441,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
@@ -460,7 +459,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))

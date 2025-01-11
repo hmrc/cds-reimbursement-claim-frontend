@@ -84,7 +84,7 @@ final class OverpaymentsScheduledJourney private (
               getLeadDisplayDeclaration.contains(displayDeclaration) =>
           Right(this)
         case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
+          if mrn =!= displayDeclaration.getMRN then
             Left(
               "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
             )
@@ -118,13 +118,12 @@ final class OverpaymentsScheduledJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -140,8 +139,8 @@ final class OverpaymentsScheduledJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -200,8 +199,7 @@ final class OverpaymentsScheduledJourney private (
     dutyTypes: Seq[DutyType]
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyTypes.isEmpty)
-        Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+      if dutyTypes.isEmpty then Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
         val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
           SortedMap(
@@ -220,13 +218,12 @@ final class OverpaymentsScheduledJourney private (
     taxCodes: Seq[TaxCode]
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
+      if !getSelectedDutyTypes.exists(_.contains(dutyType)) then
         Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
-      else if (taxCodes.isEmpty)
-        Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
       else {
         val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
-        if (allTaxCodesMatchDutyType) {
+        if allTaxCodesMatchDutyType then {
           val newReimbursementClaims =
             answers.correctedAmounts
               .map { rc =>
@@ -239,8 +236,7 @@ final class OverpaymentsScheduledJourney private (
                 }: _*)
               }
           Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-        } else
-          Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+        } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
@@ -255,10 +251,10 @@ final class OverpaymentsScheduledJourney private (
     correctAmount: BigDecimal
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyType.taxCodes.contains(taxCode)) {
-        if (isDutySelected(dutyType, taxCode)) {
+      if dutyType.taxCodes.contains(taxCode) then {
+        if isDutySelected(dutyType, taxCode) then {
           val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
-          if (amounts.isValid) {
+          if amounts.isValid then {
             val newReimbursementClaims =
               answers.correctedAmounts
                 .map(rc =>
@@ -273,12 +269,9 @@ final class OverpaymentsScheduledJourney private (
                   }: _*)
                 )
             Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-          } else
-            Left("submitAmountForReimbursement.invalidReimbursementAmount")
-        } else
-          Left("submitAmountForReimbursement.taxCodeNotSelected")
-      } else
-        Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
+          } else Left("submitAmountForReimbursement.invalidReimbursementAmount")
+        } else Left("submitAmountForReimbursement.taxCodeNotSelected")
+      } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
   def submitClaimAmount(
@@ -291,8 +284,7 @@ final class OverpaymentsScheduledJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
       else
         Right(
           copy(newAnswers =
@@ -342,7 +334,7 @@ final class OverpaymentsScheduledJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -390,7 +382,7 @@ final class OverpaymentsScheduledJourney private (
     uploadedFile: UploadedFile
   ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         Right(
           this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
@@ -403,7 +395,7 @@ final class OverpaymentsScheduledJourney private (
     }
 
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[OverpaymentsScheduledJourney]) {
+    if obj.isInstanceOf[OverpaymentsScheduledJourney] then {
       val that = obj.asInstanceOf[OverpaymentsScheduledJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -417,7 +409,7 @@ final class OverpaymentsScheduledJourney private (
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                 <- getLeadMovementReferenceNumber
           basisOfClaim        <- answers.basisOfClaim
           additionalDetails   <- answers.additionalDetails
@@ -429,7 +421,7 @@ final class OverpaymentsScheduledJourney private (
                                      Some(NewEoriAndDan(newEori, newDan.value))
                                    case _                                                  => None
                                  }
-        } yield OverpaymentsScheduledJourney.Output(
+        yield OverpaymentsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
           claimantType = getClaimantType,

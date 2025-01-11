@@ -137,8 +137,8 @@ final class SecuritiesJourney private (
     answers.correctedAmounts.exists(_.contains(securityDepositId))
 
   def getSecuritySelectionStatus(securityDepositId: String): Option[YesNo] =
-    if (isSelectedDepositId(securityDepositId)) Some(YesNo.Yes)
-    else if (answers.modes.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode) Some(YesNo.No)
+    if isSelectedDepositId(securityDepositId) then Some(YesNo.Yes)
+    else if answers.modes.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode then Some(YesNo.No)
     else None
 
   def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
@@ -245,8 +245,8 @@ final class SecuritiesJourney private (
   def getNextDepositIdAndTaxCodeToClaim: Option[Either[String, (String, TaxCode)]] =
     answers.correctedAmounts.flatMap(_.foldLeft[Option[Either[String, (String, TaxCode)]]](None) {
       case (acc, (depositId, reclaims)) =>
-        if (acc.isDefined) acc
-        else if (reclaims.isEmpty) Some(Left(depositId))
+        if acc.isDefined then acc
+        else if reclaims.isEmpty then Some(Left(depositId))
         else reclaims.find(_._2.isEmpty).map { case (taxCode, _) => Right((depositId, taxCode)) }
     })
 
@@ -264,8 +264,7 @@ final class SecuritiesJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
       else
         Right(
           copy(newAnswers =
@@ -378,14 +377,13 @@ final class SecuritiesJourney private (
     displayDeclaration: DisplayDeclaration
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMovementReferenceNumber) {
-      if (!answers.movementReferenceNumber.contains(displayDeclaration.getMRN))
+      if !answers.movementReferenceNumber.contains(displayDeclaration.getMRN) then
         Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationMrn")
-      else if (!displayDeclaration.getReasonForSecurity.contains(reasonForSecurity))
+      else if !displayDeclaration.getReasonForSecurity.contains(reasonForSecurity) then
         Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
-      else if (
-        answers.reasonForSecurity.contains(reasonForSecurity) &&
+      else if answers.reasonForSecurity.contains(reasonForSecurity) &&
         answers.displayDeclaration.contains(displayDeclaration)
-      ) Right(this) // unchanged
+      then Right(this) // unchanged
       else
         Right(
           this.copy(
@@ -418,7 +416,7 @@ final class SecuritiesJourney private (
     methodsOfDisposal: List[TemporaryAdmissionMethodOfDisposal]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (needsMethodOfDisposalSubmission) {
+      if needsMethodOfDisposalSubmission then {
         Right(
           this.copy(
             answers.copy(
@@ -426,8 +424,7 @@ final class SecuritiesJourney private (
             )
           )
         )
-      } else
-        Left("submitTemporaryAdmissionMethodsOfDisposal.unexpected")
+      } else Left("submitTemporaryAdmissionMethodsOfDisposal.unexpected")
     }
 
   def submitExportMovementReferenceNumber(
@@ -435,17 +432,16 @@ final class SecuritiesJourney private (
     exportMrn: MRN
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
-      if (needsExportMRNSubmission) {
+      if needsExportMRNSubmission then {
         answers.exportMovementReferenceNumbers match {
           case None if index === 0 =>
             Right(this.copy(answers.copy(exportMovementReferenceNumbers = Some(Seq(exportMrn)))))
 
           case Some(exportMRNs) if index >= 0 && index < exportMRNs.size =>
             val existingMrn = exportMRNs(index)
-            if (exportMrn === existingMrn) Right(this)
+            if exportMrn === existingMrn then Right(this)
             else {
-              if (exportMRNs.indexOf(exportMrn) === index)
-                Left("submitExportMovementReferenceNumber.duplicated")
+              if exportMRNs.indexOf(exportMrn) === index then Left("submitExportMovementReferenceNumber.duplicated")
               else
                 Right(
                   this.copy(
@@ -457,17 +453,14 @@ final class SecuritiesJourney private (
             }
 
           case Some(exportMRNs) if index === exportMRNs.size =>
-            if (exportMRNs.contains(exportMrn))
-              Left("submitExportMovementReferenceNumber.duplicated")
-            else
-              Right(this.copy(answers.copy(exportMovementReferenceNumbers = Some(exportMRNs :+ exportMrn))))
+            if exportMRNs.contains(exportMrn) then Left("submitExportMovementReferenceNumber.duplicated")
+            else Right(this.copy(answers.copy(exportMovementReferenceNumbers = Some(exportMRNs :+ exportMrn))))
 
           case _ =>
             Left("submitExportMovementReferenceNumber.indexOutOfBounds")
 
         }
-      } else
-        Left("submitExportMovementReferenceNumber.unexpected")
+      } else Left("submitExportMovementReferenceNumber.unexpected")
     }
 
   def removeExportMovementReferenceNumber(mrn: MRN): Either[String, SecuritiesJourney] =
@@ -489,9 +482,8 @@ final class SecuritiesJourney private (
 
   def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (securityDepositIds.isEmpty)
-        Left("selectSecurityDepositIds.emptySelection")
-      else if (!securityDepositIds.forall(isValidSecurityDepositId))
+      if securityDepositIds.isEmpty then Left("selectSecurityDepositIds.emptySelection")
+      else if !securityDepositIds.forall(isValidSecurityDepositId) then
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
         val emptySecuritiesReclaims =
@@ -514,21 +506,19 @@ final class SecuritiesJourney private (
 
   def selectSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (securityDepositId.isEmpty)
+      if securityDepositId.isEmpty then
         Left(
           "selectSecurityDepositIds.emptySecurityDepositId"
         )
-      else if (!isValidSecurityDepositId(securityDepositId))
+      else if !isValidSecurityDepositId(securityDepositId) then
         Left(
           "selectSecurityDepositIds.invalidSecurityDepositId"
         )
       else {
-        if (
-          answers.correctedAmounts
+        if answers.correctedAmounts
             .getOrElse(SortedMap.empty[String, CorrectedAmounts])
             .contains(securityDepositId)
-        )
-          Right(this)
+        then Right(this)
         else {
           val emptySecuritiesReclaim =
             SortedMap(securityDepositId -> SortedMap.empty[TaxCode, Option[BigDecimal]])
@@ -547,8 +537,7 @@ final class SecuritiesJourney private (
 
   def removeSecurityDepositId(securityDepositId: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("selectSecurityDepositIds.invalidSecurityDepositId")
+      if !isValidSecurityDepositId(securityDepositId) then Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
         val updatedJourney = this.copy(
           answers.copy(
@@ -562,10 +551,10 @@ final class SecuritiesJourney private (
           this.copy(
             updatedJourney.answers.copy(
               bankAccountDetails =
-                if (updatedJourney.needsBanksAccountDetailsSubmission) updatedJourney.answers.bankAccountDetails
+                if updatedJourney.needsBanksAccountDetailsSubmission then updatedJourney.answers.bankAccountDetails
                 else None,
               bankAccountType =
-                if (updatedJourney.needsBanksAccountDetailsSubmission) updatedJourney.answers.bankAccountType
+                if updatedJourney.needsBanksAccountDetailsSubmission then updatedJourney.answers.bankAccountType
                 else None
             )
           )
@@ -578,20 +567,18 @@ final class SecuritiesJourney private (
     selectedTaxCodes: Seq[TaxCode]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
+      if !isValidSecurityDepositId(securityDepositId) then
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidSecurityDepositId")
-      else if (!isSelectedDepositId(securityDepositId))
+      else if !isSelectedDepositId(securityDepositId) then
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.securityDepositIdNotSelected")
-      else if (selectedTaxCodes.isEmpty)
+      else if selectedTaxCodes.isEmpty then
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.emptyTaxCodeSelection")
-      else if (!getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(selectedTaxCodes))
+      else if !getSecurityTaxCodesFor(securityDepositId).containsEachItemOf(selectedTaxCodes) then
         Left("selectAndReplaceTaxCodeSetForSelectedSecurityDepositId.invalidTaxCodeSelection")
       else {
-        if (
-          getSelectedDutiesFor(securityDepositId)
+        if getSelectedDutiesFor(securityDepositId)
             .containsSameElements(selectedTaxCodes)
-        )
-          Right(this)
+        then Right(this)
         else {
           val existingReclaims: CorrectedAmounts =
             answers.correctedAmounts
@@ -623,13 +610,11 @@ final class SecuritiesJourney private (
     correctAmount: BigDecimal
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("submitCorrectAmount.invalidSecurityDepositId")
-      else if (!isSelectedDepositId(securityDepositId))
-        Left("submitCorrectAmount.securityDepositIdNotSelected")
-      else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
+      if !isValidSecurityDepositId(securityDepositId) then Left("submitCorrectAmount.invalidSecurityDepositId")
+      else if !isSelectedDepositId(securityDepositId) then Left("submitCorrectAmount.securityDepositIdNotSelected")
+      else if !getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)) then
         Left("submitCorrectAmount.invalidTaxCode")
-      else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidCorrectAmount(correctAmount, _)))
+      else if !getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidCorrectAmount(correctAmount, _)) then
         Left("submitCorrectAmount.invalidAmount")
       else {
         val updatedCorrectedAmounts: Option[SortedMap[String, CorrectedAmounts]] =
@@ -662,13 +647,11 @@ final class SecuritiesJourney private (
     claimAmount: BigDecimal
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("submitCorrectAmount.invalidSecurityDepositId")
-      else if (!isSelectedDepositId(securityDepositId))
-        Left("submitCorrectAmount.securityDepositIdNotSelected")
-      else if (!getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)))
+      if !isValidSecurityDepositId(securityDepositId) then Left("submitCorrectAmount.invalidSecurityDepositId")
+      else if !isSelectedDepositId(securityDepositId) then Left("submitCorrectAmount.securityDepositIdNotSelected")
+      else if !getSelectedDutiesFor(securityDepositId).exists(_.contains(taxCode)) then
         Left("submitCorrectAmount.invalidTaxCode")
-      else if (!getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidClaimAmount(claimAmount, _)))
+      else if !getSecurityTaxDetailsFor(securityDepositId, taxCode).exists(isValidClaimAmount(claimAmount, _)) then
         Left("submitCorrectAmount.invalidAmount")
       else {
         val updatedCorrectedAmounts: Option[SortedMap[String, CorrectedAmounts]] =
@@ -705,16 +688,15 @@ final class SecuritiesJourney private (
 
   def submitFullCorrectedAmounts(securityDepositId: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
-      if (!isValidSecurityDepositId(securityDepositId))
-        Left("submitFullAmountForReclaim.invalidSecurityDepositId")
-      else if (!isSelectedDepositId(securityDepositId))
+      if !isValidSecurityDepositId(securityDepositId) then Left("submitFullAmountForReclaim.invalidSecurityDepositId")
+      else if !isSelectedDepositId(securityDepositId) then
         Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
       else {
         val updatedCorrectedAmounts: Option[SortedMap[String, CorrectedAmounts]] =
-          for {
+          for
             correctedAmounts <- answers.correctedAmounts
             securityDetails  <- getSecurityDetailsFor(securityDepositId)
-          } yield correctedAmounts + {
+          yield correctedAmounts + {
             val fullAmountReclaims: CorrectedAmounts =
               SortedMap(
                 securityDetails.taxDetails
@@ -749,13 +731,12 @@ final class SecuritiesJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -771,7 +752,7 @@ final class SecuritiesJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
         Right(
           this.copy(
             answers.copy(eoriNumbersVerification =
@@ -781,8 +762,7 @@ final class SecuritiesJourney private (
             )
           )
         )
-      else
-        Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+      else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
 
   def submitContactDetails(contactDetails: Option[MrnContactDetails]): SecuritiesJourney =
@@ -801,7 +781,7 @@ final class SecuritiesJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountDetails =
@@ -821,7 +801,7 @@ final class SecuritiesJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
@@ -832,14 +812,13 @@ final class SecuritiesJourney private (
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (getDocumentTypesIfRequired.exists(_.contains(documentType)))
+      if getDocumentTypesIfRequired.exists(_.contains(documentType)) then
         Right(
           this.copy(
             answers.copy(selectedDocumentType = Some(documentType))
           )
         )
-      else
-        Left("submitDocumentTypeSelection.invalid")
+      else Left("submitDocumentTypeSelection.invalid")
     }
 
   def receiveUploadedFiles(
@@ -848,13 +827,12 @@ final class SecuritiesJourney private (
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
-        if (
-          getDocumentTypesIfRequired match {
+      if answers.nonce.equals(requestNonce) then {
+        if getDocumentTypesIfRequired match {
             case Some(dts) => dts.exists(dt => documentType.contains(dt))
             case None      => documentType.contains(UploadDocumentType.SupportingEvidence)
           }
-        ) {
+        then {
           val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
             case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
             case uf                            => uf
@@ -862,8 +840,7 @@ final class SecuritiesJourney private (
           Right(
             this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
           )
-        } else
-          Left("receiveUploadedFiles.invalidDocumentType")
+        } else Left("receiveUploadedFiles.invalidDocumentType")
       } else Left("receiveUploadedFiles.invalidNonce")
     }
 
@@ -892,7 +869,7 @@ final class SecuritiesJourney private (
   ): SecuritiesJourney =
     whileClaimIsAmendable {
       this.copy(
-        answers.copy(additionalDetails = if (additionalDetails.isBlank) None else Some(additionalDetails))
+        answers.copy(additionalDetails = if additionalDetails.isBlank then None else Some(additionalDetails))
       )
     }
 
@@ -945,13 +922,13 @@ final class SecuritiesJourney private (
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                 <- getLeadMovementReferenceNumber
           rfs                 <- getReasonForSecurity
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
           payeeType           <- answers.payeeType
-        } yield SecuritiesJourney.Output(
+        yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
@@ -959,8 +936,7 @@ final class SecuritiesJourney private (
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
           bankAccountDetails =
-            if (needsBanksAccountDetailsSubmission)
-              answers.bankAccountDetails
+            if needsBanksAccountDetailsSubmission then answers.bankAccountDetails
             else None,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           temporaryAdmissionMethodsOfDisposal = answers.temporaryAdmissionMethodsOfDisposal match {

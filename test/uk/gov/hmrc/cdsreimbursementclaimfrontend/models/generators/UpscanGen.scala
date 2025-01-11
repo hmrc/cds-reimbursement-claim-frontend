@@ -45,17 +45,17 @@ object UpscanGen extends OptionValues {
     Arbitrary(genEvidenceDocumentType)
 
   implicit lazy val arbitrarySupportingEvidenceAnswer: Arbitrary[SupportingEvidencesAnswer] = Arbitrary(
-    for {
+    for
       n         <- Gen.chooseNum(1, 9)
       evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
-    } yield evidences.value
+    yield evidences.value
   )
 
   implicit lazy val arbitrarySupportingEvidenceAnswerList: Arbitrary[SupportingEvidencesAnswerList] = Arbitrary(
-    for {
+    for
       n         <- Gen.chooseNum(1, 9)
       evidences <- arbitrarySupportingEvidencesAnswerListOfN(n).arbitrary
-    } yield evidences.value
+    yield evidences.value
   )
 
   implicit lazy val arbitrarySupportingEvidencesAnswerOpt: Arbitrary[Option[SupportingEvidencesAnswer]] =
@@ -65,7 +65,7 @@ object UpscanGen extends OptionValues {
     Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswerList.arbitrary))
 
   implicit lazy val arbitraryUploadedFile: Arbitrary[UploadedFile] = Arbitrary {
-    for {
+    for
       uploadReference <- genStringWithMaxSizeOfN(30)
       name            <- genStringWithMaxSizeOfN(6)
       fileMimeType    <- Gen.oneOf("text/plain", "image/jpeg", "image/png", "application/pdf")
@@ -75,7 +75,7 @@ object UpscanGen extends OptionValues {
       uploadTimestamp <- Gen.const(java.time.Instant.parse("2011-12-03T10:15:30Z"))
       extension       <- Gen.oneOf("pdf", "doc", "csv")
       documentType    <- arbitrarySupportingEvidenceDocumentType.arbitrary
-    } yield UploadedFile(
+    yield UploadedFile(
       upscanReference = uploadReference,
       downloadUrl = downloadUrl,
       uploadTimestamp = ZonedDateTime.ofInstant(uploadTimestamp, ZoneOffset.UTC),

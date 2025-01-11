@@ -24,13 +24,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
 object AccountDetailsGen {
 
   lazy val genAccountDetails: Gen[AccountDetails] =
-    for {
+    for
       accountType          <- genStringWithMaxSizeOfN(10)
       accountNumber        <- genStringWithMaxSizeOfN(10)
       eori                 <- genEori.map(_.value)
       legalName            <- genStringWithMaxSizeOfN(15)
       contactDetailsOption <- Gen.option(genContactDetails)
-    } yield AccountDetails(
+    yield AccountDetails(
       accountType,
       accountNumber,
       eori,

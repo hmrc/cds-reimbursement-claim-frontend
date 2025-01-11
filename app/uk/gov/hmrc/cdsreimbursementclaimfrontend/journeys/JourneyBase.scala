@@ -49,24 +49,24 @@ trait JourneyBase extends Journey {
 
   /** Execute the following code only when claim wasn't submitted yet. */
   final protected def whileClaimIsAmendable(body: => Type): Type =
-    if (isFinalized) self else body
+    if isFinalized then self else body
 
   /** Execute the following code only when claim wasn't submitted yet. */
   final protected def whileClaimIsAmendable(
     body: => Either[String, Type]
   ): Either[String, Type] =
-    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
+    if isFinalized then Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else body
 
   final protected def whileClaimIsAmendable(condition: Validate[Type])(body: => Type): Either[String, Type] =
-    if (isFinalized) Right(self)
+    if isFinalized then Right(self)
     else condition(self).map(_ => body).left.map(_.headMessage)
 
   /** Execute the following code only when claim wasn't submitted yet and requirements are met. */
   final protected def whileClaimIsAmendableAnd(condition: Validate[Type])(
     body: => Either[String, Type]
   ): Either[String, Type] =
-    if (isFinalized) Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
+    if isFinalized then Left(JourneyValidationErrors.JOURNEY_ALREADY_FINALIZED)
     else condition(self).left.map(_.headMessage).flatMap(_ => body)
 
   final def prettyPrint(implicit format: Format[Type]): String =

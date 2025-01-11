@@ -81,11 +81,11 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
     implicit val monad: Monad[Future] = future.catsStdInstancesForFuture
     getBusinessAccountReputation(bankAccountDetails)
       .flatMap(reputation1 =>
-        if (reputation1.isConfirmed) EitherT.right(Future.successful(reputation1))
+        if reputation1.isConfirmed then EitherT.right(Future.successful(reputation1))
         else
           getPersonalAccountReputation(bankAccountDetails, postCode)
             .map(reputation2 =>
-              if (reputation2.isConfirmed) reputation2
+              if reputation2.isConfirmed then reputation2
               else reputation1
             )
       )

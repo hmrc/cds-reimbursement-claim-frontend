@@ -25,9 +25,9 @@ object ContactDetailsGen {
     Gen.option(genMrnContactDetails)
 
   lazy val genMrnContactDetails =
-    for {
+    for
       emailAddress <- Gen.option(EmailGen.genEmail)
       phoneNumber  <- Gen.option(PhoneNumberGen.genUkPhoneNumber)
       fullName     <- Gen.nonEmptyListOf(Gen.alphaChar).map(String.valueOf)
-    } yield MrnContactDetails(fullName, emailAddress, phoneNumber)
+    yield MrnContactDetails(fullName, emailAddress, phoneNumber)
 }

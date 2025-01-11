@@ -32,11 +32,11 @@ object ClaimedReimbursementsAnswerGen {
 
   implicit lazy val arbitraryClaimedReimbursement: Arbitrary[ClaimedReimbursement] =
     Arbitrary(
-      for {
+      for
         taxCode     <- genTaxCode
         paidAmount  <- genBigDecimal
         claimAmount <- genBigDecimal
-      } yield ClaimedReimbursement(
+      yield ClaimedReimbursement(
         taxCode,
         paidAmount,
         claimAmount,

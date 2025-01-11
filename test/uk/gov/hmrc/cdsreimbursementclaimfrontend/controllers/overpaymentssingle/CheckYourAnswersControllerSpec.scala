@@ -170,7 +170,7 @@ class CheckYourAnswersControllerSpec
               case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
               case _                                          => m("check-your-answers.repayment-method.bt")
             }),
-          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Uploaded"                     -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)

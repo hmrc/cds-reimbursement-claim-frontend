@@ -163,7 +163,7 @@ class CheckYourAnswersControllerSpec
           "UK Duty"                      -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Excise Duty"                  -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Uploaded"                     -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)

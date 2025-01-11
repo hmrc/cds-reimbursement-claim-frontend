@@ -39,8 +39,7 @@ class OrderedMapSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matc
           orderedMap.get(firstKey) shouldBe value.get(firstKey)
         }
 
-        for ((k, v) <- value.iterator)
-          orderedMap.get(k) shouldBe Some(v)
+        for (k, v) <- value.iterator do orderedMap.get(k) shouldBe Some(v)
       }
     }
 

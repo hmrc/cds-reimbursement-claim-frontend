@@ -67,10 +67,8 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
           (
             journey,
             Redirect(
-              if (journey.needsBanksAccountDetailsSubmission)
-                enterBankAccountDetailsRoute
-              else
-                continueRoute(journey)
+              if journey.needsBanksAccountDetailsSubmission then enterBankAccountDetailsRoute
+              else continueRoute(journey)
             )
           )
         }

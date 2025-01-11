@@ -108,9 +108,10 @@ class SelectDutiesControllerSpec
       dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
 
     title                    should ===(
-      (if (isError) "Error: "
+      (if isError then "Error: "
        else
-         "") + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
+         ""
+      ) + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
     )
     caption                  should ===(List(s"Security deposit ID: $securityId"))
     formHeading              should ===(List(s"Security deposit ID: $securityId What do you want to claim?"))
@@ -353,7 +354,7 @@ object SelectDutiesControllerSpec {
         .map(_.keys)
         .toList
         .flatten
-      if (choices.size > selected.size) Some(securityId) else None
+      if choices.size > selected.size then Some(securityId) else None
     }
   }
 

@@ -51,7 +51,7 @@ class SelectDutiesController @Inject() (
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val isSubsidy: Boolean = journey.isSubsidyOnlyJourney
 
-    if (journey.isDutyTypeSelected) {
+    if journey.isDutyTypeSelected then {
       val postAction: Call                     = routes.SelectDutiesController.submit(dutyType)
       val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
       val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
@@ -66,7 +66,7 @@ class SelectDutiesController @Inject() (
     implicit request =>
       journey => {
         val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
-        if (journey.isDutyTypeSelected) {
+        if journey.isDutyTypeSelected then {
           Future.successful(
             selectDutyCodesForm
               .bindFromRequest()

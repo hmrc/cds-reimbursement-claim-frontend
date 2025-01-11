@@ -51,10 +51,8 @@ class BasisForClaimController @Inject() (
     routes.BasisForClaimController.submit
 
   final override def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call =
-    if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan)
-      routes.EnterNewEoriNumberController.show
-    else
-      routes.EnterAdditionalDetailsController.show
+    if basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan then routes.EnterNewEoriNumberController.show
+    else routes.EnterAdditionalDetailsController.show
 
   final override def modifyJourney(
     journey: Journey,

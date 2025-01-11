@@ -25,8 +25,7 @@ object DateFormatter {
 
   def toDisplayDate(dateString: String)(implicit messages: Messages): String = {
     val split = dateString.trim.split(" ")
-    if (split.length === 3)
-      s"${split(0)} ${messages(s"month.${split(1).toLowerCase(Locale.ENGLISH)}")} ${split(2)}"
+    if split.length === 3 then s"${split(0)} ${messages(s"month.${split(1).toLowerCase(Locale.ENGLISH)}")} ${split(2)}"
     else dateString
   }
 

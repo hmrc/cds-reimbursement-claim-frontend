@@ -95,7 +95,7 @@ class CheckTotalImportDischargedControllerSpec
     radioLabels    should ===(List(messages("generic.yes"), messages("generic.no")))
     continueButton should contain(messages("button.continue"))
 
-    if (isError) {
+    if isError then {
       val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
       val linkToError    = doc.select("a[href=#check-total-import-discharged]").eachText().asScala.toList
       val errorParagraph = doc.select("p#check-total-import-discharged-error").eachText().asScala.toList

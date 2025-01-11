@@ -51,7 +51,7 @@ object CdsClaimantDetailsSummary
 
     val includeAdditionalContacts = mrnContact.isDefined && mrnAddress.isDefined
 
-    val additionalContactKey = if (includeAdditionalContacts) {
+    val additionalContactKey = if includeAdditionalContacts then {
       "yes"
     } else {
       "no"
@@ -59,7 +59,7 @@ object CdsClaimantDetailsSummary
 
     def renderContactDetails(contactDetails: NamePhoneEmail, isAdditional: Boolean): SummaryListRow = {
       val actions = changeCallOpt.fold[Option[Actions]](None)(changeCall =>
-        if (isAdditional)
+        if isAdditional then
           Some(
             Actions(
               items = Seq(
@@ -89,7 +89,7 @@ object CdsClaimantDetailsSummary
 
     def renderEstablishmentAddress(address: EstablishmentAddress, isAdditional: Boolean): SummaryListRow = {
       val actions = changeCallOpt.fold[Option[Actions]](None)(changeCall =>
-        if (isAdditional)
+        if isAdditional then
           Some(
             Actions(
               items = Seq(
@@ -155,5 +155,5 @@ object CdsClaimantDetailsSummary
     )
   }
 
-  private def role(isAdditional: Boolean): String = if (isAdditional) "additional" else "cds"
+  private def role(isAdditional: Boolean): String = if isAdditional then "additional" else "cds"
 }

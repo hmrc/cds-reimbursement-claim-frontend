@@ -306,7 +306,7 @@ class SelectDutiesControllerSpec
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes                  = journey.getSelectedDuties(mrn).get
             val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
-            if (newSelectedTaxCodes.nonEmpty) {
+            if newSelectedTaxCodes.nonEmpty then {
               inSequence {
                 mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))

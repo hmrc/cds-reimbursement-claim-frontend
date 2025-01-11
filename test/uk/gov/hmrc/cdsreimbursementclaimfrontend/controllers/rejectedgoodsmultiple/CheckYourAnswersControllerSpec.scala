@@ -96,13 +96,11 @@ class CheckYourAnswersControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summary       = summaryKeys.asScala.zip(summaryValues.asScala).toMap
 
-    headers              should not be empty
-    summaryKeys          should not be empty
-    summaryValues        should not be empty
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys.size shouldBe (summaryValues.size - 1)
-    else
-      summaryKeys.size shouldBe summaryValues.size
+    headers                                                      should not be empty
+    summaryKeys                                                  should not be empty
+    summaryValues                                                should not be empty
+    if claim.supportingEvidences.isEmpty then summaryKeys.size shouldBe (summaryValues.size - 1)
+    else summaryKeys.size                                      shouldBe summaryValues.size
 
     headers.asScala.toSeq should contain allOf (
       "Movement Reference Numbers (MRNs)",
@@ -130,7 +128,7 @@ class CheckYourAnswersControllerSpec
           "Inspection date",
           "Inspection address type",
           "Inspection address"
-        ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")))*
+        ) ++ (if claim.supportingEvidences.isEmpty then Seq.empty else Seq("Uploaded")))*
       )
     )
 

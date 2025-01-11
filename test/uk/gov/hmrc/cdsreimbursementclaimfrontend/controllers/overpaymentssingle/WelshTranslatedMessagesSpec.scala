@@ -51,7 +51,7 @@ class WelshTranslatedMessagesSpec
         val welshMessages    = serviceMessages("cy")
         val missingWelshKeys = englishMessages.keySet.filterNot(welshMessages.keySet)
 
-        if (missingWelshKeys.nonEmpty) {
+        if missingWelshKeys.nonEmpty then {
           val failureText =
             missingWelshKeys.foldLeft(s"There are ${missingWelshKeys.size} missing Welsh translations:") {
               case (failureString, key) =>

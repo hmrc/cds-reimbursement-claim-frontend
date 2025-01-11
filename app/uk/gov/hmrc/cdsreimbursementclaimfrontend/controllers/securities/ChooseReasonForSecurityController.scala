@@ -83,9 +83,10 @@ class ChooseReasonForSecurityController @Inject() (
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
   private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNtas)) ReasonForSecurity.ntas else Set.empty
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNtas) then ReasonForSecurity.ntas else Set.empty
   private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) filterDisabledNiruOptions(ReasonForSecurity.niru)
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNiru) then
+      filterDisabledNiruOptions(ReasonForSecurity.niru)
     else Set.empty
 
   private def filterDisabledNiruOptions(
@@ -93,16 +94,16 @@ class ChooseReasonForSecurityController @Inject() (
   )(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     options
       .filterNot(rfs =>
-        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr)) { rfs == OutwardProcessingRelief }
+        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr) then { rfs == OutwardProcessingRelief }
         else false
       )
       .filterNot(rfs =>
-        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr)) { rfs == CommunitySystemsOfDutyRelief }
+        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr) then { rfs == CommunitySystemsOfDutyRelief }
         else false
       )
 
   private def nidacOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNidac)) ReasonForSecurity.nidac else Set.empty
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNidac) then ReasonForSecurity.nidac else Set.empty
 
   private def reasonsForSecurity(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     ntasOptions ++ niruOptions ++ nidacOptions
@@ -133,16 +134,15 @@ class ChooseReasonForSecurityController @Inject() (
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity, postAction))
           ).asFuture,
         reasonForSecurity =>
-          if (journey.getReasonForSecurity.contains(reasonForSecurity))
+          if journey.getReasonForSecurity.contains(reasonForSecurity) then
             (
               journey,
-              if (journey.answers.modes.checkDeclarationDetailsChangeMode)
+              if journey.answers.modes.checkDeclarationDetailsChangeMode then
                 Redirect(routes.CheckDeclarationDetailsController.show)
-              else
-                successResultSelectSecurities
+              else successResultSelectSecurities
             ).asFuture
           else
-            (for {
+            (for
               mrn                          <- getMovementReferenceNumber(journey)
               declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
               _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
@@ -167,21 +167,19 @@ class ChooseReasonForSecurityController @Inject() (
               updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, updatedDeclaration)
               journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
               updatedJourneyWithRedirect   <-
-                if (
-                  SecuritiesJourney.Checks
+                if SecuritiesJourney.Checks
                     .declarantOrImporterEoriMatchesUserOrHasBeenVerified(journeyWithRfsAndDeclaration)
                     .isInvalid
-                )
-                  redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
+                then redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
                 else
-                  for {
+                  for
                     similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, reasonForSecurity)
                     updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
                                                           journeyWithRfsAndDeclaration,
                                                           similarClaimExistAlreadyInCDFPay
                                                         )
-                  } yield updatedJourneyWithRedirect
-            } yield updatedJourneyWithRedirect)
+                  yield updatedJourneyWithRedirect
+            yield updatedJourneyWithRedirect)
               .bimap(result => (journey, result), identity)
               .merge
       )
@@ -267,13 +265,12 @@ class ChooseReasonForSecurityController @Inject() (
         .map(journeyWithUpdatedStatus =>
           (
             journeyWithUpdatedStatus,
-            if (similarClaimExistAlreadyInCDFPay) {
+            if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if (journeyWithUpdatedStatus.requiresBillOfDischargeForm) {
+            } else if journeyWithUpdatedStatus.requiresBillOfDischargeForm then {
               Redirect(routes.CheckTotalImportDischargedController.show)
-            } else
-              successResultSelectSecurities
+            } else successResultSelectSecurities
           )
         )
         .merge

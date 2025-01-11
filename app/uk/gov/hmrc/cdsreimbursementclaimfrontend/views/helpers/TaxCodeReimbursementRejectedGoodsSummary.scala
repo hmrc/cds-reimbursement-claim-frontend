@@ -68,7 +68,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
           )
         )
       }.toSeq ++ (
-        if (claimsMadeAgainstTaxCodes.size > 1) {
+        if claimsMadeAgainstTaxCodes.size > 1 then {
           Seq(
             SummaryListRow(
               key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),

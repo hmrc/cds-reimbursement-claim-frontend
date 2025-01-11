@@ -39,8 +39,8 @@ trait GetXiEoriMixin extends JourneyBaseController {
   final def getUserXiEoriIfNeeded(journey: Journey, enabled: Boolean)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, Journey] =
-    if (enabled && isXiEoriSupported && needsUserXiEoriSubmission(journey)) {
-      for {
+    if enabled && isXiEoriSupported && needsUserXiEoriSubmission(journey) then {
+      for
         userXiEori     <-
           EitherT(
             xiEoriConnector.getXiEori
@@ -51,8 +51,7 @@ trait GetXiEoriMixin extends JourneyBaseController {
           EitherT.fromEither[Future](
             Right(modifyJourney(journey, userXiEori))
           )
-      } yield updatedJourney
-    } else
-      EitherT.fromEither[Future](Right(journey))
+      yield updatedJourney
+    } else EitherT.fromEither[Future](Right(journey))
 
 }

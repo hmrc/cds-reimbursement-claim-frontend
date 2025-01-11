@@ -69,7 +69,7 @@ package object answers {
 
     def get(index: Int): Option[A] =
       answer.flatMap { list =>
-        if (index < 0 || index >= list.length) None
+        if index < 0 || index >= list.length then None
         else list.toList.drop(index).headOption
       }
 
@@ -92,7 +92,7 @@ package object answers {
       replaceOrAppend(i.toListIndex, item)
 
     def replaceOrAppend(index: Int, item: A): Either[String, Option[NonEmptyList[A]]] =
-      if (index < 0) Left("Index must be greater or equal to zero")
+      if index < 0 then Left("Index must be greater or equal to zero")
       else
         answer match {
           case None if index === 0                => Right(Some(NonEmptyList(item, Nil)))
@@ -106,7 +106,7 @@ package object answers {
       remove(i.toListIndex)
 
     def remove(index: Int): Option[NonEmptyList[A]] =
-      if (index < 0) answer
+      if index < 0 then answer
       else answer.flatMap(_.remove(index))
 
     def list: List[A] = answer.map(_.toList).getOrElse(Nil)

@@ -46,7 +46,7 @@ class CheckBankDetailsController @Inject() (
     routes.CheckBankDetailsController.submitWarning
 
   final override def continueRoute(journey: Journey): Call =
-    if (journey.userHasSeenCYAPage) checkYourAnswers
+    if journey.userHasSeenCYAPage then checkYourAnswers
     else routes.ChooseFileTypeController.show
 
   final override val enterBankAccountDetailsRoute: Call =

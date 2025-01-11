@@ -51,7 +51,7 @@ class SelectDutiesController @Inject() (
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
 
-    if (availableDuties.isEmpty) {
+    if availableDuties.isEmpty then {
       logger.warn("No available duties")
       Redirect(baseRoutes.IneligibleController.ineligible).asFuture
     } else {
@@ -73,7 +73,7 @@ class SelectDutiesController @Inject() (
     implicit request =>
       journey => {
         val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-        (if (availableDuties.isEmpty) {
+        (if availableDuties.isEmpty then {
            logger.warn("No available duties")
            (journey, Redirect(baseRoutes.IneligibleController.ineligible))
          } else {

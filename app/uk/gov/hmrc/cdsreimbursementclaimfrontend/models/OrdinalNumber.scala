@@ -27,7 +27,7 @@ object OrdinalNumber {
     messages
       .translate(key, Seq.empty)
       .fold { // if there is no ordinal for number
-        val key = s"ordinal.suffix.${if (i > 9 && i < 20) "1x" else i % 10}"
+        val key = s"ordinal.suffix.${if i > 9 && i < 20 then "1x" else i % 10}"
         messages.translate(key, Seq.empty).fold(s"$i")(suffix => s"$i$suffix")
       }(identity)
   }

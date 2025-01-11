@@ -67,7 +67,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) { exportMRNs =>
-      if (exportMRNs.isEmpty)
+      if exportMRNs.isEmpty then
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
       else
         (
@@ -124,7 +124,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     implicit request =>
       journey =>
         whenTemporaryAdmissionExported(journey) { exportMRNs =>
-          if (exportMRNs.contains(mrn))
+          if exportMRNs.contains(mrn) then
             journey
               .removeExportMovementReferenceNumber(mrn)
               .fold(
@@ -143,8 +143,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                     }
                   ).asFuture
               )
-          else
-            (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show)).asFuture
+          else (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show)).asFuture
         },
     fastForwardToCYAEnabled = false
   )

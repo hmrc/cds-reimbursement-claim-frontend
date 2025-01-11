@@ -131,12 +131,10 @@ class SelectDutiesController @Inject() (
     securityId: String,
     dutiesSelected: Seq[TaxCode]
   ): (SecuritiesJourney, Result) =
-    if (
-      journey
+    if journey
         .getSelectedDutiesFor(securityId)
         .containsSameElements(dutiesSelected) && journey.userHasSeenCYAPage
-    )
-      (journey, Redirect(checkYourAnswers))
+    then (journey, Redirect(checkYourAnswers))
     else
       journey
         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, dutiesSelected)
@@ -149,9 +147,8 @@ class SelectDutiesController @Inject() (
             (
               updatedJourney,
               Redirect(
-                if (
-                  updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
-                )
+                if updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
+                then
                   journey.getNextDepositIdAndTaxCodeToClaim match {
                     case Some(Left(depositId)) =>
                       routes.ConfirmFullRepaymentController.show(depositId)
@@ -162,8 +159,7 @@ class SelectDutiesController @Inject() (
                     case None =>
                       routes.CheckClaimDetailsController.show
                   }
-                else
-                  routes.EnterClaimController.showFirst(securityId)
+                else routes.EnterClaimController.showFirst(securityId)
               )
             )
         )
@@ -172,8 +168,7 @@ object SelectDutiesController extends Logging {
   val selectDutiesKey: String = "select-duties"
 
   def getDescription(fullKey: String, messages: Messages): Option[String] =
-    if (messages.isDefinedAt(fullKey))
-      Some(messages(fullKey))
+    if messages.isDefinedAt(fullKey) then Some(messages(fullKey))
     else {
       logger.warn(s"no description found for $fullKey")
       None

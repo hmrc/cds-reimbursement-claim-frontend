@@ -78,8 +78,7 @@ class AuthenticatedAction @Inject() (
   ): Future[Either[Result, AuthenticatedRequest[A]]] = {
 
     implicit val hc: HeaderCarrier =
-      if (headersFromRequestOnly)
-        HeaderCarrierConverter.fromRequest(request)
+      if headersFromRequestOnly then HeaderCarrierConverter.fromRequest(request)
       else
         HeaderCarrierConverter
           .fromRequestAndSession(request, request.session)
@@ -115,18 +114,16 @@ class AuthenticatedAction @Inject() (
     hasEoriEnrolment(enrolments) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
-        if (
-          featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
+        if featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
           checkEoriIsAllowed(eori.value)
-        )
+        then
           Right(
             AuthenticatedRequest(
               request,
               Some(eori)
             )
           )
-        else
-          Left(Results.Redirect(limitedAccessErrorPage))
+        else Left(Results.Redirect(limitedAccessErrorPage))
       case Right(None)       =>
         Left(Redirect(unauthorizedErrorPage))
     }
@@ -166,20 +163,19 @@ class AuthenticatedAction @Inject() (
 
       case Some(Credentials(_, _)) =>
         Future.successful(
-          if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
+          if featureSwitchService.isDisabled(models.Feature.LimitedAccess) then
             Right(
               AuthenticatedRequest(
                 request,
                 None
               )
             )
-          else
-            Left(Results.Redirect(limitedAccessErrorPage))
+          else Left(Results.Redirect(limitedAccessErrorPage))
         )
     }
 
   final def readHeadersFromRequestOnly(b: Boolean): AuthenticatedAction =
-    if (b == headersFromRequestOnly) this
+    if b == headersFromRequestOnly then this
     else
       new AuthenticatedAction(
         authConnector,

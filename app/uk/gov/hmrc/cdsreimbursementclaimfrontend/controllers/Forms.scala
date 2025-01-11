@@ -317,7 +317,7 @@ object Forms {
           .verifying("error.invalid", a => a === 0 || a === 1)
           .transform[ReimbursementMethod](
             value =>
-              if (value === 0) CurrentMonthAdjustment
+              if value === 0 then CurrentMonthAdjustment
               else BankAccountTransfer,
             {
               case CurrentMonthAdjustment => 0
@@ -340,7 +340,7 @@ object Forms {
             key => key === noneString || UploadDocumentType.parse(key).exists(v => availableFileTypes.contains(v))
           )
           .transform[Option[UploadDocumentType]](
-            (key: String) => if (key === noneString) None else UploadDocumentType.parse(key),
+            (key: String) => if key === noneString then None else UploadDocumentType.parse(key),
             (value: Option[UploadDocumentType]) => value.map(UploadDocumentType.keyOf).getOrElse(noneString)
           )
       )(identity)(Some(_))
@@ -373,8 +373,8 @@ object Forms {
         "enter-duplicate-movement-reference-number" ->
           nonEmptyText
             .verifying(Constraint[String] { (str: String) =>
-              if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
-              else if (str.nonEmpty && !MRN(str).isValid) Invalid("invalid.number")
+              if str === mainMrn.value then Invalid("invalid.enter-different-mrn")
+              else if str.nonEmpty && !MRN(str).isValid then Invalid("invalid.number")
               else Valid
             })
             .transform[MRN](MRN(_), _.value)

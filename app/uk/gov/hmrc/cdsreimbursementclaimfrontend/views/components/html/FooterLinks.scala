@@ -28,7 +28,7 @@ object FooterLinks {
       val textKey   = s"$keyPrefix.text"
       val urlKey    = s"$keyPrefix.url"
 
-      if (messages.isDefinedAt(textKey) && messages.isDefinedAt(urlKey))
+      if messages.isDefinedAt(textKey) && messages.isDefinedAt(urlKey) then
         Seq(
           FooterItem(
             text = Some(messages(textKey)),

@@ -77,16 +77,16 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       )
 
   lazy val rfsWithDisplayDeclarationGen: Gen[(ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (rfs, acc14)
+    yield (rfs, acc14)
 
   lazy val mrnWithRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -94,10 +94,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithRfsWithDisplayDeclarationNotGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
       acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
@@ -105,10 +105,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
       acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
@@ -116,10 +116,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithtRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -127,12 +127,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   def mrnWithRfsWithDisplayDeclarationGen(
     reasonsForSecurity: Seq[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(reasonsForSecurity)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -140,11 +140,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -156,11 +156,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         Gen.oneOf(
           TemporaryAdmissionMethodOfDisposal.values.diff(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal)
         )
-    } yield (mrn, rfs, acc14, mfd)
+    yield (mrn, rfs, acc14, mfd)
 
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -171,11 +171,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       mfd   <- Gen.oneOf(
                  List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
                )
-    } yield (mrn, rfs, acc14, mfd)
+    yield (mrn, rfs, acc14, mfd)
 
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -186,12 +186,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       mfd   <- Gen.oneOf(
                  List(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)
                )
-    } yield (mrn, rfs, acc14, mfd)
+    yield (mrn, rfs, acc14, mfd)
 
   def mrnWithRfsExcludingWithDisplayDeclarationGen(
     reasonsForSecurityToExclude: Seq[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values.filterNot(reasonsForSecurityToExclude.contains(_)))
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -199,10 +199,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithIprOrEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -210,10 +210,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithTaRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf[ReasonForSecurity](
                  ReasonForSecurity.TemporaryAdmission2Y,
@@ -226,30 +226,30 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithIprRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(ReasonForSecurity.InwardProcessingRelief)
                )
-    } yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
+    yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
 
   lazy val mrnWithEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       acc14 <- securitiesDisplayDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(ReasonForSecurity.EndUseRelief)
                )
-    } yield (mrn, ReasonForSecurity.EndUseRelief, acc14)
+    yield (mrn, ReasonForSecurity.EndUseRelief, acc14)
 
   lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    for {
+    for
       mrn   <- IdGen.genMRN
       rfs   <-
         Gen.oneOf(
@@ -260,40 +260,39 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
                )
-    } yield (mrn, rfs, acc14)
+    yield (mrn, rfs, acc14)
 
   lazy val mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)] =
-    for {
+    for
       (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen
       documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None, false).get)
-    } yield (mrn, rfs, acc14, documentType)
+    yield (mrn, rfs, acc14, documentType)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for {
+    for
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
+    yield (mrn, rfs, decl, reclaims)
 
   lazy val mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for {
+    for
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
+    yield (mrn, rfs, decl, reclaims)
 
   lazy val mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for {
+    for
       (mrn, rfs, decl) <- mrnWithRfsWithDisplayDeclarationNotGuaranteeEligibleGen
       reclaims         <- validSecurityReclaimsGen(decl)
-    } yield (mrn, rfs, decl, reclaims)
+    yield (mrn, rfs, decl, reclaims)
 
   lazy val exportMrnTrueGen: Gen[MRN] =
-    for {
-      mrn <- IdGen.genMRN
-    } yield mrn
+    for mrn <- IdGen.genMRN
+    yield mrn
 
   val completeJourneyGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen()
@@ -347,23 +346,21 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitBankAccountType: Boolean = true,
     submitFullAmount: Boolean = false
   ): Gen[Either[String, SecuritiesJourney]] =
-    for {
+    for
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
       rfs                         <- genReasonForSecurity
       methodOfDisposal            <-
-        if (ReasonForSecurity.ntas.contains(rfs))
+        if ReasonForSecurity.ntas.contains(rfs) then
           Gen.nonEmptyListOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.selectableValues)).map(Some.apply)
         else Gen.const(None)
       exportMrns                  <-
-        if (
-          ReasonForSecurity.ntas(rfs) && methodOfDisposal
+        if ReasonForSecurity.ntas(rfs) && methodOfDisposal
             .exists(mods => TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal(mods))
-        ) exportMrnTrueGen.map(mrn => Some(Seq(mrn)))
-        else
-          Gen.const(None)
-      declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+        then exportMrnTrueGen.map(mrn => Some(Seq(mrn)))
+        else Gen.const(None)
+      declarantEORI               <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI               <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       numberOfSecurities          <- Gen.choose(2, 5)
@@ -378,13 +375,14 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                                        id = mrn.value,
                                        securityReason = rfs.acc14Code,
                                        declarantEORI = declarantEORI,
-                                       consigneeEORI = if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+                                       consigneeEORI = if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
                                        depositDetails = depositsDetails,
                                        allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
-                                       consigneeContact = if (submitConsigneeDetails) consigneeContact else None,
+                                       consigneeContact = if submitConsigneeDetails then consigneeContact else None,
                                        declarantContact = declarantContact
                                      )
-      reclaims                    <- if (submitFullAmount) validSecurityReclaimsFullAmountGen(acc14) else validSecurityReclaimsGen(acc14)
+      reclaims                    <-
+        if submitFullAmount then validSecurityReclaimsFullAmountGen(acc14) else validSecurityReclaimsGen(acc14)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)
       documentTypes               <-
@@ -403,7 +401,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
-    } yield {
+    yield {
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
 
@@ -422,11 +420,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
         }.toSeq
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       val answers =
@@ -441,18 +437,16 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           eoriNumbersVerification = eoriNumbersVerification,
           exportMovementReferenceNumbers = exportMrns,
           temporaryAdmissionMethodsOfDisposal = methodOfDisposal,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+          contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
           bankAccountDetails =
-            if (submitBankAccountDetails && (!allDutiesGuaranteeEligible))
-              Some(exampleBankAccountDetails)
+            if submitBankAccountDetails && (!allDutiesGuaranteeEligible) then Some(exampleBankAccountDetails)
             else None,
           bankAccountType =
-            if (submitBankAccountType && (!allDutiesGuaranteeEligible))
-              Some(bankAccountType)
+            if submitBankAccountType && (!allDutiesGuaranteeEligible) then Some(bankAccountType)
             else None,
           additionalDetails = Some("additional details"),
           modes = SecuritiesJourneyModes(

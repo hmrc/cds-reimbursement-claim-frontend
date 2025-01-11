@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 
 object InspectionAddressGen {
 
-  lazy val genInspectionAddress = for {
+  lazy val genInspectionAddress = for
     num         <- Gen.choose(1, 100)
     street      <- genStringWithMaxSizeOfN(7)
     district    <- genStringWithMaxSizeOfN(5)
@@ -33,7 +33,7 @@ object InspectionAddressGen {
     postcode    <- genPostcode
     country     <- genCountry
     addressType <- Gen.oneOf(InspectionAddressType.values)
-  } yield InspectionAddress(
+  yield InspectionAddress(
     addressLine1 = Some(s"$num $street"),
     addressLine2 = Some(district),
     addressLine3 = None,

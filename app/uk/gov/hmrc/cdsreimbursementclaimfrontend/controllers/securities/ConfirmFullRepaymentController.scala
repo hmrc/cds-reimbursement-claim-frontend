@@ -114,11 +114,9 @@ class ConfirmFullRepaymentController @Inject() (
                   .getOrElse(errorHandler.errorResult())
               ).asFuture,
             answer =>
-              if (
-                journey.getClaimFullAmountStatus(id).contains(answer) &&
+              if journey.getClaimFullAmountStatus(id).contains(answer) &&
                 journey.userHasSeenCYAPage
-              )
-                (journey, Redirect(checkYourAnswers)).asFuture
+              then (journey, Redirect(checkYourAnswers)).asFuture
               else
                 answer match {
                   case Yes =>
@@ -142,8 +140,7 @@ class ConfirmFullRepaymentController @Inject() (
         },
         { updatedJourney =>
           val nextRoute =
-            if (journey.answers.modes.checkClaimDetailsChangeMode)
-              routes.CheckClaimDetailsController.show
+            if journey.answers.modes.checkClaimDetailsChangeMode then routes.CheckClaimDetailsController.show
             else
               journey.getSelectedDepositIds
                 .nextAfter(securityId)
@@ -156,8 +153,8 @@ class ConfirmFullRepaymentController @Inject() (
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (if (journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId)) {
-       if (journey.getSecurityTaxCodesFor(securityId).size == 1)
+    (if journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId) then {
+       if journey.getSecurityTaxCodesFor(securityId).size == 1 then
          journey
            .submitClaimFullAmountMode(false)
            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
@@ -184,7 +181,8 @@ class ConfirmFullRepaymentController @Inject() (
        (
          journey,
          Redirect(routes.CheckClaimDetailsController.show)
-       )).asFuture
+       )
+    ).asFuture
 }
 
 final case class ConfirmFullRepaymentModel(mrn: String, securityId: String, depositValue: String)

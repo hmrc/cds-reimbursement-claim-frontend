@@ -113,7 +113,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Enter MRN page" must {
 
       def performAction(mrnIndex: Int): Future[Result] =
-        if (mrnIndex === 0) controller.showFirst(FakeRequest())
+        if mrnIndex === 0 then controller.showFirst(FakeRequest())
         else controller.showNext(mrnIndex + 1)(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
@@ -167,7 +167,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(mrnIndex: Int, data: (String, String)*): Future[Result] =
-        if (mrnIndex === 0) controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
+        if mrnIndex === 0 then controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
         else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {

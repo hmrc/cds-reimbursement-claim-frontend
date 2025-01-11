@@ -53,10 +53,8 @@ trait SessionCache {
       get().flatMap {
         case Right(Some(value)) =>
           val newSessionData = modify(value)
-          if (newSessionData =!= value)
-            store(newSessionData)
-          else
-            Future.successful(Right(()))
+          if newSessionData =!= value then store(newSessionData)
+          else Future.successful(Right(()))
 
         case Right(None) =>
           Future.successful(
@@ -81,8 +79,7 @@ trait SessionCache {
         case Right(Some(sessionData)) =>
           update(sessionData).flatMap {
             case Right(updatedSessionData) =>
-              if (sessionData === updatedSessionData)
-                Future.successful(Right(sessionData))
+              if sessionData === updatedSessionData then Future.successful(Right(sessionData))
               else
                 store(updatedSessionData)
                   .map(_.map(_ => updatedSessionData))
@@ -92,7 +89,7 @@ trait SessionCache {
           }
 
         case Right(None) =>
-          if (forceSessionCreation)
+          if forceSessionCreation then
             update(SessionData.empty).flatMap {
               case Right(updatedSessionData) =>
                 store(updatedSessionData)

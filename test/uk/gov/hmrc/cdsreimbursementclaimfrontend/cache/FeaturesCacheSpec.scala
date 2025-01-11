@@ -46,10 +46,10 @@ class FeaturesCacheSpec
     new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config)
 
   val featureSetGen: Gen[FeatureSet] =
-    for {
+    for
       enabled  <- Gen.listOf(Gen.oneOf(Feature.values))
       disabled <- Gen.listOf(Gen.oneOf(Feature.values))
-    } yield FeatureSet(enabled.toSet, disabled.toSet)
+    yield FeatureSet(enabled.toSet, disabled.toSet)
 
   "FeaturesCache" must {
 

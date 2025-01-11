@@ -54,7 +54,7 @@ object TemporaryAdmissionMethodOfDisposalSummary {
         )
       ),
       hint =
-        if (hasHintText)
+        if hasHintText then
           Some(
             Hint(content =
               Text(

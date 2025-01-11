@@ -184,13 +184,13 @@ class EnterInspectionDateControllerSpec
           whenever(
             address.postalCode.isDefined && (firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN)
           ) {
-            val journey        = (for {
+            val journey        = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleJourney.get,
                       replaceEstablishmentAddresses(firstDisplayDeclaration, address)
                     )
               j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
-            } yield j2).getOrFail
+            yield j2).getOrFail
             val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)
@@ -222,13 +222,13 @@ class EnterInspectionDateControllerSpec
           whenever(firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN) {
             val addressWithoutPostCode =
               firstDisplayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
-            val journey                = (for {
+            val journey                = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleJourney.get,
                       replaceEstablishmentAddresses(firstDisplayDeclaration, addressWithoutPostCode)
                     )
               j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, addressWithoutPostCode))
-            } yield j2).getOrFail
+            yield j2).getOrFail
             val initialSession         = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)

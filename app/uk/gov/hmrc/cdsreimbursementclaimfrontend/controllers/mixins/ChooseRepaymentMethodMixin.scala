@@ -45,15 +45,14 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       (
-        if (journey.isAllSelectedDutiesAreCMAEligible) {
+        if journey.isAllSelectedDutiesAreCMAEligible then {
           Ok(
             chooseRepaymentMethodPage(
               form.withDefault(journey.answers.reimbursementMethod),
               postAction
             )
           )
-        } else
-          Redirect(enterBankDetailsRoute)
+        } else Redirect(enterBankDetailsRoute)
       ).asFuture
     }
 
@@ -98,7 +97,7 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
   final val reset: Action[AnyContent] =
     actionReadWriteJourney { _ => journey =>
       val updatedJourney =
-        if (!journey.isAllSelectedDutiesAreCMAEligible) resetReimbursementMethod(journey)
+        if !journey.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(journey)
         else journey
       (updatedJourney, Redirect(checkYourAnswers)).asFuture
     }

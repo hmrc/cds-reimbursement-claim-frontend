@@ -154,7 +154,7 @@ class DefaultAddressLookupService @Inject() (
       .initiate(request)
       .subflatMap { response =>
         logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
-        if (response.status === ACCEPTED)
+        if response.status === ACCEPTED then
           response
             .header(LOCATION)
             .map(URI.create(_).toURL())
@@ -179,7 +179,7 @@ class DefaultAddressLookupService @Inject() (
       .ensure(Error(s"Cannot retrieve an address by ID $addressId"))(_.status === OK)
       .subflatMap { response =>
         logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
-        if (response.status === OK)
+        if response.status === OK then
           response.json
             .validate[ContactAddress](addressLookupResponseReads)
             .asEither

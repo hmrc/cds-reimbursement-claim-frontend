@@ -256,7 +256,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
         (
           reasonForSecurity,
           methodOfDisposalOpt,
-          if (needsProofOfAuthority) Some(UploadDocumentType.ProofOfAuthority) else None
+          if needsProofOfAuthority then Some(UploadDocumentType.ProofOfAuthority) else None
         )
       )
   }

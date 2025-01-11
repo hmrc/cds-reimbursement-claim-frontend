@@ -141,9 +141,9 @@ class ChooseInspectionAddressTypeControllerSpec
                 .flatMap(_.contactDetails)
                 .isDefined
 
-              doc.getElementById("inspection-address.type").`val`()             shouldBe (if (hasImporter) "Importer"
+              doc.getElementById("inspection-address.type").`val`()             shouldBe (if hasImporter then "Importer"
                                                                               else "Declarant")
-              if (hasImporter && hasDeclarant) {
+              if hasImporter && hasDeclarant then {
                 doc.getElementById("inspection-address.type-radio-Declarant").`val` shouldBe "Declarant"
               }
               doc.getElementById("inspection-address.type-radio-Other").`val`() shouldBe "Other"
@@ -389,7 +389,7 @@ class ChooseInspectionAddressTypeControllerSpec
             )(Right(()))
           }
 
-          if (journey.needsBanksAccountDetailsSubmission)
+          if journey.needsBanksAccountDetailsSubmission then
             checkIsRedirect(
               submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
               routes.CheckYourAnswersController.show

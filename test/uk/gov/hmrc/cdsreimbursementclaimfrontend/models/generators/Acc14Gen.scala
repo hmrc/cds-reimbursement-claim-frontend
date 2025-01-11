@@ -36,24 +36,24 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 
 object Acc14Gen {
 
-  lazy val genNdrcDetails: Gen[NdrcDetails] = for {
+  lazy val genNdrcDetails: Gen[NdrcDetails] = for
     taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
     amount           <- Gen.choose(0L, 10000L).map(_.toString)
     paymentMethod    <- Gen.oneOf("001", "002", "003") // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
     paymentReference <- genStringWithMaxSizeOfN(18)
     cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) // 0 = CMA Not Eligible, 1 = CMA Eligible
-  } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
+  yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
 
   implicit lazy val arbitraryNdrcDetails: Arbitrary[NdrcDetails] =
     Arbitrary(genNdrcDetails)
 
-  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
+  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for
     n <- Gen.choose(min, max)
     m <- Gen.listOfN(n, genNdrcDetails)
-  } yield m
+  yield m
 
   lazy val genContactDetails: Gen[ContactDetails] =
-    for {
+    for
       contactName  <- genStringWithMaxSizeOfN(7)
       addressLine1 <- Gen.posNum[Int].flatMap(num => genStringWithMaxSizeOfN(7).map(s => s"$num $s"))
       addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
@@ -63,7 +63,7 @@ object Acc14Gen {
       countryCode  <- Gen.option(genCountry.map(_.code))
       telephone    <- Gen.option(genUkPhoneNumber.map(_.value))
       emailAddress <- genEmail.map(_.value)
-    } yield ContactDetails(
+    yield ContactDetails(
       Some(contactName),
       Some(addressLine1),
       addressLine2,
@@ -79,14 +79,14 @@ object Acc14Gen {
     Arbitrary(genContactDetails)
 
   lazy val genEstablishmentAddress: Gen[EstablishmentAddress] =
-    for {
+    for
       num          <- Gen.choose(1, 100)
       street       <- genStringWithMaxSizeOfN(7)
       addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
       addressLine3 <- Gen.option(genStringWithMaxSizeOfN(20))
       postalCode   <- Gen.option(genPostcode)
       countryCode  <- genCountry
-    } yield EstablishmentAddress(
+    yield EstablishmentAddress(
       s"$num $street",
       addressLine2,
       addressLine3,

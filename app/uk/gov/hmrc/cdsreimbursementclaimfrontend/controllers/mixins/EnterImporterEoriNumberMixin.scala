@@ -46,8 +46,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      if (!needsEoriSubmission(journey))
-        Redirect(whenEoriInputNotRequiredAction)
+      if !needsEoriSubmission(journey) then Redirect(whenEoriInputNotRequiredAction)
       else
         Ok(
           enterImporterEoriNumber(
@@ -59,8 +58,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!needsEoriSubmission(journey))
-      (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
+    if !needsEoriSubmission(journey) then (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
     else {
       eoriNumberForm(eoriNumberFormKey)
         .bindFromRequest()

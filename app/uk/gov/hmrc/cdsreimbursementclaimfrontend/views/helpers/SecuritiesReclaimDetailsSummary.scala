@@ -52,10 +52,9 @@ object SecuritiesReclaimDetailsSummary {
         value = Value(
           Text(
             messages(
-              if (declaration.isFullSecurityAmount(securityDepositId, reclaims.values.sum))
+              if declaration.isFullSecurityAmount(securityDepositId, reclaims.values.sum) then
                 s"$key.claim-full-amount.yes"
-              else
-                s"$key.claim-full-amount.no"
+              else s"$key.claim-full-amount.no"
             )
           )
         ),

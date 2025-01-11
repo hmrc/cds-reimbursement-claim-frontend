@@ -105,7 +105,7 @@ object FormUtils {
         Constraint[BigDecimal]((num: BigDecimal) =>
           num match {
             case n if n < 0   => Invalid(errorMsg)
-            case n if n === 0 => if (allowZero) Valid else Invalid(zeroErrorMsg.getOrElse(errorMsg))
+            case n if n === 0 => if allowZero then Valid else Invalid(zeroErrorMsg.getOrElse(errorMsg))
             case _            => Valid
           }
         )
@@ -117,8 +117,7 @@ object FormUtils {
 
       def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         Formats.stringFormat.bind(key, data).flatMap { userInput =>
-          if (userInput.isEmpty)
-            Left(Seq(FormError(key, "error.required")))
+          if userInput.isEmpty then Left(Seq(FormError(key, "error.required")))
           else
             Exception
               .allCatch[BigDecimal]
@@ -131,8 +130,8 @@ object FormUtils {
                 )
               )
               .flatMap { bd =>
-                if (bd.scale > scale) Left(new Throwable("Wrong precision"))
-                else if (bd.precision - bd.scale > precision - scale) Left(new Throwable("Wrong precision"))
+                if bd.scale > scale then Left(new Throwable("Wrong precision"))
+                else if bd.precision - bd.scale > precision - scale then Left(new Throwable("Wrong precision"))
                 else Right(bd.setScale(scale, RoundingMode.HALF_UP))
               }
               .leftMap(_ => Seq(FormError(key, errorMsg)))

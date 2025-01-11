@@ -80,9 +80,9 @@ class EnterMovementReferenceNumberController @Inject() (
     journey.submitUserXiEori(userXiEori)
 
   override def afterSuccessfullSubmit(journey: OverpaymentsScheduledJourney): Result =
-    if (journey.containsUnsupportedTaxCode) {
+    if journey.containsUnsupportedTaxCode then {
       Redirect(routes.ProblemWithDeclarationController.show)
-    } else if (journey.needsDeclarantAndConsigneeEoriSubmission) {
+    } else if journey.needsDeclarantAndConsigneeEoriSubmission then {
       Redirect(routes.EnterImporterEoriNumberController.show)
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)

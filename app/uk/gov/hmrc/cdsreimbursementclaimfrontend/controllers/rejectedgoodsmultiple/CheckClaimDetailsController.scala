@@ -58,8 +58,8 @@ class CheckClaimDetailsController @Inject() (
   final val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     (
       journey.withDutiesChangeMode(false),
-      if (!journey.hasCompleteMovementReferenceNumbers) Redirect(enterMrnAction)
-      else if (!journey.hasCompleteReimbursementClaims) Redirect(selectDutiesAction)
+      if !journey.hasCompleteMovementReferenceNumbers then Redirect(enterMrnAction)
+      else if !journey.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
       else {
         Ok(
           checkClaimDetails(
@@ -76,8 +76,8 @@ class CheckClaimDetailsController @Inject() (
   final val submit: Action[AnyContent] = actionReadWriteJourney(
     implicit request =>
       journey =>
-        (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
-         else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
+        (if !journey.hasCompleteMovementReferenceNumbers then (journey, Redirect(enterMrnAction))
+         else if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction))
          else {
            form
              .bindFromRequest()
@@ -98,13 +98,13 @@ class CheckClaimDetailsController @Inject() (
                  case Yes =>
                    (
                      journey,
-                     if (shouldForwardToCYA(journey)) Redirect(checkYourAnswers)
+                     if shouldForwardToCYA(journey) then Redirect(checkYourAnswers)
                      else Redirect(nextAction)
                    )
                  case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
                }
              )
-         }).asFuture,
+         }) .asFuture,
     fastForwardToCYAEnabled = false
   )
 }

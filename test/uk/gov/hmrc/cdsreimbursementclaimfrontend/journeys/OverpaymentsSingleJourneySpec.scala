@@ -1001,7 +1001,7 @@ class OverpaymentsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getSelectedTaxCodesWithCorrectAmount
-        for ((taxCode, correctAmount) <- taxCodes) {
+        for (taxCode, correctAmount) <- taxCodes do {
           val newCorrectAmount = correctAmount / 2
           val journeyEither    = journey.submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(newCorrectAmount))
           journeyEither.isRight shouldBe true
@@ -1015,7 +1015,7 @@ class OverpaymentsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.get
 
-        for (taxCode <- taxCodes) {
+        for taxCode <- taxCodes do {
           val ndrcDetails   = journey.getNdrcDetailsFor(taxCode).get
           val newAmount     = BigDecimal(ndrcDetails.amount)
           val journeyEither = journey.submitCorrectAmount(taxCode, DefaultMethodReimbursementClaim(newAmount))

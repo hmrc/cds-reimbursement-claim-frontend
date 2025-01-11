@@ -28,12 +28,12 @@ trait SeqUtils {
 
     final def nextAfter(item: A): Option[A] = {
       val i = seq.indexOf(item)
-      if (i < 0 || i >= seq.size - 1) None
+      if i < 0 || i >= seq.size - 1 then None
       else Some(seq(i + 1))
     }
 
     final def noneIfEmpty: Option[S[A]] =
-      if (seq.isEmpty) None else Some(seq)
+      if seq.isEmpty then None else Some(seq)
 
     final def nonEmptyList: Option[NonEmptyList[A]] =
       NonEmptyList.fromList(seq.toList)
@@ -54,24 +54,23 @@ trait SeqUtils {
       }
 
     final def zipOpt[B](optionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
-      for {
-        as <- optionOfSeq
-      } yield seq.zip(as)
+      for as <- optionOfSeq
+      yield seq.zip(as)
   }
 
   implicit class OptionsOps[A](val option: Option[A]) {
 
     final def zip[B](other: Option[B]): Option[(A, B)] =
-      for {
+      for
         a <- option
         b <- other
-      } yield (a, b)
+      yield (a, b)
   }
 
   implicit class MapOps[K, V, M[K, V] <: Map[K, V]](val map: M[K, V]) {
 
     final def noneIfEmpty: Option[M[K, V]] =
-      if (map.isEmpty) None else Some(map)
+      if map.isEmpty then None else Some(map)
   }
 
   implicit class OptionOfSeqOps[A](val optionOfSeq: Option[Seq[A]]) {
@@ -87,10 +86,10 @@ trait SeqUtils {
       }
 
     final def zipOpt[B](otherOptionOfSeq: Option[Seq[B]]): Option[Seq[(A, B)]] =
-      for {
+      for
         as <- optionOfSeq
         bs <- otherOptionOfSeq
-      } yield as.zip(bs)
+      yield as.zip(bs)
 
     final def zipWithIndex: Option[Seq[(A, Int)]] =
       optionOfSeq.map(_.zip(LazyList.iterate(0)(_ + 1)))

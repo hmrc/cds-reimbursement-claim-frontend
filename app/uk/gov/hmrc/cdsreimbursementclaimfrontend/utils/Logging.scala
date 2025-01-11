@@ -99,7 +99,7 @@ object PrettyPrint {
       case xs: Seq[_]               =>
         // If the Seq is not too long, pretty print on one line.
         val resultOneLine = xs.map(nextDepth).toString()
-        if (resultOneLine.length <= maxElementWidth) return resultOneLine
+        if resultOneLine.length <= maxElementWidth then return resultOneLine
         // Otherwise, build it with newlines and proper field indents.
         val result        = xs.map(x => s"\n$fieldIndent${nextDepth(x)}").toString()
         result.substring(0, result.length - 1) + "\n" + indent + ")"
@@ -111,7 +111,7 @@ object PrettyPrint {
         val fields = cls.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
         val values = p.productIterator.toSeq
         // If we weren't able to match up fields/values, fall back to toString.
-        if (fields.length != values.length) return p.toString
+        if fields.length != values.length then return p.toString
         fields.zip(values).toList match {
           // If there are no fields, just use the normal String representation.
           case Nil               => p.toString
@@ -122,7 +122,7 @@ object PrettyPrint {
             val prettyFields  = kvps.map { case (k, v) => s"$fieldIndent$k = ${nextDepth(v)}" }
             // If the result is not too long, pretty print on one line.
             val resultOneLine = s"$prefix(${prettyFields.mkString(", ")})"
-            if (resultOneLine.length <= maxElementWidth) return resultOneLine
+            if resultOneLine.length <= maxElementWidth then return resultOneLine
             // Otherwise, build it with newlines and proper field indents.
             s"$prefix(\n${prettyFields.mkString(",\n")}\n$indent)"
         }

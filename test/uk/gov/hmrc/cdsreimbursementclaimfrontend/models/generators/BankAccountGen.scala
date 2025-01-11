@@ -45,11 +45,11 @@ object BankAccountGen {
       .map(AccountNumber(_))
 
   lazy val genBankAccountDetails: Gen[BankAccountDetails] =
-    for {
+    for
       accountName   <- genAccountName
       sortCode      <- genSortCode
       accountNumber <- genAccountNumber
-    } yield BankAccountDetails(accountName, sortCode, accountNumber)
+    yield BankAccountDetails(accountName, sortCode, accountNumber)
 
   implicit lazy val arbitrarySortCode: Arbitrary[SortCode] =
     Arbitrary(genSortCode)

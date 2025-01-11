@@ -79,7 +79,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsSingleJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsSingleJourney
           .Features(
@@ -95,7 +95,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsMultipleJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsMultipleJourney
           .Features(
@@ -111,7 +111,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsScheduledJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsScheduledJourney
           .Features(
@@ -147,36 +147,33 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if (request.sessionData.rejectedGoodsSingleJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsSingleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsSingleJourney.empty(eori, features = rejectedGoodsSingleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if (request.sessionData.rejectedGoodsMultipleJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsMultipleJourney.empty(eori, features = rejectedGoodsMultipleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
 
                 case Scheduled =>
-                  (if (request.sessionData.rejectedGoodsScheduledJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsScheduledJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsScheduledJourney.empty(eori, features = rejectedGoodsScheduledJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show))
 
               }

@@ -52,7 +52,7 @@ class UploadMrnListController @Inject() (
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val continueUrl: Call =
-      if (journey.hasCompleteAnswers) checkYourAnswers
+      if journey.hasCompleteAnswers then checkYourAnswers
       else routes.BasisForClaimController.show
 
     val isSubsidy = journey.isSubsidyOnlyJourney
@@ -150,7 +150,7 @@ class UploadMrnListController @Inject() (
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
       title =
-        if (isSubsidy) messages("schedule-document.upload.title.subsidy")
+        if isSubsidy then messages("schedule-document.upload.title.subsidy")
         else messages("schedule-document.upload.title"),
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,

@@ -84,7 +84,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
       journey.getMethodOfDisposal match {
         case Some(mods) =>
-          (if (containsExportedMethodsOfDisposal(mods)) {
+          (if containsExportedMethodsOfDisposal(mods) then {
              (
                journey,
                Ok(
@@ -116,8 +116,8 @@ class EnterExportMovementReferenceNumberController @Inject() (
         )
       journey.getMethodOfDisposal match {
         case Some(mods) =>
-          (if (containsMultipleExportedMethodsOfDisposal(mods)) {
-             if (journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1))
+          (if containsMultipleExportedMethodsOfDisposal(mods) then {
+             if journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
                (
                  journey,
                  Ok(
@@ -207,7 +207,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                           )
                       },
                       updatedJourney =>
-                        if (updatedJourney.userHasSeenCYAPage) {
+                        if updatedJourney.userHasSeenCYAPage then {
                           (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
                         } else {
                           decision match {
@@ -219,7 +219,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
                             case No =>
                               // when there are already more export MRNs we must be in change mode and should display summary page
-                              if (journey.answers.exportMovementReferenceNumbers.exists(_.size > 1))
+                              if journey.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
                                 (
                                   updatedJourney,
                                   Redirect(routes.CheckExportMovementReferenceNumbersController.show)
@@ -311,7 +311,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                           )
                       },
                       updatedJourney =>
-                        if (updatedJourney.userHasSeenCYAPage) {
+                        if updatedJourney.userHasSeenCYAPage then {
                           (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
                         } else {
                           (updatedJourney, Redirect(routes.CheckExportMovementReferenceNumbersController.show))

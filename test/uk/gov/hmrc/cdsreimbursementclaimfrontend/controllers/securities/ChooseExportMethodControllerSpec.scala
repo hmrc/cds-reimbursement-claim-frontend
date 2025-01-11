@@ -87,7 +87,7 @@ class ChooseExportMethodControllerSpec
     checkBoxesLabels.length should ===(9)
     continueButton          should contain(messages("button.continue"))
 
-    if (isError) {
+    if isError then {
       val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
       val linkToError    = doc.select("a[href=#choose-export-method]").eachText().asScala.toList
       val errorParagraph = doc.select("p#choose-export-method-error").eachText().asScala.toList

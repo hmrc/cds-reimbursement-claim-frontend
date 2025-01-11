@@ -43,8 +43,8 @@ class FileUploadConfig @Inject() (config: Configuration) {
     config.underlying.getInt(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-uploads")
 
   private def humanReadableFileSize(bytes: Long): String =
-    if (bytes >= 1000000000) s"${(bytes / 1000000000)} GB"
-    else if (bytes >= 1000000) s"${(bytes / 1000000)} MB"
-    else if (bytes >= 1000) s"${(bytes / 1000)} kB"
+    if bytes >= 1000000000 then s"${(bytes / 1000000000)} GB"
+    else if bytes >= 1000000 then s"${(bytes / 1000000)} MB"
+    else if bytes >= 1000 then s"${(bytes / 1000)} kB"
     else s"$bytes B"
 }

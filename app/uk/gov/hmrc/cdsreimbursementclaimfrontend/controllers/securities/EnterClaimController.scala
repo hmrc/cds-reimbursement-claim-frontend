@@ -120,7 +120,7 @@ class EnterClaimController @Inject() (
                         !journey
                           .getClaimAmountFor(securityDepositId, taxCode)
                           .exists(_ === claimAmount)
-                      if (amountHasChanged)
+                      if amountHasChanged then
                         journey
                           .submitClaimAmount(securityDepositId, taxCode, claimAmount)
                           .fold(
@@ -135,8 +135,7 @@ class EnterClaimController @Inject() (
                                 Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
                               )
                           )
-                      else
-                        (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                      else (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
 
                     }
                   )
@@ -154,7 +153,7 @@ class EnterClaimController @Inject() (
 
     (correctAmountsForDepositId match {
       case None =>
-        if (journey.getSecurityDepositIds.contains(securityDepositId))
+        if journey.getSecurityDepositIds.contains(securityDepositId) then
           Left(Redirect(routes.ConfirmFullRepaymentController.show(securityDepositId)))
         else
           Left(
@@ -196,9 +195,8 @@ class EnterClaimController @Inject() (
     taxCode: TaxCode,
     amountHasChanged: Boolean
   ): Call =
-    if (journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode) {
-      if (journey.userHasSeenCYAPage && !amountHasChanged)
-        routes.CheckYourAnswersController.show
+    if journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode then {
+      if journey.userHasSeenCYAPage && !amountHasChanged then routes.CheckYourAnswersController.show
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
@@ -221,10 +219,9 @@ class EnterClaimController @Inject() (
         case None =>
           journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
             case Some(nextSecurityDepositId) =>
-              if (journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode)
+              if journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode then
                 routes.CheckClaimDetailsController.show
-              else
-                routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
+              else routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
               routes.CheckClaimDetailsController.show

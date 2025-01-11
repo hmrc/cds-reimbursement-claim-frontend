@@ -29,39 +29,37 @@ class NonceSpec extends AnyWordSpec with Matchers {
       Nonce(0).toString       shouldBe "AAAAAA=="
       Nonce("AAAAAA==").value shouldBe 0
 
-      for (i <- LazyList.continually(Random.nextInt()).take(1000))
-        Nonce(Nonce(i).toString) shouldBe Nonce(i)
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do Nonce(Nonce(i).toString) shouldBe Nonce(i)
     }
 
     "serialize to and from json" in {
       Json.stringify(Json.toJson(Nonce(7))) shouldBe "7"
       Json.parse("7").as[Nonce].value       shouldBe 7
 
-      for (i <- LazyList.continually(Random.nextInt()).take(1000))
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do
         Json.parse(Json.stringify(Json.toJson(Nonce(i)))).as[Nonce] shouldBe Nonce(i)
     }
 
     "compare always to itself" in {
-      for (i <- LazyList.continually(Random.nextInt()).take(1000))
-        Nonce(i) shouldBe Nonce(i)
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do Nonce(i) shouldBe Nonce(i)
     }
 
     "compare always to AnyNonce" in {
-      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do {
         Nonce(i)  shouldBe Nonce.Any
         Nonce.Any shouldBe Nonce(i)
       }
     }
 
     "do not compare to next Nonce" in {
-      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do {
         Nonce(i) should not be (Nonce(i + 1))
         Nonce(i) should not be (Nonce(i - 1))
       }
     }
 
     "do not compare to other entities" in {
-      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do {
         Nonce(i) should not be s"$i"
         Nonce(i) should not be (i.toInt)
       }
@@ -73,7 +71,7 @@ class NonceSpec extends AnyWordSpec with Matchers {
     }
 
     "have stable and unique hash code" in {
-      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
+      for i <- LazyList.continually(Random.nextInt()).take(1000) do {
         Nonce(i).hashCode shouldBe i.toInt
         Nonce(i).hashCode   should not be (Nonce(i + 1).hashCode)
         Nonce(i).hashCode   should not be (Nonce(i - 1).hashCode)

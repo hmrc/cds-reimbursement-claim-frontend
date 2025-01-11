@@ -167,7 +167,7 @@ trait ControllerSpec
 
   final def messageFromMessageKey(messageKey: String, args: Any*): String = {
     val m = theMessagesApi(messageKey, args: _*)
-    if (m === messageKey) sys.error(s"Message key `$messageKey` is missing a message")
+    if m === messageKey then sys.error(s"Message key `$messageKey` is missing a message")
     m
   }
 
@@ -180,7 +180,7 @@ trait ControllerSpec
   )(implicit pos: Position): Any = {
     import cats.instances.int._
     import cats.syntax.eq._
-    if (status(result) =!= INTERNAL_SERVER_ERROR) println(contentAsString(result))
+    if status(result) =!= INTERNAL_SERVER_ERROR then println(contentAsString(result))
 
     (status(result), redirectLocation(result)) shouldBe (INTERNAL_SERVER_ERROR -> None)
     contentAsString(result)                      should include(
@@ -219,7 +219,7 @@ trait ControllerSpec
     val regex = """not_found_message\((.*?)\)""".r
 
     val regexResult = regex.findAllMatchIn(bodyText).toList
-    if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
+    if regexResult.nonEmpty then fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
     else contentChecks(doc)
   }
 
@@ -239,7 +239,7 @@ trait ControllerSpec
     val regex = """not_found_message\((.*?)\)""".r
 
     val regexResult = regex.findAllMatchIn(bodyText).toList
-    if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
+    if regexResult.nonEmpty then fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
     else {
       doc.select(".govuk-list.govuk-error-summary__list").text() shouldBe expectedErrorMessage
     }
@@ -254,7 +254,7 @@ trait ControllerSpec
     Option(document.getElementById(fieldId))
       .orElse {
         val es = document.getElementsByAttributeValue("data-id", fieldId)
-        if (es.size() > 0) Some(es.first()) else None
+        if es.size() > 0 then Some(es.first()) else None
       }
       .map(
         _.attributes()
@@ -290,13 +290,13 @@ trait ControllerSpec
 
   final def selectedRadioValue(doc: Document): Option[String] = {
     val radioItems = doc.select("div.govuk-radios input[checked]")
-    if (radioItems.size() =!= 0) Some(radioItems.`val`())
+    if radioItems.size() =!= 0 then Some(radioItems.`val`())
     else None
   }
 
   final def selectedTextArea(doc: Document): Option[String] = {
     val textArea = doc.select("textarea.govuk-textarea")
-    if (textArea.size() =!= 0) Some(textArea.`val`()) else None
+    if textArea.size() =!= 0 then Some(textArea.`val`()) else None
   }
 
   final def selectedCheckBox(doc: Document): Seq[String] = {
@@ -307,12 +307,12 @@ trait ControllerSpec
   final def selectedInputBox(doc: Document, inputName: String): Option[String] = {
     val inputString: String = s"input.govuk-input[name='$inputName']"
     val input               = doc.select(inputString)
-    if (input.size() =!= 0) Some(input.`val`()) else None
+    if input.size() =!= 0 then Some(input.`val`()) else None
   }
 
   final def selectedInput(doc: Document): Option[String] = {
     val input = doc.select("input.govuk-input[checked]")
-    if (input.size() =!= 0) Some(input.`val`()) else None
+    if input.size() =!= 0 then Some(input.`val`()) else None
   }
 
   final def summaryKeyValue(doc: Document): (Seq[String], Seq[String]) = {
@@ -334,7 +334,7 @@ trait ControllerSpec
   }
 
   final def hasContinueButton(doc: Document)(implicit pos: Position) =
-    if (doc.select("button.govuk-button").eachText.asScala.exists(_ == "Continue")) succeed
+    if doc.select("button.govuk-button").eachText.asScala.exists(_ == "Continue") then succeed
     else fail("Expected page to have [Continue] button but none found")
 
   final def formAction(doc: Document) =
@@ -349,7 +349,7 @@ trait ControllerSpec
   final def assertPageElementsByIdAndExpectedText(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
     idsWithExpectedContentMap.foreach { case (elementId, expectedText) =>
       val element = doc.getElementById(elementId)
-      if (element == null) {
+      if element == null then {
         fail(s"""Missing page element with id="$elementId"""")
       } else {
         withClue(s"Inside ${element.outerHtml()} has text ")(
@@ -361,7 +361,7 @@ trait ControllerSpec
   final def assertPageElementsByIdAndExpectedHtml(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
     idsWithExpectedContentMap.foreach { case (elementId, expectedHtml) =>
       val element = doc.getElementById(elementId)
-      if (element == null) {
+      if element == null then {
         fail(s"""Missing page element with id="$elementId"""")
       } else {
         withClue(s"Inside ${element.outerHtml()} has text ")(
@@ -375,7 +375,7 @@ trait ControllerSpec
   ): Any =
     selectorsWithExpectedContentMap.foreach { case (selector, expectedText) =>
       val elements = doc.select(selector)
-      if (elements == null || elements.isEmpty()) {
+      if elements == null || elements.isEmpty() then {
         fail(s"""Missing page element selected by $selector""")
       } else {
         elements.asScala.foreach(e => withClue(s"Inside ${e.outerHtml()} has text ")(e.text() shouldBe expectedText))
@@ -385,7 +385,7 @@ trait ControllerSpec
   final def assertPageInputsByIdAndExpectedValue(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
     idsWithExpectedContentMap.foreach { case (elementId, expectedValue) =>
       val element = doc.getElementById(elementId)
-      if (element == null) {
+      if element == null then {
         fail(s"""Missing page element with id="$elementId"""")
       } else {
         withClue(s"Inside ${element.outerHtml()} has value ")(

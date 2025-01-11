@@ -95,10 +95,10 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
 
     val baseClaims =
-      if (hasDuplicateEntryClaim) values
+      if hasDuplicateEntryClaim then values
       else values - DuplicateEntry
 
-    if (hasNorthernIrelandExciseCodes) baseClaims
+    if hasNorthernIrelandExciseCodes then baseClaims
     else baseClaims - IncorrectExciseValue
   }
 

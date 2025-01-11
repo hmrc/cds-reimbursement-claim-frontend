@@ -83,7 +83,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
   @nowarn
   def decodeMessage(eventNode: ObjectNode, message: String): Unit =
-    if (message.startsWith("json{")) {
+    if message.startsWith("json{") then {
       eventNode.put("message", message.drop(4))
       try {
         val messageNode: JsonNode = mapper.readTree(message.drop(4))
@@ -93,8 +93,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
           Logger(getClass()).error(s"${e.getMessage}\nmessage:$message")
           eventNode.put("message", message)
       }
-    } else
-      eventNode.put("message", message)
+    } else eventNode.put("message", message)
 
   override def footerBytes(): Array[Byte] =
     System.lineSeparator().getBytes(StandardCharsets.UTF_8)

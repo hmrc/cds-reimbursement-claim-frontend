@@ -80,7 +80,7 @@ class ChooseClaimTypeController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            if (formWithErrors.data.nonEmpty)
+            if formWithErrors.data.nonEmpty then
               logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
             val userIsAuthorisedSecuritiesLimitedAccess =
               request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)

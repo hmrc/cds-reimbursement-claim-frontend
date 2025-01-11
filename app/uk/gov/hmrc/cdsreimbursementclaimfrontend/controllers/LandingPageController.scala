@@ -38,9 +38,7 @@ class LandingPageController @Inject() (
     with Logging {
 
   def showLandingPage(): Action[AnyContent] = Action { implicit request =>
-    if (featureSwitchService.isEnabled(RedirectToGovUkLandingPage))
-      Redirect(viewConfig.govUkLandingPageUrl)
-    else
-      Ok(landingPage())
+    if featureSwitchService.isEnabled(RedirectToGovUkLandingPage) then Redirect(viewConfig.govUkLandingPageUrl)
+    else Ok(landingPage())
   }
 }

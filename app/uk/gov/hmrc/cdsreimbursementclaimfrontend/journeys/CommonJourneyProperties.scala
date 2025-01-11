@@ -131,10 +131,10 @@ trait CommonJourneyProperties {
       case None          =>
         val maybeDeclarantBankDetails       = getDeclarantBankAccountDetails
         val maybeConsigneeBankDetails       = getConsigneeBankAccountDetails
-        val consigneeAndDeclarantEorisMatch = (for {
+        val consigneeAndDeclarantEorisMatch = (for
           consigneeEori <- getConsigneeEoriFromACC14
           declarantEori <- getDeclarantEoriFromACC14
-        } yield consigneeEori === declarantEori).getOrElse(false)
+        yield consigneeEori === declarantEori).getOrElse(false)
 
         (answers.payeeType, maybeDeclarantBankDetails, maybeConsigneeBankDetails) match {
           case (Some(PayeeType.Consignee), _, Some(consigneeBankDetails))                                       =>
@@ -175,22 +175,17 @@ trait CommonJourneyProperties {
       .exists(_.hasBankDetails)
 
   final def getClaimantType: ClaimantType =
-    if (
-      getConsigneeEoriFromACC14.exists(eori =>
+    if getConsigneeEoriFromACC14.exists(eori =>
         answers.userEoriNumber === eori ||
           answers.eoriNumbersVerification.exists(_.hasSameXiEoriAs(eori))
       )
-    )
-      ClaimantType.Consignee
-    else if (
-      getDeclarantEoriFromACC14.exists(eori =>
+    then ClaimantType.Consignee
+    else if getDeclarantEoriFromACC14.exists(eori =>
         answers.userEoriNumber === eori ||
           answers.eoriNumbersVerification.exists(_.hasSameXiEoriAs(eori))
       )
-    )
-      ClaimantType.Declarant
-    else
-      ClaimantType.User
+    then ClaimantType.Declarant
+    else ClaimantType.User
 
   final def getClaimantEori: Eori = getClaimantType match {
     case ClaimantType.Consignee => getConsigneeEoriFromACC14.getOrElse(answers.userEoriNumber)
@@ -199,10 +194,10 @@ trait CommonJourneyProperties {
   }
 
   final def getClaimantInformation: Option[ClaimantInformation] =
-    for {
+    for
       contactDetails <- answers.contactDetails
       contactAddress <- answers.contactAddress
-    } yield ClaimantInformation.from(
+    yield ClaimantInformation.from(
       getClaimantEori,
       getClaimantType match {
         case ClaimantType.Consignee => getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails)
@@ -244,8 +239,8 @@ trait CommonJourneyProperties {
 
   protected def nextAfter[A](item: A)(seq: Seq[A]): Option[A] = {
     val i = seq.indexOf(item)
-    if (i === -1) None
-    else if (i === seq.size - 1) None
+    if i === -1 then None
+    else if i === seq.size - 1 then None
     else Some(seq(i + 1))
   }
 

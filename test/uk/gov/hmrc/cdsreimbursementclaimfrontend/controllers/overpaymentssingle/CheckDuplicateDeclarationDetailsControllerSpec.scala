@@ -73,7 +73,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
   val messagesKey: String = "check-declaration-details"
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    for {
+    for
       j1            <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                          .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
       mrn           <- genMRN
@@ -84,7 +84,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                          declarantEORI = declarantEori,
                          consigneeEORI = Some(consigneeEori)
                        )
-    } yield j1
+    yield j1
       .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
       .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration _)
       .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
@@ -162,7 +162,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
       "redirect if duplicate declaration not verified" in {
         val journey =
-          (for {
+          (for
             j1   <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             mrn  <- genMRN
@@ -171,7 +171,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                       id = mrn.value,
                       declarantEORI = eori
                     )
-          } yield j1
+          yield j1
             .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
             .getOrFail).sample.get
 

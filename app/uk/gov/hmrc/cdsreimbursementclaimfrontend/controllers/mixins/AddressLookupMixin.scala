@@ -64,11 +64,9 @@ trait AddressLookupMixin extends JourneyBaseController {
                 logger warn s"Error retrieving lookup address: $error"
                 (
                   journey,
-                  if (
-                    error.message.contains("/address/postcode: error.path.missing") || error.message
+                  if error.message.contains("/address/postcode: error.path.missing") || error.message
                       .contains("/address/lines: error.minLength")
-                  )
-                    Redirect(problemWithAddressPage)
+                  then Redirect(problemWithAddressPage)
                   else Redirect(baseRoutes.IneligibleController.ineligible)
                 )
               },

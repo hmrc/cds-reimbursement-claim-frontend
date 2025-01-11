@@ -77,8 +77,8 @@ final case class FeatureSet(
 ) {
 
   def isEnabled(feature: Feature): Option[Boolean] =
-    if (enabled.contains(feature)) Some(true)
-    else if (disabled.contains(feature)) Some(false)
+    if enabled.contains(feature) then Some(true)
+    else if disabled.contains(feature) then Some(false)
     else None
 
   def enable(feature: Feature): FeatureSet =

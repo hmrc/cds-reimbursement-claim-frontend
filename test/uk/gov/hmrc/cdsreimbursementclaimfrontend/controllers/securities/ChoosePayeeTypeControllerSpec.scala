@@ -63,10 +63,8 @@ class ChoosePayeeTypeControllerSpec
   ): SecuritiesJourney = {
     val displayDeclaration =
       (
-        if (guarantee)
-          securitiesDisplayDeclarationGuaranteeEligibleGen
-        else
-          securitiesDisplayDeclarationNotGuaranteeEligibleGen
+        if guarantee then securitiesDisplayDeclarationGuaranteeEligibleGen
+        else securitiesDisplayDeclarationNotGuaranteeEligibleGen
       ).sample.get
         .withBankDetails(Some(BankDetails(None, None)))
         .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)

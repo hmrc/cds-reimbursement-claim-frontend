@@ -126,12 +126,10 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                         updatedJourney, {
                           updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                             case Some((nextDutyType, nextTaxCode)) =>
-                              if (journey.hasCompleteReimbursementClaims)
-                                Redirect(routesPack.showCheckClaimDetails)
-                              else if (currentDuty.repr === nextDutyType.repr)
+                              if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                              else if currentDuty.repr === nextDutyType.repr then
                                 Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
-                              else
-                                Redirect(routesPack.showSelectDuties(nextDutyType))
+                              else Redirect(routesPack.showSelectDuties(nextDutyType))
                             case None                              =>
                               updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
                                 case Some(nextDutyType) =>

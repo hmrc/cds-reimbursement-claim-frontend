@@ -25,12 +25,12 @@ import java.util.Locale
 object EmailGen {
 
   lazy val genEmail: Gen[Email] =
-    for {
+    for
       name   <- genStringWithMaxSizeOfN(max = 15).map(_.toLowerCase(Locale.UK))
       at      = "@"
       domain <- genStringWithMaxSizeOfN(max = 10).map(_.toLowerCase(Locale.UK))
       dotCom  = ".com"
-    } yield Email(Seq(name, at, domain, dotCom).mkString)
+    yield Email(Seq(name, at, domain, dotCom).mkString)
 
   implicit lazy val arbitraryEmail: Arbitrary[Email] =
     Arbitrary(genEmail)

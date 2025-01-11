@@ -32,9 +32,8 @@ object DateGen {
     val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay
     val currentYear = LocalDate.now.getYear
     val rangeEnd    = LocalDate.of(currentYear, 12, 31).toEpochDay
-    for {
-      date <- Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
-    } yield InspectionDate(date)
+    for date <- Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
+    yield InspectionDate(date)
   }
 
 }

@@ -97,7 +97,7 @@ class CheckClaimDetailsControllerSpec
         claimFullAmountElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Claiming full amount?"
         claimFullAmountElement
           .getElementsByClass("govuk-summary-list__value")
-          .text()                                                                   shouldBe (if (journey.isFullSecurityAmountClaimed(securityDepositId)) "Yes" else "No")
+          .text()                                                                   shouldBe (if journey.isFullSecurityAmountClaimed(securityDepositId) then "Yes" else "No")
         val changeLink = claimFullAmountElement.getElementById(s"change-claim-full-amount-$securityDepositId")
         changeLink.text()       shouldBe s"Change claim full amount for Security ID: $securityDepositId"
         changeLink.attr("href") shouldBe routes.ConfirmFullRepaymentController.show(securityDepositId).url

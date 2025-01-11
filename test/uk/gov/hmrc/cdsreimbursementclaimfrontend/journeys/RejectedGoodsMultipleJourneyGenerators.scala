@@ -73,7 +73,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
   def incompleteJourneyWithMrnsSubsidyOnlyGen(n: Int): Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] = {
     def submitData(journey: RejectedGoodsMultipleJourney)(data: ((MRN, DisplayDeclaration), Int)) = {
       val ((mrn, declaration), index) = data
-      if (index == 0)
+      if index == 0 then
         journey
           .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
           .flatMapWhenDefined(declaration.getConsigneeEori)(_.submitConsigneeEoriNumber _)
@@ -113,7 +113,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       journey.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
 
     val incompleteJourney =
-      if (subsidyOnly) incompleteJourneyWithMrnsSubsidyOnlyGen(n) else incompleteJourneyWithMrnsGen(n)
+      if subsidyOnly then incompleteJourneyWithMrnsSubsidyOnlyGen(n) else incompleteJourneyWithMrnsGen(n)
     incompleteJourney.flatMap { case (journey, _) =>
       val gen = mrnWithSelectedTaxCodesGen(journey)
       Gen
@@ -239,15 +239,15 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
     )
 
-  val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for {
+  val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for
     journey      <- completeJourneyGen
     basisOfClaim <- Gen.oneOf(BasisOfRejectedGoodsClaim.values - BasisOfRejectedGoodsClaim.SpecialCircumstances)
-  } yield journey.submitBasisOfClaim(basisOfClaim)
+  yield journey.submitBasisOfClaim(basisOfClaim)
 
-  val completeJourneyGenWithSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for {
+  val completeJourneyGenWithSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for
     journey                          <- completeJourneyGen
     basisOfClaimSpecialCircumstances <- genStringWithMaxSizeOfN(500)
-  } yield journey
+  yield journey
     .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
     .submitBasisOfClaimSpecialCircumstancesDetails(basisOfClaimSpecialCircumstances)
     .fold(error => throw new Exception(error), identity)
@@ -297,7 +297,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
 
   type TaxCodesAndAmounts = (Seq[TaxCode], Seq[TaxCode], List[BigDecimal], Seq[BigDecimal])
 
-  def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for {
+  def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for
     numberOfTaxCodes         <- Gen.choose(1, maxSize)
     numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
     taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
@@ -309,7 +309,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
             .take(numberOfSelectedTaxCodes)
             .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
         )
-  } yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
+  yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
 
   def buildJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -329,12 +329,12 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
     features: Option[RejectedGoodsMultipleJourney.Features] = None
   ): Gen[Either[String, RejectedGoodsMultipleJourney]] =
-    for {
+    for
       userEoriNumber      <- IdGen.genEori
       numberOfMRNs        <- Gen.choose(minNumberOfMRNs, Math.max(minNumberOfMRNs, maxNumberOfMRNs))
       mrns                <- Gen.listOfN(numberOfMRNs, IdGen.genMRN)
-      declarantEORI       <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
-      consigneeEORI       <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      declarantEORI       <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI       <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       taxCodesWithAmounts <- Gen.sequence(mrns.map(_ => taxCodesAndAmountsGen(maxSize))).map(_.asScala)
       basisOfClaim        <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
       methodOfDisposal    <- Gen.oneOf(MethodOfDisposal.values)
@@ -353,7 +353,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
-    } yield {
+    yield {
 
       val paidDuties: Seq[(MRN, Seq[(TaxCode, BigDecimal, Boolean)])] =
         mrns.zip(taxCodesWithAmounts).map { case (mrn, (taxCodes, _, paidAmounts, _)) =>
@@ -381,9 +381,9 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           buildDisplayDeclaration(
             mrn.value,
             declarantEORI,
-            if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
+            if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
             paidDutiesPerMrn,
-            if (submitConsigneeDetails) consigneeContact else None,
+            if submitConsigneeDetails then consigneeContact else None,
             declarantContact,
             generateSubsidyPayments = generateSubsidyPayments
           )
@@ -397,26 +397,24 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
         }.toSeq
 
       val eoriNumbersVerification: Option[EoriNumbersVerification] =
-        if (submitConsigneeDetails && !hasMatchingEori) {
-          if (submitDeclarantDetails)
-            Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
-          else
-            Some(EoriNumbersVerification(Some(consigneeEORI)))
+        if submitConsigneeDetails && !hasMatchingEori then {
+          if submitDeclarantDetails then Some(EoriNumbersVerification(Some(consigneeEORI), Some(declarantEORI)))
+          else Some(EoriNumbersVerification(Some(consigneeEORI)))
         } else None
 
       val answers =
         RejectedGoodsMultipleJourney.Answers(
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
-          payeeType = if (submitPayeeType) Some(payeeType) else None,
+          payeeType = if submitPayeeType then Some(payeeType) else None,
           movementReferenceNumbers = Some(mrns),
           displayDeclarations = Some(displayDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
-          contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
-          contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+          contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
+          contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           basisOfClaimSpecialCircumstances =
-            if (basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances) Some("special circumstances details")
+            if basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances then Some("special circumstances details")
             else None,
           methodOfDisposal = Some(methodOfDisposal),
           detailsOfRejectedGoods = Some("rejected goods details"),
@@ -425,8 +423,8 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
           inspectionAddress = Some(exampleInspectionAddress),
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
-          bankAccountDetails = if (submitBankAccountDetails) Some(exampleBankAccountDetails) else None,
-          bankAccountType = if (submitBankAccountType) Some(bankAccountType) else None,
+          bankAccountDetails = if submitBankAccountDetails then Some(exampleBankAccountDetails) else None,
+          bankAccountType = if submitBankAccountType then Some(bankAccountType) else None,
           modes = JourneyModes(checkYourAnswersChangeMode = true)
         )
 

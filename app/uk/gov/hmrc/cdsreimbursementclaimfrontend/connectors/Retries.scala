@@ -50,15 +50,14 @@ trait Retries {
       Mdc
         .withMdc(block, mdcData)
         .flatMap(result =>
-          if (remainingIntervals.nonEmpty && shouldRetry(Success(result))) {
+          if remainingIntervals.nonEmpty && shouldRetry(Success(result)) then {
             val delay = remainingIntervals.headOption.getOrElse(FiniteDuration.apply(1, "s"))
             Logger(getClass).warn(s"Will retry in $delay due to ${retryReason(result)}")
             after(delay, actorSystem.scheduler)(loop(remainingIntervals.drop(1))(mdcData)(block))
-          } else
-            Future.successful(result)
+          } else Future.successful(result)
         )
         .recoverWith { case e: Throwable =>
-          if (remainingIntervals.nonEmpty && shouldRetry(Failure(e))) {
+          if remainingIntervals.nonEmpty && shouldRetry(Failure(e)) then {
             val delay = remainingIntervals.headOption.getOrElse(FiniteDuration.apply(1, "s"))
             Logger(getClass).warn(s"Will retry in $delay due to ${e.getClass.getName()}: ${e.getMessage()}")
             after(delay, actorSystem.scheduler)(loop(remainingIntervals.drop(1))(mdcData)(block))

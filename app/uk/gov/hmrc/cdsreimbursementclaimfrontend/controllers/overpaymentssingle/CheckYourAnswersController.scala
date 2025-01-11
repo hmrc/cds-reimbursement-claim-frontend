@@ -91,8 +91,7 @@ class CheckYourAnswersController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if (journey.isFinalized)
-        (journey, Redirect(showConfirmationAction)).asFuture
+      if journey.isFinalized then (journey, Redirect(showConfirmationAction)).asFuture
       else
         journey
           .submitCheckYourAnswersChangeMode(true)

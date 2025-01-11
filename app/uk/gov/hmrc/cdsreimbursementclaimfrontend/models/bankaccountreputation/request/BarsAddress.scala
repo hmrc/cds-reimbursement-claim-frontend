@@ -31,16 +31,16 @@ object BarsAddress {
   val emptyAddress: BarsAddress = BarsAddress(lines = List(" "), None, None)
 
   def apply(lines: List[String], town: Option[String], postcode: Option[String]): BarsAddress = {
-    val validLines = if (lines.forall(_.isEmpty)) List(" ") else lines
+    val validLines = if lines.forall(_.isEmpty) then List(" ") else lines
 
     val addressLinesMaxLength = 140
     val (truncatedLines, _)   = validLines.foldLeft((List[String](), 0)) { case ((s, l), c) =>
-      ((if ((l + c.length) > addressLinesMaxLength) c.take(addressLinesMaxLength - l) else c) :: s, l + c.length)
+      ((if (l + c.length) > addressLinesMaxLength then c.take(addressLinesMaxLength - l) else c) :: s, l + c.length)
     }
 
     new BarsAddress(
       truncatedLines.filterNot(_.isEmpty).take(4),
-      town.flatMap(t => if (t.isEmpty) None else Some(t.take(35))),
+      town.flatMap(t => if t.isEmpty then None else Some(t.take(35))),
       postcode
     )
   }

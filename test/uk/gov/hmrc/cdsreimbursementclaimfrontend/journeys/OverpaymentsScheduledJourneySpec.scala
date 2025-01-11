@@ -860,7 +860,7 @@ class OverpaymentsScheduledJourneySpec
 
       journey.getAvailableClaimTypes shouldBe availableClaimTypes
 
-      for (document <- availableDocumentTypes) {
+      for document <- availableDocumentTypes do {
         val result = journey.submitDocumentTypeSelection(document)
 
         result.getSelectedDocumentType shouldBe Some(document)
@@ -1129,7 +1129,7 @@ class OverpaymentsScheduledJourneySpec
 
       var previousTaxCode: Option[TaxCode] = None
 
-      for ((dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1)) {
+      for (dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1) do {
         journey.findNextDutyToSelectDuties shouldBe Some(dutyType)
 
         previousDuty.foreach { pdt =>
@@ -1142,7 +1142,7 @@ class OverpaymentsScheduledJourneySpec
 
         previousTaxCode = None
 
-        for (taxCode <- taxCodes.sorted) {
+        for taxCode <- taxCodes.sorted do {
           val ndrcDetails = nextDetailsList.find(d => d.taxType === taxCode.value).get
           val amount      = BigDecimal(ndrcDetails.amount)
 

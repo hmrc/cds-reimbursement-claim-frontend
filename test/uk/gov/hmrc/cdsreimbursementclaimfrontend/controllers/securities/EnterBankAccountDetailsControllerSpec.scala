@@ -90,7 +90,7 @@ class EnterBankAccountDetailsControllerSpec
     val accountNumber =
       doc.select("input[name='enter-bank-account-details.account-number']").first().attr("value")
     title         should ===(
-      (if (error) "Error: "
+      (if error then "Error: "
        else "") + "Enter the UK-based bank account details - Claim back import duty and VAT - GOV.UK"
     )
     heading       should ===(List("Enter the UK-based bank account details"))

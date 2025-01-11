@@ -68,7 +68,7 @@ object WelshStringOps {
   implicit class WelshStringOps(private val string: String) {
 
     def isBeforeInWelsh(other: String): Boolean =
-      if (other === string) false
+      if other === string then false
       else {
         val listOfWeights        = toCharacterValues(clean(string), List.empty)
         val compareListOfWeights = toCharacterValues(clean(other), List.empty)
@@ -94,7 +94,7 @@ object WelshStringOps {
         case (h1 :: Nil, h2 :: Nil) => h1 < h2
         case (h1 :: Nil, h2 :: _)   => h1 <= h2
         case (h1 :: _, h2 :: Nil)   => h1 < h2
-        case (h1 :: t1, h2 :: t2)   => if (h1 === h2) isBefore(t1, t2) else h1 < h2
+        case (h1 :: t1, h2 :: t2)   => if h1 === h2 then isBefore(t1, t2) else h1 < h2
         case _                      => false
       }
 

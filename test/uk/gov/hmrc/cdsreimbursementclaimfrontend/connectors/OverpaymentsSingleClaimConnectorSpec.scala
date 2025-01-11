@@ -77,11 +77,11 @@ class OverpaymentsSingleClaimConnectorSpec
 
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-single"
 
-  val requestGen = for {
-    journey <- OverpaymentsSingleJourneyGenerators.completeJourneyGen
-  } yield OverpaymentsSingleClaimConnector.Request(
-    journey.toOutput.getOrElse(fail("Could not generate journey output!"))
-  )
+  val requestGen =
+    for journey <- OverpaymentsSingleJourneyGenerators.completeJourneyGen
+    yield OverpaymentsSingleClaimConnector.Request(
+      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+    )
 
   val sampleRequest: OverpaymentsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                       = """{"caseNumber":"ABC123"}"""

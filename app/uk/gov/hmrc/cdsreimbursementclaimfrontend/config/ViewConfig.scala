@@ -90,10 +90,8 @@ class ViewConfig @Inject() (
     errorPrefix: String,
     hasErrors: Boolean
   ): String =
-    if (hasErrors)
-      s"$errorPrefix ${pageTitleWithServiceName(pageTitle, serviceName)}"
-    else
-      pageTitleWithServiceName(pageTitle, serviceName)
+    if hasErrors then s"$errorPrefix ${pageTitleWithServiceName(pageTitle, serviceName)}"
+    else pageTitleWithServiceName(pageTitle, serviceName)
 
   def pageTitleWithServiceName(
     pageTitle: String,

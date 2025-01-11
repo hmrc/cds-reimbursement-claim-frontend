@@ -61,7 +61,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s",
     // scalacOptions += "-new-syntax",
-    // scalacOptions += "-rewrite",
     scalacOptions += "-Xmax-inlines:128"
   )
   .settings(Compile / doc / sources := Seq.empty)

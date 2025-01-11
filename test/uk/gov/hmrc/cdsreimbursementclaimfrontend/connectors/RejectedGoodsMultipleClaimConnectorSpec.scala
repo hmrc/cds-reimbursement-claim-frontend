@@ -77,11 +77,11 @@ class RejectedGoodsMultipleClaimConnectorSpec
 
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-multiple"
 
-  val requestGen = for {
-    journey <- RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
-  } yield RejectedGoodsMultipleClaimConnector.Request(
-    journey.toOutput.getOrElse(fail("Could not generate journey output!"))
-  )
+  val requestGen =
+    for journey <- RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
+    yield RejectedGoodsMultipleClaimConnector.Request(
+      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+    )
 
   val sampleRequest: RejectedGoodsMultipleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                          = """{"caseNumber":"ABC123"}"""

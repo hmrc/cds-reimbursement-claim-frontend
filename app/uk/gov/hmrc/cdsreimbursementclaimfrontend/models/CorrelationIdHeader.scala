@@ -77,11 +77,10 @@ object CorrelationIdHeader {
 
   implicit class HeaderOps(val headers: Headers) {
     def addIfMissing(newHeader: (String, String)): Headers =
-      if (
-        headers.keys
+      if headers.keys
           .map(_.toLowerCase(Locale.UK))
           .contains(newHeader._1)
-      ) headers
+      then headers
       else {
         headers.add(newHeader)
       }
