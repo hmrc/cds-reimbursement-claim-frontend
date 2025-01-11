@@ -22,11 +22,11 @@ object WelshTranslation {
   def messagesCy = linesToMap(fileCy)
 
   val csvSeparatorCharacter =
-    ';' //Using semicolon, because the text can contain commas, and then you have to use quotes ... just complicates things
+    ';' // Using semicolon, because the text can contain commas, and then you have to use quotes ... just complicates things
 
   /** Generates 2 new files:
-    *  - a new messages.cy file (from the english version + git history)
-    *  - a csv file to send to the translation team with all the missing translations
+    *   - a new messages.cy file (from the english version + git history)
+    *   - a csv file to send to the translation team with all the missing translations
     */
   def importAndExport(): Unit = {
     val newlinesToTranslate = ListBuffer[String]()
@@ -63,10 +63,10 @@ object WelshTranslation {
 
   def gitDiffLanguageFileChanges(): List[LineChange] = {
     val gitLog   = "git --no-pager log -30".!!
-    val commits  = """commit (\w+)""".r //Commit log lines: commit 043c494a3058d69e055be485bd30e485eb04cc9d
+    val commits  = """commit (\w+)""".r // Commit log lines: commit 043c494a3058d69e055be485bd30e485eb04cc9d
     val comitIds = commits.findAllMatchIn(gitLog).map(_.group(1)).toList
 
-    val changedLineRegex = "^[-+](?![-+])(.+)".r //exclude lines like these: --- a/conf/messages OR +++ b/conf/messages
+    val changedLineRegex = "^[-+](?![-+])(.+)".r // exclude lines like these: --- a/conf/messages OR +++ b/conf/messages
 
     comitIds.zipWithIndex
       .zip(comitIds.tail)
@@ -74,7 +74,7 @@ object WelshTranslation {
         val gitDiff = s"git diff $oldCommit $newCommit -U0 conf/messages"
         println(gitDiff)
         gitDiff.!!.split(System.lineSeparator()).toList
-          .map(changedLineRegex.findFirstIn(_)) //Keep only git changed lines
+          .map(changedLineRegex.findFirstIn(_)) // Keep only git changed lines
           .flatten(Option.option2Iterable)
           .map(parseGitMessagesFileLine(_, date))
           .flatten(Option.option2Iterable)
@@ -125,8 +125,8 @@ object WelshTranslation {
     ListMap(kvs: _*)
   }
 
-  //Prints language keys and translations that exists in english but are missing in welsh
-  def translationsMissingInWelsh() {
+  // Prints language keys and translations that exists in english but are missing in welsh
+  def translationsMissingInWelsh() = {
     val missingLinesFromWelsh = messagesEn.toList
       .map(englishKV => if (messagesCy.isDefinedAt(englishKV._1)) None else Some(englishKV))
       .flatten(Option.option2Iterable)
@@ -144,8 +144,8 @@ object WelshTranslation {
     }
   }
 
-  //Show orphaned welsh translations, for which the keys no longer exist in english
-  def orphanedWelsTranslations() {
+  // Show orphaned welsh translations, for which the keys no longer exist in english
+  def orphanedWelsTranslations() = {
     val orphanedWelshLines = messagesCy.toList
       .map(englishKV => if (messagesEn.isDefinedAt(englishKV._1)) None else Some(englishKV))
       .flatten(Option.option2Iterable)
@@ -163,8 +163,8 @@ object WelshTranslation {
     }
   }
 
-  //"Show untranslated welsh lines"
-  def englishLinesInWelsLanguageFiles() {
+  // "Show untranslated welsh lines"
+  def englishLinesInWelsLanguageFiles() = {
     val excludedKeys = List("footer.", "language-switcher.", "country.", "currency", "header.govuk.url", "lang")
 
     val untranslatedInWelsh = messagesCy.toList
