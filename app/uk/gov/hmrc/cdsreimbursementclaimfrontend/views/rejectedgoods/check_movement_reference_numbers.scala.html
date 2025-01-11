@@ -51,7 +51,7 @@
 
     @paragraph(Html(messages(s"check-movement-reference-numbers.rejected-goods.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @errorSummary(form.errors)
 

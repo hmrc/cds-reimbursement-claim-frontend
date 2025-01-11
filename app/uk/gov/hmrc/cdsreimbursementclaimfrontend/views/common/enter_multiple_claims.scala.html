@@ -82,7 +82,7 @@ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components
         @paragraph(Html(messages(s"enter-claim.help-text.excise",  messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), messages(s"tax-code.${taxCode}"))))
     }
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @paragraph(Html(
             if(!TaxCodes.custom.contains(taxCode))

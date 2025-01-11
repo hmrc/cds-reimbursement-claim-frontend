@@ -70,7 +70,7 @@
 
     @insetText(content = HtmlContent(messages(s"check-your-answers.inset-text")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton("button.accept-and-send")
     }
 }

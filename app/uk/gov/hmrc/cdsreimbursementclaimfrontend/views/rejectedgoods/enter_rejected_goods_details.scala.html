@@ -59,7 +59,7 @@
  )
 
 
- @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+ @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
   @textArea(
    form = form,

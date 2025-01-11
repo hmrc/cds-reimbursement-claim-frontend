@@ -39,7 +39,7 @@
     @paragraph(Html(messages("declaration-not-found.invalid-mrn", mrn.map(_.value).getOrElse(""))))
     @paragraph(Html(messages("declaration-not-found.provide-another-mrn-or-contact", viewConfig.contactCdsTeamUrl)))
 
-    @formWithCSRF(enterMRN, 'novalidate -> "novalidate") {
+    @formWithCSRF(enterMRN, Symbol("novalidate") -> "novalidate") {
         @submitButton(s"declaration-not-found.submit")
     }
 }

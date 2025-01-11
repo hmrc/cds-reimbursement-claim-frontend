@@ -120,7 +120,7 @@
     ))
 
     @if(correctedAmounts.nonEmpty) {
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
             @submitButton("button.continue")
         }
     }

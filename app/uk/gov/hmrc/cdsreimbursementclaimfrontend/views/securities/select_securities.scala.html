@@ -55,7 +55,7 @@
 
     @heading(Html(title), caption = caption)
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @subHeading(Html(messages(s"select-securities.securityId",securityDepositId)))
 

@@ -59,7 +59,7 @@
     @layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @heading(Html(title), caption)
         @checkboxes(

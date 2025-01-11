@@ -49,7 +49,7 @@
         ContactAndAddressSummary((contactDetails, contactAddress, contactChange, addressChange), key, None)
     )
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @button("button.continue")
     }
 }

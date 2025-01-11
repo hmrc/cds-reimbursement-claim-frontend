@@ -48,7 +48,7 @@
 
     @paragraph(Html(messages(s"enter-inspection-date.rejected-goods.help-text")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @dateInput(
             form = form,
             legendContent = s"enter-inspection-date.rejected-goods.label",

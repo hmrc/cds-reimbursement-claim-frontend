@@ -67,7 +67,7 @@
 
     @errorSummary(form.errors)
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

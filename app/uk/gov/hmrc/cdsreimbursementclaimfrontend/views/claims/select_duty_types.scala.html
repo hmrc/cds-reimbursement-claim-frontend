@@ -81,7 +81,7 @@
 
     @paragraph(Html(messages(s"select-duty-types.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         <div class="cds-combined-checkbox-groups">
 

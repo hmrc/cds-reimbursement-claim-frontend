@@ -51,7 +51,7 @@
 
     @heading(Html(title), caption = caption)
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @paragraph(Html(messages("enter-claim.securities.paid-amount-label", paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")
 

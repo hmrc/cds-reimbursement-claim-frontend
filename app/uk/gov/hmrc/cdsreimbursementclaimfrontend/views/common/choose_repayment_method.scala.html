@@ -51,7 +51,7 @@
 
     @heading(Html(title), classes="govuk-heading-xl cds-wrap-content")
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @dropdownDetails(
             summary = s"reimbursement-method.details.title",

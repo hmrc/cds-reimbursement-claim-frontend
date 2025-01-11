@@ -60,7 +60,7 @@
 
     @paragraph(Html(messages(s"select-method-of-disposal.rejected-goods.p1")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

@@ -53,7 +53,7 @@
         @paragraph(Html(messages(s"enter-bank-account-details.cma-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
     }
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @inputText(
             form = form,

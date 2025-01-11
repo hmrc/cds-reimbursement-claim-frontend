@@ -46,7 +46,7 @@
 
         @paragraph(Html(messages(s"enter-importer-eori-number.help")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @inputText(
                 form = form,

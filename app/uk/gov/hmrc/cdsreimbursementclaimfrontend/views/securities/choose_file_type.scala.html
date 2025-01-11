@@ -64,7 +64,7 @@
 
         @paragraph(Html(messages(s"choose-file-type.securities.help-text")), Some("govuk-body govuk-!-margin-bottom-6 govuk-inset-text"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @radios(
                 form = form,
