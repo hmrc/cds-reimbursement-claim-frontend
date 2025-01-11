@@ -72,7 +72,7 @@ class EnterSpecialCircumstancesController @Inject() (
             .fold(
               errors => {
                 logger.error(s"unable to match basis of claim - $errors")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
               },
               updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show)).asFuture
             )

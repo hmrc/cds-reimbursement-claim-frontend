@@ -70,7 +70,7 @@ class SelectDutiesController @Inject() (
       journey: SecuritiesJourney,
       error => {
         logger.warn(s"No Available duties: $error")
-        Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
+        Redirect(baseRoutes.IneligibleController.ineligible).asFuture
       },
       dutiesAvailable =>
         {
@@ -94,7 +94,7 @@ class SelectDutiesController @Inject() (
           journey: SecuritiesJourney,
           error => {
             logger.warn(s"No Available duties: $error")
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
           },
           dutiesAvailable => {
             val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
@@ -143,7 +143,7 @@ class SelectDutiesController @Inject() (
         .fold(
           error => {
             logger.warn(error)
-            (journey, Redirect(controllers.routes.IneligibleController.ineligible()))
+            (journey, Redirect(controllers.routes.IneligibleController.ineligible))
           },
           updatedJourney =>
             (

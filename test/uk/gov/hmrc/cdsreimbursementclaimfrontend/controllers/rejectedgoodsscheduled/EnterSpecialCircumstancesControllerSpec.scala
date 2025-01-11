@@ -160,7 +160,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           performAction(messagesKey -> details),
-          baseRoutes.IneligibleController.ineligible()
+          baseRoutes.IneligibleController.ineligible
         )
       }
 

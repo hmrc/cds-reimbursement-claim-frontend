@@ -301,7 +301,7 @@ class EnterImporterEoriNumberControllerSpec
 
           checkIsRedirect(
             performAction(controller.eoriNumberFormKey -> enteredConsigneeEori.value),
-            baseRoutes.IneligibleController.ineligible()
+            baseRoutes.IneligibleController.ineligible
           )
         }
       }

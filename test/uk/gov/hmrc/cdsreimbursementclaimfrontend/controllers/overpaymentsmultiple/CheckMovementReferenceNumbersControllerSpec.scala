@@ -380,7 +380,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(mrn),
-            baseRoutes.IneligibleController.ineligible()
+            baseRoutes.IneligibleController.ineligible
           )
       }
     }

@@ -71,7 +71,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Subtracting number from MRN index" should {
     "decrease its value" in {
       forAll { (mrnIndex: AssociatedMrnIndex) =>
-        mrnIndex - 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
+        (mrnIndex - 2) should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
       }
     }
   }

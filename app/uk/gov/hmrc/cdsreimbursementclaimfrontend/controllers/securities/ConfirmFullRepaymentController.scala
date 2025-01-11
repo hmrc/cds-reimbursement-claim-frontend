@@ -58,7 +58,7 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def showFirst(): Action[AnyContent]                                                                     = actionReadJourney { _ => journey =>
+  val showFirst: Action[AnyContent]                                                                       = actionReadJourney { _ => journey =>
     journey.getSelectedDepositIds.headOption
       .fold(
         Redirect(routes.CheckDeclarationDetailsController.show).asFuture
@@ -167,7 +167,7 @@ class ConfirmFullRepaymentController @Inject() (
            .fold(
              error => {
                logger.warn(error)
-               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+               (journey, Redirect(baseRoutes.IneligibleController.ineligible))
              },
              updatedJourney =>
                (

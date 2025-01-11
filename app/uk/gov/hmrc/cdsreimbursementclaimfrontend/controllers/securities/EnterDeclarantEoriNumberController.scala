@@ -67,7 +67,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+    Redirect(controllers.routes.IneligibleController.ineligible) // TODO: fix in CDSR-1773
 
   import SecuritiesJourney.Checks._
 
@@ -101,7 +101,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                 e => {
                   logger
                     .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
-                  journey -> Redirect(controllers.routes.IneligibleController.ineligible()) asFuture
+                  journey -> Redirect(controllers.routes.IneligibleController.ineligible) asFuture
                 },
                 updatedJourney =>
                   (for {

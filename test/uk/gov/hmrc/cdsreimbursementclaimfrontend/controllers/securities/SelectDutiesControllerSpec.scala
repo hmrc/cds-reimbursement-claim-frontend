@@ -181,7 +181,7 @@ class SelectDutiesControllerSpec
             }
             checkIsRedirect(
               performAction("anySecurityId", Seq.empty),
-              baseRoutes.IneligibleController.ineligible()
+              baseRoutes.IneligibleController.ineligible
             )
           } { securityId =>
             throw new Throwable(s"unexpectedly found securityId $securityId with duties available")

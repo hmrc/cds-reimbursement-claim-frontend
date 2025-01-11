@@ -67,7 +67,7 @@ class SelectSecuritiesController @Inject() (
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
-      .fold(Redirect(baseRoutes.IneligibleController.ineligible())) { declaration =>
+      .fold(Redirect(baseRoutes.IneligibleController.ineligible)) { declaration =>
         Ok(
           selectSecuritiesPage(
             form.withDefault(journey.getSecuritySelectionStatus(securityDepositId)),

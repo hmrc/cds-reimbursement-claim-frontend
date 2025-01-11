@@ -36,10 +36,10 @@ sealed trait UserXiEori {
 object UserXiEori {
 
   object NotRegistered extends UserXiEori
-  final case class Some private (value: String) extends UserXiEori
+  final case class Some private[UserXiEori] (value: String) extends UserXiEori
 
   def apply(value: String): UserXiEori =
-    Some(value)
+    UserXiEori.Some(value)
 
   def unapply(userXiEori: UserXiEori): Option[Eori] =
     userXiEori.toEoriOpt

@@ -53,7 +53,7 @@ class SelectDutiesController @Inject() (
 
     if (availableDuties.isEmpty) {
       logger.warn("No available duties")
-      Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
+      Redirect(baseRoutes.IneligibleController.ineligible).asFuture
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
       Ok(
@@ -75,7 +75,7 @@ class SelectDutiesController @Inject() (
         val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
         (if (availableDuties.isEmpty) {
            logger.warn("No available duties")
-           (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+           (journey, Redirect(baseRoutes.IneligibleController.ineligible))
          } else {
            val form = selectDutiesForm(availableDuties.map(_._1))
            form

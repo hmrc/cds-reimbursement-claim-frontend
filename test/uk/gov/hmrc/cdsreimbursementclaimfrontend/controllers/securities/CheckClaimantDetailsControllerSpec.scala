@@ -308,7 +308,7 @@ class CheckClaimantDetailsControllerSpec
 
       checkIsRedirect(
         retrieveAddress(Some(addressId)),
-        baseRoutes.IneligibleController.ineligible()
+        baseRoutes.IneligibleController.ineligible
       )
     }
 

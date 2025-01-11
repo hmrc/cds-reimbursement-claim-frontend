@@ -125,7 +125,7 @@ class CheckClaimDetailsController @Inject() (
               )
               .asFuture
           case None    =>
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
         }
       },
     fastForwardToCYAEnabled = false

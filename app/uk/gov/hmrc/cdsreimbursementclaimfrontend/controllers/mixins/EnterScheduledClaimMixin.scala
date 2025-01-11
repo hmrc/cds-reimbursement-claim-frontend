@@ -57,7 +57,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
     correctAmount: BigDecimal
   ): Either[String, Journey]
 
-  final def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
+  final val showFirst: Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
         (journey.getFirstDutyToClaim match {

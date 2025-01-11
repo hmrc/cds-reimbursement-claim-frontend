@@ -38,8 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
@@ -92,7 +90,6 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  @annotation.nowarn
   def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsMultipleJourney.Output) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -121,18 +118,20 @@ class CheckYourAnswersControllerSpec
     val mrnKeys: Seq[String] =
       (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber(i).capitalize} MRN")
 
-    summaryKeys should contain allOf (
-      "Contact details",
-      "Contact address",
-      (mrnKeys ++ Seq(
-        "Basis of claim",
-        "Disposal method",
-        "Additional claim details",
-        "Total",
-        "Inspection date",
-        "Inspection address type",
-        "Inspection address"
-      ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*
+    summaryKeys.should(
+      contain.allOf(
+        "Contact details",
+        "Contact address",
+        (mrnKeys ++ Seq(
+          "Basis of claim",
+          "Disposal method",
+          "Additional claim details",
+          "Total",
+          "Inspection date",
+          "Inspection address type",
+          "Inspection address"
+        ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded")))*
+      )
     )
 
     mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>

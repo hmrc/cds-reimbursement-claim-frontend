@@ -130,7 +130,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
               .fold(
                 error => {
                   logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
                 },
                 updatedJourney =>
                   (

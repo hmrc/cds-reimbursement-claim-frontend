@@ -114,7 +114,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          baseRoutes.IneligibleController.ineligible()
+          baseRoutes.IneligibleController.ineligible
         )
       }
     }

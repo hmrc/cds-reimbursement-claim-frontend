@@ -32,7 +32,7 @@ class IneligibleController @Inject() (
 )(implicit viewConfig: ViewConfig)
     extends FrontendBaseController {
 
-  def ineligible(): Action[AnyContent] =
+  val ineligible: Action[AnyContent] =
     Action(implicit request => Ok(ineligiblePage()))
 
 }

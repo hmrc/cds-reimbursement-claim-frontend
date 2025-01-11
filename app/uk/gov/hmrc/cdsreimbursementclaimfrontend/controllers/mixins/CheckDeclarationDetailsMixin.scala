@@ -51,7 +51,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful(
-      getDisplayDeclaration(journey).fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+      getDisplayDeclaration(journey).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
         Ok(
           viewTemplate(
             declaration,

@@ -87,7 +87,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                   .fold(
                     errors => {
                       logger.error(s"Unable to record $eori - $errors")
-                      (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                      (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                     },
                     updatedJourney => (updatedJourney, Redirect(continueAction))
                   )

@@ -69,7 +69,7 @@ trait AddressLookupMixin extends JourneyBaseController {
                       .contains("/address/lines: error.minLength")
                   )
                     Redirect(problemWithAddressPage)
-                  else Redirect(baseRoutes.IneligibleController.ineligible())
+                  else Redirect(baseRoutes.IneligibleController.ineligible)
                 )
               },
               contactAddress =>

@@ -61,7 +61,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
                 .fold(
                   e => {
                     logger.warn(e)
-                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                   },
                   updatedJourney => (updatedJourney, Redirect(enterBankAccountDetailsRoute))
                 )

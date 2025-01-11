@@ -40,7 +40,7 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
       .fold(
         e => {
           logger.warn(e)
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible))
         },
         (_, Redirect(nextPage(journey)))
       )

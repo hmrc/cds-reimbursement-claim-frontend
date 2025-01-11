@@ -137,7 +137,7 @@ class SelectSecuritiesControllerSpec
 
         checkIsRedirect(
           performAction("foo-123-xyz"),
-          baseRoutes.IneligibleController.ineligible()
+          baseRoutes.IneligibleController.ineligible
         )
       }
 

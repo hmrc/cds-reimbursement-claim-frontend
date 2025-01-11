@@ -77,14 +77,14 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
                   .map { address =>
                     redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Declarant).mapFrom(address)))
                   }
-                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
                   .asFuture
               case Importer  =>
                 journey.getConsigneeContactDetailsFromACC14
                   .map { address =>
                     redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Importer).mapFrom(address)))
                   }
-                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
+                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
                   .asFuture
             }
           ),

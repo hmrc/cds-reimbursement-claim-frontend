@@ -274,7 +274,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
             checkIsRedirect(
               performAction(controller.eoriNumberFormKey -> enteredDeclarantEori.value),
-              baseRoutes.IneligibleController.ineligible()
+              baseRoutes.IneligibleController.ineligible
             )
           }
       }
