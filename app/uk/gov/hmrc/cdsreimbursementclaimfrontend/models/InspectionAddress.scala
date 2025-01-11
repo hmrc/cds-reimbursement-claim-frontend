@@ -39,7 +39,7 @@ object InspectionAddress {
   def ofType(inspectionAddressType: InspectionAddressType): Builder =
     Builder(inspectionAddressType)
 
-  final case class Builder(inspectionAddressType: InspectionAddressType) extends AnyVal {
+  final case class Builder(inspectionAddressType: InspectionAddressType) {
 
     def mapFrom(contactAddress: ContactAddress): InspectionAddress =
       InspectionAddress(

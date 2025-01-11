@@ -657,7 +657,7 @@ class OverpaymentsScheduledJourneySpec
         val dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =
           journey.getSelectedDutyTypes.get.map(dutyType => dutyType -> journey.getSelectedDutiesFor(dutyType).get)
 
-        val result                                               = journey
+        val result = journey
           .flatMapEach(
             dutyTypesWithTaxCodes,
             j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
@@ -680,7 +680,7 @@ class OverpaymentsScheduledJourneySpec
         val expectedTotalReimbursementAmount                                      =
           taxCodesWithAmounts.map { case (_, _, paidAmount, correctAmount) => paidAmount - correctAmount }.sum
 
-        val journey                                                               = OverpaymentsScheduledJourney
+        val journey = OverpaymentsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
@@ -688,14 +688,14 @@ class OverpaymentsScheduledJourneySpec
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
                 j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
-              }: ((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney]
+              }: (((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney])
           )
           .flatMapEach(
             taxCodesWithAmounts,
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCode: TaxCode, paidAmount: BigDecimal, correctAmount: BigDecimal) =>
                 j.submitCorrectAmount(dutyType, taxCode, paidAmount, correctAmount)
-              }: ((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, OverpaymentsScheduledJourney]
+              }: (((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, OverpaymentsScheduledJourney])
           )
           .getOrFail
 
@@ -723,7 +723,7 @@ class OverpaymentsScheduledJourneySpec
         val expectedTotalReimbursementAmount                                      =
           taxCodesWithAmounts.map { case (_, _, paidAmount, correctAmount) => paidAmount - correctAmount }.sum
 
-        val journey                                                               = OverpaymentsScheduledJourney
+        val journey = OverpaymentsScheduledJourney
           .empty(exampleEori)
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
@@ -731,14 +731,14 @@ class OverpaymentsScheduledJourneySpec
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
                 j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
-              }: ((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney]
+              }: (((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney])
           )
           .flatMapEach(
             taxCodesWithAmounts,
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCode: TaxCode, paidAmount: BigDecimal, correctAmount: BigDecimal) =>
                 j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)
-              }: ((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, OverpaymentsScheduledJourney]
+              }: (((DutyType, TaxCode, BigDecimal, BigDecimal)) => Either[String, OverpaymentsScheduledJourney])
           )
           .getOrFail
 
@@ -1118,7 +1118,6 @@ class OverpaymentsScheduledJourneySpec
       val dutyTypes: List[DutyType] =
         taxCodesWithTypes.keys.toList
 
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var journey =
         OverpaymentsScheduledJourney
           .empty(exampleEori)
@@ -1126,10 +1125,8 @@ class OverpaymentsScheduledJourneySpec
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes))
           .getOrFail
 
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var previousDuty: Option[DutyType] = None
 
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var previousTaxCode: Option[TaxCode] = None
 
       for ((dutyType, taxCodes) <- taxCodesWithTypes.toSeq.sortBy(_._1)) {
@@ -1233,10 +1230,11 @@ class OverpaymentsScheduledJourneySpec
     }
     "tryBuildFrom should return upload type other" in {
       val specialJourneyGen: Gen[OverpaymentsScheduledJourney] = buildJourneyGenWithoutSupportingEvidence()
-      forAll(specialJourneyGen) { journey: OverpaymentsScheduledJourney =>
-        journey.answers.supportingEvidences.foreach(uploadedFile =>
-          uploadedFile.cargo.get shouldBe UploadDocumentType.Other
-        )
+      forAll(specialJourneyGen) {
+        journey: OverpaymentsScheduledJourney =>
+          journey.answers.supportingEvidences.foreach(uploadedFile =>
+            uploadedFile.cargo.get shouldBe UploadDocumentType.Other
+          )
       }
     }
     "receiveScheduledDocument fails when nonce is not matching the journey nonce" in {

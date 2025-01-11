@@ -45,11 +45,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 /** Base journey controller providing common action behaviours:
-  *  - feature switch check
-  *  - user authorization
-  *  - user data retrieval
-  *  - sesion data retrieval and journey update
-  *  - journey completeness check and redirect to the CYA page
+  *   - feature switch check
+  *   - user authorization
+  *   - user data retrieval
+  *   - sesion data retrieval and journey update
+  *   - journey completeness check and redirect to the CYA page
   */
 trait JourneyBaseController extends FrontendBaseController with Logging with SeqUtils {
 

@@ -133,7 +133,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
@@ -324,7 +324,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,

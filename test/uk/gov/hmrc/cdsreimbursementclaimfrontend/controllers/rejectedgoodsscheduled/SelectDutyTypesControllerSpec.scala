@@ -139,20 +139,21 @@ class SelectDutyTypesControllerSpec
         )
       }
 
-      "select valid duty types when none have been selected before" in forAll { dutyType: DutyType =>
-        val updatedJourney =
-          journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+      "select valid duty types when none have been selected before" in forAll {
+        dutyType: DutyType =>
+          val updatedJourney =
+            journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
-        }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
+          }
 
-        checkIsRedirect(
-          performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
-          routes.SelectDutiesController.show(dutyType)
-        )
+          checkIsRedirect(
+            performAction(Seq(s"$messagesKey[]" -> dutyType.repr)),
+            routes.SelectDutiesController.show(dutyType)
+          )
       }
 
     }

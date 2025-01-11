@@ -80,7 +80,6 @@ object DutyType {
 
   case object ClimateChangeLevy extends DutyType("climate-change-levy", List(NI99A, NI99B, NI99C, NI99D), 12)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   val simpleDutyTypeFormat: Format[DutyType] =
     SimpleStringFormat[DutyType](
       repr =>

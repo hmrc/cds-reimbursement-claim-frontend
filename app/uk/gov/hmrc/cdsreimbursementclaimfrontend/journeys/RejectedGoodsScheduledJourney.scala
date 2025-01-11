@@ -34,13 +34,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C&E1179 scheduled MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C&E1179 scheduled MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[RejectedGoodsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
@@ -78,8 +78,7 @@ final class RejectedGoodsScheduledJourney private (
   def removeUnsupportedTaxCodes(): RejectedGoodsScheduledJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -249,8 +248,8 @@ final class RejectedGoodsScheduledJourney private (
           SortedMap(
             dutyTypes
               .map(dutyType =>
-                (dutyType -> getReimbursementClaimsFor(dutyType)
-                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
+                dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
               ): _*
           )
         Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
@@ -295,7 +294,7 @@ final class RejectedGoodsScheduledJourney private (
     taxCode: TaxCode,
     paidAmount: BigDecimal,
     correctAmount: BigDecimal
-  ): Either[String, RejectedGoodsScheduledJourney]                  =
+  ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
       if (dutyType.taxCodes.contains(taxCode)) {
         if (isDutySelected(dutyType, taxCode)) {
@@ -378,7 +377,6 @@ final class RejectedGoodsScheduledJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
     requestNonce: Nonce,
     uploadedFile: UploadedFile
@@ -391,7 +389,6 @@ final class RejectedGoodsScheduledJourney private (
       } else Left("receiveScheduledDocument.invalidNonce")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(answers.copy(scheduledDocument = None))
@@ -402,7 +399,6 @@ final class RejectedGoodsScheduledJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -446,7 +442,6 @@ final class RejectedGoodsScheduledJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[RejectedGoodsScheduledJourney]) {
       val that = obj.asInstanceOf[RejectedGoodsScheduledJourney]
@@ -457,7 +452,7 @@ final class RejectedGoodsScheduledJourney private (
   override def toString(): String = s"RejectedGoodsScheduledJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], RejectedGoodsScheduledJourney.Output] =
     validate(this).left
       .map(_.messages)

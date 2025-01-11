@@ -21,7 +21,7 @@ import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori.validityRegex
 
-final case class Eori(value: String) extends AnyVal {
+final case class Eori(value: String) {
 
   def isValid: Boolean = value matches validityRegex
 

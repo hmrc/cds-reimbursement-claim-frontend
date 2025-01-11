@@ -154,7 +154,7 @@ class BankAccountReputationConnectorSpec
         Left(
           ConnectorFailure(
             s"""Request to POST http://localhost:7502/verify/business failed because of HttpResponse status=201 "${response
-              .replace("\"", "\\\"")}""""
+                .replace("\"", "\\\"")}""""
           )
         )
       )
@@ -168,7 +168,7 @@ class BankAccountReputationConnectorSpec
         Left(
           ConnectorFailure(
             s"""Request to POST http://localhost:7502/verify/personal failed because of HttpResponse status=201 "${response
-              .replace("\"", "\\\"")}""""
+                .replace("\"", "\\\"")}""""
           )
         )
       )

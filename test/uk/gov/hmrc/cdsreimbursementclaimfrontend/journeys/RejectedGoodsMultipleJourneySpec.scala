@@ -872,7 +872,7 @@ class RejectedGoodsMultipleJourneySpec
         mrns.foreach { mrn =>
           val taxCodes            = journey.getAvailableDuties(mrn).map(_._1)
           val paidAmounts         = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil)
-          val claimAmounts        = paidAmounts.map(a => (a / 4))
+          val claimAmounts        = paidAmounts.map(a => a / 4)
           val taxCodesWithAmounts = taxCodes.zip(claimAmounts)
           val modifiedJourney     = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)

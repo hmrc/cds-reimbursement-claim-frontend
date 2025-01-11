@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import org.scalacheck.Arbitrary
+import GeneratorUtils.gen
 
 object YesNoGen {
 
-  implicit lazy val arbitraryYesNo: Typeclass[YesNo] = gen[YesNo]
+  implicit lazy val arbitraryYesNo: Arbitrary[YesNo] = GeneratorUtils.gen[YesNo]
 }

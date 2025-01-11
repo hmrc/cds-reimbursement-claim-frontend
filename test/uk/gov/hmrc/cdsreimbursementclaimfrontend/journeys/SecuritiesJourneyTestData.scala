@@ -109,7 +109,7 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
         (j: SecuritiesJourney) =>
           { case (mrn: MRN, index: Int) =>
             j.submitExportMovementReferenceNumber(index, mrn)
-          }: ((MRN, Int)) => Either[String, SecuritiesJourney]
+          }: (((MRN, Int)) => Either[String, SecuritiesJourney])
       )
       .getOrFail
   }

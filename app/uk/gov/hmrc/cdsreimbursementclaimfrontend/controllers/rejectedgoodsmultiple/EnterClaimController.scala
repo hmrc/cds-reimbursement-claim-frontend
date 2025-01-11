@@ -110,53 +110,53 @@ class EnterClaimController @Inject() (
 
   final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        journey
-          .getNthMovementReferenceNumber(pageIndex - 1)
-          .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            journey.getAmountPaidForIfSelected(mrn, taxCode) match {
-              case None =>
-                // case when tax code not selectable nor selected
-                (journey, Redirect(selectDutiesAction(pageIndex)))
+      implicit request =>
+        journey =>
+          journey
+            .getNthMovementReferenceNumber(pageIndex - 1)
+            .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+              journey.getAmountPaidForIfSelected(mrn, taxCode) match {
+                case None =>
+                  // case when tax code not selectable nor selected
+                  (journey, Redirect(selectDutiesAction(pageIndex)))
 
-              case Some(amountPaid) =>
-                val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
-                Forms
-                  .claimAmountForm(key, amountPaid)
-                  .bindFromRequest()
-                  .fold(
-                    formWithErrors =>
-                      (
-                        journey,
-                        BadRequest(
-                          enterMultipleClaims(
-                            formWithErrors,
-                            pageIndex,
-                            mrn,
-                            taxCode,
-                            amountPaid,
-                            isSubsidyOnly,
-                            submitClaimAction(pageIndex, taxCode)
+                case Some(amountPaid) =>
+                  val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
+                  Forms
+                    .claimAmountForm(key, amountPaid)
+                    .bindFromRequest()
+                    .fold(
+                      formWithErrors =>
+                        (
+                          journey,
+                          BadRequest(
+                            enterMultipleClaims(
+                              formWithErrors,
+                              pageIndex,
+                              mrn,
+                              taxCode,
+                              amountPaid,
+                              isSubsidyOnly,
+                              submitClaimAction(pageIndex, taxCode)
+                            )
                           )
-                        )
-                      ),
-                    amount =>
-                      journey
-                        .submitClaimAmount(mrn, taxCode, amount)
-                        .fold(
-                          error => {
-                            logger.error(s"Error submitting reimbursement claim amount - $error")
-                            (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
-                          },
-                          modifiedJourney =>
-                            (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
-                        )
-                  )
+                        ),
+                      amount =>
+                        journey
+                          .submitClaimAmount(mrn, taxCode, amount)
+                          .fold(
+                            error => {
+                              logger.error(s"Error submitting reimbursement claim amount - $error")
+                              (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
+                            },
+                            modifiedJourney =>
+                              (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
+                          )
+                    )
 
+              }
             }
-          }
-          .asFuture
-      },
+            .asFuture,
       fastForwardToCYAEnabled = false
     )
 

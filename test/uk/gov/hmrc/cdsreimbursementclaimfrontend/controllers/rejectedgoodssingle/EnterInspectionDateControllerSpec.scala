@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import org.scalacheck.magnolia.gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -45,6 +44,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.arbitraryConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryEstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.arbitraryDeclarantDetails
 
 import scala.concurrent.Future
 

@@ -834,10 +834,10 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
         val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
           SortedMap(
-            (reclaimsBySecurityDepositId
+            reclaimsBySecurityDepositId
               .map { case (sid, reclaims) =>
-                (sid, SortedMap((reclaims.map { case (tc, a) => (tc, Some(a)) }): _*))
-              }): _*
+                (sid, SortedMap(reclaims.map { case (tc, a) => (tc, Some(a)) }: _*))
+              }: _*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true

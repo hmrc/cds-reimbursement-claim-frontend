@@ -22,8 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 import java.time.ZonedDateTime
 
-/** DTO between upload-documents-frontend and this microservice.
-  * Do NOT rename fields!
+/** DTO between upload-documents-frontend and this microservice. Do NOT rename fields!
   */
 final case class UploadedFile(
   upscanReference: String,

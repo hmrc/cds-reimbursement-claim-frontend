@@ -132,7 +132,7 @@ class ChooseClaimTypeControllerSpec
   val chooseClaimTypePage: choose_claim_type                                     = instanceOf[choose_claim_type]
 
   class LoggerStub extends Logger(logger = null) {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
+
     private var loggedErrorMessages: Vector[String] = Vector.empty
 
     def resetMessages(): Unit = loggedErrorMessages = Vector.empty

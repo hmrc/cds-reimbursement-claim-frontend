@@ -69,7 +69,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
-      val form = {
+      val form =
         journey.answers.exportMovementReferenceNumbers.flatMap(
           _.headOption
         ) match {
@@ -81,7 +81,6 @@ class EnterExportMovementReferenceNumberController @Inject() (
           case None            =>
             firstExportMovementReferenceNumberForm
         }
-      }
 
       journey.getMethodOfDisposal match {
         case Some(mods) =>

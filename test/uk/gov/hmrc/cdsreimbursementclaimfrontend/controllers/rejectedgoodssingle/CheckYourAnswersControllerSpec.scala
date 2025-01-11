@@ -135,7 +135,7 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries.toSeq should containOnlyDefinedPairsOf(
@@ -187,7 +187,7 @@ class CheckYourAnswersControllerSpec
           "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.value)
         )
-        ++ claim.reimbursements.map(r => (messages(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)))
+        ++ claim.reimbursements.map(r => messages(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString))
     )
   }
 

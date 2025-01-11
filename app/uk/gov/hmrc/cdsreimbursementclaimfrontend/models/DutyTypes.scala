@@ -55,7 +55,7 @@ object DutyTypes {
   private val dutyTypesStringMap: Map[String, DutyType] =
     all.map(dutyType => dutyType.repr -> dutyType).toMap
 
-  def has(representation: String): Boolean              =
+  def has(representation: String): Boolean =
     all.exists(_.repr === representation)
 
   def find(representation: String): Option[DutyType] =

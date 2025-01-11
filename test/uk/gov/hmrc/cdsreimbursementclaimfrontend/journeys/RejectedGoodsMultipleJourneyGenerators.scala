@@ -252,7 +252,6 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
     .submitBasisOfClaimSpecialCircumstancesDetails(basisOfClaimSpecialCircumstances)
     .fold(error => throw new Exception(error), identity)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,

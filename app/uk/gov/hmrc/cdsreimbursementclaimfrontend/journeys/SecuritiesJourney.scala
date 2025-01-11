@@ -40,13 +40,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated Securities journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated Securities journey logic. The constructor of this class MUST stay PRIVATE to protected integrity of
+  * the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[SecuritiesJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[SecuritiesJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[SecuritiesJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[SecuritiesJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
@@ -280,7 +280,6 @@ final class SecuritiesJourney private (
   def needsMethodOfDisposalSubmission: Boolean =
     getReasonForSecurity.exists(ReasonForSecurity.ntas)
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   def needsExportMRNSubmission: Boolean =
     (needsMethodOfDisposalSubmission, answers.temporaryAdmissionMethodsOfDisposal) match {
       case (true, Some(methods)) =>
@@ -353,8 +352,7 @@ final class SecuritiesJourney private (
   def getIndexOfExportMovementReferenceNumber(mrn: MRN): Option[Int] =
     answers.exportMovementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
 
-  /** Resets the journey with the new MRN
-    * or keep an existing journey if submitted the same MRN.
+  /** Resets the journey with the new MRN or keep an existing journey if submitted the same MRN.
     */
   def submitMovementReferenceNumber(
     mrn: MRN
@@ -844,7 +842,6 @@ final class SecuritiesJourney private (
         Left("submitDocumentTypeSelection.invalid")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -932,7 +929,6 @@ final class SecuritiesJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     obj match {
       case that: SecuritiesJourney =>
@@ -944,7 +940,7 @@ final class SecuritiesJourney private (
   override def toString: String = s"SecuritiesJourney($answers, $caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
+
   def toOutput: Either[Seq[String], SecuritiesJourney.Output] =
     validate(this).left
       .map(_.messages)
@@ -1187,9 +1183,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
           journey
             .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, reclaims.keySet.toSeq)
             .flatMapEachWhenMappingDefined(reclaims)((journey: SecuritiesJourney) =>
-              (taxCode: TaxCode, amount: BigDecimal) => {
-                journey.submitCorrectAmount(depositId, taxCode, amount)
-              }
+              (taxCode: TaxCode, amount: BigDecimal) => journey.submitCorrectAmount(depositId, taxCode, amount)
             )
       })
       .map(_.submitClaimFullAmountMode(answers.modes.claimFullAmountMode))

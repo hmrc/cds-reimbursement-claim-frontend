@@ -54,29 +54,29 @@ trait AddressLookupMixin extends JourneyBaseController {
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        maybeID
-          .map(addressLookupService.retrieveUserAddress)
-          .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
-          .fold(
-            error => {
-              logger warn s"Error retrieving lookup address: $error"
-              (
-                journey,
-                if (
-                  error.message.contains("/address/postcode: error.path.missing") || error.message
-                    .contains("/address/lines: error.minLength")
+      implicit request =>
+        journey =>
+          maybeID
+            .map(addressLookupService.retrieveUserAddress)
+            .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
+            .fold(
+              error => {
+                logger warn s"Error retrieving lookup address: $error"
+                (
+                  journey,
+                  if (
+                    error.message.contains("/address/postcode: error.path.missing") || error.message
+                      .contains("/address/lines: error.minLength")
+                  )
+                    Redirect(problemWithAddressPage)
+                  else Redirect(baseRoutes.IneligibleController.ineligible())
                 )
-                  Redirect(problemWithAddressPage)
-                else Redirect(baseRoutes.IneligibleController.ineligible())
-              )
-            },
-            contactAddress =>
-              redirectToTheNextPage(
-                modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
-              )
-          )
-      },
+              },
+              contactAddress =>
+                redirectToTheNextPage(
+                  modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
+                )
+            ),
       fastForwardToCYAEnabled = false
     )
 

@@ -69,24 +69,24 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => implicit journey =>
-      enterBankDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterBankAccountDetailsPage(
-                  formWithErrors,
-                  isCMA(journey),
-                  routesPack.submitPath
+    implicit request =>
+      implicit journey =>
+        enterBankDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  enterBankAccountDetailsPage(
+                    formWithErrors,
+                    isCMA(journey),
+                    routesPack.submitPath
+                  )
                 )
-              )
-            ).asFuture,
-          validateBankAccountDetails(journey, _, None)
-        )
-    },
+              ).asFuture,
+            validateBankAccountDetails(journey, _, None)
+          ),
     fastForwardToCYAEnabled = false
   )
 
@@ -103,7 +103,6 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
       )
 
-  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   private def processBankAccountReputation(
     journey: Journey,
     bankAccountReputation: BankAccountReputation,

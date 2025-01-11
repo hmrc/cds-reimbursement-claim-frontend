@@ -60,7 +60,6 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
     ec: ExecutionContext
   ): Unit = sendClaimEvent(false, journey, output, summary)
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   @nowarn // audit event are sent in the fire-and-forget manner
   private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, journey: J, output: O, summary: JsObject)(
     implicit

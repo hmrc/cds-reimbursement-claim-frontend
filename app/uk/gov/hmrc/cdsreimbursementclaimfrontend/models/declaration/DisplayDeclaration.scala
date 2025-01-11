@@ -267,7 +267,7 @@ object DisplayDeclaration {
 
   // TODO: not good code, most of this needed to be mapped when parsing from JSON
   // Same as devs must know about some workaround extension class import which not always the case
-  implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) extends AnyVal {
+  implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) {
 
     def totalVatPaidCharges: Option[BigDecimal] =
       displayDeclaration.displayResponseDetail.ndrcDetails

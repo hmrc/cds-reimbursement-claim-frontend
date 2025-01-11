@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalacheck.Arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 
-class StringUtilsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
+class GeneratorUtilsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
 
-  "StringUtils" should {
-    "wrap a string as Some if non empty" in {
-      forAll(Gen.nonEmptyListOf(Gen.alphaChar).map(String.valueOf)) {
-        string: String =>
-          whenever(string.trim().nonEmpty) {
-            string.asSomeIfNonEmpty shouldBe Some(string)
-          }
+  case class TestCase1(foo: TestCase2, bar: Int, zoo: String, opt: Option[Int] = Some(0))
+  case class TestCase2(faz: String, zaz: Int, opt2: Option[TestCase3] = None) {
+    def withFaz(faz2: String) = this.copy(faz = faz2)
+    def withZaz(zaz2: Int)    = this.copy(zaz = zaz2)
+  }
+  case class TestCase3(tas: Boolean)
+
+  implicit val testCaseArb: Arbitrary[TestCase1] = GeneratorUtils.gen[TestCase1]
+
+  " GeneratorUtils" should {
+    "derive generator from the case class" in {
+      forAll(testCaseArb.arbitrary) { testCase =>
+        testCase
       }
     }
-
-    "wrap a string as None if empty" in {
-      "".asSomeIfNonEmpty    shouldBe None
-      " ".asSomeIfNonEmpty   shouldBe None
-      "  ".asSomeIfNonEmpty  shouldBe None
-      "   ".asSomeIfNonEmpty shouldBe None
-    }
   }
-
 }

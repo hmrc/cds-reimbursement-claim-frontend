@@ -129,7 +129,7 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries.toSeq should containOnlyDefinedPairsOf(

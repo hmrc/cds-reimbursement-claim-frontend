@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.Functor
 import cats.Id
-import org.scalacheck.magnolia._
+
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -30,18 +30,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genE
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaCharGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.genUkPhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.*
 
 object Acc14Gen {
 
   lazy val genNdrcDetails: Gen[NdrcDetails] = for {
     taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
     amount           <- Gen.choose(0L, 10000L).map(_.toString)
-    paymentMethod    <- Gen.oneOf("001", "002", "003") //001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
+    paymentMethod    <- Gen.oneOf("001", "002", "003") // 001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
     paymentReference <- genStringWithMaxSizeOfN(18)
-    cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) //0 = CMA Not Eligible, 1 = CMA Eligible
+    cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) // 0 = CMA Not Eligible, 1 = CMA Eligible
   } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
 
-  implicit lazy val arbitraryNdrcDetails: Typeclass[NdrcDetails] =
+  implicit lazy val arbitraryNdrcDetails: Arbitrary[NdrcDetails] =
     Arbitrary(genNdrcDetails)
 
   def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
@@ -72,7 +75,7 @@ object Acc14Gen {
       Some(emailAddress)
     )
 
-  implicit lazy val arbitraryContactDetails: Typeclass[ContactDetails] =
+  implicit lazy val arbitraryContactDetails: Arbitrary[ContactDetails] =
     Arbitrary(genContactDetails)
 
   lazy val genEstablishmentAddress: Gen[EstablishmentAddress] =
@@ -91,7 +94,7 @@ object Acc14Gen {
       countryCode.code
     )
 
-  implicit lazy val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] =
+  implicit lazy val arbitraryEstablishmentAddress: Arbitrary[EstablishmentAddress] =
     Arbitrary(genEstablishmentAddress)
 
   lazy val genAcc14WithAddresses: DisplayDeclaration = {

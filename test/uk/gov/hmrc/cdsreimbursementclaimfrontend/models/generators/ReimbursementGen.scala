@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
@@ -29,6 +28,6 @@ object ReimbursementGen {
     paidAmount        = random + shouldPaidAmount
   } yield AmountPaidWithCorrect(paidAmount, shouldPaidAmount)
 
-  implicit lazy val arbitraryReimbursementClaim: Typeclass[AmountPaidWithCorrect] =
+  implicit lazy val arbitraryReimbursementClaim: Arbitrary[AmountPaidWithCorrect] =
     Arbitrary(genReimbursement)
 }

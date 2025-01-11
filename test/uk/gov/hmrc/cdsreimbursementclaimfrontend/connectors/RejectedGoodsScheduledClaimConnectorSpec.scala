@@ -72,7 +72,7 @@ class RejectedGoodsScheduledClaimConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new RejectedGoodsScheduledClaimConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new RejectedGoodsScheduledClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

@@ -30,7 +30,7 @@ final case class MrnContactDetails(
   nameHasChanged: Boolean = false,
   phoneNumberHasChanged: Boolean = false
 ) {
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+
   def computeChanges(previous: Option[MrnContactDetails]): MrnContactDetails =
     previous.fold(this)(that =>
       this.copy(

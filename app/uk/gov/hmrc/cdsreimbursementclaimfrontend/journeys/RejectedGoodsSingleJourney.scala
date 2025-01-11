@@ -34,13 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-/** An encapsulated C&E1179 single MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C&E1179 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsSingleJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsSingleJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
@@ -81,8 +81,7 @@ final class RejectedGoodsSingleJourney private (
   def removeUnsupportedTaxCodes(): RejectedGoodsSingleJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -262,7 +261,6 @@ final class RejectedGoodsSingleJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: ReimbursementClaim
@@ -290,7 +288,6 @@ final class RejectedGoodsSingleJourney private (
       }
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitClaimAmount(
     taxCode: TaxCode,
     claimAmount: BigDecimal
@@ -420,7 +417,6 @@ final class RejectedGoodsSingleJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -464,7 +460,6 @@ final class RejectedGoodsSingleJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[RejectedGoodsSingleJourney]) {
       val that = obj.asInstanceOf[RejectedGoodsSingleJourney]
@@ -476,7 +471,7 @@ final class RejectedGoodsSingleJourney private (
     s"RejectedGoodsSingleJourney($answers, caseNumber=$caseNumber, features=$features)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], RejectedGoodsSingleJourney.Output] =
     validate(this).left
       .map(_.messages)

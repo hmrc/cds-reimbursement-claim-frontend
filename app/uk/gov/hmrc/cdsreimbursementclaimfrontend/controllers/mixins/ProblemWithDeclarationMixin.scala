@@ -34,7 +34,6 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
   val enterAnotherMrnAction: Call
   val checkDeclarationDetailsAction: Call
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm

@@ -75,7 +75,7 @@ class DefaultEoriDetailsConnector @Inject() (
 
   override def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](url)
+      http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[EoriDetailsConnector.Response])
@@ -94,7 +94,7 @@ class DefaultEoriDetailsConnector @Inject() (
 
   override def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](s"$url/${eori.value}")
+      http.GET[HttpResponse](java.net.URL(s"$url/${eori.value}"))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[EoriDetailsConnector.Response])

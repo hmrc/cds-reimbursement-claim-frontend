@@ -47,14 +47,14 @@ object Forms {
     mapping(
       key -> nonEmptyText(maxLength = 18)
         .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
-    )(Eori.apply)(Eori.unapply)
+    )(Eori.apply)(v => Some(v.value))
   )
 
   def newDanForm(key: String): Form[Dan] = Form(
     mapping(
       key -> nonEmptyText(maxLength = 7)
         .verifying("invalid.number", str => str.length > 7 || str.isEmpty || Dan(str).isValid)
-    )(Dan.apply)(Dan.unapply)
+    )(Dan.apply)(v => Some(v.value))
   )
 
   val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(
@@ -172,9 +172,7 @@ object Forms {
       "enter-additional-details" -> nonEmptyText()
         .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
         .verifying(maxLength(500))
-    )(AdditionalDetailsAnswer.apply)(
-      AdditionalDetailsAnswer.unapply
-    )
+    )(AdditionalDetailsAnswer.apply)(v => Some(v.value))
   )
 
   val enterAdditionalDetailsForm: Form[String] = Form(
@@ -205,7 +203,6 @@ object Forms {
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
-  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
       "select-duties" -> list(
@@ -219,7 +216,7 @@ object Forms {
               (x: String) => TaxCodes.findUnsafe(x),
               (t: TaxCode) => t.value
             )
-        )(Duty.apply)(Duty.unapply)
+        )(Duty.apply)(v => Some(v.taxCode))
       ).verifying("error.required", _.nonEmpty)
     )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
   )
@@ -375,7 +372,7 @@ object Forms {
       mapping(
         "enter-duplicate-movement-reference-number" ->
           nonEmptyText
-            .verifying(Constraint[String] { str: String =>
+            .verifying(Constraint[String] { (str: String) =>
               if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
               else if (str.nonEmpty && !MRN(str).isValid) Invalid("invalid.number")
               else Valid
@@ -403,7 +400,7 @@ object Forms {
     Form(
       mapping(
         "enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
-      )(ClaimAmount.apply)(ClaimAmount.unapply)
+      )(ClaimAmount.apply)(v => Some(v.amount))
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
 

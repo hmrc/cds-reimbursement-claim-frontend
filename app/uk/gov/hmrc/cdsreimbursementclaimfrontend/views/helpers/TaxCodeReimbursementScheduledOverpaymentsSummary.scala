@@ -49,25 +49,26 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
     val claimsMadeAgainstTaxCodes: SortedMap[TaxCode, AmountPaidWithCorrect] = answer._2
 
     SummaryList(
-      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
-        val taxCode       = taxCodeWithClaim._1
-        val reimbursement = taxCodeWithClaim._2
+      claimsMadeAgainstTaxCodes.map {
+        taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
+          val taxCode       = taxCodeWithClaim._1
+          val reimbursement = taxCodeWithClaim._2
 
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
-          value = Value(Text(reimbursement.claimAmount.toPoundSterlingString)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterClaimController.show(duty, taxCode).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))),
+            value = Value(Text(reimbursement.claimAmount.toPoundSterlingString)),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.EnterClaimController.show(duty, taxCode).url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.$taxCode")))
+                  )
                 )
               )
             )
           )
-        )
       }.toSeq ++ (
         if (claimsMadeAgainstTaxCodes.size > 1) {
           Seq(
@@ -81,8 +82,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
     )
   }
 
-  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect])
-      extends AnyVal {
+  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect]) {
 
     /** Calculates claimed amount total against given tax code */
     def subtotal: BigDecimal =

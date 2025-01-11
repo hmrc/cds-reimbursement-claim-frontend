@@ -71,7 +71,7 @@ class OverpaymentsMultipleClaimConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new OverpaymentsMultipleClaimConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new OverpaymentsMultipleClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

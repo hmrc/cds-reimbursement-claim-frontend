@@ -86,44 +86,43 @@ class SelectDutiesController @Inject() (
     )
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   final def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      processAvailableDuties[(SecuritiesJourney, Result)](
-        securityId: String,
-        journey: SecuritiesJourney,
-        error => {
-          logger.warn(s"No Available duties: $error")
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-        },
-        dutiesAvailable => {
-          val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
-          val boundForm = form.bindFromRequest()
-          boundForm
-            .fold(
-              errors => {
-                logger.warn(
-                  s"Selection of duties to be repaid failed for $securityId because of errors:" +
-                    s"${errors.errors.mkString("", ",", "")}"
-                )
-                (
-                  journey,
-                  Ok(
-                    selectDutiesPage(
-                      boundForm,
-                      securityId,
-                      dutiesAvailable,
-                      routes.SelectDutiesController.submit(securityId)
+    implicit request =>
+      journey =>
+        processAvailableDuties[(SecuritiesJourney, Result)](
+          securityId: String,
+          journey: SecuritiesJourney,
+          error => {
+            logger.warn(s"No Available duties: $error")
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+          },
+          dutiesAvailable => {
+            val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
+            val boundForm = form.bindFromRequest()
+            boundForm
+              .fold(
+                errors => {
+                  logger.warn(
+                    s"Selection of duties to be repaid failed for $securityId because of errors:" +
+                      s"${errors.errors.mkString("", ",", "")}"
+                  )
+                  (
+                    journey,
+                    Ok(
+                      selectDutiesPage(
+                        boundForm,
+                        securityId,
+                        dutiesAvailable,
+                        routes.SelectDutiesController.submit(securityId)
+                      )
                     )
                   )
-                )
-              },
-              dutiesSelected => updateAndRedirect(journey, securityId, dutiesSelected)
-            )
-            .asFuture
-        }
-      )
-    },
+                },
+                dutiesSelected => updateAndRedirect(journey, securityId, dutiesSelected)
+              )
+              .asFuture
+          }
+        ),
     fastForwardToCYAEnabled = false
   )
 

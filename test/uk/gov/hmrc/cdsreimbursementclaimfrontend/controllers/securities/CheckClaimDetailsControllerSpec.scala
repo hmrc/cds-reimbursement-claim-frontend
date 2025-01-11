@@ -86,7 +86,7 @@ class CheckClaimDetailsControllerSpec
 
     val claims = journey.getReclaimWithAmounts
 
-    //verify claiming full amounts
+    // verify claiming full amounts
     claims.map { case (securityDepositId, reclaimsList) =>
       doc
         .getElementById(s"security-deposit-id-h2-$securityDepositId")

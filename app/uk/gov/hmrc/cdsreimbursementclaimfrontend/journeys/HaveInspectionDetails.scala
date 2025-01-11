@@ -29,7 +29,7 @@ trait HaveInspectionDetails {
 
   final def getPotentialInspectionAddresses: Seq[(InspectionAddressType, String)] =
     Seq(
-      getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer  -> _),
+      getConsigneeContactDetailsFromACC14.flatMap(_.showAddress).map(Importer -> _),
       getDeclarantContactDetailsFromACC14.flatMap(_.showAddress).map(Declarant -> _)
     ).flatten(Option.option2Iterable)
 

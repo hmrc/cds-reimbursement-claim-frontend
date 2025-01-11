@@ -23,7 +23,7 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
-final case class AdditionalDetailsAnswer(value: String) extends AnyVal
+final case class AdditionalDetailsAnswer(value: String)
 
 object AdditionalDetailsAnswer {
 

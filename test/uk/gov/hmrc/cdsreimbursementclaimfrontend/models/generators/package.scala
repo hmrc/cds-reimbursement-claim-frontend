@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 
@@ -57,11 +56,11 @@ package object generators {
   lazy val arbitraryBigDecimal: Arbitrary[BigDecimal] =
     BigDecimalGen.amountNumberArbitrary
 
-  lazy val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
+  lazy val arbitraryBoolean: Arbitrary[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
 
-  implicit lazy val arbitraryString: Typeclass[String] = Arbitrary(
+  implicit lazy val arbitraryString: Arbitrary[String] = Arbitrary(
     Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
   )
 

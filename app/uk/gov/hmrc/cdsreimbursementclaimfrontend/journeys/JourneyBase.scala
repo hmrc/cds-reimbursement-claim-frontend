@@ -28,7 +28,8 @@ trait Journey {
 }
 
 /** The common base of the claim models
-  * @tparam Journey the type of the claim
+  * @tparam Journey
+  *   the type of the claim
   */
 trait JourneyBase extends Journey {
   this: CommonJourneyProperties =>

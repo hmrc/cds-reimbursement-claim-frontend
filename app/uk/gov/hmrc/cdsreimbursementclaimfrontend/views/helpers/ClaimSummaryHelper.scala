@@ -32,12 +32,11 @@ object ClaimSummaryHelper {
 
   private val key = "check-claim"
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def makeClaimSummary(claims: Seq[(TaxCode, BigDecimal, Call)])(implicit messages: Messages): Seq[SummaryListRow] = {
     val reimbursements: Seq[Reimbursement] =
       claims.map { case (taxCode, amount, _) => Reimbursement(taxCode, amount, null, null, null) }
 
-    val claimAction: TaxCode => Call       =
+    val claimAction: TaxCode => Call =
       claims.map { case (taxCode, _, call) => (taxCode, call) }.toMap
 
     makeClaimSummaryRows(reimbursements, claimAction) ++ makeTotalRow(reimbursements)
@@ -63,7 +62,7 @@ object ClaimSummaryHelper {
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
                   s"${OrdinalNumber(index + 1).capitalize} MRN: ${TaxCodes
-                    .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
+                      .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
                 )
               )
             )

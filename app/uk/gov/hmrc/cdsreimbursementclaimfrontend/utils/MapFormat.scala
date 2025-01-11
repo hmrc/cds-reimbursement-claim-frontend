@@ -43,7 +43,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )
@@ -83,7 +83,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
               }
             )
@@ -133,7 +133,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )
@@ -173,7 +173,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
               }
             )
@@ -223,7 +223,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )

@@ -98,16 +98,16 @@ class SelectSecuritiesControllerSpec
     journey.getSecurityDetailsFor(securityDepositId).foreach { securityDetails =>
       summaries.toSeq should containOnlyDefinedPairsOf(
         Seq(
-          ("Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber
-            .map(_.value)),
-          ("Reason for security deposit"     -> journey.answers.reasonForSecurity
-            .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
-          ("Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
-          ("Security deposit payment date"   -> journey.getLeadDisplayDeclaration
-            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
-          ("Security deposit expiry date"    -> journey.getLeadDisplayDeclaration
-            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
+          "Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber
+            .map(_.value),
+          "Reason for security deposit"     -> journey.answers.reasonForSecurity
+            .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")),
+          "Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString),
+          "Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString),
+          "Security deposit payment date"   -> journey.getLeadDisplayDeclaration
+            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate)),
+          "Security deposit expiry date"    -> journey.getLeadDisplayDeclaration
+            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate))
         )
       )
     }

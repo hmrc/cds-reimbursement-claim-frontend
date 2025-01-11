@@ -44,24 +44,25 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   final val showWarning: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       journey.answers.bankAccountDetails
-        .map { bankAccountDetails: BankAccountDetails =>
-          modifyJourney(journey, bankAccountDetails)
-            .fold(
-              _ => (journey, Redirect(continueRoute(journey))),
-              journeyWithBankDetails =>
-                (
-                  journeyWithBankDetails,
-                  Ok(
-                    checkBankDetailsAreCorrectPage(
-                      bankDetailsAreYouSureForm,
-                      bankAccountDetails,
-                      isCMA(journey),
-                      postAction,
-                      changeBankAccountDetailsRoute
+        .map {
+          bankAccountDetails: BankAccountDetails =>
+            modifyJourney(journey, bankAccountDetails)
+              .fold(
+                _ => (journey, Redirect(continueRoute(journey))),
+                journeyWithBankDetails =>
+                  (
+                    journeyWithBankDetails,
+                    Ok(
+                      checkBankDetailsAreCorrectPage(
+                        bankDetailsAreYouSureForm,
+                        bankAccountDetails,
+                        isCMA(journey),
+                        postAction,
+                        changeBankAccountDetailsRoute
+                      )
                     )
                   )
-                )
-            )
+              )
         }
         .getOrElse {
           (

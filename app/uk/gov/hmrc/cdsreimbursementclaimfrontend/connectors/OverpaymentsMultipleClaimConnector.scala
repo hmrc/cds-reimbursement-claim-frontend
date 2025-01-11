@@ -34,16 +34,25 @@ import javax.inject.Singleton
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import com.google.inject.ImplementedBy
+
+@ImplementedBy(classOf[OverpaymentsMultipleClaimConnectorImpl])
+trait OverpaymentsMultipleClaimConnector {
+  def submitClaim(claimRequest: OverpaymentsMultipleClaimConnector.Request)(implicit
+    hc: HeaderCarrier
+  ): Future[OverpaymentsMultipleClaimConnector.Response]
+}
 
 @Singleton
-class OverpaymentsMultipleClaimConnector @Inject() (
+class OverpaymentsMultipleClaimConnectorImpl @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends Retries {
+) extends OverpaymentsMultipleClaimConnector
+    with Retries {
 
   import OverpaymentsMultipleClaimConnector._
 

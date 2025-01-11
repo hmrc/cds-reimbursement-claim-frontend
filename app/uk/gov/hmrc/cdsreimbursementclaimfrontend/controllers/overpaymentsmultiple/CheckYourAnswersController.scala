@@ -107,7 +107,7 @@ class CheckYourAnswersController @Inject() (
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumbers
-                      .mkString(", ")} with case number ${response.caseNumber}."
+                        .mkString(", ")} with case number ${response.caseNumber}."
                   )
                   val summary =
                     JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)

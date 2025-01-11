@@ -75,51 +75,51 @@ class SelectDutiesController @Inject() (
   }
 
   def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      journey
-        .getNthMovementReferenceNumber(pageIndex - 1)
-        .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-          val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
-          if (availableDuties.isEmpty) {
-            logger.warn("No available duties")
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-          } else {
-            val form = selectDutiesForm(availableDuties.map(_._1))
-            form
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    journey,
-                    BadRequest(
-                      selectDutiesPage(
-                        form = formWithErrors,
-                        availableTaxCodes = availableDuties,
-                        indexAndMrnOpt = Some((pageIndex, mrn)),
-                        showCmaNotEligibleHint = false,
-                        subKey = Some("multiple"),
-                        postAction = routes.SelectDutiesController.submit(pageIndex),
-                        isSubsidyOnly = journey.isSubsidyOnlyJourney
+    implicit request =>
+      journey =>
+        journey
+          .getNthMovementReferenceNumber(pageIndex - 1)
+          .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+            val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties(mrn)
+            if (availableDuties.isEmpty) {
+              logger.warn("No available duties")
+              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+            } else {
+              val form = selectDutiesForm(availableDuties.map(_._1))
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
+                    (
+                      journey,
+                      BadRequest(
+                        selectDutiesPage(
+                          form = formWithErrors,
+                          availableTaxCodes = availableDuties,
+                          indexAndMrnOpt = Some((pageIndex, mrn)),
+                          showCmaNotEligibleHint = false,
+                          subKey = Some("multiple"),
+                          postAction = routes.SelectDutiesController.submit(pageIndex),
+                          isSubsidyOnly = journey.isSubsidyOnlyJourney
+                        )
+                      )
+                    ),
+                  taxCodesSelected =>
+                    (
+                      journey
+                        .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodesSelected)
+                        .getOrElse(journey),
+                      Redirect(
+                        taxCodesSelected.headOption match {
+                          case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
+                          case None          => routes.SelectDutiesController.show(pageIndex)
+                        }
                       )
                     )
-                  ),
-                taxCodesSelected =>
-                  (
-                    journey
-                      .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodesSelected)
-                      .getOrElse(journey),
-                    Redirect(
-                      taxCodesSelected.headOption match {
-                        case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
-                        case None          => routes.SelectDutiesController.show(pageIndex)
-                      }
-                    )
-                  )
-              )
+                )
+            }
           }
-        }
-        .asFuture
-    },
+          .asFuture,
     fastForwardToCYAEnabled = false
   )
 }

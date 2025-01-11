@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -119,15 +118,15 @@ object DisplayResponseDetailGen {
       ndrcDetails = ndrcDetails
     )
 
-  implicit lazy val arbitraryDeclarantDetails: Typeclass[DeclarantDetails] =
+  implicit lazy val arbitraryDeclarantDetails: Arbitrary[DeclarantDetails] =
     Arbitrary(genDeclarantDetails)
 
-  implicit lazy val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails] =
+  implicit lazy val arbitraryConsigneeDetails: Arbitrary[ConsigneeDetails] =
     Arbitrary(genConsigneeDetails)
 
-  implicit lazy val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] =
+  implicit lazy val arbitraryDisplayResponseDetail: Arbitrary[DisplayResponseDetail] =
     Arbitrary(genDisplayResponseDetail)
 
-  implicit lazy val arbitraryBankDetails: Typeclass[BankDetails] =
+  implicit lazy val arbitraryBankDetails: Arbitrary[BankDetails] =
     Arbitrary(genBankDetails)
 }

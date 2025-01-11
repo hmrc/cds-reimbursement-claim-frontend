@@ -55,10 +55,10 @@ class OrderedMapSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matc
 
     "be equal only if all mappings are the same no matter of insertion order" in {
       OrderedMap("B" -> 2, "A" -> 1, "C" -> 3) shouldBe OrderedMap("A" -> 1, "B" -> 2, "C" -> 3)
-      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3) should not be OrderedMap("A" -> 1, "B" -> 2, "D" -> 3)
-      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3) should not be OrderedMap("A" -> 1, "B" -> 2, "C" -> 4)
-      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3) should not be OrderedMap.empty[String, Int]
-      OrderedMap.empty[String, Int] should not be OrderedMap("B" -> 2, "A" -> 1, "C" -> 3)
+      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3)   should not be OrderedMap("A" -> 1, "B" -> 2, "D" -> 3)
+      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3)   should not be OrderedMap("A" -> 1, "B" -> 2, "C" -> 4)
+      OrderedMap("B" -> 2, "A" -> 1, "C" -> 3)   should not be OrderedMap.empty[String, Int]
+      OrderedMap.empty[String, Int]              should not be OrderedMap("B" -> 2, "A" -> 1, "C" -> 3)
     }
   }
 

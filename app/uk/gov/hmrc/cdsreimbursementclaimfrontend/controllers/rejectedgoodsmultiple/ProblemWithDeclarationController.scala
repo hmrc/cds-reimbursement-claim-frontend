@@ -62,7 +62,6 @@ class ProblemWithDeclarationController @Inject() (
   final override val checkDeclarationDetailsAction: Call =
     routes.CheckDeclarationDetailsController.show
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   final def showNth(pageIndex: Int): Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm

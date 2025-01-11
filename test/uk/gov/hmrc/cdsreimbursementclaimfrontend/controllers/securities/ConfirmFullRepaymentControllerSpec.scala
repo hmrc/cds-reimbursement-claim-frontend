@@ -373,7 +373,7 @@ class ConfirmFullRepaymentControllerSpec
           val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
             reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
-          val journey: SecuritiesJourney                                             =
+          val journey: SecuritiesJourney =
             emptyJourney
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -389,8 +389,8 @@ class ConfirmFullRepaymentControllerSpec
                       .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
               )
               .getOrFail
-          val securityId                                                             = journey.getSecurityDepositIds.head
-          val sessionData                                                            = SessionData(journey)
+          val securityId                 = journey.getSecurityDepositIds.head
+          val sessionData                = SessionData(journey)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)

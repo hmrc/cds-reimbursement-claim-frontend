@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Arbitrary
-import org.scalacheck.magnolia._
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
@@ -27,10 +27,10 @@ import java.util.UUID
 object ClaimedReimbursementsAnswerGen {
   import TaxCodeGen._
 
-  implicit lazy val arbitraryAmount: Typeclass[BigDecimal] =
+  implicit lazy val arbitraryAmount: Arbitrary[BigDecimal] =
     BigDecimalGen.amountNumberArbitrary
 
-  implicit lazy val arbitraryClaimedReimbursement: Typeclass[ClaimedReimbursement] =
+  implicit lazy val arbitraryClaimedReimbursement: Arbitrary[ClaimedReimbursement] =
     Arbitrary(
       for {
         taxCode     <- genTaxCode
@@ -47,9 +47,9 @@ object ClaimedReimbursementsAnswerGen {
       )
     )
 
-  implicit lazy val arbitraryClaimedReimbursementsAnswer: Typeclass[ClaimedReimbursementsAnswer] =
-    gen[ClaimedReimbursementsAnswer]
+  implicit lazy val arbitraryClaimedReimbursementsAnswer: Arbitrary[ClaimedReimbursementsAnswer] =
+    GeneratorUtils.gen[ClaimedReimbursementsAnswer]
 
-  implicit lazy val arbitraryAssociatedMRNsClaimsAnswer: Typeclass[AssociatedMRNsClaimsAnswer] =
-    gen[AssociatedMRNsClaimsAnswer]
+  implicit lazy val arbitraryAssociatedMRNsClaimsAnswer: Arbitrary[AssociatedMRNsClaimsAnswer] =
+    GeneratorUtils.gen[AssociatedMRNsClaimsAnswer]
 }

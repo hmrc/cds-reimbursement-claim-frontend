@@ -78,7 +78,6 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       completeJourneyWithNonNatchingUserEoriGen
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -115,7 +114,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
         identity
       )
     )
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+
   def buildJourneyGenWithoutSupportingEvidence(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -241,7 +240,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
-      val correctedAmounts                                =
+      val correctedAmounts =
         SortedMap
           .from(reimbursements)
           .view
@@ -355,7 +354,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration          =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
@@ -420,7 +419,7 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
-      val correctedAmounts                                =
+      val correctedAmounts =
         SortedMap(reimbursements: _*).view
           .mapValues(s =>
             SortedMap(s.map { taxCode =>

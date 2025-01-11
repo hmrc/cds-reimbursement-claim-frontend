@@ -34,9 +34,11 @@ trait SummaryMatchers {
           MatchResult(
             false,
             s"Some expected elements are missing: \n- ${missing
-              .mkString("\n- ")}${if (unexpected.nonEmpty)
-              s"\nThere are unexpected elements:\n- ${unexpected.mkString("\n- ")}"
-            else ""}",
+                .mkString("\n- ")}${
+                if (unexpected.nonEmpty)
+                  s"\nThere are unexpected elements:\n- ${unexpected.mkString("\n- ")}"
+                else ""
+              }",
             ""
           )
         }
@@ -54,11 +56,15 @@ trait SummaryMatchers {
         else {
           MatchResult(
             false,
-            s"${if (missing.nonEmpty)
-              s"\nSome expected elements are missing: \n- ${missing.mkString("\n- ")}"
-            else ""}${if (unexpected.nonEmpty)
-              s"\nSome elements are unexpected:\n- ${unexpected.mkString("\n- ")}"
-            else ""}",
+            s"${
+                if (missing.nonEmpty)
+                  s"\nSome expected elements are missing: \n- ${missing.mkString("\n- ")}"
+                else ""
+              }${
+                if (unexpected.nonEmpty)
+                  s"\nSome elements are unexpected:\n- ${unexpected.mkString("\n- ")}"
+                else ""
+              }",
             ""
           )
         }
@@ -100,8 +106,10 @@ trait SummaryMatchers {
         else {
           val missingKeysMessage   =
             if (missingKeys.nonEmpty) s"\nSome expected keys are missing:\n- ${missingKeys
-              .mkString("\n- ")}${if (unexpectedKeys.nonEmpty) s"\nThere are unexpected keys:\n- ${unexpectedKeys.mkString("\n- ")}"
-            else ""}"
+                .mkString("\n- ")}${
+                if (unexpectedKeys.nonEmpty) s"\nThere are unexpected keys:\n- ${unexpectedKeys.mkString("\n- ")}"
+                else ""
+              }"
             else ""
           val invalidValuesMessage =
             if (invalidMappings.nonEmpty) {
@@ -144,10 +152,14 @@ trait SummaryMatchers {
         if (missingKeys.isEmpty && unexpectedKeys.isEmpty && invalidMappings.isEmpty) MatchResult(true, "", "")
         else {
           val keysMessage          =
-            s"${if (missingKeys.nonEmpty) s"\nSome expected keys are missing:\n- ${missingKeys
-              .mkString("\n- ")}"
-            else ""}${if (unexpectedKeys.nonEmpty) s"\nThere are unexpected keys:\n- ${unexpectedKeys.mkString("\n- ")}"
-            else ""}"
+            s"${
+                if (missingKeys.nonEmpty) s"\nSome expected keys are missing:\n- ${missingKeys
+                    .mkString("\n- ")}"
+                else ""
+              }${
+                if (unexpectedKeys.nonEmpty) s"\nThere are unexpected keys:\n- ${unexpectedKeys.mkString("\n- ")}"
+                else ""
+              }"
           val invalidValuesMessage =
             if (invalidMappings.nonEmpty) {
               val invalidMappingsMessage = invalidMappings

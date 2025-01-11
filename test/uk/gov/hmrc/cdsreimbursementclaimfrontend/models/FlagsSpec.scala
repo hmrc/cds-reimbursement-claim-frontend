@@ -55,7 +55,7 @@ class FlagsSpec extends AnyWordSpec with Matchers {
     }
 
     "set and check multiple positions" in {
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+
       var f = Flags.empty
       (0 to 63).foreach { i =>
         f.check(i)                       shouldBe false
@@ -78,7 +78,7 @@ class FlagsSpec extends AnyWordSpec with Matchers {
     }
 
     "unset and check multiple positions" in {
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+
       var f = Flags.full
       (0 to 63).foreach { i =>
         f.check(i)    shouldBe true

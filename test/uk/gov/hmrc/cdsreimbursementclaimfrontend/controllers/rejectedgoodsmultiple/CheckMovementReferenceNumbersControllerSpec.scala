@@ -106,7 +106,7 @@ class CheckMovementReferenceNumbersControllerSpec
         controller.show(FakeRequest())
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
-        //TODO: Get correct URL
+        // TODO: Get correct URL
         div.select("dd:nth-of-type(2)").select("a").attr("href") shouldBe routes.EnterMovementReferenceNumberController
           .show(index + 1)
           .url
@@ -338,10 +338,11 @@ class CheckMovementReferenceNumbersControllerSpec
           FakeRequest()
         )
 
-      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { mrn: MRN =>
-        featureSwitch.disable(Feature.RejectedGoods)
+      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) {
+        mrn: MRN =>
+          featureSwitch.disable(Feature.RejectedGoods)
 
-        status(performAction(mrn)) shouldBe NOT_FOUND
+          status(performAction(mrn)) shouldBe NOT_FOUND
       }
 
       "redirect back to the check movement reference numbers page if remove worked" in forAll {

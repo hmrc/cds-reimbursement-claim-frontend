@@ -36,12 +36,12 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
   case object EndUseRelief extends BasisOfOverpaymentClaim { val order = 3 }
   case object IncorrectAdditionalInformationCode extends BasisOfOverpaymentClaim {
     val order = 4
-  } //Northern Ireland only
+  } // Northern Ireland only
   case object IncorrectCommodityCode extends BasisOfOverpaymentClaim { val order = 5 }
   case object IncorrectCpc extends BasisOfOverpaymentClaim { val order = 6 }
 
   case object IncorrectEoriAndDan extends BasisOfOverpaymentClaim { val order = 7 }
-  case object IncorrectExciseValue extends BasisOfOverpaymentClaim { val order = 8 } //Northern Ireland only
+  case object IncorrectExciseValue extends BasisOfOverpaymentClaim { val order = 8 } // Northern Ireland only
   case object IncorrectValue extends BasisOfOverpaymentClaim { val order = 9 }
   case object InwardProcessingReliefFromCustomsDuty extends BasisOfOverpaymentClaim { val order = 10 }
   case object OutwardProcessingRelief extends BasisOfOverpaymentClaim { val order = 11 }
@@ -108,7 +108,7 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
   private[models] val basisOfOverpaymentsGoodsStringMap: Map[String, BasisOfOverpaymentClaim] =
     values.map(a => a.toString -> a).toMap
 
-  def has(basisOfOverpaymentsGoods: String): Boolean                                          =
+  def has(basisOfOverpaymentsGoods: String): Boolean =
     basisOfOverpaymentsGoodsStringMap.contains(basisOfOverpaymentsGoods)
 
   def find(basisOfOverpaymentsGoods: String): Option[BasisOfOverpaymentClaim] =

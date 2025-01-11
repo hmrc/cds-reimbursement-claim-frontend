@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
-final case class ScheduledDocumentAnswer(uploadDocument: UploadedFile) extends AnyVal
+final case class ScheduledDocumentAnswer(uploadDocument: UploadedFile)
 
 object ScheduledDocumentAnswer {
 

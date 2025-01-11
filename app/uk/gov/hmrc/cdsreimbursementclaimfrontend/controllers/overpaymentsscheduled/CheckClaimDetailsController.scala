@@ -86,47 +86,48 @@ class CheckClaimDetailsController @Inject() (
     }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
-      val reimbursementTotal = journey.getTotalReimbursementAmount
+    implicit request =>
+      journey => {
+        val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
+        val reimbursementTotal = journey.getTotalReimbursementAmount
 
-      journey.answers.movementReferenceNumber match {
-        case Some(_) =>
-          checkClaimDetailsForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    checkClaimDetails(
-                      answers,
-                      reimbursementTotal,
-                      formWithErrors,
-                      postAction,
-                      enterClaimAction
-                    )
-                  )
-                ),
-              {
-                case Yes =>
+        journey.answers.movementReferenceNumber match {
+          case Some(_) =>
+            checkClaimDetailsForm
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
                   (
-                    journey.withDutiesChangeMode(false),
-                    Redirect(
-                      if (journey.hasCompleteAnswers)
-                        checkYourAnswers
-                      else
-                        routes.ChoosePayeeTypeController.show
+                    journey,
+                    BadRequest(
+                      checkClaimDetails(
+                        answers,
+                        reimbursementTotal,
+                        formWithErrors,
+                        postAction,
+                        enterClaimAction
+                      )
                     )
-                  )
-                case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
-              }
-            )
-            .asFuture
-        case None    =>
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-      }
-    },
+                  ),
+                {
+                  case Yes =>
+                    (
+                      journey.withDutiesChangeMode(false),
+                      Redirect(
+                        if (journey.hasCompleteAnswers)
+                          checkYourAnswers
+                        else
+                          routes.ChoosePayeeTypeController.show
+                      )
+                    )
+                  case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+                }
+              )
+              .asFuture
+          case None    =>
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+        }
+      },
     fastForwardToCYAEnabled = false
   )
 

@@ -29,7 +29,7 @@ import scala.util.Try
 
 object HttpResponseOps {
 
-  implicit class HttpResponseOps(private val response: HttpResponse) extends AnyVal {
+  implicit class HttpResponseOps(private val response: HttpResponse) {
 
     def parseJSON[A](
       path: Option[String] = None

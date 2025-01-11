@@ -53,19 +53,19 @@ class EnterDeclarantEoriNumberController @Inject() (
   val formKey: String  = "enter-declarant-eori-number"
   val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
     Redirect(routes.BillOfDischarge3Controller.show)
 
-  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
     Redirect(routes.BillOfDischarge4Controller.show)
 
-  //Error: Claim has already been submitted as part of a whole or partial claim
+  // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
 

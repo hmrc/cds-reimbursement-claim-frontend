@@ -26,7 +26,7 @@ import play.api.libs.json.Format
 
 import java.util.function.Predicate
 
-final case class PhoneNumber(value: String) extends AnyVal
+final case class PhoneNumber(value: String)
 
 object PhoneNumber {
 

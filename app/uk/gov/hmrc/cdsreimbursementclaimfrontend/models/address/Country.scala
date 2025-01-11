@@ -43,7 +43,7 @@ object Country {
     finally source.close()
   }
 
-  implicit class CountryOps(private val c: Country) extends AnyVal {
+  implicit class CountryOps(private val c: Country) {
     def isUk: Boolean = c === Country.uk
   }
 

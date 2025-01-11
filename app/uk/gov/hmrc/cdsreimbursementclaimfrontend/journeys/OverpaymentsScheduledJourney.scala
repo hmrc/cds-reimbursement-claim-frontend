@@ -34,13 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C285 scheduled MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C285 scheduled MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[OverpaymentsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[OverpaymentsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[OverpaymentsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[OverpaymentsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class OverpaymentsScheduledJourney private (
   val answers: OverpaymentsScheduledJourney.Answers,
@@ -71,8 +71,7 @@ final class OverpaymentsScheduledJourney private (
   def removeUnsupportedTaxCodes(): OverpaymentsScheduledJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -191,7 +190,7 @@ final class OverpaymentsScheduledJourney private (
 
   def submitAdditionalDetails(
     additionalDetails: String
-  ): OverpaymentsScheduledJourney                 =
+  ): OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(
         answers.copy(additionalDetails = Some(additionalDetails))
@@ -208,8 +207,8 @@ final class OverpaymentsScheduledJourney private (
           SortedMap(
             dutyTypes
               .map(dutyType =>
-                (dutyType -> getReimbursementClaimsFor(dutyType)
-                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
+                dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
               ): _*
           )
         Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
@@ -254,7 +253,7 @@ final class OverpaymentsScheduledJourney private (
     taxCode: TaxCode,
     paidAmount: BigDecimal,
     correctAmount: BigDecimal
-  ): Either[String, OverpaymentsScheduledJourney]                   =
+  ): Either[String, OverpaymentsScheduledJourney] =
     whileClaimIsAmendable {
       if (dutyType.taxCodes.contains(taxCode)) {
         if (isDutySelected(dutyType, taxCode)) {
@@ -337,7 +336,6 @@ final class OverpaymentsScheduledJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -387,7 +385,6 @@ final class OverpaymentsScheduledJourney private (
   def withEnterContactDetailsMode(enabled: Boolean): OverpaymentsScheduledJourney =
     this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
     requestNonce: Nonce,
     uploadedFile: UploadedFile
@@ -400,13 +397,11 @@ final class OverpaymentsScheduledJourney private (
       } else Left("receiveScheduledDocument.invalidNonce")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: OverpaymentsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(answers.copy(scheduledDocument = None))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[OverpaymentsScheduledJourney]) {
       val that = obj.asInstanceOf[OverpaymentsScheduledJourney]
@@ -417,7 +412,7 @@ final class OverpaymentsScheduledJourney private (
   override def toString(): String = s"OverpaymentsScheduledJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], OverpaymentsScheduledJourney.Output] =
     validate(this).left
       .map(_.messages)

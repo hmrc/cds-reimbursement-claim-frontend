@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import play.api.libs.json._
 
 object JsValueGen {
 
-  implicit lazy val arbitraryJsValue: Typeclass[JsValue] = Arbitrary(
+  implicit lazy val arbitraryJsValue: Arbitrary[JsValue] = Arbitrary(
     Gen.lzy(Arbitrary.arbitrary[String].map(JsString))
   )
 }

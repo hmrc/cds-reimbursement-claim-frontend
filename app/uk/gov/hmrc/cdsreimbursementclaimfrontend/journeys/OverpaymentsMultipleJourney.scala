@@ -36,13 +36,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C285 multiple MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C285 multiple MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[OverpaymentsMultipleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[OverpaymentsMultipleJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[OverpaymentsMultipleJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[OverpaymentsMultipleJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class OverpaymentsMultipleJourney private (
   val answers: OverpaymentsMultipleJourney.Answers,
@@ -124,15 +124,14 @@ final class OverpaymentsMultipleJourney private (
   def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  /** Returns the amount paid for the given MRN and tax code as returned by ACC14,
-    * or None if either MRN or tax code not found.
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
+    * found.
     */
   def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
 
-  /** If the user has selected the tax code for repayment
-    * then returns the amount paid for the given MRN and tax code as returned by ACC14,
-    * otherwise None.
+  /** If the user has selected the tax code for repayment then returns the amount paid for the given MRN and tax code as
+    * returned by ACC14, otherwise None.
     */
   def getAmountPaidForIfSelected(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getSelectedDuties(mrn)
@@ -297,8 +296,7 @@ final class OverpaymentsMultipleJourney private (
   def removeUnsupportedTaxCodes(): OverpaymentsMultipleJourney =
     this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     index: Int,
@@ -535,7 +533,7 @@ final class OverpaymentsMultipleJourney private (
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(declarationId, _).isDefined)
             if (allTaxCodesExistInACC14) {
               val newDeclarationReimbursementClaims = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
-                case None                      =>
+                case None =>
                   OrderedMap[TaxCode, Option[BigDecimal]](taxCodes.map(taxCode => taxCode -> None): _*)
 
                 case Some(reimbursementClaims) =>
@@ -696,7 +694,6 @@ final class OverpaymentsMultipleJourney private (
       )
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -740,7 +737,6 @@ final class OverpaymentsMultipleJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[OverpaymentsMultipleJourney]) {
       val that = obj.asInstanceOf[OverpaymentsMultipleJourney]
@@ -751,7 +747,7 @@ final class OverpaymentsMultipleJourney private (
   override def toString: String = s"OverpaymentsMultipleJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], OverpaymentsMultipleJourney.Output] =
     validate(this).left
       .map(_.messages)

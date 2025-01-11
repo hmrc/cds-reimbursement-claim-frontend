@@ -84,9 +84,7 @@ class ProblemWithAddressControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("problem-with-address.title"),
-          doc =>
-            doc.select("form").attr("action")
-              shouldBe routes.CheckClaimantDetailsController.redirectToALF().url
+          doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.redirectToALF().url
         )
       }
     }

@@ -45,7 +45,6 @@ trait Retries {
     block: => Future[A]
   )(implicit ec: ExecutionContext): Future[A] = {
 
-    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def loop(remainingIntervals: Seq[FiniteDuration])(mdcData: Map[String, String])(block: => Future[A]): Future[A] =
       // scheduling will loose MDC data. Here we explicitly ensure it is available on block.
       Mdc

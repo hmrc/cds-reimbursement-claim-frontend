@@ -130,48 +130,48 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries.toSeq should containAllDefinedPairsOf(
       Seq(
-        ("Import Movement Reference Number (MRN)"     -> Some(claim.movementReferenceNumber.value)),
-        //("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
-        ("Contact details"                            -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation))),
-        ("Contact address"                            -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation))),
-        ("Uploaded"                                   -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" ")))),
-        ("Any information that may support the claim" -> claim.additionalDetails.map(_.value)),
-        ("Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value)),
-        ("Sort code"                                  -> claim.bankAccountDetails.map(_.sortCode.value)),
-        ("Account number"                             -> claim.bankAccountDetails.map(_.accountNumber.value)),
-        ("Importer name"                              -> journey.answers.displayDeclaration.flatMap(_.consigneeName)),
-        ("Importer email"                             -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail)),
-        ("Importer address"                           -> journey.answers.displayDeclaration.flatMap(d =>
+        "Import Movement Reference Number (MRN)"     -> Some(claim.movementReferenceNumber.value),
+        // ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
+        "Contact details"                            -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+        "Contact address"                            -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+        "Uploaded"                                   -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+        "Any information that may support the claim" -> claim.additionalDetails.map(_.value),
+        "Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value),
+        "Sort code"                                  -> claim.bankAccountDetails.map(_.sortCode.value),
+        "Account number"                             -> claim.bankAccountDetails.map(_.accountNumber.value),
+        "Importer name"                              -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
+        "Importer email"                             -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
+        "Importer address"                           -> journey.answers.displayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
-        )),
-        ("Importer telephone"                         -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone)),
-        ("Declarant name"                             -> journey.answers.displayDeclaration.map(_.declarantName)),
-        ("Declarant address"                          -> journey.answers.displayDeclaration.map(d =>
+        ),
+        "Importer telephone"                         -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
+        "Declarant name"                             -> journey.answers.displayDeclaration.map(_.declarantName),
+        "Declarant address"                          -> journey.answers.displayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
-        )),
-        ("Reason for security deposit"                -> journey.answers.reasonForSecurity.map(rfs =>
+        ),
+        "Reason for security deposit"                -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
-        )),
-        ("Date duty to be collected"                  -> journey.answers.displayDeclaration
+        ),
+        "Date duty to be collected"                  -> journey.answers.displayDeclaration
           .map(_.displayResponseDetail.acceptanceDate)
-          .flatMap(DateUtils.displayFormat)),
-        ("Date security deposit made"                 -> journey.answers.displayDeclaration
+          .flatMap(DateUtils.displayFormat),
+        "Date security deposit made"                 -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
-          .flatMap(DateUtils.displayFormat)),
-        ("Total security deposit value"               -> journey.answers.displayDeclaration
-          .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString)),
-        ("Payee"                                      -> journey.answers.payeeType.map {
+          .flatMap(DateUtils.displayFormat),
+        "Total security deposit value"               -> journey.answers.displayDeclaration
+          .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString),
+        "Payee"                                      -> journey.answers.payeeType.map {
           case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
           case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
-        }),
-        ("Payment method"                             -> Some(
+        },
+        "Payment method"                             -> Some(
           if (
             journey.answers.displayDeclaration
               .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet))
@@ -180,22 +180,22 @@ class CheckYourAnswersControllerSpec
             "Guarantee"
           else
             "Bank account transfer"
-        ))
+        )
       ) ++
         journey.answers.displayDeclaration
           .flatMap(_.getSecurityDepositIds)
           .getOrElse(Seq.empty)
           .map { sid =>
-            (s"Claim for $sid" -> Some(
+            s"Claim for $sid" -> Some(
               if (claim.securitiesReclaims.contains(sid))
                 "Yes"
               else
                 "No"
-            ))
+            )
           } ++
         claim.securitiesReclaims.flatMap { case (sid, reclaims) =>
           Seq(
-            ("Claim full amount" -> Some(
+            "Claim full amount" -> Some(
               if (
                 journey.answers.displayDeclaration
                   .map(_.isFullSecurityAmount(sid, reclaims.values.sum))
@@ -204,18 +204,18 @@ class CheckYourAnswersControllerSpec
                 "Yes"
               else
                 "No"
-            )),
-            ("Duties selected"   -> Some(
+            ),
+            "Duties selected"   -> Some(
               reclaims.keys.toList.sorted
                 .map(taxCode => messages(s"tax-code.$taxCode"))
                 .mkString(" ")
-            )),
-            ("Total"             -> Some(
+            ),
+            "Total"             -> Some(
               reclaims.values.sum.toPoundSterlingString
-            ))
+            )
           ) ++
             reclaims.map { case (taxCode, amount) =>
-              (messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString))
+              messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString)
             }
         }
     )

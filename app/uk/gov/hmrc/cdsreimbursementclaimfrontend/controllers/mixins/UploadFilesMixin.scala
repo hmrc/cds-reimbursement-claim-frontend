@@ -118,31 +118,30 @@ trait UploadFilesMixin extends JourneyBaseController {
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
-    { implicit request => journey =>
-      request
-        .asInstanceOf[Request[AnyContent]]
-        .body
-        .asJson
-        .flatMap(_.asOpt[UploadDocumentsCallback]) match {
-        case None =>
-          logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+    implicit request =>
+      journey =>
+        request
+          .asInstanceOf[Request[AnyContent]]
+          .body
+          .asJson
+          .flatMap(_.asOpt[UploadDocumentsCallback]) match {
+          case None =>
+            logger.warn("missing or invalid callback payload")
+            (journey, BadRequest("missing or invalid callback payload"))
 
-        case Some(callback) =>
-          modifyJourney(
-            journey,
-            callback.documentType,
-            callback.nonce,
-            callback.uploadedFiles.map(_.copy(description = None))
-          )
-            .fold(
-              error => (journey, BadRequest(error)),
-              modifiedJourney => (modifiedJourney, NoContent)
+          case Some(callback) =>
+            modifyJourney(
+              journey,
+              callback.documentType,
+              callback.nonce,
+              callback.uploadedFiles.map(_.copy(description = None))
             )
-      }
-    },
+              .fold(
+                error => (journey, BadRequest(error)),
+                modifiedJourney => (modifiedJourney, NoContent)
+              )
+        },
     isCallback = true
   )
 

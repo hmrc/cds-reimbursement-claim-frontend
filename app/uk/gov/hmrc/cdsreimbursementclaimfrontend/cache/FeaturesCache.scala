@@ -48,17 +48,19 @@ trait FeaturesCache {
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[Error, Unit]] =
-    try get().flatMap {
-      case Right(value) =>
-        val newFeatureSet = modify(value)
-        if (newFeatureSet =!= value)
-          store(newFeatureSet)
-        else
-          Future.successful(Right(()))
+    try
+      get().flatMap {
+        case Right(value) =>
+          val newFeatureSet = modify(value)
+          if (newFeatureSet =!= value)
+            store(newFeatureSet)
+          else
+            Future.successful(Right(()))
 
-      case Left(error) =>
-        Future.successful(Left(error))
-    } catch {
+        case Left(error) =>
+          Future.successful(Left(error))
+      }
+    catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
@@ -86,23 +88,27 @@ class DefaultFeaturesCache @Inject() (
   def get()(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, FeatureSet]] =
-    try super
-      .get[FeatureSet](hc)(featureSetKey)
-      .map(opt => Right(opt.getOrElse(FeatureSet.empty)))
-      .recover { case e => Left(Error(e)) } catch {
+    try
+      super
+        .get[FeatureSet](hc)(featureSetKey)
+        .map(opt => Right(opt.getOrElse(FeatureSet.empty)))
+        .recover { case e => Left(Error(e)) }
+    catch {
       case e: HeaderCarrierCacheId.NoSessionException => Future.successful(Right(FeatureSet.empty))
-      case e: Exception                               => Future.successful(Left(Error(e)))
+      case e: Exception => Future.successful(Left(Error(e)))
     }
 
   def store(
     featureSet: FeatureSet
   )(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
-    try super
-      .put(hc)(featureSetKey, featureSet)
-      .map(_ => Right(()))
-      .recover { case e => Left(Error(e)) } catch {
+    try
+      super
+        .put(hc)(featureSetKey, featureSet)
+        .map(_ => Right(()))
+        .recover { case e => Left(Error(e)) }
+    catch {
       case e: HeaderCarrierCacheId.NoSessionException => Future.successful(Right(()))
-      case e: Exception                               => Future.successful(Left(Error(e)))
+      case e: Exception => Future.successful(Left(Error(e)))
     }
 
 }

@@ -178,7 +178,6 @@ class AuthenticatedAction @Inject() (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   final def readHeadersFromRequestOnly(b: Boolean): AuthenticatedAction =
     if (b == headersFromRequestOnly) this
     else

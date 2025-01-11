@@ -39,7 +39,7 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
           claims.nonEmpty && claims.forall {
             case (taxCode, Some(claimAmounts)) =>
               dutyType.taxCodes.contains(taxCode) &&
-                claimAmounts.isValid
+              claimAmounts.isValid
             case _                             => false
           }
         }

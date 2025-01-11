@@ -31,6 +31,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
+import java.net.URL
 
 @ImplementedBy(classOf[DefaultAddressLookupConnector])
 trait AddressLookupConnector {
@@ -65,7 +66,7 @@ class DefaultAddressLookupConnector @Inject() (
   def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT {
       http
-        .GET[HttpResponse](s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId")
+        .GET[HttpResponse](URL(s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId"))
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))

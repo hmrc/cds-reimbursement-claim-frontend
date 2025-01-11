@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
-import org.scalacheck.magnolia.gen
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
@@ -59,9 +57,9 @@ object ContactAddressGen {
     .oneOf(ArraySeq.unsafeWrapArray(Locale.getISOCountries))
     .map(Country(_))
 
-  implicit lazy val arbitraryContactAddress: Typeclass[ContactAddress] =
+  implicit lazy val arbitraryContactAddress: Arbitrary[ContactAddress] =
     Arbitrary(genContactAddress)
 
-  implicit lazy val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
-    gen[AddressLookupRequest]
+  implicit lazy val arbitraryAddressRequest: Arbitrary[AddressLookupRequest] =
+    GeneratorUtils.gen[AddressLookupRequest]
 }

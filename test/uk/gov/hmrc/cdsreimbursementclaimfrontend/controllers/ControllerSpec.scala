@@ -340,10 +340,10 @@ trait ControllerSpec
   final def formAction(doc: Document) =
     doc.select("form").attr("action")
 
-  final def assertThatNoneRadioButtonIsSelected: Document => Any                                                    =
+  final def assertThatNoneRadioButtonIsSelected: Document => Any =
     (doc: Document) => selectedRadioValue(doc).shouldBe(None)
 
-  final def assertThatRadioButtonIsSelected(expected: String): Document => Any                                      =
+  final def assertThatRadioButtonIsSelected(expected: String): Document => Any =
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
 
   final def assertPageElementsByIdAndExpectedText(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =

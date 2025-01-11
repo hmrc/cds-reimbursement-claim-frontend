@@ -49,22 +49,24 @@ trait SessionCache {
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[Error, Unit]] =
-    try get().flatMap {
-      case Right(Some(value)) =>
-        val newSessionData = modify(value)
-        if (newSessionData =!= value)
-          store(newSessionData)
-        else
-          Future.successful(Right(()))
+    try
+      get().flatMap {
+        case Right(Some(value)) =>
+          val newSessionData = modify(value)
+          if (newSessionData =!= value)
+            store(newSessionData)
+          else
+            Future.successful(Right(()))
 
-      case Right(None) =>
-        Future.successful(
-          Left(Error("no session found in mongo"))
-        )
+        case Right(None) =>
+          Future.successful(
+            Left(Error("no session found in mongo"))
+          )
 
-      case Left(error) =>
-        Future.successful(Left(error))
-    } catch {
+        case Left(error) =>
+          Future.successful(Left(error))
+      }
+    catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
@@ -74,38 +76,40 @@ trait SessionCache {
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[Error, SessionData]] =
-    try get().flatMap {
-      case Right(Some(sessionData)) =>
-        update(sessionData).flatMap {
-          case Right(updatedSessionData) =>
-            if (sessionData === updatedSessionData)
-              Future.successful(Right(sessionData))
-            else
-              store(updatedSessionData)
-                .map(_.map(_ => updatedSessionData))
-
-          case Left(error) =>
-            Future.successful(Left(error))
-        }
-
-      case Right(None) =>
-        if (forceSessionCreation)
-          update(SessionData.empty).flatMap {
+    try
+      get().flatMap {
+        case Right(Some(sessionData)) =>
+          update(sessionData).flatMap {
             case Right(updatedSessionData) =>
-              store(updatedSessionData)
-                .map(_.map(_ => updatedSessionData))
+              if (sessionData === updatedSessionData)
+                Future.successful(Right(sessionData))
+              else
+                store(updatedSessionData)
+                  .map(_.map(_ => updatedSessionData))
 
             case Left(error) =>
               Future.successful(Left(error))
           }
-        else
-          Future.successful(
-            Left(Error("no session found in mongo"))
-          )
 
-      case Left(error) =>
-        Future.successful(Left(error))
-    } catch {
+        case Right(None) =>
+          if (forceSessionCreation)
+            update(SessionData.empty).flatMap {
+              case Right(updatedSessionData) =>
+                store(updatedSessionData)
+                  .map(_.map(_ => updatedSessionData))
+
+              case Left(error) =>
+                Future.successful(Left(error))
+            }
+          else
+            Future.successful(
+              Left(Error("no session found in mongo"))
+            )
+
+        case Left(error) =>
+          Future.successful(Left(error))
+      }
+    catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
@@ -113,7 +117,6 @@ trait SessionCache {
 
 object HeaderCarrierCacheId extends CacheIdType[HeaderCarrier] {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   override def run: HeaderCarrier => String =
     _.sessionId
       .map(_.value)
@@ -144,20 +147,24 @@ class DefaultSessionCache @Inject() (
   def get()(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Option[SessionData]]] =
-    try super
-      .get[SessionData](hc)(sessionDataKey)
-      .map(Right(_))
-      .recover { case e => Left(Error(e)) } catch {
+    try
+      super
+        .get[SessionData](hc)(sessionDataKey)
+        .map(Right(_))
+        .recover { case e => Left(Error(e)) }
+    catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 
   def store(
     sessionData: SessionData
   )(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
-    try super
-      .put(hc)(sessionDataKey, sessionData)
-      .map(_ => Right(()))
-      .recover { case e => Left(Error(e)) } catch {
+    try
+      super
+        .put(hc)(sessionDataKey, sessionData)
+        .map(_ => Right(()))
+        .recover { case e => Left(Error(e)) }
+    catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }
 

@@ -41,7 +41,7 @@ object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsC
   private[models] val basisOfRejectedGoodsStringMap: Map[String, BasisOfRejectedGoodsClaim] =
     values.map(a => a.toString -> a).toMap
 
-  def has(basisOfRejectedGoods: String): Boolean                                            =
+  def has(basisOfRejectedGoods: String): Boolean =
     basisOfRejectedGoodsStringMap.contains(basisOfRejectedGoods)
 
   def find(basisOfRejectedGoods: String): Option[BasisOfRejectedGoodsClaim] =

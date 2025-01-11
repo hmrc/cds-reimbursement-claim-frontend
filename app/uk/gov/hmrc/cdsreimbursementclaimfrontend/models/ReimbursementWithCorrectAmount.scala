@@ -28,7 +28,7 @@ final case class ReimbursementWithCorrectAmount(
 ) {
   override def toString =
     s"$taxCode: amount = $amount, paid amount = $paidAmount, corrected amount = $correctedAmount ${dutyOpt
-      .map(d => s", dutyOpt = $d")} \n"
+        .map(d => s", dutyOpt = $d")} \n"
 }
 object ReimbursementWithCorrectAmount {
 

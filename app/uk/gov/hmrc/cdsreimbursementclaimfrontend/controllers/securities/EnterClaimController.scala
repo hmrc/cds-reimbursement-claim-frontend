@@ -92,57 +92,57 @@ class EnterClaimController @Inject() (
 
   final def submit(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
-          _.fold(
-            result => (journey, result),
-            { case (_, totalAmount) =>
-              val form = Forms.claimAmountForm(key, totalAmount)
-              form
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      journey,
-                      BadRequest(
-                        enterClaimPage(
-                          formWithErrors,
-                          securityDepositId,
-                          taxCode,
-                          totalAmount,
-                          routes.EnterClaimController.submit(securityDepositId, taxCode)
+      implicit request =>
+        journey =>
+          validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
+            _.fold(
+              result => (journey, result),
+              { case (_, totalAmount) =>
+                val form = Forms.claimAmountForm(key, totalAmount)
+                form
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      (
+                        journey,
+                        BadRequest(
+                          enterClaimPage(
+                            formWithErrors,
+                            securityDepositId,
+                            taxCode,
+                            totalAmount,
+                            routes.EnterClaimController.submit(securityDepositId, taxCode)
+                          )
                         )
-                      )
-                    ),
-                  claimAmount => {
-                    val amountHasChanged: Boolean =
-                      !journey
-                        .getClaimAmountFor(securityDepositId, taxCode)
-                        .exists(_ === claimAmount)
-                    if (amountHasChanged)
-                      journey
-                        .submitClaimAmount(securityDepositId, taxCode, claimAmount)
-                        .fold(
-                          error =>
-                            (
-                              journey,
-                              Redirect(routeForValidationError(error))
-                            ),
-                          updatedJourney =>
-                            (
-                              updatedJourney,
-                              Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
-                            )
-                        )
-                    else
-                      (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                      ),
+                    claimAmount => {
+                      val amountHasChanged: Boolean =
+                        !journey
+                          .getClaimAmountFor(securityDepositId, taxCode)
+                          .exists(_ === claimAmount)
+                      if (amountHasChanged)
+                        journey
+                          .submitClaimAmount(securityDepositId, taxCode, claimAmount)
+                          .fold(
+                            error =>
+                              (
+                                journey,
+                                Redirect(routeForValidationError(error))
+                              ),
+                            updatedJourney =>
+                              (
+                                updatedJourney,
+                                Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                              )
+                          )
+                      else
+                        (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
 
-                  }
-                )
-            }
-          )
-        )
-      },
+                    }
+                  )
+              }
+            )
+          ),
       fastForwardToCYAEnabled = false
     )
 

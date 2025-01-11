@@ -31,7 +31,7 @@ object OverpaymentsJourneyType extends EnumerationFormat[OverpaymentsJourneyType
   private[models] val overpaymentsJourneyTypeStringMap: Map[String, OverpaymentsJourneyType] =
     values.map(a => a.toString -> a).toMap
 
-  def has(journeyType: String): Boolean                                                      =
+  def has(journeyType: String): Boolean =
     overpaymentsJourneyTypeStringMap.contains(journeyType)
 
   def find(journeyType: String): Option[OverpaymentsJourneyType] =

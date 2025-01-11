@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.Locale
 
-final case class MRN private (value: String) extends AnyVal {
+final case class MRN private (value: String) {
 
   def isValid: Boolean = value matches validityRegex
 }

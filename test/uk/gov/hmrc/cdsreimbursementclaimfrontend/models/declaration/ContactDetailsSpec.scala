@@ -29,14 +29,15 @@ class ContactDetailsSpec extends AnyWordSpec with Matchers with ScalaCheckProper
 
     "display an address" when {
 
-      "mandatory fields provided" in forAll { contactDetails: ContactDetails =>
-        contactDetails.showAddress shouldBe (
-          contactDetails.addressLine1 |+|
-            contactDetails.addressLine2.map(", " + _) |+|
-            contactDetails.addressLine3.map(", " + _) |+|
-            contactDetails.addressLine4.map(", " + _) |+|
-            contactDetails.postalCode.map(", " + _)
-        )
+      "mandatory fields provided" in forAll {
+        contactDetails: ContactDetails =>
+          contactDetails.showAddress shouldBe (
+            contactDetails.addressLine1 |+|
+              contactDetails.addressLine2.map(", " + _) |+|
+              contactDetails.addressLine3.map(", " + _) |+|
+              contactDetails.addressLine4.map(", " + _) |+|
+              contactDetails.postalCode.map(", " + _)
+          )
       }
     }
 

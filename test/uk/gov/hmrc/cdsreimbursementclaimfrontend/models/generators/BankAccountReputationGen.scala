@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
-import org.scalacheck.magnolia._
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
+import org.scalacheck.Arbitrary
 
 object BankAccountReputationGen {
 
@@ -38,27 +39,27 @@ object BankAccountReputationGen {
     ReputationResponse.Error
   )
 
-  implicit lazy val arbitraryAddress: Typeclass[BarsAddress] =
-    gen[BarsAddress]
+  implicit lazy val arbitraryAddress: Arbitrary[BarsAddress] =
+    GeneratorUtils.gen[BarsAddress]
 
-  implicit lazy val arbitraryBarsSubject: Typeclass[BarsSubject] =
-    gen[BarsSubject]
+  implicit lazy val arbitraryBarsSubject: Arbitrary[BarsSubject] =
+    GeneratorUtils.gen[BarsSubject]
 
-  implicit lazy val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest] =
-    gen[BarsBusinessAssessRequest]
+  implicit lazy val arbitraryBusinessAssessRequest: Arbitrary[BarsBusinessAssessRequest] =
+    GeneratorUtils.gen[BarsBusinessAssessRequest]
 
-  implicit lazy val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] =
-    gen[BarsPersonalAssessRequest]
+  implicit lazy val arbitraryBarsPersonalAssessRequest: Arbitrary[BarsPersonalAssessRequest] =
+    GeneratorUtils.gen[BarsPersonalAssessRequest]
 
-  implicit lazy val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse] =
-    gen[BusinessCompleteResponse]
+  implicit lazy val arbitraryBusinessCompleteResponse: Arbitrary[BusinessCompleteResponse] =
+    GeneratorUtils.gen[BusinessCompleteResponse]
 
-  implicit lazy val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse] =
-    gen[PersonalCompleteResponse]
+  implicit lazy val arbitraryPersonalCompleteResponse: Arbitrary[PersonalCompleteResponse] =
+    GeneratorUtils.gen[PersonalCompleteResponse]
 
-  implicit lazy val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse] =
-    gen[ReputationErrorResponse]
+  implicit lazy val arbitraryReputationErrorResponse: Arbitrary[ReputationErrorResponse] =
+    GeneratorUtils.gen[ReputationErrorResponse]
 
-  implicit lazy val arbitraryBankAccountReputation: Typeclass[BankAccountReputation] =
-    gen[BankAccountReputation]
+  implicit lazy val arbitraryBankAccountReputation: Arbitrary[BankAccountReputation] =
+    GeneratorUtils.gen[BankAccountReputation]
 }

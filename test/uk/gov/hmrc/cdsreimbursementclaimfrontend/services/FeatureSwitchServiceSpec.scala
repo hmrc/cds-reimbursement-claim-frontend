@@ -48,7 +48,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val configuration =
       Configuration.from(Map("feature.bulk-claim" -> "abc"))
 
-    val featureList   =
+    val featureList =
       Table[Feature](
         "Features",
         Feature.RejectedGoods,

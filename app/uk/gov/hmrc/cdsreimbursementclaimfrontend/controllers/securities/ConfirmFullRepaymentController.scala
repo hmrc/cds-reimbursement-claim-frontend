@@ -91,42 +91,42 @@ class ConfirmFullRepaymentController @Inject() (
   }
 
   def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              journey
-                .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(getPageModel(_, id))
-                .map { case model =>
-                  BadRequest(
-                    confirmFullRepaymentPage(
-                      formWithErrors,
-                      model,
-                      routes.ConfirmFullRepaymentController.submit(id)
+    implicit request =>
+      journey =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                journey
+                  .getDisplayDeclarationIfValidSecurityDepositId(id)
+                  .map(getPageModel(_, id))
+                  .map { case model =>
+                    BadRequest(
+                      confirmFullRepaymentPage(
+                        formWithErrors,
+                        model,
+                        routes.ConfirmFullRepaymentController.submit(id)
+                      )
                     )
-                  )
+                  }
+                  .getOrElse(errorHandler.errorResult())
+              ).asFuture,
+            answer =>
+              if (
+                journey.getClaimFullAmountStatus(id).contains(answer) &&
+                journey.userHasSeenCYAPage
+              )
+                (journey, Redirect(checkYourAnswers)).asFuture
+              else
+                answer match {
+                  case Yes =>
+                    submitYes(id, journey)
+                  case No  =>
+                    submitNo(id, journey)
                 }
-                .getOrElse(errorHandler.errorResult())
-            ).asFuture,
-          answer =>
-            if (
-              journey.getClaimFullAmountStatus(id).contains(answer) &&
-              journey.userHasSeenCYAPage
-            )
-              (journey, Redirect(checkYourAnswers)).asFuture
-            else
-              answer match {
-                case Yes =>
-                  submitYes(id, journey)
-                case No  =>
-                  submitNo(id, journey)
-              }
-        )
-    },
+          ),
     fastForwardToCYAEnabled = false
   )
 

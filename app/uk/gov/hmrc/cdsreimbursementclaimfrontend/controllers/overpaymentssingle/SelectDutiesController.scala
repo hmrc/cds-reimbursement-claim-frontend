@@ -70,40 +70,42 @@ class SelectDutiesController @Inject() (
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-      (if (availableDuties.isEmpty) {
-         logger.warn("No available duties")
-         (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-       } else {
-         val form = selectDutiesForm(availableDuties.map(_._1))
-         form
-           .bindFromRequest()
-           .fold(
-             formWithErrors =>
-               (
-                 journey,
-                 BadRequest(
-                   selectDutiesPage(
-                     form = formWithErrors,
-                     availableTaxCodes = availableDuties,
-                     indexAndMrnOpt = None,
-                     showCmaNotEligibleHint = true,
-                     subKey = Some("single"),
-                     postAction = postAction
+    implicit request =>
+      journey => {
+        val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+        (if (availableDuties.isEmpty) {
+           logger.warn("No available duties")
+           (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+         } else {
+           val form = selectDutiesForm(availableDuties.map(_._1))
+           form
+             .bindFromRequest()
+             .fold(
+               formWithErrors =>
+                 (
+                   journey,
+                   BadRequest(
+                     selectDutiesPage(
+                       form = formWithErrors,
+                       availableTaxCodes = availableDuties,
+                       indexAndMrnOpt = None,
+                       showCmaNotEligibleHint = true,
+                       subKey = Some("single"),
+                       postAction = postAction
+                     )
                    )
+                 ),
+               taxCodesSelected =>
+                 (
+                   journey
+                     .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
+                     .getOrElse(journey),
+                   Redirect(routes.EnterClaimController.showFirst)
                  )
-               ),
-             taxCodesSelected =>
-               (
-                 journey
-                   .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                   .getOrElse(journey),
-                 Redirect(routes.EnterClaimController.showFirst)
-               )
-           )
-       }).asFuture
-    },
+             )
+         })
+        .asFuture
+      },
     fastForwardToCYAEnabled = false
   )
 }

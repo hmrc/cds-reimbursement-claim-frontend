@@ -75,7 +75,7 @@ object CorrelationIdHeader {
       case _            => None
     }
 
-  implicit class HeaderOps(val headers: Headers) extends AnyVal {
+  implicit class HeaderOps(val headers: Headers) {
     def addIfMissing(newHeader: (String, String)): Headers =
       if (
         headers.keys

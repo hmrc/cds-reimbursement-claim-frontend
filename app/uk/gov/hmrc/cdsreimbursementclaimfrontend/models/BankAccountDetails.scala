@@ -62,7 +62,6 @@ final case class BankAccountDetails(
   def withExistenceVerified(accountExists: Option[ReputationResponse]): BankAccountDetails =
     this.copy(existenceVerified = accountExists.contains(ReputationResponse.Yes))
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[BankAccountDetails]): BankAccountDetails =
     previous.fold(this)(that =>
       this.copy(bankAccountHasChanged =

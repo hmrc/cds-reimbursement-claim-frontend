@@ -112,7 +112,6 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
     .submitBasisOfClaimSpecialCircumstancesDetails(basisOfClaimSpecialCircumstances)
     .fold(error => throw new Exception(error), identity)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -317,7 +316,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration          =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
@@ -378,7 +377,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
-      val correctedAmounts                                =
+      val correctedAmounts =
         SortedMap(reimbursements: _*).view
           .mapValues(s =>
             SortedMap(s.map { taxCode =>

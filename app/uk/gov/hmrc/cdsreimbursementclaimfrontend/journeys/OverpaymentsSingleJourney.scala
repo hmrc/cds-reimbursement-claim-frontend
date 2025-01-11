@@ -34,13 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDateTime
 
-/** An encapsulated C285 single MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C285 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[OverpaymentsSingleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[OverpaymentsSingleJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[OverpaymentsSingleJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[OverpaymentsSingleJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
@@ -240,7 +240,6 @@ final class OverpaymentsSingleJourney private (
       )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def submitBasisOfClaim(basisOfClaim: BasisOfOverpaymentClaim): OverpaymentsSingleJourney =
     whileClaimIsAmendable {
       basisOfClaim match {
@@ -275,8 +274,7 @@ final class OverpaymentsSingleJourney private (
       }
     }
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitDuplicateMovementReferenceNumberAndDeclaration(
     duplicateMrn: MRN,
@@ -419,7 +417,6 @@ final class OverpaymentsSingleJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: ReimbursementClaim
@@ -447,7 +444,6 @@ final class OverpaymentsSingleJourney private (
       }
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitClaimAmount(
     taxCode: TaxCode,
     claimAmount: BigDecimal
@@ -559,7 +555,6 @@ final class OverpaymentsSingleJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -603,7 +598,6 @@ final class OverpaymentsSingleJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[OverpaymentsSingleJourney]) {
       val that = obj.asInstanceOf[OverpaymentsSingleJourney]
@@ -614,7 +608,7 @@ final class OverpaymentsSingleJourney private (
   override def toString(): String = s"OverpaymentsSingleJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], OverpaymentsSingleJourney.Output] =
     validate(this).left
       .map(_.messages)
@@ -706,7 +700,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     basisOfClaim: BasisOfOverpaymentClaim,
     additionalDetails: String,
     reimbursements: Seq[Reimbursement],
-    reimbursementMethod: ReimbursementMethod, //this has to stay for a while until we fully implement split payments
+    reimbursementMethod: ReimbursementMethod, // this has to stay for a while until we fully implement split payments
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument],
     newEoriAndDan: Option[NewEoriAndDan]

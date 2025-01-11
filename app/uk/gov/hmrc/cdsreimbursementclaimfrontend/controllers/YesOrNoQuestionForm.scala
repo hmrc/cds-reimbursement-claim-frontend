@@ -38,7 +38,6 @@ object YesOrNoQuestionForm {
     case _       => Invalid(ValidationError("error.invalid"))
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   private def booleanThatExists: Constraint[String] = {
     lazy val errorMessage: String = "error.invalid"
     Constraint[String]("constraint.yesno") { s =>

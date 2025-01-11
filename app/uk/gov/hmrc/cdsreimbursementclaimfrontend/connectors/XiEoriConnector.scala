@@ -74,7 +74,7 @@ class DefaultXiEoriConnector @Inject() (
 
   override def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](url)
+      http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[XiEoriConnector.Response])

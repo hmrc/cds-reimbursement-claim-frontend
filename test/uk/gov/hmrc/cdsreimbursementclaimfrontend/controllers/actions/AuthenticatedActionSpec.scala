@@ -61,7 +61,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
@@ -149,7 +149,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,

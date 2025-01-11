@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.api.mvc._
 
-/** Change flag is a parameter we add to the URL to mark requests which have originated
-  * from the CYA page and require routing back to CYA after submission.
+/** Change flag is a parameter we add to the URL to mark requests which have originated from the CYA page and require
+  * routing back to CYA after submission.
   */
 object ChangeFlagUtils {
 

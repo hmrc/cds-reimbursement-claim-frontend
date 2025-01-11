@@ -46,27 +46,27 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      bankAccountTypeForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(journey), postAction))
-            ).asFuture,
-          bankAccountType =>
-            modifyJourney(journey, bankAccountType)
-              .fold(
-                e => {
-                  logger.warn(e)
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney => (updatedJourney, Redirect(enterBankAccountDetailsRoute))
-              )
-              .asFuture
-        )
-    },
+    implicit request =>
+      journey =>
+        bankAccountTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(journey), postAction))
+              ).asFuture,
+            bankAccountType =>
+              modifyJourney(journey, bankAccountType)
+                .fold(
+                  e => {
+                    logger.warn(e)
+                    (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  },
+                  updatedJourney => (updatedJourney, Redirect(enterBankAccountDetailsRoute))
+                )
+                .asFuture
+          ),
     fastForwardToCYAEnabled = false
   )
 }

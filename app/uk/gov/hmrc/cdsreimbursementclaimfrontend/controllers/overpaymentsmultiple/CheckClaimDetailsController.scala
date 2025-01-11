@@ -74,37 +74,37 @@ class CheckClaimDetailsController @Inject() (
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
-       else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
-       else {
-         form
-           .bindFromRequest()
-           .fold(
-             formWithErrors =>
-               (
-                 journey,
-                 Ok(
-                   checkClaimDetails(
-                     formWithErrors,
-                     journey.getReimbursementsWithCorrectAmounts,
-                     enterClaimAction,
-                     submitAction
-                   )
-                 )
-               ),
-             {
-               case Yes =>
+    implicit request =>
+      journey =>
+        (if (!journey.hasCompleteMovementReferenceNumbers) (journey, Redirect(enterMrnAction))
+         else if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction))
+         else {
+           form
+             .bindFromRequest()
+             .fold(
+               formWithErrors =>
                  (
                    journey,
-                   if (shouldForwardToCYA(journey)) Redirect(checkYourAnswers)
-                   else Redirect(nextAction)
-                 )
-               case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
-             }
-           )
-       }).asFuture
-    },
+                   Ok(
+                     checkClaimDetails(
+                       formWithErrors,
+                       journey.getReimbursementsWithCorrectAmounts,
+                       enterClaimAction,
+                       submitAction
+                     )
+                   )
+                 ),
+               {
+                 case Yes =>
+                   (
+                     journey,
+                     if (shouldForwardToCYA(journey)) Redirect(checkYourAnswers)
+                     else Redirect(nextAction)
+                   )
+                 case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
+               }
+             )
+         }).asFuture,
     fastForwardToCYAEnabled = false
   )
 }

@@ -41,12 +41,12 @@ trait RejectedGoodsMultipleJourneyRouter {
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show
       case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF()
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show
-      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined //routes.EnterDeclarantEoriNumberController.show
+      case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined // routes.EnterDeclarantEoriNumberController.show
       case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     =>
-        undefined //routes.EnterDeclarantEoriNumberController.show
-      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined //routes.EnterImporterEoriNumberController.show
+        undefined // routes.EnterDeclarantEoriNumberController.show
+      case CONSIGNEE_EORI_NUMBER_MUST_BE_PROVIDED                   => undefined // routes.EnterImporterEoriNumberController.show
       case CONSIGNEE_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     =>
-        undefined //routes.EnterImporterEoriNumberController.show
+        undefined // routes.EnterImporterEoriNumberController.show
       case DECLARANT_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case CONSIGNEE_EORI_NUMBER_DOES_NOT_HAVE_TO_BE_PROVIDED       => undefined
       case BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED                     => routes.EnterBankAccountDetailsController.show

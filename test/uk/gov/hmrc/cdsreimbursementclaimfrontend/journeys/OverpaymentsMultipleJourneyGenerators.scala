@@ -92,7 +92,6 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       completeJourneyWithNonNatchingUserEoriGen
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -397,7 +396,7 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclarations: Seq[DisplayDeclaration]    = mrns.map { mrn =>
+      val displayDeclarations: Seq[DisplayDeclaration] = mrns.map { mrn =>
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,

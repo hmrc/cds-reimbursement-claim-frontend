@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genCountry
@@ -44,7 +43,7 @@ object InspectionAddressGen {
     addressType = addressType
   )
 
-  implicit lazy val arbitraryInspectionAddress: Typeclass[InspectionAddress] =
+  implicit lazy val arbitraryInspectionAddress: Arbitrary[InspectionAddress] =
     Arbitrary(genInspectionAddress)
 
 }

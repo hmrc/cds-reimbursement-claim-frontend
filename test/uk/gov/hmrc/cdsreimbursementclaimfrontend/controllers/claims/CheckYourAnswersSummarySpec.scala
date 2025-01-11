@@ -55,7 +55,7 @@ abstract class CheckYourAnswersSummarySpec
 object CheckYourAnswersSummarySpec extends HtmlParseSupport {
   import scala.jdk.CollectionConverters._
 
-  implicit class DOMDocOps(private val document: nodes.Document) extends AnyVal {
+  implicit class DOMDocOps(private val document: nodes.Document) {
 
     def extractHeaders(): Seq[String] =
       document

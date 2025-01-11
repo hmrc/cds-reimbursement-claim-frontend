@@ -63,36 +63,37 @@ class SelectDutiesController @Inject() (
   }
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
-      if (journey.isDutyTypeSelected) {
-        Future.successful(
-          selectDutyCodesForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
-              selectedTaxCodes =>
-                journey
-                  .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
-                  .fold(
-                    errors => {
-                      logger.error(s"Error updating tax codes selection - $errors")
-                      (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
-                    },
-                    updatedJourney =>
-                      (
-                        updatedJourney,
-                        selectedTaxCodes.headOption.fold(
-                          BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
-                        )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
-                      )
-                  )
-            )
-        )
-      } else {
-        (journey, Redirect(selectDutiesAction)).asFuture
-      }
-    },
+    implicit request =>
+      journey => {
+        val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
+        if (journey.isDutyTypeSelected) {
+          Future.successful(
+            selectDutyCodesForm
+              .bindFromRequest()
+              .fold(
+                formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
+                selectedTaxCodes =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
+                    .fold(
+                      errors => {
+                        logger.error(s"Error updating tax codes selection - $errors")
+                        (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
+                      },
+                      updatedJourney =>
+                        (
+                          updatedJourney,
+                          selectedTaxCodes.headOption.fold(
+                            BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
+                          )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
+                        )
+                    )
+              )
+          )
+        } else {
+          (journey, Redirect(selectDutiesAction)).asFuture
+        }
+      },
     fastForwardToCYAEnabled = false
   )
 }

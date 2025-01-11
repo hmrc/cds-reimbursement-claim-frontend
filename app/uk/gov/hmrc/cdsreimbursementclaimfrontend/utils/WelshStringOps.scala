@@ -65,7 +65,7 @@ object WelshStringOps {
 
   private val welshCharacters = WELSH_ALPHABET.filter(s => s._1.length === 2)
 
-  implicit class WelshStringOps(private val string: String) extends AnyVal {
+  implicit class WelshStringOps(private val string: String) {
 
     def isBeforeInWelsh(other: String): Boolean =
       if (other === string) false

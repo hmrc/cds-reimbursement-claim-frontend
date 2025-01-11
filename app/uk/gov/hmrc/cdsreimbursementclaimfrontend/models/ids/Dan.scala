@@ -21,7 +21,7 @@ import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan.validityRegex
 
-final case class Dan(value: String) extends AnyVal {
+final case class Dan(value: String) {
   def isValid: Boolean = value matches validityRegex
 }
 

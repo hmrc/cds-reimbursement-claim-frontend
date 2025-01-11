@@ -54,31 +54,23 @@ class UploadDocumentTypeSpec extends AnyWordSpec with JsonFormatTest with Matche
     }
 
     "have no duplicates in the rejectedGoodsScheduledDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsScheduledDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsScheduledDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the rejectedGoodsMultipleDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsMultipleDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsMultipleDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the rejectedGoodsSingleDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsSingleDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsSingleDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the c285DocumentTypes" in {
-      {
-        val dts = UploadDocumentType.c285DocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.c285DocumentTypes
+      dts.distinct.size === dts.size
     }
   }
 

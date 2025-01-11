@@ -36,7 +36,7 @@ final case class Flags private (flags: Long) {
     else new Flags(flags & ~(1L << pos))
 
   /** Check whether all flags are set up to the given position */
-  @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.While"))
+
   def checkAllSet(maxPos: Int): Boolean =
     if (maxPos < 0 || maxPos >= 64) throw new IndexOutOfBoundsException("Flags index must be in range [0,63]")
     else {
@@ -49,7 +49,6 @@ final case class Flags private (flags: Long) {
       c
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.While"))
   def firstSet: Option[Int] =
     if (flags == 0L) None
     else if (flags == -1L) { Some(0) }
@@ -65,7 +64,6 @@ final case class Flags private (flags: Long) {
       if (c) None else Some(i)
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.While"))
   def firstNotSet: Option[Int] =
     if (flags == 0L) Some(0)
     else if (flags == -1L) { None }

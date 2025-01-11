@@ -118,7 +118,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                 logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
               },
-              updatedJourney => (nextPageOnDelete(updatedJourney))
+              updatedJourney => nextPageOnDelete(updatedJourney)
             )
             .asFuture,
       fastForwardToCYAEnabled = false

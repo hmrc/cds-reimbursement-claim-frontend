@@ -35,13 +35,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C&E1179 multiple MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C&E1179 multiple MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsMultipleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsMultipleJourney.Output]] - final outcome of the journey to be sent to backend processing
+  *   - [[RejectedGoodsMultipleJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsMultipleJourney.Output]] - final outcome of the journey to be sent to backend processing
   */
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
@@ -172,15 +172,14 @@ final class RejectedGoodsMultipleJourney private (
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
     getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  /** Returns the amount paid for the given MRN and tax code as returned by ACC14,
-    * or None if either MRN or tax code not found.
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
+    * found.
     */
   def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
 
-  /** If the user has selected the tax code for repayment
-    * then returns the amount paid for the given MRN and tax code as returned by ACC14,
-    * otherwise None.
+  /** If the user has selected the tax code for repayment then returns the amount paid for the given MRN and tax code as
+    * returned by ACC14, otherwise None.
     */
   def getAmountPaidForIfSelected(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     getSelectedDuties(mrn)
@@ -517,7 +516,7 @@ final class RejectedGoodsMultipleJourney private (
             if (allTaxCodesExistInACC14) {
               val newCorrectAmounts: RejectedGoodsMultipleJourney.CorrectedAmounts =
                 getCorrectAmountsFor(mrn) match {
-                  case None                 =>
+                  case None =>
                     OrderedMap.from(taxCodes.map(taxCode => taxCode -> None))
 
                   case Some(correctAmounts) =>
@@ -690,7 +689,6 @@ final class RejectedGoodsMultipleJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
@@ -734,7 +732,6 @@ final class RejectedGoodsMultipleJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
     if (obj.isInstanceOf[RejectedGoodsMultipleJourney]) {
       val that = obj.asInstanceOf[RejectedGoodsMultipleJourney]
@@ -745,7 +742,7 @@ final class RejectedGoodsMultipleJourney private (
   override def toString: String = s"RejectedGoodsMultipleJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], RejectedGoodsMultipleJourney.Output] =
     validate(this).left
       .map(_.messages)

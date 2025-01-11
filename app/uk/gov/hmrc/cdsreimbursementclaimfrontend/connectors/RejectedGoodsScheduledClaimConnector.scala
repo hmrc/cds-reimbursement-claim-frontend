@@ -34,16 +34,25 @@ import javax.inject.Singleton
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import com.google.inject.ImplementedBy
+
+@ImplementedBy(classOf[RejectedGoodsScheduledClaimConnectorImpl])
+trait RejectedGoodsScheduledClaimConnector {
+  def submitClaim(claimRequest: RejectedGoodsScheduledClaimConnector.Request)(implicit
+    hc: HeaderCarrier
+  ): Future[RejectedGoodsScheduledClaimConnector.Response]
+}
 
 @Singleton
-class RejectedGoodsScheduledClaimConnector @Inject() (
+class RejectedGoodsScheduledClaimConnectorImpl @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends Retries {
+) extends RejectedGoodsScheduledClaimConnector
+    with Retries {
 
   import RejectedGoodsScheduledClaimConnector._
 

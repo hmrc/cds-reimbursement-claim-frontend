@@ -34,16 +34,25 @@ import javax.inject.Singleton
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import com.google.inject.ImplementedBy
+
+@ImplementedBy(classOf[RejectedGoodsSingleClaimConnectorImpl])
+trait RejectedGoodsSingleClaimConnector {
+  def submitClaim(claimRequest: RejectedGoodsSingleClaimConnector.Request)(implicit
+    hc: HeaderCarrier
+  ): Future[RejectedGoodsSingleClaimConnector.Response]
+}
 
 @Singleton
-class RejectedGoodsSingleClaimConnector @Inject() (
+class RejectedGoodsSingleClaimConnectorImpl @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends Retries {
+) extends RejectedGoodsSingleClaimConnector
+    with Retries {
 
   import RejectedGoodsSingleClaimConnector._
 
@@ -53,7 +62,7 @@ class RejectedGoodsSingleClaimConnector @Inject() (
   lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-single"
   lazy val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  def submitClaim(claimRequest: Request)(implicit
+  override def submitClaim(claimRequest: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(

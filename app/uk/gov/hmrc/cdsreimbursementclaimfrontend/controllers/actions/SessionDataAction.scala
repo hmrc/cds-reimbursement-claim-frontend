@@ -54,7 +54,6 @@ class SessionDataAction @Inject() (
   ): RequestWithSessionData[A] =
     RequestWithSessionData(sessionData, request)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def readHeadersFromRequestOnly(b: Boolean): SessionDataAction =
     if (b == this.headersFromRequestOnly) this
     else

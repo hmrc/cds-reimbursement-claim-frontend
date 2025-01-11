@@ -70,15 +70,15 @@ class ChooseReasonForSecurityController @Inject() (
 
   private val postAction: Call = routes.ChooseReasonForSecurityController.submit
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
     Redirect(routes.EnterImporterEoriNumberController.show)
 
-  //Error: Claim has already been submitted as part of a whole or partial claim
+  // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
@@ -88,7 +88,6 @@ class ChooseReasonForSecurityController @Inject() (
     if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) filterDisabledNiruOptions(ReasonForSecurity.niru)
     else Set.empty
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def filterDisabledNiruOptions(
     options: Set[ReasonForSecurity]
   )(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
@@ -124,7 +123,6 @@ class ChooseReasonForSecurityController @Inject() (
     ).asFuture
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     form
       .bindFromRequest()
@@ -148,25 +146,24 @@ class ChooseReasonForSecurityController @Inject() (
               mrn                          <- getMovementReferenceNumber(journey)
               declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
               _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-              updatedDeclaration            = reasonForSecurity match {
-                                                case EndUseRelief =>
-                                                  val updatedSecurityDetails =
-                                                    declaration.displayResponseDetail.securityDetails.map { securityDetails =>
-                                                      securityDetails.map(sd =>
-                                                        sd.copy(taxDetails =
-                                                          sd.taxDetails.filterNot(td =>
-                                                            TaxCodes.vatTaxCodes.contains(td.getTaxCode)
-                                                          )
-                                                        )
-                                                      )
-                                                    }
-                                                  declaration.copy(
-                                                    displayResponseDetail = declaration.displayResponseDetail.copy(
-                                                      securityDetails = updatedSecurityDetails
-                                                    )
-                                                  )
-                                                case _            => declaration
-                                              }
+              updatedDeclaration            =
+                reasonForSecurity match {
+                  case EndUseRelief =>
+                    val updatedSecurityDetails =
+                      declaration.displayResponseDetail.securityDetails.map { securityDetails =>
+                        securityDetails.map(sd =>
+                          sd.copy(taxDetails =
+                            sd.taxDetails.filterNot(td => TaxCodes.vatTaxCodes.contains(td.getTaxCode))
+                          )
+                        )
+                      }
+                    declaration.copy(
+                      displayResponseDetail = declaration.displayResponseDetail.copy(
+                        securityDetails = updatedSecurityDetails
+                      )
+                    )
+                  case _            => declaration
+                }
               updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, updatedDeclaration)
               journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
               updatedJourneyWithRedirect   <-

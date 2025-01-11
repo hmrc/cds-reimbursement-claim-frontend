@@ -71,7 +71,6 @@ class SelectDutyTypesController @Inject() (
 
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     selectDutyTypesForm
       .bindFromRequest()

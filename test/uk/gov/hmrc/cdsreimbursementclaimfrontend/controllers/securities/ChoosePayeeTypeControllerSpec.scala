@@ -149,38 +149,40 @@ class ChoosePayeeTypeControllerSpec
     }
 
     "successfully submit bank account type" when {
-      "one of the options selected and payment type is non-guarantee" in forAll { payeeType: PayeeType =>
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionNonGuarantee)
-          mockStoreSession(
-            sessionNonGuarantee.copy(
-              securitiesJourney = initialJourneyNonGuarantee.submitPayeeType(payeeType).toOption
-            )
-          )(Right(()))
-        }
+      "one of the options selected and payment type is non-guarantee" in forAll {
+        payeeType: PayeeType =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(sessionNonGuarantee)
+            mockStoreSession(
+              sessionNonGuarantee.copy(
+                securitiesJourney = initialJourneyNonGuarantee.submitPayeeType(payeeType).toOption
+              )
+            )(Right(()))
+          }
 
-        checkIsRedirect(
-          submitPayeeType(formKey -> payeeType.toString),
-          routes.EnterBankAccountDetailsController.show
-        )
+          checkIsRedirect(
+            submitPayeeType(formKey -> payeeType.toString),
+            routes.EnterBankAccountDetailsController.show
+          )
       }
 
-      "one of the options selected and payment type is guarantee" in forAll { payeeType: PayeeType =>
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionGuarantee)
-          mockStoreSession(
-            sessionGuarantee.copy(
-              securitiesJourney = initialJourneyGuarantee.submitPayeeType(payeeType).toOption
-            )
-          )(Right(()))
-        }
+      "one of the options selected and payment type is guarantee" in forAll {
+        payeeType: PayeeType =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(sessionGuarantee)
+            mockStoreSession(
+              sessionGuarantee.copy(
+                securitiesJourney = initialJourneyGuarantee.submitPayeeType(payeeType).toOption
+              )
+            )(Right(()))
+          }
 
-        checkIsRedirect(
-          submitPayeeType(formKey -> payeeType.toString),
-          routes.EnterBankAccountDetailsController.show
-        )
+          checkIsRedirect(
+            submitPayeeType(formKey -> payeeType.toString),
+            routes.EnterBankAccountDetailsController.show
+          )
       }
     }
   }

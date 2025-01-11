@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
-import org.scalacheck.magnolia._
+
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
@@ -36,11 +36,11 @@ object IdGen {
     .chooseNum(0, 100)
     .map(AssociatedMrnIndex.fromListIndex)
 
-  implicit lazy val arbitraryAssociatedMrnIndex: Typeclass[AssociatedMrnIndex] =
+  implicit lazy val arbitraryAssociatedMrnIndex: Arbitrary[AssociatedMrnIndex] =
     Arbitrary(genAssociatedMrnIndex)
 
-  implicit lazy val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] =
-    gen[NonEmptyList[AssociatedMrn]]
+  implicit lazy val arbitraryAssociatedMRNsAnswer: Arbitrary[NonEmptyList[AssociatedMrn]] =
+    GeneratorUtils.gen[NonEmptyList[AssociatedMrn]]
 
   lazy val genDan: Gen[Dan] =
     for {
@@ -60,7 +60,7 @@ object IdGen {
       s <- Gen.const(s"XI${n.mkString}")
     } yield Eori(s)
 
-  implicit lazy val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
+  implicit lazy val arbitraryEori: Arbitrary[Eori] = Arbitrary(genEori)
 
   lazy val genMRN: Gen[MRN] = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
@@ -74,8 +74,8 @@ object IdGen {
     lastName <- genStringWithMaxSizeOfN(20)
   } yield Name(Some(name), Some(lastName))
 
-  implicit lazy val arbitraryName: Typeclass[Name] = Arbitrary(genName)
+  implicit lazy val arbitraryName: Arbitrary[Name] = Arbitrary(genName)
 
-  implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
+  implicit lazy val arbitraryMrn: Arbitrary[MRN] = Arbitrary(genMRN)
 
 }

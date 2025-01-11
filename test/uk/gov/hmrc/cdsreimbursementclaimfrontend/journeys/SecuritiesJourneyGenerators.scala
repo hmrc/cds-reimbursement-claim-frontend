@@ -301,7 +301,6 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   val genReasonForSecurity: Gen[ReasonForSecurity] =
     Gen.oneOf(ReasonForSecurity.values)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = false,

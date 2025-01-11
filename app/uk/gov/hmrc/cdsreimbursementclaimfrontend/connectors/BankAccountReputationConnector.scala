@@ -42,6 +42,7 @@ import javax.inject.Singleton
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import java.net.URL
 
 @Singleton
 class BankAccountReputationConnector @Inject() (
@@ -99,7 +100,7 @@ class BankAccountReputationConnector @Inject() (
     EitherT {
       retry(retryIntervals: _*)(shouldRetry, retryReason)(
         http
-          .POST[T, HttpResponse](url, data)
+          .POST[T, HttpResponse](URL(url), data)
       )
         .map(checkResponse(_, url))
     }

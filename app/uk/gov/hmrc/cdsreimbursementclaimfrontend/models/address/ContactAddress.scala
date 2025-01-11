@@ -82,7 +82,6 @@ final case class ContactAddress(
     )
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[ContactAddress]): ContactAddress =
     previous.fold(this)(that =>
       this.copy(addressHasChanged =

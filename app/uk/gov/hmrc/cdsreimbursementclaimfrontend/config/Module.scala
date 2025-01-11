@@ -49,7 +49,6 @@ import scala.annotation.nowarn
 
 class Module extends AbstractModule {
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   @nowarn
   override def configure(): Unit = {
     bind(classOf[HttpClient]).to(classOf[DebuggingHttpClient])
@@ -74,7 +73,6 @@ class DebuggingHook(config: Configuration) extends HttpHook {
   val shouldDebug: Boolean =
     config.underlying.getBoolean("outboundRequests.debug")
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def apply(
     verb: String,
     url: URL,
@@ -90,11 +88,11 @@ class DebuggingHook(config: Configuration) extends HttpHook {
           Logger("OutboundRequest").debug(s"""$printRequest  
           |$YELLOW Response: $BOLD${response.status}$RESET
           |   ${response.headers.toSeq
-            .flatMap { case (k, vs) => vs.map(v => s"$BLUE$k: $MAGENTA$v$RESET") }
-            .mkString("\n   ")}
+                                              .flatMap { case (k, vs) => vs.map(v => s"$BLUE$k: $MAGENTA$v$RESET") }
+                                              .mkString("\n   ")}
           |      
           |$GREEN${Try(Json.prettyPrint(Json.parse(response.body.value)))
-            .getOrElse(response.body.value)}$RESET\n""".stripMargin)
+                                              .getOrElse(response.body.value)}$RESET\n""".stripMargin)
 
         case Failure(exception) =>
           Logger("OutboundRequest").debug(
@@ -111,19 +109,19 @@ class DebuggingHook(config: Configuration) extends HttpHook {
         |   ${request.headers.map { case (k, v) => s"$BLUE$k: $MAGENTA$v$RESET" }.mkString("\n   ")}
         |
         |${request.body
-        .map { case Data(value, _, _) =>
-          value match {
-            case FromMap(m) =>
-              m.toSeq
-                .flatMap { case (k, vs) => vs.map(v => (k, v)) }
-                .map { case (k, v) => s"$k = $v" }
-                .mkString("\n   ")
+          .map { case Data(value, _, _) =>
+            value match {
+              case FromMap(m) =>
+                m.toSeq
+                  .flatMap { case (k, vs) => vs.map(v => (k, v)) }
+                  .map { case (k, v) => s"$k = $v" }
+                  .mkString("\n   ")
 
-            case FromString(s) =>
-              s"$GREEN${Try(Json.prettyPrint(Json.parse(s))).getOrElse(s)}$RESET"
+              case FromString(s) =>
+                s"$GREEN${Try(Json.prettyPrint(Json.parse(s))).getOrElse(s)}$RESET"
+            }
           }
-        }
-        .getOrElse("")}""".stripMargin
+          .getOrElse("")}""".stripMargin
   }
 
 }

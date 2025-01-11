@@ -155,7 +155,7 @@ class UploadDocumentsConnectorSpec
   val responseHeaders: Map[String, Seq[String]] =
     Map("Location" -> Seq("http://foo.bar/zoo"))
 
-  val expectedResponse: Some[String]            =
+  val expectedResponse: Some[String] =
     Some("http://foo.bar/zoo")
 
   "UploadDocumentsConnector" must {

@@ -154,7 +154,6 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
     .submitBasisOfClaimSpecialCircumstancesDetails(basisOfClaimSpecialCircumstances)
     .fold(error => throw new Exception(error), identity)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -276,7 +275,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
@@ -388,7 +387,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration          =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
@@ -455,7 +454,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
@@ -540,7 +539,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =

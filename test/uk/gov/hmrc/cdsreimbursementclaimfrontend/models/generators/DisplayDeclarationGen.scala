@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import org.scalacheck.Arbitrary
 
 object DisplayDeclarationGen {
   import DisplayResponseDetailGen.arbitraryDisplayResponseDetail
 
-  implicit lazy val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] =
-    gen[DisplayDeclaration]
+  implicit lazy val arbitraryDisplayDeclaration: Arbitrary[DisplayDeclaration] =
+    GeneratorUtils.gen[DisplayDeclaration]
 }

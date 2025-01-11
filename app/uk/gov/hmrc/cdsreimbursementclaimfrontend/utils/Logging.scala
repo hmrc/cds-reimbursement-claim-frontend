@@ -50,7 +50,7 @@ trait Logging {
 
 object Logging {
 
-  implicit class LoggerOps(private val l: Logger) extends AnyVal {
+  implicit class LoggerOps(private val l: Logger) {
     def warn(msg: => String, error: => Error): Unit = {
       val idString = error.identifiers.map { case (k, v) => s"[$k: $v]" }.mkString(" ")
       error.throwable.fold(l.warn(s"$idString $msg ${error.message}"))(e =>
@@ -67,13 +67,17 @@ object PrettyPrint {
     *
     * Credits: https://gist.github.com/carymrobbins/7b8ed52cd6ea186dbdf8
     *
-    * @param a - The value to pretty print.
-    * @param indentSize - Number of spaces for each indent.
-    * @param maxElementWidth - Largest element size before wrapping.
-    * @param depth - Initial depth to pretty print indents.
+    * @param a
+    *   \- The value to pretty print.
+    * @param indentSize
+    *   \- Number of spaces for each indent.
+    * @param maxElementWidth
+    *   \- Largest element size before wrapping.
+    * @param depth
+    *   \- Initial depth to pretty print indents.
     * @return
     */
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
+
   @annotation.nowarn
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize

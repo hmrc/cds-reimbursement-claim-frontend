@@ -126,7 +126,7 @@ class CheckYourAnswersControllerSpec
       "Now send your claim".expectedAlways
     )
 
-    val mrnKeys: Seq[(String, Option[String])]            =
+    val mrnKeys: Seq[(String, Option[String])] =
       claim.movementReferenceNumbers.zipWithIndex
         .map { case (mrn, i) => (s"${OrdinalNumber(i + 1).capitalize} MRN", Some(mrn.value)) }
 
@@ -136,7 +136,7 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries should containOnlyDefinedPairsOf(

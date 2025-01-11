@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
 import java.time.LocalDate
 
-final case class InspectionDate(value: LocalDate) extends AnyVal
+final case class InspectionDate(value: LocalDate)
 
 object InspectionDate {
 

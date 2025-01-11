@@ -72,7 +72,7 @@ class SecuritiesClaimConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new SecuritiesClaimConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new SecuritiesClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

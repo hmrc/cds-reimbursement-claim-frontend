@@ -328,7 +328,7 @@ class EnterClaimControllerSpec
                     taxCode.value
                   ),
                 doc => {
-                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some((paidAmount + BigDecimal("0.01"))))
+                  validateEnterClaimPage(doc, pageIndex, mrn, taxCode, Some(paidAmount + BigDecimal("0.01")))
                   assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))
                 },
                 expectedStatus = BAD_REQUEST

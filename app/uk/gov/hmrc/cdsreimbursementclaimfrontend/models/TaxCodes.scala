@@ -131,7 +131,7 @@ object TaxCodes {
   private[models] val taxCodesStringMap: Map[String, TaxCode] =
     all.map(a => a.value -> a).toMap
 
-  def has(code: String): Boolean                              =
+  def has(code: String): Boolean =
     TaxCodes.all.exists(_.value === code)
 
   def find(taxCode: String): Option[TaxCode] =

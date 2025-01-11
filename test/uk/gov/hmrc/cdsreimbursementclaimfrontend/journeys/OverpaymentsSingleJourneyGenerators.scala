@@ -119,9 +119,8 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     journey <- completeJourneyGen
   } yield journey
     .submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
-  //.fold(error => throw new Exception(error), identity)
+  // .fold(error => throw new Exception(error), identity)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
@@ -260,7 +259,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
                                      }
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
@@ -371,7 +370,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration          =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           mrn.value,
           declarantEORI,
@@ -436,7 +435,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
@@ -524,7 +523,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       declarantContact         <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
-      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]            =
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
       val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =

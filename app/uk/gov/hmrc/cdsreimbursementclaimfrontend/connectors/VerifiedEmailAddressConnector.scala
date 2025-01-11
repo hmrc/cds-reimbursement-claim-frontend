@@ -55,7 +55,7 @@ class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClient, services
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](getUri(eori))
+        .GET[HttpResponse](java.net.URL(getUri(eori)))
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
