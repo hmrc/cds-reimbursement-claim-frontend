@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genCountry
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.{genCountry, genPostcode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{InspectionAddress, InspectionAddressType}
 
 object InspectionAddressGen {
 

@@ -18,9 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 
 class DateFormatterSpec extends AnyWordSpec with ControllerSpec with Matchers {

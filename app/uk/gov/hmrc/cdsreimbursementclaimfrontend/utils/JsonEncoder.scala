@@ -29,16 +29,15 @@ import play.api.Logger
 
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
-import scala.jdk.CollectionConverters._
+import java.util.Locale
+
+import scala.jdk.CollectionConverters.*
 import scala.util.Success
 import scala.util.Try
-import java.util.Locale
-import scala.annotation.nowarn
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
-  @nowarn
   private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)
 
   lazy val appName: String = Try(ConfigFactory.load().getString("appName")) match {
@@ -81,7 +80,6 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     s"${mapper.writeValueAsString(eventNode)}${System.lineSeparator()}".getBytes(StandardCharsets.UTF_8)
   }
 
-  @nowarn
   def decodeMessage(eventNode: ObjectNode, message: String): Unit =
     if message.startsWith("json{") then {
       eventNode.put("message", message.drop(4))

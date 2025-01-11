@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import org.scalacheck.Arbitrary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 
 object ExistingClaimGen {
   implicit lazy val arbitraryExistingClaim: Arbitrary[ExistingClaim] = GeneratorUtils.gen[ExistingClaim]

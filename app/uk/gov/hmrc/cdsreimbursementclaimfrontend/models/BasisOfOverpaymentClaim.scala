@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Missi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+
 import scala.math.Ordering
 
 sealed trait BasisOfOverpaymentClaim {

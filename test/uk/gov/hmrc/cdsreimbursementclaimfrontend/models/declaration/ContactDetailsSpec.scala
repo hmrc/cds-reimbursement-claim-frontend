@@ -20,8 +20,7 @@ import cats.implicits.catsSyntaxSemigroup
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{arbitraryContactDetails, genContactDetails}
 
 class ContactDetailsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
 

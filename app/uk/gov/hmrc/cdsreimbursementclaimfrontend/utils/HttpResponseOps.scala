@@ -20,7 +20,7 @@ import play.api.libs.json.JsDefined
 import play.api.libs.json.JsError
 import play.api.libs.json.JsLookupResult
 import play.api.libs.json.Reads
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.JsErrorOps._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.JsErrorOps.*
 import uk.gov.hmrc.http.HttpResponse
 
 import scala.util.Failure

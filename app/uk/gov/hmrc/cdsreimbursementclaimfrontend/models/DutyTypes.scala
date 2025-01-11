@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.*
 
 object DutyTypes {
 

@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Json
 import play.api.libs.json.Format
+import play.api.libs.json.JsError
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 import play.api.libs.json.Reads
 import play.api.libs.json.Writes
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsError
-import play.api.libs.json.OFormat
 
 sealed trait ReimbursementClaim {
   def getAmount: BigDecimal

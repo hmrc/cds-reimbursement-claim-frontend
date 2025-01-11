@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import play.api.Logger
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsString
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
-import play.api.libs.json.JsString
-import play.api.libs.json.JsObject
 
 final case class JourneyLog(
   journeyType: String,

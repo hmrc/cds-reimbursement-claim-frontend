@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import play.api.data.format.Formatter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
 
 import java.lang
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.LocalDateTime
 
 trait JourneyTestData {
 

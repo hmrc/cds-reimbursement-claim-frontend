@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.actor.ActorSystem
-import cats.syntax.eq._
+import cats.syntax.eq.*
+import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Singleton
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import com.google.inject.ImplementedBy
 
 @ImplementedBy(classOf[SecuritiesClaimConnectorImpl])
 trait SecuritiesClaimConnector {

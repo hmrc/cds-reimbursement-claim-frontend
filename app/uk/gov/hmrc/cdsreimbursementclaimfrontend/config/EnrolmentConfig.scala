@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.Locale

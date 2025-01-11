@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import cats.data.Validated.Valid
 import cats.data.Validated.invalidNel
-import cats.syntax.all._
+import cats.syntax.all.*
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat

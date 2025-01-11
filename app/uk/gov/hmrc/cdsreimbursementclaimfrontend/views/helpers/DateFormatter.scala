@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
+import cats.syntax.eq.*
 import play.api.i18n.Messages
-import cats.syntax.eq._
+
 import java.time.LocalDate
 import java.util.Locale
 

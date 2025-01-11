@@ -18,11 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import cats.Eq
 import cats.implicits.catsSyntaxEq
-
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.*
 
 final case class EstablishmentAddress(
   addressLine1: String,

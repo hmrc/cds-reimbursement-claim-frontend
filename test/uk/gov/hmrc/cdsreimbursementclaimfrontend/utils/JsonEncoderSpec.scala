@@ -16,22 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.fasterxml.jackson.databind.node.TextNode
-
-import scala.jdk.CollectionConverters._
-import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.OutputStreamAppender
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import java.io.OutputStream
 import java.nio.ByteBuffer
-import com.fasterxml.jackson.databind.JsonNode
 import java.nio.charset.StandardCharsets
+import scala.jdk.CollectionConverters.*
 
 class JsonEncoderSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

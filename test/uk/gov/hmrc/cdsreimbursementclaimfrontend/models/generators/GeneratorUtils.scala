@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
-import scala.deriving.Mirror
+import org.scalacheck.{Arbitrary, Gen}
+
 import scala.compiletime.*
+import scala.deriving.Mirror
 
 object GeneratorUtils {
 

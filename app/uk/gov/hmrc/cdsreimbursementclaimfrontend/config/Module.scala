@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import org.apache.pekko.actor.ActorSystem
 import com.google.inject.AbstractModule
+import org.apache.pekko.actor.ActorSystem
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.Configuration
-import play.api.Environment
 import play.api.Logger
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.HttpClientV2Impl
 import uk.gov.hmrc.http.hooks.HookData.FromMap
 import uk.gov.hmrc.http.hooks.HookData.FromString
 import uk.gov.hmrc.http.hooks.Data
@@ -31,25 +32,22 @@ import uk.gov.hmrc.http.hooks.RequestData
 import uk.gov.hmrc.http.hooks.ResponseData
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.http.client.HttpClientV2Impl
 
 import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.io.AnsiColor._
+import scala.io.AnsiColor.*
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.annotation.nowarn
 
 class Module extends AbstractModule {
 
-  @nowarn
   override def configure(): Unit = {
     bind(classOf[HttpClient]).to(classOf[DebuggingHttpClient])
     bind(classOf[HttpClientV2]).to(classOf[DebuggingHttpClientV2])

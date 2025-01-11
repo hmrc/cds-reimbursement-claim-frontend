@@ -24,33 +24,22 @@ import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.ACCEPTED
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesImpl
-import play.api.libs.json.JsError
-import play.api.libs.json.JsPath
-import play.api.libs.json.Json
-import play.api.libs.json.JsonValidationError
+import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import play.api.mvc.Call
-import play.api.test.Helpers.LOCATION
-import play.api.test.Helpers._
-import play.api.Configuration
-import play.api.Environment
+import play.api.test.Helpers.*
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupPageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LabelsByLocale
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.{AddressLookupPageLabels, AddressLookupRequest, LabelsByLocale}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL

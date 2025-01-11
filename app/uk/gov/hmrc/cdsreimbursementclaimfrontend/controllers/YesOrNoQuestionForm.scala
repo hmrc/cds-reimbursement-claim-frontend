@@ -17,8 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
-import play.api.data.Form
-import play.api.data.Mapping
 import play.api.data.Forms.mapping
 import play.api.data.Forms.text
 import play.api.data.validation.Constraint
@@ -26,6 +24,8 @@ import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import play.api.data.validation.ValidationError
 import play.api.data.validation.ValidationResult
+import play.api.data.Form
+import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes

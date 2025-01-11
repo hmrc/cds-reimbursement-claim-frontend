@@ -16,20 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement

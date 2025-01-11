@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class TaxCode(val value: String, val isSubsidy: Boolean = false) extends Product with Serializable {

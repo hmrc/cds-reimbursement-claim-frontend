@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 

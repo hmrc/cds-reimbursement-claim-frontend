@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.*
 
 object TaxCodes {
 

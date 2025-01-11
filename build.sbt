@@ -10,6 +10,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
+addCommandAlias("fix", "all compile:scalafix test:scalafix")
 
 lazy val scoverageSettings =
   Seq(
@@ -60,7 +61,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(
     scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s",
-    // scalacOptions += "-new-syntax",
+    scalacOptions += "-Wunused:all",
     scalacOptions += "-Xmax-inlines:128"
   )
   .settings(Compile / doc / sources := Seq.empty)

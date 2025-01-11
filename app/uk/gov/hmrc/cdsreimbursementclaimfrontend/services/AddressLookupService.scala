@@ -51,8 +51,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupSe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.net.URL
 import java.net.URI
+import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future

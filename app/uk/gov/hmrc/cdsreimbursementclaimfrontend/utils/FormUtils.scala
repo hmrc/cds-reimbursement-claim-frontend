@@ -17,9 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Eq
-import cats.instances.int._
-import cats.syntax.either._
-import cats.syntax.eq._
+import cats.instances.int.*
+import cats.syntax.either.*
+import cats.syntax.eq.*
 import play.api.data.format.Formats
 import play.api.data.format.Formatter
 import play.api.data.validation.Constraint

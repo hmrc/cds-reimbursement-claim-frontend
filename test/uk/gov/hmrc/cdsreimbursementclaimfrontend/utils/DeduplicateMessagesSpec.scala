@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.utils.Colors
 
 import scala.io.Codec
 import scala.io.Source
-import play.utils.Colors
 
 class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

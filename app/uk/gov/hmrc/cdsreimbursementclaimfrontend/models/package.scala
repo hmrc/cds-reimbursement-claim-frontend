@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
 import cats.data.NonEmptyList
 import cats.data.ValidatedNel
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import java.text.NumberFormat
 import java.util.Locale

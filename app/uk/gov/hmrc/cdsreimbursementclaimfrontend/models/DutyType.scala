@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.kernel.Eq
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class DutyType(val repr: String, val taxCodes: Seq[TaxCode], val ordinal: Int)

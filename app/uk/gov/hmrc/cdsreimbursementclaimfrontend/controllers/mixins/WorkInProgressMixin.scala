@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 
 import java.util.UUID
 
-@annotation.nowarn
 trait WorkInProgressMixin {
   self: JourneyBaseController =>
 

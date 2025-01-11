@@ -17,10 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator
-import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import play.api.libs.json.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -28,8 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.*
 
 import java.time.LocalDate
 import java.time.LocalDateTime

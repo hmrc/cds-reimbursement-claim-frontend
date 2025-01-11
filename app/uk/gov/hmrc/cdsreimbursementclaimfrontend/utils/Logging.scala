@@ -22,7 +22,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.*
 
 trait Logging {
 
@@ -78,7 +78,6 @@ object PrettyPrint {
     * @return
     */
 
-  @annotation.nowarn
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize
     val fieldIndent = indent + (" " * indentSize)

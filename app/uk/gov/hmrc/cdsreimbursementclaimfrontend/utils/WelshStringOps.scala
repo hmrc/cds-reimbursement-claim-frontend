@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import cats.instances.int._
-import cats.instances.string._
-import cats.syntax.eq._
+import cats.instances.int.*
+import cats.instances.string.*
+import cats.syntax.eq.*
 
 import java.util.Locale
 

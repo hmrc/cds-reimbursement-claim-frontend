@@ -24,7 +24,7 @@ import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.BankAccountReputationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging

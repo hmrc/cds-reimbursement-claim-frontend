@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 

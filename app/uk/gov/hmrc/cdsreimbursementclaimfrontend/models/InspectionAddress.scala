@@ -17,12 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-
+import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
-import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.*
 
 final case class InspectionAddress(
   addressLine1: Option[String],

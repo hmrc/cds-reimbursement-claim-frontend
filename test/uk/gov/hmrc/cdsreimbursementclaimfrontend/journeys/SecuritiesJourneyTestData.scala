@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 
 trait SecuritiesJourneyTestData extends JourneyTestData {
 

@@ -19,20 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, MessagesRequest, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.contentAsString
-import play.api.test.Helpers.status
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 

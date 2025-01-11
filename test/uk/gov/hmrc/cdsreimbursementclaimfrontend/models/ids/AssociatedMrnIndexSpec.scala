@@ -20,9 +20,9 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndexSpec._
-import play.api.i18n._
+import play.api.i18n.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndexSpec.*
 
 class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import com.github.arturopala.validator.Validator._
+import com.github.arturopala.validator.Validator.*
 import play.api.libs.json.Format
 import play.api.mvc.Call
 import play.api.mvc.Request

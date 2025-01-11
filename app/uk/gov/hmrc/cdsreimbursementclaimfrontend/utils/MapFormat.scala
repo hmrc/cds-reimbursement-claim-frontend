@@ -16,11 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import play.api.libs.json.Format
-import play.api.libs.json.JsResult
-import play.api.libs.json.Reads
-import play.api.libs.json.Writes
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import scala.collection.immutable.SortedMap
 import scala.util.Try

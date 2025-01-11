@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.syntax.apply._
-
-import play.api.libs.json.OFormat
+import cats.syntax.apply.*
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 final case class ContactDetails(
   contactName: Option[String],
