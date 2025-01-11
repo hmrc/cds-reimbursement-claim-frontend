@@ -354,7 +354,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       rfs                         <- genReasonForSecurity
       methodOfDisposal            <-
         if (ReasonForSecurity.ntas.contains(rfs))
-          Gen.listOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.selectableValues)).map(Some.apply)
+          Gen.nonEmptyListOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.selectableValues)).map(Some.apply)
         else Gen.const(None)
       exportMrns                  <-
         if (
