@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import org.scalactic.TypeCheckedTripleEquals
 import play.api.i18n.MessagesApi
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 
 class YesOrNoQuestionFormSpec extends ControllerSpec with TypeCheckedTripleEquals {
 

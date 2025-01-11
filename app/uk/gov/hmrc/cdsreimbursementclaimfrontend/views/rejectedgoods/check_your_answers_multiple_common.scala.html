@@ -53,7 +53,7 @@
 @summary(
     if(isPrintView)
         ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
-    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
+    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF()))
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))

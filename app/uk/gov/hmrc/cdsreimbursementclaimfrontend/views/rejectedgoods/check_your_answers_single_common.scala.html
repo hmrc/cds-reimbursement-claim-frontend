@@ -51,7 +51,7 @@
     if(isPrintView){
         ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
     } else {
-        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
+        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF()))
     }
 )
 

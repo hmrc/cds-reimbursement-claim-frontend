@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
@@ -33,16 +34,21 @@ import play.api.*
 import play.api.http.HttpConfiguration
 import play.api.i18n.*
 import play.api.inject.bind
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.mvc.{Call, Result}
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Call
+import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.{FeaturesCache, SessionCache}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{FeatureSet, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.mongo.play.PlayMongoModule
 
 import java.net.URLEncoder

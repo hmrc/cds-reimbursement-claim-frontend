@@ -18,11 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import munit.diff.Diff
 import org.scalamock.function.FunctionAdapter2
-import org.scalamock.handlers.{CallHandler1, CallHandler2}
+import org.scalamock.handlers.CallHandler1
+import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future

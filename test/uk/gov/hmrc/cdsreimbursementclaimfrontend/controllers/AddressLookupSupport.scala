@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.data.EitherT
-import org.scalamock.handlers.{CallHandler2, CallHandler3}
+import org.scalamock.handlers.CallHandler2
+import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -28,7 +29,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import java.net.URL
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 trait AddressLookupSupport { this: MockFactory =>
 

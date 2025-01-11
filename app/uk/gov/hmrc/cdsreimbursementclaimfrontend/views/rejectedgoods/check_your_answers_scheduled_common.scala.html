@@ -51,7 +51,7 @@
 @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
 @summary(
     if(isPrintView) ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
-    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
+    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF()))
 )
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
@@ -74,7 +74,7 @@
 @subHeading(Html(messages(s"check-your-answers.inspection.h2")))
 @summary(
     if(isPrintView) InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, "check-your-answers.inspection")
-    else InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show, Some(routes.ChooseInspectionAddressTypeController.redirectToALF))
+    else InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show, Some(routes.ChooseInspectionAddressTypeController.redirectToALF()))
 )
 
 @if(isSubsidyOnly){

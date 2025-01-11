@@ -16,8 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, BankAccountType, SortCode}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
 object BankAccountGen {
 
