@@ -37,10 +37,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.*
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
 
 import scala.concurrent.Future
 
@@ -126,26 +127,27 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in forAll { (displayDeclaration: DisplayDeclaration) =>
-        val journey        = session.overpaymentsMultipleJourney.get
-          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-          .getOrFail
-        val sessionToAmend = SessionData(journey)
+      "reject an empty Yes/No answer" in forAll(Acc14Gen.genDisplayDeclaration) {
+        (displayDeclaration: DisplayDeclaration) =>
+          val journey        = session.overpaymentsMultipleJourney.get
+            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+            .getOrFail
+          val sessionToAmend = SessionData(journey)
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionToAmend)
-        }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(sessionToAmend)
+          }
 
-        checkPageIsDisplayed(
-          performAction("check-declaration-details" -> ""),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
-            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-          },
-          expectedStatus = BAD_REQUEST
-        )
+          checkPageIsDisplayed(
+            performAction("check-declaration-details" -> ""),
+            messageFromMessageKey(s"$messagesKey.title"),
+            doc => {
+              getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+              doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+            },
+            expectedStatus = BAD_REQUEST
+          )
       }
 
       "submit when user selects Yes" in {

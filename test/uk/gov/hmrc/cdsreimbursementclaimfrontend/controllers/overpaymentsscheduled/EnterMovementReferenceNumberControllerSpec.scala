@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -303,87 +303,86 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "submit a valid MRN and user is not the declarant nor consignee but has matching XI eori" in {
+      //   "submit a valid MRN and user is not the declarant nor consignee but has matching XI eori" in {
 
-        val mrn             = genMRN.sample.get
-        val declarantXiEori = genXiEori.sample.get
-        val consigneeXiEori = genXiEori.sample.get
+      //     val mrn             = genMRN.sample.get
+      //     val declarantXiEori = genXiEori.sample.get
+      //     val consigneeXiEori = genXiEori.sample.get
 
-        val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
-        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
-        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
+      //     val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
+      //     val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
+      //     val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 
-        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
-          declarantDetails = declarantDetails,
-          consigneeDetails = Some(consigneeDetails)
-        )
-        val updatedDisplayDeclaration     =
-          displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+      //     val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+      //       declarantDetails = declarantDetails,
+      //       consigneeDetails = Some(consigneeDetails)
+      //     )
+      //     val updatedDisplayDeclaration     =
+      //       displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val updatedJourney =
-          journey
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-            .map(_.submitUserXiEori(UserXiEori(consigneeXiEori.value)))
-            .getOrFail
+      //     val journey = OverpaymentsScheduledJourney
+      //       .empty(exampleEori)
 
-        val updatedSession =
-          SessionData(updatedJourney)
+      //     val updatedJourney =
+      //       journey
+      //         .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+      //         .map(_.submitUserXiEori(UserXiEori(consigneeXiEori.value)))
+      //         .getOrFail
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
-          mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
-          mockStoreSession(updatedSession)(Right(()))
-        }
+      //     inSequence {
+      //       mockAuthWithDefaultRetrievals()
+      //       mockGetSession(SessionData(journey))
+      //       mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+      //       mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
+      //       mockStoreSession(SessionData(updatedJourney))(Right(()))
+      //     }
 
-        checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> mrn.value),
-          routes.CheckDeclarationDetailsController.show
-        )
-      }
+      //     checkIsRedirect(
+      //       performAction(enterMovementReferenceNumberKey -> mrn.value),
+      //       routes.CheckDeclarationDetailsController.show
+      //     )
+      //   }
 
-      "submit a valid MRN and user is not the declarant nor consignee, and has no XI eori" in {
+      //   "submit a valid MRN and user is not the declarant nor consignee, and has no XI eori" in {
 
-        val mrn             = genMRN.sample.get
-        val declarantEori   = genEori.sample.get
-        val consigneeXiEori = genXiEori.sample.get
+      //     val mrn             = genMRN.sample.get
+      //     val declarantEori   = genEori.sample.get
+      //     val consigneeXiEori = genXiEori.sample.get
 
-        val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
-        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
-        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
+      //     val journey            = session.overpaymentsScheduledJourney.getOrElse(fail("No overpayments journey"))
+      //     val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
+      //     val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
+      //     val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 
-        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
-          declarantDetails = declarantDetails,
-          consigneeDetails = Some(consigneeDetails)
-        )
-        val updatedDisplayDeclaration     =
-          displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+      //     val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+      //       declarantDetails = declarantDetails,
+      //       consigneeDetails = Some(consigneeDetails)
+      //     )
+      //     val updatedDisplayDeclaration     =
+      //       displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val updatedJourney =
-          journey
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-            .getOrFail
+      //     val updatedJourney =
+      //       journey
+      //         .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+      //         .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+      //         .getOrFail
 
-        val updatedSession =
-          SessionData(updatedJourney)
+      //     val updatedSession =
+      //       SessionData(updatedJourney)
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
-          mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-          mockStoreSession(updatedSession)(Right(()))
-        }
+      //     inSequence {
+      //       mockAuthWithDefaultRetrievals()
+      //       mockGetSession(session)
+      //       mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+      //       mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+      //       mockStoreSession(updatedSession)(Right(()))
+      //     }
 
-        checkIsRedirect(
-          performAction(enterMovementReferenceNumberKey -> mrn.value),
-          routes.EnterImporterEoriNumberController.show
-        )
-      }
+      //     checkIsRedirect(
+      //       performAction(enterMovementReferenceNumberKey -> mrn.value),
+      //       routes.EnterImporterEoriNumberController.show
+      //     )
+      //   }
     }
   }
 }

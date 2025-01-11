@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import cats.Functor
-import cats.Id
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genCountry
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaCharGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 object Acc14Gen {
 
@@ -95,90 +94,121 @@ object Acc14Gen {
   implicit lazy val arbitraryEstablishmentAddress: Arbitrary[EstablishmentAddress] =
     Arbitrary(genEstablishmentAddress)
 
-  lazy val genAcc14WithAddresses: DisplayDeclaration = {
-    val contactDetails       =
-      sample[ContactDetails].copy(
-        contactName = Some(alphaCharGen(20)),
-        addressLine1 = Some(alphaCharGen(20)),
-        addressLine2 = Some(alphaCharGen(20)),
-        addressLine3 = Some(alphaCharGen(20)),
-        addressLine4 = Some(alphaCharGen(20)),
-        postalCode = Some(alphaCharGen(7)),
-        countryCode = Some("GB"),
-        telephone = Some(sample[PhoneNumber].value)
-      )
-    val establishmentAddress = sample[EstablishmentAddress]
-      .copy(
-        addressLine2 = Some(alphaCharGen(20)),
-        addressLine3 = Some(alphaCharGen(20)),
-        postalCode = Some(alphaCharGen(6)),
-        countryCode = "GB"
-      )
-    val consignee            = sample[ConsigneeDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+  lazy val genDeclarantDetails: Gen[DeclarantDetails] =
+    for
+      eori                 <- genEori.map(_.value)
+      legalName            <- genStringWithMaxSizeOfN(10)
+      establishmentAddress <- genEstablishmentAddress
+      contactDetails       <- Gen.option(genContactDetails)
+    yield DeclarantDetails(eori, legalName, establishmentAddress, contactDetails)
 
-    val declarant = sample[DeclarantDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+  lazy val genConsigneeDetails: Gen[ConsigneeDetails] = for
+    eori                 <- genEori.map(_.value)
+    legalName            <- genStringWithMaxSizeOfN(10)
+    establishmentAddress <- genEstablishmentAddress
+    contactDetails       <- genContactDetails
+  yield ConsigneeDetails(eori, legalName, establishmentAddress, Some(contactDetails))
 
-    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-      dd.copy(displayResponseDetail =
-        dd.displayResponseDetail.copy(
-          consigneeDetails = Some(consignee),
-          declarantDetails = declarant
-        )
-      )
+  lazy val genBankAccountDetails: Gen[BankAccountDetails] =
+    for
+      accountHolderName <- genStringWithMaxSizeOfN(15)
+      sortCode          <- genSortCode
+      accountNumber     <- genAccountNumber
+    yield BankAccountDetails(
+      AccountName(accountHolderName),
+      sortCode,
+      accountNumber
     )
 
-    displayDeclaration
-  }
+  lazy val genMaskedBankAccountDetails: Gen[BankAccountDetails] =
+    genBankAccountDetails.map(mask)
 
-  lazy val genAcc14WithoutContactDetails: DisplayDeclaration = {
-    val establishmentAddress = sample[EstablishmentAddress]
-      .copy(
-        addressLine2 = Some(alphaCharGen(20)),
-        addressLine3 = Some(alphaCharGen(20)),
-        postalCode = Some(alphaCharGen(6)),
-        countryCode = "GB"
-      )
-    val consignee            = sample[ConsigneeDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
-
-    val declarant = sample[DeclarantDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
-
-    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-      dd.copy(displayResponseDetail =
-        dd.displayResponseDetail.copy(
-          consigneeDetails = Some(consignee),
-          declarantDetails = declarant
-        )
-      )
+  lazy val genBankDetails: Gen[BankDetails] =
+    for
+      consigneeBankDetails <- Gen.option(genBankAccountDetails)
+      declarantBankDetails <- Gen.option(genBankAccountDetails)
+    yield BankDetails(
+      consigneeBankDetails = consigneeBankDetails,
+      declarantBankDetails = declarantBankDetails
     )
 
-    displayDeclaration
+  def mask(bankAccountDetails: BankAccountDetails): BankAccountDetails = {
+    def hideAllExceptTwoLast(value: String): String =
+      s"Ends with ${value.substring(value.length - 2)}"
+
+    bankAccountDetails.copy(
+      sortCode = SortCode(hideAllExceptTwoLast(bankAccountDetails.sortCode.value)),
+      accountNumber = AccountNumber(hideAllExceptTwoLast(bankAccountDetails.accountNumber.value))
+    )
   }
 
-  lazy val genAcc14WithoutConsigneeAndDeclarantDetails: DisplayDeclaration = {
-    val establishmentAddress = sample[EstablishmentAddress]
-      .copy(
-        addressLine2 = Some(alphaCharGen(20)),
-        addressLine3 = Some(alphaCharGen(20)),
-        postalCode = Some(alphaCharGen(6)),
-        countryCode = "GB"
-      )
-
-    val declarant = sample[DeclarantDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = None)
-
-    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-      dd.copy(displayResponseDetail =
-        dd.displayResponseDetail.copy(
-          consigneeDetails = None,
-          declarantDetails = declarant
-        )
-      )
+  def mask(bankDetails: BankDetails): BankDetails =
+    BankDetails(
+      consigneeBankDetails = bankDetails.consigneeBankDetails.map(mask),
+      declarantBankDetails = bankDetails.declarantBankDetails.map(mask)
     )
 
-    displayDeclaration
-  }
+  lazy val genAccountDetails: Gen[AccountDetails] =
+    for
+      accountType          <- genStringWithMaxSizeOfN(10)
+      accountNumber        <- genStringWithMaxSizeOfN(10)
+      eori                 <- genEori.map(_.value)
+      legalName            <- genStringWithMaxSizeOfN(15)
+      contactDetailsOption <- Gen.option(genContactDetails)
+    yield AccountDetails(
+      accountType,
+      accountNumber,
+      eori,
+      legalName,
+      contactDetailsOption
+    )
+
+  lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
+    for
+      declarationId            <- genMRN
+      acceptanceDate           <- genAcceptanceDate
+      declarantReferenceNumber <- Gen.option(genStringWithMaxSizeOfN(10))
+      btaDueDate               <- Gen.option(genLocalDateTime)
+      procedureCode            <- genStringWithMaxSizeOfN(5)
+      btaSource                <- Gen.option(genStringWithMaxSizeOfN(10))
+      declarantDetails         <- genDeclarantDetails
+      consigneeDetails         <- Gen.option(genConsigneeDetails)
+      accountDetails           <- Gen.option(Gen.nonEmptyListOf(genAccountDetails))
+      bankDetails              <- Gen.option(genBankDetails)
+      maskedBankDetails        <- Gen.const(bankDetails.map(mask))
+      ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
+    yield DisplayResponseDetail(
+      declarationId = declarationId.value,
+      acceptanceDate = acceptanceDate,
+      declarantReferenceNumber = declarantReferenceNumber,
+      securityReason = None,
+      btaDueDate = btaDueDate.map(_.toString),
+      procedureCode = procedureCode,
+      btaSource = btaSource,
+      declarantDetails = declarantDetails,
+      consigneeDetails = consigneeDetails,
+      accountDetails = accountDetails,
+      bankDetails = bankDetails,
+      maskedBankDetails = maskedBankDetails,
+      ndrcDetails = ndrcDetails
+    )
+
+  lazy val genDisplayDeclaration: Gen[DisplayDeclaration] =
+    genDisplayResponseDetail.map(DisplayDeclaration(_))
+
+  implicit lazy val arbitraryDeclarantDetails: Arbitrary[DeclarantDetails] =
+    Arbitrary(genDeclarantDetails)
+
+  implicit lazy val arbitraryConsigneeDetails: Arbitrary[ConsigneeDetails] =
+    Arbitrary(genConsigneeDetails)
+
+  implicit lazy val arbitraryBankDetails: Arbitrary[BankDetails] =
+    Arbitrary(genBankDetails)
+
+  lazy val arbitraryDisplayResponseDetail: Arbitrary[DisplayResponseDetail] =
+    Arbitrary(genDisplayResponseDetail)
+
+  implicit lazy val arbitraryDisplayDeclaration: Arbitrary[DisplayDeclaration] =
+    Arbitrary(genDisplayResponseDetail.map(DisplayDeclaration(_)))
+
 }
