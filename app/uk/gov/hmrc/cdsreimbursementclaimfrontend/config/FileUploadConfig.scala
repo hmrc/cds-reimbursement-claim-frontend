@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import configs.ConfigReader
-import configs.syntax._
 import play.api.Configuration
 
 import javax.inject.Inject
@@ -27,27 +25,22 @@ import javax.inject.Singleton
 class FileUploadConfig @Inject() (config: Configuration) {
 
   def readUpscanInitServiceProtocol: String =
-    getUpscanInitiateConfig[String]("protocol")
+    config.underlying.getString("microservice.services.upscan-initiate.protocol")
 
   def readUpscanInitServiceHost: String =
-    getUpscanInitiateConfig[String]("host")
+    config.underlying.getString("microservice.services.upscan-initiate.host")
 
   def readUpscanInitServicePort: String =
-    getUpscanInitiateConfig[String]("port")
+    config.underlying.getString("microservice.services.upscan-initiate.port")
 
   def readMaxFileSize(uploadDocumentKey: String): Long =
-    getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size")
+    config.underlying.getLong(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-file-size")
 
   def readMaxFileSizeHumanReadable(uploadDocumentKey: String): String =
-    s"${humanReadableFileSize(getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size"))}"
+    s"${humanReadableFileSize(config.underlying.getLong(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-file-size"))}"
 
   def readMaxUploadsValue(uploadDocumentKey: String): Int =
-    getUpscanInitiateConfig[Int](s"$uploadDocumentKey.max-uploads")
-
-  private def getUpscanInitiateConfig[A : ConfigReader](key: String): A =
-    config.underlying
-      .get[A](s"microservice.services.upscan-initiate.$key")
-      .value
+    config.underlying.getInt(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-uploads")
 
   private def humanReadableFileSize(bytes: Long): String =
     if (bytes >= 1000000000) s"${(bytes / 1000000000)} GB"

@@ -18,21 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Order
 import cats.syntax.either._
-import configs.ConfigReader
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-import java.time.format.DateTimeFormatter
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.util.Try
 
 object TimeUtils {
-
-  implicit val configs: ConfigReader[LocalDate] = ConfigReader.fromTry { case (config, key) =>
-    LocalDate.parse(config.getString(key), DateTimeFormatter.ISO_DATE)
-  }
 
   val clock: Clock = Clock.systemUTC()
 

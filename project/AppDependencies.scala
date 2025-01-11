@@ -13,7 +13,6 @@ object AppDependencies {
     "uk.gov.hmrc"           %% "play-frontend-hmrc-play-30" % "11.9.0",
     "uk.gov.hmrc.mongo"     %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"         %% "cats-core"                  % "2.12.0",
-    "com.github.kxbmap"     %% "configs"                    % "0.6.1",
     "com.github.arturopala" %% "validator"                  % "0.23.0"
   )
 
