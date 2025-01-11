@@ -51,17 +51,16 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
     }
 
     "exclude empty summaries" in {
-      forAll {
-        taxCode: TaxCode =>
-          DutyTypeSummary.buildFrom(
-            NonEmptyList.one(
-              ClaimedReimbursement(
-                taxCode = taxCode,
-                claimAmount = 0,
-                paidAmount = 0
-              )
+      forAll { (taxCode: TaxCode) =>
+        DutyTypeSummary.buildFrom(
+          NonEmptyList.one(
+            ClaimedReimbursement(
+              taxCode = taxCode,
+              claimAmount = 0,
+              paidAmount = 0
             )
-          ) should be(Nil)
+          )
+        ) should be(Nil)
       }
     }
   }

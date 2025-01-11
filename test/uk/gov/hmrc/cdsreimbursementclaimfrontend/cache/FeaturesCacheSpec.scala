@@ -54,16 +54,15 @@ class FeaturesCacheSpec
   "FeaturesCache" must {
 
     "be able to insert FeatureSet into mongo and read it back" in new TestEnvironment {
-      forAll(featureSetGen) {
-        featureSet: FeatureSet =>
-          val result = sessionStore.store(featureSet)
+      forAll(featureSetGen) { (featureSet: FeatureSet) =>
+        val result = sessionStore.store(featureSet)
 
-          await(result) should be(Right(()))
+        await(result) should be(Right(()))
 
-          eventually {
-            val getResult = sessionStore.get()
-            await(getResult) should be(Right(featureSet))
-          }
+        eventually {
+          val getResult = sessionStore.get()
+          await(getResult) should be(Right(featureSet))
+        }
       }
     }
 

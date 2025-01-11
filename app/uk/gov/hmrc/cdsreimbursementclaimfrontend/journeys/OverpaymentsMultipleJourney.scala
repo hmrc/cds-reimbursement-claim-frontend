@@ -264,10 +264,10 @@ final class OverpaymentsMultipleJourney private (
       .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
       .fold {
         false
-      } { leadNdrcDetails: List[NdrcDetails] =>
+      } { (leadNdrcDetails: List[NdrcDetails]) =>
         displayDeclaration.getNdrcDetailsList.fold {
           false
-        } { ndrcDetails: List[NdrcDetails] =>
+        } { (ndrcDetails: List[NdrcDetails]) =>
           val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod).distinct
           val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod).distinct
           (leadPaymentMethods, paymentMethodsFromDisplayDeclaration) match {
@@ -283,7 +283,7 @@ final class OverpaymentsMultipleJourney private (
       .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
       .fold {
         "submitMovementReferenceNumber.needsNonSubsidy"
-      } { leadNdrcDetails: List[NdrcDetails] =>
+      } { (leadNdrcDetails: List[NdrcDetails]) =>
         leadNdrcDetails.map(_.paymentMethod).distinct match {
           case a if a.contains("006") => "submitMovementReferenceNumber.needsSubsidy"
           case _                      => "submitMovementReferenceNumber.needsNonSubsidy"

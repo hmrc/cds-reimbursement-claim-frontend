@@ -137,7 +137,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequestWithRetrievedData[A] =>
+          { (a: AuthenticatedRequestWithRetrievedData[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok(Json.toJson(a.journeyUserType)))
           }
@@ -328,7 +328,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequestWithRetrievedData[A] =>
+          { (a: AuthenticatedRequestWithRetrievedData[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok(Json.toJson(a.journeyUserType)))
           }

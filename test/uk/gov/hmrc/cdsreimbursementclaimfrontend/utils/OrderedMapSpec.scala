@@ -25,7 +25,7 @@ class OrderedMapSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matc
 
   "OrderedMap" should {
     "behave like an immutable Map" in {
-      forAll(Gen.mapOf[String, Int](Gen.zip(Gen.alphaNumStr, Gen.chooseNum(0, 99)))) { value: Map[String, Int] =>
+      forAll(Gen.mapOf[String, Int](Gen.zip(Gen.alphaNumStr, Gen.chooseNum(0, 99)))) { (value: Map[String, Int]) =>
         val orderedMap = OrderedMap(value)
         orderedMap.keySet         should contain allElementsOf (value.keySet)
         orderedMap.values         should contain allElementsOf (value.values)

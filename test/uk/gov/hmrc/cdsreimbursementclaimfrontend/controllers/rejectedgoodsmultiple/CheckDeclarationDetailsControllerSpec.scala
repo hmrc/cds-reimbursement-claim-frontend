@@ -157,27 +157,26 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in forAll {
-        displayDeclaration: DisplayDeclaration =>
-          val journey        = session.rejectedGoodsMultipleJourney.get
-            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-            .getOrFail
-          val sessionToAmend = SessionData(journey)
+      "reject an empty Yes/No answer" in forAll { (displayDeclaration: DisplayDeclaration) =>
+        val journey        = session.rejectedGoodsMultipleJourney.get
+          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+          .getOrFail
+        val sessionToAmend = SessionData(journey)
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionToAmend)
-          }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(sessionToAmend)
+        }
 
-          checkPageIsDisplayed(
-            performAction("check-declaration-details" -> ""),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
-              doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-            },
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction("check-declaration-details" -> ""),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+          },
+          expectedStatus = BAD_REQUEST
+        )
       }
 
       "submit when user selects Yes" in {

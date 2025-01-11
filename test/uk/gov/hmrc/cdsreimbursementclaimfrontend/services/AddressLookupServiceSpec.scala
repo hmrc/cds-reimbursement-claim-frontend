@@ -211,11 +211,10 @@ class AddressLookupServiceSpec
         await(addressLookupService.retrieveUserAddress(id).value).value should be(address)
       }
 
-      "fail having invalid address ID" in forAll {
-        id: UUID =>
-          mockGetAddress(id)(Right(HttpResponse(NOT_FOUND, Json.obj().toString())))
+      "fail having invalid address ID" in forAll { (id: UUID) =>
+        mockGetAddress(id)(Right(HttpResponse(NOT_FOUND, Json.obj().toString())))
 
-          await(addressLookupService.retrieveUserAddress(id).value).isLeft should be(true)
+        await(addressLookupService.retrieveUserAddress(id).value).isLeft should be(true)
       }
     }
 

@@ -286,21 +286,20 @@ class ChooseInspectionAddressTypeControllerSpec
         )
       }
 
-      "update address" in forAll {
-        address: ContactAddress =>
-          val inspectionAddress = InspectionAddress(
-            addressLine1 = Some(address.line1),
-            addressLine2 = address.line2,
-            addressLine3 = address.line3,
-            city = address.line4.asSomeIfNonEmpty,
-            countryCode = address.country.code.asSomeIfNonEmpty,
-            postalCode = address.postcode.asSomeIfNonEmpty,
-            addressType = Other
-          )
+      "update address" in forAll { (address: ContactAddress) =>
+        val inspectionAddress = InspectionAddress(
+          addressLine1 = Some(address.line1),
+          addressLine2 = address.line2,
+          addressLine3 = address.line3,
+          city = address.line4.asSomeIfNonEmpty,
+          countryCode = address.country.code.asSomeIfNonEmpty,
+          postalCode = address.postcode.asSomeIfNonEmpty,
+          addressType = Other
+        )
 
-          val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
+        val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
 
-          controller.modifyJourney(emptyJourney, address) shouldBe expectedJourney
+        controller.modifyJourney(emptyJourney, address) shouldBe expectedJourney
       }
 
       "redirect to the next page" when {

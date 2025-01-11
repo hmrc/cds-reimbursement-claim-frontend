@@ -26,11 +26,10 @@ class StringUtilsSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Mat
 
   "StringUtils" should {
     "wrap a string as Some if non empty" in {
-      forAll(Gen.nonEmptyListOf(Gen.alphaChar).map(String.valueOf)) {
-        string: String =>
-          whenever(string.trim().nonEmpty) {
-            string.asSomeIfNonEmpty shouldBe Some(string)
-          }
+      forAll(Gen.nonEmptyListOf(Gen.alphaChar).map(String.valueOf)) { (string: String) =>
+        whenever(string.trim().nonEmpty) {
+          string.asSomeIfNonEmpty shouldBe Some(string)
+        }
       }
     }
 

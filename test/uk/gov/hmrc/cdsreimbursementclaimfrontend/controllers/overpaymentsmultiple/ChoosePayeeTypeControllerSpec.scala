@@ -77,7 +77,7 @@ class ChoosePayeeTypeControllerSpec
     def submitPayeeType(data: (String, String)*): Future[Result] =
       controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "display page" in forAll { maybePayeeType: Option[PayeeType] =>
+    "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
@@ -115,22 +115,21 @@ class ChoosePayeeTypeControllerSpec
     }
 
     "successfully submit bank account type" when {
-      "one of the options selected" in forAll {
-        payeeType: PayeeType =>
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(session)
-            mockStoreSession(
-              session.copy(
-                overpaymentsMultipleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
-              )
-            )(Right(()))
-          }
+      "one of the options selected" in forAll { (payeeType: PayeeType) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              overpaymentsMultipleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+            )
+          )(Right(()))
+        }
 
-          checkIsRedirect(
-            submitPayeeType(formKey -> payeeType.toString),
-            routes.EnterBankAccountDetailsController.show
-          )
+        checkIsRedirect(
+          submitPayeeType(formKey -> payeeType.toString),
+          routes.EnterBankAccountDetailsController.show
+        )
       }
     }
   }

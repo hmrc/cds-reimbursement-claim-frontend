@@ -54,27 +54,24 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Converting MRN and original index back and forth" should {
     "match" in {
-      forAll {
-        original: Int =>
-          AssociatedMrnIndex.fromListIndex(original).toListIndex should be(original)
+      forAll { (original: Int) =>
+        AssociatedMrnIndex.fromListIndex(original).toListIndex should be(original)
       }
     }
   }
 
   "Adding number to MRN index" should {
     "increase its value" in {
-      forAll {
-        mrnIndex: AssociatedMrnIndex =>
-          mrnIndex + 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex + 2))
+      forAll { (mrnIndex: AssociatedMrnIndex) =>
+        mrnIndex + 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex + 2))
       }
     }
   }
 
   "Subtracting number from MRN index" should {
     "decrease its value" in {
-      forAll {
-        mrnIndex: AssociatedMrnIndex =>
-          mrnIndex - 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
+      forAll { (mrnIndex: AssociatedMrnIndex) =>
+        mrnIndex - 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
       }
     }
   }
@@ -87,50 +84,45 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Displaying ordinal numeral for the number ending with 1" should {
     "contain `st` postfix" in {
-      forAll {
-        n: Int =>
-          whenever(n > 1) {
-            val index = n.truncateToEndWithPrecision(1)
-            AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
-          }
+      forAll { (n: Int) =>
+        whenever(n > 1) {
+          val index = n.truncateToEndWithPrecision(1)
+          AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
+        }
       }
     }
   }
 
   "Displaying ordinal numeral for the number ending with 2" should {
     "contain `nd` postfix" in {
-      forAll {
-        n: Int =>
-          val index = n.truncateToEndWithPrecision(2)
-          AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("nd")
+      forAll { (n: Int) =>
+        val index = n.truncateToEndWithPrecision(2)
+        AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("nd")
       }
     }
   }
 
   "Displaying ordinal numeral for the number ending with 3" should {
     "contain `rd` postfix" in {
-      forAll {
-        n: Int =>
-          val index = n.truncateToEndWithPrecision(3)
-          AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("rd")
+      forAll { (n: Int) =>
+        val index = n.truncateToEndWithPrecision(3)
+        AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("rd")
       }
     }
   }
 
   "Displaying ordinal numeral for the number which" should {
     "contain `th`" in {
-      forAll(Gen.choose(4, 19)) {
-        n: Int =>
-          AssociatedMrnIndex(n).ordinalNumeral.lastTwo should be("th")
+      forAll(Gen.choose(4, 19)) { (n: Int) =>
+        AssociatedMrnIndex(n).ordinalNumeral.lastTwo should be("th")
       }
     }
   }
 
   "The ordinal numeral from 0 to 9" should {
     "contain only words" in {
-      forAll(Gen.choose(-9, 9)) {
-        index: Int =>
-          AssociatedMrnIndex(index).ordinalNumeral.matches("[minus a-z]+") should be(true)
+      forAll(Gen.choose(-9, 9)) { (index: Int) =>
+        AssociatedMrnIndex(index).ordinalNumeral.matches("[minus a-z]+") should be(true)
       }
     }
   }

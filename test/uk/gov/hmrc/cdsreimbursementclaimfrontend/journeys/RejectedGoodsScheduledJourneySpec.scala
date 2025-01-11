@@ -1025,7 +1025,7 @@ class RejectedGoodsScheduledJourneySpec
 
     "find next duty type and tax code pair" in {
       val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
-      forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
+      forAll(dutyTypesWithTaxCodesGen) { (dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]) =>
         whenever(dutyTypesWithTaxCodes.nonEmpty && dutyTypesWithTaxCodes.forall(_._2.nonEmpty)) {
 
           val dutyTypes: Seq[DutyType] = dutyTypesWithTaxCodes.map(_._1)

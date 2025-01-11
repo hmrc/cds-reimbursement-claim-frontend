@@ -1053,7 +1053,7 @@ class OverpaymentsScheduledJourneySpec
 
     "find next duty type and tax code pair" in {
       val journey = OverpaymentsScheduledJourney.empty(exampleEori)
-      forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
+      forAll(dutyTypesWithTaxCodesGen) { (dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]) =>
         whenever(dutyTypesWithTaxCodes.nonEmpty && dutyTypesWithTaxCodes.forall(_._2.nonEmpty)) {
 
           val dutyTypes: Seq[DutyType] = dutyTypesWithTaxCodes.map(_._1)
@@ -1178,7 +1178,7 @@ class OverpaymentsScheduledJourneySpec
     }
 
     "get and update selected duties" in {
-      forAll(dutyTypesWithTaxCodesGen) { dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])] =>
+      forAll(dutyTypesWithTaxCodesGen) { (dutyTypesWithTaxCodes: Seq[(DutyType, Seq[TaxCode])]) =>
         whenever(dutyTypesWithTaxCodes.nonEmpty && dutyTypesWithTaxCodes.forall(_._2.nonEmpty)) {
 
           val dutyTypes: Seq[DutyType] = dutyTypesWithTaxCodes.map(_._1)
@@ -1230,11 +1230,10 @@ class OverpaymentsScheduledJourneySpec
     }
     "tryBuildFrom should return upload type other" in {
       val specialJourneyGen: Gen[OverpaymentsScheduledJourney] = buildJourneyGenWithoutSupportingEvidence()
-      forAll(specialJourneyGen) {
-        journey: OverpaymentsScheduledJourney =>
-          journey.answers.supportingEvidences.foreach(uploadedFile =>
-            uploadedFile.cargo.get shouldBe UploadDocumentType.Other
-          )
+      forAll(specialJourneyGen) { (journey: OverpaymentsScheduledJourney) =>
+        journey.answers.supportingEvidences.foreach(uploadedFile =>
+          uploadedFile.cargo.get shouldBe UploadDocumentType.Other
+        )
       }
     }
     "receiveScheduledDocument fails when nonce is not matching the journey nonce" in {

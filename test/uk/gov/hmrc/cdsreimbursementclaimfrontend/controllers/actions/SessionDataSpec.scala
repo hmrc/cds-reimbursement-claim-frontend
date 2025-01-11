@@ -47,7 +47,7 @@ class SessionDataActionSpec extends ControllerSpec with SessionSupport {
     def performAction(): Future[Result] =
       action.invokeBlock(
         authenticatedRequest,
-        { r: RequestWithSessionData[_] =>
+        { (r: RequestWithSessionData[_]) =>
           r.sessionData shouldBe Some(sessionData)
           r.messagesApi shouldBe messagesRequest.messagesApi
           Future.successful(Ok)

@@ -195,7 +195,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "show page with more than 2 MRNs" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val firstMrnJourney =
             addAcc14(
@@ -245,7 +245,7 @@ class CheckMovementReferenceNumbersControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -269,7 +269,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects Yes" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "submit when user selects Yes" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -291,7 +291,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects No" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "submit when user selects No" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -338,15 +338,14 @@ class CheckMovementReferenceNumbersControllerSpec
           FakeRequest()
         )
 
-      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) {
-        mrn: MRN =>
-          featureSwitch.disable(Feature.RejectedGoods)
+      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { (mrn: MRN) =>
+        featureSwitch.disable(Feature.RejectedGoods)
 
-          status(performAction(mrn)) shouldBe NOT_FOUND
+        status(performAction(mrn)) shouldBe NOT_FOUND
       }
 
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
-        acc14Declarations: List[DisplayDeclaration] =>
+        (acc14Declarations: List[DisplayDeclaration]) =>
           whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
             val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
               case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -375,7 +374,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "redirect to ineligible page if anything is wrong with the attempt to remove the MRN" in forAll(genMRN) {
-        mrn: MRN =>
+        (mrn: MRN) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(session)

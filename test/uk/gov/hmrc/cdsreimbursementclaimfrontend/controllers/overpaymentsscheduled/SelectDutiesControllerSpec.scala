@@ -73,37 +73,35 @@ class SelectDutiesControllerSpec
 
   "Select Tax Codes Controller" should {
 
-    "not find the page if overpayments feature is disabled" in forAll {
-      dutyType: DutyType =>
-        featureSwitch.disable(Feature.Overpayments_v2)
+    "not find the page if overpayments feature is disabled" in forAll { (dutyType: DutyType) =>
+      featureSwitch.disable(Feature.Overpayments_v2)
 
-        status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
+      status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
     }
 
     "show select tax codes page" when {
 
-      "the user has not answered this question before" in forAll {
-        dutyType: DutyType =>
-          val initialJourney = journeyWithMrnAndDeclaration
-            .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-            .getOrFail
+      "the user has not answered this question before" in forAll { (dutyType: DutyType) =>
+        val initialJourney = journeyWithMrnAndDeclaration
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+          .getOrFail
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkPageIsDisplayed(
+          controller.show(dutyType)(FakeRequest()),
+          messageFromMessageKey(
+            s"$selectDutyCodesKey.title",
+            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+          ),
+          doc => {
+            selectedCheckBox(doc) shouldBe empty
+            formAction(doc)       shouldBe routes.SelectDutiesController.submit(dutyType).url
           }
-
-          checkPageIsDisplayed(
-            controller.show(dutyType)(FakeRequest()),
-            messageFromMessageKey(
-              s"$selectDutyCodesKey.title",
-              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
-            ),
-            doc => {
-              selectedCheckBox(doc) shouldBe empty
-              formAction(doc)       shouldBe routes.SelectDutiesController.submit(dutyType).url
-            }
-          )
+        )
       }
 
       "user has previously selected duty types" in forAll(completeJourneyGen, genDuty) {
@@ -155,11 +153,10 @@ class SelectDutiesControllerSpec
 
   "Submit Select Tax Codes page" must {
 
-    "not find the page if overpayments feature is disabled" in forAll {
-      duty: DutyType =>
-        featureSwitch.disable(Feature.Overpayments_v2)
+    "not find the page if overpayments feature is disabled" in forAll { (duty: DutyType) =>
+      featureSwitch.disable(Feature.Overpayments_v2)
 
-        status(controller.submit(duty)(FakeRequest())) shouldBe NOT_FOUND
+      status(controller.submit(duty)(FakeRequest())) shouldBe NOT_FOUND
     }
 
     "save user selected tax codes and redirect to the next page" when {
@@ -215,31 +212,30 @@ class SelectDutiesControllerSpec
 
     "show an error summary" when {
 
-      "no tax code is selected" in forAll {
-        dutyType: DutyType =>
-          val initialJourney = journeyWithMrnAndDeclaration
-            .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-            .getOrFail
+      "no tax code is selected" in forAll { (dutyType: DutyType) =>
+        val initialJourney = journeyWithMrnAndDeclaration
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
+          .getOrFail
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-          }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
 
-          checkPageIsDisplayed(
-            controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey" -> "")),
-            messageFromMessageKey(
-              s"$selectDutyCodesKey.title",
-              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+        checkPageIsDisplayed(
+          controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey" -> "")),
+          messageFromMessageKey(
+            s"$selectDutyCodesKey.title",
+            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+          ),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(1) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$selectDutyCodesKey.error.required"
             ),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$selectDutyCodesKey.error.required"
-              ),
-            BAD_REQUEST
-          )
+          BAD_REQUEST
+        )
       }
     }
 
