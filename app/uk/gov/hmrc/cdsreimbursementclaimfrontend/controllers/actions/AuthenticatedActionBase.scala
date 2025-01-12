@@ -48,14 +48,14 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   final def limitedAccessErrorPage = unauthorised()
   final def unauthorizedErrorPage  = unauthorised()
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
   private val limitedAccessEoriSet: Set[String] =
-    try config
-      .getOptional[String]("limited-access-eori-csv-base64")
-      .map(s => Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)))
-      .map(a => new String(a, StandardCharsets.UTF_8))
-      .map(_.split(',').map(_.trim.toUpperCase(Locale.ENGLISH)).toSet)
-      .getOrElse(Set.empty)
+    try
+      config
+        .getOptional[String]("limited-access-eori-csv-base64")
+        .map(s => Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)))
+        .map(a => new String(a, StandardCharsets.UTF_8))
+        .map(_.split(',').map(_.trim.toUpperCase(Locale.ENGLISH)).toSet)
+        .getOrElse(Set.empty)
     catch {
       case e: Exception =>
         throw new Exception("Error while parsing 'limited-access-eori-csv-base64' config property", e)

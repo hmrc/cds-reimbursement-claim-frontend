@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
@@ -38,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -58,7 +58,7 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def showFirst(): Action[AnyContent]                                                                     = actionReadJourney { _ => journey =>
+  val showFirst: Action[AnyContent]                                                                       = actionReadJourney { _ => journey =>
     journey.getSelectedDepositIds.headOption
       .fold(
         Redirect(routes.CheckDeclarationDetailsController.show).asFuture
@@ -91,42 +91,40 @@ class ConfirmFullRepaymentController @Inject() (
   }
 
   def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              journey
-                .getDisplayDeclarationIfValidSecurityDepositId(id)
-                .map(getPageModel(_, id))
-                .map { case model =>
-                  BadRequest(
-                    confirmFullRepaymentPage(
-                      formWithErrors,
-                      model,
-                      routes.ConfirmFullRepaymentController.submit(id)
+    implicit request =>
+      journey =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                journey
+                  .getDisplayDeclarationIfValidSecurityDepositId(id)
+                  .map(getPageModel(_, id))
+                  .map { case model =>
+                    BadRequest(
+                      confirmFullRepaymentPage(
+                        formWithErrors,
+                        model,
+                        routes.ConfirmFullRepaymentController.submit(id)
+                      )
                     )
-                  )
+                  }
+                  .getOrElse(errorHandler.errorResult())
+              ).asFuture,
+            answer =>
+              if journey.getClaimFullAmountStatus(id).contains(answer) &&
+                journey.userHasSeenCYAPage
+              then (journey, Redirect(checkYourAnswers)).asFuture
+              else
+                answer match {
+                  case Yes =>
+                    submitYes(id, journey)
+                  case No  =>
+                    submitNo(id, journey)
                 }
-                .getOrElse(errorHandler.errorResult())
-            ).asFuture,
-          answer =>
-            if (
-              journey.getClaimFullAmountStatus(id).contains(answer) &&
-              journey.userHasSeenCYAPage
-            )
-              (journey, Redirect(checkYourAnswers)).asFuture
-            else
-              answer match {
-                case Yes =>
-                  submitYes(id, journey)
-                case No  =>
-                  submitNo(id, journey)
-              }
-        )
-    },
+          ),
     fastForwardToCYAEnabled = false
   )
 
@@ -142,8 +140,7 @@ class ConfirmFullRepaymentController @Inject() (
         },
         { updatedJourney =>
           val nextRoute =
-            if (journey.answers.modes.checkClaimDetailsChangeMode)
-              routes.CheckClaimDetailsController.show
+            if journey.answers.modes.checkClaimDetailsChangeMode then routes.CheckClaimDetailsController.show
             else
               journey.getSelectedDepositIds
                 .nextAfter(securityId)
@@ -156,8 +153,8 @@ class ConfirmFullRepaymentController @Inject() (
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (if (journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId)) {
-       if (journey.getSecurityTaxCodesFor(securityId).size == 1)
+    (if journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId) then {
+       if journey.getSecurityTaxCodesFor(securityId).size == 1 then
          journey
            .submitClaimFullAmountMode(false)
            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
@@ -167,7 +164,7 @@ class ConfirmFullRepaymentController @Inject() (
            .fold(
              error => {
                logger.warn(error)
-               (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+               (journey, Redirect(baseRoutes.IneligibleController.ineligible))
              },
              updatedJourney =>
                (
@@ -184,7 +181,8 @@ class ConfirmFullRepaymentController @Inject() (
        (
          journey,
          Redirect(routes.CheckClaimDetailsController.show)
-       )).asFuture
+       )
+    ).asFuture
 }
 
 final case class ConfirmFullRepaymentModel(mrn: String, securityId: String, depositValue: String)

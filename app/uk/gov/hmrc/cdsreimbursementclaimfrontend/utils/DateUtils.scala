@@ -26,10 +26,10 @@ object DateUtils {
     maybeDate.flatMap(displayFormat _)
 
   def displayFormat(date: String): Option[String] = {
-    val result = for {
+    val result = for
       t <- Try(LocalDate.parse(date, DateTimeFormatter.ofPattern("u-M-d")))
       f <- Try(DateTimeFormatter.ofPattern("d MMMM yyyy").format(t))
-    } yield f
+    yield f
     result.toOption.orElse(Some(date))
   }
 }

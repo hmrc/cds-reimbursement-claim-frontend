@@ -24,7 +24,7 @@ import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -54,29 +54,27 @@ trait AddressLookupMixin extends JourneyBaseController {
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        maybeID
-          .map(addressLookupService.retrieveUserAddress)
-          .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
-          .fold(
-            error => {
-              logger warn s"Error retrieving lookup address: $error"
-              (
-                journey,
-                if (
-                  error.message.contains("/address/postcode: error.path.missing") || error.message
-                    .contains("/address/lines: error.minLength")
+      implicit request =>
+        journey =>
+          maybeID
+            .map(addressLookupService.retrieveUserAddress)
+            .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
+            .fold(
+              error => {
+                logger warn s"Error retrieving lookup address: $error"
+                (
+                  journey,
+                  if error.message.contains("/address/postcode: error.path.missing") || error.message
+                      .contains("/address/lines: error.minLength")
+                  then Redirect(problemWithAddressPage)
+                  else Redirect(baseRoutes.IneligibleController.ineligible)
                 )
-                  Redirect(problemWithAddressPage)
-                else Redirect(baseRoutes.IneligibleController.ineligible())
-              )
-            },
-            contactAddress =>
-              redirectToTheNextPage(
-                modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
-              )
-          )
-      },
+              },
+              contactAddress =>
+                redirectToTheNextPage(
+                  modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
+                )
+            ),
       fastForwardToCYAEnabled = false
     )
 

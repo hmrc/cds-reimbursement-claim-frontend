@@ -26,8 +26,10 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
   case object ExportedInMultipleShipments extends TemporaryAdmissionMethodOfDisposal
 
   /** WARNING: this combined export option shows only in a selector, should not be sent to the backend!
-    * @see ExportedInSingleShipment
-    * @see ExportedInMultipleShipments
+    * @see
+    *   ExportedInSingleShipment
+    * @see
+    *   ExportedInMultipleShipments
     */
   case object ExportedInSingleOrMultipleShipments extends TemporaryAdmissionMethodOfDisposal
 
@@ -74,11 +76,9 @@ object TemporaryAdmissionMethodOfDisposal extends EnumerationFormat[TemporaryAdm
   val exportedMethodsOfDisposal: Set[TemporaryAdmissionMethodOfDisposal] =
     Set(ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments)
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   def containsExportedMethodsOfDisposal(mods: List[TemporaryAdmissionMethodOfDisposal]) =
     mods.filter(mod => exportedMethodsOfDisposal.contains(mod)).nonEmpty
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   def containsMultipleExportedMethodsOfDisposal(mods: List[TemporaryAdmissionMethodOfDisposal]) =
     mods.filter(mod => mod == ExportedInMultipleShipments || mod == ExportedInSingleOrMultipleShipments).nonEmpty
 }

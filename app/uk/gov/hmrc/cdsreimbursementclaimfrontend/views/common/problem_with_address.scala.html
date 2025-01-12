@@ -46,7 +46,7 @@
         )
     )
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton(s"problem-with-address.button.tryAgain")
     }
 }

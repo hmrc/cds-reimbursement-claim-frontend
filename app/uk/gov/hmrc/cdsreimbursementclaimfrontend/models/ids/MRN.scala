@@ -21,13 +21,13 @@ import cats.implicits.catsSyntaxOption
 import cats.Eq
 import cats.Id
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.Locale
 
-final case class MRN private (value: String) extends AnyVal {
+final case class MRN private (value: String) {
 
   def isValid: Boolean = value matches validityRegex
 }

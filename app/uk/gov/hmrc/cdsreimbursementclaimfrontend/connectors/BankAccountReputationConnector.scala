@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.actor.ActorSystem
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Writes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
@@ -32,12 +32,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.HttpResponseOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import javax.inject.Singleton
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.ExecutionContext
@@ -58,7 +59,7 @@ class BankAccountReputationConnector @Inject() (
     data: BarsBusinessAssessRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val url = getUri("bank-account-reputation", "business")
-    for {
+    for
       httpResponse     <- getReputation(data, url)
       businessResponse <-
         EitherT.fromEither[Future](
@@ -67,14 +68,14 @@ class BankAccountReputationConnector @Inject() (
             .map(_.toCommonResponse())
             .leftMap(ConnectorFailure(_): ConnectorError)
         )
-    } yield businessResponse
+    yield businessResponse
   }
 
   def getPersonalReputation(
     data: BarsPersonalAssessRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val url = getUri("bank-account-reputation", "personal")
-    for {
+    for
       httpResponse     <- getReputation(data, url)
       personalResponse <-
         EitherT.fromEither[Future](
@@ -83,7 +84,7 @@ class BankAccountReputationConnector @Inject() (
             .map(_.toCommonResponse())
             .leftMap(ConnectorFailure(_): ConnectorError)
         )
-    } yield personalResponse
+    yield personalResponse
   }
 
   private def getUri(serviceName: String, apiName: String): String =
@@ -99,7 +100,7 @@ class BankAccountReputationConnector @Inject() (
     EitherT {
       retry(retryIntervals: _*)(shouldRetry, retryReason)(
         http
-          .POST[T, HttpResponse](url, data)
+          .POST[T, HttpResponse](URL(url), data)
       )
         .map(checkResponse(_, url))
     }

@@ -61,43 +61,43 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      (journey.getDocumentTypesIfRequired match {
-        case None =>
-          (journey, Redirect(uploadFilesRoute))
+    implicit request =>
+      journey =>
+        (journey.getDocumentTypesIfRequired match {
+          case None =>
+            (journey, Redirect(uploadFilesRoute))
 
-        case Some(availableDocumentTypes) =>
-          val form: Form[Option[UploadDocumentType]] =
-            Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
+          case Some(availableDocumentTypes) =>
+            val form: Form[Option[UploadDocumentType]] =
+              Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
 
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    viewTemplate(
-                      formWithErrors,
-                      availableDocumentTypes,
-                      journey.answers.supportingEvidences.nonEmpty
-                    )(request)
-                  )
-                ),
-              {
-                case None =>
-                  (journey, Redirect(checkYourAnswers))
-
-                case Some(documentType) =>
-                  modifyJourney(journey, documentType)
-                    .fold(
-                      error => (journey, logAndDisplayError("Unexpected", error)),
-                      upddatedJourney => (upddatedJourney, Redirect(uploadFilesRoute))
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  (
+                    journey,
+                    BadRequest(
+                      viewTemplate(
+                        formWithErrors,
+                        availableDocumentTypes,
+                        journey.answers.supportingEvidences.nonEmpty
+                      )(request)
                     )
-              }
-            )
-      }).asFuture
-    },
+                  ),
+                {
+                  case None =>
+                    (journey, Redirect(checkYourAnswers))
+
+                  case Some(documentType) =>
+                    modifyJourney(journey, documentType)
+                      .fold(
+                        error => (journey, logAndDisplayError("Unexpected", error)),
+                        upddatedJourney => (upddatedJourney, Redirect(uploadFilesRoute))
+                      )
+                }
+              )
+        }).asFuture,
     fastForwardToCYAEnabled = false
   )
 

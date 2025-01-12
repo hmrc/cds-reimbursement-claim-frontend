@@ -16,18 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.util.Timeout
 import com.typesafe.config.ConfigFactory
+import org.apache.pekko.util.Timeout
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.Configuration
 import play.api.test.Helpers.await
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ExistingClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ExistingClaimGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity

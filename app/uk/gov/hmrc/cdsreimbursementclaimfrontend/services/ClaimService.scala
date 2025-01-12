@@ -22,14 +22,14 @@ import cats.implicits.toBifunctorOps
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -61,15 +61,14 @@ class DefaultClaimService @Inject() (
     DeclarationConnector
       .getDeclaration(mrn)
       .subflatMap { response =>
-        if (response.status === OK) {
+        if response.status === OK then {
           response
             .parseJSON[DisplayDeclaration]()
             .map(Some(_))
             .leftMap(Error(_))
-        } else if (response.status === NO_CONTENT) {
+        } else if response.status === NO_CONTENT then {
           Right(None)
-        } else
-          Left(Error(s"call to get declaration details ${response.status}"))
+        } else Left(Error(s"call to get declaration details ${response.status}"))
       }
 
   def getDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
@@ -78,15 +77,14 @@ class DefaultClaimService @Inject() (
     DeclarationConnector
       .getDeclaration(mrn, reasonForSecurity)
       .subflatMap { response =>
-        if (response.status === OK) {
+        if response.status === OK then {
           response
             .parseJSON[DisplayDeclaration]()
             .map(Some(_))
             .leftMap(Error(_))
-        } else if (response.status === NO_CONTENT) {
+        } else if response.status === NO_CONTENT then {
           Right(None)
-        } else
-          Left(Error(s"call to get declaration details ${response.status}"))
+        } else Left(Error(s"call to get declaration details ${response.status}"))
       }
 
   def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
@@ -96,11 +94,11 @@ class DefaultClaimService @Inject() (
       .getDeclaration(mrn, reasonForSecurity)
       .leftMap(_ => GetDeclarationError.unexpectedError)
       .subflatMap { response =>
-        if (response.status === OK) {
+        if response.status === OK then {
           response
             .parseJSON[DisplayDeclaration]()
             .leftMap(_ => GetDeclarationError.unexpectedError)
-        } else if (response.status === BAD_REQUEST) {
+        } else if response.status === BAD_REQUEST then {
           Left(
             response
               .parseJSON[GetDeclarationError]()

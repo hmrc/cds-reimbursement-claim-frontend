@@ -62,8 +62,8 @@ final case class ContactAddress(
     val a2      = a.drop(i + 1)
     val a2Check = a2.endsWith(".") || a2.endsWith(",") || a2.endsWith(";")
     (
-      if (a1Check) a1.dropRight(1) else a1,
-      Some(a2 + b.map(l => if (a2Check) s" $l" else s", $l").getOrElse(""))
+      if a1Check then a1.dropRight(1) else a1,
+      Some(a2 + b.map(l => if a2Check then s" $l" else s", $l").getOrElse(""))
     )
   }
 
@@ -82,7 +82,6 @@ final case class ContactAddress(
     )
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[ContactAddress]): ContactAddress =
     previous.fold(this)(that =>
       this.copy(addressHasChanged =

@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -28,15 +27,14 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -50,7 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
 import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class CheckDeclarationDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -127,8 +125,7 @@ class CheckDeclarationDetailsControllerSpec
           .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
         "Total security deposit paid"            -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Method of payment"                      -> (if (correctedAmounts.isEmpty)
-                                  Some("Unavailable")
+        "Method of payment"                      -> (if correctedAmounts.isEmpty then Some("Unavailable")
                                 else
                                   journey.answers.displayDeclaration
                                     .map(
@@ -139,17 +136,16 @@ class CheckDeclarationDetailsControllerSpec
                                     .map {
                                       case true  => "Guarantee"
                                       case false => "Bank account transfer"
-                                    })
+                                    }
+        )
       ) ++
         journey.answers.displayDeclaration
           .flatMap(_.getSecurityDepositIds)
           .getOrElse(Seq.empty)
           .map { sid =>
             s"Claim for $sid" -> Some(
-              if (correctedAmounts.contains(sid))
-                "Yes"
-              else
-                "No"
+              if correctedAmounts.contains(sid) then "Yes"
+              else "No"
             )
           }
     )

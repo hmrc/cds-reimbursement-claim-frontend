@@ -23,9 +23,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_special_circumstances
 
 import javax.inject.Inject
@@ -76,7 +76,7 @@ class EnterSpecialCircumstancesController @Inject() (
               .fold(
                 errors => {
                   logger.error(s"unable to match basis of claim - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                 },
                 updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show))
               )

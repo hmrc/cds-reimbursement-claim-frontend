@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
-import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
@@ -36,46 +35,46 @@ object IdGen {
     .chooseNum(0, 100)
     .map(AssociatedMrnIndex.fromListIndex)
 
-  implicit lazy val arbitraryAssociatedMrnIndex: Typeclass[AssociatedMrnIndex] =
+  implicit lazy val arbitraryAssociatedMrnIndex: Arbitrary[AssociatedMrnIndex] =
     Arbitrary(genAssociatedMrnIndex)
 
-  implicit lazy val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] =
-    gen[NonEmptyList[AssociatedMrn]]
+  implicit lazy val arbitraryAssociatedMRNsAnswer: Arbitrary[NonEmptyList[AssociatedMrn]] =
+    GeneratorUtils.gen[NonEmptyList[AssociatedMrn]]
 
   lazy val genDan: Gen[Dan] =
-    for {
+    for
       n <- Gen.listOfN(7, Gen.numChar)
       s <- Gen.const(n.mkString)
-    } yield Dan(s)
+    yield Dan(s)
 
   lazy val genEori: Gen[Eori] =
-    for {
+    for
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"GB${n.mkString}")
-    } yield Eori(s)
+    yield Eori(s)
 
   lazy val genXiEori: Gen[Eori] =
-    for {
+    for
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"XI${n.mkString}")
-    } yield Eori(s)
+    yield Eori(s)
 
-  implicit lazy val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
+  implicit lazy val arbitraryEori: Arbitrary[Eori] = Arbitrary(genEori)
 
-  lazy val genMRN: Gen[MRN] = for {
+  lazy val genMRN: Gen[MRN] = for
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)
     d2      <- Gen.listOfN(1, Gen.numChar)
-  } yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
+  yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
 
-  lazy val genName: Gen[Name] = for {
+  lazy val genName: Gen[Name] = for
     name     <- genStringWithMaxSizeOfN(20)
     lastName <- genStringWithMaxSizeOfN(20)
-  } yield Name(Some(name), Some(lastName))
+  yield Name(Some(name), Some(lastName))
 
-  implicit lazy val arbitraryName: Typeclass[Name] = Arbitrary(genName)
+  implicit lazy val arbitraryName: Arbitrary[Name] = Arbitrary(genName)
 
-  implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
+  implicit lazy val arbitraryMrn: Arbitrary[MRN] = Arbitrary(genMRN)
 
 }

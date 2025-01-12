@@ -22,7 +22,7 @@ object JsErrorOps {
   implicit def j(jsError: JsError): JsErrorOps = new JsErrorOps(jsError)
 }
 
-class JsErrorOps(val error: JsError) extends AnyVal {
+class JsErrorOps(val error: JsError) {
 
   def prettyPrint(): String =
     error.errors

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import com.github.arturopala.validator.Validator.Validate
-import play.api.mvc._
+import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -84,7 +84,7 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: OverpaymentsSingleJourney): (OverpaymentsSingleJourney, Result) =
-    if (journey.userHasSeenCYAPage) {
+    if journey.userHasSeenCYAPage then {
       (journey, Redirect(routes.CheckYourAnswersController.show))
     } else {
       (journey, Redirect(routes.CheckClaimantDetailsController.show))

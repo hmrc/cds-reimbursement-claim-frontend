@@ -26,8 +26,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -47,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ChooseExportMethodControllerSpec
     extends PropertyBasedControllerSpec
@@ -87,7 +86,7 @@ class ChooseExportMethodControllerSpec
     checkBoxesLabels.length should ===(9)
     continueButton          should contain(messages("button.continue"))
 
-    if (isError) {
+    if isError then {
       val problemHeader  = doc.select("h2.govuk-error-summary__title").eachText().asScala.toList
       val linkToError    = doc.select("a[href=#choose-export-method]").eachText().asScala.toList
       val errorParagraph = doc.select("p#choose-export-method-error").eachText().asScala.toList

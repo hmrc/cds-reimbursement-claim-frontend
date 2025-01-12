@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
@@ -55,7 +55,7 @@ class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClient, services
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](getUri(eori))
+        .GET[HttpResponse](java.net.URL(getUri(eori)))
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )

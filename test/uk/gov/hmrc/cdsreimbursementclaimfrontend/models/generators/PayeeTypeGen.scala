@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 
 object PayeeTypeGen {
-  implicit lazy val arbitraryPayeeType: Typeclass[PayeeType] =
+  implicit lazy val arbitraryPayeeType: Arbitrary[PayeeType] =
     Arbitrary(Gen.oneOf(PayeeType.values))
 }

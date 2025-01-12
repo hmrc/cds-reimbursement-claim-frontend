@@ -27,31 +27,27 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsMultipleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckYourAnswersController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -107,13 +103,11 @@ class CheckYourAnswersControllerSpec
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala).toSeq
 
-    headers              should not be empty
-    summaryKeys          should not be empty
-    summaryValues        should not be empty
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys.size shouldBe (summaryValues.size - 1)
-    else
-      summaryKeys.size shouldBe summaryValues.size
+    headers                                                      should not be empty
+    summaryKeys                                                  should not be empty
+    summaryValues                                                should not be empty
+    if claim.supportingEvidences.isEmpty then summaryKeys.size shouldBe (summaryValues.size - 1)
+    else summaryKeys.size                                      shouldBe summaryValues.size
 
     headers should containOnlyDefinedElementsOf(
       "Movement Reference Numbers (MRNs)".expectedAlways,
@@ -126,7 +120,7 @@ class CheckYourAnswersControllerSpec
       "Now send your claim".expectedAlways
     )
 
-    val mrnKeys: Seq[(String, Option[String])]            =
+    val mrnKeys: Seq[(String, Option[String])] =
       claim.movementReferenceNumbers.zipWithIndex
         .map { case (mrn, i) => (s"${OrdinalNumber(i + 1).capitalize} MRN", Some(mrn.value)) }
 
@@ -136,7 +130,7 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries should containOnlyDefinedPairsOf(
@@ -165,7 +159,7 @@ class CheckYourAnswersControllerSpec
           "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
           "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                     -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Uploaded"                     -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)

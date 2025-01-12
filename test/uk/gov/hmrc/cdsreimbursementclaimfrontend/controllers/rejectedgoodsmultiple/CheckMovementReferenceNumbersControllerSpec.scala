@@ -29,26 +29,27 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryDisplayDeclaration
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
@@ -92,7 +93,7 @@ class CheckMovementReferenceNumbersControllerSpec
     val journey2            = journey
       .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
 
-    if (submitEORIs)
+    if submitEORIs then
       journey2
         .flatMapWhenDefined(adjustedDeclaration.getConsigneeEori)(j => j.submitConsigneeEoriNumber(_))
         .flatMap(_.submitDeclarantEoriNumber(adjustedDeclaration.getDeclarantEori))
@@ -106,11 +107,11 @@ class CheckMovementReferenceNumbersControllerSpec
         controller.show(FakeRequest())
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
-        //TODO: Get correct URL
+        // TODO: Get correct URL
         div.select("dd:nth-of-type(2)").select("a").attr("href") shouldBe routes.EnterMovementReferenceNumberController
           .show(index + 1)
           .url
-        if (hasDeleteLink) {
+        if hasDeleteLink then {
           div.select("dd:nth-of-type(3) a").isEmpty shouldBe false
           val mrn = MRN(div.select("dd:nth-of-type(1)").text())
           possibleMrns should contain(mrn)
@@ -162,14 +163,14 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
-          val journey = (for {
+          val journey = (for
             j1 <- addAcc14(
                     journey = session.rejectedGoodsMultipleJourney.get,
                     acc14Declaration = firstMrn,
                     submitEORIs = true
                   )
             j2 <- addAcc14(j1, secondMrn)
-          } yield j2).getOrFail
+          yield j2).getOrFail
           journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
           val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
 
@@ -195,7 +196,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "show page with more than 2 MRNs" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "show page with more than 2 MRNs" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val firstMrnJourney =
             addAcc14(
@@ -245,7 +246,7 @@ class CheckMovementReferenceNumbersControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -269,7 +270,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects Yes" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "submit when user selects Yes" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -291,7 +292,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects No" in forAll { acc14Declarations: List[DisplayDeclaration] =>
+      "submit when user selects No" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
             case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -338,14 +339,14 @@ class CheckMovementReferenceNumbersControllerSpec
           FakeRequest()
         )
 
-      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { mrn: MRN =>
+      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { (mrn: MRN) =>
         featureSwitch.disable(Feature.RejectedGoods)
 
         status(performAction(mrn)) shouldBe NOT_FOUND
       }
 
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
-        acc14Declarations: List[DisplayDeclaration] =>
+        (acc14Declarations: List[DisplayDeclaration]) =>
           whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
             val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
               case (journey, declaration) => addAcc14(journey, declaration).getOrFail
@@ -374,7 +375,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "redirect to ineligible page if anything is wrong with the attempt to remove the MRN" in forAll(genMRN) {
-        mrn: MRN =>
+        (mrn: MRN) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(session)
@@ -382,7 +383,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(mrn),
-            baseRoutes.IneligibleController.ineligible()
+            baseRoutes.IneligibleController.ineligible
           )
       }
     }

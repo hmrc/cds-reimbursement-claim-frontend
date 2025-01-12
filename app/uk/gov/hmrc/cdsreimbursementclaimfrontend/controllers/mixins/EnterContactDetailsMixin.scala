@@ -40,7 +40,7 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   final def show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      if (journey.answers.enterContactDetailsMode) {
+      if journey.answers.enterContactDetailsMode then {
         Future.successful(
           Ok(
             enterOrChangeContactDetailsPage(
@@ -65,43 +65,43 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   final def submit: Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        Forms.mrnContactDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              Future.successful(
-                (
-                  journey,
-                  BadRequest(
-                    enterOrChangeContactDetailsPage(
-                      formWithErrors,
-                      postAction,
-                      journey.answers.enterContactDetailsMode
+      implicit request =>
+        journey =>
+          Forms.mrnContactDetailsForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(
+                  (
+                    journey,
+                    BadRequest(
+                      enterOrChangeContactDetailsPage(
+                        formWithErrors,
+                        postAction,
+                        journey.answers.enterContactDetailsMode
+                      )
                     )
                   )
+                ),
+              contactDetails => {
+                val previousDetails =
+                  journey.answers.contactDetails
+                val updatedJourney  = modifyJourney(
+                  journey,
+                  Some(
+                    contactDetails
+                      .computeChanges(previousDetails)
+                  )
                 )
-              ),
-            contactDetails => {
-              val previousDetails =
-                journey.answers.contactDetails
-              val updatedJourney  = modifyJourney(
-                journey,
-                Some(
-                  contactDetails
-                    .computeChanges(previousDetails)
-                )
-              )
-              if (journey.userHasSeenCYAPage) {
-                Future.successful((updatedJourney, Redirect(checkYourAnswers)))
-              } else if (journey.answers.enterContactDetailsMode) {
-                Future.successful((updatedJourney, Redirect(continueRouteEnterAddress)))
-              } else {
-                Future.successful((updatedJourney, Redirect(continueRouteChangeDetails)))
+                if journey.userHasSeenCYAPage then {
+                  Future.successful((updatedJourney, Redirect(checkYourAnswers)))
+                } else if journey.answers.enterContactDetailsMode then {
+                  Future.successful((updatedJourney, Redirect(continueRouteEnterAddress)))
+                } else {
+                  Future.successful((updatedJourney, Redirect(continueRouteChangeDetails)))
+                }
               }
-            }
-          )
-      },
+            ),
       fastForwardToCYAEnabled = false
     )
 }

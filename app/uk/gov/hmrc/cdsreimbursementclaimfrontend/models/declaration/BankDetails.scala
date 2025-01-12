@@ -55,6 +55,6 @@ object BankDetails {
       (
         (JsPath \ "consigneeBankDetails").writeNullable[BankAccountDetails](bankAccountDetailsWrites) and
           (JsPath \ "declarantBankDetails").writeNullable[BankAccountDetails](bankAccountDetailsWrites)
-      )(unlift(BankDetails.unapply))
+      )(Tuple.fromProductTyped(_))
     )
 }

@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_codes
@@ -51,7 +51,7 @@ class SelectDutiesController @Inject() (
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val isSubsidy: Boolean = journey.isSubsidyOnlyJourney
 
-    if (journey.isDutyTypeSelected) {
+    if journey.isDutyTypeSelected then {
       val postAction: Call                     = routes.SelectDutiesController.submit(dutyType)
       val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
       val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
@@ -63,36 +63,37 @@ class SelectDutiesController @Inject() (
   }
 
   def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
-      if (journey.isDutyTypeSelected) {
-        Future.successful(
-          selectDutyCodesForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
-              selectedTaxCodes =>
-                journey
-                  .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
-                  .fold(
-                    errors => {
-                      logger.error(s"Error updating tax codes selection - $errors")
-                      (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
-                    },
-                    updatedJourney =>
-                      (
-                        updatedJourney,
-                        selectedTaxCodes.headOption.fold(
-                          BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
-                        )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
-                      )
-                  )
-            )
-        )
-      } else {
-        (journey, Redirect(selectDutiesAction)).asFuture
-      }
-    },
+    implicit request =>
+      journey => {
+        val postAction: Call = routes.SelectDutiesController.submit(currentDuty)
+        if journey.isDutyTypeSelected then {
+          Future.successful(
+            selectDutyCodesForm
+              .bindFromRequest()
+              .fold(
+                formWithErrors => (journey, BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))),
+                selectedTaxCodes =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForReimbursement(currentDuty, selectedTaxCodes)
+                    .fold(
+                      errors => {
+                        logger.error(s"Error updating tax codes selection - $errors")
+                        (journey, BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)))
+                      },
+                      updatedJourney =>
+                        (
+                          updatedJourney,
+                          selectedTaxCodes.headOption.fold(
+                            BadRequest(selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction))
+                          )(taxCode => Redirect(routes.EnterClaimController.show(currentDuty, taxCode)))
+                        )
+                    )
+              )
+          )
+        } else {
+          (journey, Redirect(selectDutiesAction)).asFuture
+        }
+      },
     fastForwardToCYAEnabled = false
   )
 }

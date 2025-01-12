@@ -40,7 +40,7 @@ trait FeatureSwitchService {
   def isEnabledForApplication(feature: Feature): Boolean
 
   final def optionally[A](feature: Feature, value: A)(implicit hc: HeaderCarrier): Option[A] =
-    if (isEnabled(feature)) Some(value) else None
+    if isEnabled(feature) then Some(value) else None
 
   /** Enable feature switch for the current session */
   def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit
@@ -66,13 +66,11 @@ class ConfiguredFeatureSwitchService @Inject() (
   private val features: ConcurrentHashMap[Feature, Boolean] =
     new ConcurrentHashMap[Feature, Boolean]()
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def enable(feature: Feature): Unit = {
     features.put(feature, true)
     ()
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def disable(feature: Feature): Unit = {
     features.put(feature, false)
     ()
@@ -85,7 +83,6 @@ class ConfiguredFeatureSwitchService @Inject() (
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
 
-  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext"))
   def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     Await.result(
       featuresCache
@@ -94,7 +91,6 @@ class ConfiguredFeatureSwitchService @Inject() (
       timeout
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext"))
   def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     Await.result(
       featuresCache
@@ -110,7 +106,6 @@ class ConfiguredFeatureSwitchService @Inject() (
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
 
-  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext", "org.wartremover.warts.Throw"))
   private def isEnabledInCache(feature: Feature)(implicit hc: HeaderCarrier): Option[Boolean] =
     Await.result(
       featuresCache

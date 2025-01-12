@@ -23,7 +23,7 @@ import play.api.Logger
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.http.logging.Mdc
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -45,21 +45,19 @@ trait Retries {
     block: => Future[A]
   )(implicit ec: ExecutionContext): Future[A] = {
 
-    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def loop(remainingIntervals: Seq[FiniteDuration])(mdcData: Map[String, String])(block: => Future[A]): Future[A] =
       // scheduling will loose MDC data. Here we explicitly ensure it is available on block.
       Mdc
         .withMdc(block, mdcData)
         .flatMap(result =>
-          if (remainingIntervals.nonEmpty && shouldRetry(Success(result))) {
+          if remainingIntervals.nonEmpty && shouldRetry(Success(result)) then {
             val delay = remainingIntervals.headOption.getOrElse(FiniteDuration.apply(1, "s"))
             Logger(getClass).warn(s"Will retry in $delay due to ${retryReason(result)}")
             after(delay, actorSystem.scheduler)(loop(remainingIntervals.drop(1))(mdcData)(block))
-          } else
-            Future.successful(result)
+          } else Future.successful(result)
         )
         .recoverWith { case e: Throwable =>
-          if (remainingIntervals.nonEmpty && shouldRetry(Failure(e))) {
+          if remainingIntervals.nonEmpty && shouldRetry(Failure(e)) then {
             val delay = remainingIntervals.headOption.getOrElse(FiniteDuration.apply(1, "s"))
             Logger(getClass).warn(s"Will retry in $delay due to ${e.getClass.getName()}: ${e.getMessage()}")
             after(delay, actorSystem.scheduler)(loop(remainingIntervals.drop(1))(mdcData)(block))

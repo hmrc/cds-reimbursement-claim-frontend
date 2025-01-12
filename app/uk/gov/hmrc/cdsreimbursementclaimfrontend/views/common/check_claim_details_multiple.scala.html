@@ -75,7 +75,7 @@
 
     @summary(SummaryList(ClaimsTableHelper.claimsTotalSummary(answers.flatMap(_._3))))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
     @radios(
         form = form,
         name = "check-claim",

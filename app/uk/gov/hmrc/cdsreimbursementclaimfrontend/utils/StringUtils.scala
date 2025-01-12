@@ -18,9 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 object StringUtils {
 
-  implicit class StringOps(private val string: String) extends AnyVal {
+  implicit class StringOps(private val string: String) {
     def asSomeIfNonEmpty: Option[String] =
-      if (string.trim().isEmpty()) None else Some(string.trim())
+      if string.trim().isEmpty() then None else Some(string.trim())
   }
 
 }

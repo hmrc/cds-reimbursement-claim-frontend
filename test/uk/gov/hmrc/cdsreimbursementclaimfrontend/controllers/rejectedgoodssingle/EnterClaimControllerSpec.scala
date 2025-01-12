@@ -27,15 +27,16 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -43,7 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -85,7 +85,7 @@ class EnterClaimControllerSpec
     assertPageElementsByIdAndExpectedHtml(doc)(
       "enter-claim-agent-fees-disclaimer" -> m("enter-claim.inset-text"),
       "enter-claim-how-much-was-paid"     ->
-        (if (TaxCodes.custom.contains(taxCode))
+        (if TaxCodes.custom.contains(taxCode) then
            m(
              "enter-claim.paid-amount-label",
              paidAmount.toPoundSterlingString,
@@ -98,7 +98,8 @@ class EnterClaimControllerSpec
              paidAmount.toPoundSterlingString,
              messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
              taxCode.value
-           )),
+           )
+        ),
       "enter-claim-amount-label"          -> m("enter-claim-amount.label")
     )
 
@@ -190,7 +191,7 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(taxCode),
-            if (TaxCodes.custom.contains(taxCode))
+            if TaxCodes.custom.contains(taxCode) then
               messageFromMessageKey(
                 "enter-claim.title",
                 taxCode.value,
@@ -202,7 +203,8 @@ class EnterClaimControllerSpec
                 messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                 messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                 taxCode.value
-              ),
+              )
+            ,
             assertPageContent(_, journey, taxCode, None)
           )
         }
@@ -221,7 +223,7 @@ class EnterClaimControllerSpec
 
             checkPageIsDisplayed(
               performAction(taxCode),
-              if (TaxCodes.custom.contains(taxCode))
+              if TaxCodes.custom.contains(taxCode) then
                 messageFromMessageKey(
                   "enter-claim.title",
                   taxCode.value,
@@ -233,7 +235,8 @@ class EnterClaimControllerSpec
                   messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                   messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                   taxCode.value
-                ),
+                )
+              ,
               assertPageContent(_, journey, taxCode, actualAmountOpt)
             )
           }
@@ -330,7 +333,7 @@ class EnterClaimControllerSpec
               val paidAmount: BigDecimal =
                 BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
 
-              for (claimAmount <- Seq(ZERO, paidAmount + BigDecimal("0.01"))) {
+              for claimAmount <- Seq(ZERO, paidAmount + BigDecimal("0.01")) do {
                 val actualAmount = paidAmount - claimAmount
                 inSequence {
                   mockAuthWithDefaultRetrievals()
@@ -340,7 +343,7 @@ class EnterClaimControllerSpec
                 withClue(s"taxCode=$taxCode paid=$paidAmount claim=$claimAmount") {
                   checkPageIsDisplayed(
                     performAction(taxCode, Seq("enter-claim-amount" -> formatAmount(claimAmount))),
-                    if (TaxCodes.custom.contains(taxCode))
+                    if TaxCodes.custom.contains(taxCode) then
                       messageFromMessageKey(
                         "enter-claim.title",
                         taxCode.value,
@@ -352,7 +355,8 @@ class EnterClaimControllerSpec
                         messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                         messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                         taxCode.value
-                      ),
+                      )
+                    ,
                     doc => {
                       assertPageContent(doc, journey, taxCode, Some(actualAmount))
                       assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))
@@ -376,7 +380,7 @@ class EnterClaimControllerSpec
 
           checkPageIsDisplayed(
             performAction(taxCode, Seq("enter-claim-amount" -> "")),
-            if (TaxCodes.custom.contains(taxCode))
+            if TaxCodes.custom.contains(taxCode) then
               messageFromMessageKey(
                 "enter-claim.title",
                 taxCode.value,
@@ -388,7 +392,8 @@ class EnterClaimControllerSpec
                 messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
                 messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
                 taxCode.value
-              ),
+              )
+            ,
             doc => {
               assertPageContent(doc, journey, taxCode, None)
               assertShowsInputError(doc, Some(m("enter-claim-amount.error.required")))

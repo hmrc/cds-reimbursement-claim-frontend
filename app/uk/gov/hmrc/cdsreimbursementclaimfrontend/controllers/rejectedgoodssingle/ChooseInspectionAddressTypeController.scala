@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -66,14 +66,12 @@ class ChooseInspectionAddressTypeController @Inject() (
     journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
 
   override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
-    if (journey.hasCompleteAnswers)
+    if journey.hasCompleteAnswers then
       (
         journey,
         Redirect(
-          if (journey.needsBanksAccountDetailsSubmission)
-            checkYourAnswers
-          else
-            routes.ChoosePayeeTypeController.show
+          if journey.needsBanksAccountDetailsSubmission then checkYourAnswers
+          else routes.ChoosePayeeTypeController.show
         )
       )
     else (journey, Redirect(routes.ChoosePayeeTypeController.show))

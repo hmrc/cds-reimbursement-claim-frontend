@@ -51,7 +51,7 @@
 
     @insetText(content = HtmlContent(messages(s"enter-contact-details.inset-text")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @inputText(
             form = form,

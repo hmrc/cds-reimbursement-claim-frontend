@@ -51,8 +51,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupSe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.net.URL
 import java.net.URI
+import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -154,7 +154,7 @@ class DefaultAddressLookupService @Inject() (
       .initiate(request)
       .subflatMap { response =>
         logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
-        if (response.status === ACCEPTED)
+        if response.status === ACCEPTED then
           response
             .header(LOCATION)
             .map(URI.create(_).toURL())
@@ -179,7 +179,7 @@ class DefaultAddressLookupService @Inject() (
       .ensure(Error(s"Cannot retrieve an address by ID $addressId"))(_.status === OK)
       .subflatMap { response =>
         logger.debug(s"Received ALF response with status ${response.status} and body '${response.body}'")
-        if (response.status === OK)
+        if response.status === OK then
           response.json
             .validate[ContactAddress](addressLookupResponseReads)
             .asEither

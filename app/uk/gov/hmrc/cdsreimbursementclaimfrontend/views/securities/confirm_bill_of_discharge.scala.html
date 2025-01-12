@@ -57,7 +57,7 @@
 
     @paragraph(Html(messages(s"bill-of-discharge.p2")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

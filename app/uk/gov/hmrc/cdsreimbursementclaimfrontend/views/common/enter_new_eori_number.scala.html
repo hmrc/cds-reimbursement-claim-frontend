@@ -47,7 +47,7 @@
 
         @insetText(HtmlContent(messages("enter-new-eori-number.inset-text")), Some("enter-new-eori-inset-text"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @inputText(
                 form = form,

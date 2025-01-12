@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.utils.Colors
 
 import scala.io.Codec
 import scala.io.Source
-import play.utils.Colors
 
 class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
@@ -37,7 +37,7 @@ class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks 
   "Messages" should {
     "not have duplicated keys" in {
       val duplicatedKeys = lines.map(_.split("=")).groupBy(_.head).filter(_._2.length > 1)
-      if (duplicatedKeys.size == 0) {
+      if duplicatedKeys.size == 0 then {
         succeed
       } else {
         println(
@@ -61,7 +61,7 @@ class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks 
           .filter(_._2.length > 1)
           .toSeq
 
-      if (duplicatedMessages.size == 0) {
+      if duplicatedMessages.size == 0 then {
         succeed
       } else {
         println(s"Found ${duplicatedMessages.size} duplicated messages.")

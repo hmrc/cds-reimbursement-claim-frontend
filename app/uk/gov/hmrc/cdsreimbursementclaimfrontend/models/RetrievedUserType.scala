@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 
 sealed trait AuthenticatedUser {
   def name: Option[String]
-  def email: Option[Email] //fixme email can go
+  def email: Option[Email] // fixme email can go
   def eoriOpt: Option[Eori] = None
 
   final def asVerifiedEmail: Option[CdsVerifiedEmail] =
@@ -32,7 +32,7 @@ sealed trait AuthenticatedUser {
 
 object AuthenticatedUser {
 
-  //fixme no need to have Individual and Organisation (we treat them the same way)
+  // fixme no need to have Individual and Organisation (we treat them the same way)
 
   final case class Individual(
     email: Option[Email],

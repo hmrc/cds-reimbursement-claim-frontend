@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import munit.diff.Diff
+import org.scalamock.function.FunctionAdapter2
 import org.scalamock.handlers.CallHandler1
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
-import org.scalamock.function.FunctionAdapter2
-import munit.diff.Diff
-import play.api.libs.json.Json
-import scala.io.AnsiColor._
 
 import scala.concurrent.Future
+import scala.io.AnsiColor.*
 
 trait SessionSupport { this: MockFactory =>
 
@@ -56,7 +56,7 @@ trait SessionSupport { this: MockFactory =>
 
   def sessionMatcher(expectedSession: SessionData) =
     new FunctionAdapter2[SessionData, HeaderCarrier, Boolean]({ case (actualSession, _) =>
-      if (actualSession != expectedSession) {
+      if actualSession != expectedSession then {
         val s1   = Json.prettyPrint(Json.toJson(expectedSession))
         val s2   = Json.prettyPrint(Json.toJson(actualSession))
         val diff = new Diff(s1, s2)

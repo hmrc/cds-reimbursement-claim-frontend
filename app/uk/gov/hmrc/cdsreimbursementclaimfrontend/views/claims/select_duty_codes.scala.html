@@ -86,7 +86,7 @@
         @paragraph(Html(messages(s"select-duty-codes.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
     }
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @checkboxes(
             field = form(s"select-duty-codes"),

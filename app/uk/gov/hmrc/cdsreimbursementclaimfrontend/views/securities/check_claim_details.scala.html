@@ -71,7 +71,7 @@
 
     @summary(SummaryList(rows = ClaimsTableHelper.claimsTotalSummary(correctedAmounts.values.flatten.map(_.claimAmount).sum), classes = "govuk-summary-list--no-border", attributes = Map("id" -> "repayment-total")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton("button.continue")
     }
 }

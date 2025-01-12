@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -76,7 +76,7 @@ class ChoosePayeeTypeControllerSpec
     def submitPayeeType(data: (String, String)*): Future[Result] =
       controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "display page" in forAll { maybePayeeType: Option[PayeeType] =>
+    "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
@@ -114,7 +114,7 @@ class ChoosePayeeTypeControllerSpec
     }
 
     "successfully submit bank account type" when {
-      "one of the options selected" in forAll { payeeType: PayeeType =>
+      "one of the options selected" in forAll { (payeeType: PayeeType) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)

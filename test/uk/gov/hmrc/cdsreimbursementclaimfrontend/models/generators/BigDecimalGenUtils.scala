@@ -25,7 +25,7 @@ trait BigDecimalGen {
     override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
       Gen
         .choose(1, 10000)
-        .map(i => (min + (i * ((max - min) / 10000))))
+        .map(i => min + (i * ((max - min) / 10000)))
         .map(bd => BigDecimal(bd.*(100).toInt)./(100))
   }
 

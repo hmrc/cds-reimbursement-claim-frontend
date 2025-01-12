@@ -19,13 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
@@ -47,7 +46,7 @@ class CheckBankDetailsController @Inject() (
     routes.CheckBankDetailsController.submitWarning
 
   final override def continueRoute(journey: Journey): Call =
-    if (journey.userHasSeenCYAPage) checkYourAnswers
+    if journey.userHasSeenCYAPage then checkYourAnswers
     else routes.ChooseFileTypeController.show
 
   final override val enterBankAccountDetailsRoute: Call =

@@ -26,32 +26,32 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseHowManyMrnsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.{routes => rejectedGoodsMultipleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.{routes => rejectedGoodsScheduledRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
@@ -79,7 +79,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsSingleJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsSingleJourney
           .Features(
@@ -95,7 +95,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsMultipleJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsMultipleJourney
           .Features(
@@ -111,7 +111,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[RejectedGoodsScheduledJourney.Features] = {
     val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if (blockSubsidies || subsidiesForRejectedGoods)
+    if blockSubsidies || subsidiesForRejectedGoods then
       Some(
         RejectedGoodsScheduledJourney
           .Features(
@@ -147,36 +147,33 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if (request.sessionData.rejectedGoodsSingleJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsSingleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsSingleJourney.empty(eori, features = rejectedGoodsSingleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if (request.sessionData.rejectedGoodsMultipleJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsMultipleJourney.empty(eori, features = rejectedGoodsMultipleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
 
                 case Scheduled =>
-                  (if (request.sessionData.rejectedGoodsScheduledJourney.isEmpty)
+                  (if request.sessionData.rejectedGoodsScheduledJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsScheduledJourney.empty(eori, features = rejectedGoodsScheduledJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show))
 
               }

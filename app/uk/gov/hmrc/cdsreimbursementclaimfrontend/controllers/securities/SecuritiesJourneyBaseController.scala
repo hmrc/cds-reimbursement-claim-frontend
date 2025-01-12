@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import com.github.arturopala.validator.Validator._
+import com.github.arturopala.validator.Validator.*
 import play.api.libs.json.Format
 import play.api.mvc.Call
 import play.api.mvc.Request
@@ -50,7 +50,7 @@ trait SecuritiesJourneyBaseController extends JourneyBaseController with Securit
     sessionData.copy(securitiesJourney = Some(journey))
 
   final override def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] =
-    if (jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) Some(validateUserEoriIsOnTheAllowList)
+    if jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities) then Some(validateUserEoriIsOnTheAllowList)
     else None
 
   private val validateUserEoriIsOnTheAllowList: Validate[SecuritiesJourney] = {

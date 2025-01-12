@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import org.apache.pekko.actor.ActorSystem
@@ -25,7 +25,7 @@ import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
@@ -75,7 +75,7 @@ class DefaultEoriDetailsConnector @Inject() (
 
   override def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](url)
+      http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[EoriDetailsConnector.Response])
@@ -94,7 +94,7 @@ class DefaultEoriDetailsConnector @Inject() (
 
   override def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](s"$url/${eori.value}")
+      http.GET[HttpResponse](java.net.URL(s"$url/${eori.value}"))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[EoriDetailsConnector.Response])

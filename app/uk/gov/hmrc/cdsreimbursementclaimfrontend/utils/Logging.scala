@@ -22,7 +22,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.*
 
 trait Logging {
 
@@ -50,7 +50,7 @@ trait Logging {
 
 object Logging {
 
-  implicit class LoggerOps(private val l: Logger) extends AnyVal {
+  implicit class LoggerOps(private val l: Logger) {
     def warn(msg: => String, error: => Error): Unit = {
       val idString = error.identifiers.map { case (k, v) => s"[$k: $v]" }.mkString(" ")
       error.throwable.fold(l.warn(s"$idString $msg ${error.message}"))(e =>
@@ -67,14 +67,17 @@ object PrettyPrint {
     *
     * Credits: https://gist.github.com/carymrobbins/7b8ed52cd6ea186dbdf8
     *
-    * @param a - The value to pretty print.
-    * @param indentSize - Number of spaces for each indent.
-    * @param maxElementWidth - Largest element size before wrapping.
-    * @param depth - Initial depth to pretty print indents.
+    * @param a
+    *   \- The value to pretty print.
+    * @param indentSize
+    *   \- Number of spaces for each indent.
+    * @param maxElementWidth
+    *   \- Largest element size before wrapping.
+    * @param depth
+    *   \- Initial depth to pretty print indents.
     * @return
     */
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
-  @annotation.nowarn
+
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize
     val fieldIndent = indent + (" " * indentSize)
@@ -95,7 +98,7 @@ object PrettyPrint {
       case xs: Seq[_]               =>
         // If the Seq is not too long, pretty print on one line.
         val resultOneLine = xs.map(nextDepth).toString()
-        if (resultOneLine.length <= maxElementWidth) return resultOneLine
+        if resultOneLine.length <= maxElementWidth then return resultOneLine
         // Otherwise, build it with newlines and proper field indents.
         val result        = xs.map(x => s"\n$fieldIndent${nextDepth(x)}").toString()
         result.substring(0, result.length - 1) + "\n" + indent + ")"
@@ -107,7 +110,7 @@ object PrettyPrint {
         val fields = cls.getDeclaredFields.filterNot(_.isSynthetic).map(_.getName)
         val values = p.productIterator.toSeq
         // If we weren't able to match up fields/values, fall back to toString.
-        if (fields.length != values.length) return p.toString
+        if fields.length != values.length then return p.toString
         fields.zip(values).toList match {
           // If there are no fields, just use the normal String representation.
           case Nil               => p.toString
@@ -118,7 +121,7 @@ object PrettyPrint {
             val prettyFields  = kvps.map { case (k, v) => s"$fieldIndent$k = ${nextDepth(v)}" }
             // If the result is not too long, pretty print on one line.
             val resultOneLine = s"$prefix(${prettyFields.mkString(", ")})"
-            if (resultOneLine.length <= maxElementWidth) return resultOneLine
+            if resultOneLine.length <= maxElementWidth then return resultOneLine
             // Otherwise, build it with newlines and proper field indents.
             s"$prefix(\n${prettyFields.mkString(",\n")}\n$indent)"
         }

@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChoosePayeeTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
@@ -46,11 +46,8 @@ class ChoosePayeeTypeController @Inject() (
 
   final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
   final def nextPage(journey: Journey): Call =
-    if (journey.isSubsidyOnlyJourney)
-      routes.ChooseFileTypeController.show
-    else if (journey.isAllSelectedDutiesAreCMAEligible)
-      routes.ChooseRepaymentMethodController.show
-    else
-      routes.EnterBankAccountDetailsController.show
+    if journey.isSubsidyOnlyJourney then routes.ChooseFileTypeController.show
+    else if journey.isAllSelectedDutiesAreCMAEligible then routes.ChooseRepaymentMethodController.show
+    else routes.EnterBankAccountDetailsController.show
 
 }

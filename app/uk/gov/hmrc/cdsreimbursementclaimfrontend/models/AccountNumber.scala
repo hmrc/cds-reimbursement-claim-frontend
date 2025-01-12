@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.function.Predicate
 
-final case class AccountNumber(value: String) extends AnyVal {
+final case class AccountNumber(value: String) {
 
   def masked(implicit messages: Messages): String =
     messages("account-number.mask", value.takeRight(4))

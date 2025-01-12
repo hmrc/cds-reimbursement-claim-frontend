@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 
 import java.util.UUID
 
-@annotation.nowarn
 trait WorkInProgressMixin {
   self: JourneyBaseController =>
 
@@ -37,7 +36,6 @@ trait WorkInProgressMixin {
 
   val showFirst: Action[AnyContent] = show
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       (

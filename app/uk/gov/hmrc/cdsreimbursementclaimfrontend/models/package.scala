@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
 import cats.data.NonEmptyList
 import cats.data.ValidatedNel
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import java.text.NumberFormat
 import java.util.Locale
@@ -48,7 +48,7 @@ package object models {
 
   private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
-  implicit class BigDecimalOps(private val amount: BigDecimal) extends AnyVal {
+  implicit class BigDecimalOps(private val amount: BigDecimal) {
     def toPoundSterlingString: String =
       currencyFormatter.format(amount)
   }

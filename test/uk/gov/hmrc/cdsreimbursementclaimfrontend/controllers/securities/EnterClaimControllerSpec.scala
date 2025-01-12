@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -28,15 +27,14 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -47,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -116,7 +114,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
-        for (depositId <- initialJourney.getSelectedDepositIds) {
+        for depositId <- initialJourney.getSelectedDepositIds do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -143,7 +141,7 @@ class EnterClaimControllerSpec
 
         depositIdsWithNoneDutiesSelected.nonEmpty shouldBe true
 
-        for (depositId <- depositIdsWithNoneDutiesSelected) {
+        for depositId <- depositIdsWithNoneDutiesSelected do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -172,7 +170,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, taxCode, _, _) <- reclaims) {
+        for (depositId, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -195,7 +193,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((_, taxCode, _, _) <- reclaims) {
+        for (_, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -213,7 +211,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, _, _, _) <- reclaims) {
+        for (depositId, _, _, _) <- reclaims do {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -240,7 +238,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, _, _, _) <- reclaims) {
+        for (depositId, _, _, _) <- reclaims do {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
@@ -274,7 +272,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((_, taxCode, _, _) <- reclaims) {
+        for (_, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -292,7 +290,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, _, _, _) <- reclaims) {
+        for (depositId, _, _, _) <- reclaims do {
 
           val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
@@ -317,7 +315,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, (_, _, _, reclaims)) =>
-        for ((depositId, _, _, _) <- reclaims) {
+        for (depositId, _, _, _) <- reclaims do {
 
           val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
@@ -343,7 +341,7 @@ class EnterClaimControllerSpec
         val allSelectedDuties: Seq[(String, TaxCode)] =
           initialJourney.getAllSelectedDuties
 
-        for ((depositId, taxCode) <- allSelectedDuties) {
+        for (depositId, taxCode) <- allSelectedDuties do {
 
           val next = allSelectedDuties.nextAfter((depositId, taxCode))
 
@@ -363,10 +361,8 @@ class EnterClaimControllerSpec
               routes.CheckClaimDetailsController.show
 
             case Some((secondDepositId, secondTaxCode)) =>
-              if (secondDepositId == depositId)
-                routes.EnterClaimController.show(depositId, secondTaxCode)
-              else
-                routes.ConfirmFullRepaymentController.show(secondDepositId)
+              if secondDepositId == depositId then routes.EnterClaimController.show(depositId, secondTaxCode)
+              else routes.ConfirmFullRepaymentController.show(secondDepositId)
           }
 
           checkIsRedirect(
@@ -386,7 +382,7 @@ class EnterClaimControllerSpec
         val allSelectedDuties: Seq[(String, TaxCode)] =
           initialJourney.getAllSelectedDuties
 
-        for ((depositId, taxCode) <- allSelectedDuties) {
+        for (depositId, taxCode) <- allSelectedDuties do {
 
           val updatedJourney = initialJourney
             .submitCheckClaimDetailsChangeMode(true)
@@ -431,7 +427,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
-        for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
+        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -458,7 +454,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
-        for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
+        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -479,7 +475,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
-        for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
+        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -504,7 +500,7 @@ class EnterClaimControllerSpec
           journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
-        for ((depositId, taxCode) <- initialJourney.getAllSelectedDuties) {
+        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()

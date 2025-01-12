@@ -23,10 +23,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.TestEnvironment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.config
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.mongo.CurrentTimestampSupport
@@ -46,15 +46,15 @@ class FeaturesCacheSpec
     new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config)
 
   val featureSetGen: Gen[FeatureSet] =
-    for {
+    for
       enabled  <- Gen.listOf(Gen.oneOf(Feature.values))
       disabled <- Gen.listOf(Gen.oneOf(Feature.values))
-    } yield FeatureSet(enabled.toSet, disabled.toSet)
+    yield FeatureSet(enabled.toSet, disabled.toSet)
 
   "FeaturesCache" must {
 
     "be able to insert FeatureSet into mongo and read it back" in new TestEnvironment {
-      forAll(featureSetGen) { featureSet: FeatureSet =>
+      forAll(featureSetGen) { (featureSet: FeatureSet) =>
         val result = sessionStore.store(featureSet)
 
         await(result) should be(Right(()))

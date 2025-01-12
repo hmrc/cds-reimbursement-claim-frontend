@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
+import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import play.api.libs.json.Json
 
 final case class ConsigneeDetails(
   consigneeEORI: String,

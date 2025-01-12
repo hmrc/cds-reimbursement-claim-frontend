@@ -23,8 +23,8 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -37,10 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.RetrievalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
@@ -133,11 +132,11 @@ class AuthenticatedActionWithRetrievedDataSpec
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequestWithRetrievedData[A] =>
+          { (a: AuthenticatedRequestWithRetrievedData[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok(Json.toJson(a.journeyUserType)))
           }
@@ -324,11 +323,11 @@ class AuthenticatedActionWithRetrievedDataSpec
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequestWithRetrievedData[A] =>
+          { (a: AuthenticatedRequestWithRetrievedData[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok(Json.toJson(a.journeyUserType)))
           }

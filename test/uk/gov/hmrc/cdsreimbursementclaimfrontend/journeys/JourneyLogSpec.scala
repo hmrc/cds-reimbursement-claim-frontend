@@ -18,15 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
-import scala.collection.immutable.SortedMap
 import java.time.LocalDate
+import scala.collection.immutable.SortedMap
 
 class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
 

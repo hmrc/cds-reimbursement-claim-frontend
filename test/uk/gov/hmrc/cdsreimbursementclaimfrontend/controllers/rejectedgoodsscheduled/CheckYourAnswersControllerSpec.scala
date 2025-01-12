@@ -29,7 +29,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsScheduledClaimConnector
@@ -38,20 +38,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -111,10 +109,8 @@ class CheckYourAnswersControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys.size shouldBe (summaryValues.size - 1)
-    else
-      summaryKeys.size shouldBe summaryValues.size
+    if claim.supportingEvidences.isEmpty then summaryKeys.size shouldBe (summaryValues.size - 1)
+    else summaryKeys.size                                      shouldBe summaryValues.size
 
     headers should containOnlyDefinedElementsOf(
       "Lead Movement Reference Number (MRN)".expectedAlways,
@@ -135,7 +131,7 @@ class CheckYourAnswersControllerSpec
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences.map { uploadDocument =>
         s"${uploadDocument.fileName} ${uploadDocument.documentType
-          .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
     summaries should containOnlyDefinedPairsOf(
@@ -170,7 +166,7 @@ class CheckYourAnswersControllerSpec
           "UK Duty"                  -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Excise Duty"              -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
           "Total"                    -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Uploaded"                 -> (if (expectedDocuments.isEmpty) None else Some(expectedDocuments.mkString(" "))),
+          "Uploaded"                 -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
           "Name on the account"      -> claim.bankAccountDetails.map(_.accountName.value),
           "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.value),
           "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.value),

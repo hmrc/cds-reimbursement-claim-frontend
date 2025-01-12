@@ -27,23 +27,22 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.BAD_REQUEST
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 
 class EnterClaimControllerSpec
     extends PropertyBasedControllerSpec
@@ -131,7 +130,7 @@ class EnterClaimControllerSpec
 
         checkPageIsDisplayed(
           controller.show(dutyType, taxCode)(FakeRequest()),
-          if (DutyTypes.custom.contains(dutyType))
+          if DutyTypes.custom.contains(dutyType) then
             messageFromMessageKey(
               s"enter-claim.scheduled.title",
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
@@ -144,7 +143,8 @@ class EnterClaimControllerSpec
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
               messages(s"duty-type.${dutyType.repr}"),
               taxCode.value
-            ),
+            )
+          ,
           doc => {
             val elements = doc.select("input")
             BigDecimal(elements.get(0).`val`()) should be(paidAmount)
@@ -263,7 +263,7 @@ class EnterClaimControllerSpec
                     ): _*
                   )
                 ),
-                if (DutyTypes.custom.contains(dutyType))
+                if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
@@ -276,7 +276,8 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc => {
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(1) > a")
@@ -302,7 +303,7 @@ class EnterClaimControllerSpec
                     ): _*
                   )
                 ),
-                if (DutyTypes.custom.contains(dutyType))
+                if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
@@ -315,7 +316,8 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc =>
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(1) > a")
@@ -337,7 +339,7 @@ class EnterClaimControllerSpec
                     ): _*
                   )
                 ),
-                if (DutyTypes.custom.contains(dutyType))
+                if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
@@ -350,7 +352,8 @@ class EnterClaimControllerSpec
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value
-                  ),
+                  )
+                ,
                 doc =>
                   doc
                     .select(".govuk-error-summary__list > li:nth-child(1) > a")

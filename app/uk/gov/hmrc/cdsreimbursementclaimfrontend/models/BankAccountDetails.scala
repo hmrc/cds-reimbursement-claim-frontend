@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import cats.data.Validated.Valid
 import cats.data.Validated.invalidNel
-import cats.syntax.all._
+import cats.syntax.all.*
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
@@ -62,7 +62,6 @@ final case class BankAccountDetails(
   def withExistenceVerified(accountExists: Option[ReputationResponse]): BankAccountDetails =
     this.copy(existenceVerified = accountExists.contains(ReputationResponse.Yes))
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def computeChanges(previous: Option[BankAccountDetails]): BankAccountDetails =
     previous.fold(this)(that =>
       this.copy(bankAccountHasChanged =
@@ -83,14 +82,13 @@ object BankAccountDetails {
     maybeBankDetails
       .toValidNel(MissingAnswerError("Bank account details"))
       .andThen(bankDetails =>
-        if (!AccountName.isValid(bankDetails.accountName.value))
+        if !AccountName.isValid(bankDetails.accountName.value) then
           invalidNel(IncorrectAnswerError("Account name", "Invalid"))
-        else if (!AccountNumber.isValid(bankDetails.accountNumber.value))
+        else if !AccountNumber.isValid(bankDetails.accountNumber.value) then
           invalidNel(IncorrectAnswerError("Account number", "Invalid"))
-        else if (!SortCode.isValid(bankDetails.sortCode.value))
+        else if !SortCode.isValid(bankDetails.sortCode.value) then
           invalidNel(IncorrectAnswerError("Sort code", "Invalid"))
-        else
-          Valid(Some(bankDetails))
+        else Valid(Some(bankDetails))
       )
   implicit val equality: Eq[BankAccountDetails]        =
     Eq.fromUniversalEquals[BankAccountDetails]

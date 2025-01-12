@@ -17,17 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
-import play.api.data.Forms._
+import play.api.data.Forms.*
+import play.api.data.validation.Constraints.maxLength
 import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import play.api.data.Form
 import play.api.data.Mapping
-import play.api.data.validation.Constraints.maxLength
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -38,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
@@ -47,14 +47,14 @@ object Forms {
     mapping(
       key -> nonEmptyText(maxLength = 18)
         .verifying("invalid.number", str => str.length > 18 || str.isEmpty || Eori(str).isValid)
-    )(Eori.apply)(Eori.unapply)
+    )(Eori.apply)(v => Some(v.value))
   )
 
   def newDanForm(key: String): Form[Dan] = Form(
     mapping(
       key -> nonEmptyText(maxLength = 7)
         .verifying("invalid.number", str => str.length > 7 || str.isEmpty || Dan(str).isValid)
-    )(Dan.apply)(Dan.unapply)
+    )(Dan.apply)(v => Some(v.value))
   )
 
   val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(
@@ -172,9 +172,7 @@ object Forms {
       "enter-additional-details" -> nonEmptyText()
         .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
         .verifying(maxLength(500))
-    )(AdditionalDetailsAnswer.apply)(
-      AdditionalDetailsAnswer.unapply
-    )
+    )(AdditionalDetailsAnswer.apply)(v => Some(v.value))
   )
 
   val enterAdditionalDetailsForm: Form[String] = Form(
@@ -205,7 +203,6 @@ object Forms {
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
-  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
       "select-duties" -> list(
@@ -219,7 +216,7 @@ object Forms {
               (x: String) => TaxCodes.findUnsafe(x),
               (t: TaxCode) => t.value
             )
-        )(Duty.apply)(Duty.unapply)
+        )(Duty.apply)(v => Some(v.taxCode))
       ).verifying("error.required", _.nonEmpty)
     )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
   )
@@ -320,7 +317,7 @@ object Forms {
           .verifying("error.invalid", a => a === 0 || a === 1)
           .transform[ReimbursementMethod](
             value =>
-              if (value === 0) CurrentMonthAdjustment
+              if value === 0 then CurrentMonthAdjustment
               else BankAccountTransfer,
             {
               case CurrentMonthAdjustment => 0
@@ -343,7 +340,7 @@ object Forms {
             key => key === noneString || UploadDocumentType.parse(key).exists(v => availableFileTypes.contains(v))
           )
           .transform[Option[UploadDocumentType]](
-            (key: String) => if (key === noneString) None else UploadDocumentType.parse(key),
+            (key: String) => if key === noneString then None else UploadDocumentType.parse(key),
             (value: Option[UploadDocumentType]) => value.map(UploadDocumentType.keyOf).getOrElse(noneString)
           )
       )(identity)(Some(_))
@@ -375,9 +372,9 @@ object Forms {
       mapping(
         "enter-duplicate-movement-reference-number" ->
           nonEmptyText
-            .verifying(Constraint[String] { str: String =>
-              if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
-              else if (str.nonEmpty && !MRN(str).isValid) Invalid("invalid.number")
+            .verifying(Constraint[String] { (str: String) =>
+              if str === mainMrn.value then Invalid("invalid.enter-different-mrn")
+              else if str.nonEmpty && !MRN(str).isValid then Invalid("invalid.number")
               else Valid
             })
             .transform[MRN](MRN(_), _.value)
@@ -403,7 +400,7 @@ object Forms {
     Form(
       mapping(
         "enter-claim" -> moneyMapping("actual-amount.error.invalid", allowZero = true)
-      )(ClaimAmount.apply)(ClaimAmount.unapply)
+      )(ClaimAmount.apply)(v => Some(v.amount))
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
 

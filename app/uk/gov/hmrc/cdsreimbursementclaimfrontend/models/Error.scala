@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdValue
 

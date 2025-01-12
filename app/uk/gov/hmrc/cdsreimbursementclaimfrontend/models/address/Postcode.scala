@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.Format
 
-final case class Postcode(value: String) extends AnyVal
+final case class Postcode(value: String)
 
 object Postcode {
 

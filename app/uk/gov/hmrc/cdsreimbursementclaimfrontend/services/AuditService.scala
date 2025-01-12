@@ -17,19 +17,18 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import com.google.inject.ImplementedBy
+import play.api.libs.json.JsBoolean
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.libs.json.Writes
 import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.AuditExtensions._
+import uk.gov.hmrc.play.audit.AuditExtensions.*
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 import javax.inject.Inject
-import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext
-import play.api.libs.json.JsBoolean
 
 @ImplementedBy(classOf[AuditServiceImpl])
 trait AuditService {
@@ -60,8 +59,7 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
     ec: ExecutionContext
   ): Unit = sendClaimEvent(false, journey, output, summary)
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  @nowarn // audit event are sent in the fire-and-forget manner
+  // audit event are sent in the fire-and-forget manner
   private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, journey: J, output: O, summary: JsObject)(
     implicit
     hc: HeaderCarrier,

@@ -51,7 +51,7 @@
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors, suppressBackLink = true) {
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @errorSummary(form.errors)
 

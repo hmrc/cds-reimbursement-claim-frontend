@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import play.api.mvc.*
 import play.api.mvc.Results.Redirect
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Result
-import play.api.mvc.WrappedRequest
-import play.api.mvc._
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -35,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
@@ -133,15 +130,13 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     hasEoriEnrolment(enrolments) flatMap {
       case Left(_)           => Future.successful(Left(Redirect(routes.UnauthorisedController.unauthorised())))
       case Right(Some(eori)) =>
-        if (
-          featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
+        if featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
           checkEoriIsAllowed(eori.value)
-        )
+        then
           eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
             handleSignedInUser(eori, affinityGroup, eoriDetailsOpt.map(_.fullName), request)
           }
-        else
-          Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
+        else Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
       case Right(None)       =>
         Future.successful(Left(Redirect(unauthorizedErrorPage)))
     }
@@ -174,7 +169,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
 
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
-      if (userType === UserType.Individual) {
+      if userType === UserType.Individual then {
         AuthenticatedRequestWithRetrievedData(
           AuthenticatedUser.Individual(
             None,
@@ -221,7 +216,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       case Some(Credentials(_, otherProvider)) =>
         Future.successful(
-          if (featureSwitchService.isDisabled(models.Feature.LimitedAccess))
+          if featureSwitchService.isDisabled(models.Feature.LimitedAccess) then
             Right(
               AuthenticatedRequestWithRetrievedData(
                 AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(
@@ -231,8 +226,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 request
               )
             )
-          else
-            Left(Results.Redirect(limitedAccessErrorPage))
+          else Left(Results.Redirect(limitedAccessErrorPage))
         )
     }
 }

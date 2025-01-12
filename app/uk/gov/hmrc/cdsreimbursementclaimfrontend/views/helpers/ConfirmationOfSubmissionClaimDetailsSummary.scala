@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object ConfirmationOfSubmissionClaimDetailsSummary {
 
@@ -44,7 +44,7 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
         value = Value(Text(caseNumber))
       ),
       SummaryListRow(
-        key = if (subKey.getOrElse("") == "multiple") {
+        key = if subKey.getOrElse("") == "multiple" then {
           Key(HtmlContent(messages(s"$key.multiple.mrn")))
         } else {
           Key(HtmlContent(messages(s"$key.mrn")))

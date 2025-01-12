@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.i18n._
+import play.api.i18n.*
 
 class OrdinalNumberSpec extends AnyWordSpec with Matchers {
 

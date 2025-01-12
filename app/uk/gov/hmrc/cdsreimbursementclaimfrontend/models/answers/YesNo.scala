@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.Eq
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait YesNo extends Product with Serializable {
@@ -26,7 +25,7 @@ sealed trait YesNo extends Product with Serializable {
 
 object YesNo extends EnumerationFormat[YesNo] {
 
-  def of(flag: Boolean): YesNo = if (flag) Yes else No
+  def of(flag: Boolean): YesNo = if flag then Yes else No
 
   case object No extends YesNo {
     override final val asBoolean: Boolean = false

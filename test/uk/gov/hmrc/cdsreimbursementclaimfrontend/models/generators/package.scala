@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 
 import java.net.URI
 import java.net.URL
+import java.time.format.DateTimeFormatter
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 package object generators {
@@ -57,11 +56,11 @@ package object generators {
   lazy val arbitraryBigDecimal: Arbitrary[BigDecimal] =
     BigDecimalGen.amountNumberArbitrary
 
-  lazy val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
+  lazy val arbitraryBoolean: Arbitrary[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
 
-  implicit lazy val arbitraryString: Typeclass[String] = Arbitrary(
+  implicit lazy val arbitraryString: Arbitrary[String] = Arbitrary(
     Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
   )
 
@@ -86,11 +85,11 @@ package object generators {
   implicit lazy val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
   lazy val genUrl: Gen[URL] =
-    for {
+    for
       protocol <- Gen.oneOf("http", "https")
       hostname <- genStringWithMaxSizeOfN(7)
       domain   <- Gen.oneOf("com", "co.uk", "lv")
-    } yield URI.create(s"$protocol://$hostname.$domain").toURL
+    yield URI.create(s"$protocol://$hostname.$domain").toURL
 
   implicit lazy val arbitraryUrl: Arbitrary[URL] = Arbitrary(genUrl)
 }

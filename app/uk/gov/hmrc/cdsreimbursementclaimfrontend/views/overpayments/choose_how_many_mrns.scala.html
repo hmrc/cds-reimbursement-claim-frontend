@@ -74,7 +74,7 @@
             paragraph(Html(messages(s"overpayments.choose-how-many-mrns.details.paragraph")))
     ))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

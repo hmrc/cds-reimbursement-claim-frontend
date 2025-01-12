@@ -28,30 +28,30 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.{routes => overpaymentsScheduledRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.{routes => overpaymentsSingleRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.{routes => overpaymentsMultipleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes as overpaymentsMultipleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes as overpaymentsScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as overpaymentsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_how_many_mrns
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
@@ -79,7 +79,7 @@ class ChooseHowManyMrnsController @Inject() (
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
     val skipDocumentType         = featureSwitchService.isEnabled(Feature.SkipDocumentType)
-    if (blockSubsidies || subsidiesForOverpayments || skipDocumentType)
+    if blockSubsidies || subsidiesForOverpayments || skipDocumentType then
       Some(
         OverpaymentsSingleJourney
           .Features(
@@ -96,7 +96,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[OverpaymentsMultipleJourney.Features] = {
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
-    if (blockSubsidies || subsidiesForOverpayments)
+    if blockSubsidies || subsidiesForOverpayments then
       Some(
         OverpaymentsMultipleJourney
           .Features(
@@ -112,7 +112,7 @@ class ChooseHowManyMrnsController @Inject() (
   ): Option[OverpaymentsScheduledJourney.Features] = {
     val blockSubsidies           = featureSwitchService.isEnabled(Feature.BlockSubsidies)
     val subsidiesForOverpayments = featureSwitchService.isEnabled(Feature.SubsidiesForOverpayments)
-    if (blockSubsidies || subsidiesForOverpayments)
+    if blockSubsidies || subsidiesForOverpayments then
       Some(
         OverpaymentsScheduledJourney
           .Features(
@@ -145,36 +145,33 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if (request.sessionData.overpaymentsSingleJourney.isEmpty)
+                  (if request.sessionData.overpaymentsSingleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsSingleJourney.empty(eori, features = overpaymentsSingleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if (request.sessionData.overpaymentsMultipleJourney.isEmpty)
+                  (if request.sessionData.overpaymentsMultipleJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsMultipleJourney.empty(eori, features = overpaymentsMultipleJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
-                  (if (request.sessionData.overpaymentsScheduledJourney.isEmpty)
+                  (if request.sessionData.overpaymentsScheduledJourney.isEmpty then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsScheduledJourney.empty(eori, features = overpaymentsScheduledJourneyFeatures)
                        ).withExistingUserData
                      )
-                   else
-                     Future.successful(Right(())))
+                   else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show))
               }
             )

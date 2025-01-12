@@ -63,10 +63,8 @@ class ChoosePayeeTypeControllerSpec
   ): SecuritiesJourney = {
     val displayDeclaration =
       (
-        if (guarantee)
-          securitiesDisplayDeclarationGuaranteeEligibleGen
-        else
-          securitiesDisplayDeclarationNotGuaranteeEligibleGen
+        if guarantee then securitiesDisplayDeclarationGuaranteeEligibleGen
+        else securitiesDisplayDeclarationNotGuaranteeEligibleGen
       ).sample.get
         .withBankDetails(Some(BankDetails(None, None)))
         .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
@@ -111,7 +109,7 @@ class ChoosePayeeTypeControllerSpec
     def submitPayeeType(data: (String, String)*): Future[Result] =
       controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "display page" in forAll { maybePayeeType: Option[PayeeType] =>
+    "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
@@ -149,7 +147,7 @@ class ChoosePayeeTypeControllerSpec
     }
 
     "successfully submit bank account type" when {
-      "one of the options selected and payment type is non-guarantee" in forAll { payeeType: PayeeType =>
+      "one of the options selected and payment type is non-guarantee" in forAll { (payeeType: PayeeType) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionNonGuarantee)
@@ -166,7 +164,7 @@ class ChoosePayeeTypeControllerSpec
         )
       }
 
-      "one of the options selected and payment type is guarantee" in forAll { payeeType: PayeeType =>
+      "one of the options selected and payment type is guarantee" in forAll { (payeeType: PayeeType) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionGuarantee)

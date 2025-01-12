@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
@@ -62,7 +62,7 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](getDeclarationUrl)
+        .GET[HttpResponse](java.net.URL(getDeclarationUrl))
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
@@ -76,7 +76,7 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](getDeclarationUrl)
+        .GET[HttpResponse](java.net.URL(getDeclarationUrl))
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
@@ -91,7 +91,7 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, ExistingClaim](
       http
-        .GET[ExistingClaim](getDeclarationUrl)
+        .GET[ExistingClaim](java.net.URL(getDeclarationUrl))
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )

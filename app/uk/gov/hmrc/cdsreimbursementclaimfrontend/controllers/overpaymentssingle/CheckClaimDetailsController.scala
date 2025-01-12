@@ -24,7 +24,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
@@ -103,10 +103,8 @@ class CheckClaimDetailsController @Inject() (
                   (
                     journey.withDutiesChangeMode(false),
                     Redirect(
-                      if (journey.userHasSeenCYAPage)
-                        checkYourAnswers
-                      else
-                        routes.ChoosePayeeTypeController.show
+                      if journey.userHasSeenCYAPage then checkYourAnswers
+                      else routes.ChoosePayeeTypeController.show
                     )
                   ).asFuture
                 case No  =>
@@ -117,7 +115,7 @@ class CheckClaimDetailsController @Inject() (
               }
             )
         case None      =>
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
       }
     }
 

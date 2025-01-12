@@ -31,7 +31,7 @@ object RejectedGoodsJourneyType extends EnumerationFormat[RejectedGoodsJourneyTy
   private[models] val rejectedGoodsJourneyTypeStringMap: Map[String, RejectedGoodsJourneyType] =
     values.map(a => a.toString -> a).toMap
 
-  def has(journeyType: String): Boolean                                                        =
+  def has(journeyType: String): Boolean =
     rejectedGoodsJourneyTypeStringMap.contains(journeyType)
 
   def find(journeyType: String): Option[RejectedGoodsJourneyType] =

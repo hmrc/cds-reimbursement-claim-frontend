@@ -31,7 +31,7 @@ class IneligibleControllerSpec extends ControllerSpec {
 
       "display the page" in {
         checkPageIsDisplayed(
-          controller.ineligible()(FakeRequest()),
+          controller.ineligible(FakeRequest()),
           messageFromMessageKey("ineligible.title")
         )
       }

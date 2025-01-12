@@ -69,7 +69,7 @@
 
         @insetText(content = HtmlContent(inset), classes = Some("govuk-!-margin-top-0"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @radios(
                 form = form,

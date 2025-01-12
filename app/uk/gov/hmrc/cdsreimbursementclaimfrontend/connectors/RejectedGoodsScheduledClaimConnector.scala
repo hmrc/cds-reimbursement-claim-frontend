@@ -16,34 +16,43 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.actor.ActorSystem
-import cats.syntax.eq._
+import cats.syntax.eq.*
+import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Singleton
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
+@ImplementedBy(classOf[RejectedGoodsScheduledClaimConnectorImpl])
+trait RejectedGoodsScheduledClaimConnector {
+  def submitClaim(claimRequest: RejectedGoodsScheduledClaimConnector.Request)(implicit
+    hc: HeaderCarrier
+  ): Future[RejectedGoodsScheduledClaimConnector.Response]
+}
+
 @Singleton
-class RejectedGoodsScheduledClaimConnector @Inject() (
+class RejectedGoodsScheduledClaimConnectorImpl @Inject() (
   http: HttpClient,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
 )(implicit
   ec: ExecutionContext
-) extends Retries {
+) extends RejectedGoodsScheduledClaimConnector
+    with Retries {
 
   import RejectedGoodsScheduledClaimConnector._
 
@@ -64,7 +73,7 @@ class RejectedGoodsScheduledClaimConnector @Inject() (
           Seq("Accept-Language" -> "en")
         )
     ).flatMap(response =>
-      if (response.status === 200)
+      if response.status === 200 then
         response
           .parseJSON[Response]()
           .fold(error => Future.failed(Exception(error)), Future.successful)

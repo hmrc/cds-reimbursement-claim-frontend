@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
-import play.api.data.Form
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
 trait CheckBankDetailsMixin extends JourneyBaseController {
 
@@ -44,7 +44,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
   final val showWarning: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       journey.answers.bankAccountDetails
-        .map { bankAccountDetails: BankAccountDetails =>
+        .map { (bankAccountDetails: BankAccountDetails) =>
           modifyJourney(journey, bankAccountDetails)
             .fold(
               _ => (journey, Redirect(continueRoute(journey))),
@@ -67,10 +67,8 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
           (
             journey,
             Redirect(
-              if (journey.needsBanksAccountDetailsSubmission)
-                enterBankAccountDetailsRoute
-              else
-                continueRoute(journey)
+              if journey.needsBanksAccountDetailsSubmission then enterBankAccountDetailsRoute
+              else continueRoute(journey)
             )
           )
         }

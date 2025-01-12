@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
-import org.scalacheck.magnolia.gen
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
@@ -29,24 +27,24 @@ import scala.collection.immutable.ArraySeq
 
 object ContactAddressGen {
 
-  lazy val genPostcode: Gen[String] = for {
+  lazy val genPostcode: Gen[String] = for
     first <- Gen.listOfN(3, Gen.alphaNumChar)
     last  <- Gen.listOfN(3, Gen.alphaNumChar)
-  } yield s"${first.mkString("")} ${last.mkString("")}"
+  yield s"${first.mkString("")} ${last.mkString("")}"
 
   lazy val genContactAddressOpt: Gen[Option[ContactAddress]] =
     Gen.option(arbitraryContactAddress.arbitrary)
 
   lazy val genContactAddress: Gen[ContactAddress] =
-    for {
+    for
       num      <- Gen.choose(1, 100)
       street   <- genStringWithMaxSizeOfN(7)
       district <- Gen.option(genStringWithMaxSizeOfN(5))
-      road     <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
+      road     <- if district.isDefined then Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
       town     <- genStringWithMaxSizeOfN(10)
       postcode <- genPostcode
       country  <- genCountry
-    } yield ContactAddress(
+    yield ContactAddress(
       line1 = s"$num $street",
       line2 = district,
       line3 = road,
@@ -59,9 +57,9 @@ object ContactAddressGen {
     .oneOf(ArraySeq.unsafeWrapArray(Locale.getISOCountries))
     .map(Country(_))
 
-  implicit lazy val arbitraryContactAddress: Typeclass[ContactAddress] =
+  implicit lazy val arbitraryContactAddress: Arbitrary[ContactAddress] =
     Arbitrary(genContactAddress)
 
-  implicit lazy val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
-    gen[AddressLookupRequest]
+  implicit lazy val arbitraryAddressRequest: Arbitrary[AddressLookupRequest] =
+    GeneratorUtils.gen[AddressLookupRequest]
 }

@@ -29,17 +29,17 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -52,7 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import java.text.NumberFormat
 import java.util.Locale
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ConfirmFullRepaymentControllerSpec
     extends PropertyBasedControllerSpec
@@ -104,9 +104,8 @@ class ConfirmFullRepaymentControllerSpec
       journey.getSecurityDetailsFor(securityId).value.getTotalAmount
     )
     title           should ===(
-      (if (isError) "Error: "
-       else
-         "") + s"Claiming back security deposit ID: $securityId - Claim back import duty and VAT - GOV.UK"
+      (if isError then "Error: "
+       else "") + s"Claiming back security deposit ID: $securityId - Claim back import duty and VAT - GOV.UK"
     )
     heading         should ===(
       List(
@@ -373,7 +372,7 @@ class ConfirmFullRepaymentControllerSpec
           val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
             reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
 
-          val journey: SecuritiesJourney                                             =
+          val journey: SecuritiesJourney =
             emptyJourney
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -389,8 +388,8 @@ class ConfirmFullRepaymentControllerSpec
                       .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
               )
               .getOrFail
-          val securityId                                                             = journey.getSecurityDepositIds.head
-          val sessionData                                                            = SessionData(journey)
+          val securityId                 = journey.getSecurityDepositIds.head
+          val sessionData                = SessionData(journey)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -423,7 +422,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
@@ -442,7 +441,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))
@@ -460,7 +459,7 @@ class ConfirmFullRepaymentControllerSpec
 
       "AC9 selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
-          for (securityId <- journey.getSelectedDepositIds) {
+          for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(journey))

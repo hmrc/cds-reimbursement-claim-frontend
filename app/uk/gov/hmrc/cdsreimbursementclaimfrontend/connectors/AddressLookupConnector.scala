@@ -22,11 +22,12 @@ import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
 
+import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -65,7 +66,7 @@ class DefaultAddressLookupConnector @Inject() (
   def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT {
       http
-        .GET[HttpResponse](s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId")
+        .GET[HttpResponse](URL(s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId"))
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))

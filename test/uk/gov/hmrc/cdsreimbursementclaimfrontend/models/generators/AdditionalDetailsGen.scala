@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
+import org.scalacheck.Arbitrary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
 
 object AdditionalDetailsGen {
 
-  implicit lazy val arbitraryCompleteAdditionalDetailsAnswer: Typeclass[AdditionalDetailsAnswer] =
-    gen[AdditionalDetailsAnswer]
+  implicit lazy val arbitraryCompleteAdditionalDetailsAnswer: Arbitrary[AdditionalDetailsAnswer] =
+    GeneratorUtils.gen[AdditionalDetailsAnswer]
 
 }

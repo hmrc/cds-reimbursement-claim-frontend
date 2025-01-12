@@ -42,6 +42,6 @@ object OptionsValidator {
     option.exists(_.nonEmpty)
 
   implicit def asOptionAny(bool: Boolean): Option[Any] =
-    if (bool) Some(()) else None
+    if bool then Some(()) else None
 
 }

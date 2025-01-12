@@ -22,15 +22,14 @@ import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 
 class OverpaymentsMultipleJourneySpec
     extends AnyWordSpec
@@ -746,10 +745,10 @@ class OverpaymentsMultipleJourneySpec
 
     "change to valid correct amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        for (mrn <- journey.getMovementReferenceNumbers.get) {
+        for mrn <- journey.getMovementReferenceNumbers.get do {
           val totalAmount: BigDecimal              = journey.getReimbursementAmountForDeclaration(mrn)
           val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
-          for ((taxCode, reimbursementAmount) <- taxCodes) {
+          for (taxCode, reimbursementAmount) <- taxCodes do {
             val paidAmount         = journey.getAmountPaidFor(mrn, taxCode).get
             val newCorrectedAmount = (paidAmount - reimbursementAmount) / 2
             val journeyEither      = journey.submitCorrectAmount(mrn, taxCode, newCorrectedAmount)
@@ -764,7 +763,7 @@ class OverpaymentsMultipleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val mrn                                  = journey.answers.movementReferenceNumbers.get.head
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
-        for ((taxCode, amount) <- taxCodes) {
+        for (taxCode, amount) <- taxCodes do {
           val paidAmount     = journey.getAmountPaidFor(mrn, taxCode).get
           val journeyEither1 = journey.submitCorrectAmount(mrn, taxCode, paidAmount)
           val journeyEither2 = journey.submitCorrectAmount(mrn, taxCode, paidAmount + BigDecimal("0.01"))
@@ -861,10 +860,10 @@ class OverpaymentsMultipleJourneySpec
 
     "change to valid claim amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        for (mrn <- journey.getMovementReferenceNumbers.get) {
+        for mrn <- journey.getMovementReferenceNumbers.get do {
           val totalAmount: BigDecimal              = journey.getReimbursementAmountForDeclaration(mrn)
           val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
-          for ((taxCode, reimbursementAmount) <- taxCodes) {
+          for (taxCode, reimbursementAmount) <- taxCodes do {
             val newClaimAmount  = reimbursementAmount / 2
             val journeyEither   = journey.submitClaimAmount(mrn, taxCode, newClaimAmount)
             val modifiedJourney = journeyEither.getOrFail
@@ -878,7 +877,7 @@ class OverpaymentsMultipleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val mrn                                  = journey.answers.movementReferenceNumbers.get.head
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaimsFor(mrn).toSeq
-        for ((taxCode, amount) <- taxCodes) {
+        for (taxCode, amount) <- taxCodes do {
           val paidAmount     = journey.getAmountPaidFor(mrn, taxCode).get
           val journeyEither1 = journey.submitClaimAmount(mrn, taxCode, BigDecimal("0.00"))
           val journeyEither2 = journey.submitClaimAmount(mrn, taxCode, paidAmount + BigDecimal("0.01"))

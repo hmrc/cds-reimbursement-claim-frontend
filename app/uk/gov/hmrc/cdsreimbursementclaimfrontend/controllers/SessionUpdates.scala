@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates.SessionProvider
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -40,10 +40,8 @@ trait SessionUpdates {
     val session        = sessionProvider.toSession(request)
     val updatedSession = update(session)
 
-    if (session === updatedSession)
-      Future.successful(Right(()))
-    else
-      sessionCache.store(updatedSession)
+    if session === updatedSession then Future.successful(Right(()))
+    else sessionCache.store(updatedSession)
   }
 
 }

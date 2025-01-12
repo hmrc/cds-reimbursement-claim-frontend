@@ -18,8 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
 class UploadDocumentTypeSpec extends AnyWordSpec with JsonFormatTest with Matchers {
@@ -44,41 +42,34 @@ class UploadDocumentTypeSpec extends AnyWordSpec with JsonFormatTest with Matche
     }
 
     "have no duplicates in the securitiesDocumentTypes" in {
-      for {
+      for
         rfs <- ReasonForSecurity.values
         mod  = Some(TemporaryAdmissionMethodOfDisposal.values.toList)
         poa <- Set(true, false)
-      } UploadDocumentType
-        .securitiesDocumentTypes(rfs, mod, poa)
-        .foreach(dts => withClue(s"${dts.mkString(",")}")(dts.distinct.size.shouldBe(dts.size)))
+      do
+        UploadDocumentType
+          .securitiesDocumentTypes(rfs, mod, poa)
+          .foreach(dts => withClue(s"${dts.mkString(",")}")(dts.distinct.size.shouldBe(dts.size)))
     }
 
     "have no duplicates in the rejectedGoodsScheduledDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsScheduledDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsScheduledDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the rejectedGoodsMultipleDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsMultipleDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsMultipleDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the rejectedGoodsSingleDocumentTypes" in {
-      {
-        val dts = UploadDocumentType.rejectedGoodsSingleDocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.rejectedGoodsSingleDocumentTypes
+      dts.distinct.size === dts.size
     }
 
     "have no duplicates in the c285DocumentTypes" in {
-      {
-        val dts = UploadDocumentType.c285DocumentTypes
-        dts.distinct.size === dts.size
-      }
+      val dts = UploadDocumentType.c285DocumentTypes
+      dts.distinct.size === dts.size
     }
   }
 

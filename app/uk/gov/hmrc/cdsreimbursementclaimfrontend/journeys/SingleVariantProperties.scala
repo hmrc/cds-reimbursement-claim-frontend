@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
 
 /** Common properties of the single journey variant. */
 trait SingleVariantProperties extends CommonJourneyProperties {
@@ -63,7 +63,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
               .map(taxCode => (taxCode, ndrc.isCmaEligible))
           )
           .collect { case Some(x) => x }
-        if (taxCodes.isEmpty) None else Some(taxCodes)
+        if taxCodes.isEmpty then None else Some(taxCodes)
       }
       .getOrElse(Seq.empty)
 
@@ -125,7 +125,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   }
 
   def getDefaultReimbursementMethod: ReimbursementMethod =
-    if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+    if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
     else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
 
   def getUKDutyReimbursementTotal: Option[BigDecimal] =
@@ -139,7 +139,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
 
   private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
     getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _, _, _)) =>
-      if (include(taxCode)) Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      if include(taxCode) then Some(a.getOrElse(BigDecimal("0.00")) + amount)
       else a
     }
 

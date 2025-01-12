@@ -48,7 +48,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
     val claimsMadeAgainstTaxCodes = answer._2
 
     SummaryList(
-      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
+      claimsMadeAgainstTaxCodes.map { (taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect)) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 
@@ -68,7 +68,7 @@ object TaxCodeReimbursementRejectedGoodsSummary
           )
         )
       }.toSeq ++ (
-        if (claimsMadeAgainstTaxCodes.size > 1) {
+        if claimsMadeAgainstTaxCodes.size > 1 then {
           Seq(
             SummaryListRow(
               key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),

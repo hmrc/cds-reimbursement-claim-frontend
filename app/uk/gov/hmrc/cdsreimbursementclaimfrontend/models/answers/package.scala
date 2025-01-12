@@ -37,7 +37,7 @@ package object answers {
   type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
   type AssociatedMRNsClaimsAnswer         = NonEmptyList[ClaimedReimbursementsAnswer]
 
-  implicit final class NonEmptyListOps[A](private val list: NonEmptyList[A]) extends AnyVal {
+  implicit final class NonEmptyListOps[A](private val list: NonEmptyList[A]) {
 
     def replaceOrAppend(cond: A => Boolean, item: A): NonEmptyList[A] =
       list.find(cond) match {
@@ -62,14 +62,14 @@ package object answers {
 
   }
 
-  implicit final class AnswersOps[A](private val answer: Option[NonEmptyList[A]]) extends AnyVal {
+  implicit final class AnswersOps[A](private val answer: Option[NonEmptyList[A]]) {
 
     def get(i: AssociatedMrnIndex): Option[A] =
       get(i.toListIndex)
 
     def get(index: Int): Option[A] =
       answer.flatMap { list =>
-        if (index < 0 || index >= list.length) None
+        if index < 0 || index >= list.length then None
         else list.toList.drop(index).headOption
       }
 
@@ -92,7 +92,7 @@ package object answers {
       replaceOrAppend(i.toListIndex, item)
 
     def replaceOrAppend(index: Int, item: A): Either[String, Option[NonEmptyList[A]]] =
-      if (index < 0) Left("Index must be greater or equal to zero")
+      if index < 0 then Left("Index must be greater or equal to zero")
       else
         answer match {
           case None if index === 0                => Right(Some(NonEmptyList(item, Nil)))
@@ -106,7 +106,7 @@ package object answers {
       remove(i.toListIndex)
 
     def remove(index: Int): Option[NonEmptyList[A]] =
-      if (index < 0) answer
+      if index < 0 then answer
       else answer.flatMap(_.remove(index))
 
     def list: List[A] = answer.map(_.toList).getOrElse(Nil)

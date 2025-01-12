@@ -51,11 +51,11 @@ class CheckTotalImportDischargedController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
     Redirect(routes.BillOfDischarge3Controller.show)
 
-  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
     Redirect(routes.BillOfDischarge4Controller.show)
 
@@ -74,8 +74,8 @@ class CheckTotalImportDischargedController @Inject() (
         {
           case Yes =>
             {
-              if (journey.reasonForSecurityIsIPR) successResultBOD3
-              else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+              if journey.reasonForSecurityIsIPR then successResultBOD3
+              else if journey.reasonForSecurityIsEndUseRelief then successResultBOD4
               else {
                 logAndDisplayError(
                   "Invalid journey routing",

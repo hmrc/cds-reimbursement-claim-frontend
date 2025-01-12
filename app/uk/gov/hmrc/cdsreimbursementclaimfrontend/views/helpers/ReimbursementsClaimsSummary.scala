@@ -24,12 +24,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object ReimbursementsClaimsSummary {
 
@@ -53,7 +53,7 @@ object ReimbursementsClaimsSummary {
                   href = enterClaimAction(taxCode).url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(s"${OrdinalNumber(mrnIndex.getOrElse(1)).capitalize} MRN: ${TaxCodes
-                    .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+                      .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
             )
@@ -193,7 +193,6 @@ object ReimbursementsClaimsSummary {
     messages: Messages
   ): SummaryList = {
 
-    @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
     val amountsPerDutyCategory: Seq[(String, BigDecimal)] = {
       val m = scala.collection.mutable.Map.empty[String, BigDecimal]
       reimbursementClaims.iterator

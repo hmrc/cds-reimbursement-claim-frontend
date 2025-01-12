@@ -28,7 +28,7 @@ object OrdinalNumberExportMrnHelper {
     }
 
   private def applyWelsh(number: Int)(implicit messages: Messages): String =
-    if (number <= 20) {
+    if number <= 20 then {
       messages(s"ordinal-number-mrn.export.$number")
     } else {
       messages(s"ordinal-number-mrn.export.default")

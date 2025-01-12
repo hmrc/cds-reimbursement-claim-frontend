@@ -30,7 +30,6 @@ import scala.concurrent.Future
 
 trait HttpSupport { this: MockFactory with Matchers =>
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   val mockHttp: HttpClient = mock[HttpClient]
 
   def mockGet[A](

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
@@ -46,24 +45,24 @@ object BankAccountGen {
       .map(AccountNumber(_))
 
   lazy val genBankAccountDetails: Gen[BankAccountDetails] =
-    for {
+    for
       accountName   <- genAccountName
       sortCode      <- genSortCode
       accountNumber <- genAccountNumber
-    } yield BankAccountDetails(accountName, sortCode, accountNumber)
+    yield BankAccountDetails(accountName, sortCode, accountNumber)
 
-  implicit lazy val arbitrarySortCode: Typeclass[SortCode] =
+  implicit lazy val arbitrarySortCode: Arbitrary[SortCode] =
     Arbitrary(genSortCode)
 
-  implicit lazy val arbitraryAccountNumber: Typeclass[AccountNumber] =
+  implicit lazy val arbitraryAccountNumber: Arbitrary[AccountNumber] =
     Arbitrary(genAccountNumber)
 
-  implicit lazy val arbitraryAccountName: Typeclass[AccountName] =
+  implicit lazy val arbitraryAccountName: Arbitrary[AccountName] =
     Arbitrary(genAccountName)
 
-  implicit lazy val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
+  implicit lazy val arbitraryBankAccountDetailsGen: Arbitrary[BankAccountDetails] =
     Arbitrary(genBankAccountDetails)
 
-  implicit lazy val arbitraryBankAccountType: Typeclass[BankAccountType] =
-    gen[BankAccountType]
+  implicit lazy val arbitraryBankAccountType: Arbitrary[BankAccountType] =
+    GeneratorUtils.gen[BankAccountType]
 }

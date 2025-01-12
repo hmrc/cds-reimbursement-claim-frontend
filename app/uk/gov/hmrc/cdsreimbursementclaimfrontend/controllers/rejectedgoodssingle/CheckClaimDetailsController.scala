@@ -24,9 +24,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
@@ -79,45 +79,45 @@ class CheckClaimDetailsController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        journey.answers.movementReferenceNumber match {
-          case Some(mrn) =>
-            whetherClaimDetailsCorrect
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    journey,
-                    BadRequest(
-                      checkClaimDetails(
-                        formWithErrors,
-                        mrn,
-                        getReimbursementWithCorrectAmount(journey.getReimbursements),
-                        enterClaimAction,
-                        routes.CheckClaimDetailsController.submit
-                      )
-                    )
-                  ).asFuture,
-                {
-                  case Yes =>
+      implicit request =>
+        journey =>
+          journey.answers.movementReferenceNumber match {
+            case Some(mrn) =>
+              whetherClaimDetailsCorrect
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
                     (
                       journey,
-                      Redirect(
-                        if (journey.userHasSeenCYAPage) checkYourAnswers
-                        else routes.EnterInspectionDateController.show
+                      BadRequest(
+                        checkClaimDetails(
+                          formWithErrors,
+                          mrn,
+                          getReimbursementWithCorrectAmount(journey.getReimbursements),
+                          enterClaimAction,
+                          routes.CheckClaimDetailsController.submit
+                        )
                       )
-                    ).asFuture
-                  case No  =>
-                    (
-                      journey.withDutiesChangeMode(true),
-                      Redirect(routes.SelectDutiesController.show)
-                    ).asFuture
-                }
-              )
-          case None      =>
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-        }
-      },
+                    ).asFuture,
+                  {
+                    case Yes =>
+                      (
+                        journey,
+                        Redirect(
+                          if journey.userHasSeenCYAPage then checkYourAnswers
+                          else routes.EnterInspectionDateController.show
+                        )
+                      ).asFuture
+                    case No  =>
+                      (
+                        journey.withDutiesChangeMode(true),
+                        Redirect(routes.SelectDutiesController.show)
+                      ).asFuture
+                  }
+                )
+            case None      =>
+              (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+          },
       fastForwardToCYAEnabled = false
     )
 }

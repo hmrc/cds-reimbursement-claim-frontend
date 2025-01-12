@@ -29,7 +29,7 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
@@ -37,8 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Chec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsMultipleExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsMultipleExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -69,7 +69,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
-      val form = {
+      val form =
         journey.answers.exportMovementReferenceNumbers.flatMap(
           _.headOption
         ) match {
@@ -81,11 +81,10 @@ class EnterExportMovementReferenceNumberController @Inject() (
           case None            =>
             firstExportMovementReferenceNumberForm
         }
-      }
 
       journey.getMethodOfDisposal match {
         case Some(mods) =>
-          (if (containsExportedMethodsOfDisposal(mods)) {
+          (if containsExportedMethodsOfDisposal(mods) then {
              (
                journey,
                Ok(
@@ -117,8 +116,8 @@ class EnterExportMovementReferenceNumberController @Inject() (
         )
       journey.getMethodOfDisposal match {
         case Some(mods) =>
-          (if (containsMultipleExportedMethodsOfDisposal(mods)) {
-             if (journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1))
+          (if containsMultipleExportedMethodsOfDisposal(mods) then {
+             if journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
                (
                  journey,
                  Ok(
@@ -208,7 +207,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                           )
                       },
                       updatedJourney =>
-                        if (updatedJourney.userHasSeenCYAPage) {
+                        if updatedJourney.userHasSeenCYAPage then {
                           (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
                         } else {
                           decision match {
@@ -220,7 +219,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
                             case No =>
                               // when there are already more export MRNs we must be in change mode and should display summary page
-                              if (journey.answers.exportMovementReferenceNumbers.exists(_.size > 1))
+                              if journey.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
                                 (
                                   updatedJourney,
                                   Redirect(routes.CheckExportMovementReferenceNumbersController.show)
@@ -312,7 +311,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                           )
                       },
                       updatedJourney =>
-                        if (updatedJourney.userHasSeenCYAPage) {
+                        if updatedJourney.userHasSeenCYAPage then {
                           (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
                         } else {
                           (updatedJourney, Redirect(routes.CheckExportMovementReferenceNumbersController.show))

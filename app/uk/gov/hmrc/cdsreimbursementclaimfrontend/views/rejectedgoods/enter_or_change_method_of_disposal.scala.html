@@ -40,7 +40,7 @@
 @title = @{messages(s"select-method-of-disposal.rejected-goods.title")}
 
 @radioItems = @{
-    Seq(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction).map { methodOfDisposal: MethodOfDisposal =>
+    Seq(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction).map { (methodOfDisposal: MethodOfDisposal) =>
         RadioItem(
             id = Some(s"select-method-of-disposal.rejected-goods-radio-$methodOfDisposal"),
             value = Some(methodOfDisposal.toString),
@@ -60,7 +60,7 @@
 
     @paragraph(Html(messages(s"select-method-of-disposal.rejected-goods.p1")))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

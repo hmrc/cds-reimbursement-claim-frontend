@@ -27,18 +27,18 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -67,7 +67,7 @@ class SelectDutiesControllerSpec
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
-    if (hintTextElement.hasText) Some(hintTextElement.html()) else None
+    if hintTextElement.hasText then Some(hintTextElement.html()) else None
   }
 
   private val messagesKey: String = "select-duties"
@@ -182,7 +182,7 @@ class SelectDutiesControllerSpec
 
           val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
           val selectedTaxCodes  =
-            if (availableTaxCodes.size > 1) availableTaxCodes.drop(1)
+            if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
             else availableTaxCodes
 
           val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))

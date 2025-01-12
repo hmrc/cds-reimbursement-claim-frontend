@@ -24,7 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Empty
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object EvidenceDocumentsSummary {
 
@@ -38,10 +38,9 @@ object EvidenceDocumentsSummary {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(if (answers.isEmpty) Empty else Text(messages(s"$key.label"))),
+          key = Key(if answers.isEmpty then Empty else Text(messages(s"$key.label"))),
           value = Value(
-            if (answers.isEmpty)
-              Text(messages(s"$key.empty"))
+            if answers.isEmpty then Text(messages(s"$key.empty"))
             else
               HtmlContent(
                 answers

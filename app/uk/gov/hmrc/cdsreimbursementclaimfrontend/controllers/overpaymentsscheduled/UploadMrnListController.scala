@@ -27,9 +27,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadMrnListCallback
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_mrn_list_description
 
 import javax.inject.Inject
@@ -52,7 +52,7 @@ class UploadMrnListController @Inject() (
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val continueUrl: Call =
-      if (journey.hasCompleteAnswers) checkYourAnswers
+      if journey.hasCompleteAnswers then checkYourAnswers
       else routes.BasisForClaimController.show
 
     val isSubsidy = journey.isSubsidyOnlyJourney
@@ -79,36 +79,35 @@ class UploadMrnListController @Inject() (
       }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
-    { implicit request => journey =>
-      request
-        .asInstanceOf[Request[AnyContent]]
-        .body
-        .asJson
-        .flatMap(_.asOpt[UploadMrnListCallback]) match {
-        case None =>
-          logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+    implicit request =>
+      journey =>
+        request
+          .asInstanceOf[Request[AnyContent]]
+          .body
+          .asJson
+          .flatMap(_.asOpt[UploadMrnListCallback]) match {
+          case None =>
+            logger.warn("missing or invalid callback payload")
+            (journey, BadRequest("missing or invalid callback payload"))
 
-        case Some(callback) =>
-          callback.uploadedFiles.headOption match {
-            case Some(uploadedFile) =>
-              journey
-                .receiveScheduledDocument(
-                  callback.nonce,
-                  uploadedFile
-                )
-                .fold(
-                  error => (journey, BadRequest(error)),
-                  modifiedJourney => (modifiedJourney, NoContent)
-                )
-            case None               =>
-              (journey.removeScheduledDocument, NoContent)
-          }
+          case Some(callback) =>
+            callback.uploadedFiles.headOption match {
+              case Some(uploadedFile) =>
+                journey
+                  .receiveScheduledDocument(
+                    callback.nonce,
+                    uploadedFile
+                  )
+                  .fold(
+                    error => (journey, BadRequest(error)),
+                    modifiedJourney => (modifiedJourney, NoContent)
+                  )
+              case None               =>
+                (journey.removeScheduledDocument, NoContent)
+            }
 
-      }
-    },
+        },
     isCallback = true
   )
 
@@ -151,7 +150,7 @@ class UploadMrnListController @Inject() (
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
       title =
-        if (isSubsidy) messages("schedule-document.upload.title.subsidy")
+        if isSubsidy then messages("schedule-document.upload.title.subsidy")
         else messages("schedule-document.upload.title"),
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,

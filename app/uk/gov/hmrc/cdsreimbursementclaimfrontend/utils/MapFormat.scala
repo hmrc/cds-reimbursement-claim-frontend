@@ -16,11 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import play.api.libs.json.Format
-import play.api.libs.json.JsResult
-import play.api.libs.json.Reads
-import play.api.libs.json.Writes
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import scala.collection.immutable.SortedMap
 import scala.util.Try
@@ -43,7 +39,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )
@@ -83,7 +79,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
               }
             )
@@ -133,7 +129,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )
@@ -173,7 +169,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").asOpt[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.asOpt[V]
               }
             )
@@ -223,7 +219,7 @@ object MapFormat {
                 case (k, o2: JsObject) if k.startsWith(entryPrefix) =>
                   (o2 \ "k").as[K] -> (o2 \ "v").as[V]
 
-                case (k, valueJson)                                 =>
+                case (k, valueJson) =>
                   JsString(k).as[K] -> valueJson.as[V]
               }
             )

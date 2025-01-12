@@ -23,7 +23,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
@@ -51,9 +51,9 @@ class SelectDutiesController @Inject() (
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
 
-    if (availableDuties.isEmpty) {
+    if availableDuties.isEmpty then {
       logger.warn("No available duties")
-      Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
+      Redirect(baseRoutes.IneligibleController.ineligible).asFuture
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
       Ok(
@@ -70,40 +70,42 @@ class SelectDutiesController @Inject() (
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-      (if (availableDuties.isEmpty) {
-         logger.warn("No available duties")
-         (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-       } else {
-         val form = selectDutiesForm(availableDuties.map(_._1))
-         form
-           .bindFromRequest()
-           .fold(
-             formWithErrors =>
-               (
-                 journey,
-                 BadRequest(
-                   selectDutiesPage(
-                     form = formWithErrors,
-                     availableTaxCodes = availableDuties,
-                     indexAndMrnOpt = None,
-                     showCmaNotEligibleHint = true,
-                     subKey = Some("single"),
-                     postAction = postAction
+    implicit request =>
+      journey => {
+        val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+        (if availableDuties.isEmpty then {
+           logger.warn("No available duties")
+           (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+         } else {
+           val form = selectDutiesForm(availableDuties.map(_._1))
+           form
+             .bindFromRequest()
+             .fold(
+               formWithErrors =>
+                 (
+                   journey,
+                   BadRequest(
+                     selectDutiesPage(
+                       form = formWithErrors,
+                       availableTaxCodes = availableDuties,
+                       indexAndMrnOpt = None,
+                       showCmaNotEligibleHint = true,
+                       subKey = Some("single"),
+                       postAction = postAction
+                     )
                    )
+                 ),
+               taxCodesSelected =>
+                 (
+                   journey
+                     .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
+                     .getOrElse(journey),
+                   Redirect(routes.EnterClaimController.showFirst)
                  )
-               ),
-             taxCodesSelected =>
-               (
-                 journey
-                   .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                   .getOrElse(journey),
-                 Redirect(routes.EnterClaimController.showFirst)
-               )
-           )
-       }).asFuture
-    },
+             )
+         })
+        .asFuture
+      },
     fastForwardToCYAEnabled = false
   )
 }

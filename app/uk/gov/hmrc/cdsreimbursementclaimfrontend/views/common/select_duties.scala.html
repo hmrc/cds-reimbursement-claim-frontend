@@ -99,7 +99,7 @@
             @paragraph(Html(messages(s"select-duties.paragraph")),Some("govuk-body"))
         }
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @checkboxes(
                 field = form(s"select-duties"),

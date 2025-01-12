@@ -34,6 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMix
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -41,9 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
@@ -70,40 +70,40 @@ class ChooseReasonForSecurityController @Inject() (
 
   private val postAction: Call = routes.ChooseReasonForSecurityController.submit
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultEnterImporterEori: Result =
     Redirect(routes.EnterImporterEoriNumberController.show)
 
-  //Error: Claim has already been submitted as part of a whole or partial claim
+  // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
   private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNtas)) ReasonForSecurity.ntas else Set.empty
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNtas) then ReasonForSecurity.ntas else Set.empty
   private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNiru)) filterDisabledNiruOptions(ReasonForSecurity.niru)
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNiru) then
+      filterDisabledNiruOptions(ReasonForSecurity.niru)
     else Set.empty
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def filterDisabledNiruOptions(
     options: Set[ReasonForSecurity]
   )(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     options
       .filterNot(rfs =>
-        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr)) { rfs == OutwardProcessingRelief }
+        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr) then { rfs == OutwardProcessingRelief }
         else false
       )
       .filterNot(rfs =>
-        if (featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr)) { rfs == CommunitySystemsOfDutyRelief }
+        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr) then { rfs == CommunitySystemsOfDutyRelief }
         else false
       )
 
   private def nidacOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if (featureSwitchService.isEnabled(Feature.SecurityReasonsNidac)) ReasonForSecurity.nidac else Set.empty
+    if featureSwitchService.isEnabled(Feature.SecurityReasonsNidac) then ReasonForSecurity.nidac else Set.empty
 
   private def reasonsForSecurity(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
     ntasOptions ++ niruOptions ++ nidacOptions
@@ -124,7 +124,6 @@ class ChooseReasonForSecurityController @Inject() (
     ).asFuture
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     form
       .bindFromRequest()
@@ -135,56 +134,52 @@ class ChooseReasonForSecurityController @Inject() (
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity, postAction))
           ).asFuture,
         reasonForSecurity =>
-          if (journey.getReasonForSecurity.contains(reasonForSecurity))
+          if journey.getReasonForSecurity.contains(reasonForSecurity) then
             (
               journey,
-              if (journey.answers.modes.checkDeclarationDetailsChangeMode)
+              if journey.answers.modes.checkDeclarationDetailsChangeMode then
                 Redirect(routes.CheckDeclarationDetailsController.show)
-              else
-                successResultSelectSecurities
+              else successResultSelectSecurities
             ).asFuture
           else
-            (for {
+            (for
               mrn                          <- getMovementReferenceNumber(journey)
               declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
               _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-              updatedDeclaration            = reasonForSecurity match {
-                                                case EndUseRelief =>
-                                                  val updatedSecurityDetails =
-                                                    declaration.displayResponseDetail.securityDetails.map { securityDetails =>
-                                                      securityDetails.map(sd =>
-                                                        sd.copy(taxDetails =
-                                                          sd.taxDetails.filterNot(td =>
-                                                            TaxCodes.vatTaxCodes.contains(td.getTaxCode)
-                                                          )
-                                                        )
-                                                      )
-                                                    }
-                                                  declaration.copy(
-                                                    displayResponseDetail = declaration.displayResponseDetail.copy(
-                                                      securityDetails = updatedSecurityDetails
-                                                    )
-                                                  )
-                                                case _            => declaration
-                                              }
+              updatedDeclaration            =
+                reasonForSecurity match {
+                  case EndUseRelief =>
+                    val updatedSecurityDetails =
+                      declaration.displayResponseDetail.securityDetails.map { securityDetails =>
+                        securityDetails.map(sd =>
+                          sd.copy(taxDetails =
+                            sd.taxDetails.filterNot(td => TaxCodes.vatTaxCodes.contains(td.getTaxCode))
+                          )
+                        )
+                      }
+                    declaration.copy(
+                      displayResponseDetail = declaration.displayResponseDetail.copy(
+                        securityDetails = updatedSecurityDetails
+                      )
+                    )
+                  case _            => declaration
+                }
               updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, updatedDeclaration)
               journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
               updatedJourneyWithRedirect   <-
-                if (
-                  SecuritiesJourney.Checks
+                if SecuritiesJourney.Checks
                     .declarantOrImporterEoriMatchesUserOrHasBeenVerified(journeyWithRfsAndDeclaration)
                     .isInvalid
-                )
-                  redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
+                then redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
                 else
-                  for {
+                  for
                     similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, reasonForSecurity)
                     updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
                                                           journeyWithRfsAndDeclaration,
                                                           similarClaimExistAlreadyInCDFPay
                                                         )
-                  } yield updatedJourneyWithRedirect
-            } yield updatedJourneyWithRedirect)
+                  yield updatedJourneyWithRedirect
+            yield updatedJourneyWithRedirect)
               .bimap(result => (journey, result), identity)
               .merge
       )
@@ -270,13 +265,12 @@ class ChooseReasonForSecurityController @Inject() (
         .map(journeyWithUpdatedStatus =>
           (
             journeyWithUpdatedStatus,
-            if (similarClaimExistAlreadyInCDFPay) {
+            if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if (journeyWithUpdatedStatus.requiresBillOfDischargeForm) {
+            } else if journeyWithUpdatedStatus.requiresBillOfDischargeForm then {
               Redirect(routes.CheckTotalImportDischargedController.show)
-            } else
-              successResultSelectSecurities
+            } else successResultSelectSecurities
           )
         )
         .merge

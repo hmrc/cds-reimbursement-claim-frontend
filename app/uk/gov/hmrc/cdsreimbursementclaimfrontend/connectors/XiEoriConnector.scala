@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.apache.pekko.actor.ActorSystem
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
@@ -74,7 +74,7 @@ class DefaultXiEoriConnector @Inject() (
 
   override def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori] =
     retry(retryIntervals: _*)(shouldRetry, retryReason)(
-      http.GET[HttpResponse](url)
+      http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
         Future(response.json.as[XiEoriConnector.Response])

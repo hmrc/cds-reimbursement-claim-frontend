@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import play.api.Logger
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsString
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
-import play.api.libs.json.JsString
-import play.api.libs.json.JsObject
 
 final case class JourneyLog(
   journeyType: String,
@@ -208,7 +208,7 @@ object JourneyLog {
       numberOfMultipleMRNs = None,
       claimantType = output.claimantType.toString(),
       consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
-      payeeType = "not implemented yet", //output.payeeType.toString(),
+      payeeType = "not implemented yet", // output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -243,7 +243,7 @@ object JourneyLog {
       numberOfMultipleMRNs = Some(output.movementReferenceNumbers.size),
       claimantType = output.claimantType.toString(),
       consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
-      payeeType = "not implemented yet", //output.payeeType.toString(),
+      payeeType = "not implemented yet", // output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -278,7 +278,7 @@ object JourneyLog {
       numberOfMultipleMRNs = None,
       claimantType = output.claimantType.toString(),
       consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
-      payeeType = "not implemented yet", //output.payeeType.toString(),
+      payeeType = "not implemented yet", // output.payeeType.toString(),
       basisOfClaim = Some(output.basisOfClaim.toString),
       basisOfClaimSpecialCircumstances = output.basisOfClaimSpecialCircumstances,
       methodOfDisposal = Some(output.methodOfDisposal.toString),
@@ -313,7 +313,7 @@ object JourneyLog {
       numberOfMultipleMRNs = None,
       claimantType = output.claimantType.toString(),
       consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
-      payeeType = "not implemented yet", //output.payeeType.toString(),
+      payeeType = "not implemented yet", // output.payeeType.toString(),
       basisOfClaim = None,
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,
@@ -321,7 +321,7 @@ object JourneyLog {
       temporaryAdmissionMethodsOfDisposal = output.temporaryAdmissionMethodsOfDisposal.map { methods =>
         methods.map(_.toString)
       },
-      reimbursementMethod = if (output.bankAccountDetails.isDefined) "BankAccountTransfer" else "Other",
+      reimbursementMethod = if output.bankAccountDetails.isDefined then "BankAccountTransfer" else "Other",
       claimedAmountThreshold = threshold(output.securitiesReclaims.map(_._2.map(_._2).sum).sum),
       claimedDuties = output.securitiesReclaims.map(_._2.keySet.map(_.toString)).flatten.toSeq.sorted,
       numberOfClaimedDuties = output.securitiesReclaims.map(_._2.size).sum,
@@ -339,15 +339,15 @@ object JourneyLog {
     )
 
   private def threshold(amount: BigDecimal): String =
-    if (amount >= 1000000000) "10"
-    else if (amount >= 100000000) "9"
-    else if (amount >= 10000000) "8"
-    else if (amount >= 1000000) "7"
-    else if (amount >= 100000) "6"
-    else if (amount >= 10000) "5"
-    else if (amount >= 1000) "4"
-    else if (amount >= 100) "3"
-    else if (amount >= 10) "2"
+    if amount >= 1000000000 then "10"
+    else if amount >= 100000000 then "9"
+    else if amount >= 10000000 then "8"
+    else if amount >= 1000000 then "7"
+    else if amount >= 100000 then "6"
+    else if amount >= 10000 then "5"
+    else if amount >= 1000 then "4"
+    else if amount >= 100 then "3"
+    else if amount >= 10 then "2"
     else "1"
 
   implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]

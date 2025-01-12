@@ -24,7 +24,7 @@ import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.BankAccountReputationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -81,11 +81,11 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
     implicit val monad: Monad[Future] = future.catsStdInstancesForFuture
     getBusinessAccountReputation(bankAccountDetails)
       .flatMap(reputation1 =>
-        if (reputation1.isConfirmed) EitherT.right(Future.successful(reputation1))
+        if reputation1.isConfirmed then EitherT.right(Future.successful(reputation1))
         else
           getPersonalAccountReputation(bankAccountDetails, postCode)
             .map(reputation2 =>
-              if (reputation2.isConfirmed) reputation2
+              if reputation2.isConfirmed then reputation2
               else reputation1
             )
       )

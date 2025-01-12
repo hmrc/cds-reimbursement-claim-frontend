@@ -21,7 +21,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -47,7 +47,7 @@ class SessionDataActionSpec extends ControllerSpec with SessionSupport {
     def performAction(): Future[Result] =
       action.invokeBlock(
         authenticatedRequest,
-        { r: RequestWithSessionData[_] =>
+        { (r: RequestWithSessionData[_]) =>
           r.sessionData shouldBe Some(sessionData)
           r.messagesApi shouldBe messagesRequest.messagesApi
           Future.successful(Ok)

@@ -22,11 +22,11 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.RedirectToGovUkLandingPage
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.RedirectToGovUkLandingPage
 
 @Singleton
 class LandingPageController @Inject() (
@@ -38,9 +38,7 @@ class LandingPageController @Inject() (
     with Logging {
 
   def showLandingPage(): Action[AnyContent] = Action { implicit request =>
-    if (featureSwitchService.isEnabled(RedirectToGovUkLandingPage))
-      Redirect(viewConfig.govUkLandingPageUrl)
-    else
-      Ok(landingPage())
+    if featureSwitchService.isEnabled(RedirectToGovUkLandingPage) then Redirect(viewConfig.govUkLandingPageUrl)
+    else Ok(landingPage())
   }
 }

@@ -44,11 +44,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.{routes => overpaymentsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.{routes => rejectedGoodsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{routes => securitiesRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.routes as overpaymentsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.routes as rejectedGoodsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -67,7 +66,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ChooseClaimTypeControllerSpec
     extends ControllerSpec
@@ -132,7 +131,7 @@ class ChooseClaimTypeControllerSpec
   val chooseClaimTypePage: choose_claim_type                                     = instanceOf[choose_claim_type]
 
   class LoggerStub extends Logger(logger = null) {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
+
     private var loggedErrorMessages: Vector[String] = Vector.empty
 
     def resetMessages(): Unit = loggedErrorMessages = Vector.empty

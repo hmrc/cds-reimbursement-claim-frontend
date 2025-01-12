@@ -71,7 +71,7 @@
 
         @dropdownDetails(summary = s"choose-file-type.heading", content = supportingEvidenceHints.renderHintsWithLabels("choose-file-type.file-type"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @radios(
                 form = form,

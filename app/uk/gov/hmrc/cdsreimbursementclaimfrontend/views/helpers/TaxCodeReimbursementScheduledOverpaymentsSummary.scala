@@ -49,7 +49,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
     val claimsMadeAgainstTaxCodes: SortedMap[TaxCode, AmountPaidWithCorrect] = answer._2
 
     SummaryList(
-      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect) =>
+      claimsMadeAgainstTaxCodes.map { (taxCodeWithClaim: (TaxCode, AmountPaidWithCorrect)) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 
@@ -69,7 +69,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
           )
         )
       }.toSeq ++ (
-        if (claimsMadeAgainstTaxCodes.size > 1) {
+        if claimsMadeAgainstTaxCodes.size > 1 then {
           Seq(
             SummaryListRow(
               key = Key(HtmlContent(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),
@@ -81,8 +81,7 @@ object TaxCodeReimbursementScheduledOverpaymentsSummary
     )
   }
 
-  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect])
-      extends AnyVal {
+  implicit class SelectedTaxCodesReimbursementOps(private val value: SortedMap[TaxCode, AmountPaidWithCorrect]) {
 
     /** Calculates claimed amount total against given tax code */
     def subtotal: BigDecimal =

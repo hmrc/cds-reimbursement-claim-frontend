@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.twirl.api.HtmlFormat
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers with ShrinkLowPriority {
 

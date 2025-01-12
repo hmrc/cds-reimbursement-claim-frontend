@@ -84,7 +84,7 @@
     }
     
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @paragraph(Html(
             if(!TaxCodes.custom.contains(taxCode))

@@ -45,60 +45,59 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       (
-        if (journey.isAllSelectedDutiesAreCMAEligible) {
+        if journey.isAllSelectedDutiesAreCMAEligible then {
           Ok(
             chooseRepaymentMethodPage(
               form.withDefault(journey.answers.reimbursementMethod),
               postAction
             )
           )
-        } else
-          Redirect(enterBankDetailsRoute)
+        } else Redirect(enterBankDetailsRoute)
       ).asFuture
     }
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                journey,
-                BadRequest(
-                  chooseRepaymentMethodPage(
-                    formWithErrors,
-                    postAction
+      implicit request =>
+        journey =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  journey,
+                  BadRequest(
+                    chooseRepaymentMethodPage(
+                      formWithErrors,
+                      postAction
+                    )
                   )
-                )
-              ).asFuture,
-            method =>
-              modifyJourney(journey, method) match {
-                case Right(modifiedJourney) =>
-                  (
-                    modifiedJourney,
-                    Redirect(enterBankDetailsRoute)
-                  ).asFuture
+                ).asFuture,
+              method =>
+                modifyJourney(journey, method) match {
+                  case Right(modifiedJourney) =>
+                    (
+                      modifiedJourney,
+                      Redirect(enterBankDetailsRoute)
+                    ).asFuture
 
-                case Left("submitReimbursementMethod.notCMAEligible") =>
-                  (
-                    journey,
-                    Redirect(enterBankDetailsRoute)
-                  ).asFuture
+                  case Left("submitReimbursementMethod.notCMAEligible") =>
+                    (
+                      journey,
+                      Redirect(enterBankDetailsRoute)
+                    ).asFuture
 
-                case Left(error) =>
-                  Future.failed(new Exception(error))
-              }
-          )
-      },
+                  case Left(error) =>
+                    Future.failed(new Exception(error))
+                }
+            ),
       fastForwardToCYAEnabled = false
     )
 
   final val reset: Action[AnyContent] =
     actionReadWriteJourney { _ => journey =>
       val updatedJourney =
-        if (!journey.isAllSelectedDutiesAreCMAEligible) resetReimbursementMethod(journey)
+        if !journey.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(journey)
         else journey
       (updatedJourney, Redirect(checkYourAnswers)).asFuture
     }

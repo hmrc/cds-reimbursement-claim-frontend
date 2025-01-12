@@ -22,7 +22,7 @@ import play.api.libs.json.Format
 
 import java.util.function.Predicate
 
-final case class SortCode(value: String) extends AnyVal {
+final case class SortCode(value: String) {
 
   def masked(implicit messages: Messages): String =
     messages("sort-code.mask", value.takeRight(2))

@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
 import javax.inject.Inject
@@ -71,7 +71,7 @@ class EnterInspectionDateController @Inject() (
           date =>
             (
               journey.submitInspectionDate(date),
-              if (journey.needsDeclarantAndConsigneePostCode)
+              if journey.needsDeclarantAndConsigneePostCode then
                 Redirect(routes.ChooseInspectionAddressTypeController.show)
               else {
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())

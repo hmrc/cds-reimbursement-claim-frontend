@@ -50,7 +50,7 @@ class CheckBankDetailsController @Inject() (
     routes.CheckBankDetailsController.submitWarning
 
   final override def continueRoute(journey: Journey): Call =
-    if (journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection) {
+    if journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection then {
       routes.ChooseFileTypeController.show
     } else {
       routes.UploadFilesController.show

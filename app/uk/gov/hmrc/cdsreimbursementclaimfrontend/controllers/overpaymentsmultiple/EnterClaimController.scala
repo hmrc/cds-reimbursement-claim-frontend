@@ -23,9 +23,8 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
@@ -110,59 +109,58 @@ class EnterClaimController @Inject() (
 
   final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        journey
-          .getNthMovementReferenceNumber(pageIndex - 1)
-          .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            journey.getAmountPaidForIfSelected(mrn, taxCode) match {
-              case None =>
-                // case when tax code not selectable nor selected
-                (journey, Redirect(selectDutiesAction(pageIndex)))
+      implicit request =>
+        journey =>
+          journey
+            .getNthMovementReferenceNumber(pageIndex - 1)
+            .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+              journey.getAmountPaidForIfSelected(mrn, taxCode) match {
+                case None =>
+                  // case when tax code not selectable nor selected
+                  (journey, Redirect(selectDutiesAction(pageIndex)))
 
-              case Some(amountPaid) =>
-                val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
-                Forms
-                  .claimAmountForm(key, amountPaid)
-                  .bindFromRequest()
-                  .fold(
-                    formWithErrors =>
-                      (
-                        journey,
-                        BadRequest(
-                          enterMultipleClaims(
-                            formWithErrors,
-                            pageIndex,
-                            mrn,
-                            taxCode,
-                            amountPaid,
-                            isSubsidyOnly,
-                            submitClaimAction(pageIndex, taxCode)
+                case Some(amountPaid) =>
+                  val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
+                  Forms
+                    .claimAmountForm(key, amountPaid)
+                    .bindFromRequest()
+                    .fold(
+                      formWithErrors =>
+                        (
+                          journey,
+                          BadRequest(
+                            enterMultipleClaims(
+                              formWithErrors,
+                              pageIndex,
+                              mrn,
+                              taxCode,
+                              amountPaid,
+                              isSubsidyOnly,
+                              submitClaimAction(pageIndex, taxCode)
+                            )
                           )
-                        )
-                      ),
-                    amount =>
-                      journey
-                        .submitClaimAmount(mrn, taxCode, amount)
-                        .fold(
-                          error => {
-                            logger.error(s"Error submitting reimbursement claim amount - $error")
-                            (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
-                          },
-                          modifiedJourney =>
-                            (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
-                        )
-                  )
+                        ),
+                      amount =>
+                        journey
+                          .submitClaimAmount(mrn, taxCode, amount)
+                          .fold(
+                            error => {
+                              logger.error(s"Error submitting reimbursement claim amount - $error")
+                              (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
+                            },
+                            modifiedJourney =>
+                              (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
+                          )
+                    )
 
+              }
             }
-          }
-          .asFuture
-      },
+            .asFuture,
       fastForwardToCYAEnabled = false
     )
 
   private def decideNextRoute(journey: OverpaymentsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
-    if (journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode)
-      claimsSummaryAction
+    if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then claimsSummaryAction
     else {
       val selectedTaxCodes = journey.getSelectedDuties(mrn).getOrElse(Seq.empty)
       selectedTaxCodes.indexOf(taxCode) match {

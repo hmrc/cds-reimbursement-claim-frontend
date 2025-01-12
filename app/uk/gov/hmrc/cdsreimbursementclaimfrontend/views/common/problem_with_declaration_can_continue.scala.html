@@ -49,7 +49,7 @@
     @paragraph(Html(messages(s"problem-with-declaration.paragraph.1", mrn.value)))
     @paragraph(Html(messages(s"problem-with-declaration.paragraph.2", viewConfig.legacyC285FormUrl)))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @radios(
             form = form,
             name = "problem-with-declaration",

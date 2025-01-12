@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -51,8 +51,7 @@ class DefaultVerifiedEmailAddressService @Inject() (
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): Future[Either[Error, Option[CdsVerifiedEmail]]] =
     sessionStore
       .updateF(forceSessionCreation = true) { sessionData =>
-        if (sessionData.verifiedEmail.isDefined)
-          Future.successful(Right(sessionData))
+        if sessionData.verifiedEmail.isDefined then Future.successful(Right(sessionData))
         else
           verifiedEmailAddressConnector
             .getVerifiedEmailAddress(eori)

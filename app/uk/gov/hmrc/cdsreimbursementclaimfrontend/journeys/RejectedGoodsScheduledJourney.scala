@@ -17,30 +17,29 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator
-import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import play.api.libs.json.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
 
-/** An encapsulated C&E1179 scheduled MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C&E1179 scheduled MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[RejectedGoodsScheduledJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsScheduledJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class RejectedGoodsScheduledJourney private (
   val answers: RejectedGoodsScheduledJourney.Answers,
@@ -78,8 +77,7 @@ final class RejectedGoodsScheduledJourney private (
   def removeUnsupportedTaxCodes(): RejectedGoodsScheduledJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -92,7 +90,7 @@ final class RejectedGoodsScheduledJourney private (
               getLeadDisplayDeclaration.contains(displayDeclaration) =>
           Right(this)
         case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
+          if mrn =!= displayDeclaration.getMRN then
             Left(
               "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
             )
@@ -126,13 +124,12 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -148,8 +145,8 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -225,8 +222,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
       else
         Right(
           copy(newAnswers =
@@ -242,15 +238,14 @@ final class RejectedGoodsScheduledJourney private (
     dutyTypes: Seq[DutyType]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyTypes.isEmpty)
-        Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+      if dutyTypes.isEmpty then Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
       else {
         val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
           SortedMap(
             dutyTypes
               .map(dutyType =>
-                (dutyType -> getReimbursementClaimsFor(dutyType)
-                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]]))
+                dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
               ): _*
           )
         Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
@@ -262,13 +257,12 @@ final class RejectedGoodsScheduledJourney private (
     taxCodes: Seq[TaxCode]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (!getSelectedDutyTypes.exists(_.contains(dutyType)))
+      if !getSelectedDutyTypes.exists(_.contains(dutyType)) then
         Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
-      else if (taxCodes.isEmpty)
-        Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
       else {
         val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
-        if (allTaxCodesMatchDutyType) {
+        if allTaxCodesMatchDutyType then {
           val newReimbursementClaims =
             answers.correctedAmounts
               .map { rc =>
@@ -281,8 +275,7 @@ final class RejectedGoodsScheduledJourney private (
                 }: _*)
               }
           Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-        } else
-          Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+        } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
@@ -295,12 +288,12 @@ final class RejectedGoodsScheduledJourney private (
     taxCode: TaxCode,
     paidAmount: BigDecimal,
     correctAmount: BigDecimal
-  ): Either[String, RejectedGoodsScheduledJourney]                  =
+  ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (dutyType.taxCodes.contains(taxCode)) {
-        if (isDutySelected(dutyType, taxCode)) {
+      if dutyType.taxCodes.contains(taxCode) then {
+        if isDutySelected(dutyType, taxCode) then {
           val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
-          if (amounts.isValid) {
+          if amounts.isValid then {
             val newReimbursementClaims =
               answers.correctedAmounts
                 .map(rc =>
@@ -315,12 +308,9 @@ final class RejectedGoodsScheduledJourney private (
                   }: _*)
                 )
             Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
-          } else
-            Left("submitAmountForReimbursement.invalidReimbursementAmount")
-        } else
-          Left("submitAmountForReimbursement.taxCodeNotSelected")
-      } else
-        Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
+          } else Left("submitAmountForReimbursement.invalidReimbursementAmount")
+        } else Left("submitAmountForReimbursement.taxCodeNotSelected")
+      } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
   def submitClaimAmount(
@@ -349,7 +339,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountDetails =
@@ -369,7 +359,7 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (needsBanksAccountDetailsSubmission)
+      if needsBanksAccountDetailsSubmission then
         Right(
           this.copy(
             answers.copy(bankAccountType = Some(bankAccountType))
@@ -378,20 +368,18 @@ final class RejectedGoodsScheduledJourney private (
       else Left("submitBankAccountType.unexpected")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveScheduledDocument(
     requestNonce: Nonce,
     uploadedFile: UploadedFile
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         Right(
           this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
         )
       } else Left("receiveScheduledDocument.invalidNonce")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def removeScheduledDocument: RejectedGoodsScheduledJourney =
     whileClaimIsAmendable {
       this.copy(answers.copy(scheduledDocument = None))
@@ -402,14 +390,13 @@ final class RejectedGoodsScheduledJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -446,9 +433,8 @@ final class RejectedGoodsScheduledJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[RejectedGoodsScheduledJourney]) {
+    if obj.isInstanceOf[RejectedGoodsScheduledJourney] then {
       val that = obj.asInstanceOf[RejectedGoodsScheduledJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -457,12 +443,12 @@ final class RejectedGoodsScheduledJourney private (
   override def toString(): String = s"RejectedGoodsScheduledJourney($answers,$caseNumber)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], RejectedGoodsScheduledJourney.Output] =
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                    <- getLeadMovementReferenceNumber
           basisOfClaim           <- answers.basisOfClaim
           methodOfDisposal       <- answers.methodOfDisposal
@@ -472,7 +458,7 @@ final class RejectedGoodsScheduledJourney private (
           scheduledDocument      <- answers.scheduledDocument
           claimantInformation    <- getClaimantInformation
           payeeType              <- answers.payeeType
-        } yield RejectedGoodsScheduledJourney.Output(
+        yield RejectedGoodsScheduledJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
@@ -487,10 +473,10 @@ final class RejectedGoodsScheduledJourney private (
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
-            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
             else ReimbursementMethod.BankAccountTransfer,
           bankAccountDetails =
-            if (isSubsidyOnlyJourney) None
+            if isSubsidyOnlyJourney then None
             else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")

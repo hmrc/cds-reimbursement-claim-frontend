@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
-import play.api.data.Form
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 
 trait ProblemWithDeclarationMixin extends JourneyBaseController {
   def removeUnsupportedTaxCodesFromJourney(journey: Journey): Journey
@@ -34,7 +34,6 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
   val enterAnotherMrnAction: Call
   val checkDeclarationDetailsAction: Call
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm

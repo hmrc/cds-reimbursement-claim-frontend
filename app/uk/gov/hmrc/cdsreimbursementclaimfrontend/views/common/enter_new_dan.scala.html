@@ -47,7 +47,7 @@
 
         @insetText(HtmlContent(messages("enter-new-dan.inset-text")), Some("enter-new-dan-inset-text"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @inputText(
                 form = form,

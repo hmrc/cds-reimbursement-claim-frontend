@@ -28,7 +28,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGen
@@ -38,8 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
@@ -56,7 +56,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SelectDutiesSummary
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -108,9 +108,10 @@ class SelectDutiesControllerSpec
       dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
 
     title                    should ===(
-      (if (isError) "Error: "
+      (if isError then "Error: "
        else
-         "") + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
+         ""
+      ) + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
     )
     caption                  should ===(List(s"Security deposit ID: $securityId"))
     formHeading              should ===(List(s"Security deposit ID: $securityId What do you want to claim?"))
@@ -181,7 +182,7 @@ class SelectDutiesControllerSpec
             }
             checkIsRedirect(
               performAction("anySecurityId", Seq.empty),
-              baseRoutes.IneligibleController.ineligible()
+              baseRoutes.IneligibleController.ineligible
             )
           } { securityId =>
             throw new Throwable(s"unexpectedly found securityId $securityId with duties available")
@@ -353,7 +354,7 @@ object SelectDutiesControllerSpec {
         .map(_.keys)
         .toList
         .flatten
-      if (choices.size > selected.size) Some(securityId) else None
+      if choices.size > selected.size then Some(securityId) else None
     }
   }
 

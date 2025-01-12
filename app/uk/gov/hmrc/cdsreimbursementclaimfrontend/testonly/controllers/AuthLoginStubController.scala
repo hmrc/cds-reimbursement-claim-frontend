@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.auth_login_stub_page
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.*
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.UnsafePermitAll
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
-import uk.gov.hmrc.play.bootstrap.binders.UnsafePermitAll
 
 @Singleton
 class AuthLoginStubController @Inject() (

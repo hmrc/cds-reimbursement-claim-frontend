@@ -18,8 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import org.jsoup.Jsoup
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.BAD_REQUEST
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -28,15 +26,15 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -73,7 +71,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
   val messagesKey: String = "check-declaration-details"
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
-    for {
+    for
       j1            <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                          .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
       mrn           <- genMRN
@@ -84,7 +82,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                          declarantEORI = declarantEori,
                          consigneeEORI = Some(consigneeEori)
                        )
-    } yield j1
+    yield j1
       .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
       .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration _)
       .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
@@ -162,7 +160,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
       "redirect if duplicate declaration not verified" in {
         val journey =
-          (for {
+          (for
             j1   <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
                       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             mrn  <- genMRN
@@ -171,7 +169,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                       id = mrn.value,
                       declarantEORI = eori
                     )
-          } yield j1
+          yield j1
             .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
             .getOrFail).sample.get
 

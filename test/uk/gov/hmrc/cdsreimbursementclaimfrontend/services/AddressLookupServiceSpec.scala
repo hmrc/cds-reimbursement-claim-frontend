@@ -24,7 +24,6 @@ import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.ACCEPTED
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesImpl
@@ -33,8 +32,7 @@ import play.api.libs.json.JsPath
 import play.api.libs.json.Json
 import play.api.libs.json.JsonValidationError
 import play.api.mvc.Call
-import play.api.test.Helpers.LOCATION
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.Configuration
 import play.api.Environment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
@@ -46,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupPageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LabelsByLocale
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
 import uk.gov.hmrc.http.HeaderCarrier
@@ -211,7 +209,7 @@ class AddressLookupServiceSpec
         await(addressLookupService.retrieveUserAddress(id).value).value should be(address)
       }
 
-      "fail having invalid address ID" in forAll { id: UUID =>
+      "fail having invalid address ID" in forAll { (id: UUID) =>
         mockGetAddress(id)(Right(HttpResponse(NOT_FOUND, Json.obj().toString())))
 
         await(addressLookupService.retrieveUserAddress(id).value).isLeft should be(true)

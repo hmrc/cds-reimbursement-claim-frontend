@@ -57,7 +57,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
     correctAmount: BigDecimal
   ): Either[String, Journey]
 
-  final def showFirst(): Action[AnyContent] = actionReadJourney { _ => journey =>
+  final val showFirst: Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
         (journey.getFirstDutyToClaim match {
@@ -84,66 +84,64 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      Future.successful(
-        enterScheduledClaimForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                journey,
-                BadRequest(
-                  enterClaimPage(
-                    currentDuty,
-                    currentTaxCode,
-                    redirectVerificationMessage(formWithErrors),
-                    routesPack.postAction(currentDuty, currentTaxCode),
-                    journey.isSubsidyOnlyJourney
+    implicit request =>
+      journey =>
+        Future.successful(
+          enterScheduledClaimForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  journey,
+                  BadRequest(
+                    enterClaimPage(
+                      currentDuty,
+                      currentTaxCode,
+                      redirectVerificationMessage(formWithErrors),
+                      routesPack.postAction(currentDuty, currentTaxCode),
+                      journey.isSubsidyOnlyJourney
+                    )
                   )
-                )
-              ),
-            reimbursement =>
-              modifyJourney(journey, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating reimbursement selection - $errors")
-                    (
-                      journey,
-                      BadRequest(
-                        enterClaimPage(
-                          currentDuty,
-                          currentTaxCode,
-                          enterScheduledClaimForm,
-                          routesPack.postAction(currentDuty, currentTaxCode),
-                          journey.isSubsidyOnlyJourney
+                ),
+              reimbursement =>
+                modifyJourney(journey, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
+                  .fold(
+                    errors => {
+                      logger.error(s"Error updating reimbursement selection - $errors")
+                      (
+                        journey,
+                        BadRequest(
+                          enterClaimPage(
+                            currentDuty,
+                            currentTaxCode,
+                            enterScheduledClaimForm,
+                            routesPack.postAction(currentDuty, currentTaxCode),
+                            journey.isSubsidyOnlyJourney
+                          )
                         )
                       )
-                    )
-                  },
-                  updatedJourney =>
-                    (
-                      updatedJourney, {
-                        updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                          case Some((nextDutyType, nextTaxCode)) =>
-                            if (journey.hasCompleteReimbursementClaims)
-                              Redirect(routesPack.showCheckClaimDetails)
-                            else if (currentDuty.repr === nextDutyType.repr)
-                              Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
-                            else
-                              Redirect(routesPack.showSelectDuties(nextDutyType))
-                          case None                              =>
-                            updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                              case Some(nextDutyType) =>
-                                Redirect(routesPack.showSelectDuties(nextDutyType))
-                              case None               => Redirect(routesPack.showCheckClaimDetails)
-                            }
+                    },
+                    updatedJourney =>
+                      (
+                        updatedJourney, {
+                          updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                            case Some((nextDutyType, nextTaxCode)) =>
+                              if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                              else if currentDuty.repr === nextDutyType.repr then
+                                Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
+                              else Redirect(routesPack.showSelectDuties(nextDutyType))
+                            case None                              =>
+                              updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
+                                case Some(nextDutyType) =>
+                                  Redirect(routesPack.showSelectDuties(nextDutyType))
+                                case None               => Redirect(routesPack.showCheckClaimDetails)
+                              }
+                          }
                         }
-                      }
-                    )
-                )
-          )
-      )
-    },
+                      )
+                  )
+            )
+        ),
     fastForwardToCYAEnabled = false
   )
 

@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang
 import play.api.i18n.MessagesApi
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -35,7 +35,7 @@ class LanguageSwitchController @Inject() (
 
   def switchToLanguage(language: String): Action[AnyContent] = Action { implicit request =>
     val languageToUse =
-      if (viewConfig.enableLanguageSwitching) {
+      if viewConfig.enableLanguageSwitching then {
         Lang(language)
       } else {
         Lang("en")

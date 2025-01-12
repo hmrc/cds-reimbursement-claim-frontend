@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.handlers.CallHandler4

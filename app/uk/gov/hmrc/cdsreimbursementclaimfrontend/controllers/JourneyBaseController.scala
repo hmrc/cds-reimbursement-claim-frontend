@@ -16,20 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator.Validate
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
@@ -45,11 +42,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 /** Base journey controller providing common action behaviours:
-  *  - feature switch check
-  *  - user authorization
-  *  - user data retrieval
-  *  - sesion data retrieval and journey update
-  *  - journey completeness check and redirect to the CYA page
+  *   - feature switch check
+  *   - user authorization
+  *   - user data retrieval
+  *   - sesion data retrieval and journey update
+  *   - journey completeness check and redirect to the CYA page
   */
 trait JourneyBaseController extends FrontendBaseController with Logging with SeqUtils {
 
@@ -145,17 +142,16 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     fastForwardToCYAEnabled: Boolean
   ): Future[Result] =
     Future.successful(
-      if (result.header.status =!= 303) result
-      else if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
-      else if (fastForwardToCYAEnabled && shouldForwardToCYA(journey))
-        Redirect(checkYourAnswers)
+      if result.header.status =!= 303 then result
+      else if journey.isFinalized then Redirect(claimSubmissionConfirmation)
+      else if fastForwardToCYAEnabled && shouldForwardToCYA(journey) then Redirect(checkYourAnswers)
       else result
     )
 
   final def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Unit]] =
-    if (modifiedSessionData === sessionData) Future.successful(Right(()))
+    if modifiedSessionData === sessionData then Future.successful(Right(()))
     else jcc.sessionCache.store(modifiedSessionData)
 
   /** Simple GET action to show page based on the current journey state. */
@@ -167,7 +163,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
           request.sessionData
             .flatMap(getJourney)
             .map((journey: Journey) =>
-              if (journey.isFinalized) Redirect(claimSubmissionConfirmation)
+              if journey.isFinalized then Redirect(claimSubmissionConfirmation)
               else
                 checkIfMaybeActionPreconditionFails(journey) match {
                   case None         => body(journey)
@@ -191,7 +187,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
         request.sessionData
           .flatMap(getJourney)
           .map((journey: Journey) =>
-            if (journey.isFinalized) Future.successful(Redirect(claimSubmissionConfirmation))
+            if journey.isFinalized then Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
                 case None         => body(request)(journey)
@@ -211,15 +207,13 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
       .authenticatedActionWithSessionData(requiredFeature, isCallback)
       .async { implicit request =>
         implicit val hc: HeaderCarrier =
-          if (isCallback)
-            HeaderCarrierConverter.fromRequest(request)
-          else
-            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+          if isCallback then HeaderCarrierConverter.fromRequest(request)
+          else HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
               .map((journey: Journey) =>
-                if (journey.isFinalized) (journey, Redirect(claimSubmissionConfirmation))
+                if journey.isFinalized then (journey, Redirect(claimSubmissionConfirmation))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
@@ -253,7 +247,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
           .flatMap(sessionData =>
             getJourney(sessionData)
               .map((journey: Journey) =>
-                if (journey.isFinalized) Future.successful((journey, Redirect(claimSubmissionConfirmation)))
+                if journey.isFinalized then Future.successful((journey, Redirect(claimSubmissionConfirmation)))
                 else
                   checkIfMaybeActionPreconditionFails(journey) match {
                     case None         => body(request)(journey)
@@ -304,7 +298,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     errors: String*
   )(implicit errorHandler: ErrorHandler, request: Request[_]): Result = {
     import errorHandler._
-    logger.error(s"$description${if (errors.nonEmpty) errors.mkString(": ", ", ", "") else ""}")
+    logger.error(s"$description${if errors.nonEmpty then errors.mkString(": ", ", ", "") else ""}")
     errorResult()
   }
 

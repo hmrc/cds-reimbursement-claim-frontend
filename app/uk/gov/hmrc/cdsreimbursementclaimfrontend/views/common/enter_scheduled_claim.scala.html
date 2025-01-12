@@ -73,7 +73,7 @@
             Html(messages(s"enter-claim.scheduled.help-text.excise", messages(s"duty-type.${dutyType.repr}"), messages(s"tax-code.${taxCode}")))
     )
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @inputText(
             form = form,

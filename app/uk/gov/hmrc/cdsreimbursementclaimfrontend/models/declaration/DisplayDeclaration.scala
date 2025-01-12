@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.implicits._
+import cats.implicits.*
 import cats.Eq
 import cats.Id
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.UnsupportedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -29,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.UnsupportedTaxCode
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -267,7 +267,7 @@ object DisplayDeclaration {
 
   // TODO: not good code, most of this needed to be mapped when parsing from JSON
   // Same as devs must know about some workaround extension class import which not always the case
-  implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) extends AnyVal {
+  implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) {
 
     def totalVatPaidCharges: Option[BigDecimal] =
       displayDeclaration.displayResponseDetail.ndrcDetails

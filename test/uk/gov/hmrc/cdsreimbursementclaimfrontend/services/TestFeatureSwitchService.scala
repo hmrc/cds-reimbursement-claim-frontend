@@ -21,7 +21,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchService {
 
-  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   private val features: collection.mutable.Set[Feature] =
     collection.mutable.Set(initialFeatures: _*)
 

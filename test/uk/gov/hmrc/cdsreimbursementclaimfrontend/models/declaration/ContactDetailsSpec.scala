@@ -29,7 +29,7 @@ class ContactDetailsSpec extends AnyWordSpec with Matchers with ScalaCheckProper
 
     "display an address" when {
 
-      "mandatory fields provided" in forAll { contactDetails: ContactDetails =>
+      "mandatory fields provided" in forAll { (contactDetails: ContactDetails) =>
         contactDetails.showAddress shouldBe (
           contactDetails.addressLine1 |+|
             contactDetails.addressLine2.map(", " + _) |+|

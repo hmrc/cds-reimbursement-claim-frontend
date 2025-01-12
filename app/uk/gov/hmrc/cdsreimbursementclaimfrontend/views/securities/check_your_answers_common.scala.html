@@ -126,7 +126,7 @@
             claimantInformation = claim.claimantInformation,
             key = s"check-your-answers.contact-information",
             changeContactDetailsCall = routes.EnterContactDetailsController.show,
-            changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF)
+            changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF())
         )
 )
 

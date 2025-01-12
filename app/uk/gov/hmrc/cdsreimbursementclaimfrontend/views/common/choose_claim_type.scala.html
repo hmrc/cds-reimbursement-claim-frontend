@@ -111,7 +111,7 @@
         None
     }
 
-    @formWithCSRF(routes.ChooseClaimTypeController.submit, 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.ChooseClaimTypeController.submit, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,

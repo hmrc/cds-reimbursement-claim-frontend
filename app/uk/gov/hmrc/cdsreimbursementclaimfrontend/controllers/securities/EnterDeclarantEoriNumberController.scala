@@ -53,21 +53,21 @@ class EnterDeclarantEoriNumberController @Inject() (
   val formKey: String  = "enter-declarant-eori-number"
   val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
 
-  //Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
   private val successResultSelectSecurities: Result =
     Redirect(routes.SelectSecuritiesController.showFirst())
 
-  //Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
     Redirect(routes.BillOfDischarge3Controller.show)
 
-  //Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
     Redirect(routes.BillOfDischarge4Controller.show)
 
-  //Error: Claim has already been submitted as part of a whole or partial claim
+  // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible()) // TODO: fix in CDSR-1773
+    Redirect(controllers.routes.IneligibleController.ineligible) // TODO: fix in CDSR-1773
 
   import SecuritiesJourney.Checks._
 
@@ -77,16 +77,16 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     (
-      if (!journey.needsDeclarantAndConsigneeEoriSubmission) nextPage(journey)
-      else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
+      if !journey.needsDeclarantAndConsigneeEoriSubmission then nextPage(journey)
+      else if journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
         Redirect(routes.EnterImporterEoriNumberController.show)
       else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
-    ).asFuture
+    ) .asFuture
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if (!journey.needsDeclarantAndConsigneeEoriSubmission) (journey, nextPage(journey)).asFuture
-    else if (journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty)
+    if !journey.needsDeclarantAndConsigneeEoriSubmission then (journey, nextPage(journey)).asFuture
+    else if journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
       (journey, Redirect(routes.EnterImporterEoriNumberController.show)).asFuture
     else
       eoriNumberForm(formKey)
@@ -101,10 +101,10 @@ class EnterDeclarantEoriNumberController @Inject() (
                 e => {
                   logger
                     .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
-                  journey -> Redirect(controllers.routes.IneligibleController.ineligible()) asFuture
+                  journey -> Redirect(controllers.routes.IneligibleController.ineligible) asFuture
                 },
                 updatedJourney =>
-                  (for {
+                  (for
                     mrn                              <- getMovementReferenceNumber(journey)
                     rfs                              <- getReasonForSecurity(journey)
                     similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, rfs)
@@ -112,7 +112,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                                                           updatedJourney,
                                                           similarClaimExistAlreadyInCDFPay
                                                         )
-                  } yield updatedJourneyWithRedirect)
+                  yield updatedJourneyWithRedirect)
                     .bimap(result => (journey, result), identity)
                     .merge
               )
@@ -159,7 +159,7 @@ class EnterDeclarantEoriNumberController @Inject() (
         .map(journeyWithUpdatedStatus =>
           (
             journeyWithUpdatedStatus,
-            if (similarClaimExistAlreadyInCDFPay) {
+            if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
             } else {
@@ -171,7 +171,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     )
 
   private def nextPage(journey: SecuritiesJourney) =
-    if (journey.reasonForSecurityIsIPR) successResultBOD3
-    else if (journey.reasonForSecurityIsEndUseRelief) successResultBOD4
+    if journey.reasonForSecurityIsIPR then successResultBOD3
+    else if journey.reasonForSecurityIsEndUseRelief then successResultBOD4
     else successResultSelectSecurities
 }

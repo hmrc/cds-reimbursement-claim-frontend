@@ -21,14 +21,14 @@ import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.immutable.SortedMap
@@ -834,10 +834,10 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
 
         val expectedSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, Option[BigDecimal]]] =
           SortedMap(
-            (reclaimsBySecurityDepositId
+            reclaimsBySecurityDepositId
               .map { case (sid, reclaims) =>
-                (sid, SortedMap((reclaims.map { case (tc, a) => (tc, Some(a)) }): _*))
-              }): _*
+                (sid, SortedMap(reclaims.map { case (tc, a) => (tc, Some(a)) }: _*))
+              }: _*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -992,8 +992,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
                               .getSecurityTaxCodesFor(args._1)
                               .takeExcept(journey.getSelectedDutiesFor(args._1).get)
 
-                          if (notSelectedTaxCodes.isEmpty)
-                            Left("submitCorrectAmount.invalidTaxCode")
+                          if notSelectedTaxCodes.isEmpty then Left("submitCorrectAmount.invalidTaxCode")
                           else
                             journey.submitCorrectAmount(
                               args._1,
@@ -1466,11 +1465,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
       forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, additionalDetails) =>
         val modifiedJourney = journey.submitAdditionalDetails(additionalDetails)
 
-        modifiedJourney.hasCompleteAnswers                  shouldBe true
-        if (additionalDetails.isBlank)
-          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(None)
-        else
-          modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(Some(additionalDetails))
+        modifiedJourney.hasCompleteAnswers                                                  shouldBe true
+        if additionalDetails.isBlank then modifiedJourney.toOutput.map(_.additionalDetails) shouldBe Right(None)
+        else modifiedJourney.toOutput.map(_.additionalDetails)                              shouldBe Right(Some(additionalDetails))
       }
     }
   }

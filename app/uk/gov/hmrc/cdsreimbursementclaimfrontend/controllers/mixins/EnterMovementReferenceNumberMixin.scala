@@ -72,15 +72,15 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
         ),
       mrn =>
         {
-          for {
+          for
             maybeAcc14      <- getDeclaration(mrn)
             _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
-          } yield updatedJourney2
+          yield updatedJourney2
         }.fold(
           error =>
-            if (error.message.startsWith("error.")) {
+            if error.message.startsWith("error.") then {
               (
                 journey,
                 BadRequest(

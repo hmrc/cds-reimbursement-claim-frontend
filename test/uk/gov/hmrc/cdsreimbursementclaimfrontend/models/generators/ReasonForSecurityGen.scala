@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -25,6 +24,6 @@ object ReasonForSecurityGen {
   lazy val genReasonForSecurity: Gen[ReasonForSecurity] =
     Gen.oneOf(ReasonForSecurity.values)
 
-  implicit lazy val arbitraryReasonForSecurity: Typeclass[ReasonForSecurity] =
+  implicit lazy val arbitraryReasonForSecurity: Arbitrary[ReasonForSecurity] =
     Arbitrary(genReasonForSecurity)
 }

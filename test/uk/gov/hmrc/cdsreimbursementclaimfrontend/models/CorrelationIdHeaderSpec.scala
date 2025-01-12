@@ -18,10 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 import play.api.mvc.Headers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
+
+import java.util.UUID
 
 class CorrelationIdHeaderSpec extends AnyWordSpec with Matchers {
 

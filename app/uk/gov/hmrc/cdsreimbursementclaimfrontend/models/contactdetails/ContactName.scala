@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.Format
 
-final case class ContactName(value: String) extends AnyVal
+final case class ContactName(value: String)
 
 object ContactName {
 

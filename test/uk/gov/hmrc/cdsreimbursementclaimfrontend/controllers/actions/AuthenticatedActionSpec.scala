@@ -22,17 +22,17 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -61,11 +61,11 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequest[A] =>
+          { (a: AuthenticatedRequest[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok)
           }
@@ -149,11 +149,11 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
         )
 
       def performAction[A](r: FakeRequest[A]): Future[Result] = {
-        @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
         val request = new MessagesRequest[A](r, stub[MessagesApi])
         authenticatedAction.invokeBlock(
           request,
-          { a: AuthenticatedRequest[A] =>
+          { (a: AuthenticatedRequest[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
             Future.successful(Ok)
           }

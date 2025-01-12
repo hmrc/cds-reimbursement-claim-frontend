@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -50,12 +50,10 @@ class BasisForClaimController @Inject() (
     routes.BasisForClaimController.submit
 
   final override def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call =
-    if (basisOfClaim === BasisOfOverpaymentClaim.DuplicateEntry)
+    if basisOfClaim === BasisOfOverpaymentClaim.DuplicateEntry then
       routes.EnterDuplicateMovementReferenceNumberController.show
-    else if (basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan)
-      routes.EnterNewEoriNumberController.show
-    else
-      routes.EnterAdditionalDetailsController.show
+    else if basisOfClaim === BasisOfOverpaymentClaim.IncorrectEoriAndDan then routes.EnterNewEoriNumberController.show
+    else routes.EnterAdditionalDetailsController.show
 
   final override def modifyJourney(
     journey: Journey,

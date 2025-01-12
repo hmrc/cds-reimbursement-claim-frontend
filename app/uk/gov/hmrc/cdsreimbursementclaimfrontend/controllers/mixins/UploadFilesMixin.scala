@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import cats.syntax.eq.*
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -26,12 +27,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import cats.syntax.eq._
 
 import java.util.Locale
 
@@ -118,31 +118,30 @@ trait UploadFilesMixin extends JourneyBaseController {
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
   final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
-    { implicit request => journey =>
-      request
-        .asInstanceOf[Request[AnyContent]]
-        .body
-        .asJson
-        .flatMap(_.asOpt[UploadDocumentsCallback]) match {
-        case None =>
-          logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+    implicit request =>
+      journey =>
+        request
+          .asInstanceOf[Request[AnyContent]]
+          .body
+          .asJson
+          .flatMap(_.asOpt[UploadDocumentsCallback]) match {
+          case None =>
+            logger.warn("missing or invalid callback payload")
+            (journey, BadRequest("missing or invalid callback payload"))
 
-        case Some(callback) =>
-          modifyJourney(
-            journey,
-            callback.documentType,
-            callback.nonce,
-            callback.uploadedFiles.map(_.copy(description = None))
-          )
-            .fold(
-              error => (journey, BadRequest(error)),
-              modifiedJourney => (modifiedJourney, NoContent)
+          case Some(callback) =>
+            modifyJourney(
+              journey,
+              callback.documentType,
+              callback.nonce,
+              callback.uploadedFiles.map(_.copy(description = None))
             )
-      }
-    },
+              .fold(
+                error => (journey, BadRequest(error)),
+                modifiedJourney => (modifiedJourney, NoContent)
+              )
+        },
     isCallback = true
   )
 
@@ -156,10 +155,8 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          if (journey.userHasSeenCYAPage)
-            selfUrl + checkYourAnswers.url
-          else
-            selfUrl + nextPageInJourney.url
+          if journey.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
+          else selfUrl + nextPageInJourney.url
 
         uploadDocumentsConnector
           .initialize(

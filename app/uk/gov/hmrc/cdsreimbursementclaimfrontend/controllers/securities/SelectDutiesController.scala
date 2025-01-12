@@ -27,12 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error => CdsError}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_duties
@@ -70,7 +70,7 @@ class SelectDutiesController @Inject() (
       journey: SecuritiesJourney,
       error => {
         logger.warn(s"No Available duties: $error")
-        Redirect(baseRoutes.IneligibleController.ineligible()).asFuture
+        Redirect(baseRoutes.IneligibleController.ineligible).asFuture
       },
       dutiesAvailable =>
         {
@@ -86,44 +86,43 @@ class SelectDutiesController @Inject() (
     )
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   final def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      processAvailableDuties[(SecuritiesJourney, Result)](
-        securityId: String,
-        journey: SecuritiesJourney,
-        error => {
-          logger.warn(s"No Available duties: $error")
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-        },
-        dutiesAvailable => {
-          val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
-          val boundForm = form.bindFromRequest()
-          boundForm
-            .fold(
-              errors => {
-                logger.warn(
-                  s"Selection of duties to be repaid failed for $securityId because of errors:" +
-                    s"${errors.errors.mkString("", ",", "")}"
-                )
-                (
-                  journey,
-                  Ok(
-                    selectDutiesPage(
-                      boundForm,
-                      securityId,
-                      dutiesAvailable,
-                      routes.SelectDutiesController.submit(securityId)
+    implicit request =>
+      journey =>
+        processAvailableDuties[(SecuritiesJourney, Result)](
+          securityId: String,
+          journey: SecuritiesJourney,
+          error => {
+            logger.warn(s"No Available duties: $error")
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+          },
+          dutiesAvailable => {
+            val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
+            val boundForm = form.bindFromRequest()
+            boundForm
+              .fold(
+                errors => {
+                  logger.warn(
+                    s"Selection of duties to be repaid failed for $securityId because of errors:" +
+                      s"${errors.errors.mkString("", ",", "")}"
+                  )
+                  (
+                    journey,
+                    Ok(
+                      selectDutiesPage(
+                        boundForm,
+                        securityId,
+                        dutiesAvailable,
+                        routes.SelectDutiesController.submit(securityId)
+                      )
                     )
                   )
-                )
-              },
-              dutiesSelected => updateAndRedirect(journey, securityId, dutiesSelected)
-            )
-            .asFuture
-        }
-      )
-    },
+                },
+                dutiesSelected => updateAndRedirect(journey, securityId, dutiesSelected)
+              )
+              .asFuture
+          }
+        ),
     fastForwardToCYAEnabled = false
   )
 
@@ -132,27 +131,24 @@ class SelectDutiesController @Inject() (
     securityId: String,
     dutiesSelected: Seq[TaxCode]
   ): (SecuritiesJourney, Result) =
-    if (
-      journey
+    if journey
         .getSelectedDutiesFor(securityId)
         .containsSameElements(dutiesSelected) && journey.userHasSeenCYAPage
-    )
-      (journey, Redirect(checkYourAnswers))
+    then (journey, Redirect(checkYourAnswers))
     else
       journey
         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, dutiesSelected)
         .fold(
           error => {
             logger.warn(error)
-            (journey, Redirect(controllers.routes.IneligibleController.ineligible()))
+            (journey, Redirect(controllers.routes.IneligibleController.ineligible))
           },
           updatedJourney =>
             (
               updatedJourney,
               Redirect(
-                if (
-                  updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
-                )
+                if updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
+                then
                   journey.getNextDepositIdAndTaxCodeToClaim match {
                     case Some(Left(depositId)) =>
                       routes.ConfirmFullRepaymentController.show(depositId)
@@ -163,8 +159,7 @@ class SelectDutiesController @Inject() (
                     case None =>
                       routes.CheckClaimDetailsController.show
                   }
-                else
-                  routes.EnterClaimController.showFirst(securityId)
+                else routes.EnterClaimController.showFirst(securityId)
               )
             )
         )
@@ -173,8 +168,7 @@ object SelectDutiesController extends Logging {
   val selectDutiesKey: String = "select-duties"
 
   def getDescription(fullKey: String, messages: Messages): Option[String] =
-    if (messages.isDefinedAt(fullKey))
-      Some(messages(fullKey))
+    if messages.isDefinedAt(fullKey) then Some(messages(fullKey))
     else {
       logger.warn(s"no description found for $fullKey")
       None

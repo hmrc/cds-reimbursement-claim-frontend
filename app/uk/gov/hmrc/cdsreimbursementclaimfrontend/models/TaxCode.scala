@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class TaxCode(val value: String, val isSubsidy: Boolean = false) extends Product with Serializable {
@@ -116,8 +116,8 @@ object TaxCode {
 
   implicit val ordering: Ordering[TaxCode] =
     Ordering.fromLessThan { (t1: TaxCode, t2: TaxCode) =>
-      val a = if (t1.value.head.isLetter) "0" + t1.value else t1.value
-      val b = if (t2.value.head.isLetter) "0" + t2.value else t2.value
+      val a = if t1.value.head.isLetter then "0" + t1.value else t1.value
+      val b = if t2.value.head.isLetter then "0" + t2.value else t2.value
       implicitly[Ordering[String]].lt(a, b)
     }
 }

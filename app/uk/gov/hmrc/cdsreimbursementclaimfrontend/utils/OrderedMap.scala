@@ -55,13 +55,11 @@ object OrderedMap extends MapFactory[OrderedMap] {
 
 private class OrderedMapBuilder[A, B] extends Builder[(A, B), OrderedMap[A, B]] {
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def addOne(elem: (A, B)): this.type = {
     builder.addOne(elem)
     this
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   val builder = LinkedHashMap.newBuilder[A, Any]
 
   override def clear(): Unit =

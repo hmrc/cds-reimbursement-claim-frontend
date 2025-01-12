@@ -41,7 +41,7 @@ class LandingPageSecuritiesController @Inject() (
 
   final val showLandingPageSecurities: Action[AnyContent] =
     Action { implicit request =>
-      if (featureSwitchService.isEnabled(Feature.Securities)) {
+      if featureSwitchService.isEnabled(Feature.Securities) then {
         Ok(landingPageSecurities())
       } else Redirect(routes.UnauthorisedController.unauthorised())
     }

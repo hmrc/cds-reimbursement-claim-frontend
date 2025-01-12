@@ -24,7 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ImplicitFluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 /** The common base of the claim model companion objects.
-  * @tparam Journey the type of the claim
+  * @tparam Journey
+  *   the type of the claim
   */
 trait JourneyCompanion[T] extends ImplicitFluentSyntax[T] with SeqUtils {
 

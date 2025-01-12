@@ -21,7 +21,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
@@ -47,8 +47,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       Future.successful {
-        if (!needsEoriSubmission(journey))
-          Redirect(whenEoriInputNotRequiredAction)
+        if !needsEoriSubmission(journey) then Redirect(whenEoriInputNotRequiredAction)
         else {
           val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(journey))
           Ok(
@@ -63,8 +62,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if (!needsEoriSubmission(journey))
-        (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
+      if !needsEoriSubmission(journey) then (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
       else {
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
@@ -87,7 +85,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                   .fold(
                     errors => {
                       logger.error(s"Unable to record $eori - $errors")
-                      (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                      (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                     },
                     updatedJourney => (updatedJourney, Redirect(continueAction))
                   )

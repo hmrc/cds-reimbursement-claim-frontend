@@ -1,53 +1,16 @@
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import wartremover.Wart
 
 val appName = "cds-reimbursement-claim-frontend"
 
 Global / semanticdbEnabled := true
 
-ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml"        % VersionScheme.Always
-ThisBuild / scalafixDependencies += "com.github.liancheng"       %% "organize-imports" % "0.6.0"
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
 addCommandAlias("fix", "all compile:scalafix test:scalafix")
-
-lazy val wartremoverSettings =
-  Seq(
-    Compile / compile / wartremoverErrors ++= Warts.allBut(
-      Wart.DefaultArguments,
-      Wart.ImplicitConversion,
-      Wart.ImplicitParameter,
-      Wart.Nothing,
-      Wart.Overloading,
-      Wart.ToString,
-      Wart.PublicInference,
-      Wart.SizeIs,
-      Wart.StringPlusAny,
-      Wart.Any,
-      Wart.SeqApply,
-      Wart.CaseClassPrivateApply,
-      Wart.TripleQuestionMark
-    ),
-    WartRemover.autoImport.wartremoverExcluded += target.value,
-    Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
-      (Compile / routes).value ++
-        (baseDirectory.value ** "*.sc").get ++
-        Seq(sourceManaged.value / "main" / "sbt-buildinfo" / "BuildInfo.scala"),
-    Test / compile / wartremoverErrors --= Seq(
-      Wart.Any,
-      Wart.NonUnitStatements,
-      Wart.Null,
-      Wart.PublicInference,
-      Wart.Equals,
-      Wart.GlobalExecutionContext,
-      Wart.OptionPartial,
-      Wart.Throw,
-      Wart.IterableOps
-    )
-  )
 
 lazy val scoverageSettings =
   Seq(
@@ -70,9 +33,8 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "2.13.15")
+  .settings(scalaVersion := "3.3.4")
   .settings(TwirlKeys.templateImports := Seq.empty)
-  .settings(addCompilerPlugin(scalafixSemanticdb("4.9.9")))
   .settings(
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",
@@ -95,11 +57,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(Assets / pipelineStages := Seq(uglify))
   .settings(uglifyCompressOptions := Seq("unused=false", "dead_code=false"))
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(wartremoverSettings: _*)
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(
-    scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s"
+    scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s",
+    scalacOptions += "-Wunused:all",
+    scalacOptions += "-Xmax-inlines:128"
   )
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))

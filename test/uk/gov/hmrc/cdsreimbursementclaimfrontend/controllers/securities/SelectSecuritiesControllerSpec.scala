@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -27,16 +26,15 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -48,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerato
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class SelectSecuritiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -98,16 +96,16 @@ class SelectSecuritiesControllerSpec
     journey.getSecurityDetailsFor(securityDepositId).foreach { securityDetails =>
       summaries.toSeq should containOnlyDefinedPairsOf(
         Seq(
-          ("Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber
-            .map(_.value)),
-          ("Reason for security deposit"     -> journey.answers.reasonForSecurity
-            .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))),
-          ("Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString)),
-          ("Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString)),
-          ("Security deposit payment date"   -> journey.getLeadDisplayDeclaration
-            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate))),
-          ("Security deposit expiry date"    -> journey.getLeadDisplayDeclaration
-            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate)))
+          "Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber
+            .map(_.value),
+          "Reason for security deposit"     -> journey.answers.reasonForSecurity
+            .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")),
+          "Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString),
+          "Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString),
+          "Security deposit payment date"   -> journey.getLeadDisplayDeclaration
+            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate)),
+          "Security deposit expiry date"    -> journey.getLeadDisplayDeclaration
+            .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate))
         )
       )
     }
@@ -137,7 +135,7 @@ class SelectSecuritiesControllerSpec
 
         checkIsRedirect(
           performAction("foo-123-xyz"),
-          baseRoutes.IneligibleController.ineligible()
+          baseRoutes.IneligibleController.ineligible
         )
       }
 
@@ -149,7 +147,7 @@ class SelectSecuritiesControllerSpec
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
-        for (depositId <- depositIds) {
+        for depositId <- depositIds do {
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialJourney))
@@ -323,7 +321,7 @@ class SelectSecuritiesControllerSpec
         completeJourneyGen
       ) { initialJourney =>
         val selected = initialJourney.getSelectedDepositIds
-        for (depositId <- selected) {
+        for depositId <- selected do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -342,7 +340,7 @@ class SelectSecuritiesControllerSpec
         completeJourneyGen
       ) { initialJourney =>
         val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
-        for (depositId <- unselected) {
+        for depositId <- unselected do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -361,7 +359,7 @@ class SelectSecuritiesControllerSpec
         completeJourneyGen
       ) { initialJourney =>
         val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
-        for (depositId <- unselected) {
+        for depositId <- unselected do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()

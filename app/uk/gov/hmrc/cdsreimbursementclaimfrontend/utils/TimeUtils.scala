@@ -17,22 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import cats.Order
-import cats.syntax.either._
-import configs.ConfigReader
+import cats.syntax.either.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-import java.time.format.DateTimeFormatter
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.util.Try
 
 object TimeUtils {
-
-  implicit val configs: ConfigReader[LocalDate] = ConfigReader.fromTry { case (config, key) =>
-    LocalDate.parse(config.getString(key), DateTimeFormatter.ISO_DATE)
-  }
 
   val clock: Clock = Clock.systemUTC()
 
@@ -95,7 +89,7 @@ object TimeUtils {
         key: String,
         data: Map[String, String]
       ): Either[Seq[FormError], LocalDate] = {
-        val result = for {
+        val result = for
           dateFieldStrings <- dateFieldStringValues(data)
           day              <- toValidInt(dateFieldStrings._1, Some(31), 1, 2)
           month            <- toValidInt(dateFieldStrings._2, Some(12), 1, 2)
@@ -104,8 +98,7 @@ object TimeUtils {
                                 .fromTry(Try(LocalDate.of(year, month, day)))
                                 .leftMap(_ => FormError(dateKey, "error.invalid"))
                                 .flatMap(date =>
-                                  if (date.isBefore(minimumDate))
-                                    Left(FormError(dateKey, "error.before1900"))
+                                  if date.isBefore(minimumDate) then Left(FormError(dateKey, "error.before1900"))
                                   else
                                     extraValidation
                                       .map(_(date))
@@ -113,7 +106,7 @@ object TimeUtils {
                                       .getOrElse(Right(()))
                                       .map(_ => date)
                                 )
-        } yield date
+        yield date
 
         result.leftMap(Seq(_))
       }

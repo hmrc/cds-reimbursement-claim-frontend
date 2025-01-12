@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectSecuritiesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -67,7 +67,7 @@ class SelectSecuritiesController @Inject() (
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     journey
       .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
-      .fold(Redirect(baseRoutes.IneligibleController.ineligible())) { declaration =>
+      .fold(Redirect(baseRoutes.IneligibleController.ineligible)) { declaration =>
         Ok(
           selectSecuritiesPage(
             form.withDefault(journey.getSecuritySelectionStatus(securityDepositId)),
@@ -124,10 +124,8 @@ class SelectSecuritiesController @Inject() (
   }
 
   private def nextPage(journey: SecuritiesJourney, securityDepositId: String): Call =
-    if (journey.userHasSeenCYAPage)
-      routes.CheckYourAnswersController.show
-    else if (journey.answers.modes.checkDeclarationDetailsChangeMode)
-      routes.CheckDeclarationDetailsController.show
+    if journey.userHasSeenCYAPage then routes.CheckYourAnswersController.show
+    else if journey.answers.modes.checkDeclarationDetailsChangeMode then routes.CheckDeclarationDetailsController.show
     else
       journey.getSecurityDepositIds
         .nextAfter(securityDepositId)

@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 import scala.collection.immutable.SortedMap
 
@@ -45,10 +45,8 @@ object SecuritiesSelectionSummary {
         value = Value(
           Text(
             messages(
-              if (correctedAmounts.contains(securityDepositId))
-                s"$key.claim-for-security.yes"
-              else
-                s"$key.claim-for-security.no"
+              if correctedAmounts.contains(securityDepositId) then s"$key.claim-for-security.yes"
+              else s"$key.claim-for-security.no"
             )
           )
         ),
@@ -73,7 +71,7 @@ object SecuritiesSelectionSummary {
           )
         )
       )
-      ++ (if (showTotalSecuritiesPaidAmount)
+      ++ (if showTotalSecuritiesPaidAmount then
             Seq(
               SummaryListRow(
                 key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),

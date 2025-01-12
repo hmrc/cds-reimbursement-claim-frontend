@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -27,14 +26,14 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -86,7 +85,7 @@ class CheckClaimDetailsControllerSpec
 
     val claims = journey.getReclaimWithAmounts
 
-    //verify claiming full amounts
+    // verify claiming full amounts
     claims.map { case (securityDepositId, reclaimsList) =>
       doc
         .getElementById(s"security-deposit-id-h2-$securityDepositId")
@@ -97,7 +96,7 @@ class CheckClaimDetailsControllerSpec
         claimFullAmountElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Claiming full amount?"
         claimFullAmountElement
           .getElementsByClass("govuk-summary-list__value")
-          .text()                                                                   shouldBe (if (journey.isFullSecurityAmountClaimed(securityDepositId)) "Yes" else "No")
+          .text()                                                                   shouldBe (if journey.isFullSecurityAmountClaimed(securityDepositId) then "Yes" else "No")
         val changeLink = claimFullAmountElement.getElementById(s"change-claim-full-amount-$securityDepositId")
         changeLink.text()       shouldBe s"Change claim full amount for Security ID: $securityDepositId"
         changeLink.attr("href") shouldBe routes.ConfirmFullRepaymentController.show(securityDepositId).url

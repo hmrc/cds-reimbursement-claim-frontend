@@ -21,11 +21,11 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
@@ -63,7 +63,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
     def performAction(): Future[Result] =
       action.invokeBlock(
         authenticatedRequest,
-        { r: RequestWithSessionDataAndRetrievedData[_] =>
+        { (r: RequestWithSessionDataAndRetrievedData[_]) =>
           r.messagesApi shouldBe messagesRequest.messagesApi
           r.sessionData shouldBe sessionData
           Future.successful(Ok)

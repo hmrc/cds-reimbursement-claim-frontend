@@ -28,7 +28,6 @@ object SelectDutiesSummary {
     override def toString: String = duty.taxCode.value + " - " + description
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Option2Iterable"))
   def apply(dutiesAvailable: Seq[DutyAmount])(implicit messages: Messages): Seq[DutyDescription] =
     dutiesAvailable
       .sortBy(_.taxCode)

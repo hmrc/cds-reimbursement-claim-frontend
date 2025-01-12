@@ -21,7 +21,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.HaveInspectionDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
@@ -59,35 +59,35 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      inspectionAddressTypeForm
-        .bindFromRequest()
-        .fold(
-          errors =>
-            (
-              journey,
-              BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, postAction))
-            ).asFuture,
-          {
-            case Other     =>
-              (journey, Redirect(startAddressLookup)).asFuture
-            case Declarant =>
-              journey.getDeclarantContactDetailsFromACC14
-                .map { address =>
-                  redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Declarant).mapFrom(address)))
-                }
-                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-                .asFuture
-            case Importer  =>
-              journey.getConsigneeContactDetailsFromACC14
-                .map { address =>
-                  redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Importer).mapFrom(address)))
-                }
-                .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible())))
-                .asFuture
-          }
-        )
-    },
+    implicit request =>
+      journey =>
+        inspectionAddressTypeForm
+          .bindFromRequest()
+          .fold(
+            errors =>
+              (
+                journey,
+                BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, postAction))
+              ).asFuture,
+            {
+              case Other     =>
+                (journey, Redirect(startAddressLookup)).asFuture
+              case Declarant =>
+                journey.getDeclarantContactDetailsFromACC14
+                  .map { address =>
+                    redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Declarant).mapFrom(address)))
+                  }
+                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
+                  .asFuture
+              case Importer  =>
+                journey.getConsigneeContactDetailsFromACC14
+                  .map { address =>
+                    redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Importer).mapFrom(address)))
+                  }
+                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
+                  .asFuture
+            }
+          ),
     fastForwardToCYAEnabled = false
   )
 

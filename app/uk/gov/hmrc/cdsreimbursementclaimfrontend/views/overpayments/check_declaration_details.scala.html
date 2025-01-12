@@ -57,7 +57,7 @@
 
     @paragraph(Html(messages(s"check-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @dropdownDetails(
             summary = s"check-declaration-details.details.title",

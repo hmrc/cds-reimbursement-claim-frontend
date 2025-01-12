@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.i18n.MessagesApi
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -54,9 +54,8 @@ class SessionDataAction @Inject() (
   ): RequestWithSessionData[A] =
     RequestWithSessionData(sessionData, request)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def readHeadersFromRequestOnly(b: Boolean): SessionDataAction =
-    if (b == this.headersFromRequestOnly) this
+    if b == this.headersFromRequestOnly then this
     else
       new SessionDataAction(sessionStore, errorHandler) {
         override val headersFromRequestOnly: Boolean = b

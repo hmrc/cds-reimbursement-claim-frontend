@@ -80,7 +80,7 @@ trait FluentSyntax[Journey] {
   final def flatMapWhen(condition: Boolean)(
     modifyFx: Journey => Either[String, Journey]
   ): Either[String, Journey] =
-    if (condition) journeyEither.flatMap(modifyFx) else journeyEither
+    if condition then journeyEither.flatMap(modifyFx) else journeyEither
 
   /** Try to modify the journey if the condition holds, otherwise return as is. */
   final def flatMapWhen(condition: Journey => Boolean)(
@@ -88,7 +88,7 @@ trait FluentSyntax[Journey] {
   ): Either[String, Journey] =
     journeyEither
       .map(condition)
-      .flatMap(flag => if (flag) journeyEither.flatMap(modifyFx) else journeyEither)
+      .flatMap(flag => if flag then journeyEither.flatMap(modifyFx) else journeyEither)
 
   /** Try to modify the journey if the optional value is defined, otherwise return as is. */
   final def mapWhenDefined[A](option: Option[A])(

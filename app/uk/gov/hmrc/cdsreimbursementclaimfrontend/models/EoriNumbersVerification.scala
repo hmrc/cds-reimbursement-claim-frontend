@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.syntax.eq._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import cats.syntax.eq.*
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+
 import java.util.Locale
 
 final case class EoriNumbersVerification(

@@ -12,7 +12,7 @@ GET        /exit/we-signed-you-out                          uk.gov.hmrc.cdsreimb
 GET        /keep-alive                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
 GET        /unauthorised                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
-GET        /not-eligible-to-make-a-claim                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.IneligibleController.ineligible()
+GET        /not-eligible-to-make-a-claim                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.IneligibleController.ineligible
 
 GET        /language/:lang                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LanguageSwitchController.switchToLanguage(lang: String)
 

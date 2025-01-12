@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response
 
 import cats.kernel.Eq
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed trait ReputationResponse extends Product with Serializable {
   def acceptable: Boolean

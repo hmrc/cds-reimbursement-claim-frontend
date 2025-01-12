@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeOrDeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.*
 
 /** Comprehensive information about user filling out the claim. */
 final case class ClaimantInformation(

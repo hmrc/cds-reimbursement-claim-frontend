@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 /** Common properties of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
@@ -37,14 +37,11 @@ trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
       declarationsHasOnlySubsidyPayments
 
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if (
-      !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
+    if !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
         declaration.hasOnlySubsidyPayments) &&
       features.exists(_.shouldBlockSubsidies) &&
       declaration.hasSomeSubsidyPayment
-    )
-      Some("error.subsidy-payment-found")
-    else
-      None
+    then Some("error.subsidy-payment-found")
+    else None
 
 }

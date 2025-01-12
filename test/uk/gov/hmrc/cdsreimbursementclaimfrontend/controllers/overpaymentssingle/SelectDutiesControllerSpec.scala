@@ -27,14 +27,14 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -66,7 +66,7 @@ class SelectDutiesControllerSpec
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
-    if (hintTextElement.hasText) Some(hintTextElement.html()) else None
+    if hintTextElement.hasText then Some(hintTextElement.html()) else None
   }
 
   private val messagesKey: String = "select-duties"
@@ -201,7 +201,7 @@ class SelectDutiesControllerSpec
 
           val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
           val selectedTaxCodes  =
-            if (availableTaxCodes.size > 1) availableTaxCodes.drop(1)
+            if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
             else availableTaxCodes
 
           val initialSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(initialJourney))

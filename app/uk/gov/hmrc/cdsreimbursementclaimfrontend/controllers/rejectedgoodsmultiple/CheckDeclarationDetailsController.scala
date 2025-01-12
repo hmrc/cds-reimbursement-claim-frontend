@@ -22,8 +22,8 @@ import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_declaration_details
@@ -48,10 +48,8 @@ class CheckDeclarationDetailsController @Inject() (
 
   final override def continueRoute(journey: Journey): Call = {
     val numOfMRNs = journey.countOfMovementReferenceNumbers
-    if (numOfMRNs > 1)
-      routes.CheckMovementReferenceNumbersController.show
-    else
-      routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
+    if numOfMRNs > 1 then routes.CheckMovementReferenceNumbersController.show
+    else routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
   }
 
   final override val enterMovementReferenceNumberRoute: Call =

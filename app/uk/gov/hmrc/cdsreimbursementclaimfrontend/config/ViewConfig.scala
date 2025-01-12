@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Inject
@@ -90,10 +90,8 @@ class ViewConfig @Inject() (
     errorPrefix: String,
     hasErrors: Boolean
   ): String =
-    if (hasErrors)
-      s"$errorPrefix ${pageTitleWithServiceName(pageTitle, serviceName)}"
-    else
-      pageTitleWithServiceName(pageTitle, serviceName)
+    if hasErrors then s"$errorPrefix ${pageTitleWithServiceName(pageTitle, serviceName)}"
+    else pageTitleWithServiceName(pageTitle, serviceName)
 
   def pageTitleWithServiceName(
     pageTitle: String,

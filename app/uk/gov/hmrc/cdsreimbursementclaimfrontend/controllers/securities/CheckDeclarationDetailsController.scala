@@ -63,13 +63,11 @@ class CheckDeclarationDetailsController @Inject() (
   final val submit: Action[AnyContent] =
     simpleActionReadWriteJourney { _ => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
-      if (journey.getSelectedDepositIds.isEmpty)
+      if journey.getSelectedDepositIds.isEmpty then
         (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
-      else if (journey.userHasSeenCYAPage)
-        (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
-      else if (journey.getReasonForSecurity.exists(ntas.contains))
+      else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
+      else if journey.getReasonForSecurity.exists(ntas.contains) then
         (updatedJourney, Redirect(routes.ChooseExportMethodController.show))
-      else
-        (updatedJourney.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
+      else (updatedJourney.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
     }
 }

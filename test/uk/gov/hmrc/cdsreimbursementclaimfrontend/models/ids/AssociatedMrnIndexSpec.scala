@@ -20,9 +20,9 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndexSpec._
-import play.api.i18n._
+import play.api.i18n.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndexSpec.*
 
 class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
@@ -54,7 +54,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Converting MRN and original index back and forth" should {
     "match" in {
-      forAll { original: Int =>
+      forAll { (original: Int) =>
         AssociatedMrnIndex.fromListIndex(original).toListIndex should be(original)
       }
     }
@@ -62,7 +62,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Adding number to MRN index" should {
     "increase its value" in {
-      forAll { mrnIndex: AssociatedMrnIndex =>
+      forAll { (mrnIndex: AssociatedMrnIndex) =>
         mrnIndex + 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex + 2))
       }
     }
@@ -70,8 +70,8 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Subtracting number from MRN index" should {
     "decrease its value" in {
-      forAll { mrnIndex: AssociatedMrnIndex =>
-        mrnIndex - 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
+      forAll { (mrnIndex: AssociatedMrnIndex) =>
+        (mrnIndex - 2) should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
       }
     }
   }
@@ -84,7 +84,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Displaying ordinal numeral for the number ending with 1" should {
     "contain `st` postfix" in {
-      forAll { n: Int =>
+      forAll { (n: Int) =>
         whenever(n > 1) {
           val index = n.truncateToEndWithPrecision(1)
           AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
@@ -95,7 +95,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Displaying ordinal numeral for the number ending with 2" should {
     "contain `nd` postfix" in {
-      forAll { n: Int =>
+      forAll { (n: Int) =>
         val index = n.truncateToEndWithPrecision(2)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("nd")
       }
@@ -104,7 +104,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Displaying ordinal numeral for the number ending with 3" should {
     "contain `rd` postfix" in {
-      forAll { n: Int =>
+      forAll { (n: Int) =>
         val index = n.truncateToEndWithPrecision(3)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("rd")
       }
@@ -113,7 +113,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "Displaying ordinal numeral for the number which" should {
     "contain `th`" in {
-      forAll(Gen.choose(4, 19)) { n: Int =>
+      forAll(Gen.choose(4, 19)) { (n: Int) =>
         AssociatedMrnIndex(n).ordinalNumeral.lastTwo should be("th")
       }
     }
@@ -121,7 +121,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
   "The ordinal numeral from 0 to 9" should {
     "contain only words" in {
-      forAll(Gen.choose(-9, 9)) { index: Int =>
+      forAll(Gen.choose(-9, 9)) { (index: Int) =>
         AssociatedMrnIndex(index).ordinalNumeral.matches("[minus a-z]+") should be(true)
       }
     }
@@ -130,12 +130,12 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
 
 object AssociatedMrnIndexSpec {
 
-  implicit class IntegerOps(private val n: Int) extends AnyVal {
+  implicit class IntegerOps(private val n: Int) {
     def truncateToEndWithPrecision(x: Int): Int =
-      (n / 10) * 10 + (if (n >= 0) x else -x)
+      (n / 10) * 10 + (if n >= 0 then x else -x)
   }
 
-  implicit class StringOps(private val s: String) extends AnyVal {
+  implicit class StringOps(private val s: String) {
     def lastTwo: String = s.substring(s.length - 2)
   }
 }

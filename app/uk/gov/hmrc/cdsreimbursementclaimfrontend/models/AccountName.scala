@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.function.Predicate
 
-final case class AccountName(value: String) extends AnyVal
+final case class AccountName(value: String)
 
 object AccountName {
 

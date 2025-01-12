@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
@@ -43,7 +43,7 @@ object Country {
     finally source.close()
   }
 
-  implicit class CountryOps(private val c: Country) extends AnyVal {
+  implicit class CountryOps(private val c: Country) {
     def isUk: Boolean = c === Country.uk
   }
 

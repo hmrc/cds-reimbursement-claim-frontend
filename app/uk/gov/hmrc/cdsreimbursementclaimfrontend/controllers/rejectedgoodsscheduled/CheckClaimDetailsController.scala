@@ -25,14 +25,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,7 +62,7 @@ class CheckClaimDetailsController @Inject() (
     val reimbursementTotal = journey.getTotalReimbursementAmount
     (
       journey.withDutiesChangeMode(false),
-      if (!journey.hasCompleteReimbursementClaims) Redirect(selectDutiesAction)
+      if !journey.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
       else {
         Ok(
           checkClaimDetailsPage(
@@ -78,49 +78,48 @@ class CheckClaimDetailsController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
-      val reimbursementTotal = journey.getTotalReimbursementAmount
+    implicit request =>
+      journey => {
+        val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
+        val reimbursementTotal = journey.getTotalReimbursementAmount
 
-      if (!journey.hasCompleteReimbursementClaims) (journey, Redirect(selectDutiesAction)).asFuture
-      else {
-        checkClaimDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                journey,
-                BadRequest(
-                  checkClaimDetailsPage(
-                    answers,
-                    reimbursementTotal,
-                    formWithErrors,
-                    postAction,
-                    enterClaimAction
-                  )
-                )
-              ),
-            {
-              case Yes =>
+        if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction)).asFuture
+        else {
+          checkClaimDetailsForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
                 (
-                  journey.withDutiesChangeMode(false),
-                  Redirect(
-                    if (journey.hasCompleteAnswers)
-                      checkYourAnswers
-                    else
-                      routes.EnterInspectionDateController.show
+                  journey,
+                  BadRequest(
+                    checkClaimDetailsPage(
+                      answers,
+                      reimbursementTotal,
+                      formWithErrors,
+                      postAction,
+                      enterClaimAction
+                    )
                   )
-                )
-              case No  =>
-                (
-                  journey.withDutiesChangeMode(true),
-                  Redirect(selectDutiesAction)
-                )
-            }
-          )
-          .asFuture
-      }
-    },
+                ),
+              {
+                case Yes =>
+                  (
+                    journey.withDutiesChangeMode(false),
+                    Redirect(
+                      if journey.hasCompleteAnswers then checkYourAnswers
+                      else routes.EnterInspectionDateController.show
+                    )
+                  )
+                case No  =>
+                  (
+                    journey.withDutiesChangeMode(true),
+                    Redirect(selectDutiesAction)
+                  )
+              }
+            )
+            .asFuture
+        }
+      },
     fastForwardToCYAEnabled = false
   )
 }

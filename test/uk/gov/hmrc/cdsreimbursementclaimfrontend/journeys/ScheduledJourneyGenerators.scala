@@ -22,44 +22,44 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** A collection of generators supporting the tests of scheduled journeys. */
 trait ScheduledJourneyGenerators extends JourneyGenerators {
 
   final val amountPaidWithCorrectGen: Gen[AmountPaidWithCorrect] =
-    for {
+    for
       correctAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
       random        <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))
       paidAmount     = random + correctAmount
-    } yield AmountPaidWithCorrect(paidAmount, correctAmount)
+    yield AmountPaidWithCorrect(paidAmount, correctAmount)
 
   final val amountPaidWithClaimGen: Gen[(BigDecimal, BigDecimal)] =
-    for {
+    for
       claimAmount <- Gen.choose(BigDecimal("0.01"), BigDecimal("1000.00"))
       random      <- Gen.choose(BigDecimal("0.01"), BigDecimal("100.00"))
       paidAmount   = random + claimAmount
-    } yield (paidAmount, claimAmount)
+    yield (paidAmount, claimAmount)
 
   final val dutyTypesGen: Gen[Seq[DutyType]] =
-    for {
+    for
       n   <- Gen.choose(2, DutyTypes.all.size - 1)
       dts <- Gen.pick(n, DutyTypes.all)
-    } yield dts.sorted.toSeq
+    yield dts.sorted.toSeq
 
   final def taxCodesGen(dutyType: DutyType): Gen[Seq[TaxCode]] =
-    for {
+    for
       n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs <- Gen.pick(n, dutyType.taxCodes)
-    } yield tcs.sorted.toSeq
+    yield tcs.sorted.toSeq
 
   final val dutyTypesWithTaxCodesGen: Gen[Seq[(DutyType, Seq[TaxCode])]] = dutyTypesGen.flatMap(dutyTypes =>
     Gen.sequence[Seq[(DutyType, Seq[TaxCode])], (DutyType, Seq[TaxCode])](
       dutyTypes.map(dutyType =>
-        for {
+        for
           n   <- Gen.choose(1, dutyType.taxCodes.size - 1)
           tcs <- Gen.pick(n, dutyType.taxCodes)
-        } yield (dutyType, tcs.sorted.toSeq)
+        yield (dutyType, tcs.sorted.toSeq)
       )
     )
   )
@@ -67,7 +67,7 @@ trait ScheduledJourneyGenerators extends JourneyGenerators {
   type TaxCodeWithAmounts = (TaxCode, BigDecimal, BigDecimal)
 
   final def taxCodesWithClaimAmountsGen(dutyType: DutyType): Gen[Seq[TaxCodeWithAmounts]] =
-    for {
+    for
       n       <- Gen.choose(1, dutyType.taxCodes.size - 1)
       tcs     <- Gen.pick(n, dutyType.taxCodes)
       amounts <- Gen.sequence[Seq[TaxCodeWithAmounts], TaxCodeWithAmounts](
@@ -79,13 +79,13 @@ trait ScheduledJourneyGenerators extends JourneyGenerators {
                        )
                    )
                  )
-    } yield amounts
+    yield amounts
 
   final val dutyTypesWithTaxCodesWithClaimAmountsGen: Gen[Seq[(DutyType, Seq[TaxCodeWithAmounts])]] =
-    for {
+    for
       dutyTypes <- dutyTypesGen
       result    <-
         Gen.sequence(dutyTypes.map(dutyType => taxCodesWithClaimAmountsGen(dutyType).map(tcs => dutyType -> tcs)))
-    } yield result.asScala.toSeq
+    yield result.asScala.toSeq
 
 }

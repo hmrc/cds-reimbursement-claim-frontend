@@ -27,9 +27,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsMultipleClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
@@ -90,8 +90,7 @@ class CheckYourAnswersController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if (journey.isFinalized)
-        (journey, Redirect(showConfirmationAction)).asFuture
+      if journey.isFinalized then (journey, Redirect(showConfirmationAction)).asFuture
       else
         journey
           .submitCheckYourAnswersChangeMode(true)
@@ -107,7 +106,7 @@ class CheckYourAnswersController @Inject() (
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumbers
-                      .mkString(", ")} with case number ${response.caseNumber}."
+                        .mkString(", ")} with case number ${response.caseNumber}."
                   )
                   val summary =
                     JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)

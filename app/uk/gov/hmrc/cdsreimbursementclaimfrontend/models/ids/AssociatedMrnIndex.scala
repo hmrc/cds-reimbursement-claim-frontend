@@ -17,12 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.Eq
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
-import play.api.i18n.Messages
 
-final case class AssociatedMrnIndex private (urlIndex: Int) {
+final case class AssociatedMrnIndex(urlIndex: Int) {
 
   def +(integer: Int): AssociatedMrnIndex =
     AssociatedMrnIndex(urlIndex + integer)

@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.kernel.Eq
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class DutyType(val repr: String, val taxCodes: Seq[TaxCode], val ordinal: Int)
@@ -80,7 +80,6 @@ object DutyType {
 
   case object ClimateChangeLevy extends DutyType("climate-change-levy", List(NI99A, NI99B, NI99C, NI99D), 12)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   val simpleDutyTypeFormat: Format[DutyType] =
     SimpleStringFormat[DutyType](
       repr =>

@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 import scala.collection.immutable.SortedMap
 
@@ -39,7 +38,7 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
           claims.nonEmpty && claims.forall {
             case (taxCode, Some(claimAmounts)) =>
               dutyType.taxCodes.contains(taxCode) &&
-                claimAmounts.isValid
+              claimAmounts.isValid
             case _                             => false
           }
         }
@@ -150,9 +149,9 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
 
   private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
     val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
-      if (include(dutyType)) reimbursements.map(_._2.claimAmount).sum else ZERO
+      if include(dutyType) then reimbursements.map(_._2.claimAmount).sum else ZERO
     }.sum
-    if (total === ZERO) None else Some(total)
+    if total === ZERO then None else Some(total)
   }
 
   def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =

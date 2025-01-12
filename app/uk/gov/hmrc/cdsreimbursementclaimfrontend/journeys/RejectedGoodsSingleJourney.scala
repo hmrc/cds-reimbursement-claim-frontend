@@ -17,9 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator
-import play.api.libs.json._
+import play.api.libs.json.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -27,20 +28,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-/** An encapsulated C&E1179 single MRN journey logic.
-  * The constructor of this class MUST stay PRIVATE to protected integrity of the journey.
+/** An encapsulated C&E1179 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the journey.
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
-  *  - [[RejectedGoodsSingleJourney.Output]] - final output of the journey to be sent to backend processing
+  *   - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsSingleJourney.Output]] - final output of the journey to be sent to backend processing
   */
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
@@ -81,8 +80,7 @@ final class RejectedGoodsSingleJourney private (
   def removeUnsupportedTaxCodes(): RejectedGoodsSingleJourney =
     this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
 
-  /** Resets the journey with the new MRN
-    * or keep existing journey if submitted the same MRN and declaration as before.
+  /** Resets the journey with the new MRN or keep existing journey if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
@@ -95,7 +93,7 @@ final class RejectedGoodsSingleJourney private (
               getLeadDisplayDeclaration.contains(displayDeclaration) =>
           Right(this)
         case _ =>
-          if (mrn =!= displayDeclaration.getMRN)
+          if mrn =!= displayDeclaration.getMRN then
             Left(
               "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
             )
@@ -129,13 +127,12 @@ final class RejectedGoodsSingleJourney private (
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (
-          getConsigneeEoriFromACC14 match {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
             case Some(eori) => eori === consigneeEoriNumber
             case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
           }
-        )
+        then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -151,8 +148,8 @@ final class RejectedGoodsSingleJourney private (
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (needsDeclarantAndConsigneeEoriSubmission)
-        if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(eoriNumbersVerification =
@@ -231,11 +228,10 @@ final class RejectedGoodsSingleJourney private (
         case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
         case Some(_) =>
-          if (taxCodes.isEmpty)
-            Left("selectTaxCodeSetForReimbursement.emptySelection")
+          if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
           else {
             val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
-            if (allTaxCodesExistInACC14) {
+            if allTaxCodesExistInACC14 then {
               val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
                   Map(taxCodes.map(taxCode => taxCode -> None): _*)
@@ -247,14 +243,12 @@ final class RejectedGoodsSingleJourney private (
 
               Right(
                 this.copy(
-                  if (!isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts))
+                  if !isAllSelectedDutiesAreCMAEligible(newCorrectedAmounts) then
                     answers.copy(correctedAmounts = Some(newCorrectedAmounts), reimbursementMethod = None)
-                  else
-                    answers.copy(correctedAmounts = Some(newCorrectedAmounts))
+                  else answers.copy(correctedAmounts = Some(newCorrectedAmounts))
                 )
               )
-            } else
-              Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
+            } else Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
           }
       }
     }
@@ -262,7 +256,6 @@ final class RejectedGoodsSingleJourney private (
   def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
     correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: ReimbursementClaim
@@ -278,11 +271,10 @@ final class RejectedGoodsSingleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
-              if (getSelectedDuties.exists(_.contains(taxCode))) {
+              if getSelectedDuties.exists(_.contains(taxCode)) then {
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidAmount")
@@ -290,7 +282,6 @@ final class RejectedGoodsSingleJourney private (
       }
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def submitClaimAmount(
     taxCode: TaxCode,
     claimAmount: BigDecimal
@@ -306,12 +297,11 @@ final class RejectedGoodsSingleJourney private (
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
-              if (getSelectedDuties.exists(_.contains(taxCode))) {
+              if getSelectedDuties.exists(_.contains(taxCode)) then {
                 val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
-              } else
-                Left("submitCorrectAmount.taxCodeNotSelectedYet")
+              } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
             case _ =>
               Left("submitCorrectAmount.invalidAmount")
@@ -337,8 +327,7 @@ final class RejectedGoodsSingleJourney private (
 
   def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (answers.payeeType.contains(payeeType))
-        Right(this)
+      if answers.payeeType.contains(payeeType) then Right(this)
       else
         Right(
           copy(newAnswers =
@@ -382,8 +371,8 @@ final class RejectedGoodsSingleJourney private (
   ): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
 
-      if (reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment) {
-        if (isAllSelectedDutiesAreCMAEligible) {
+      if reimbursementMethod === ReimbursementMethod.CurrentMonthAdjustment then {
+        if isAllSelectedDutiesAreCMAEligible then {
           Right(
             this.copy(
               answers.copy(
@@ -391,8 +380,7 @@ final class RejectedGoodsSingleJourney private (
               )
             )
           )
-        } else
-          Left("submitReimbursementMethod.notCMAEligible")
+        } else Left("submitReimbursementMethod.notCMAEligible")
       } else
         Right(
           this.copy(
@@ -420,14 +408,13 @@ final class RejectedGoodsSingleJourney private (
       this.copy(answers.copy(selectedDocumentType = Some(documentType)))
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
   ): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
-      if (answers.nonce.equals(requestNonce)) {
+      if answers.nonce.equals(requestNonce) then {
         val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
           case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
           case uf                            => uf
@@ -464,9 +451,8 @@ final class RejectedGoodsSingleJourney private (
         )
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   override def equals(obj: Any): Boolean =
-    if (obj.isInstanceOf[RejectedGoodsSingleJourney]) {
+    if obj.isInstanceOf[RejectedGoodsSingleJourney] then {
       val that = obj.asInstanceOf[RejectedGoodsSingleJourney]
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
@@ -476,12 +462,12 @@ final class RejectedGoodsSingleJourney private (
     s"RejectedGoodsSingleJourney($answers, caseNumber=$caseNumber, features=$features)"
 
   /** Validates the journey and retrieves the output. */
-  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+
   def toOutput: Either[Seq[String], RejectedGoodsSingleJourney.Output] =
     validate(this).left
       .map(_.messages)
       .flatMap(_ =>
-        (for {
+        (for
           mrn                    <- getLeadMovementReferenceNumber
           basisOfClaim           <- answers.basisOfClaim
           methodOfDisposal       <- answers.methodOfDisposal
@@ -491,7 +477,7 @@ final class RejectedGoodsSingleJourney private (
           supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
           payeeType              <- answers.payeeType
-        } yield RejectedGoodsSingleJourney.Output(
+        yield RejectedGoodsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
@@ -505,10 +491,10 @@ final class RejectedGoodsSingleJourney private (
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
           reimbursementMethod =
-            if (isSubsidyOnlyJourney) ReimbursementMethod.Subsidy
+            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
             else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
           bankAccountDetails =
-            if (isSubsidyOnlyJourney) None
+            if isSubsidyOnlyJourney then None
             else answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")

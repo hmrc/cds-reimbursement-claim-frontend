@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.NOT_FOUND
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -28,14 +27,14 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -47,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class EnterExportMovementReferenceNumberControllerSpec
     extends PropertyBasedControllerSpec
@@ -113,7 +112,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Enter MRN page" must {
 
       def performAction(mrnIndex: Int): Future[Result] =
-        if (mrnIndex === 0) controller.showFirst(FakeRequest())
+        if mrnIndex === 0 then controller.showFirst(FakeRequest())
         else controller.showNext(mrnIndex + 1)(FakeRequest())
 
       "do not find the page if securities feature is disabled" in {
@@ -167,7 +166,7 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(mrnIndex: Int, data: (String, String)*): Future[Result] =
-        if (mrnIndex === 0) controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
+        if mrnIndex === 0 then controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
         else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "do not find the page if securities feature is disabled" in {

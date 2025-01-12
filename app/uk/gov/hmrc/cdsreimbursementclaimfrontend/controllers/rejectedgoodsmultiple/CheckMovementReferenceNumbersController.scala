@@ -24,10 +24,10 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_movement_reference_numbers
 
@@ -50,8 +50,8 @@ class CheckMovementReferenceNumbersController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.getMovementReferenceNumbers
         .map { mrns =>
-          if (journey.hasCompleteMovementReferenceNumbers)
-            if (journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori) {
+          if journey.hasCompleteMovementReferenceNumbers then
+            if journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori then {
               Redirect(routes.EnterImporterEoriNumberController.show)
             } else
               Ok(
@@ -63,8 +63,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                   routes.CheckMovementReferenceNumbersController.delete
                 )
               )
-          else
-            Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
+          else Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
         }
         .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
         .asFuture
@@ -99,7 +98,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                     )
                   )
                 case No  =>
-                  if (shouldForwardToCYA(journey)) (journey, Redirect(checkYourAnswers))
+                  if shouldForwardToCYA(journey) then (journey, Redirect(checkYourAnswers))
                   else (journey.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
               }
           )
@@ -116,9 +115,9 @@ class CheckMovementReferenceNumbersController @Inject() (
             .fold(
               error => {
                 logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible))
               },
-              updatedJourney => (nextPageOnDelete(updatedJourney))
+              updatedJourney => nextPageOnDelete(updatedJourney)
             )
             .asFuture,
       fastForwardToCYAEnabled = false
@@ -126,7 +125,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   private def nextPageOnDelete(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) = (
     journey,
-    if (journey.hasCompleteAnswers) Redirect(routes.CheckClaimDetailsController.show)
+    if journey.hasCompleteAnswers then Redirect(routes.CheckClaimDetailsController.show)
     else Redirect(routes.CheckMovementReferenceNumbersController.show)
   )
 }

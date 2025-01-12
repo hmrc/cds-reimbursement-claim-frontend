@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.mvc._
+import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -49,7 +49,7 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
   }
 
   final val submit: Action[AnyContent] = simpleActionReadJourney { journey =>
-    if (journey.userHasSeenCYAPage) {
+    if journey.userHasSeenCYAPage then {
       Redirect(checkYourAnswers)
     } else {
       Redirect(nextPageInTheJourney)

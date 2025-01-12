@@ -26,7 +26,6 @@ final case class TaxDetails(
   private val amount: String
 ) {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def getTaxCode: TaxCode = TaxCodes
     .find(taxType)
     .getOrElse(

@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -26,7 +25,7 @@ import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.SelectDutiesControllerSpec.genDutyWithRandomlySelectedTaxCode
@@ -38,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.EitherOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -73,7 +72,7 @@ class SelectDutiesControllerSpec
 
   "Select Tax Codes Controller" should {
 
-    "not find the page if rejected goods feature is disabled" in forAll { dutyType: DutyType =>
+    "not find the page if rejected goods feature is disabled" in forAll { (dutyType: DutyType) =>
       featureSwitch.disable(Feature.RejectedGoods)
 
       status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
@@ -81,7 +80,7 @@ class SelectDutiesControllerSpec
 
     "show select tax codes page" when {
 
-      "the user has not answered this question before" in forAll { dutyType: DutyType =>
+      "the user has not answered this question before" in forAll { (dutyType: DutyType) =>
         val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
           .getOrFail
@@ -153,7 +152,7 @@ class SelectDutiesControllerSpec
 
   "Submit Select Tax Codes page" must {
 
-    "not find the page if rejected goods feature is disabled" in forAll { duty: DutyType =>
+    "not find the page if rejected goods feature is disabled" in forAll { (duty: DutyType) =>
       featureSwitch.disable(Feature.RejectedGoods)
 
       status(controller.submit(duty)(FakeRequest())) shouldBe NOT_FOUND
@@ -212,7 +211,7 @@ class SelectDutiesControllerSpec
 
     "show an error summary" when {
 
-      "no tax code is selected" in forAll { dutyType: DutyType =>
+      "no tax code is selected" in forAll { (dutyType: DutyType) =>
         val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
           .getOrFail
@@ -244,9 +243,9 @@ class SelectDutiesControllerSpec
 
 object SelectDutiesControllerSpec {
 
-  lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for {
+  lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for
     duty    <- genDuty
     taxCode <- Gen.oneOf(duty.taxCodes)
-  } yield (duty, taxCode)
+  yield (duty, taxCode)
 
 }

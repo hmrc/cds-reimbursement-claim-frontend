@@ -25,18 +25,18 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_export_movement_reference_numbers
 
@@ -67,7 +67,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) { exportMRNs =>
-      if (exportMRNs.isEmpty)
+      if exportMRNs.isEmpty then
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
       else
         (
@@ -121,31 +121,30 @@ class CheckExportMovementReferenceNumbersController @Inject() (
   }
 
   def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => journey =>
-      whenTemporaryAdmissionExported(journey) { exportMRNs =>
-        if (exportMRNs.contains(mrn))
-          journey
-            .removeExportMovementReferenceNumber(mrn)
-            .fold(
-              error => {
-                logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible())).asFuture
-              },
-              updatedJourney =>
-                (
-                  updatedJourney,
-                  updatedJourney.answers.exportMovementReferenceNumbers match {
-                    case Some(exportMRNs) if exportMRNs.nonEmpty =>
-                      Redirect(routes.CheckExportMovementReferenceNumbersController.show)
-                    case _                                       =>
-                      Redirect(routes.ChooseExportMethodController.show)
-                  }
-                ).asFuture
-            )
-        else
-          (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show)).asFuture
-      }
-    },
+    implicit request =>
+      journey =>
+        whenTemporaryAdmissionExported(journey) { exportMRNs =>
+          if exportMRNs.contains(mrn) then
+            journey
+              .removeExportMovementReferenceNumber(mrn)
+              .fold(
+                error => {
+                  logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+                },
+                updatedJourney =>
+                  (
+                    updatedJourney,
+                    updatedJourney.answers.exportMovementReferenceNumbers match {
+                      case Some(exportMRNs) if exportMRNs.nonEmpty =>
+                        Redirect(routes.CheckExportMovementReferenceNumbersController.show)
+                      case _                                       =>
+                        Redirect(routes.ChooseExportMethodController.show)
+                    }
+                  ).asFuture
+              )
+          else (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show)).asFuture
+        },
     fastForwardToCYAEnabled = false
   )
 
@@ -169,7 +168,6 @@ class CheckExportMovementReferenceNumbersController @Inject() (
         (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =
     mods
       .filter(mod =>

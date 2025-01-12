@@ -17,9 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
 sealed abstract class DutyTypeSummary(val total: BigDecimal, val messageKey: String)
 
@@ -40,13 +40,13 @@ object DutyTypeSummary {
   def buildFrom(reimbursements: Seq[(TaxCode, BigDecimal)]): Seq[DutyTypeSummary] = {
     val totals = reimbursements
       .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, (taxCode, claimAmount)) =>
-        if (TaxCodes.ukTaxCodeSet.contains(taxCode)) {
+        if TaxCodes.ukTaxCodeSet.contains(taxCode) then {
           buff(0) += claimAmount
           buff
-        } else if (TaxCodes.euTaxCodeSet.contains(taxCode)) {
+        } else if TaxCodes.euTaxCodeSet.contains(taxCode) then {
           buff(1) += claimAmount
           buff
-        } else if (TaxCodes.exciseTaxCodeSet.contains(taxCode)) {
+        } else if TaxCodes.exciseTaxCodeSet.contains(taxCode) then {
           buff(2) += claimAmount
           buff
         } else buff
@@ -62,13 +62,13 @@ object DutyTypeSummary {
   def buildFromReimbursements(reimbursements: Seq[Reimbursement]): Seq[DutyTypeSummary] = {
     val totals = reimbursements
       .foldLeft(Array[BigDecimal](xs = 0, 0, 0)) { case (buff, Reimbursement(taxCode, claimAmount, _, _, _)) =>
-        if (TaxCodes.ukTaxCodeSet.contains(taxCode)) {
+        if TaxCodes.ukTaxCodeSet.contains(taxCode) then {
           buff(0) += claimAmount
           buff
-        } else if (TaxCodes.euTaxCodeSet.contains(taxCode)) {
+        } else if TaxCodes.euTaxCodeSet.contains(taxCode) then {
           buff(1) += claimAmount
           buff
-        } else if (TaxCodes.exciseTaxCodeSet.contains(taxCode)) {
+        } else if TaxCodes.exciseTaxCodeSet.contains(taxCode) then {
           buff(2) += claimAmount
           buff
         } else buff

@@ -29,11 +29,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirmation_of_submission
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_print_view
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirmation_of_submission
 
 import scala.concurrent.ExecutionContext
 
@@ -85,8 +85,7 @@ class CheckYourAnswersController @Inject() (
 
   val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if (journey.isFinalized)
-        (journey, Redirect(showConfirmationAction)).asFuture
+      if journey.isFinalized then (journey, Redirect(showConfirmationAction)).asFuture
       else
         journey
           .submitCheckYourAnswersChangeMode(true)

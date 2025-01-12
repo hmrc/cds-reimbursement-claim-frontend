@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsMultipleClaimConnector
@@ -36,17 +36,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class CheckYourAnswersControllerSpec
     extends PropertyBasedControllerSpec
@@ -92,20 +90,17 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  @annotation.nowarn
   def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsMultipleJourney.Output) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summary       = summaryKeys.asScala.zip(summaryValues.asScala).toMap
 
-    headers              should not be empty
-    summaryKeys          should not be empty
-    summaryValues        should not be empty
-    if (claim.supportingEvidences.isEmpty)
-      summaryKeys.size shouldBe (summaryValues.size - 1)
-    else
-      summaryKeys.size shouldBe summaryValues.size
+    headers                                                      should not be empty
+    summaryKeys                                                  should not be empty
+    summaryValues                                                should not be empty
+    if claim.supportingEvidences.isEmpty then summaryKeys.size shouldBe (summaryValues.size - 1)
+    else summaryKeys.size                                      shouldBe summaryValues.size
 
     headers.asScala.toSeq should contain allOf (
       "Movement Reference Numbers (MRNs)",
@@ -121,18 +116,20 @@ class CheckYourAnswersControllerSpec
     val mrnKeys: Seq[String] =
       (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber(i).capitalize} MRN")
 
-    summaryKeys should contain allOf (
-      "Contact details",
-      "Contact address",
-      (mrnKeys ++ Seq(
-        "Basis of claim",
-        "Disposal method",
-        "Additional claim details",
-        "Total",
-        "Inspection date",
-        "Inspection address type",
-        "Inspection address"
-      ) ++ (if (claim.supportingEvidences.isEmpty) Seq.empty else Seq("Uploaded"))): _*
+    summaryKeys.should(
+      contain.allOf(
+        "Contact details",
+        "Contact address",
+        (mrnKeys ++ Seq(
+          "Basis of claim",
+          "Disposal method",
+          "Additional claim details",
+          "Total",
+          "Inspection date",
+          "Inspection address type",
+          "Inspection address"
+        ) ++ (if claim.supportingEvidences.isEmpty then Seq.empty else Seq("Uploaded")))*
+      )
     )
 
     mrnKeys.zip(claim.movementReferenceNumbers).foreach { case (key, mrn) =>

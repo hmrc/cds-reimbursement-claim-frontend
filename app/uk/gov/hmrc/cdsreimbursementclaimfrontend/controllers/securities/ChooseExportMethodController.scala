@@ -91,7 +91,7 @@ class ChooseExportMethodController @Inject() (
                   (journey, errorHandler.errorResult())
                 },
                 updatedJourney =>
-                  if (TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal(methodsOfDisposal)) {
+                  if TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal(methodsOfDisposal) then {
                     (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
                   } else {
                     (

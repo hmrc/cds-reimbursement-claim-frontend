@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_claim
 
@@ -92,57 +92,56 @@ class EnterClaimController @Inject() (
 
   final def submit(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
-      { implicit request => journey =>
-        validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
-          _.fold(
-            result => (journey, result),
-            { case (_, totalAmount) =>
-              val form = Forms.claimAmountForm(key, totalAmount)
-              form
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      journey,
-                      BadRequest(
-                        enterClaimPage(
-                          formWithErrors,
-                          securityDepositId,
-                          taxCode,
-                          totalAmount,
-                          routes.EnterClaimController.submit(securityDepositId, taxCode)
+      implicit request =>
+        journey =>
+          validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
+            _.fold(
+              result => (journey, result),
+              { case (_, totalAmount) =>
+                val form = Forms.claimAmountForm(key, totalAmount)
+                form
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      (
+                        journey,
+                        BadRequest(
+                          enterClaimPage(
+                            formWithErrors,
+                            securityDepositId,
+                            taxCode,
+                            totalAmount,
+                            routes.EnterClaimController.submit(securityDepositId, taxCode)
+                          )
                         )
-                      )
-                    ),
-                  claimAmount => {
-                    val amountHasChanged: Boolean =
-                      !journey
-                        .getClaimAmountFor(securityDepositId, taxCode)
-                        .exists(_ === claimAmount)
-                    if (amountHasChanged)
-                      journey
-                        .submitClaimAmount(securityDepositId, taxCode, claimAmount)
-                        .fold(
-                          error =>
-                            (
-                              journey,
-                              Redirect(routeForValidationError(error))
-                            ),
-                          updatedJourney =>
-                            (
-                              updatedJourney,
-                              Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
-                            )
-                        )
-                    else
-                      (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                      ),
+                    claimAmount => {
+                      val amountHasChanged: Boolean =
+                        !journey
+                          .getClaimAmountFor(securityDepositId, taxCode)
+                          .exists(_ === claimAmount)
+                      if amountHasChanged then
+                        journey
+                          .submitClaimAmount(securityDepositId, taxCode, claimAmount)
+                          .fold(
+                            error =>
+                              (
+                                journey,
+                                Redirect(routeForValidationError(error))
+                              ),
+                            updatedJourney =>
+                              (
+                                updatedJourney,
+                                Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                              )
+                          )
+                      else (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
 
-                  }
-                )
-            }
-          )
-        )
-      },
+                    }
+                  )
+              }
+            )
+          ),
       fastForwardToCYAEnabled = false
     )
 
@@ -154,7 +153,7 @@ class EnterClaimController @Inject() (
 
     (correctAmountsForDepositId match {
       case None =>
-        if (journey.getSecurityDepositIds.contains(securityDepositId))
+        if journey.getSecurityDepositIds.contains(securityDepositId) then
           Left(Redirect(routes.ConfirmFullRepaymentController.show(securityDepositId)))
         else
           Left(
@@ -196,9 +195,8 @@ class EnterClaimController @Inject() (
     taxCode: TaxCode,
     amountHasChanged: Boolean
   ): Call =
-    if (journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode) {
-      if (journey.userHasSeenCYAPage && !amountHasChanged)
-        routes.CheckYourAnswersController.show
+    if journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode then {
+      if journey.userHasSeenCYAPage && !amountHasChanged then routes.CheckYourAnswersController.show
       else
         journey.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
@@ -221,10 +219,9 @@ class EnterClaimController @Inject() (
         case None =>
           journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
             case Some(nextSecurityDepositId) =>
-              if (journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode)
+              if journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode then
                 routes.CheckClaimDetailsController.show
-              else
-                routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
+              else routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
               routes.CheckClaimDetailsController.show

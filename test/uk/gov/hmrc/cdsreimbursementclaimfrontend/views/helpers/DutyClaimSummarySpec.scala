@@ -23,15 +23,14 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BigDecimalGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyClaimSummarySpec.genReimbursements
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyClaimSummarySpec.totalOf
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DutyTypeSummary.*
 
-@annotation.nowarn
 class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers with ShrinkLowPriority {
 
   "The duty claim summary" should {
@@ -51,7 +50,7 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
     }
 
     "exclude empty summaries" in {
-      forAll { taxCode: TaxCode =>
+      forAll { (taxCode: TaxCode) =>
         DutyTypeSummary.buildFrom(
           NonEmptyList.one(
             ClaimedReimbursement(
@@ -69,11 +68,11 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
 object DutyClaimSummarySpec {
 
   def genReimbursements(codes: Seq[TaxCode]): Gen[List[ClaimedReimbursement]] =
-    for {
+    for
       n       <- Gen.choose(1, codes.length)
       picked  <- Gen.pick(n, codes)
       amounts <- Gen.listOfN(n, BigDecimalGen.amountNumberGen)
-    } yield (picked zip amounts).map { case (taxCode, amount) =>
+    yield (picked zip amounts).map { case (taxCode, amount) =>
       ClaimedReimbursement(
         taxCode = taxCode,
         claimAmount = amount,

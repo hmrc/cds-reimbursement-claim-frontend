@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -35,7 +35,7 @@ class FeatureSwitchProtectedAction(feature: Feature, featureSwitch: FeatureSwitc
   override protected def refine[A](request: MessagesRequest[A]): Future[Either[Result, MessagesRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    if (featureSwitch.isEnabled(feature)) Future.successful(Right(request))
+    if featureSwitch.isEnabled(feature) then Future.successful(Right(request))
     else {
       errorHandler.notFoundTemplate(request).map(html => Left(Results.NotFound(html)))
     }

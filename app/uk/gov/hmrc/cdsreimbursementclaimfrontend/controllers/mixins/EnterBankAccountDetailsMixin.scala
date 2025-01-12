@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import cats.implicits._
+import cats.implicits.*
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -29,8 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseControll
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
@@ -69,24 +69,24 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
-    { implicit request => implicit journey =>
-      enterBankDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterBankAccountDetailsPage(
-                  formWithErrors,
-                  isCMA(journey),
-                  routesPack.submitPath
+    implicit request =>
+      implicit journey =>
+        enterBankDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                journey,
+                BadRequest(
+                  enterBankAccountDetailsPage(
+                    formWithErrors,
+                    isCMA(journey),
+                    routesPack.submitPath
+                  )
                 )
-              )
-            ).asFuture,
-          validateBankAccountDetails(journey, _, None)
-        )
-    },
+              ).asFuture,
+            validateBankAccountDetails(journey, _, None)
+          ),
     fastForwardToCYAEnabled = false
   )
 
@@ -103,7 +103,6 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
           processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
       )
 
-  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   private def processBankAccountReputation(
     journey: Journey,
     bankAccountReputation: BankAccountReputation,
@@ -136,7 +135,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                     (Some(Yes) | Some(Partial) | None)
                   ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
                 Redirect(
-                  if (journey.userHasSeenCYAPage) checkYourAnswers
+                  if journey.userHasSeenCYAPage then checkYourAnswers
                   else nextPage.successPath
                 )
 

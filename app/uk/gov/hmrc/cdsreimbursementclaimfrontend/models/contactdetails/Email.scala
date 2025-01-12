@@ -17,11 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
 import cats.Eq
-import cats.instances.string._
-import cats.syntax.eq._
+import cats.instances.string.*
+import cats.syntax.eq.*
 import play.api.data.Forms.nonEmptyText
 import play.api.data.Mapping
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.Format
 
 import java.util.function.Predicate

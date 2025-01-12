@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
+import org.scalacheck.Arbitrary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 object VerifiedEmailGen {
 
-  implicit lazy val arbitraryVerifiedEmail: Typeclass[CdsVerifiedEmail] = gen[CdsVerifiedEmail]
+  implicit lazy val arbitraryVerifiedEmail: Arbitrary[CdsVerifiedEmail] = GeneratorUtils.gen[CdsVerifiedEmail]
 }

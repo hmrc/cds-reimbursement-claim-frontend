@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import cats.syntax.eq._
+import cats.syntax.eq.*
 import play.api.data.format.Formatter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
 
 import java.lang
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.LocalDateTime
 
 trait JourneyTestData {
 
@@ -51,11 +51,12 @@ trait JourneyTestData {
     def expectFailure(expectedError: String)(implicit pos: org.scalactic.source.Position): Unit =
       either.fold(
         error =>
-          if (error === expectedError) ()
+          if error === expectedError then ()
           else
             throw new Exception(
               s"Journey construction in ${pos.fileName}:${pos.lineNumber} has failed as expected, but error was different: $error"
-            ),
+            )
+        ,
         _ =>
           throw new Exception(
             s"Expected failure but journey construction succeeded in ${pos.fileName}:${pos.lineNumber}"
@@ -65,13 +66,13 @@ trait JourneyTestData {
 
   implicit class SeqTestOps[A](val seq: Seq[A]) {
     def halfNonEmpty: Seq[A] =
-      if (seq.isEmpty) throw new lang.Error("Cannot shrink the sequence because is empty.")
-      else if (seq.size > 1) seq.take(seq.size / 2)
+      if seq.isEmpty then throw new lang.Error("Cannot shrink the sequence because is empty.")
+      else if seq.size > 1 then seq.take(seq.size / 2)
       else seq
 
     def secondHalfNonEmpty: Seq[A] =
-      if (seq.isEmpty) throw new lang.Error("Cannot shrink the sequence because is empty.")
-      else if (seq.size > 1) seq.drop(seq.length - seq.size / 2)
+      if seq.isEmpty then throw new lang.Error("Cannot shrink the sequence because is empty.")
+      else if seq.size > 1 then seq.drop(seq.length - seq.size / 2)
       else seq
 
     def headSeq: Seq[A] =
@@ -249,20 +250,19 @@ trait JourneyTestData {
           taxType = taxCode.value,
           amount = paidAmount.toString(),
           paymentMethod = generateSubsidyPayments match {
-            case GenerateSubsidyPayments.None                  => if (cmaEligible) "002" else "001"
-            case GenerateSubsidyPayments.Some                  => if (index % 2 == 1) "006" else if (cmaEligible) "002" else "001"
+            case GenerateSubsidyPayments.None                  => if cmaEligible then "002" else "001"
+            case GenerateSubsidyPayments.Some                  => if index % 2 == 1 then "006" else if cmaEligible then "002" else "001"
             case GenerateSubsidyPayments.All                   => "006"
             case GenerateSubsidyPayments.ForTaxCodes(taxCodes) =>
-              if (taxCodes.contains(taxCode)) "006" else if (cmaEligible) "002" else "001"
+              if taxCodes.contains(taxCode) then "006" else if cmaEligible then "002" else "001"
           },
           paymentReference = s"payment-reference-$id",
-          cmaEligible = if (cmaEligible) Some("1") else None
+          cmaEligible = if cmaEligible then Some("1") else None
         )
       }.toList
 
     val consigneeDetails: Option[ConsigneeDetails] =
-      if (consigneeEORI.contains(declarantEORI))
-        None
+      if consigneeEORI.contains(declarantEORI) then None
       else
         consigneeEORI.map(eori =>
           ConsigneeDetails(
@@ -303,7 +303,7 @@ trait JourneyTestData {
         accountDetails = None,
         bankDetails = bankDetails,
         maskedBankDetails = None,
-        ndrcDetails = if (ndrcDetails.isEmpty) None else Some(ndrcDetails)
+        ndrcDetails = if ndrcDetails.isEmpty then None else Some(ndrcDetails)
       )
     }
   }
@@ -324,7 +324,7 @@ trait JourneyTestData {
         securityDepositId = securityDepositId,
         totalAmount = totalAmount.toString(),
         amountPaid = totalAmount.toString(),
-        paymentMethod = if (allDutiesGuaranteeEligible) "004" else "001",
+        paymentMethod = if allDutiesGuaranteeEligible then "004" else "001",
         paymentReference = s"payment-reference-$id",
         taxDetails = taxDetails.map { case (taxCode, amount) =>
           TaxDetails(taxCode.toString(), amount.toString())
@@ -333,8 +333,7 @@ trait JourneyTestData {
     }.toList
 
     val consigneeDetails: Option[ConsigneeDetails] =
-      if (consigneeEORI.contains(declarantEORI))
-        None
+      if consigneeEORI.contains(declarantEORI) then None
       else
         consigneeEORI.map(eori =>
           ConsigneeDetails(
@@ -371,7 +370,7 @@ trait JourneyTestData {
         bankDetails = None,
         maskedBankDetails = None,
         ndrcDetails = None,
-        securityDetails = if (securityDetails.isEmpty) None else Some(securityDetails)
+        securityDetails = if securityDetails.isEmpty then None else Some(securityDetails)
       )
     }
   }

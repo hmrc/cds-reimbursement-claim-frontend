@@ -21,7 +21,7 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
@@ -61,7 +61,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
 
       forAll(nonEmptySequenceOfIntGen) { list =>
         list.get(-1) shouldBe None
-        for (i <- 0 until list.length) list.get(i) shouldBe Some(i)
+        for i <- 0 until list.length do list.get(i) shouldBe Some(i)
         list.get(list.length)     shouldBe None
         list.get(list.length + 1) shouldBe None
       }
@@ -90,7 +90,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
 
       forAll(optionOfNonEmptyListGen) { list =>
         list.isDefinedAt(-1) shouldBe false
-        for (i <- 0 until list.length) list.isDefinedAt(i) shouldBe true
+        for i <- 0 until list.length do list.isDefinedAt(i) shouldBe true
         list.isDefinedAt(list.length)     shouldBe false
         list.isDefinedAt(list.length + 1) shouldBe false
       }
@@ -122,7 +122,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
 
       forAll(optionOfNonEmptyListGen) { list =>
         list.canAppendAt(-1) shouldBe false
-        for (i <- 0 until list.length) list.canAppendAt(i) shouldBe false
+        for i <- 0 until list.length do list.canAppendAt(i) shouldBe false
         list.canAppendAt(list.length)     shouldBe true
         list.canAppendAt(list.length + 1) shouldBe false
       }
@@ -154,7 +154,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
 
       forAll(nonEmptySequenceOfIntGen) { list =>
         list.replaceOrAppend(-1, Int.MinValue).isLeft shouldBe true
-        for (i <- 0 until list.length) list.replaceOrAppend(i, Int.MinValue).isRight shouldBe true
+        for i <- 0 until list.length do list.replaceOrAppend(i, Int.MinValue).isRight shouldBe true
         list.replaceOrAppend(list.length, Int.MinValue).isRight     shouldBe true
         list.replaceOrAppend(list.length + 1, Int.MinValue).isRight shouldBe false
       }
@@ -211,7 +211,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
         list.listAllElementsExceptAt(0).sum           shouldBe sum
         list.listAllElementsExceptAt(list.length).sum shouldBe sum
 
-        for (i <- 1 until list.length) {
+        for i <- 1 until list.length do {
           val l           = list.listAllElementsExceptAt(i)
           val expectedSum = sum - list.get(i).getOrElse(0)
 
@@ -250,7 +250,7 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyCh
         list.remove(0).list.sum           shouldBe sum
         list.remove(list.length).list.sum shouldBe sum
 
-        for (i <- 1 until list.length) {
+        for i <- 1 until list.length do {
           val l           = list.remove(i)
           val expectedSum = sum - list.get(i).getOrElse(0)
 

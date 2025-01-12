@@ -26,20 +26,20 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.*
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
@@ -184,13 +184,13 @@ class EnterInspectionDateControllerSpec
           whenever(
             address.postalCode.isDefined && (firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN)
           ) {
-            val journey        = (for {
+            val journey        = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleJourney.get,
                       replaceEstablishmentAddresses(firstDisplayDeclaration, address)
                     )
               j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
-            } yield j2).getOrFail
+            yield j2).getOrFail
             val initialSession = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)
@@ -222,13 +222,13 @@ class EnterInspectionDateControllerSpec
           whenever(firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN) {
             val addressWithoutPostCode =
               firstDisplayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
-            val journey                = (for {
+            val journey                = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleJourney.get,
                       replaceEstablishmentAddresses(firstDisplayDeclaration, addressWithoutPostCode)
                     )
               j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, addressWithoutPostCode))
-            } yield j2).getOrFail
+            yield j2).getOrFail
             val initialSession         = SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(journey))
 
             val updatedJourney = journey.submitInspectionDate(date)

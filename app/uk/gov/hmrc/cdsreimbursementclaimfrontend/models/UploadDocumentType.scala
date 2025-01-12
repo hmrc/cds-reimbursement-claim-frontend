@@ -18,15 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Id
 import cats.implicits.catsSyntaxOption
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 import cats.kernel.Eq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 sealed trait UploadDocumentType
 
@@ -143,7 +141,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
   val rejectedGoodsScheduledDocumentTypes: Seq[UploadDocumentType] =
     rejectedGoodsSingleDocumentTypes
 
-  @SuppressWarnings(Array("org.wartremover.warts.All"))
   val securitiesDocumentTypes: (ReasonForSecurity, Option[List[TemporaryAdmissionMethodOfDisposal]], Boolean) => Option[
     Seq[UploadDocumentType]
   ] = {
@@ -161,7 +158,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportPackingList,
           SubstituteOrDiversionEntry,
           BillOfDischarge3
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option B
       case (ReasonForSecurity.EndUseRelief, _, proofOfAuthorityOpt)                 =>
@@ -171,7 +168,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportPackingList,
           SubstituteOrDiversionEntry,
           BillOfDischarge4
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option I
       case (
@@ -188,7 +185,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportPackingList,
           SubstituteOrDiversionEntry,
           ClaimWorksheet
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option C
       case (
@@ -205,7 +202,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ImportPackingList,
           ExportPackingList,
           SubstituteOrDiversionEntry
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option D
       case (ReasonForSecurity.AccountSales, _, proofOfAuthorityOpt)                 =>
@@ -213,7 +210,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           CalculationWorksheetOrFinalSalesFigures
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option E
       case (ReasonForSecurity.MissingPreferenceCertificate, _, proofOfAuthorityOpt) =>
@@ -221,7 +218,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           ProofOfOrigin
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option F
       case (ReasonForSecurity.MissingLicenseQuota, _, proofOfAuthorityOpt)          =>
@@ -229,7 +226,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           QuotaLicense
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option G
       case (ReasonForSecurity.CommunitySystemsOfDutyRelief, _, proofOfAuthorityOpt) =>
@@ -237,7 +234,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           ProofOfEligibility
-        ) + proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt + Other
 
       // Option H
       case (
@@ -249,7 +246,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
         Seq[UploadDocumentType](
           SupportingEvidence,
           ImportDeclaration
-        ) + proofOfAuthorityOpt
+        ) +? proofOfAuthorityOpt
 
     }
     (reasonForSecurity, methodOfDisposalOpt, needsProofOfAuthority) =>
@@ -257,7 +254,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
         (
           reasonForSecurity,
           methodOfDisposalOpt,
-          if (needsProofOfAuthority) Some(UploadDocumentType.ProofOfAuthority) else None
+          if needsProofOfAuthority then Some(UploadDocumentType.ProofOfAuthority) else None
         )
       )
   }

@@ -44,17 +44,17 @@
 
 @title = @{
     subKey match {
-        case "single" => EnterMovementReferenceNumberHelper.titleSingle
+        case "single" => EnterMovementReferenceNumberHelper.titleSingle()
         case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageNumber.getOrElse(1), isSubsidy)
-        case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled
+        case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled()
     }
 }
 
 @label = @{
     subKey match {
-        case "single" => EnterMovementReferenceNumberHelper.labelSingle
+        case "single" => EnterMovementReferenceNumberHelper.labelSingle()
         case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageNumber.getOrElse(1), isSubsidy)
-        case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled
+        case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled()
     }
 }
 
@@ -62,7 +62,7 @@
 
 @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @errorSummary(form.errors)
 

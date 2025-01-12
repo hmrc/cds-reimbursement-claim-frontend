@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.syntax.apply._
-
-import play.api.libs.json.OFormat
+import cats.syntax.apply.*
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 final case class ContactDetails(
   contactName: Option[String],
@@ -35,7 +34,7 @@ final case class ContactDetails(
 
   def maybeEmailAddress: Option[String] =
     emailAddress
-      .flatMap(s => if (s.trim.isEmpty) None else Some(s))
+      .flatMap(s => if s.trim.isEmpty then None else Some(s))
 
   def showAddress: Option[String] =
     addressLine1 *> postalCode *> Some(

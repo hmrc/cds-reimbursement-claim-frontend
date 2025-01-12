@@ -22,15 +22,14 @@ import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 
 class RejectedGoodsMultipleJourneySpec
     extends AnyWordSpec
@@ -436,7 +435,7 @@ class RejectedGoodsMultipleJourneySpec
     "decline submission of an existing MRN in different position" in {
       forAll(completeJourneyGen) { journey =>
         journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (_, index) =>
-          val i                     = if (index == 0) journey.countOfMovementReferenceNumbers - 1 else index - 1
+          val i                     = if index == 0 then journey.countOfMovementReferenceNumbers - 1 else index - 1
           val existingMrn           = journey.getNthMovementReferenceNumber(i).get
           val modifiedJourneyEither = journey
             .submitMovementReferenceNumberAndDeclaration(
@@ -750,7 +749,7 @@ class RejectedGoodsMultipleJourneySpec
         mrns.size shouldBe MRNS_SIZE
         mrns.foreach { mrn =>
           val taxCodes         = journey.getAvailableDuties(mrn).map(_._1)
-          val selectedTaxCodes = if (taxCodes.size > 1) taxCodes.drop(1) else taxCodes
+          val selectedTaxCodes = if taxCodes.size > 1 then taxCodes.drop(1) else taxCodes
           val journeyEither    = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes)
 
@@ -765,8 +764,8 @@ class RejectedGoodsMultipleJourneySpec
         mrns.foreach { mrn =>
           val taxCodes = journey.getAvailableDuties(mrn).map(_._1).sorted
           taxCodes should not be empty
-          val selectedTaxCodes  = if (taxCodes.size > 1) taxCodes.drop(1) else taxCodes
-          val selectedTaxCodes2 = if (taxCodes.size > 1) taxCodes.dropRight(1) else taxCodes
+          val selectedTaxCodes  = if taxCodes.size > 1 then taxCodes.drop(1) else taxCodes
+          val selectedTaxCodes2 = if taxCodes.size > 1 then taxCodes.dropRight(1) else taxCodes
 
           val journeyEither = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes)
@@ -872,7 +871,7 @@ class RejectedGoodsMultipleJourneySpec
         mrns.foreach { mrn =>
           val taxCodes            = journey.getAvailableDuties(mrn).map(_._1)
           val paidAmounts         = journey.getNdrcDetailsFor(mrn).map(_.map(_.amount).map(BigDecimal.apply)).getOrElse(Nil)
-          val claimAmounts        = paidAmounts.map(a => (a / 4))
+          val claimAmounts        = paidAmounts.map(a => a / 4)
           val taxCodesWithAmounts = taxCodes.zip(claimAmounts)
           val modifiedJourney     = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
@@ -939,7 +938,7 @@ class RejectedGoodsMultipleJourneySpec
         journey.answers.movementReferenceNumbers.get.foreach { mrn =>
           val totalAmount: BigDecimal              = journey.getTotalReimbursementAmount
           val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims(mrn).toSeq
-          for ((taxCode, reimbursementAmount) <- taxCodes) {
+          for (taxCode, reimbursementAmount) <- taxCodes do {
             val paidAmount         = journey.getAmountPaidFor(mrn, taxCode).get
             val newCorrectedAmount = (paidAmount - reimbursementAmount) / 2
             val journeyEither      = journey.submitCorrectAmount(mrn, taxCode, newCorrectedAmount)
@@ -954,7 +953,7 @@ class RejectedGoodsMultipleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val leadMrn                              = journey.getLeadMovementReferenceNumber.get
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims(leadMrn).toSeq
-        for ((taxCode, _) <- taxCodes) {
+        for (taxCode, _) <- taxCodes do {
           val newAmount     = BigDecimal("-10.00")
           val journeyEither = journey.submitCorrectAmount(leadMrn, taxCode, newAmount)
 
