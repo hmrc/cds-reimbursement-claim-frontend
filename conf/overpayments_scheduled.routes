@@ -72,7 +72,7 @@ GET         /overpayments/scheduled/upload-summary                              
 POST        /overpayments/scheduled/submit-claim                                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersController.submit
 GET         /overpayments/scheduled/claim-submitted                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersController.showConfirmation
 GET         /overpayments/scheduled/check-your-answers                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersController.show
-GET         /overpayments/scheduled/check-your-answers/claim-details                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersController.showPrintView
+GET         /overpayments/scheduled/claim-details                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckYourAnswersController.showPrintView
 
 GET         /overpayments/scheduled/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithDeclarationController.show
 POST        /overpayments/scheduled/new-tax-type-code-validation                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithDeclarationController.submit
