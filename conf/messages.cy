@@ -559,13 +559,13 @@ confirm-full-repayment.question=Ydych chi am hawlio’r swm llawn yn ôl?
 confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 
 confirmation-of-submission.claim-reference=Cyfeirnod hawlio
-confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}<br> Os nad ydych wedi ei gael, edrychwch yn eich ffolder sbam neu cysylltwch â CThEF.
+confirmation-of-submission.email-sent=Rydym wedi anfon e-bost cadarnhau i {0}
+confirmation-of-submission.email-spam=Os nad ydych wedi ei gael, edrychwch yn eich ffolder sbam neu cysylltwch â CThEF.
 confirmation-of-submission.feedback-link=Beth oedd eich barn am y gwasanaeth hwn?
 confirmation-of-submission.mrn=Cyfeirnod Symud (MRN)
 confirmation-of-submission.multiple.mrn=Yr Cyfeirnod Symud (MRN)
 confirmation-of-submission.next-steps=Y camau nesaf
 confirmation-of-submission.reimbursement-amount=Swm y gwnaethpwyd cais amdano
-confirmation-of-submission.title=Hawliad wedi ei gyflwyno’n llwyddiannus
 confirmation-of-submission.view-upload=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Bwrw golwg dros hawliad presennol neu uwchlwytho dogfennau</a>
 confirmation-of-submission.what-next.l1=cadarnhau’ch hawliad a’ch trosglwyddiad banc
 confirmation-of-submission.what-next.l2=gofyn am fwy o wybodaeth
@@ -573,7 +573,7 @@ confirmation-of-submission.what-next.l3=egluro pam y gwrthodwyd eich hawliad
 confirmation-of-submission.what-next.link.1.start-another-claim=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Dechrau hawliad newydd</a>
 confirmation-of-submission.what-next.p1=Bydd CThEF yn adolygu eich hawliad a byddwn yn anfon y canlyniad atoch dros e-bost neu drwy’r post o fewn 30 diwrnod gwaith.
 confirmation-of-submission.what-next.p2=Byddwn yn cysylltu â chi naill ai i:
-confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf?
+confirmation-of-submission.whatNext=Beth sy’n digwydd nesaf
 confirmation-of-submission.print-view=<a class="govuk-link" href="{0}" target="_blank">Bwrw golwg dros fanylion llawn eich hawliad, a’u hargraffu (yn agor tab newydd)</a>
 
 confirmation-of-submission.securities.what-next.p1=Bydd CThEF yn adolygu’ch hawliad. I gael gwybod mwy am statws eich hawliad, <a class="govuk-link" rel="noreferrer noopener" href="{0}">ewch i’r dangosfwrdd hawliadau.</a>

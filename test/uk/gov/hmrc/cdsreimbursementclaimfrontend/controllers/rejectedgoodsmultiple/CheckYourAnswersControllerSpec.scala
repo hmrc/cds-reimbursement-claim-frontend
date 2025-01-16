@@ -178,13 +178,13 @@ class CheckYourAnswersControllerSpec
 
     val claimAmount = journey.getTotalReimbursementAmount.toPoundSterlingString
 
-    summaryKeyValueList(doc) should containOnlyPairsOf(
+    summaryKeyValueList(doc)                                          should containOnlyPairsOf(
       Seq(
         messages(s"confirmation-of-submission.reimbursement-amount") -> claimAmount,
-        messages(s"confirmation-of-submission.multiple.mrn")         -> mrn,
-        messages(s"confirmation-of-submission.claim-reference")      -> caseNumber
+        messages(s"confirmation-of-submission.multiple.mrn")         -> mrn
       )
     )
+    doc.select("div.govuk-panel__body").text().contains(caseNumber) shouldBe true
   }
 
   "Check Your Answers Controller" when {

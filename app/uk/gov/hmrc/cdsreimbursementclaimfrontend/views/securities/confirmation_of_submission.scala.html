@@ -40,19 +40,25 @@
 
         <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
             <h1 class="govuk-panel__title">@title</h1>
+            <div class="govuk-panel__body">
+                @messages("confirmation-of-submission.panel-body")
+                <br>
+                <strong>@caseNumber</strong>
+            </div>
         </div>
 
         @summary(
             ConfirmationOfSubmissionClaimDetailsSummary (
                 key,
                 totalReimbursementAmount,
-                caseNumber,
                 maybeMrn,
                 subKey
             )
         )
 
-@paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
+        @paragraph(Html(messages(s"confirmation-of-submission.email-sent", maybeEmail.getOrElse(""))))
+
+        @paragraph(Html(messages("confirmation-of-submission.email-spam")))
 
         @paragraph(Html(messages("confirmation-of-submission.print-view", printViewUrl)))
 

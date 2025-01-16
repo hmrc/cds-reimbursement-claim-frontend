@@ -28,7 +28,6 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
   def apply(
     key: String,
     totalReimbursementAmount: BigDecimal,
-    caseNumber: String,
     maybeMrn: Option[String] = None,
     subKey: Option[String] = None
   )(implicit
@@ -37,11 +36,7 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
     Seq(
       SummaryListRow(
         key = Key(HtmlContent(messages(s"$key.reimbursement-amount"))),
-        value = Value(Text(totalReimbursementAmount.toPoundSterlingString))
-      ),
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.claim-reference"))),
-        value = Value(Text(caseNumber))
+        value = Value(Text(totalReimbursementAmount.toPoundSterlingString), classes = "govuk-!-text-align-right")
       ),
       SummaryListRow(
         key = if subKey.getOrElse("") == "multiple" then {
@@ -49,7 +44,7 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
         } else {
           Key(HtmlContent(messages(s"$key.mrn")))
         },
-        value = Value(Text(maybeMrn.getOrElse("")))
+        value = Value(Text(maybeMrn.getOrElse("")), classes = "govuk-!-text-align-right")
       )
     )
   )
