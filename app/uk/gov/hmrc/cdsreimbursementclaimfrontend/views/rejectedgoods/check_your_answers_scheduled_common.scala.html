@@ -79,7 +79,7 @@
 
 @if(isSubsidyOnly){
     @subHeading(Html(messages(s"check-your-answers.repayment-method.h2")))
-    @summary(PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)))
+    @summary(PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)))
     @summary(RepaymentMethodSummary(s"check-your-answers.repayment-method"))
 }
 

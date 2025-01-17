@@ -59,7 +59,7 @@
                 key,
                 if(isPrintView) None else Some(routes.SelectSecuritiesController.show)
             ).rows ++
-            PayeeTypeSummary(claim.payeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
+            PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
             (
                     if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
                         Seq.empty[SummaryListRow]

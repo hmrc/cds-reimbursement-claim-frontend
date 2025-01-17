@@ -38,7 +38,7 @@ object PayeeTypeSummary {
       List(
         SummaryListRow(
           key = Key(Text(label)),
-          value = Value(HtmlContent(messages(answerKey(key, answer)))),
+          value = Value(HtmlContent(messages(answerKey(answer)))),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
@@ -55,8 +55,9 @@ object PayeeTypeSummary {
     )
   }
 
-  def answerKey(key: String, answer: PayeeType): String = answer match {
-    case PayeeType.Consignee => s"$key.importer"
-    case PayeeType.Declarant => s"$key.declarant"
+  def answerKey(answer: PayeeType): String = answer match {
+    case PayeeType.Consignee      => "choose-payee-type.radio.importer"
+    case PayeeType.Declarant      => "choose-payee-type.radio.declarant"
+    case PayeeType.Representative => "choose-payee-type.radio.representative"
   }
 }

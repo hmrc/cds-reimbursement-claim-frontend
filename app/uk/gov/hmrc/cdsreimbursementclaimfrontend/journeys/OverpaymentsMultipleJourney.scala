@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
@@ -747,7 +748,8 @@ final class OverpaymentsMultipleJourney private (
           additionalDetails   <- answers.additionalDetails
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
-          payeeType           <- answers.payeeType
+          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType    <- answers.payeeType
           newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
                                    case (IncorrectEoriAndDan, Some(newEori), Some(newDan)) =>
                                      Some(NewEoriAndDan(newEori, newDan.value))
@@ -757,6 +759,7 @@ final class OverpaymentsMultipleJourney private (
           movementReferenceNumbers = mrns,
           claimantType = getClaimantType,
           payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           additionalDetails = additionalDetails,
@@ -816,6 +819,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     movementReferenceNumbers: Seq[MRN],
     claimantType: ClaimantType,
     payeeType: PayeeType,
+    displayPayeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     additionalDetails: String,

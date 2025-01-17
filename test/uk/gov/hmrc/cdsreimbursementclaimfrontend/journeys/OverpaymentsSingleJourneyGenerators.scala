@@ -171,7 +171,6 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    payeeType: PayeeType = PayeeType.Declarant,
     reimbursementMethod: Option[ReimbursementMethod] = None,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
@@ -192,8 +191,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       true,
       reimbursementMethod,
       taxCodes,
-      generateSubsidyPayments = generateSubsidyPayments,
-      payeeType = payeeType
+      generateSubsidyPayments = generateSubsidyPayments
     ).map(OverpaymentsSingleJourney.tryBuildFrom(_, features))
 
   def buildAnswersGen(
@@ -213,8 +211,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
     taxCodes: Seq[TaxCode] = TaxCodes.all,
     forcedTaxCodes: Seq[TaxCode] = Seq.empty,
     checkYourAnswersChangeMode: Boolean = true,
-    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None,
-    payeeType: PayeeType = PayeeType.Declarant
+    generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
   ): Gen[OverpaymentsSingleJourney.Answers] =
     for
       userEoriNumber              <- IdGen.genEori
@@ -251,6 +248,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
+      payeeType                   <- Gen.oneOf(PayeeType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       newEoriAndDan                = basisOfClaim match {

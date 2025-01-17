@@ -745,13 +745,15 @@ final class RejectedGoodsMultipleJourney private (
           detailsOfRejectedGoods   <- answers.detailsOfRejectedGoods
           inspectionDate           <- answers.inspectionDate
           inspectionAddress        <- answers.inspectionAddress
-          payeeType                <- answers.payeeType
+          payeeType                <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType         <- answers.payeeType
           supportingEvidences       = answers.supportingEvidences
           claimantInformation      <- getClaimantInformation
         yield RejectedGoodsMultipleJourney.Output(
           movementReferenceNumbers = movementReferenceNumbers,
           claimantType = getClaimantType,
           payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           methodOfDisposal = methodOfDisposal,
@@ -820,6 +822,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
     movementReferenceNumbers: Seq[MRN],
     claimantType: ClaimantType,
     payeeType: PayeeType,
+    displayPayeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfRejectedGoodsClaim,
     basisOfClaimSpecialCircumstances: Option[String],

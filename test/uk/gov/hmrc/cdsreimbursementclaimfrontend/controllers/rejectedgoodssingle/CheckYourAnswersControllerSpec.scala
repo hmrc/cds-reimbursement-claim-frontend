@@ -170,9 +170,10 @@ class CheckYourAnswersControllerSpec
           "Inspection address"       -> Some(summaryAddress(claim.inspectionAddress, " ")),
           "Total"                    -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
           "Payee"                    ->
-            Some(claim.payeeType match {
-              case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
-              case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
+            Some(claim.displayPayeeType match {
+              case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
+              case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
+              case PayeeType.Representative => m("choose-payee-type.radio.representative")
             }),
           "Method"                   ->
             Some(claim.reimbursementMethod match {
@@ -187,6 +188,8 @@ class CheckYourAnswersControllerSpec
         )
         ++ claim.reimbursements.map(r => messages(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString))
     )
+
+    claim.payeeType shouldBe journey.answers.payeeType.get
   }
 
   def validateConfirmationPage(doc: Document, journey: RejectedGoodsSingleJourney, caseNumber: String): Assertion = {

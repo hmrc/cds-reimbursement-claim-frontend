@@ -26,8 +26,13 @@ object PayeeType extends EnumerationFormat[PayeeType] {
   /** Importer of the goods. */
   case object Consignee extends PayeeType
 
-  /** A representative (a.k.a. Agent) who has submitted original import declaration. */
+  /** The organisation that submitted an import declaration on the importer's behalf */
   case object Declarant extends PayeeType
 
-  override val values: Set[PayeeType] = Set(Consignee, Declarant)
+  /** Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer's
+    * behalf
+    */
+  case object Representative extends PayeeType
+
+  override val values: Set[PayeeType] = Set(Consignee, Declarant, Representative)
 }

@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
@@ -90,7 +91,11 @@ class CheckYourAnswersControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
-  def validateCheckYourAnswersPage(doc: Document, claim: RejectedGoodsMultipleJourney.Output) = {
+  def validateCheckYourAnswersPage(
+    doc: Document,
+    claim: RejectedGoodsMultipleJourney.Output,
+    journey: RejectedGoodsMultipleJourney
+  ) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText()
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -210,7 +215,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, claim)
+            doc => validateCheckYourAnswersPage(doc, claim, journey)
           )
         }
       }
