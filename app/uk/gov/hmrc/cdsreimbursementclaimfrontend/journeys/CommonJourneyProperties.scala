@@ -30,6 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Representative
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
@@ -250,5 +252,8 @@ trait CommonJourneyProperties {
 
   def containsUnsupportedTaxCode: Boolean =
     getLeadDisplayDeclaration.map(_.containsSomeUnsupportedTaxCode).getOrElse(false)
+
+  def getPayeeTypeForOutput(payeeTypeOpt: Option[PayeeType]): Option[PayeeType] =
+    payeeTypeOpt.map(payeeType => if payeeType === Representative then Declarant else payeeType)
 
 }

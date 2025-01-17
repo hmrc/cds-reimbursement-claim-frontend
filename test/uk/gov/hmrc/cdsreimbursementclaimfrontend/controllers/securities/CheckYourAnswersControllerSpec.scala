@@ -39,6 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Consignee
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -165,10 +167,11 @@ class CheckYourAnswersControllerSpec
           .flatMap(DateUtils.displayFormat),
         "Total security deposit value"               -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString),
-        "Payee"                                      -> journey.answers.payeeType.map {
-          case PayeeType.Consignee => m("check-your-answers.payee-type.importer")
-          case PayeeType.Declarant => m("check-your-answers.payee-type.declarant")
-        },
+        "Payee"                                      -> Some(claim.displayPayeeType match {
+          case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
+          case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
+          case PayeeType.Representative => m("choose-payee-type.radio.representative")
+        }),
         "Payment method"                             -> Some(
           if journey.answers.displayDeclaration
               .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet))
@@ -209,6 +212,13 @@ class CheckYourAnswersControllerSpec
             }
         }
     )
+
+    claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)
+  }
+
+  private def getPayeeType(payeeType: PayeeType): PayeeType = payeeType match {
+    case Consignee => Consignee
+    case _         => Declarant
   }
 
   def validateConfirmationPage(doc: Document, journey: SecuritiesJourney, caseNumber: String): Assertion = {

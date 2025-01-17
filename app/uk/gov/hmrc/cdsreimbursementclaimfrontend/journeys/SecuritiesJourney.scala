@@ -933,11 +933,13 @@ final class SecuritiesJourney private (
           rfs                 <- getReasonForSecurity
           supportingEvidences  = answers.supportingEvidences
           claimantInformation <- getClaimantInformation
-          payeeType           <- answers.payeeType
+          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType    <- answers.payeeType
         yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
           claimantInformation = claimantInformation,
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
@@ -1019,6 +1021,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
   final case class Output(
     movementReferenceNumber: MRN,
     payeeType: PayeeType,
+    displayPayeeType: PayeeType,
     claimantType: ClaimantType,
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,

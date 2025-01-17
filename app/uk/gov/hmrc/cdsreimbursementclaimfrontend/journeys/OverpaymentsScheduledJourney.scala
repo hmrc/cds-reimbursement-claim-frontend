@@ -414,7 +414,8 @@ final class OverpaymentsScheduledJourney private (
           additionalDetails   <- answers.additionalDetails
           scheduledDocument   <- answers.scheduledDocument
           claimantInformation <- getClaimantInformation
-          payeeType           <- answers.payeeType
+          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType    <- answers.payeeType
           newEoriAndDan        = (basisOfClaim, answers.newEori, answers.newDan) match {
                                    case (IncorrectEoriAndDan, Some(newEori), Some(newDan)) =>
                                      Some(NewEoriAndDan(newEori, newDan.value))
@@ -425,6 +426,7 @@ final class OverpaymentsScheduledJourney private (
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
           claimantType = getClaimantType,
           payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           additionalDetails = additionalDetails,
@@ -485,6 +487,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     scheduledDocument: EvidenceDocument,
     claimantType: ClaimantType,
     payeeType: PayeeType,
+    displayPayeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfOverpaymentClaim,
     additionalDetails: String,

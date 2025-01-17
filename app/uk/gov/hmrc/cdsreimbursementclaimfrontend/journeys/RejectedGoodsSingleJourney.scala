@@ -476,11 +476,13 @@ final class RejectedGoodsSingleJourney private (
           inspectionAddress      <- answers.inspectionAddress
           supportingEvidences     = answers.supportingEvidences
           claimantInformation    <- getClaimantInformation
-          payeeType              <- answers.payeeType
+          payeeType              <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType       <- answers.payeeType
         yield RejectedGoodsSingleJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
           payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
           claimantInformation = claimantInformation,
           basisOfClaim = basisOfClaim,
           methodOfDisposal = methodOfDisposal,
@@ -551,6 +553,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     movementReferenceNumber: MRN,
     claimantType: ClaimantType,
     payeeType: PayeeType,
+    displayPayeeType: PayeeType,
     claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfRejectedGoodsClaim,
     basisOfClaimSpecialCircumstances: Option[String],
