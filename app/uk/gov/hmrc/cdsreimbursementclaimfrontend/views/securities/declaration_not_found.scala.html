@@ -31,7 +31,6 @@
 
 @(enterMRN: Call, mrn: Option[MRN])(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
-@key = @{"declaration-not-found"}
 @title = @{messages(s"declaration-not-found.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {

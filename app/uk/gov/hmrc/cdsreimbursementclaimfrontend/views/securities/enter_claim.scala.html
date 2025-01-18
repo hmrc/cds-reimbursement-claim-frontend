@@ -39,7 +39,6 @@
 
 @(form: Form[BigDecimal], securityDepositId: String, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-claim.securities"}
 @title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
 @caption = @{messages("enter-claim.securities.securityIdLabel", securityDepositId)}
 @pageTitleWithCaption = @{s"$caption: $title"}

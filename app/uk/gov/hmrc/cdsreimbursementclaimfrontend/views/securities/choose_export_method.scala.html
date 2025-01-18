@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.TemporaryAdmissionMethodOfDisposalSummary
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukCheckboxes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.Checkboxes
@@ -36,14 +35,12 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     govukCheckboxes: GovukCheckboxes,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
 @(form: Form[List[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"choose-export-method"}
 @title = @{messages(s"choose-export-method.title")}
 @items = @{TemporaryAdmissionMethodOfDisposalSummary(messages, form)}
 
