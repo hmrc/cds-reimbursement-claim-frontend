@@ -38,10 +38,7 @@ object SecurityDetailsSummary {
     key: String
   )(implicit
     messages: Messages
-  ): SummaryList = {
-
-    val securityDetailsOpt = declaration.getSecurityDetailsFor(securityDepositId)
-
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
@@ -86,5 +83,4 @@ object SecurityDetailsSummary {
           )
       ).flatMap(_.toList)
     )
-  }
 }

@@ -39,7 +39,6 @@
 
 @(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, List[ReclaimWithAmounts]],postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
-@key = @{"check-claim.securities"}
 @title = @{messages(s"check-claim.securities.title")}
 
 @layout(pageTitle = Some(title)) {

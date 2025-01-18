@@ -114,17 +114,21 @@ object ClaimsTableHelper {
   )(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
-    claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, Some(dutyType)) =>
-      val suffix = s"$dutyType-$taxCode"
-      makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
-        TableRow(
-          content = HtmlContent(
-            messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
-          ),
-          attributes = Map("id" -> s"change-$suffix"),
-          classes = "govuk-link"
+    claims.map {
+      case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, Some(dutyType)) =>
+        val suffix = s"$dutyType-$taxCode"
+        makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
+          TableRow(
+            content = HtmlContent(
+              messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
+            ),
+            attributes = Map("id" -> s"change-$suffix"),
+            classes = "govuk-link"
+          )
         )
-      )
+      case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, None)           =>
+        val suffix = s"$taxCode"
+        makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix)
     } ++ Seq(
       makeTotalRowCells(
         claims.map(_.amount).sum,
