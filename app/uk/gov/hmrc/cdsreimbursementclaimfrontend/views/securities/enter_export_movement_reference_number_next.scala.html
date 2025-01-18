@@ -36,7 +36,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(pageIndex: Int, form: Form[MRN], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(pageIndex: Int, form: Form[MRN], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-export-movement-reference-number.next"}
 

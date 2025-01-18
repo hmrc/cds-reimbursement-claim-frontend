@@ -69,7 +69,7 @@
         suppressSignOutLink: Boolean = false,
         hasErrors: Boolean = false,
         suppressLanguageToggle: Boolean = false
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+)(contentBlock: Html)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @signOutUrl = @{
     if(suppressSignOutLink || request.session.get("authToken").isEmpty) {

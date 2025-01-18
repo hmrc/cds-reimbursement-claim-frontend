@@ -40,7 +40,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
 )
 
-@(form: Form[YesNo], model: ConfirmFullRepaymentModel, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], model: ConfirmFullRepaymentModel, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"confirm-full-repayment"}
 @title = @{messages("confirm-full-repayment.title", model.securityId)}

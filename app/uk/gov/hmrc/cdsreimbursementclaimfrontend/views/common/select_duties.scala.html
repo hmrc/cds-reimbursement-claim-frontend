@@ -51,7 +51,7 @@
     subKey: Option[String],
     postAction: Call,
     isSubsidyOnly: Boolean = false,
-)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
+)(implicit  request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
     @title = @{messages(s"select-duties.title")}
     @caption = @{messages(s"select-duties.title.caption")}

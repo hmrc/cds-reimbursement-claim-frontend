@@ -42,7 +42,7 @@
     cyaCommon: check_your_answers_multiple_common
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.title")}

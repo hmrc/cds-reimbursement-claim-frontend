@@ -34,7 +34,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[BasisOfRejectedGoodsClaim], claimTypes: Set[BasisOfRejectedGoodsClaim], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BasisOfRejectedGoodsClaim], claimTypes: Set[BasisOfRejectedGoodsClaim], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"select-basis-for-claim.rejected-goods.title")}
 

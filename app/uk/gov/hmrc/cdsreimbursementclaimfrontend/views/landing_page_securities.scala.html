@@ -32,7 +32,7 @@
     govukDetails: GovukDetails
 )
 
-@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@()(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"landing-securities.title")}
 

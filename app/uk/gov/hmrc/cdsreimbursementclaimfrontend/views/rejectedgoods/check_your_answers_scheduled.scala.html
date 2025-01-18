@@ -45,7 +45,7 @@
     isSubsidyOnly: Boolean,
     displayDeclarationOpt: Option[DisplayDeclaration],
     postAction: Call, subKey: Option[String] = None
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.rejectedgoods.scheduled.title")}

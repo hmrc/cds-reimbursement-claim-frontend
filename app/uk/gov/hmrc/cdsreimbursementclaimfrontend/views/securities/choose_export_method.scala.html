@@ -41,7 +41,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[List[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[List[TemporaryAdmissionMethodOfDisposal]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-export-method"}
 @title = @{messages(s"choose-export-method.title")}

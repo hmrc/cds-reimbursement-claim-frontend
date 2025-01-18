@@ -29,7 +29,7 @@
 @this(govukDateInput: GovukDateInput)
 
 @(
-        form: Form[_],
+        form: Form[?],
         legendContent: String,
         legendClasses: String = "govuk-fieldset__legend--xl",
         id: String = "value",
@@ -71,5 +71,5 @@
         )
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
-    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(s"${id}.${err.message}", err.args:_*))))
+    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(s"${id}.${err.message}", err.args*))))
 ))

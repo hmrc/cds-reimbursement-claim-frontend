@@ -37,7 +37,7 @@
     isSubsidyOnly: Boolean,
     displayDeclarationOpt: Option[DisplayDeclaration],
     subKey: Option[String] = None, isPrintView: Boolean = false
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 
 @subHeading(Html(messages(s"check-your-answers.scheduled-document.h2")))

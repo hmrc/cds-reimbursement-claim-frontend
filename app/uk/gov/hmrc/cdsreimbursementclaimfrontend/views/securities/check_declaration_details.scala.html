@@ -43,7 +43,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(displayDeclaration: DisplayDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
 @title = @{

@@ -35,7 +35,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @displayDeclarationOpt.map { displayDeclaration =>
     @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))

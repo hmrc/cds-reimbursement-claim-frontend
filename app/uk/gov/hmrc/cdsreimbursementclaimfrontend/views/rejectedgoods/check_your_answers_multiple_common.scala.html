@@ -39,7 +39,7 @@
     isSubsidyOnly: Option[Boolean],
     subKey: Option[String] = None,
     isPrintView: Boolean = false
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
 @isSubsidy = @{if (isSubsidyOnly contains(true)) true else false}

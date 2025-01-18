@@ -14,19 +14,12 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_scheduled_common
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import java.time.LocalDateTime
 
@@ -44,7 +37,7 @@
     displayDeclarationOpt: Option[DisplayDeclaration],
     subKey: Option[String] = None,
     submissionDate: LocalDateTime
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @summary(CheckYourAnswersPrintViewHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString, "check-your-answers.scheduled.mrn-label", submissionDate))

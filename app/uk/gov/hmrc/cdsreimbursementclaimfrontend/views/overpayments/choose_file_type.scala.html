@@ -38,7 +38,7 @@
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[_], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[?], supportingEvidenceHints: DropdownHints,  typesOfEvidences: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
     @title = @{messages("choose-file-type.title")}
 

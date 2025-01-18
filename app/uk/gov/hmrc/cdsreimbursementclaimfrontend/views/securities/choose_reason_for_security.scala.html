@@ -35,7 +35,7 @@
         dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
         bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets)
 
-@(form: Form[ReasonForSecurity], reasonsForSecurity: Set[ReasonForSecurity], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ReasonForSecurity], reasonsForSecurity: Set[ReasonForSecurity], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-reason-for-security.securities"}
 @title = @{messages(s"choose-reason-for-security.securities.title")}

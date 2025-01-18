@@ -38,7 +38,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-movement-reference-numbers.rejected-goods"}
 @title = @{messages(s"check-movement-reference-numbers.rejected-goods.title")}

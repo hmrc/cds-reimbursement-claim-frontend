@@ -26,8 +26,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
@@ -44,7 +42,7 @@
 dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     if(TaxCodes.custom.contains(taxCode))

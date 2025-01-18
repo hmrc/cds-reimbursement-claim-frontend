@@ -43,7 +43,7 @@
     isSubsidyOnly: Option[Boolean],
     subKey: Option[String] = None,
     submissionDate: LocalDateTime
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @summary(CheckYourAnswersPrintViewHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers, submissionDate))

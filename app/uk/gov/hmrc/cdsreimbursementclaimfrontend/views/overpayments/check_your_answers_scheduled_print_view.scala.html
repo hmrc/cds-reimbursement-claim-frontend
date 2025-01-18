@@ -38,7 +38,7 @@
     cyaCommon: check_your_answers_scheduled_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @summary(CheckYourAnswersPrintViewHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString, "check-your-answers.scheduled.mrn-label", submissionDate))
