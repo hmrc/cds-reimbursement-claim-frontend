@@ -181,7 +181,7 @@ class ChooseReasonForSecurityControllerSpec
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not succeed if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

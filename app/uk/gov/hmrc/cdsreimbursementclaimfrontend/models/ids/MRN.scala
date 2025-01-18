@@ -29,7 +29,7 @@ import java.util.Locale
 
 final case class MRN private (value: String) {
 
-  def isValid: Boolean = value matches validityRegex
+  def isValid: Boolean = value `matches` validityRegex
 }
 
 object MRN {

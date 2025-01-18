@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
 
-trait ConnectorSpec { this: Matchers with AnyWordSpec =>
+trait ConnectorSpec { this: Matchers & AnyWordSpec =>
 
   def connectorBehaviour(
     mockResponse: Option[HttpResponse] => Any,

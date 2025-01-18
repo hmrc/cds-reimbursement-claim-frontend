@@ -166,8 +166,8 @@ class EnterExportMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(mrnIndex: Int, data: (String, String)*): Future[Result] =
-        if mrnIndex === 0 then controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data: _*))
-        else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        if mrnIndex === 0 then controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data*))
+        else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

@@ -62,7 +62,7 @@ class EnterMovementReferenceNumberController @Inject() (
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
     journey.getLeadMovementReferenceNumber
 
-  override def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable =
+  override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
     form =>
       implicit request =>
         enterMovementReferenceNumberPage(

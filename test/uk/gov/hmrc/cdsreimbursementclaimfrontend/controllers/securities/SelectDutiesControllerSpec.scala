@@ -164,7 +164,7 @@ class SelectDutiesControllerSpec
 
     "submit page is called" must {
       def performAction(securityId: String, data: Seq[(String, String)]): Future[Result] =
-        controller.submit(securityId)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(securityId)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not succeed if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

@@ -187,7 +187,7 @@ class ChooseReasonForSecurityController @Inject() (
 
   private def tryGetUserXiEoriIfNeeded(journey: SecuritiesJourney)(implicit
     hc: HeaderCarrier,
-    r: Request[_]
+    r: Request[?]
   ): EitherT[Future, Result, SecuritiesJourney] =
     getUserXiEoriIfNeeded(journey, enabled = true)
       .leftMap(error => logAndDisplayError("Could not get XI EORI", error))
@@ -201,7 +201,7 @@ class ChooseReasonForSecurityController @Inject() (
   private def lookupDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     errorHandler: ErrorHandler,
     hc: HeaderCarrier,
-    r: Request[_]
+    r: Request[?]
   ): EitherT[Future, Result, DisplayDeclaration] =
     claimService
       .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
@@ -239,7 +239,7 @@ class ChooseReasonForSecurityController @Inject() (
 
   private def checkIfClaimIsDuplicated(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier,
-    r: Request[_]
+    r: Request[?]
   ): EitherT[Future, Result, Boolean] =
     DeclarationConnector
       .getIsDuplicate(mrn, reasonForSecurity)

@@ -84,10 +84,10 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
       }
 
   def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
-    getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
+    getSelectedDutyTypes.flatMap(nextAfter(dutyType))
 
   def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode)] =
-    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode) _) match {
+    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode)) match {
       case Some(taxCode) => Some((dutyType, taxCode))
       case None          =>
         findNextSelectedDutyAfter(dutyType)

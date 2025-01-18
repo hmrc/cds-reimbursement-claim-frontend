@@ -244,7 +244,7 @@ class SelectDutiesControllerSpec
       def performAction(pageIndex: Int, selectedTaxCodes: Seq[TaxCode]): Future[Result] =
         controller.submit(pageIndex)(
           FakeRequest()
-            .withFormUrlEncodedBody(selectedTaxCodes.map(taxCode => s"$messagesKey[]" -> taxCode.value): _*)
+            .withFormUrlEncodedBody(selectedTaxCodes.map(taxCode => s"$messagesKey[]" -> taxCode.value)*)
         )
 
       "fail if rejected goods feature is disabled" in {

@@ -129,7 +129,7 @@ class ConfirmFullRepaymentController @Inject() (
   )
 
   def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
-    request: Request[_]
+    request: Request[?]
   ): Future[(SecuritiesJourney, Result)] =
     journey
       .submitFullCorrectedAmounts(securityId)

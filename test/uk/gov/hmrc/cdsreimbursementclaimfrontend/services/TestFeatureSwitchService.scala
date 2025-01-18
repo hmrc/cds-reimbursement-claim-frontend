@@ -22,7 +22,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchService {
 
   private val features: collection.mutable.Set[Feature] =
-    collection.mutable.Set(initialFeatures: _*)
+    collection.mutable.Set(initialFeatures*)
 
   override def enable(feature: Feature): Unit =
     features.add(feature)

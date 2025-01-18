@@ -172,7 +172,7 @@ class EnterMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*)(pageIndex: Int = 1): Future[Result] =
-        controller.submit(pageIndex)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(pageIndex)(FakeRequest().withFormUrlEncodedBody(data*))
 
       val leadMrn            = sample[MRN]
       val secondMrn          = sample[MRN]

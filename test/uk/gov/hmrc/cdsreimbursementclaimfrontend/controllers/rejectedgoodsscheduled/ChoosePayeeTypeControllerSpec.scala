@@ -63,7 +63,7 @@ class ChoosePayeeTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.Overpayments_v2
+  override def beforeEach(): Unit = featureSwitch `enable` Feature.Overpayments_v2
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)

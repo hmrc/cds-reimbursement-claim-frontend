@@ -137,7 +137,7 @@ class CheckClaimantDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
+          FakeRequest().withFormUrlEncodedBody(data*)
         )
 
       "do not find the page if securities feature is disabled" in {

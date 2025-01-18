@@ -148,7 +148,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "return the auth provider id" in {
           val providerType     = "other provider"
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments `and` Some(
               Credentials("id", providerType)
             ))
 
@@ -172,7 +172,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (Some(AffinityGroup.Individual) and eoriEnrolment(
               eori.value
-            ) and Some(
+            ) `and` Some(
               ggCredentials
             ))
 
@@ -196,7 +196,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               eori.value
-            ) and Some(
+            ) `and` Some(
               ggCredentials
             ))
 
@@ -221,7 +221,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments `and` Some(
               ggCredentials
             ))
 
@@ -242,7 +242,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment and Some(
+            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment `and` Some(
               ggCredentials
             ))
 
@@ -339,7 +339,7 @@ class AuthenticatedActionWithRetrievedDataSpec
         "redirect to the start page" in {
           val providerType     = "other provider"
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Organisation) and emptyEnrolments `and` Some(
               Credentials("id", providerType)
             ))
 
@@ -358,7 +358,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (Some(AffinityGroup.Individual) and eoriEnrolment(
               eoriNumber
-            ) and Some(
+            ) `and` Some(
               ggCredentials
             ))
 
@@ -383,7 +383,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               eoriNumber
-            ) and Some(
+            ) `and` Some(
               ggCredentials
             ))
 
@@ -407,7 +407,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           val retrievalsResult =
             Future successful (Some(AffinityGroup.Organisation) and eoriEnrolment(
               "GB000000000000003"
-            ) and Some(
+            ) `and` Some(
               ggCredentials
             ))
 
@@ -424,7 +424,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments and Some(
+            Future successful (Some(AffinityGroup.Individual) and emptyEnrolments `and` Some(
               ggCredentials
             ))
 
@@ -445,7 +445,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
         "redirect to unauthorised page" in {
           val retrievalsResult =
-            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment and Some(
+            Future successful (Some(AffinityGroup.Individual) and someOtherEnrolment `and` Some(
               ggCredentials
             ))
 

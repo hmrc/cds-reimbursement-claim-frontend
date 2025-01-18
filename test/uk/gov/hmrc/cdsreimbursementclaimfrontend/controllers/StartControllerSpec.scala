@@ -158,7 +158,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
       def performAction(sessionData: Seq[(String, String)]): Future[Result] =
         controller.signOutAndSignIn()(
-          FakeRequest().withSession(sessionData: _*)
+          FakeRequest().withSession(sessionData*)
         )
 
       "kill the session and redirect to service" in {
@@ -199,7 +199,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
       def performAction(sessionData: Seq[(String, String)]): Future[Result] =
         controller.signOutAndRegisterForGG()(
-          FakeRequest().withSession(sessionData: _*)
+          FakeRequest().withSession(sessionData*)
         )
 
       "trash the session and redirect to the gg registration service" in {

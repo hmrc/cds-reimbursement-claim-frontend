@@ -50,7 +50,7 @@ import scala.concurrent.Future
   */
 trait JourneyBaseController extends FrontendBaseController with Logging with SeqUtils {
 
-  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey with JourneyBase with CommonJourneyProperties
+  type Journey <: uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey & JourneyBase & CommonJourneyProperties
 
   implicit def ec: ExecutionContext
   implicit def viewConfig: ViewConfig
@@ -61,7 +61,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   final override def controllerComponents: MessagesControllerComponents =
     jcc.controllerComponents
 
-  implicit def messages(implicit request: Request[_]): Messages =
+  implicit def messages(implicit request: Request[?]): Messages =
     jcc.controllerComponents.messagesApi.preferred(request)
 
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
@@ -91,7 +91,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   def updateJourney(sessionData: SessionData, journey: Journey): SessionData
 
   /** Optional journey access precondition. */
-  def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] = None
+  def journeyAccessPrecondition(implicit request: Request[?]): Option[Validate[Journey]] = None
 
   /** Optional action precondition. */
   val actionPrecondition: Option[Validate[Journey]] = None
@@ -101,7 +101,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Check if journey access precondition met when defined, and if not then return the list of errors. */
   private final def checkIfMaybeJourneyAccessPreconditionFails(journey: Journey)(implicit
-    request: Request[_]
+    request: Request[?]
   ): Option[Seq[String]] =
     journeyAccessPrecondition
       .flatMap(
@@ -116,7 +116,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Check if action precondition met when defined, and if not then return the list of errors. */
   final def checkIfMaybeActionPreconditionFails(journey: Journey)(implicit
-    request: Request[_]
+    request: Request[?]
   ): Option[Seq[String]] =
     checkIfMaybeJourneyAccessPreconditionFails(journey)
       .orElse(
@@ -179,7 +179,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async GET action to show page based on the request and the current journey state. */
   final def actionReadJourney(
-    body: Request[_] => Journey => Future[Result]
+    body: Request[?] => Journey => Future[Result]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
@@ -199,7 +199,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Simple POST action to submit form and update the current journey state. */
   final def simpleActionReadWriteJourney(
-    body: Request[_] => Journey => (Journey, Result),
+    body: Request[?] => Journey => (Journey, Result),
     isCallback: Boolean = false,
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
@@ -237,7 +237,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async POST action to submit form and update journey. */
   final def actionReadWriteJourney(
-    body: Request[_] => Journey => Future[(Journey, Result)],
+    body: Request[?] => Journey => Future[(Journey, Result)],
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
@@ -296,7 +296,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   final def logAndDisplayError(
     description: String,
     errors: String*
-  )(implicit errorHandler: ErrorHandler, request: Request[_]): Result = {
+  )(implicit errorHandler: ErrorHandler, request: Request[?]): Result = {
     import errorHandler._
     logger.error(s"$description${if errors.nonEmpty then errors.mkString(": ", ", ", "") else ""}")
     errorResult()

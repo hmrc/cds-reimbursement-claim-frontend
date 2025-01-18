@@ -98,7 +98,7 @@ class BankAccountReputationConnector @Inject() (
 
   private def getReputation[T](data: T, url: String)(implicit hc: HeaderCarrier, wts: Writes[T]) =
     EitherT {
-      retry(retryIntervals: _*)(shouldRetry, retryReason)(
+      retry(retryIntervals*)(shouldRetry, retryReason)(
         http
           .POST[T, HttpResponse](URL(url), data)
       )

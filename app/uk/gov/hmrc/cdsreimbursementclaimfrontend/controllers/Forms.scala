@@ -101,7 +101,7 @@ object Forms {
   val methodOfDisposalForm: Form[MethodOfDisposal] =
     Form(
       mapping(
-        "select-method-of-disposal.rejected-goods" -> nonEmptyText.verifying(MethodOfDisposal.keys.contains _)
+        "select-method-of-disposal.rejected-goods" -> nonEmptyText.verifying(MethodOfDisposal.keys.contains)
       )(MethodOfDisposal.tryParse)(md => Some(MethodOfDisposal.keyOf(md)))
     )
 
@@ -119,14 +119,14 @@ object Forms {
   val payeeTypeForm: Form[PayeeType] =
     Form(
       mapping(
-        "choose-payee-type" -> nonEmptyText.verifying(PayeeType.keys.contains _)
+        "choose-payee-type" -> nonEmptyText.verifying(PayeeType.keys.contains)
       )(PayeeType.tryParse)(p => Some(PayeeType.keyOf(p)))
     )
 
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
       mapping(
-        "select-bank-account-type" -> nonEmptyText.verifying(BankAccountType.keys.contains _)
+        "select-bank-account-type" -> nonEmptyText.verifying(BankAccountType.keys.contains)
       )(BankAccountType.tryParse)(md => Some(BankAccountType.keyOf(md)))
     )
 
@@ -218,7 +218,7 @@ object Forms {
             )
         )(Duty.apply)(v => Some(v.taxCode))
       ).verifying("error.required", _.nonEmpty)
-    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
+    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail*))(dsa => Some(dsa.toList))
   )
 
   val selectDutyTypesForm: Form[List[DutyType]] = Form(
@@ -228,7 +228,7 @@ object Forms {
           "" -> nonEmptyText
             .verifying(
               "error.invalid",
-              code => DutyTypes has code
+              code => DutyTypes `has` code
             )
         )(DutyType.apply)(DutyType.unapply)
       ).verifying("error.required", _.nonEmpty)
@@ -263,7 +263,7 @@ object Forms {
             "" -> nonEmptyText
               .verifying(
                 "error.invalid",
-                code => TaxCodes has code
+                code => TaxCodes `has` code
               )
           )(TaxCode.apply)(TaxCode.unapply)
         ).verifying("error.required", _.nonEmpty)

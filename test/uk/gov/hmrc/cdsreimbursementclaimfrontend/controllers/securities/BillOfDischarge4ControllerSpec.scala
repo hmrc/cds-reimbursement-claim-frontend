@@ -109,7 +109,7 @@ class BillOfDischarge4ControllerSpec
     "submitting Yes/No form" must {
 
       def submitBod4Action(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "select 'Yes' should redirect to select securities page (BOD4)" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))

@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 trait OverpaymentsEnterAdditionalDetailsMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
 
   val enterAdditionalDetailsPage: enter_additional_details
   val postAction: Call

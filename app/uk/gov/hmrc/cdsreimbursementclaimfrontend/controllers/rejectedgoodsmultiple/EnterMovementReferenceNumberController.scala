@@ -191,7 +191,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
 
   private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, isSubsidy: Boolean)(implicit
-    request: Request[_]
+    request: Request[?]
   ) =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm

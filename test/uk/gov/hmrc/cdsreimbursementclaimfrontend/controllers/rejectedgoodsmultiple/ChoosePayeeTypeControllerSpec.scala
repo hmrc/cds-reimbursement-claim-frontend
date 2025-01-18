@@ -63,7 +63,7 @@ class ChoosePayeeTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
+  override def beforeEach(): Unit = featureSwitch `enable` Feature.RejectedGoods
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
@@ -74,7 +74,7 @@ class ChoosePayeeTypeControllerSpec
       controller.show(FakeRequest())
 
     def submitPayeeType(data: (String, String)*): Future[Result] =
-      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
       inSequence {

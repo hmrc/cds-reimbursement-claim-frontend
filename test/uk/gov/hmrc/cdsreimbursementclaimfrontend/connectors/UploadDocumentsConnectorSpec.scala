@@ -143,14 +143,14 @@ class UploadDocumentsConnectorSpec
         uploadDocumentsParameters,
         Seq.empty
       )
-    ) _
+    )(_)
 
   val givenWipeOutCallReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
     mockPost(
       expectedWipeOutUrl,
       Seq.empty,
       ""
-    ) _
+    )(_)
 
   val responseHeaders: Map[String, Seq[String]] =
     Map("Location" -> Seq("http://foo.bar/zoo"))

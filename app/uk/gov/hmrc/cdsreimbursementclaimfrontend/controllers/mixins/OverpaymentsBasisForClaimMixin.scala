@@ -32,7 +32,7 @@ import scala.concurrent.Future
 
 trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
 
   val basisForClaimPage: select_basis_for_claim
   val postAction: Call

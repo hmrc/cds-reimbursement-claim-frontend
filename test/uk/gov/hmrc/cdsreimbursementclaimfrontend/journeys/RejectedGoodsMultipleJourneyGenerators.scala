@@ -76,7 +76,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       if index == 0 then
         journey
           .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
-          .flatMapWhenDefined(declaration.getConsigneeEori)(_.submitConsigneeEoriNumber _)
+          .flatMapWhenDefined(declaration.getConsigneeEori)(_.submitConsigneeEoriNumber)
           .flatMap(_.submitDeclarantEoriNumber(declaration.getDeclarantEori))
       else
         journey

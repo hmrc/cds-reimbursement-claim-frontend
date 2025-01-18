@@ -162,7 +162,7 @@ class SelectDutiesControllerSpec
 
     "Submit Select Duties page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

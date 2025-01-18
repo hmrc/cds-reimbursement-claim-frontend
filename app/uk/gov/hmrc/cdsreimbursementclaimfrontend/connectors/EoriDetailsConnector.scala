@@ -74,7 +74,7 @@ class DefaultEoriDetailsConnector @Inject() (
     Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
   override def getCurrentUserEoriDetails(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
-    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(retryIntervals*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
@@ -93,7 +93,7 @@ class DefaultEoriDetailsConnector @Inject() (
     }
 
   override def getEoriDetails(eori: Eori)(implicit hc: HeaderCarrier): Future[Option[EoriDetailsConnector.Response]] =
-    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(retryIntervals*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](java.net.URL(s"$url/${eori.value}"))
     ).flatMap {
       case response if response.status === 200 =>

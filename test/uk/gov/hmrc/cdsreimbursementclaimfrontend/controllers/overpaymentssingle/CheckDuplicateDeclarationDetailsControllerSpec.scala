@@ -84,7 +84,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                        )
     yield j1
       .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
-      .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration _)
+      .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration)
       .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
       .getOrFail
 
@@ -188,7 +188,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     "Submit Check Duplicate Declaration Details page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

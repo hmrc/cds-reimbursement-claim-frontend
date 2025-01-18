@@ -65,7 +65,7 @@ class OverpaymentsScheduledClaimConnectorImpl @Inject() (
   def submitClaim(claimRequest: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
-    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(retryIntervals*)(shouldRetry, retryReason)(
       http
         .POST[Request, HttpResponse](
           claimUrl,

@@ -166,7 +166,7 @@ class SelectSecuritiesControllerSpec
     "submitting securities selection" must {
 
       def performAction(id: String, data: (String, String)*): Future[Result] =
-        controller.submit(id)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(id)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "select the first security deposit and move to the next security" in forAllWith(
         JourneyGenerator(

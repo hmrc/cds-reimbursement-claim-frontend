@@ -83,7 +83,7 @@ class UploadDocumentsConnectorImpl @Inject() (
   override def initialize(request: Request)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
-    retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(uploadDocumentsConfig.retryIntervals*)(shouldRetry, retryReason)(
       http
         .POST[Request, HttpResponse](java.net.URL(uploadDocumentsConfig.initializationUrl), request)
     ).flatMap[Response](response =>
@@ -102,7 +102,7 @@ class UploadDocumentsConnectorImpl @Inject() (
     )
 
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
-    retry(uploadDocumentsConfig.retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(uploadDocumentsConfig.retryIntervals*)(shouldRetry, retryReason)(
       http
         .POST[String, HttpResponse](java.net.URL(uploadDocumentsConfig.wipeOutUrl), "")
     ).map[Unit](response =>

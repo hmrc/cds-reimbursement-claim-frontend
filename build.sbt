@@ -33,7 +33,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "3.3.4")
+  .settings(scalaVersion := "3.4.3")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     routesImport := Seq(
@@ -60,13 +60,14 @@ lazy val microservice = Project(appName, file("."))
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(
-    scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s",
     scalacOptions += "-Wunused:all",
     scalacOptions += "-Xmax-inlines:128"
   )
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))
-  .settings(Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard"))
+  .settings(
+    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard", "-experimental")
+  )
   .settings(Test / envVars := Map("SCALACTIC_FILL_FILE_PATHNAMES" -> "yes"))
   .settings(Test / fork := false)
 

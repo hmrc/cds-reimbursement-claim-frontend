@@ -234,11 +234,11 @@ final class RejectedGoodsSingleJourney private (
             if allTaxCodesExistInACC14 then {
               val newCorrectedAmounts = answers.correctedAmounts match {
                 case None                      =>
-                  Map(taxCodes.map(taxCode => taxCode -> None): _*)
+                  Map(taxCodes.map(taxCode => taxCode -> None)*)
                 case Some(reimbursementClaims) =>
                   Map(taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
-                  }: _*)
+                  }*)
               }
 
               Right(
@@ -655,11 +655,11 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
       .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
@@ -673,10 +673,10 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
-      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod _)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

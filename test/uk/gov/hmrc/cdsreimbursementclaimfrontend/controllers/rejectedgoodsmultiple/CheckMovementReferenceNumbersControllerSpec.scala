@@ -237,7 +237,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data: _*)
+          FakeRequest().withFormUrlEncodedBody(data*)
         )
 
       "do not find the page if rejected goods feature is disabled" in {

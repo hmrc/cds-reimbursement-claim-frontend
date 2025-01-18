@@ -44,7 +44,7 @@ object EnterScheduledClaimMixin {
 
 trait EnterScheduledClaimMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.ScheduledVariantProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.ScheduledVariantProperties
 
   val enterClaimPage: enter_scheduled_claim
   val routesPack: EnterScheduledClaimMixin.RoutesPack

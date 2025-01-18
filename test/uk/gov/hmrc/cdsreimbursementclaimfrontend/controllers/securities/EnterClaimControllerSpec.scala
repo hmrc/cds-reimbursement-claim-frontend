@@ -259,7 +259,7 @@ class EnterClaimControllerSpec
     "submit claim amount" must {
 
       def performAction(id: String, taxCode: TaxCode, data: (String, String)*): Future[Result] =
-        controller.submit(id, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(id, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

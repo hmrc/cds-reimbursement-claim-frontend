@@ -73,7 +73,7 @@ class DefaultXiEoriConnector @Inject() (
     Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
   override def getXiEori(implicit hc: HeaderCarrier): Future[UserXiEori] =
-    retry(retryIntervals: _*)(shouldRetry, retryReason)(
+    retry(retryIntervals*)(shouldRetry, retryReason)(
       http.GET[HttpResponse](java.net.URL(url))
     ).flatMap {
       case response if response.status === 200 =>
