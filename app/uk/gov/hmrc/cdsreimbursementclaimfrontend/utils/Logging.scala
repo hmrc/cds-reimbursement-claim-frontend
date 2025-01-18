@@ -78,6 +78,7 @@ object PrettyPrint {
     * @return
     */
 
+  @scala.annotation.nowarn
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize
     val fieldIndent = indent + (" " * indentSize)
