@@ -45,10 +45,8 @@
     postAction: Call, subKey: Option[String] = None
 )(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
-@key = @{"check-your-answers"}
 @title = @{messages(s"check-your-answers.title")}
 @subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
-@isSubsidy = @{if (isSubsidyOnly contains(true)) true else false}
 
 @layout(pageTitle = Some(s"$title")) {
 
