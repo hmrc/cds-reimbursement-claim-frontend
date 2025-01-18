@@ -61,12 +61,13 @@ lazy val microservice = Project(appName, file("."))
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(
     scalacOptions += "-Wunused:all",
-    scalacOptions += "-Xmax-inlines:128"
+    scalacOptions += "-Xmax-inlines:128",
+    scalacOptions += "-experimental"
   )
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))
   .settings(
-    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard", "-experimental")
+    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard")
   )
   .settings(Test / envVars := Map("SCALACTIC_FILL_FILE_PATHNAMES" -> "yes"))
   .settings(Test / fork := false)

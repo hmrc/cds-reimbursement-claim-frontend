@@ -20,7 +20,7 @@ object AppDependencies {
     "org.scalatest"          %% "scalatest"               % "3.2.19"             % Test,
     "org.jsoup"               % "jsoup"                   % jsoupVersion         % Test,
     "org.playframework"      %% "play-test"               % current              % Test,
-    "org.scalamock"          %% "scalamock"               % "6.1.1"              % Test,
+    "org.scalamock"          %% "scalamock"               % "7.1.0"              % Test,
     "org.scalatestplus"      %% "scalacheck-1-18"         % "3.2.19.0"           % Test,
     "org.scalatestplus.play" %% "scalatestplus-play"      % "7.0.1"              % Test,
     "com.vladsch.flexmark"    % "flexmark-all"            % "0.64.8"             % Test,
