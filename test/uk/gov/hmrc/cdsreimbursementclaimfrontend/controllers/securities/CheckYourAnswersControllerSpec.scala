@@ -124,7 +124,7 @@ class CheckYourAnswersControllerSpec
         "Additional details".expectedAlways,
         "Now send your claim".expectedAlways
       ) ++
-        claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)): _*
+        claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways))*
     )
 
     val expectedDocuments: Seq[String] =

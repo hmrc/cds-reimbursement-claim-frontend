@@ -84,10 +84,10 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
       }
 
   def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
-    getSelectedDutyTypes.flatMap(nextAfter(dutyType) _)
+    getSelectedDutyTypes.flatMap(nextAfter(dutyType))
 
   def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode)] =
-    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode) _) match {
+    getSelectedDutiesFor(dutyType).flatMap(nextAfter(taxCode)) match {
       case Some(taxCode) => Some((dutyType, taxCode))
       case None          =>
         findNextSelectedDutyAfter(dutyType)
@@ -119,15 +119,22 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
     claims: SortedMap[TaxCode, Option[AmountPaidWithCorrect]],
     dutyType: DutyType
   ): List[ReimbursementWithCorrectAmount] =
-    claims.view.map { case (taxCode, Some(amount)) =>
-      ReimbursementWithCorrectAmount(
-        taxCode,
-        amount.paidAmount - amount.correctAmount,
-        amount.paidAmount,
-        amount.correctAmount,
-        Some(dutyType)
-      )
-    }.toList
+    claims.view
+      .map {
+        case (taxCode, Some(amount)) =>
+          Some(
+            ReimbursementWithCorrectAmount(
+              taxCode,
+              amount.paidAmount - amount.correctAmount,
+              amount.paidAmount,
+              amount.correctAmount,
+              Some(dutyType)
+            )
+          )
+        case _                       => None
+      }
+      .collect { case Some(x) => x }
+      .toList
 
   def getReimbursementFor(
     dutyType: DutyType,

@@ -36,7 +36,7 @@
 )
 
 
-@(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"select-duty-types.title")}
 @caption = @{messages(s"select-duty-types.title.caption")}

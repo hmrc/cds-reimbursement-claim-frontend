@@ -14,20 +14,13 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single_common
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import java.time.LocalDateTime
 
@@ -37,7 +30,7 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(caseNumber: String, claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], subKey: Option[String] = None, isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], subKey: Option[String] = None, isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @summary(CheckYourAnswersPrintViewHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, claim.reimbursements.map(_.amount).sum.toPoundSterlingString, submissionDate = submissionDate))

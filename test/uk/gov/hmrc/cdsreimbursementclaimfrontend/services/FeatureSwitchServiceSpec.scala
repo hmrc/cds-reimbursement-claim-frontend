@@ -128,7 +128,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     override val controllerComponents: MessagesControllerComponents
   ) extends FrontendController(controllerComponents) {
 
-    private def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
+    private def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] & ActionFilter[Request] =
       new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 
         def filter[A](input: Request[A]): Future[Option[Result]] = {

@@ -45,7 +45,7 @@
 )
 
 
-@(form: Form[OverpaymentsJourneyType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[OverpaymentsJourneyType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"overpayments.choose-how-many-mrns"}
 @title = @{messages(s"overpayments.choose-how-many-mrns.title")}

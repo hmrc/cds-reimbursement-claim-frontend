@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 
 trait HaveInspectionDetails {
-  self: Journey with RejectedGoodsJourneyProperties =>
+  self: Journey & RejectedGoodsJourneyProperties =>
 
   def submitInspectionDate(inspectionDate: InspectionDate): Journey
   def submitInspectionAddress(inspectionAddress: InspectionAddress): Journey

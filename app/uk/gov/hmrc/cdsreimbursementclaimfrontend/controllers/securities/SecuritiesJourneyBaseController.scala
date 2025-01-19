@@ -49,7 +49,7 @@ trait SecuritiesJourneyBaseController extends JourneyBaseController with Securit
   final override def updateJourney(sessionData: SessionData, journey: SecuritiesJourney): SessionData =
     sessionData.copy(securitiesJourney = Some(journey))
 
-  final override def journeyAccessPrecondition(implicit request: Request[_]): Option[Validate[Journey]] =
+  final override def journeyAccessPrecondition(implicit request: Request[?]): Option[Validate[Journey]] =
     if jcc.featureSwitchService.isEnabled(Feature.LimitedAccessSecurities) then Some(validateUserEoriIsOnTheAllowList)
     else None
 

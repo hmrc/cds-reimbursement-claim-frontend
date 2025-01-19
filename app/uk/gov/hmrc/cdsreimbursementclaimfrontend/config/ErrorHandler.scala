@@ -47,11 +47,11 @@ class ErrorHandler @Inject() (
   )(implicit
     requestHeader: RequestHeader
   ): Future[Html] = {
-    implicit val r: Request[_] = Request(requestHeader, "")
+    implicit val r: Request[?] = Request(requestHeader, "")
     Future.successful(error_template(pageTitle, heading, message))
   }
 
-  def errorResult[R <: Request[_]](
+  def errorResult[R <: Request[?]](
   )(implicit request: R): Result =
     InternalServerError(
       error_template(

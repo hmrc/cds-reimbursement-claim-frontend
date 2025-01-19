@@ -37,7 +37,6 @@
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
- insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
  dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
  bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
@@ -51,7 +50,7 @@
     subKey: Option[String],
     postAction: Call,
     isSubsidyOnly: Boolean = false,
-)(implicit  request: Request[_], messages:Messages, viewConfig: ViewConfig)
+)(implicit  request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
     @title = @{messages(s"select-duties.title")}
     @caption = @{messages(s"select-duties.title.caption")}

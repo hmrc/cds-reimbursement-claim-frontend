@@ -79,7 +79,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
+  override def beforeEach(): Unit = featureSwitch `enable` Feature.RejectedGoods
 
   implicit val ec: ExecutionContext = ExecutionContext.global
 
@@ -89,7 +89,7 @@ class ChooseInspectionAddressTypeControllerSpec
       controller.show(FakeRequest())
 
     def submitAddress(data: (String, String)*): Future[Result] =
-      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
       controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())

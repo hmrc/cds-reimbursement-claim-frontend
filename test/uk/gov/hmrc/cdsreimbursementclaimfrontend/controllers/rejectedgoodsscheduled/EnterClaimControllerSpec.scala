@@ -158,7 +158,7 @@ class EnterClaimControllerSpec
     "Submit enter claim page" must {
 
       def performAction(dutyType: DutyType, taxCode: TaxCode, data: Seq[(String, String)]): Future[Result] =
-        controller.submit(dutyType, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(dutyType, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
         forAll(journeyGen, amountPaidWithClaimGen) { case (initialJourney, (paidAmount, claimAmount)) =>
@@ -260,7 +260,7 @@ class EnterClaimControllerSpec
                     Seq(
                       "enter-claim.scheduled.paid-amount"  -> "",
                       "enter-claim.scheduled.claim-amount" -> "bad"
-                    ): _*
+                    )*
                   )
                 ),
                 if DutyTypes.custom.contains(dutyType) then
@@ -300,7 +300,7 @@ class EnterClaimControllerSpec
                     Seq(
                       s"$enterClaimKey.paid-amount"  -> "0.00",
                       s"$enterClaimKey.claim-amount" -> "0.00"
-                    ): _*
+                    )*
                   )
                 ),
                 if DutyTypes.custom.contains(dutyType) then
@@ -336,7 +336,7 @@ class EnterClaimControllerSpec
                     Seq(
                       s"$enterClaimKey.paid-amount"  -> "12.34",
                       s"$enterClaimKey.claim-amount" -> "12.35"
-                    ): _*
+                    )*
                   )
                 ),
                 if DutyTypes.custom.contains(dutyType) then

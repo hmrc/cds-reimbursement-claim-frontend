@@ -103,19 +103,27 @@ trait ClaimsTableValidator {
   )(implicit
     m: Messages
   ) =
-    reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, Some(dutyType)) =>
-      val suffix = s"$dutyType-$taxCode"
+    reimbursements.map {
+      case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, Some(dutyType)) =>
+        val suffix = s"$dutyType-$taxCode"
 
-      doc
-        .getElementById(s"selected-claim-$suffix")
-        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
-      doc.getElementById(s"change-$suffix").html()        shouldBe m(
-        "check-claim.table.change-link",
-        claimAction(dutyType, taxCode).url,
-        s"change-link-$suffix"
-      )
+        doc
+          .getElementById(s"selected-claim-$suffix")
+          .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+        doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
+        doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
+        doc.getElementById(s"change-$suffix").html()        shouldBe m(
+          "check-claim.table.change-link",
+          claimAction(dutyType, taxCode).url,
+          s"change-link-$suffix"
+        )
+      case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, None)           =>
+        val suffix = s"$taxCode"
+        doc
+          .getElementById(s"selected-claim-$suffix")
+          .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+        doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
+        doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
     }
 
   def validateClaimsTablesForScheduled(

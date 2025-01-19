@@ -34,13 +34,13 @@ import scala.concurrent.ExecutionContext
 trait AuditService {
   def sendSuccessfulClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
-    request: Request[_],
+    request: Request[?],
     ec: ExecutionContext
   ): Unit
 
   def sendFailedClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
-    request: Request[_],
+    request: Request[?],
     ec: ExecutionContext
   ): Unit
 }
@@ -49,13 +49,13 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
 
   final def sendSuccessfulClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
-    request: Request[_],
+    request: Request[?],
     ec: ExecutionContext
   ): Unit = sendClaimEvent(true, journey, output, summary)
 
   final def sendFailedClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
-    request: Request[_],
+    request: Request[?],
     ec: ExecutionContext
   ): Unit = sendClaimEvent(false, journey, output, summary)
 
@@ -63,7 +63,7 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
   private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, journey: J, output: O, summary: JsObject)(
     implicit
     hc: HeaderCarrier,
-    request: Request[_],
+    request: Request[?],
     ec: ExecutionContext
   ): Unit =
     auditConnector.sendExtendedEvent(

@@ -493,7 +493,7 @@ final class SecuritiesJourney private (
         Left("selectSecurityDepositIds.invalidSecurityDepositId")
       else {
         val emptySecuritiesReclaims =
-          SortedMap(securityDepositIds.map(sid => (sid, SortedMap.empty[TaxCode, Option[BigDecimal]])): _*)
+          SortedMap(securityDepositIds.map(sid => (sid, SortedMap.empty[TaxCode, Option[BigDecimal]]))*)
         Right(
           this.copy(
             answers.copy(
@@ -591,7 +591,7 @@ final class SecuritiesJourney private (
               .flatMap(_.get(securityDepositId))
               .getOrElse(SortedMap.empty)
           val refinedReclaims: CorrectedAmounts  =
-            SortedMap(selectedTaxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None)): _*)
+            SortedMap(selectedTaxCodes.map(taxCode => taxCode -> existingReclaims.getOrElse(taxCode, None))*)
           Right(
             this.copy(
               answers.copy(
@@ -706,7 +706,7 @@ final class SecuritiesJourney private (
             val fullAmountReclaims: CorrectedAmounts =
               SortedMap(
                 securityDetails.taxDetails
-                  .map(td => td.getTaxCode -> Some(ZERO)): _*
+                  .map(td => td.getTaxCode -> Some(ZERO))*
               )
             (
               securityDepositId,
@@ -1149,15 +1149,15 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         j.submitReasonForSecurityAndDeclaration(rfs, decl)
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
-      .flatMapWhenDefined(answers.temporaryAdmissionMethodsOfDisposal)(_.submitTemporaryAdmissionMethodsOfDisposal _)
+      .flatMapWhenDefined(answers.temporaryAdmissionMethodsOfDisposal)(_.submitTemporaryAdmissionMethodsOfDisposal)
       .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers.zipWithIndex)(j => { case (mrn: MRN, index: Int) =>
         j.submitExportMovementReferenceNumber(index, mrn)
       })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
       .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
       .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .flatMapEachWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectSecurityDepositId
@@ -1173,9 +1173,9 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       })
       .map(_.submitClaimFullAmountMode(answers.modes.claimFullAmountMode))
       .map(_.submitCheckClaimDetailsChangeMode(answers.modes.checkClaimDetailsChangeMode))
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

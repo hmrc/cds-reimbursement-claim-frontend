@@ -26,7 +26,6 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimSummaryHelper
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components._
@@ -37,16 +36,14 @@
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     govukTable: GovukTable
 )
 
-@(form: Form[YesNo], mrn: MRN, claims: Seq[ReimbursementWithCorrectAmount], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], mrn: MRN, claims: Seq[ReimbursementWithCorrectAmount], enterClaimAction: TaxCode => Call, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-claim"}
 @title = @{messages(s"check-claim.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -70,7 +67,7 @@
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @radios(
             form = form,
-            name = key,
+            name = "check-claim",
             legend = messages("check-claim.is-this-correct"),
             hintKey = None,
             inline = true,

@@ -38,7 +38,7 @@ object OptionsValidator {
   def requiredWhen(cond: Boolean)(option: Option[Any]): Boolean =
     !cond || option.isDefined
 
-  def nonEmptyMap(option: Option[Map[_, _]]*): Boolean =
+  def nonEmptyMap(option: Option[Map[?, ?]]*): Boolean =
     option.exists(_.nonEmpty)
 
   implicit def asOptionAny(bool: Boolean): Option[Any] =

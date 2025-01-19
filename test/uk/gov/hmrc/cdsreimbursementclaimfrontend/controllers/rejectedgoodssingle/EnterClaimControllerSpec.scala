@@ -276,7 +276,7 @@ class EnterClaimControllerSpec
 
     "Submit Enter Claim page" must {
       def performAction(taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit(taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if rejectedgoods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

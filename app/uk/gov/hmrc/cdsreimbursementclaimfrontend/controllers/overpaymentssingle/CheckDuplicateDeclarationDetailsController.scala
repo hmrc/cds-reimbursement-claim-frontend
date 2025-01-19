@@ -66,7 +66,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDuplicateDeclarationDetailsController.submit
 
-  final override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable = {
+  final override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[?] => HtmlFormat.Appendable = {
     case (decl, form, _) =>
       implicit request =>
         checkDeclarationDetailsPage(

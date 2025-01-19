@@ -33,7 +33,7 @@
 
 )
 
-@(contactDetails: MrnContactDetails, contactAddress: ContactAddress, contactChange: Call, addressChange: Option[Call], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(contactDetails: MrnContactDetails, contactAddress: ContactAddress, contactChange: Call, addressChange: Option[Call], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-claimant-details"}
 @title = @{messages(s"check-claimant-details.title")}

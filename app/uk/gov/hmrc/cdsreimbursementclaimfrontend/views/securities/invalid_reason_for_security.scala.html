@@ -27,7 +27,7 @@
 )
 
 
-@(enterMRN: Call, mrn: Option[MRN])(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
+@(enterMRN: Call, mrn: Option[MRN])(implicit request : Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages("invalid-reason-for-security.title")}
 

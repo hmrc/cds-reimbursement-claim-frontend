@@ -143,7 +143,7 @@ trait ControllerSpec
         ).withFallback(additionalConfig)
       )
       .disable[PlayMongoModule]
-      .overrides(featuresCacheBinding :: overrideBindings: _*)
+      .overrides(featuresCacheBinding :: overrideBindings*)
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
 
@@ -166,14 +166,14 @@ trait ControllerSpec
   }
 
   final def messageFromMessageKey(messageKey: String, args: Any*): String = {
-    val m = theMessagesApi(messageKey, args: _*)
+    val m = theMessagesApi(messageKey, args*)
     if m === messageKey then sys.error(s"Message key `$messageKey` is missing a message")
     m
   }
 
   /** Resolves key to message, reports an error if message is missing. */
   final def m(messageKey: String, args: Any*): String =
-    messageFromMessageKey(messageKey, args: _*)
+    messageFromMessageKey(messageKey, args*)
 
   final def checkIsTechnicalErrorPage(
     result: Future[Result]

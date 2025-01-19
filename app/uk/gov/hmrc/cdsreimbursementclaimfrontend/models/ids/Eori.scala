@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori.validityRegex
 
 final case class Eori(value: String) {
 
-  def isValid: Boolean = value matches validityRegex
+  def isValid: Boolean = value `matches` validityRegex
 
   def isXiEori: Boolean = value.toUpperCase(java.util.Locale.ENGLISH).startsWith("XI")
 }

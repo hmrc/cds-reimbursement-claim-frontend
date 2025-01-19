@@ -101,7 +101,7 @@ class DisposalMethodControllerSpec
     "Disposal Method page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "reject an empty disposal method" in {
         inSequence {

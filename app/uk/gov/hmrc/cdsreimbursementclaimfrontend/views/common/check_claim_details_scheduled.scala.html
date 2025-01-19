@@ -19,30 +19,25 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AmountPaidWithCorrect, DutyType, TaxCode, ReimbursementWithCorrectAmount}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode, ReimbursementWithCorrectAmount}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.{ScheduledReimbursementSummary, TaxCodeReimbursementScheduledOverpaymentsSummary}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
-@import scala.collection.immutable.SortedMap
-
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         govukTable: GovukTable
 )
 
-@(answers: Map[String, List[ReimbursementWithCorrectAmount]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call, enterClaimAction: (DutyType, TaxCode) => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(answers: Map[String, List[ReimbursementWithCorrectAmount]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call, enterClaimAction: (DutyType, TaxCode) => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @title = @{messages(s"check-claim.scheduled.title")}
 

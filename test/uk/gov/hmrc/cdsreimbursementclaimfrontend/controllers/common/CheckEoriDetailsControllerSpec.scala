@@ -178,7 +178,7 @@ class CheckEoriDetailsControllerSpec
     "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       val verifiedEmail = "foo@bar.com"
 

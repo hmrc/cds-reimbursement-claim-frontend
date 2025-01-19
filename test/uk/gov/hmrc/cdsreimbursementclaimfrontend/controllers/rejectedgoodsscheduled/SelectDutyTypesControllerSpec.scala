@@ -117,7 +117,7 @@ class SelectDutyTypesControllerSpec
 
     "Submit Select Duty Types page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

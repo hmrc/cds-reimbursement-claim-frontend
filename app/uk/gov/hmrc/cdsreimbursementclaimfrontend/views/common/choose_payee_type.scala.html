@@ -19,7 +19,6 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
@@ -39,7 +38,7 @@
     govukRadios: GovukRadios
 )
 
-@(form: Form[PayeeType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[PayeeType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-payee-type"}
 @title = @{messages(s"choose-payee-type.title")}

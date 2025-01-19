@@ -74,7 +74,7 @@ class CheckEoriDetailsController @Inject() (
     name: Option[String],
     form: Form[YesNo]
   )(implicit
-    request: Request[_],
+    request: Request[?],
     messages: Messages
   ): Appendable = checkEoriDetailsPage(
     eori,

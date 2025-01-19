@@ -97,6 +97,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
+  @scala.annotation.nowarn
   private def mockGetXiEori(response: Future[UserXiEori]) =
     (mockXiEoriConnector
       .getXiEori(_: HeaderCarrier))
@@ -154,7 +155,7 @@ class EnterMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

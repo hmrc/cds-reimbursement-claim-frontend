@@ -190,8 +190,9 @@ class EnterMovementReferenceNumberController @Inject() (
         EitherT.leftT(Error("could not unbox display declaration"))
     }
 
+  @scala.annotation.nowarn
   private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String, isSubsidy: Boolean)(implicit
-    request: Request[_]
+    request: Request[?]
   ) =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm

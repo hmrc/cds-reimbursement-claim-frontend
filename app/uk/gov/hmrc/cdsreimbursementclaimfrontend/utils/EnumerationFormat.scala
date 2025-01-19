@@ -27,7 +27,7 @@ trait EnumerationFormat[T] {
   val values: Set[T]
 
   final lazy val keys: Set[String] =
-    values.map(keyOf _)
+    values.map(keyOf)
 
   final lazy val valueMap: Map[String, T] =
     values.map(v => (v.toString, v)).toMap

@@ -22,7 +22,7 @@ import play.twirl.api.HtmlFormat
 trait HtmlUtil {
 
   def html(content: HtmlFormat.Appendable*): Html =
-    HtmlFormat.fill(collection.immutable.Seq(content: _*))
+    HtmlFormat.fill(collection.immutable.Seq(content*))
 }
 
 object HtmlUtil extends HtmlUtil

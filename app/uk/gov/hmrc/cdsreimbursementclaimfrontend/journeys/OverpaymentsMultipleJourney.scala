@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
@@ -232,7 +231,7 @@ final class OverpaymentsMultipleJourney private (
           case _        => None
         }
       }
-    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect: _*))
+    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
   }
 
   def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
@@ -528,12 +527,12 @@ final class OverpaymentsMultipleJourney private (
             if allTaxCodesExistInACC14 then {
               val newDeclarationReimbursementClaims = answers.correctedAmounts.flatMap(_.get(declarationId)) match {
                 case None =>
-                  OrderedMap[TaxCode, Option[BigDecimal]](taxCodes.map(taxCode => taxCode -> None): _*)
+                  OrderedMap[TaxCode, Option[BigDecimal]](taxCodes.map(taxCode => taxCode -> None)*)
 
                 case Some(reimbursementClaims) =>
                   OrderedMap(taxCodes.map { taxCode =>
                     taxCode -> reimbursementClaims.get(taxCode).flatten
-                  }: _*)
+                  }*)
               }
 
               Right(
@@ -903,11 +902,11 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
       .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
       .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
@@ -918,9 +917,9 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
               (taxCode, amount) => j.submitCorrectAmount(mrn, taxCode, amount)
             )
       })
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .mapWhenDefined(answers.newEori)(_.submitNewEori)
       .mapWhenDefined(answers.newDan)(_.submitNewDan)
       .flatMapEach(

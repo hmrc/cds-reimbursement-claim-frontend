@@ -32,13 +32,12 @@
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
 )
 
-@(form: Form[ReimbursementMethod], postAction: Call)(implicit request: Request[_], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[ReimbursementMethod], postAction: Call)(implicit request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"reimbursement-method"}
 @title = @{messages(s"reimbursement-method.title")}

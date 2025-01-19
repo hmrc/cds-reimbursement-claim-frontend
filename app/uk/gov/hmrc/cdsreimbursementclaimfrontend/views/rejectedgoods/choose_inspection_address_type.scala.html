@@ -30,11 +30,10 @@
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    divider: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio_divider
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
 )
 
-@(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(addresses: Seq[(InspectionAddressType, String)], form: Form[InspectionAddressType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"inspection-address.type"}
 

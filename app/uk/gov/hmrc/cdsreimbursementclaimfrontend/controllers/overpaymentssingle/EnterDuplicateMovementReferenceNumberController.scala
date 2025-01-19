@@ -76,7 +76,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
     journey.answers.duplicateDeclaration.map(_.movementReferenceNumber)
 
-  override def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable =
+  override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
     form =>
       implicit request =>
         enterDuplicateMovementReferenceNumberPage(

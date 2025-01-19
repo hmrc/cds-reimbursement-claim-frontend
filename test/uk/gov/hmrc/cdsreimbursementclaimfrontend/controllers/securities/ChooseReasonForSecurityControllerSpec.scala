@@ -60,6 +60,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.annotation.nowarn
 
 class ChooseReasonForSecurityControllerSpec
     extends PropertyBasedControllerSpec
@@ -106,6 +107,7 @@ class ChooseReasonForSecurityControllerSpec
     )
 
   // currently disabled
+  @nowarn
   private val nidacOptions =
     Seq(
       ("Account Sales", "AccountSales"),
@@ -138,6 +140,7 @@ class ChooseReasonForSecurityControllerSpec
       .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
 
+  @nowarn
   private def mockGetXiEori(response: Future[UserXiEori]) =
     (mockXiEoriConnector
       .getXiEori(_: HeaderCarrier))
@@ -181,7 +184,7 @@ class ChooseReasonForSecurityControllerSpec
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not succeed if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)

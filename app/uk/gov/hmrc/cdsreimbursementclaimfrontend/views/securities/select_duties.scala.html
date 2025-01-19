@@ -35,9 +35,8 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[Seq[TaxCode]], securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[Seq[TaxCode]], securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-  @key = @{"select-duties"}
   @title = @{messages(s"select-duties.securities.title")}
   @caption = @{messages(s"select-duties.caption", securityId)}
   @pageTitleWithCaption = @{s"$caption: $title"}

@@ -107,7 +107,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "handle submit requests" must {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "the user has entered some details" in {
         val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
@@ -130,7 +130,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "show an error summary" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "the user submits empty details" in {
 

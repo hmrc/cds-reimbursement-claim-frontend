@@ -340,7 +340,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   private def whenTemporaryAdmissionExported(
     journey: SecuritiesJourney
-  )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
+  )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
     (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodsOfDisposal) match {
       case (None, _)                                                                                 =>
         (journey, errorHandler.errorResult()).asFuture

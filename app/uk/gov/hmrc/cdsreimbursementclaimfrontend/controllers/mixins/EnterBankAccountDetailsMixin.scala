@@ -94,7 +94,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     journey: Journey,
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String]
-  )(implicit request: Request[_]): Future[(Journey, Result)] =
+  )(implicit request: Request[?]): Future[(Journey, Result)] =
     bankAccountReputationService
       .checkBankAccountReputationV2(bankAccountDetails, postCode)
       .fold(
@@ -146,7 +146,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
       )
 
   private def processCdsError[E : CdsError](error: E, errorPage: Call)(implicit
-    request: Request[_],
+    request: Request[?],
     errorHandler: ErrorHandler
   ): Result =
     error match {

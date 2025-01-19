@@ -22,13 +22,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Text}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
@@ -38,7 +36,7 @@
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
 )
 
-@(form: Form[(MRN, YesNo)], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[(MRN, YesNo)], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-export-movement-reference-number"}
 

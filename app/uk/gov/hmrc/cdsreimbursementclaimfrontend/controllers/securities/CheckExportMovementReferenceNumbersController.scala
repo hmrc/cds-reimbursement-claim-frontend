@@ -152,7 +152,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     journey: SecuritiesJourney
   )(
     body: Seq[MRN] => Future[(SecuritiesJourney, Result)]
-  )(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
+  )(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
     (journey.getReasonForSecurity, journey.getMethodOfDisposal, journey.answers.exportMovementReferenceNumbers) match {
       case (None, _, _)                                                                                 =>
         (journey, errorHandler.errorResult()).asFuture

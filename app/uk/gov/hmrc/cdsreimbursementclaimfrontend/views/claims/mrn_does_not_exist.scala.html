@@ -27,9 +27,8 @@
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@()(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"mrn-does-not-exist"}
 @title = @{messages(s"mrn-does-not-exist.title")}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {

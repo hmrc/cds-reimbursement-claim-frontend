@@ -106,7 +106,7 @@ class ChooseExportMethodController @Inject() (
 
   def whenTemporaryAdmission(
     journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result))(implicit request: Request[_]): Future[(SecuritiesJourney, Result)] =
+  )(body: => (SecuritiesJourney, Result))(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.ntas.contains(rfs) => body

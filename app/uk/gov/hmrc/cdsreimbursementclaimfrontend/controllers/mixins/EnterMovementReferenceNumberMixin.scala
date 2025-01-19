@@ -42,7 +42,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def claimService: ClaimService
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
-  def viewTemplate: Form[MRN] => Request[_] => HtmlFormat.Appendable
+  def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
   val problemWithMrnCall: MRN => Call
 

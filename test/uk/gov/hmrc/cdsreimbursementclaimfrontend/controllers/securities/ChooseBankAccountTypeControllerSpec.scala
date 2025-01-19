@@ -81,7 +81,7 @@ class ChooseBankAccountTypeControllerSpec
       controller.show(FakeRequest())
 
     def submitBankAccountType(data: (String, String)*): Future[Result] =
-      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     "display page" in forAllWith(
       JourneyGenerator(

@@ -34,7 +34,7 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
   val uploadFilesRoute: Call
 
   def viewTemplate
-    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[_] => HtmlFormat.Appendable
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] => HtmlFormat.Appendable
 
   def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey]
 

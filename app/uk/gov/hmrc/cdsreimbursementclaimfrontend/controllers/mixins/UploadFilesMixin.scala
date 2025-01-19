@@ -72,7 +72,7 @@ trait UploadFilesMixin extends JourneyBaseController {
                   journey.answers.nonce
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
               )
           )
           .map {
@@ -103,7 +103,7 @@ trait UploadFilesMixin extends JourneyBaseController {
                   continueAfterNoAnswerUrl
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
               )
           )
           .map {
@@ -169,7 +169,7 @@ trait UploadFilesMixin extends JourneyBaseController {
                   continueAfterNoAnswerUrl
                 ),
                 journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription _)))
+                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
               )
           )
           .map {

@@ -74,7 +74,7 @@ class CheckDeclarationDetailsControllerSpec
   val messagesKey: String = "check-declaration-details"
 
   def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
-    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {

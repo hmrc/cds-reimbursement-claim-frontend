@@ -222,7 +222,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
           .mapValues(s =>
             SortedMap(s.map { case (taxCode, paid, correct) =>
               (taxCode, Option(AmountPaidWithCorrect(paid, correct)))
-            }: _*)
+            }*)
           )
           .to(SortedMap)
 
@@ -364,11 +364,11 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, Random.nextBoolean()) }.toSeq
 
       val correctedAmounts =
-        SortedMap(reimbursements: _*).view
+        SortedMap(reimbursements*).view
           .mapValues(s =>
             SortedMap(s.map { taxCode =>
               (taxCode, None)
-            }: _*)
+            }*)
           )
           .to(SortedMap)
 
