@@ -253,7 +253,8 @@ final class OverpaymentsMultipleJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration
+        getLeadDisplayDeclaration,
+        isQuotaEnabled = features.exists(_.shouldAllowQuotaBasisOfClaim)
       )
 
   def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
@@ -788,7 +789,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
+    shouldAllowSubsidyOnlyPayments: Boolean,
+    shouldAllowQuotaBasisOfClaim: Boolean = true
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey

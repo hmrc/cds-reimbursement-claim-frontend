@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimQuota
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -85,7 +86,8 @@ class ChooseHowManyMrnsController @Inject() (
           .Features(
             shouldBlockSubsidies = blockSubsidies,
             shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments,
-            shouldSkipDocumentTypeSelection = skipDocumentType
+            shouldSkipDocumentTypeSelection = skipDocumentType,
+            shouldAllowQuotaBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimQuota)
           )
       )
     else None
@@ -101,7 +103,8 @@ class ChooseHowManyMrnsController @Inject() (
         OverpaymentsMultipleJourney
           .Features(
             shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments,
+            shouldAllowQuotaBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimQuota)
           )
       )
     else None
@@ -117,7 +120,8 @@ class ChooseHowManyMrnsController @Inject() (
         OverpaymentsScheduledJourney
           .Features(
             shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments
+            shouldAllowSubsidyOnlyPayments = subsidiesForOverpayments,
+            shouldAllowQuotaBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimQuota)
           )
       )
     else None

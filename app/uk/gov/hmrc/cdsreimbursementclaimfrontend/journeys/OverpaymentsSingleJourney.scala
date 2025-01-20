@@ -66,7 +66,11 @@ final class OverpaymentsSingleJourney private (
 
   override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(true, answers.displayDeclaration)
+      .excludeNorthernIrelandClaims(
+        true,
+        answers.displayDeclaration,
+        isQuotaEnabled = features.exists(_.shouldAllowQuotaBasisOfClaim)
+      )
 
   override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] = {
     val wasIncorrectExciseCodeSelected: Boolean =
@@ -654,7 +658,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   final case class Features(
     shouldBlockSubsidies: Boolean,
     shouldAllowSubsidyOnlyPayments: Boolean,
-    shouldSkipDocumentTypeSelection: Boolean
+    shouldSkipDocumentTypeSelection: Boolean,
+    shouldAllowQuotaBasisOfClaim: Boolean = true
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey
