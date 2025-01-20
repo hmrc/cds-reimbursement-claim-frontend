@@ -550,11 +550,11 @@ choose-payee-type.details.representative=Representative
 choose-payee-type.details.title=Who is the importer, declarant and the representative?
 choose-payee-type.error.required=Select who the repayment will be made to
 choose-payee-type.radio.declarant=Declarant
-choose-payee-type.radio.declarant.hint=The organisation that submitted an import declaration on the importer's behalf
+choose-payee-type.radio.declarant.hint=The organisation that submitted an import declaration on the importer''s behalf
 choose-payee-type.radio.importer=Importer
 choose-payee-type.radio.importer.hint=The organisation that brought goods into the UK
 choose-payee-type.radio.representative=Representative
-choose-payee-type.radio.representative.hint=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer's behalf
+choose-payee-type.radio.representative.hint=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer''s behalf
 choose-payee-type.title=Who will the repayment be made to?
 
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
