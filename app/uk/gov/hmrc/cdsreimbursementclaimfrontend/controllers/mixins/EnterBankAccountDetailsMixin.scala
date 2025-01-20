@@ -39,10 +39,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import scala.concurrent.Future
 
 object EnterBankAccountDetailsMixin {
-  final case class RoutesPack(
+  final case class RoutesPack[Journey](
     validationErrorPath: Call,
     retryPath: Call,
-    successPath: Call,
+    successPath: Journey => Call,
     submitPath: Call
   )
 }
@@ -51,7 +51,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
-  val routesPack: EnterBankAccountDetailsMixin.RoutesPack
+  val routesPack: EnterBankAccountDetailsMixin.RoutesPack[Journey]
   def isCMA(journey: Journey): Boolean = false
 
   implicit val errorHandler: ErrorHandler
@@ -107,7 +107,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
     journey: Journey,
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
-    nextPage: EnterBankAccountDetailsMixin.RoutesPack
+    nextPage: EnterBankAccountDetailsMixin.RoutesPack[Journey]
   ): (Journey, Result) =
     modifyJourney(
       journey,
@@ -135,8 +135,9 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                     (Some(Yes) | Some(Partial) | None)
                   ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
                 Redirect(
-                  if journey.userHasSeenCYAPage then checkYourAnswers
-                  else nextPage.successPath
+                  if journey.userHasSeenCYAPage
+                  then checkYourAnswers
+                  else nextPage.successPath(journey)
                 )
 
               case _ =>

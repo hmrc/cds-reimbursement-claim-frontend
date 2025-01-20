@@ -42,7 +42,7 @@ trait UploadFilesMixin extends JourneyBaseController {
   val fileUploadConfig: FileUploadConfig
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
-  val nextPageInJourney: Call
+  def nextPageInJourney(journey: Journey): Call
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
   def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate: Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable
@@ -68,7 +68,7 @@ trait UploadFilesMixin extends JourneyBaseController {
               .Request(
                 uploadDocumentsSessionConfigIfSkipDocumentType(
                   journey.getDocumentTypesIfRequired.getOrElse(Seq.empty),
-                  nextPageInJourney.url,
+                  nextPageInJourney(journey).url,
                   journey.answers.nonce
                 ),
                 journey.answers.supportingEvidences
@@ -90,7 +90,7 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          selfUrl + nextPageInJourney.url
+          selfUrl + nextPageInJourney(journey).url
 
         uploadDocumentsConnector
           .initialize(
@@ -156,7 +156,7 @@ trait UploadFilesMixin extends JourneyBaseController {
 
         val continueAfterNoAnswerUrl =
           if journey.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
-          else selfUrl + nextPageInJourney.url
+          else selfUrl + nextPageInJourney(journey).url
 
         uploadDocumentsConnector
           .initialize(

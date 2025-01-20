@@ -37,7 +37,6 @@
 
 @(form: Form[Option[UploadDocumentType]], availableFileTypes: Seq[UploadDocumentType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"choose-file-type"}
     @title = @{messages(s"choose-file-type.securities.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -62,13 +61,13 @@
 
         @heading(Html(title))
 
-        @paragraph(Html(messages(s"choose-file-type.securities.help-text")), Some("govuk-body govuk-!-margin-bottom-6 govuk-inset-text"))
+        @paragraph(Html(messages(s"choose-file-type.securities.help-text")), Some("govuk-body govuk-!-margin-bottom-6 govuk-hint"))
 
         @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
             @radios(
                 form = form,
-                name = key,
+                name = "choose-file-type",
                 legend = title,
                 legendAsHeading = false,
                 hintKey = None,

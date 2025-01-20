@@ -19,56 +19,53 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectBillOfDischargeForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.addOtherDocumentsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_bill_of_discharge
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.invalid_bill_of_discharge
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.add_other_documents_page
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class BillOfDischarge3Controller @Inject() (
+class AddOtherDocumentsController @Inject() (
   val jcc: JourneyControllerComponents,
-  confirmBillOfDischarge: confirm_bill_of_discharge,
-  invalidBillOfDischarge: invalid_bill_of_discharge
-)(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
+  addOtherDocumentsPage: add_other_documents_page
+)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
+  private val form: Form[YesNo] = addOtherDocumentsForm
 
-  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  private val submitRoute = routes.BillOfDischarge3Controller.submit
-
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitRoute, BOD3)).asFuture
+  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit)).asFuture
   }
 
-  def submit: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    selectBillOfDischargeForm
+  def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    form
       .bindFromRequest()
       .fold(
-        formWithError => BadRequest(confirmBillOfDischarge(formWithError, submitRoute, BOD3)),
+        formWithErrors =>
+          BadRequest(
+            addOtherDocumentsPage(formWithErrors, routes.AddOtherDocumentsController.submit)
+          ).asFuture,
         {
-          case Yes => Redirect(routes.AddOtherDocumentsController.show)
-          case No  => Redirect(routes.BillOfDischarge3Controller.invalid)
+          case Yes => Redirect(routes.ChooseFileTypeController.show).asFuture
+          case No  => Redirect(routes.ChoosePayeeTypeController.show).asFuture
         }
       )
-      .asFuture
-  }
 
-  val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(invalidBillOfDischarge(BOD3)).asFuture
   }
 }

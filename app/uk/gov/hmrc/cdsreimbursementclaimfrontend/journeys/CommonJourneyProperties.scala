@@ -174,7 +174,7 @@ trait CommonJourneyProperties {
     getConsigneeBankAccountDetails.orElse(getDeclarantBankAccountDetails)
 
   final def needsProofOfAuthorityForBankAccountDetailsChange: Boolean =
-    answers.bankAccountDetails.exists { bankDetails =>
+    answers.bankAccountDetails.forall { bankDetails =>
       getConsigneeBankAccountDetails.forall(_ =!= bankDetails) &&
       getDeclarantBankAccountDetails.forall(_ =!= bankDetails)
     }

@@ -62,8 +62,11 @@ object EnterBankAccountDetailsController {
   val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
-    successPath = routes.ChooseFileTypeController.show,
-    submitPath = routes.EnterBankAccountDetailsController.submit
+    submitPath = routes.EnterBankAccountDetailsController.submit,
+    successPath = (journey: SecuritiesJourney) =>
+      if journey.reasonForSecurityIsIPR
+      then routes.EnterAdditionalDetailsController.show
+      else routes.ChooseFileTypeController.show
   )
 
 }

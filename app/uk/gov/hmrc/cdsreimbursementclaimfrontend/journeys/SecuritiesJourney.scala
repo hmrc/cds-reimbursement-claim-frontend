@@ -258,8 +258,9 @@ final class SecuritiesJourney private (
   }
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    getSelectedDepositIds.nonEmpty &&
-      !isAllSelectedDutiesAreGuaranteeEligible
+    reasonForSecurityIsIPR
+      || (getSelectedDepositIds.nonEmpty
+        && !isAllSelectedDutiesAreGuaranteeEligible)
 
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
@@ -310,6 +311,9 @@ final class SecuritiesJourney private (
 
   def requiresBillOfDischargeForm: Boolean =
     reasonForSecurityIsIPR || reasonForSecurityIsEndUseRelief
+
+  def needsReimbursementAmountSubmission: Boolean =
+    !reasonForSecurityIsIPR
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
@@ -1056,11 +1060,14 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       )
 
     val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
-      checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
-        checkIsTrue[SecuritiesJourney](
-          _.getTotalClaimAmount > 0,
-          TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
-        )
+      whenTrue[SecuritiesJourney](
+        _.needsReimbursementAmountSubmission,
+        checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
+          checkIsTrue[SecuritiesJourney](
+            _.getTotalClaimAmount > 0,
+            TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
+          )
+      )
 
     val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
       hasMRNAndDisplayDeclarationAndRfS &

@@ -135,7 +135,7 @@ class BillOfDischarge4ControllerSpec
 
         checkIsRedirect(
           submitBod4Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischarge4Controller.invalid()
+          routes.BillOfDischarge4Controller.invalid
         )
       }
     }

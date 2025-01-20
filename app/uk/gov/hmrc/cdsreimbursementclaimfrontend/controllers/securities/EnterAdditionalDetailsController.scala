@@ -45,8 +45,11 @@ class EnterAdditionalDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val postAction: Call    = routes.EnterAdditionalDetailsController.submit
-  final val continueRoute: Call = routes.CheckYourAnswersController.show
+  final val postAction: Call                      = routes.EnterAdditionalDetailsController.submit
+  final def continueRoute(journey: Journey): Call =
+    if journey.reasonForSecurityIsIPR
+    then routes.EnterContactDetailsController.show
+    else routes.CheckYourAnswersController.show
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
@@ -83,7 +86,7 @@ class EnterAdditionalDetailsController @Inject() (
             Future.successful(
               (
                 journey.submitAdditionalDetails(additionalDetails),
-                Redirect(continueRoute)
+                Redirect(continueRoute(journey))
               )
             )
         )

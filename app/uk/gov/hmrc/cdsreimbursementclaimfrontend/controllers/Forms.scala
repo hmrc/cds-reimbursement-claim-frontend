@@ -203,6 +203,8 @@ object Forms {
 
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
+  val addOtherDocumentsForm: Form[YesNo] = YesOrNoQuestionForm("add-other-documents")
+
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
       "select-duties" -> list(

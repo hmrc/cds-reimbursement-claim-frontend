@@ -78,16 +78,19 @@ POST         /securities/check-these-bank-details-are-correct-bars-validation   
 GET          /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.show
 POST         /securities/enter-bank-account-details                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterBankAccountDetailsController.submit
 
+GET          /securities/add-other-documents                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.AddOtherDocumentsController.show
+POST         /securities/add-other-documents                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.AddOtherDocumentsController.submit
+
 GET          /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.show
 POST         /securities/choose-file-type                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChooseFileTypeController.submit
-
-GET          /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.show
-POST         /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.submit
 
 GET          /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadFilesController.show
 +nocsrf
 POST         /securities/choose-files                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadFilesController.submit
 GET          /securities/upload-summary                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadFilesController.summary
+
+GET          /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.show
+POST         /securities/enter-additional-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterAdditionalDetailsController.submit
 
 POST         /securities/submit-claim                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.submit
 GET          /securities/claim-submitted                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckYourAnswersController.showConfirmation
@@ -96,8 +99,8 @@ GET          /securities/claim-details                                 @uk.gov.h
 
 POST         /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge3Controller.submit
 GET          /securities/bod3-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge3Controller.show
-GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge3Controller.invalid()
+GET          /securities/error/claim-invalid-nobod3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge3Controller.invalid
 
 POST         /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge4Controller.submit
 GET          /securities/bod4-mandatory-check                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge4Controller.show
-GET          /securities/error/claim-invalid-nobod4                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge4Controller.invalid()
+GET          /securities/error/claim-invalid-nobod4                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.BillOfDischarge4Controller.invalid

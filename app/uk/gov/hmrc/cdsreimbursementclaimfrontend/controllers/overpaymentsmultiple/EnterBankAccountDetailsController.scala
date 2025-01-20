@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
@@ -48,10 +49,10 @@ class EnterBankAccountDetailsController @Inject() (
 }
 
 object EnterBankAccountDetailsController {
-  val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
+  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[OverpaymentsMultipleJourney](
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
-    successPath = routes.ChooseFileTypeController.show,
+    successPath = _ => routes.ChooseFileTypeController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit
   )
 }

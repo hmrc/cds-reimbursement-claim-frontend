@@ -61,7 +61,8 @@ class CheckClaimantDetailsController @Inject() (
   override val retrieveLookupAddress: Call =
     routes.CheckClaimantDetailsController.retrieveAddressFromALF()
 
-  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
+  override val startAddressLookup: Call =
+    routes.CheckClaimantDetailsController.redirectToALF()
 
   override def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable =
     cd => ca => implicit request => claimantDetailsPage(cd, ca, changeCd, Some(startAddressLookup), postAction)
@@ -82,11 +83,9 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    if journey.userHasSeenCYAPage then {
-      (journey, Redirect(routes.CheckYourAnswersController.show))
-    } else {
-      (journey, Redirect(routes.CheckClaimantDetailsController.show))
-    }
+    if journey.userHasSeenCYAPage || journey.reasonForSecurityIsIPR
+    then (journey, Redirect(routes.CheckYourAnswersController.show))
+    else (journey, Redirect(routes.CheckClaimantDetailsController.show))
 }
 
 object CheckClaimantDetailsController {
