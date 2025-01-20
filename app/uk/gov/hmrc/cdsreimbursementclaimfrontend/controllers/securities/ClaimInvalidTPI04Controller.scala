@@ -35,7 +35,7 @@ class ClaimInvalidTPI04Controller @Inject() (
     extends SecuritiesJourneyBaseController {
 
   val show: Action[AnyContent] =
-    actionReadJourney { implicit request => _ =>
-      Future.successful(Ok(errorClaimInvalidTPI04Page()))
+    actionReadJourney { implicit request => journey =>
+      Future.successful(Ok(errorClaimInvalidTPI04Page(journey.getReasonForSecurity)))
     }
 }
