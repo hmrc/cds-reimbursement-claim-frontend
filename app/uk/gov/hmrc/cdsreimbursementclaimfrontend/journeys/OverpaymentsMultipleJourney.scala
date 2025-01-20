@@ -249,11 +249,12 @@ final class OverpaymentsMultipleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+  def getAvailableClaimTypes(quotaEnabled: Boolean = true): Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration
+        getLeadDisplayDeclaration,
+        isQuotaEnabled = quotaEnabled
       )
 
   def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =

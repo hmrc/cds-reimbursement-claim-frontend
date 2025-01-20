@@ -53,9 +53,9 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
   def needsBanksAccountDetailsSubmission: Boolean =
     !this.isSubsidyOnlyJourney
 
-  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
+  def getAvailableClaimTypes(quotaEnabled: Boolean = true): Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
-      .excludeNorthernIrelandClaims(false, answers.displayDeclaration)
+      .excludeNorthernIrelandClaims(false, answers.displayDeclaration, isQuotaEnabled = quotaEnabled)
 
   def getSelectedDocumentType: Option[UploadDocumentType] =
     answers.selectedDocumentType

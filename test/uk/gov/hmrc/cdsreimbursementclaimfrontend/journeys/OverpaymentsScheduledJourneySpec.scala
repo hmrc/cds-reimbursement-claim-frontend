@@ -856,7 +856,7 @@ class OverpaymentsScheduledJourneySpec
 
       journey.getDocumentTypesIfRequired shouldBe Some(availableDocumentTypes)
 
-      journey.getAvailableClaimTypes shouldBe availableClaimTypes
+      journey.getAvailableClaimTypes() shouldBe availableClaimTypes
 
       for document <- availableDocumentTypes do {
         val result = journey.submitDocumentTypeSelection(document)
