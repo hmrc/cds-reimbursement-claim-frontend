@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 trait EnterNewEoriNumberMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
 
   val eoriDetailsConnector: EoriDetailsConnector
   val newEoriPage: enter_new_eori_number

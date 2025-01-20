@@ -206,7 +206,7 @@ final class OverpaymentsScheduledJourney private (
               .map(dutyType =>
                 dutyType -> getReimbursementClaimsFor(dutyType)
                   .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
-              ): _*
+              )*
           )
         Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
       }
@@ -230,9 +230,9 @@ final class OverpaymentsScheduledJourney private (
                   case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
                     dt -> SortedMap(taxCodes.map { tc =>
                       tc -> reimbursementClaims.get(tc).flatten
-                    }: _*)
+                    }*)
                   case other                                                  => other
-                }: _*)
+                }*)
               }
           Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
         } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
@@ -263,9 +263,9 @@ final class OverpaymentsScheduledJourney private (
                         case (tc, _) if tc === taxCode =>
                           tc -> Some(amounts)
                         case other                     => other
-                      }: _*)
+                      }*)
                     case other                                        => other
-                  }: _*)
+                  }*)
                 )
             Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
           } else Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -570,12 +570,12 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
       .map(_.submitContactDetails(answers.contactDetails))
       .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
       .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
@@ -589,9 +589,9 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
               j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)
           })
       })
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .mapWhenDefined(answers.newEori)(_.submitNewEori)
       .mapWhenDefined(answers.newDan)(_.submitNewDan)
       .flatMapEach(

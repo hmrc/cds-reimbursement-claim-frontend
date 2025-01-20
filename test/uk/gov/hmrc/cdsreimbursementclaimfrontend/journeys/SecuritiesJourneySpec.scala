@@ -503,8 +503,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .groupBy(_._1)
               .view
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }: _*))
-              .toSeq: _*
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }*))
+              .toSeq*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -550,8 +550,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
               .groupBy(_._1)
               .view
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }: _*))
-              .toSeq: _*
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, _) => (tc, None) }*))
+              .toSeq*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -724,8 +724,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             reclaims
               .groupBy(_._1)
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }: _*))
-              .toSeq: _*
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }*))
+              .toSeq*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -782,8 +782,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             reclaims
               .groupBy(_._1)
               .view
-              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }: _*))
-              .toSeq: _*
+              .mapValues(ss => SortedMap(ss.map { case (_, tc, _, amount) => (tc, Some(amount)) }*))
+              .toSeq*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -836,8 +836,8 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
           SortedMap(
             reclaimsBySecurityDepositId
               .map { case (sid, reclaims) =>
-                (sid, SortedMap(reclaims.map { case (tc, a) => (tc, Some(a)) }: _*))
-              }: _*
+                (sid, SortedMap(reclaims.map { case (tc, a) => (tc, Some(a)) }*))
+              }*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
@@ -1076,9 +1076,9 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
             decl.displayResponseDetail.securityDetails.getOrElse(Nil).map { sd =>
               (
                 sd.securityDepositId,
-                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(ZERO))): _*)
+                SortedMap(sd.taxDetails.map(td => (td.getTaxCode, Some(ZERO)))*)
               )
-            }: _*
+            }*
           )
 
         journey.answers.movementReferenceNumber.contains(mrn) shouldBe true

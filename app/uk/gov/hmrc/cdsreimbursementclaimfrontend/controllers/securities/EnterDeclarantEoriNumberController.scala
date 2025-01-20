@@ -133,7 +133,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   private def checkIfClaimIsDuplicated(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier,
-    r: Request[_]
+    r: Request[?]
   ): EitherT[Future, Result, Boolean] =
     DeclarationConnector
       .getIsDuplicate(mrn, reasonForSecurity)

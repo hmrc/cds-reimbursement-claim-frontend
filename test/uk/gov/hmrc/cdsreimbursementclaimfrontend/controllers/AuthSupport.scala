@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 trait AuthSupport {
-  this: ControllerSpec with SessionSupport =>
+  this: ControllerSpec & SessionSupport =>
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
@@ -92,7 +92,7 @@ trait AuthSupport {
       Future successful (
         retrievedAffinityGroup and Enrolments(
           retrievedEnrolments
-        ) and retrievedCredentials
+        ) `and` retrievedCredentials
       )
     )
 

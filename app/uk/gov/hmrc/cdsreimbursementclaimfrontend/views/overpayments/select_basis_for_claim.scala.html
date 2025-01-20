@@ -38,7 +38,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[BasisOfOverpaymentClaim], claimTypes: Set[BasisOfOverpaymentClaim], basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BasisOfOverpaymentClaim], claimTypes: Set[BasisOfOverpaymentClaim], basisOfClaimsHints: DropdownHints, subKey: Option[String], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-basis-for-claim"}
 @title = @{messages(s"select-basis-for-claim.title")}

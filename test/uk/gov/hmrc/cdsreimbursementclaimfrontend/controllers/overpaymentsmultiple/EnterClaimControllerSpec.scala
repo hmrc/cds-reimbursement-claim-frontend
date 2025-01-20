@@ -225,7 +225,7 @@ class EnterClaimControllerSpec
 
     "Submit Enter Claim page" must {
       def performAction(pageIndex: Int, taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

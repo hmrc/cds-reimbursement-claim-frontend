@@ -146,7 +146,7 @@ class EnterClaimController @Inject() (
     )
 
   private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
-    implicit request: Request[_]
+    implicit request: Request[?]
   ): Future[Either[Result, (Option[BigDecimal], BigDecimal)]] = {
     val correctAmountsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
       journey.answers.correctedAmounts.flatMap(_.get(securityDepositId))

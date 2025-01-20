@@ -81,7 +81,7 @@ class EnterSpecialCircumstancesControllerSpec
     controller.show(FakeRequest())
 
   def submitSpecialCircumstances(data: (String, String)*): Future[Result] =
-    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
   "Enter Special Circumstances Controller" must {
     "not find the page if rejected goods feature is disabled" in {

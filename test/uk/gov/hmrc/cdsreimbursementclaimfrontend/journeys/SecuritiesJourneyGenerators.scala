@@ -410,8 +410,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           reclaims
             .groupBy(_._1)
             .view
-            .mapValues(s => SortedMap(s.map { case (_, taxCode, _, amount) => (taxCode, Option(amount)) }: _*))
-            .toSeq: _*
+            .mapValues(s => SortedMap(s.map { case (_, taxCode, _, amount) => (taxCode, Option(amount)) }*))
+            .toSeq*
         )
 
       val supportingEvidencesExpanded: Seq[UploadedFile] =

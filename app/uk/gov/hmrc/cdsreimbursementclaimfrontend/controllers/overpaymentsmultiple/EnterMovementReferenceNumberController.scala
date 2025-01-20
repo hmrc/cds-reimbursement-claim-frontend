@@ -167,7 +167,7 @@ class EnterMovementReferenceNumberController @Inject() (
         EitherT.leftT(Error("could not unbox display declaration"))
     }
 
-  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String)(implicit request: Request[_]) =
+  private def customError(mrn: MRN, pageIndex: Int, errorSuffix: String)(implicit request: Request[?]) =
     enterMovementReferenceNumberPage(
       movementReferenceNumberForm
         .fill(mrn)

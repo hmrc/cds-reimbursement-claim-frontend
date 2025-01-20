@@ -32,7 +32,7 @@
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
 )
 
-@(form: Form[MRN], refNumberKey: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], refNumberKey: Option[String], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-duplicate-movement-reference-number"}
 @title = @{messages(combine(key, refNumberKey, "title"))}

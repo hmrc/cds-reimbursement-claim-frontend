@@ -151,7 +151,7 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(data: (String, String)*)(implicit
         controller: CheckDeclarationDetailsController
       ): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

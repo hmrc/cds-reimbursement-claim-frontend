@@ -26,7 +26,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(securitiesStartPageUrl: String)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(securitiesStartPageUrl: String)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"claim-invalid-not-exported-all.title")}
 

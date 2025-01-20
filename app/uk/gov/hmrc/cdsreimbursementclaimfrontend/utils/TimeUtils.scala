@@ -120,6 +120,6 @@ object TimeUtils {
 
     }
 
-  implicit val localDateOrder: Order[LocalDate] = Order.from(_ compareTo _)
+  implicit val localDateOrder: Order[LocalDate] = Order.from(_ `compareTo` _)
 
 }

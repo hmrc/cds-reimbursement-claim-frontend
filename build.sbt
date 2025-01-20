@@ -33,13 +33,12 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "3.3.4")
+  .settings(scalaVersion := "3.4.3")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PathBinders._",
-      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN",
@@ -60,13 +59,15 @@ lazy val microservice = Project(appName, file("."))
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(
-    scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s,src=${target.value}/scala-${scalaBinaryVersion.value}/twirl/.*:s",
     scalacOptions += "-Wunused:all",
-    scalacOptions += "-Xmax-inlines:128"
+    scalacOptions += "-Xmax-inlines:128",
+    scalacOptions += "-experimental"
   )
   .settings(Compile / doc / sources := Seq.empty)
   .settings(scalacOptions --= Seq("-Xfatal-warnings"))
-  .settings(Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard"))
+  .settings(
+    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard", "-Wvalue-discard")
+  )
   .settings(Test / envVars := Map("SCALACTIC_FILL_FILE_PATHNAMES" -> "yes"))
   .settings(Test / fork := false)
 

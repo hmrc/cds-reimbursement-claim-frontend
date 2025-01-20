@@ -112,7 +112,7 @@ class EnterContactDetailsControllerSpec
     "Submit Basis for claim page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -138,10 +138,10 @@ class EnterContactDetailsControllerSpec
           messageFromMessageKey("enter-contact-details.title"),
           doc => {
             val errors = getErrorSummary(doc)
-            errors contains messageFromMessageKey(
+            errors `contains` messageFromMessageKey(
               "enter-contact-details.contact-name.error.required"
             )
-            errors contains messageFromMessageKey(
+            errors `contains` messageFromMessageKey(
               "enter-contact-details.contact-email.error.required"
             )
           },

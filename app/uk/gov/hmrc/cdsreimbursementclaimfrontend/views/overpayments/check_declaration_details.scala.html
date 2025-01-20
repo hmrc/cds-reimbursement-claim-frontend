@@ -42,7 +42,7 @@
         warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
 @title = @{if(isDuplicate) messages(s"check-declaration-details.duplicate.title") else messages(s"check-declaration-details.title")}

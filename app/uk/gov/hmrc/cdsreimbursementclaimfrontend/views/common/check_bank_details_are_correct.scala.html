@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.BankAccountDetailsSummary
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
-@import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import play.api.data.Form
@@ -32,18 +31,16 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[YesNo], bankAccount: BankAccountDetails, isCMA: Boolean, postAction: Call, changeAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], bankAccount: BankAccountDetails, isCMA: Boolean, postAction: Call, changeAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"bank-details.warning.title")}
 

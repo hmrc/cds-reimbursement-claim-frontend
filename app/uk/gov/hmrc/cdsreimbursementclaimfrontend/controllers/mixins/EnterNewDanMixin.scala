@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 trait EnterNewDanMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.OverpaymentsJourneyProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
 
   val newDanPage: enter_new_dan
   val postAction: Call

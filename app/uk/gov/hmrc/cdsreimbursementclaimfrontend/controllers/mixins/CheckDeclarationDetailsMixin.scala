@@ -34,7 +34,7 @@ import scala.concurrent.Future
 
 trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with JourneyBase with CommonJourneyProperties
+  type Journey <: journeys.Journey & JourneyBase & CommonJourneyProperties
 
   def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration]
   def continueRoute(journey: Journey): Call
@@ -44,7 +44,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey
 
-  def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[_] => HtmlFormat.Appendable
+  def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[?] => HtmlFormat.Appendable
 
   val checkDeclarationDetailsAnswerForm: Form[YesNo] =
     YesOrNoQuestionForm("check-declaration-details")

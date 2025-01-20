@@ -110,7 +110,7 @@ class EnterContactDetailsControllerSpec
     "Submit Basis for claim page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
@@ -135,10 +135,10 @@ class EnterContactDetailsControllerSpec
           performAction(),
           messageFromMessageKey("enter-contact-details.title"),
           doc => {
-            getErrorSummary(doc) contains messageFromMessageKey(
+            getErrorSummary(doc) `contains` messageFromMessageKey(
               "enter-contact-details.contact-name.error.required"
             )
-            getErrorSummary(doc) contains messageFromMessageKey(
+            getErrorSummary(doc) `contains` messageFromMessageKey(
               "enter-contact-details.contact-email.error.required"
             )
           },

@@ -20,7 +20,6 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import play.api.mvc.Request
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -42,7 +41,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(eori: Eori, name: String, form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(eori: Eori, name: String, form: Form[YesNo], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-eori-details"}
 @title = @{messages(s"check-eori-details.title")}

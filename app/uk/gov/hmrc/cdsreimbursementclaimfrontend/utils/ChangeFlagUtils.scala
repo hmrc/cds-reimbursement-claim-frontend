@@ -26,7 +26,7 @@ object ChangeFlagUtils {
   val changeFlag = "change"
 
   implicit class CallOps(val call: Call) {
-    def maybeSetChangeFlag(implicit request: Request[_]): Call =
+    def maybeSetChangeFlag(implicit request: Request[?]): Call =
       if isChangeRequest then call.copy(url = addChangeParameter(call.url))
       else call
 
@@ -34,7 +34,7 @@ object ChangeFlagUtils {
       call.copy(url = addChangeParameter(call.url))
   }
 
-  def isChangeRequest(implicit request: Request[_]): Boolean =
+  def isChangeRequest(implicit request: Request[?]): Boolean =
     request.getQueryString(changeFlag).isDefined
 
   private def addChangeParameter(url: String): String =

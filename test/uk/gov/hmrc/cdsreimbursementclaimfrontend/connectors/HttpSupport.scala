@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.HttpResponse
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-trait HttpSupport { this: MockFactory with Matchers =>
+trait HttpSupport { this: MockFactory & Matchers =>
 
   val mockHttp: HttpClient = mock[HttpClient]
 

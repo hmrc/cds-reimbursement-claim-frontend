@@ -33,7 +33,7 @@
 )
 
 
-@(form: Form[InspectionDate], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[InspectionDate], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-inspection-date.rejected-goods"}
 @title = @{messages(s"enter-inspection-date.rejected-goods.title")}

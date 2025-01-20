@@ -32,7 +32,7 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
 
   def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey
 
-  def viewTemplate: MrnContactDetails => ContactAddress => Request[_] => HtmlFormat.Appendable
+  def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
     val (maybeContactDetails, maybeAddressDetails) =

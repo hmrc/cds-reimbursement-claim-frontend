@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 
 object DutyTypesSelectedAnswer {
   def apply(head: DutyType, tail: DutyType*): NonEmptyList[DutyType] =
-    NonEmptyList.of(head, tail: _*)
+    NonEmptyList.of(head, tail*)
 
   def apply(l: List[DutyType]): Option[NonEmptyList[DutyType]] =
     NonEmptyList.fromList(l)

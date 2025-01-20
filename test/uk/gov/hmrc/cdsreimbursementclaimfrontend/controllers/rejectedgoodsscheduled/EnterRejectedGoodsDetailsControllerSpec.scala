@@ -65,7 +65,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = featureSwitch enable Feature.RejectedGoods
+  override def beforeEach(): Unit = featureSwitch `enable` Feature.RejectedGoods
 
   "Enter Rejected Goods Details Controller" should {
 
@@ -116,7 +116,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "submit page" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

@@ -32,9 +32,8 @@
     warningText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.warning_text
 )
 
-@(form: Form[BankAccountDetails], isCMA: Boolean, postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BankAccountDetails], isCMA: Boolean, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-bank-account-details"}
 @title = @{messages(s"enter-bank-account-details.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

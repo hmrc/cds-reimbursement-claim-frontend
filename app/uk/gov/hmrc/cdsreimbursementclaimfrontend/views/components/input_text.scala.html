@@ -28,7 +28,7 @@
 @this(govukInput: GovukInput)
 
 @(
-    form: Form[_],
+    form: Form[?],
     id: String,
     name: String,
     label: String,
@@ -52,7 +52,7 @@
     name,
     classes = classes.fold("")(x => x),
     label = Label(
-        content = HtmlContent(if(doNotResolveLabel) label else messages(label, headingMessageArgs:_*)),
+        content = HtmlContent(if(doNotResolveLabel) label else messages(label, headingMessageArgs*)),
         isPageHeading = isPageHeading,
         classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else ""),
         attributes = Map("id" -> s"$id-label")
@@ -68,5 +68,5 @@
     autocomplete = autocomplete,
     spellcheck = spellcheck,
     prefix = prefix,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = HtmlContent(messages(s"$name.${err.message}", err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = HtmlContent(messages(s"$name.${err.message}", err.args*))))
 ))

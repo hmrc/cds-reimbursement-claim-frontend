@@ -32,7 +32,7 @@
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(form: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-total-import-discharged"}
 @title = @{messages(s"check-total-import-discharged.title")}

@@ -107,7 +107,7 @@ class ChoosePayeeTypeControllerSpec
       controller.show(FakeRequest())
 
     def submitPayeeType(data: (String, String)*): Future[Result] =
-      controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
       inSequence {

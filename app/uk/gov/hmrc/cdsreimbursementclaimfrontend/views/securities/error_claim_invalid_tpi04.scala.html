@@ -18,14 +18,14 @@
 @import play.api.mvc.Request
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.{routes => commonRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
 @(reasonForSecurity: Option[ReasonForSecurity])(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)

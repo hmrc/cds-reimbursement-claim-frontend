@@ -154,14 +154,21 @@ trait CommonJourneyProperties {
   final def toReimbursementWithCorrectAmount(
     claims: SortedMap[TaxCode, Option[AmountPaidWithCorrect]]
   ): List[ReimbursementWithCorrectAmount] =
-    claims.view.map { case (taxCode, Some(amount)) =>
-      ReimbursementWithCorrectAmount(
-        taxCode,
-        amount.paidAmount - amount.correctAmount,
-        amount.paidAmount,
-        amount.correctAmount
-      )
-    }.toList
+    claims.view
+      .map {
+        case (taxCode, Some(amount)) =>
+          Some(
+            ReimbursementWithCorrectAmount(
+              taxCode,
+              amount.paidAmount - amount.correctAmount,
+              amount.paidAmount,
+              amount.correctAmount
+            )
+          )
+        case _                       => None
+      }
+      .collect { case Some(x) => x }
+      .toList
 
   final def getInitialBankAccountDetailsFromDeclaration: Option[BankAccountDetails] =
     getConsigneeBankAccountDetails.orElse(getDeclarantBankAccountDetails)

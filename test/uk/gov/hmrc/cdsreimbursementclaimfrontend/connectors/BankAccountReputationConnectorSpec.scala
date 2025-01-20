@@ -92,13 +92,13 @@ class BankAccountReputationConnectorSpec
     "return bank account reputation information from a successful business request call" in
       forAll { (request: BarsBusinessAssessRequest, response: BusinessCompleteResponse) =>
         givenServiceReturns(businessUrl, request)(Some(HttpResponse(200, Json.toJson(response).toString()))).once()
-        await(connector.getBusinessReputation(request).value) shouldBe a[Right[_, BankAccountReputation]]
+        await(connector.getBusinessReputation(request).value) shouldBe a[Right[?, BankAccountReputation]]
       }
 
     "return bank account reputation information from a successful personal request call" in {
       forAll { (request: BarsPersonalAssessRequest, response: PersonalCompleteResponse) =>
         givenServiceReturns(personalUrl, request)(Some(HttpResponse(200, Json.toJson(response).toString()))).once()
-        await(connector.getPersonalReputation(request).value) shouldBe a[Right[_, BankAccountReputation]]
+        await(connector.getPersonalReputation(request).value) shouldBe a[Right[?, BankAccountReputation]]
       }
     }
 
@@ -229,7 +229,7 @@ class BankAccountReputationConnectorSpec
       givenServiceReturns(businessUrl, businessRequest)(
         Some(HttpResponse(200, Json.toJson(businessResponseBody).toString()))
       ).once()
-      await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[_, BankAccountReputation]]
+      await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a personal request on a second attempt" in {
@@ -237,7 +237,7 @@ class BankAccountReputationConnectorSpec
       givenServiceReturns(personalUrl, personalRequest)(
         Some(HttpResponse(200, Json.toJson(personalResponseBody).toString()))
       ).once()
-      await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[_, BankAccountReputation]]
+      await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a business request on a third attempt" in {
@@ -245,7 +245,7 @@ class BankAccountReputationConnectorSpec
       givenServiceReturns(businessUrl, businessRequest)(
         Some(HttpResponse(200, Json.toJson(businessResponseBody).toString()))
       ).once()
-      await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[_, BankAccountReputation]]
+      await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a personal request on a third attempt" in {
@@ -253,7 +253,7 @@ class BankAccountReputationConnectorSpec
       givenServiceReturns(personalUrl, personalRequest)(
         Some(HttpResponse(200, Json.toJson(personalResponseBody).toString()))
       ).once()
-      await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[_, BankAccountReputation]]
+      await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
   }
 }

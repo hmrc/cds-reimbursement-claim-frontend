@@ -30,7 +30,7 @@ trait Logging {
 
   def logAndDisplayError(
     description: String
-  )(implicit errorHandler: ErrorHandler, request: Request[_]): Error => Result = {
+  )(implicit errorHandler: ErrorHandler, request: Request[?]): Error => Result = {
     import errorHandler._
     error => {
       logger.warn(description, error)
@@ -41,7 +41,7 @@ trait Logging {
   def logAndDisplayError[T](
     description: String,
     error: T
-  )(implicit errorHandler: ErrorHandler, request: Request[_], cdsError: CdsError[T]): Result = {
+  )(implicit errorHandler: ErrorHandler, request: Request[?], cdsError: CdsError[T]): Result = {
     import errorHandler._
     logger.warn(s"$description: ${cdsError.message(error)}")
     errorResult()
@@ -78,6 +78,7 @@ object PrettyPrint {
     * @return
     */
 
+  @scala.annotation.nowarn
   def apply(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {
     val indent      = " " * depth * indentSize
     val fieldIndent = indent + (" " * indentSize)

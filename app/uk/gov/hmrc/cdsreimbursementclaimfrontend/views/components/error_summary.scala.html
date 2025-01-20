@@ -31,7 +31,7 @@
     @defining(errors.map { error =>
         ErrorLink(
             href = Some(s"#${error.key}"),
-            content = HtmlContent(messages(s"${error.key}.${error.message}", error.args:_*))
+            content = HtmlContent(messages(s"${error.key}.${error.message}", error.args*))
         )
     }) { errorLinks =>
         @govukErrorSummary(ErrorSummary(

@@ -100,6 +100,7 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
+  @scala.annotation.nowarn
   private def mockGetXiEori(response: Future[UserXiEori]) =
     (mockXiEoriConnector
       .getXiEori(_: HeaderCarrier))
@@ -172,7 +173,7 @@ class EnterMovementReferenceNumberControllerSpec
     "Submit MRN page" must {
 
       def performAction(data: (String, String)*)(pageIndex: Int = 1): Future[Result] =
-        controller.submit(pageIndex)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(pageIndex)(FakeRequest().withFormUrlEncodedBody(data*))
 
       val leadMrn            = sample[MRN]
       val secondMrn          = sample[MRN]

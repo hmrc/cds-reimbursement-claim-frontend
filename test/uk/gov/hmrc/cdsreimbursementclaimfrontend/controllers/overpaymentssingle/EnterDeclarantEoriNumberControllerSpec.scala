@@ -181,7 +181,7 @@ class EnterDeclarantEoriNumberControllerSpec
     "Submit Declarant Eori  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "do not find the page if overpayments feature is disabled" in {
         featureSwitch.disable(Feature.Overpayments_v2)

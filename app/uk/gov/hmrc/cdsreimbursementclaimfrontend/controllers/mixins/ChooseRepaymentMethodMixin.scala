@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 trait ChooseRepaymentMethodMixin extends JourneyBaseController {
 
-  type Journey <: journeys.Journey with journeys.JourneyBase with journeys.SingleVariantProperties
+  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.SingleVariantProperties
 
   def postAction: Call
   def enterBankDetailsRoute: Call

@@ -180,17 +180,17 @@ trait SummaryMatchers {
   implicit class OptionalOps[A](val value: A) {
     def expectedAlways: Option[A]               = Some(value)
     def expectedWhen(test: Boolean): Option[A]  = if test then Some(value) else None
-    def expectedWhen(opt: Option[_]): Option[A] = if opt.isDefined then Some(value) else None
+    def expectedWhen(opt: Option[?]): Option[A] = if opt.isDefined then Some(value) else None
   }
 
   implicit class OptionalPairValueOps[A](val value: (String, Option[A])) {
     def expectedWhen(test: Boolean): (String, Option[A])  = if test then value else (value._1, None)
-    def expectedWhen(opt: Option[_]): (String, Option[A]) = if opt.isDefined then value else (value._1, None)
+    def expectedWhen(opt: Option[?]): (String, Option[A]) = if opt.isDefined then value else (value._1, None)
   }
 
   implicit class PairValueOps[A](val value: (String, A)) {
     def expectedWhen(test: Boolean): (String, Option[A])  = if test then (value._1, Some(value._2)) else (value._1, None)
-    def expectedWhen(opt: Option[_]): (String, Option[A]) =
+    def expectedWhen(opt: Option[?]): (String, Option[A]) =
       if opt.isDefined then (value._1, Some(value._2)) else (value._1, None)
   }
 

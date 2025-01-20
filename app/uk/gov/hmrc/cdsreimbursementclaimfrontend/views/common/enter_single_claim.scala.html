@@ -20,15 +20,12 @@
 @import play.api.mvc.Request
 @import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
@@ -42,11 +39,10 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
-        caption_l: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption_l,
         dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[BigDecimal], maybeMRN: Option[String], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false,  postAction: Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], maybeMRN: Option[String], taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false,  postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     if(TaxCodes.custom.contains(taxCode))

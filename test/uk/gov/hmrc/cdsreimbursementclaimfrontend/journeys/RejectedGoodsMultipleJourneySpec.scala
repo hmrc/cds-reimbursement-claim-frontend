@@ -851,7 +851,7 @@ class RejectedGoodsMultipleJourneySpec
           val taxCodesWithAmounts = taxCodes.zip(correctAmounts)
           val modifiedJourney     = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
-            .flatMapEach(taxCodesWithAmounts, submitData(mrn) _)
+            .flatMapEach(taxCodesWithAmounts, submitData(mrn))
             .getOrFail
 
           modifiedJourney.hasCompleteAnswers                  shouldBe false
@@ -875,7 +875,7 @@ class RejectedGoodsMultipleJourneySpec
           val taxCodesWithAmounts = taxCodes.zip(claimAmounts)
           val modifiedJourney     = journey
             .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodes)
-            .flatMapEach(taxCodesWithAmounts, submitData(mrn) _)
+            .flatMapEach(taxCodesWithAmounts, submitData(mrn))
             .getOrFail
 
           modifiedJourney.hasCompleteAnswers                  shouldBe false

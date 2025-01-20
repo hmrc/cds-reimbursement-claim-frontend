@@ -43,7 +43,7 @@ import scala.concurrent.Future
 class VerifiedEmailAddressServiceSpec extends AnyWordSpec with Matchers with MockFactory with SessionSupport {
 
   implicit val hc: HeaderCarrier   = HeaderCarrier()
-  implicit val request: Request[_] = FakeRequest()
+  implicit val request: Request[?] = FakeRequest()
 
   private val dataStoreConnector = mock[VerifiedEmailAddressConnector]
 

@@ -77,7 +77,7 @@ class ParagraphSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with
 
     "concatenate any sequence of strings and wrap into an html paragraph element" in {
       forAll(nonEmptyStringSeqGen) { n =>
-        Paragraph(n.head, n.tail.toSeq: _*).body shouldBe s"""
+        Paragraph(n.head, n.tail.toSeq*).body shouldBe s"""
         |<p class="govuk-body">
         |    ${n.map(HtmlFormat.escape).mkString("<br>")}
         |</p>

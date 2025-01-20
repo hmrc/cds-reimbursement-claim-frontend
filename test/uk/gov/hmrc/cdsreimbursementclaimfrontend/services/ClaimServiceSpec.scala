@@ -49,7 +49,7 @@ import scala.concurrent.Future
 class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with ScalaCheckPropertyChecks {
 
   implicit val hc: HeaderCarrier   = HeaderCarrier()
-  implicit val request: Request[_] = FakeRequest()
+  implicit val request: Request[?] = FakeRequest()
 
   val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
 

@@ -88,7 +88,7 @@ class RejectedGoodsScheduledClaimConnectorSpec
   val validResponseBody                                           = """{"caseNumber":"ABC312"}"""
 
   val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
-    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest) _
+    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest)(_)
 
   "RejectedGoodsScheduledClaimConnector" must {
     "have retries defined" in {

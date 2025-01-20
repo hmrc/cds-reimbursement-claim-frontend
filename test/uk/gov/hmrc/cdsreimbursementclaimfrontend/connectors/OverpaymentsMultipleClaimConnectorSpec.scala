@@ -87,7 +87,7 @@ class OverpaymentsMultipleClaimConnectorSpec
   val validResponseBody                                         = """{"caseNumber":"ABC123"}"""
 
   val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
-    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest) _
+    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest)(_)
 
   "OverpaymentsMultipleClaimConnector" must {
     "have retries defined" in {

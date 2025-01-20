@@ -30,9 +30,8 @@
     dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@()(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"landing"}
 @title = @{messages(s"landing.title")}
 
 @layout(pageTitle = Some(s"$title")) {

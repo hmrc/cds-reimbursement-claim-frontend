@@ -156,7 +156,7 @@ final class RejectedGoodsMultipleJourney private (
           case _        => None
         }
       }
-    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect: _*))
+    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
   }
 
   def needsBanksAccountDetailsSubmission: Boolean =
@@ -908,11 +908,11 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
         case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber _)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber _)
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
       .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress _)
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
       .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
       .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
       .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
@@ -929,9 +929,9 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       })
       .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
       .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType _)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails _)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType _)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .flatMapEach(
         answers.supportingEvidences,
         j =>

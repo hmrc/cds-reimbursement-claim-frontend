@@ -16,19 +16,14 @@
 
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
@@ -39,10 +34,7 @@
     isSubsidyOnly: Option[Boolean],
     subKey: Option[String] = None,
     isPrintView: Boolean = false
-)(implicit request: Request[_], messages: Messages,viewConfig: ViewConfig)
-
-@subsidySubHeading = @{if (isSubsidyOnly contains(true)) "h2-subsidy" else "h2"}
-@isSubsidy = @{if (isSubsidyOnly contains(true)) true else false}
+)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @displayDeclarationOpt.map { displayDeclaration =>
     @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))

@@ -23,7 +23,7 @@ import scala.util.Try
 object DateUtils {
 
   def displayFormat(maybeDate: Option[String]): Option[String] =
-    maybeDate.flatMap(displayFormat _)
+    maybeDate.flatMap(displayFormat)
 
   def displayFormat(date: String): Option[String] = {
     val result = for

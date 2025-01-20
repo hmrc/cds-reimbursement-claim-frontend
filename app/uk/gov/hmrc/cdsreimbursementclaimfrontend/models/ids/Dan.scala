@@ -22,7 +22,7 @@ import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan.validityRegex
 
 final case class Dan(value: String) {
-  def isValid: Boolean = value matches validityRegex
+  def isValid: Boolean = value `matches` validityRegex
 }
 
 object Dan {

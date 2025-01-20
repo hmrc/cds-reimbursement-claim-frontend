@@ -77,7 +77,7 @@ class EnterBankAccountDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  implicit val request: Request[_] = FakeRequest()
+  implicit val request: Request[?] = FakeRequest()
 
   private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-bank-account-details"
@@ -449,7 +449,7 @@ class EnterBankAccountDetailsControllerSpec
 
     "handle submit requests" when {
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialJourney  =

@@ -21,7 +21,6 @@
 @import play.twirl.api.Html
 @import play.twirl.api.TwirlFeatureImports.defining
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
@@ -38,7 +37,7 @@
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+@(references: Seq[MRN], form: Form[YesNo], postAction: Call, changeUrl: Int => Call, removeUrl: MRN => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-movement-reference-numbers.rejected-goods"}
 @title = @{messages(s"check-movement-reference-numbers.rejected-goods.title")}

@@ -73,7 +73,7 @@ class EnterInspectionDateControllerSpec
     controller.show(FakeRequest())
 
   def submitInspectionDate(data: (String, String)*): Future[Result] =
-    controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+    controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)

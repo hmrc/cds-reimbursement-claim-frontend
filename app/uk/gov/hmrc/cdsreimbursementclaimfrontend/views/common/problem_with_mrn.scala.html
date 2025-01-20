@@ -27,9 +27,8 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(mrn: MRN, enterMRNCall: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(mrn: MRN, enterMRNCall: Call)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
-@key = @{"problem-with-mrn"}
 @title = @{messages(s"problem-with-mrn.title")}
 
 @layout(pageTitle = Some(s"$title")) {

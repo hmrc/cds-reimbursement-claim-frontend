@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose
 
 trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
 
-  type Journey <: journeys.Journey with JourneyBase with RejectedGoodsJourneyProperties with HaveInspectionDetails
+  type Journey <: journeys.Journey & JourneyBase & RejectedGoodsJourneyProperties & HaveInspectionDetails
 
   val startAddressLookup: Call
   val postAction: Call
