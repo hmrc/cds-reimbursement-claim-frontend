@@ -847,7 +847,7 @@ class OverpaymentsScheduledJourneySpec
 
       val availableClaimTypes =
         BasisOfOverpaymentClaim
-          .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
+          .excludeNorthernIrelandClaims(false, Some(displayDeclaration), isQuotaEnabled = false)
 
       val journey = OverpaymentsScheduledJourney
         .empty(exampleEori)
@@ -856,7 +856,7 @@ class OverpaymentsScheduledJourneySpec
 
       journey.getDocumentTypesIfRequired shouldBe Some(availableDocumentTypes)
 
-      journey.getAvailableClaimTypes() shouldBe availableClaimTypes
+      journey.getAvailableClaimTypes shouldBe availableClaimTypes
 
       for document <- availableDocumentTypes do {
         val result = journey.submitDocumentTypeSelection(document)

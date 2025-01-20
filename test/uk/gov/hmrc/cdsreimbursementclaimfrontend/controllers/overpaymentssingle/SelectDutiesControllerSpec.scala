@@ -91,7 +91,7 @@ class SelectDutiesControllerSpec
     buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
       .flatMap(j =>
         Gen
-          .oneOf(j.getAvailableClaimTypes())
+          .oneOf(j.getAvailableClaimTypes)
           .map(b => j.submitBasisOfClaim(b))
       )
 

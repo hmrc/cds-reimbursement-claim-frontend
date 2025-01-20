@@ -52,12 +52,9 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
         Ok(
           basisForClaimPage(
             form,
-            journey.getAvailableClaimTypes(featureSwitchService.isEnabled(BasisOfClaimQuota)),
+            journey.getAvailableClaimTypes,
             DropdownHints(
-              journey
-                .getAvailableClaimTypes(featureSwitchService.isEnabled(BasisOfClaimQuota))
-                .toList
-                .sorted
+              journey.getAvailableClaimTypes.toList.sorted
                 .map(_.toString)
             ),
             None,
@@ -79,12 +76,9 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
                 BadRequest(
                   basisForClaimPage(
                     formWithErrors,
-                    journey.getAvailableClaimTypes(featureSwitchService.isEnabled(BasisOfClaimQuota)),
+                    journey.getAvailableClaimTypes,
                     DropdownHints(
-                      journey
-                        .getAvailableClaimTypes(featureSwitchService.isEnabled(BasisOfClaimQuota))
-                        .toList
-                        .sorted
+                      journey.getAvailableClaimTypes.toList.sorted
                         .map(_.toString)
                     ),
                     None,

@@ -249,12 +249,12 @@ final class OverpaymentsMultipleJourney private (
   override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsSingleDocumentTypes)
 
-  def getAvailableClaimTypes(quotaEnabled: Boolean = true): Set[BasisOfOverpaymentClaim] =
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
         getLeadDisplayDeclaration,
-        isQuotaEnabled = quotaEnabled
+        isQuotaEnabled = features.exists(_.shouldAllowQuotaBasisOfClaim)
       )
 
   def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
@@ -789,7 +789,8 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
+    shouldAllowSubsidyOnlyPayments: Boolean,
+    shouldAllowQuotaBasisOfClaim: Boolean = true
   ) extends SubsidiesFeatures
 
   // All user answers captured during C&E1179 single MRN journey

@@ -116,13 +116,13 @@ class BasisForClaimControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes(), None)
+            assertPageContent(_, journey.getAvailableClaimTypes, None)
           )
         }
       }
 
       "display page back with answer populated" in {
-        forAll(journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes()).map(b => (j, b)))) {
+        forAll(journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))) {
           case (journey, basisOfClaim) =>
             val journeyWithBasisOfClaim =
               journey.submitBasisOfClaim(basisOfClaim)
@@ -137,7 +137,7 @@ class BasisForClaimControllerSpec
               messageFromMessageKey("select-basis-for-claim.title"),
               assertPageContent(
                 _,
-                journeyWithBasisOfClaim.getAvailableClaimTypes(),
+                journeyWithBasisOfClaim.getAvailableClaimTypes,
                 journeyWithBasisOfClaim.answers.basisOfClaim
               )
             )
@@ -154,7 +154,7 @@ class BasisForClaimControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes(), journey.answers.basisOfClaim)
+            assertPageContent(_, journey.getAvailableClaimTypes, journey.answers.basisOfClaim)
           )
         }
       }
@@ -172,7 +172,7 @@ class BasisForClaimControllerSpec
       }
 
       "submit a valid basis for claim index" in forAll(
-        journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes()).map(b => (j, b)))
+        journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))
       ) { case (journey, basisOfClaim) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -198,7 +198,7 @@ class BasisForClaimControllerSpec
         checkPageIsDisplayed(
           performAction("select-basis-for-claim" -> "1000"),
           messageFromMessageKey("select-basis-for-claim.title"),
-          assertPageContent(_, journey.getAvailableClaimTypes(), None),
+          assertPageContent(_, journey.getAvailableClaimTypes, None),
           expectedStatus = BAD_REQUEST
         )
       }
