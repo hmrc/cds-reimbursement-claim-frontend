@@ -20,13 +20,17 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
+import play.api.mvc.Request
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpaymentClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.Quota
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimQuota
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -41,6 +45,12 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
 
   def modifyJourney(journey: Journey, basisOfClaim: BasisOfOverpaymentClaim): Journey
 
+  def getEnabledClaimTypes(
+    journey: Journey
+  )(implicit request: Request[?], headerCarrier: HeaderCarrier): Set[BasisOfOverpaymentClaim] =
+    if featureSwitchService.isEnabled(BasisOfClaimQuota) then journey.getAvailableClaimTypes
+    else journey.getAvailableClaimTypes.filterNot(booc => booc == Quota)
+
   val formKey: String = "select-basis-for-claim"
 
   final val show: Action[AnyContent] =
@@ -51,9 +61,9 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
         Ok(
           basisForClaimPage(
             form,
-            journey.getAvailableClaimTypes,
+            getEnabledClaimTypes(journey),
             DropdownHints(
-              journey.getAvailableClaimTypes.toList.sorted
+              getEnabledClaimTypes(journey).toList.sorted
                 .map(_.toString)
             ),
             None,
@@ -75,9 +85,9 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
                 BadRequest(
                   basisForClaimPage(
                     formWithErrors,
-                    journey.getAvailableClaimTypes,
+                    getEnabledClaimTypes(journey),
                     DropdownHints(
-                      journey.getAvailableClaimTypes.toList.sorted
+                      getEnabledClaimTypes(journey).toList.sorted
                         .map(_.toString)
                     ),
                     None,
@@ -95,4 +105,5 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
             )
         )
     }
+
 }
