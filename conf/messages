@@ -550,11 +550,11 @@ choose-payee-type.details.representative=Representative
 choose-payee-type.details.title=Who is the importer, declarant and the representative?
 choose-payee-type.error.required=Select who the repayment will be made to
 choose-payee-type.radio.declarant=Declarant
-choose-payee-type.radio.declarant.hint=The organisation that submitted an import declaration on the importer's behalf
+choose-payee-type.radio.declarant.hint=The organisation that submitted an import declaration on the importer''s behalf
 choose-payee-type.radio.importer=Importer
 choose-payee-type.radio.importer.hint=The organisation that brought goods into the UK
 choose-payee-type.radio.representative=Representative
-choose-payee-type.radio.representative.hint=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer's behalf
+choose-payee-type.radio.representative.hint=Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer''s behalf
 choose-payee-type.title=Who will the repayment be made to?
 
 choose-payment-method.rejected-goods.single.bank-transfer=Bank account transfer
@@ -1200,12 +1200,16 @@ enter-special-circumstances.rejected-goods.hint=Describe any special circumstanc
 enter-special-circumstances.rejected-goods.label=Enter any special circumstances
 enter-special-circumstances.rejected-goods.title=Enter any special circumstances
 
-error-claim-invalid-TPI04.bullet.1=HMRC have already collected the duty for this shipment.<br><br>This may be because the deposit or guarantee period has expired, or the conditions under which it was imported have changed
-error-claim-invalid-TPI04.bullet.2=this claim has already been submitted as part of a whole or partial claim.<br><br>You can <a class="govuk-link" href="{0}">claim repayment of import duty and VAT if you have overpaid (C285)</a> if HMRC have already collected the tax for this claim.<br><br>If you have made a partial claim before and want to claim more, you should <a class="govuk-link" href="{1}">contact HMRC</a>
-error-claim-invalid-TPI04.para.1=This may be because:
-error-claim-invalid-TPI04.title=There is a problem with your claim
-error-claim-invalid-TPI04.green-button-text=Change reason for security deposit
-error-claim-invalid-TPI04.grey-button-text=Enter a different MRN
+error-claim-invalid-TPI04.title=You cannot continue with this claim
+error-claim-invalid-TPI04.p1=A claim for this Movement Reference Number (MRN) already exists in our system.
+error-claim-invalid-TPI04.p2=This may be because:
+error-claim-invalid-TPI04.p2.li1=this claim has already been submitted as part of a whole or partial claim
+error-claim-invalid-TPI04.p2.li2=HMRC has automatically started a claim – either because the conditions under which the goods were imported have changed, or the deposit or guarantee period will expire soon
+error-claim-invalid-TPI04.p3=You can:
+error-claim-invalid-TPI04.p3.li1-niru=<a id="contact-hmrc" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link">contact HMRC</a> about this claim
+error-claim-invalid-TPI04.p3.li1-ntas=email <a id="contact-hmrc" href="mailto:ntis@hmrc.gov.uk" class="govuk-link">ntis@hmrc.gov.uk</a> about this claim
+error-claim-invalid-TPI04.p3.li1-nidac=email <a id="contact-hmrc" href="mailto:customsaccountingrepayments@hmrc.gov.uk" class="govuk-link">customsaccountingrepayments@hmrc.gov.uk</a> about this claim
+error-claim-invalid-TPI04.p3.li2=<a id="start-new-claim" class="govuk-link" href="{0}" class="govuk-link">start a new claim with a different MRN</a>
 
 error.summary.title=There is a problem
 exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>

@@ -67,15 +67,26 @@ class ClaimInvalidTPI04ControllerSpec
     featureSwitch.disable(Feature.LimitedAccessSecurities)
   }
 
-  def validateClaimInvalidPage(doc: Document) = {
-    val buttons = doc.select(".govuk-button").asScala.toList
-    buttons.map(a => (a.text(), a.attr("href"))) should (
-      contain(
-        ("Enter a different MRN", "/claim-back-import-duty-vat/securities/enter-movement-reference-number")
-      ) and contain(
-        ("Change reason for security deposit", "/claim-back-import-duty-vat/securities/choose-reason-for-security")
-      )
-    )
+  def validateClaimInvalidPage(doc: Document, rfsOpt: Option[ReasonForSecurity]) = {
+
+    val startNewClaim = doc.getElementById("start-new-claim")
+    startNewClaim.text()       shouldBe "start a new claim with a different MRN"
+    startNewClaim.attr("href") shouldBe "/claim-back-import-duty-vat/securities/enter-movement-reference-number"
+
+    val contactHmrc = doc.getElementById("contact-hmrc")
+
+    if rfsOpt.exists(rfs => ReasonForSecurity.ntas.contains(rfs)) then
+      contactHmrc.text()       shouldBe "ntis@hmrc.gov.uk"
+      contactHmrc.attr("href") shouldBe "mailto:ntis@hmrc.gov.uk"
+    else if rfsOpt.exists(rfs => ReasonForSecurity.niru.contains(rfs)) then
+      contactHmrc.text() shouldBe "contact HMRC"
+      contactHmrc.attr(
+        "href"
+      )                  shouldBe "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit"
+    else
+      contactHmrc.text()       shouldBe "customsaccountingrepayments@hmrc.gov.uk"
+      contactHmrc.attr("href") shouldBe "mailto:customsaccountingrepayments@hmrc.gov.uk"
+
   }
 
   "Invalid Claim Controller" when {
@@ -99,7 +110,7 @@ class ClaimInvalidTPI04ControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateClaimInvalidPage(doc)
+            doc => validateClaimInvalidPage(doc, journey.getReasonForSecurity)
           )
         }
       }
