@@ -952,7 +952,7 @@ final class SecuritiesJourney private (
               def updateModsWith(
                 methodOfDisposal: TemporaryAdmissionMethodOfDisposal
               ): List[TemporaryAdmissionMethodOfDisposal] =
-                mods.filterNot(mod => mod == ExportedInSingleOrMultipleShipments) :+ methodOfDisposal
+                mods.updated(mods.indexOf(ExportedInSingleOrMultipleShipments), methodOfDisposal)
 
               answers.exportMovementReferenceNumbers match {
                 case Some(exportMRNs) if exportMRNs.size == 1 => Some(updateModsWith(ExportedInSingleShipment))
