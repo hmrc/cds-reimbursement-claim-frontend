@@ -300,7 +300,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
   def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for
     numberOfTaxCodes         <- Gen.choose(1, maxSize)
     numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
-    taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all)
+    taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all).map(_.distinct)
     paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
     correctedAmounts         <-
       Gen
