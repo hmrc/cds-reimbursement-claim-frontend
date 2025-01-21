@@ -38,17 +38,64 @@ object DutyType {
   case object EuDuty extends DutyType("eu-duty", TaxCodes.EU, 1)
 
   case object Beer
-      extends DutyType("beer", List(NI407, NI440, NI441, NI442, NI443, NI444, NI445, NI446, NI447, NI473), 2)
+      extends DutyType(
+        "beer",
+        List(
+          NI311,
+          NI321,
+          NI331,
+          NI341,
+          NI351,
+          NI356,
+          NI361,
+          NI366,
+          NI371,
+          NI376,
+          NI407,
+          NI440,
+          NI441,
+          NI442,
+          NI443,
+          NI444,
+          NI445,
+          NI446,
+          NI447,
+          NI473
+        ),
+        2
+      )
 
-  case object Wine extends DutyType("wine", List(NI411, NI412, NI413, NI415, NI419), 3)
+  case object Wine
+      extends DutyType(
+        "wine",
+        List(NI313, NI323, NI333, NI343, NI353, NI358, NI363, NI368, NI373, NI378, NI411, NI412, NI413, NI415, NI419),
+        3
+      )
 
   case object MadeWine extends DutyType("made-wine", List(NI421, NI422, NI423, NI425, NI429), 4)
   case object LowAlcoholBeverages
-      extends DutyType("low-alcohol-beverages", List(NI431, NI433, NI435, NI444, NI446, NI473), 5)
+      extends DutyType("low-alcohol-beverages", List(NI301, NI431, NI433, NI435, NI444, NI446, NI473), 5)
 
-  case object Spirits extends DutyType("spirits", List(NI438, NI451, NI461, NI462, NI463), 6)
+  case object Spirits
+      extends DutyType(
+        "spirits",
+        List(NI315, NI325, NI335, NI345, NI355, NI360, NI365, NI370, NI375, NI380, NI438, NI451, NI461, NI462, NI463),
+        6
+      )
 
-  case object CiderPerry extends DutyType("cider-perry", List(NI431, NI481, NI483, NI485, NI487), 7)
+  case object CiderPerry
+      extends DutyType(
+        "cider-perry",
+        List(NI312, NI322, NI352, NI357, NI362, NI367, NI372, NI377, NI431, NI481, NI483, NI485, NI487),
+        7
+      )
+
+  case object OtherFermentedProducts
+      extends DutyType(
+        "other-fermented-products",
+        List(NI314, NI324, NI334, NI344, NI354, NI359, NI364, NI369, NI374, NI379),
+        8
+      )
 
   case object HydrocarbonOils
       extends DutyType(
@@ -69,16 +116,16 @@ object DutyType {
           NI571,
           NI572
         ),
-        8
+        9
       )
 
-  case object Biofuels extends DutyType("biofuels", List(NI589, NI595, NI597), 9)
+  case object Biofuels extends DutyType("biofuels", List(NI589, NI595, NI597), 10)
 
-  case object MiscellaneousRoadFuels extends DutyType("miscellaneous-road-fuels", List(NI591, NI592), 10)
+  case object MiscellaneousRoadFuels extends DutyType("miscellaneous-road-fuels", List(NI591, NI592), 11)
 
-  case object Tobacco extends DutyType("tobacco", List(NI611, NI615, NI619, NI623, NI627, NI633), 11)
+  case object Tobacco extends DutyType("tobacco", List(NI611, NI615, NI619, NI623, NI627, NI633), 12)
 
-  case object ClimateChangeLevy extends DutyType("climate-change-levy", List(NI99A, NI99B, NI99C, NI99D), 12)
+  case object ClimateChangeLevy extends DutyType("climate-change-levy", List(NI99A, NI99B, NI99C, NI99D), 13)
 
   val simpleDutyTypeFormat: Format[DutyType] =
     SimpleStringFormat[DutyType](

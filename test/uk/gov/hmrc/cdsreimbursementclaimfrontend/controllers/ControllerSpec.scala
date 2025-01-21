@@ -212,7 +212,7 @@ trait ControllerSpec
 
     val doc = Jsoup.parse(contentAsString(result))
 
-    doc.select("h1").html should include(expectedTitle)
+    doc.select("h1").text should include(expectedTitle)
 
     val bodyText = doc.select("body").text
 
@@ -232,7 +232,7 @@ trait ControllerSpec
 
     val doc = Jsoup.parse(contentAsString(result))
 
-    doc.select("h1").html should include(expectedTitle)
+    doc.select("h1").text should include(expectedTitle)
 
     val bodyText = doc.select("body").text
 
