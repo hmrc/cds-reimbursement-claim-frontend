@@ -127,7 +127,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          "Have you disposed of all the imported goods?",
+          "Can you account for all of the imported goods?",
           doc => validateCheckTotalImportDischargedPage(doc)
         )
       }
@@ -209,7 +209,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkPageIsDisplayed(
           performAction(None),
-          "Have you disposed of all the imported goods?",
+          "Can you account for all of the imported goods",
           doc => validateCheckTotalImportDischargedPage(doc, isError = true),
           BAD_REQUEST
         )

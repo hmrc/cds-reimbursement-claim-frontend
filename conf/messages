@@ -205,8 +205,8 @@ check-movement-reference-numbers.title=Movement Reference Numbers (MRNs) added t
 
 check-total-import-discharged.error.invalid=Select yes if 100% of the imported goods have been discharged
 check-total-import-discharged.error.required=Select yes if 100% of the imported goods have been discharged
-check-total-import-discharged.help-text=HMRC will only accept a claim for a refund once you no longer have any of the goods
-check-total-import-discharged.title=Have you disposed of all the imported goods?
+check-total-import-discharged.help-text=You have to tell us what happened to all of the imported goods, including the ones that will be staying in the UK
+check-total-import-discharged.title=Can you account for all of the imported goods?
 
 check-your-answers.additional-details.h2=Reason for claim
 check-your-answers.additional-details.label=This is the reason for the claim
