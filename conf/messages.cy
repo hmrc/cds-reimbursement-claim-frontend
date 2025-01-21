@@ -206,8 +206,8 @@ check-movement-reference-numbers.title=Cyfeirnodau Symud (MRNau) wedi’u hychwa
 
 check-total-import-discharged.error.invalid=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
 check-total-import-discharged.error.required=Dewiswch ''Iawn'' os yw 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau
-check-total-import-discharged.help-text=Bydd CThEF dim ond yn derbyn hawl am ad-daliad ar ôl i chi gadarnhau nad oes gennych unrhyw un o’r nwyddau bellach
-check-total-import-discharged.title=A ydych chi wedi gwaredu’r holl nwyddau a fewnforiwyd?
+check-total-import-discharged.help-text=Mae’n rhaid i chi roi gwybod i ni beth ddigwyddodd i’r holl nwyddau a fewnforiwyd, gan gynnwys y rhai a fydd yn aros yn y DU
+check-total-import-discharged.title=A gallwch gyfrif am yr holl nwyddau a fewnforiwyd?
 
 check-your-answers.additional-details.h2=Rheswm dros hawlio
 check-your-answers.additional-details.label=Dyma’r rheswm dros yr hawliad
