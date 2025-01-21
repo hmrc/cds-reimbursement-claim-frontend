@@ -123,7 +123,7 @@ class BillOfDischarge3ControllerSpec
 
         checkIsRedirect(
           submitBod3Action(confirmBodMessagesKey -> "true"),
-          routes.SelectSecuritiesController.showFirst()
+          routes.AddOtherDocumentsController.show
         )
       }
 

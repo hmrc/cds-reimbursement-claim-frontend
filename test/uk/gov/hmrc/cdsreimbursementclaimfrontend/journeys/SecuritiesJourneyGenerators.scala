@@ -132,6 +132,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   lazy val mrnWithtRfsWithDisplayDeclarationWithoutIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
 
+  lazy val mrnWithtRfsWithDisplayDeclarationOnlyIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    mrnWithRfsWithDisplayDeclarationGen(Set(ReasonForSecurity.InwardProcessingRelief))
+
   def mrnWithRfsWithDisplayDeclarationGen(
     reasonsForSecurity: Set[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =

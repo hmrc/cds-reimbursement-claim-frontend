@@ -33,19 +33,24 @@ object ConfirmationOfSubmissionClaimDetailsSummary {
   )(implicit
     messages: Messages
   ): SummaryList = SummaryList(
-    Seq(
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.reimbursement-amount"))),
-        value = Value(Text(totalReimbursementAmount.toPoundSterlingString), classes = "govuk-!-text-align-right")
-      ),
-      SummaryListRow(
-        key = if subKey.getOrElse("") == "multiple" then {
-          Key(HtmlContent(messages(s"$key.multiple.mrn")))
-        } else {
-          Key(HtmlContent(messages(s"$key.mrn")))
-        },
-        value = Value(Text(maybeMrn.getOrElse("")), classes = "govuk-!-text-align-right")
-      )
+    (if totalReimbursementAmount == 0 then Seq.empty
+     else
+       Seq(
+         SummaryListRow(
+           key = Key(HtmlContent(messages(s"$key.reimbursement-amount"))),
+           value = Value(Text(totalReimbursementAmount.toPoundSterlingString), classes = "govuk-!-text-align-right")
+         )
+       )
     )
+      ++ Seq(
+        SummaryListRow(
+          key = if subKey.getOrElse("") == "multiple" then {
+            Key(HtmlContent(messages(s"$key.multiple.mrn")))
+          } else {
+            Key(HtmlContent(messages(s"$key.mrn")))
+          },
+          value = Value(Text(maybeMrn.getOrElse("")), classes = "govuk-!-text-align-right")
+        )
+      )
   )
 }
