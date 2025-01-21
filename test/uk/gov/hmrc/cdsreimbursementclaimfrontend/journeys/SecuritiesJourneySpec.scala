@@ -380,7 +380,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept change of the depositIds selection with another valid one" in {
-      forAll(completeJourneyGen) { journey =>
+      forAll(completeJourneyWithoutIPRGen) { journey =>
         val existingDepositIds = journey.getSelectedDepositIds
         val newDepositIds      = journey.getSecurityDepositIds
           .takeExcept(existingDepositIds)
@@ -641,7 +641,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept change of the taxCodes selection with another valid one" in {
-      forAll(completeJourneyGen) { journey =>
+      forAll(completeJourneyWithoutIPRGen) { journey =>
         val depositId: String                   = journey.getSelectedDepositIds.head
         val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityTaxCodesFor(depositId).secondHalfNonEmpty
 
@@ -1445,7 +1445,12 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "reject change of the bankAccountDetails in a complete journey guarantee eligible" in {
-      forAll(buildCompleteJourneyGen(allDutiesGuaranteeEligibleOpt = Some(true))) { journey =>
+      forAll(
+        buildCompleteJourneyGen(
+          allDutiesGuaranteeEligibleOpt = Some(true),
+          reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+        )
+      ) { journey =>
         val journeyEither =
           journey.submitBankAccountDetails(exampleBankAccountDetails)
 

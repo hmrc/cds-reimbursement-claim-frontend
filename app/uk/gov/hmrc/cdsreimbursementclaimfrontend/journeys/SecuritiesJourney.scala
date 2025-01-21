@@ -1060,14 +1060,11 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       )
 
     val reclaimAmountsHasBeenDeclared: Validate[SecuritiesJourney] =
-      whenTrue[SecuritiesJourney](
-        _.needsReimbursementAmountSubmission,
-        checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
-          checkIsTrue[SecuritiesJourney](
-            _.getTotalClaimAmount > 0,
-            TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
-          )
-      )
+      checkIsTrue[SecuritiesJourney](_.hasCompleteSecuritiesReclaims, INCOMPLETE_SECURITIES_RECLAIMS) &
+        checkIsTrue[SecuritiesJourney](
+          _.getTotalClaimAmount > 0,
+          TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO
+        )
 
     val userCanProceedWithThisClaim: Validate[SecuritiesJourney] =
       hasMRNAndDisplayDeclarationAndRfS &
@@ -1115,8 +1112,13 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       hasMethodOfDisposalIfNeeded,
       hasExportMRNIfNeeded,
-      reclaimAmountsHasBeenDeclared,
-      paymentMethodHasBeenProvidedIfNeeded,
+      whenTrue[SecuritiesJourney](
+        _.needsReimbursementAmountSubmission,
+        Validator.all(
+          reclaimAmountsHasBeenDeclared,
+          paymentMethodHasBeenProvidedIfNeeded
+        )
+      ),
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       payeeTypeIsDefined

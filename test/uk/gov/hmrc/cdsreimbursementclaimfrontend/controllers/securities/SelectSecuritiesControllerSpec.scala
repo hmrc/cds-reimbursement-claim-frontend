@@ -124,7 +124,7 @@ class SelectSecuritiesControllerSpec
 
       "redirect to the ineligible page if an invalid security deposit ID" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, _) =>
@@ -141,7 +141,7 @@ class SelectSecuritiesControllerSpec
 
       "display the page if a valid security deposit ID" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -170,7 +170,7 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and move to the next security" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -196,7 +196,7 @@ class SelectSecuritiesControllerSpec
 
       "skip the first security deposit and move to the next security" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -221,7 +221,7 @@ class SelectSecuritiesControllerSpec
 
       "select the last security deposit and move to the check declaration details page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -245,7 +245,7 @@ class SelectSecuritiesControllerSpec
 
       "skip the last security deposit and move to the check declaration details page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -269,7 +269,7 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and return to the check details page when in change mode" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
         )
       ) { case (initialJourney, (_, _, decl)) =>
@@ -294,7 +294,7 @@ class SelectSecuritiesControllerSpec
 
       "de-select the last security deposit and return to the check details page when in change mode" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
           journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
         )
       ) { case (initialJourney, (_, _, decl)) =>

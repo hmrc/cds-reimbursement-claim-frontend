@@ -110,7 +110,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   lazy val mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values)
+      rfs   <- Gen.oneOf(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
       acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -129,8 +129,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, rfs, acc14)
 
+  lazy val mrnWithtRfsWithDisplayDeclarationWithoutIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
+
   def mrnWithRfsWithDisplayDeclarationGen(
-    reasonsForSecurity: Seq[ReasonForSecurity]
+    reasonsForSecurity: Set[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -189,7 +192,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     yield (mrn, rfs, acc14, mfd)
 
   def mrnWithRfsExcludingWithDisplayDeclarationGen(
-    reasonsForSecurityToExclude: Seq[ReasonForSecurity]
+    reasonsForSecurityToExclude: Set[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -297,6 +300,16 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   val completeJourneyGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen()
 
+  val completeJourneyWithoutIPRGen: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+    )
+
+  val completeJourneyOnlyIPRGen: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      reasonsForSecurity = Set(ReasonForSecurity.InwardProcessingRelief)
+    )
+
   val genReasonForSecurity: Gen[ReasonForSecurity] =
     Gen.oneOf(ReasonForSecurity.values)
 
@@ -310,7 +323,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    submitFullAmount: Boolean = false
+    submitFullAmount: Boolean = false,
+    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -322,7 +336,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitContactAddress = submitContactAddress,
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
-      submitFullAmount = submitFullAmount
+      submitFullAmount = submitFullAmount,
+      reasonsForSecurity = reasonsForSecurity
     ).map(
       _.fold(
         error =>
@@ -344,12 +359,13 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitContactAddress: Boolean = true,
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
-    submitFullAmount: Boolean = false
+    submitFullAmount: Boolean = false,
+    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
   ): Gen[Either[String, SecuritiesJourney]] =
     for
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
-      rfs                         <- genReasonForSecurity
+      rfs                         <- Gen.oneOf(reasonsForSecurity)
       methodOfDisposal            <-
         if ReasonForSecurity.ntas.contains(rfs) then
           Gen.nonEmptyListOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.selectableValues)).map(Some.apply)
