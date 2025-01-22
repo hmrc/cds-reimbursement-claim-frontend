@@ -221,6 +221,7 @@ check-your-answers.attached-documents.empty=No documents attached
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.hidden-label=uploaded supporting documents
 check-your-answers.attached-documents.label=Uploaded
+check-your-answers.other-attached-documents.label=Other supporting documents
 check-your-answers.bank-details.account-name.label=Name on the account
 check-your-answers.bank-details.account-name.label.hidden=bank details
 check-your-answers.bank-details.account-number.label=Account number
@@ -1907,6 +1908,12 @@ unauthorised.h2.subscribe=Subscribe to CDS
 unauthorised.link-to-subscribe=<a href="{0}" class="govuk-link">Subscribe to the Custom Declaration Service</a>
 unauthorised.p1=Check that you signed in with the Government Gateway user ID that is linked to your Economic Operator and Registration Identification (EORI) number and CDS account.
 unauthorised.title=To continue you need to subscribe to the Customs Declaration Service (CDS)
+
+upload-bill-of-discharge-3.title=Bill of discharge (BOD) form
+upload-bill-of-discharge-3.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under inward-processing relief (IPR).
+upload-bill-of-discharge-3.h2=Add a BOD3 form
+upload-bill-of-discharge-3.choose.description=Upload your file
+upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
 
 we-only-support-gg.createAccount=Create an account
 we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}" class="govuk-link">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.

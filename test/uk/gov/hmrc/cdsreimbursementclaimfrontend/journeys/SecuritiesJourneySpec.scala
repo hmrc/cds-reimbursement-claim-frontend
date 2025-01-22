@@ -73,7 +73,10 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         output.reasonForSecurity                             shouldBe journey.answers.reasonForSecurity.get
         output.claimantType                                  shouldBe journey.getClaimantType
         output.securitiesReclaims                            shouldBe journey.getSecuritiesReclaims
-        output.supportingEvidences                           shouldBe journey.answers.supportingEvidences.map(EvidenceDocument.from)
+        output.supportingEvidences                           shouldBe (
+          journey.answers.supportingEvidences.map(EvidenceDocument.from)
+            ++ journey.answers.billOfDischarge3Document.map(EvidenceDocument.from).toSeq
+        )
         output.bankAccountDetails                            shouldBe journey.answers.bankAccountDetails
         output.additionalDetails                             shouldBe journey.answers.additionalDetails
         output.claimantInformation.eori                      shouldBe journey.answers.userEoriNumber

@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -123,7 +124,15 @@
     @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
 }
 
+@supportingEvidenceLabel = @{
+    if(claim.reasonForSecurity==ReasonForSecurity.InwardProcessingRelief)
+    then messages(s"check-your-answers.other-attached-documents.label")
+    else messages(s"check-your-answers.attached-documents.label")
+}
+
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+@summary(BillOfDischargeDocumentSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
+@summary(EvidenceDocumentsSummary(supportingEvidenceLabel, claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+
 @subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))
 @summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))

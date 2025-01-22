@@ -53,7 +53,7 @@ class CheckTotalImportDischargedController @Inject() (
 
   // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
-    Redirect(routes.BillOfDischarge3Controller.show)
+    Redirect(routes.UploadBillOfDischarge3Controller.show)
 
   // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =

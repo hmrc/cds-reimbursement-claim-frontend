@@ -43,6 +43,7 @@ trait UploadFilesMixin extends JourneyBaseController {
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
   def nextPageInJourney(journey: Journey): Call
+  def documentUploadRequired(journey: Journey): Boolean = true
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
   def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate: Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable
@@ -97,10 +98,11 @@ trait UploadFilesMixin extends JourneyBaseController {
             UploadDocumentsConnector
               .Request(
                 uploadDocumentsSessionConfig(
-                  journey.answers.nonce,
-                  documentType,
-                  continueAfterYesAnswerUrl,
-                  continueAfterNoAnswerUrl
+                  nonce = journey.answers.nonce,
+                  documentType = documentType,
+                  continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
+                  continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
+                  minimumNumberOfFiles = if (documentUploadRequired(journey)) 1 else 0
                 ),
                 journey.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
@@ -146,39 +148,43 @@ trait UploadFilesMixin extends JourneyBaseController {
   )
 
   final val summary: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.answers.selectedDocumentType match {
-      case None =>
-        Redirect(selectDocumentTypePageAction).asFuture
+    if journey.answers.supportingEvidences.isEmpty
+    then Redirect(selectDocumentTypePageAction).asFuture
+    else
+      journey.answers.selectedDocumentType match {
+        case None =>
+          Redirect(selectDocumentTypePageAction).asFuture
 
-      case Some(documentType) =>
-        val continueAfterYesAnswerUrl =
-          selfUrl + selectDocumentTypePageAction.url
+        case Some(documentType) =>
+          val continueAfterYesAnswerUrl =
+            selfUrl + selectDocumentTypePageAction.url
 
-        val continueAfterNoAnswerUrl =
-          if journey.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
-          else selfUrl + nextPageInJourney(journey).url
+          val continueAfterNoAnswerUrl =
+            if journey.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
+            else selfUrl + nextPageInJourney(journey).url
 
-        uploadDocumentsConnector
-          .initialize(
-            UploadDocumentsConnector
-              .Request(
-                uploadDocumentsSessionConfig(
-                  journey.answers.nonce,
-                  documentType,
-                  continueAfterYesAnswerUrl,
-                  continueAfterNoAnswerUrl
-                ),
-                journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
-              )
-          )
-          .map {
-            case Some(url) =>
-              Redirect(url)
-            case None      =>
-              Redirect(s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}/summary")
-          }
-    }
+          uploadDocumentsConnector
+            .initialize(
+              UploadDocumentsConnector
+                .Request(
+                  config = uploadDocumentsSessionConfig(
+                    nonce = journey.answers.nonce,
+                    documentType = documentType,
+                    continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
+                    continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
+                    minimumNumberOfFiles = if (documentUploadRequired(journey)) 1 else 0
+                  ),
+                  existingFiles = journey.answers.supportingEvidences
+                    .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
+                )
+            )
+            .map {
+              case Some(url) =>
+                Redirect(url)
+              case None      =>
+                Redirect(s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}/summary")
+            }
+      }
   }
 
   def uploadDocumentsSessionConfig(

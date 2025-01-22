@@ -25,25 +25,29 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Empty
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 object EvidenceDocumentsSummary {
 
   def apply(
-    answers: Seq[EvidenceDocument],
+    label: String,
+    documents: Seq[EvidenceDocument],
     key: String,
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
   ): SummaryList =
+    val answers = documents.filterNot(a => UploadDocumentType.isUploadedSeparately(a.documentType))
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(if answers.isEmpty then Empty else Text(messages(s"$key.label"))),
+          key = Key(Text(label)),
           value = Value(
             if answers.isEmpty then Text(messages(s"$key.empty"))
             else
               HtmlContent(
                 answers
+                  .filterNot(a => UploadDocumentType.isUploadedSeparately(a.documentType))
                   .map(document =>
                     Paragraph(
                       document.fileName,

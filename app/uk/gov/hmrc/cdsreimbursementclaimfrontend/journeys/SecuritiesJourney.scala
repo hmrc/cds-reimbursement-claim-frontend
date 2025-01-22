@@ -315,6 +315,9 @@ final class SecuritiesJourney private (
   def needsReimbursementAmountSubmission: Boolean =
     !reasonForSecurityIsIPR
 
+  def needsOtherSupportingEvidence: Boolean =
+    !reasonForSecurityIsIPR
+
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
       .flatMap(rfs =>
@@ -900,6 +903,23 @@ final class SecuritiesJourney private (
         )
     }
 
+  def receiveBillOfDischarge3Document(
+    requestNonce: Nonce,
+    uploadedFile: UploadedFile
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if answers.nonce.equals(requestNonce) then {
+        Right(
+          this.copy(answers.copy(billOfDischarge3Document = Some(uploadedFile)))
+        )
+      } else Left("receiveBillOfDischarge3Document.invalidNonce")
+    }
+
+  def removeBillOfDischarge3Document: SecuritiesJourney =
+    whileClaimIsAmendable {
+      this.copy(answers.copy(billOfDischarge3Document = None))
+    }
+
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
@@ -933,12 +953,13 @@ final class SecuritiesJourney private (
       .map(_.messages)
       .flatMap(_ =>
         (for
-          mrn                 <- getLeadMovementReferenceNumber
-          rfs                 <- getReasonForSecurity
-          supportingEvidences  = answers.supportingEvidences
-          claimantInformation <- getClaimantInformation
-          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
-          displayPayeeType    <- answers.payeeType
+          mrn                     <- getLeadMovementReferenceNumber
+          rfs                     <- getReasonForSecurity
+          supportingEvidences      = answers.supportingEvidences
+          billOfDischarge3Document = answers.billOfDischarge3Document.toSeq
+          claimantInformation     <- getClaimantInformation
+          payeeType               <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType        <- answers.payeeType
         yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
@@ -950,7 +971,8 @@ final class SecuritiesJourney private (
           bankAccountDetails =
             if needsBanksAccountDetailsSubmission then answers.bankAccountDetails
             else None,
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
+          supportingEvidences = supportingEvidences.map(EvidenceDocument.from)
+            ++ billOfDischarge3Document.map(EvidenceDocument.from),
           temporaryAdmissionMethodsOfDisposal = answers.temporaryAdmissionMethodsOfDisposal match {
             case Some(mods) if mods.contains(ExportedInSingleOrMultipleShipments) =>
               def updateModsWith(
@@ -1012,6 +1034,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     additionalDetails: Option[String] = None,
+    billOfDischarge3Document: Option[UploadedFile] = None,
     modes: SecuritiesJourneyModes = SecuritiesJourneyModes()
   ) extends CommonAnswers {
 
@@ -1101,6 +1124,34 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
           EXPECTED_MULTIPLE_EXPORT_MOVEMENT_REFERENCE_NUMBERS
         )
       )
+
+    val hasBillOfDischarge3DocumentIfNeeded: Validate[SecuritiesJourney] =
+      conditionally[SecuritiesJourney](
+        _.reasonForSecurityIsIPR,
+        checkIsTrue(
+          _.answers.billOfDischarge3Document.nonEmpty,
+          MISSING_BILL_OF_DISCHARGE_3_DOCUMENT
+        ),
+        checkIsEmpty(_.answers.billOfDischarge3Document, "unexpected BOD3 document, should be empty")
+      )
+
+    val reasonForSecurityIsIPR: Validate[SecuritiesJourney] =
+      checkIsTrue(
+        _.reasonForSecurityIsIPR,
+        INVALID_REASON_FOR_SECURITY
+      )
+
+    val reasonForSecurityIsEndUseRelief: Validate[SecuritiesJourney] =
+      checkIsTrue(
+        _.reasonForSecurityIsEndUseRelief,
+        INVALID_REASON_FOR_SECURITY
+      )
+
+    val reasonForSecurityIsIPROrEndUseRelief: Validate[SecuritiesJourney] =
+      checkIsTrue(
+        j => j.reasonForSecurityIsIPR || j.reasonForSecurityIsEndUseRelief,
+        INVALID_REASON_FOR_SECURITY
+      )
   }
 
   import Checks._
@@ -1120,8 +1171,12 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         )
       ),
       contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      payeeTypeIsDefined
+      whenTrue[SecuritiesJourney](
+        _.needsOtherSupportingEvidence,
+        supportingEvidenceHasBeenProvided
+      ),
+      payeeTypeIsDefined,
+      hasBillOfDischarge3DocumentIfNeeded
     )
 
   import JourneyFormats._
@@ -1192,6 +1247,9 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
             j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
+      .flatMapWhenDefined(answers.billOfDischarge3Document)(j =>
+        d => j.receiveBillOfDischarge3Document(j.answers.nonce, d)
+      )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }

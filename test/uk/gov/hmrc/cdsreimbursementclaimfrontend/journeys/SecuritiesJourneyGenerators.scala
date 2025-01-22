@@ -461,6 +461,10 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
           supportingEvidences = supportingEvidencesExpanded,
+          billOfDischarge3Document =
+            if rfs == ReasonForSecurity.InwardProcessingRelief
+            then Some(exampleUploadedFile.copy(fileName = "bod.pdf", cargo = Some(UploadDocumentType.BillOfDischarge3)))
+            else None,
           bankAccountDetails =
             if submitBankAccountDetails && (!allDutiesGuaranteeEligible) then Some(exampleBankAccountDetails)
             else None,

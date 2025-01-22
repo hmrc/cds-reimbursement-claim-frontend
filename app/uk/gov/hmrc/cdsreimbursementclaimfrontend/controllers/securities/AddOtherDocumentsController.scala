@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrEndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
@@ -45,8 +46,9 @@ class AddOtherDocumentsController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
-        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+      hasMRNAndDisplayDeclarationAndRfS
+        & declarantOrImporterEoriMatchesUserOrHasBeenVerified
+        & reasonForSecurityIsIPROrEndUseRelief
     )
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
