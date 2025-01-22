@@ -1,5 +1,8 @@
 account-number.mask=Yn gorffen gyda {0}
 
+add-other-documents.title=Do you want to add other documents to support your claim?
+add-other-documents.error.required=Select yes to add other supporting evidence
+
 address-lookup.confirm.h1=Adolygu a chadarnhau’r cyfeiriad
 address-lookup.confirm.title=Adolygu a chadarnhau’r cyfeiriad
 address-lookup.edit.title=Nodwch eich cyfeiriad
@@ -1112,6 +1115,7 @@ enter-movement-reference-number.error.needsSubsidy=Nodwch MRN cymhorthdal
 enter-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN)
 enter-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-movement-reference-number.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
+enter-movement-reference-number.multiple.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 o gymeriadau, er enghraifft 19GB03I52858027001.
 enter-movement-reference-number.invalid.number=Nodwch Gyfeirnod Symud (MRN)
 enter-movement-reference-number.multiple.label.1=Nodwch yr MRN cyntaf

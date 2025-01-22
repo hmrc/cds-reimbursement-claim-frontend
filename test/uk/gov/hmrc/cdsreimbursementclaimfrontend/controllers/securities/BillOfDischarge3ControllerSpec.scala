@@ -123,7 +123,7 @@ class BillOfDischarge3ControllerSpec
 
         checkIsRedirect(
           submitBod3Action(confirmBodMessagesKey -> "true"),
-          routes.SelectSecuritiesController.showFirst()
+          routes.AddOtherDocumentsController.show
         )
       }
 
@@ -137,7 +137,7 @@ class BillOfDischarge3ControllerSpec
 
         checkIsRedirect(
           submitBod3Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischarge3Controller.invalid()
+          routes.BillOfDischarge3Controller.invalid
         )
       }
 

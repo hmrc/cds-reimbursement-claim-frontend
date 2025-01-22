@@ -153,12 +153,10 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       // Option A
       case (ReasonForSecurity.InwardProcessingRelief, _, proofOfAuthorityOpt)       =>
         Seq[UploadDocumentType](
-          ImportDeclaration,
-          ExportDeclaration,
-          ExportPackingList,
-          SubstituteOrDiversionEntry,
-          BillOfDischarge3
-        ) +? proofOfAuthorityOpt + Other
+          ExportDeclaration
+        ) +? proofOfAuthorityOpt
+          + SubstituteOrDiversionEntry
+          + Other
 
       // Option B
       case (ReasonForSecurity.EndUseRelief, _, proofOfAuthorityOpt)                 =>
@@ -168,7 +166,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportPackingList,
           SubstituteOrDiversionEntry,
           BillOfDischarge4
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option I
       case (
@@ -185,7 +184,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ExportPackingList,
           SubstituteOrDiversionEntry,
           ClaimWorksheet
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option C
       case (
@@ -202,7 +202,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           ImportPackingList,
           ExportPackingList,
           SubstituteOrDiversionEntry
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option D
       case (ReasonForSecurity.AccountSales, _, proofOfAuthorityOpt)                 =>
@@ -210,7 +211,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           CalculationWorksheetOrFinalSalesFigures
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option E
       case (ReasonForSecurity.MissingPreferenceCertificate, _, proofOfAuthorityOpt) =>
@@ -218,7 +220,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           ProofOfOrigin
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option F
       case (ReasonForSecurity.MissingLicenseQuota, _, proofOfAuthorityOpt)          =>
@@ -226,7 +229,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           QuotaLicense
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option G
       case (ReasonForSecurity.CommunitySystemsOfDutyRelief, _, proofOfAuthorityOpt) =>
@@ -234,7 +238,8 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           CommercialInvoice,
           ImportDeclaration,
           ProofOfEligibility
-        ) +? proofOfAuthorityOpt + Other
+        ) +? proofOfAuthorityOpt
+          + Other
 
       // Option H
       case (

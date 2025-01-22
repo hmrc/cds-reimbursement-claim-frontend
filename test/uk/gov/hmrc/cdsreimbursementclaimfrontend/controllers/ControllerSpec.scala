@@ -414,7 +414,7 @@ trait ControllerSpec
 trait PropertyBasedControllerSpec extends ControllerSpec with ScalaCheckPropertyChecks with ShrinkLowPriority {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 20)
+    PropertyCheckConfiguration(minSuccessful = 100)
 }
 
 @Singleton

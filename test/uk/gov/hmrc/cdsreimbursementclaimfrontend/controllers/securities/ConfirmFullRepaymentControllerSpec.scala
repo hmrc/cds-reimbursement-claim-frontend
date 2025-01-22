@@ -134,7 +134,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC1: Arrive on page; display the page on a complete journey" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeJourneyWithoutIPRGen) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
@@ -160,7 +160,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "redirect to the error page if we have arrived with an invalid security deposit ID" in {
-        mrnWithtRfsWithDisplayDeclarationGen.sample.map { case (mrn, rfs, decl) =>
+        mrnWithtRfsWithDisplayDeclarationWithoutIPRGen.sample.map { case (mrn, rfs, decl) =>
           val initialJourney = emptyJourney
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -349,7 +349,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC5 - Complete journey - clicking continue with no option selected should display error" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+        forAll(
+          buildCompleteJourneyGen(
+            submitFullAmount = true,
+            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+          )
+        ) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
@@ -405,7 +410,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC6 From CYA page, change from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+        forAll(
+          buildCompleteJourneyGen(
+            submitFullAmount = true,
+            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+          )
+        ) { journey =>
           val securityId = journey.getSelectedDepositIds.head
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -421,7 +431,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC9 selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
+        forAll(
+          buildCompleteJourneyGen(
+            submitFullAmount = false,
+            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+          )
+        ) { journey =>
           for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -440,7 +455,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC9 selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = false)) { journey =>
+        forAll(
+          buildCompleteJourneyGen(
+            submitFullAmount = false,
+            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+          )
+        ) { journey =>
           for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -458,7 +478,12 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC9 selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
-        forAll(buildCompleteJourneyGen(submitFullAmount = true)) { journey =>
+        forAll(
+          buildCompleteJourneyGen(
+            submitFullAmount = true,
+            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+          )
+        ) { journey =>
           for securityId <- journey.getSelectedDepositIds do {
             inSequence {
               mockAuthWithDefaultRetrievals()

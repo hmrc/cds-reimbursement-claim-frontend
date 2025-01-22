@@ -43,43 +43,20 @@
 
 @displayDeclarationOpt.map { displayDeclaration =>
     @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-    @summary(SummaryList(SecuritiesCdsDisplayDeclarationSummary(
-        displayDeclaration,
-        s"check-your-answers.declaration-details",
-        if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
-        if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)
-    ).rows ++
-            SecuritiesSelectionSummary(
-                claim.securitiesReclaims,
-                displayDeclaration,
-                key,
-                if(isPrintView) None else Some(routes.SelectSecuritiesController.show)
-            ).rows ++
-            PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows ++
-            (
-                    if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(claim.securitiesReclaims.keySet)) {
-                        Seq.empty[SummaryListRow]
-                    } else {
-                        Seq(
-                            SummaryListRow(
-                                key = Key(Text(messages(s"check-your-answers.payment-method.label"))),
-                                value = Value(Text(
-                                    messages(
-                                        if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet)) {
-                                            s"check-your-answers.payment-method.guarantee"
-                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(claim.securitiesReclaims.keySet)) {
-                                            s"check-your-answers.payment-method.bt"
-                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(claim.securitiesReclaims.keySet)) {
-                                            s"check-your-answers.payment-method.cash-account"
-                                        } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(claim.securitiesReclaims.keySet)) {
-                                            s"check-your-answers.payment-method.duty-deferment"
-                                        } else {
-                                            s"check-your-answers.payment-method.unknown"
-                                        }
-                            ))))
-                        )
-                    }
-                    )))
+    @summary(SummaryList(
+        SecuritiesCdsDisplayDeclarationSummary(
+            displayDeclaration,
+            s"check-your-answers.declaration-details",
+            if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
+            if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)).rows 
+        ++ SecuritiesSelectionSummary(
+            claim.securitiesReclaims,
+            displayDeclaration,
+            key,
+            if(isPrintView) None else Some(routes.SelectSecuritiesController.show)).rows
+        ++ PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows
+        ++ SecuritiesPaymentMethodSummary(displayDeclaration, claim.securitiesReclaims.keySet, s"check-your-answers.payment-method")
+    ))
 }
 
 @claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>

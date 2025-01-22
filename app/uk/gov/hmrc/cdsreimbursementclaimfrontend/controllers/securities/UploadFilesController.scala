@@ -52,10 +52,13 @@ class UploadFilesController @Inject() (
     extends SecuritiesJourneyBaseController
     with UploadFilesMixin {
 
-  final val precedingAction: Call              = routes.CheckClaimDetailsController.show
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show
   final val callbackAction: Call               = routes.UploadFilesController.submit
-  final val nextPageInJourney: Call            = routes.EnterAdditionalDetailsController.show
+
+  final def nextPageInJourney(journey: Journey): Call =
+    if journey.reasonForSecurityIsIPR
+    then routes.ChoosePayeeTypeController.show
+    else routes.EnterAdditionalDetailsController.show
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
     documentType => messages => upload_files_description(documentType)(messages)

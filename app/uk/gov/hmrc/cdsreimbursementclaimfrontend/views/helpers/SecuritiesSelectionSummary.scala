@@ -27,6 +27,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 import scala.collection.immutable.SortedMap
+import scala.util.Try
 
 object SecuritiesSelectionSummary {
 
@@ -38,48 +39,52 @@ object SecuritiesSelectionSummary {
     showTotalSecuritiesPaidAmount: Boolean = false
   )(implicit
     messages: Messages
-  ): SummaryList = SummaryList(
-    declaration.getSecurityDepositIds.getOrElse(Nil).map { securityDepositId =>
-      SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.claim-for-security.label", securityDepositId))),
-        value = Value(
-          Text(
-            messages(
-              if correctedAmounts.contains(securityDepositId) then s"$key.claim-for-security.yes"
-              else s"$key.claim-for-security.no"
-            )
-          )
-        ),
-        actions = changeCallOpt.map(changeCall =>
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = changeCall(securityDepositId).url,
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.claim-for-security.label", securityDepositId))
+  ): SummaryList =
+    val total: BigDecimal = declaration.getTotalSecuritiesAmountFor(correctedAmounts.keySet)
+    SummaryList(
+      if Try(total.toIntExact == 0).getOrElse(false) then Nil
+      else
+        declaration.getSecurityDepositIds.getOrElse(Nil).map { securityDepositId =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"$key.claim-for-security.label", securityDepositId))),
+            value = Value(
+              Text(
+                messages(
+                  if correctedAmounts.contains(securityDepositId) then s"$key.claim-for-security.yes"
+                  else s"$key.claim-for-security.no"
+                )
               )
-            )
-          )
-        )
-      )
-    }
-      ++ Seq(
-        SummaryListRow(
-          key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
-          value = Value(
-            Text(declaration.getTotalSecuritiesAmountFor(correctedAmounts.keySet).toPoundSterlingString)
-          )
-        )
-      )
-      ++ (if showTotalSecuritiesPaidAmount then
-            Seq(
-              SummaryListRow(
-                key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),
-                value = Value(
-                  Text(declaration.getTotalSecuritiesPaidAmountFor(correctedAmounts.keySet).toPoundSterlingString)
+            ),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall(securityDepositId).url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.claim-for-security.label", securityDepositId))
+                  )
                 )
               )
             )
-          else Seq.empty)
-  )
+          )
+        }
+          ++ Seq(
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.claim-for-security.total"))),
+              value = Value(
+                Text(total.toPoundSterlingString)
+              )
+            )
+          )
+          ++ (if showTotalSecuritiesPaidAmount then
+                Seq(
+                  SummaryListRow(
+                    key = Key(HtmlContent(messages(s"$key.claim-for-security.paid-total"))),
+                    value = Value(
+                      Text(declaration.getTotalSecuritiesPaidAmountFor(correctedAmounts.keySet).toPoundSterlingString)
+                    )
+                  )
+                )
+              else Seq.empty)
+    )
 }

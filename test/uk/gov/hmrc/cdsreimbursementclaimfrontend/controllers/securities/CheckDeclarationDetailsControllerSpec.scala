@@ -121,10 +121,26 @@ class CheckDeclarationDetailsControllerSpec
         "Date security deposit made"             -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat),
-        "Total security deposit value"           -> journey.answers.displayDeclaration
-          .map(_.getTotalSecuritiesAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
-        "Total security deposit paid"            -> journey.answers.displayDeclaration
-          .map(_.getTotalSecuritiesPaidAmountFor(journey.getSecuritiesReclaims.keySet).toPoundSterlingString),
+        "Total security deposit value"           -> (if journey.getSecuritiesReclaims.isEmpty
+                                           then None
+                                           else
+                                             journey.answers.displayDeclaration
+                                               .map(
+                                                 _.getTotalSecuritiesAmountFor(
+                                                   journey.getSecuritiesReclaims.keySet
+                                                 ).toPoundSterlingString
+                                               )
+        ),
+        "Total security deposit paid"            -> (if journey.getSecuritiesReclaims.isEmpty
+                                          then None
+                                          else
+                                            journey.answers.displayDeclaration
+                                              .map(
+                                                _.getTotalSecuritiesPaidAmountFor(
+                                                  journey.getSecuritiesReclaims.keySet
+                                                ).toPoundSterlingString
+                                              )
+        ),
         "Method of payment"                      -> (if correctedAmounts.isEmpty then Some("Unavailable")
                                 else
                                   journey.answers.displayDeclaration
@@ -139,15 +155,19 @@ class CheckDeclarationDetailsControllerSpec
                                     }
         )
       ) ++
-        journey.answers.displayDeclaration
-          .flatMap(_.getSecurityDepositIds)
-          .getOrElse(Seq.empty)
-          .map { sid =>
-            s"Claim for $sid" -> Some(
-              if correctedAmounts.contains(sid) then "Yes"
-              else "No"
-            )
-          }
+        (if journey.getSecuritiesReclaims.isEmpty
+         then Seq.empty
+         else
+           journey.answers.displayDeclaration
+             .flatMap(_.getSecurityDepositIds)
+             .getOrElse(Seq.empty)
+             .map { sid =>
+               s"Claim for $sid" -> Some(
+                 if correctedAmounts.contains(sid) then "Yes"
+                 else "No"
+               )
+             }
+        )
     )
 
   }
@@ -270,7 +290,7 @@ class CheckDeclarationDetailsControllerSpec
       "continue to the check claimant details page if some securities has been selected" in {
         forAll(
           mrnWithRfsExcludingWithDisplayDeclarationGen(
-            ReasonForSecurity.ntas.toList
+            ReasonForSecurity.ntas
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -305,7 +325,7 @@ class CheckDeclarationDetailsControllerSpec
       "continue to the export method page if some securities has been selected (Temporary Admission)" in {
         forAll(
           mrnWithRfsWithDisplayDeclarationGen(
-            ReasonForSecurity.ntas.toList
+            ReasonForSecurity.ntas
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)

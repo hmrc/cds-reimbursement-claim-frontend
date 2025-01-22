@@ -57,6 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SelectDutiesSumma
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -143,7 +144,7 @@ class SelectDutiesControllerSpec
       }
 
       "display the page on a journey that has ACC14 tax codes" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeJourneyWithoutIPRGen) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           securityIdWithTaxCodes(journey).fold(
             (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
@@ -236,81 +237,56 @@ class SelectDutiesControllerSpec
           }
         }
 
-      "redisplay the page with an error when no checkboxes are selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.correctedAmounts.nonEmpty) {
-          securityIdWithTaxCodes(journey).fold(
-            throw new Throwable("unexpectedly found securities reclaims already populated")
-          ) { securityId =>
-            val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(updatedSession)
+      "redisplay the page with an error when no checkboxes are selected" in forAll(completeJourneyWithoutIPRGen) {
+        journey =>
+          whenever(journey.answers.correctedAmounts.nonEmpty) {
+            securityIdWithTaxCodes(journey).fold(
+              throw new Throwable("unexpectedly found securities reclaims already populated")
+            ) { securityId =>
+              val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+              inSequence {
+                mockAuthWithDefaultRetrievals()
+                mockGetSession(updatedSession)
+              }
+              checkPageIsDisplayed(
+                performAction(securityId, Seq.empty),
+                messageFromMessageKey(s"$messagesKey.securities.title"),
+                doc => validateSelectDutiesPage(securityId = securityId, doc = doc, journey = journey, isError = true)
+              )
             }
-            checkPageIsDisplayed(
-              performAction(securityId, Seq.empty),
-              messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId = securityId, doc = doc, journey = journey, isError = true)
-            )
           }
-        }
       }
 
-      "redirect back to the CYA when the same duties has been selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.correctedAmounts.nonEmpty) {
+      "redirect back to the CYA when the same duties has been selected" in forAll(completeJourneyWithoutIPRGen) {
+        journey =>
+          whenever(journey.answers.correctedAmounts.nonEmpty) {
+            journey.getSelectedDepositIds.foreach { securityId =>
+              val selectedDuties: Seq[TaxCode] =
+                journey.getSelectedDutiesFor(securityId).get
+
+              inSequence {
+                mockAuthWithDefaultRetrievals()
+                mockGetSession(SessionData(journey))
+              }
+
+              checkIsRedirect(
+                performAction(
+                  securityId,
+                  selectedDuties.map(taxCode => "select-duties[]" -> taxCode.value)
+                ),
+                routes.CheckYourAnswersController.show
+              )
+            }
+          }
+      }
+
+      "redirect back to the check claim page when duty has been de-selected" in forAll(completeJourneyWithoutIPRGen) {
+        journey =>
           journey.getSelectedDepositIds.foreach { securityId =>
             val selectedDuties: Seq[TaxCode] =
               journey.getSelectedDutiesFor(securityId).get
 
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
-            }
-
-            checkIsRedirect(
-              performAction(
-                securityId,
-                selectedDuties.map(taxCode => "select-duties[]" -> taxCode.value)
-              ),
-              routes.CheckYourAnswersController.show
-            )
-          }
-        }
-      }
-
-      "redirect back to the check claim page when duty has been de-selected" in forAll(completeJourneyGen) { journey =>
-        journey.getSelectedDepositIds.foreach { securityId =>
-          val selectedDuties: Seq[TaxCode] =
-            journey.getSelectedDutiesFor(securityId).get
-
-          whenever(selectedDuties.size > 1) {
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
-              mockStoreSession(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(
-                securityId,
-                selectedDuties.halfNonEmpty.map(taxCode => "select-duties[]" -> taxCode.value)
-              ),
-              routes.CheckClaimDetailsController.show
-            )
-          }
-        }
-
-      }
-
-      "redirect to the check claim page when new duty has been selected" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.answers.correctedAmounts.nonEmpty) {
-          journey.getSelectedDepositIds.foreach { securityId =>
-            val availableDuties: Set[TaxCode] =
-              journey.getSecurityTaxCodesFor(securityId).toSet
-
-            val selectedDuties: Set[TaxCode] =
-              journey.getSelectedDutiesFor(securityId).get.toSet
-
-            (availableDuties -- selectedDuties).foreach { taxCode =>
+            whenever(selectedDuties.size > 1) {
               inSequence {
                 mockAuthWithDefaultRetrievals()
                 mockGetSession(SessionData(journey))
@@ -320,13 +296,42 @@ class SelectDutiesControllerSpec
               checkIsRedirect(
                 performAction(
                   securityId,
-                  (selectedDuties + taxCode).toSeq.map(tc => "select-duties[]" -> tc.value)
+                  selectedDuties.halfNonEmpty.map(taxCode => "select-duties[]" -> taxCode.value)
                 ),
                 routes.CheckClaimDetailsController.show
               )
             }
           }
-        }
+
+      }
+
+      "redirect to the check claim page when new duty has been selected" in forAll(completeJourneyWithoutIPRGen) {
+        journey =>
+          whenever(journey.answers.correctedAmounts.nonEmpty) {
+            journey.getSelectedDepositIds.foreach { securityId =>
+              val availableDuties: Set[TaxCode] =
+                journey.getSecurityTaxCodesFor(securityId).toSet
+
+              val selectedDuties: Set[TaxCode] =
+                journey.getSelectedDutiesFor(securityId).get.toSet
+
+              (availableDuties -- selectedDuties).foreach { taxCode =>
+                inSequence {
+                  mockAuthWithDefaultRetrievals()
+                  mockGetSession(SessionData(journey))
+                  mockStoreSession(Right(()))
+                }
+
+                checkIsRedirect(
+                  performAction(
+                    securityId,
+                    (selectedDuties + taxCode).toSeq.map(tc => "select-duties[]" -> tc.value)
+                  ),
+                  routes.CheckClaimDetailsController.show
+                )
+              }
+            }
+          }
       }
     }
   }
@@ -358,17 +363,19 @@ object SelectDutiesControllerSpec {
     }
   }
 
-  val partialGen: Gen[SecuritiesJourney] = buildCompleteJourneyGen(
-    acc14DeclarantMatchesUserEori = true,
-    acc14ConsigneeMatchesUserEori = false,
-    allDutiesGuaranteeEligibleOpt = None,
-    hasConsigneeDetailsInACC14 = true,
-    submitConsigneeDetails = false,
-    submitContactDetails = false,
-    submitContactAddress = false,
-    submitBankAccountDetails = false,
-    submitBankAccountType = false
-  )
+  val partialGen: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesGuaranteeEligibleOpt = None,
+      hasConsigneeDetailsInACC14 = true,
+      submitConsigneeDetails = false,
+      submitContactDetails = false,
+      submitContactAddress = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+    )
 
   def getSelectedIndices(
     allCodes: List[DutyAmount],

@@ -65,16 +65,23 @@ object CheckYourAnswersPrintViewHelper {
         SummaryListRow(
           key = Key(HtmlContent(messages(mrnKey))),
           value = Value(Text(mrn.value))
-        ),
-        SummaryListRow(
-          key = Key(HtmlContent(messages("confirmation-of-submission.reimbursement-amount"))),
-          value = Value(Text(amountRequested))
-        ),
-        SummaryListRow(
-          key = Key(HtmlContent(messages("check-your-answers.print-view.submitted"))),
-          value = Value(HtmlContent(getFormattedSubmissionDate(submissionDate)))
         )
       )
+        ++ (if amountRequested == "£0.00" then Seq.empty
+            else
+              Seq(
+                SummaryListRow(
+                  key = Key(HtmlContent(messages("confirmation-of-submission.reimbursement-amount"))),
+                  value = Value(Text(amountRequested))
+                )
+              )
+        )
+        ++ Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.print-view.submitted"))),
+            value = Value(HtmlContent(getFormattedSubmissionDate(submissionDate)))
+          )
+        )
     )
 
   def renderClaimDetailsForMultiple(

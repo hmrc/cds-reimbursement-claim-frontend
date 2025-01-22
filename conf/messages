@@ -1,4 +1,8 @@
 account-number.mask=Ending with {0}
+
+add-other-documents.title=Do you want to add other documents to support your claim?
+add-other-documents.error.required=Select yes to add other supporting evidence
+
 address-lookup.confirm.h1=Review and confirm address
 address-lookup.confirm.title=Review and confirm address
 address-lookup.edit.title=Enter your address
@@ -516,6 +520,7 @@ choose-file-type.file-type.SubstituteEntry=Substitute entry
 choose-file-type.file-type.SubstituteEntry.bullet=Substitute entry:
 choose-file-type.file-type.SubstituteEntry.description=A copy of the original customs declaration amended to show the correct details.
 choose-file-type.file-type.SubstituteOrDiversionEntry=Substitute or diversion entry
+choose-file-type.file-type.SubstituteOrDiversionEntry.hint=A copy of the original customs declaration amended to show the correct details.
 choose-file-type.file-type.SupportingEvidence=Evidence supporting your claim
 choose-file-type.file-type.none=I have no documents to upload
 choose-file-type.file-type.none.more=I have no more documents to upload
@@ -523,12 +528,12 @@ choose-file-type.heading=Examples of supporting documents
 choose-file-type.help-text=You can repeat this step to add more types of documents to your claim.
 choose-file-type.inset-text=You must add a commercial invoice to support your claim.
 choose-file-type.or=or
-choose-file-type.securities.help-text=You can repeat this step to add more types of documents to your claim
+choose-file-type.securities.help-text=Select one option – you can repeat this step later to add more documents
 choose-file-type.securities.title=Add supporting documents to your claim
 choose-file-type.title=Add supporting documents to your claim
 
 choose-files.add-another-document-question=Add a different type of supporting evidence to your claim?
-choose-files.add-another-document-question.error.required=Select yes to add a different type of supporting document to your claim
+choose-files.add-another-document-question.error.required=Select yes to add a different type of supporting evidence to your claim
 choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
 choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
@@ -1154,6 +1159,7 @@ enter-movement-reference-number.error.needsSubsidy=Enter a subsidy MRN
 enter-movement-reference-number.error.required=Enter a Movement Reference Number (MRN)
 enter-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 enter-movement-reference-number.error.wrongMRN=This MRN has not been recognised
+enter-movement-reference-number.multiple.error.wrongMRN=This MRN has not been recognised
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-movement-reference-number.invalid.number=Enter a Movement Reference Number (MRN)
 enter-movement-reference-number.multiple.label=Enter {0} MRN

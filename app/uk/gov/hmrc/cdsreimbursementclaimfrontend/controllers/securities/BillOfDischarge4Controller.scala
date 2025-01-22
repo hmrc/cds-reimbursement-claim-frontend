@@ -51,7 +51,7 @@ class BillOfDischarge4Controller @Inject() (
 
   private val submitUrl = routes.BillOfDischarge4Controller.submit
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitUrl, BOD4)).asFuture
   }
 
@@ -62,13 +62,13 @@ class BillOfDischarge4Controller @Inject() (
         formWithError => BadRequest(confirmBillOfDischarge(formWithError, submitUrl, BOD4)),
         {
           case Yes => Redirect(routes.SelectSecuritiesController.showFirst())
-          case No  => Redirect(routes.BillOfDischarge4Controller.invalid())
+          case No  => Redirect(routes.BillOfDischarge4Controller.invalid)
         }
       )
       .asFuture
   }
 
-  def invalid(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(invalidBillOfDischarge(BOD4)).asFuture
   }
 }

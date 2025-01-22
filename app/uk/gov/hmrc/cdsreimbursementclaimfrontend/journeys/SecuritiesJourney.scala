@@ -258,8 +258,9 @@ final class SecuritiesJourney private (
   }
 
   def needsBanksAccountDetailsSubmission: Boolean =
-    getSelectedDepositIds.nonEmpty &&
-      !isAllSelectedDutiesAreGuaranteeEligible
+    reasonForSecurityIsIPR
+      || (getSelectedDepositIds.nonEmpty
+        && !isAllSelectedDutiesAreGuaranteeEligible)
 
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
@@ -310,6 +311,9 @@ final class SecuritiesJourney private (
 
   def requiresBillOfDischargeForm: Boolean =
     reasonForSecurityIsIPR || reasonForSecurityIsEndUseRelief
+
+  def needsReimbursementAmountSubmission: Boolean =
+    !reasonForSecurityIsIPR
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
@@ -1108,8 +1112,13 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       hasMethodOfDisposalIfNeeded,
       hasExportMRNIfNeeded,
-      reclaimAmountsHasBeenDeclared,
-      paymentMethodHasBeenProvidedIfNeeded,
+      whenTrue[SecuritiesJourney](
+        _.needsReimbursementAmountSubmission,
+        Validator.all(
+          reclaimAmountsHasBeenDeclared,
+          paymentMethodHasBeenProvidedIfNeeded
+        )
+      ),
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       payeeTypeIsDefined

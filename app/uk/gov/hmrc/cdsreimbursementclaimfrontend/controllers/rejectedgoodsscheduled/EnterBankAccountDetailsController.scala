@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
@@ -49,10 +50,10 @@ class EnterBankAccountDetailsController @Inject() (
 
 object EnterBankAccountDetailsController {
 
-  val routesPack = EnterBankAccountDetailsMixin.RoutesPack(
+  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[RejectedGoodsScheduledJourney](
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
-    successPath = routes.ChooseFileTypeController.show,
+    successPath = _ => routes.ChooseFileTypeController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit
   )
 

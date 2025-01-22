@@ -27,6 +27,7 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
   val redirectWhenNoAddressDetailsFound: Call
   val confirmEmailRoute: Call
   val nextPageInTheJourney: Call
+  val startAddressLookup: Call
 
   def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey
 
@@ -35,11 +36,12 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
   def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
-    val (maybeContactDetails, maybeAddressDetails) =
-      (journey.answers.contactDetails, journey.answers.contactAddress)
+    val (maybeContactDetails, maybeAddressDetails) = (journey.answers.contactDetails, journey.answers.contactAddress)
     (maybeContactDetails, maybeAddressDetails) match {
       case (Some(cd), Some(ca)) =>
         (modifyJourney(journey, enterContactDetailsMode = false), Ok(viewTemplate(cd)(ca)(request)))
+      case (Some(cd), None)     =>
+        (modifyJourney(journey, enterContactDetailsMode = false), Redirect(startAddressLookup))
       case _                    =>
         logger.warn(
           s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
