@@ -38,9 +38,9 @@ import scala.concurrent.Future
 trait AuthSupport {
   this: ControllerSpec & SessionSupport =>
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
-  val mockEoriDetailsConnector: EoriDetailsConnector = mock[EoriDetailsConnector]
+  lazy val mockEoriDetailsConnector: EoriDetailsConnector = mock[EoriDetailsConnector]
 
   lazy val testAuthenticatedAction = new AuthenticatedActionWithRetrievedData(
     mockAuthConnector,

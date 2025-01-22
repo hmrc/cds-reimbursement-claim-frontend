@@ -32,7 +32,7 @@ import scala.io.AnsiColor.*
 
 trait SessionSupport { this: MockFactory =>
 
-  val mockSessionCache: SessionCache = mock[SessionCache]
+  lazy val mockSessionCache: SessionCache = mock[SessionCache]
 
   def mockGetSession(
     result: Either[Error, Option[SessionData]]

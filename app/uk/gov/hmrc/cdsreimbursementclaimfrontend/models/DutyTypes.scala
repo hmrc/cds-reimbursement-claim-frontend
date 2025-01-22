@@ -30,6 +30,7 @@ object DutyTypes {
     LowAlcoholBeverages,
     Spirits,
     CiderPerry,
+    OtherFermentedProducts,
     HydrocarbonOils,
     Biofuels,
     MiscellaneousRoadFuels,
