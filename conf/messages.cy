@@ -46,8 +46,6 @@ bill-of-discharge-error.p4=Dewch o hyd i ragor o wybodaeth am <a href="{0}">fewn
 bill-of-discharge-error.p5=Ar gyfer ymholiadau cyffredinol ynglŷn â mewnforio, gallwch <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">gysylltu â CThEF (yn agor tab newydd)</a>
 bill-of-discharge-error.title=Rydych wedi dewis peidio â pharhau â’ch hawliad
 
-bill-of-discharge.bod3.p1=Mae angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD3 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl.<br/><br/> Mae hyn yn rhoi gwybod i CThEF sut y gwnaethoch waredu’r nwyddau y gwnaethoch eu mewnforio gan ddefnyddio awdurdodiad drwy ddatganiad o dan ryddhad prosesu mewnol (IPR).
-bill-of-discharge.bod3.title=Bil rhyddhau ar gyfer prosesu mewnol (ffurflen BOD3)
 bill-of-discharge.bod4.p1=Mae angen i chi lenwi <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD4 (yn agor tab newydd)</a> i hawlio’ch blaendal sicrwydd neu warant yn ôl.<br/><br/> Mae hyn yn rhoi gwybod i CThEF sut y gwnaethoch waredu’r nwyddau y gwnaethoch eu mewnforio gan ddefnyddio awdurdodiad drwy ddatganiad o dan ryddhad defnydd awdurdodedig (Prydain Fawr), neu ryddhad defnydd terfynol (Gogledd Iwerddon).
 bill-of-discharge.bod4.title=Bil rhyddhau ar gyfer defnydd awdurdodedig neu ddefnydd terfynol (ffurflen BOD4)
 bill-of-discharge.error.required=Dewiswch ''Iawn'' i barhau â’r hawliad hwn
@@ -1875,6 +1873,12 @@ timed-out.title=Er eich diogelwch, gwnaethom eich allgofnodi
 unauthorised.help=Mae angen rhif EORI arnoch i ddefnyddio’r gwasanaeth hwn. Mae’n rhaid i’r rhif EORI gynnwys 14 o gymeriadau neu lai, a chynnwys llythrennau a i z a’r rhifau 1 i 9 yn unig
 unauthorised.help-text=Dysgu <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">sut i gael rhif EORI (yn agor tab newydd)</a>
 unauthorised.title=Mae problem wedi codi
+
+upload-bill-of-discharge-3.title=Bill of discharge (BOD) form
+upload-bill-of-discharge-3.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under inward-processing relief (IPR).
+upload-bill-of-discharge-3.h2=Add a BOD3 form
+upload-bill-of-discharge-3.choose.description=Upload your file
+upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
 
 we-only-support-gg.createAccount=Creu cyfrif
 we-only-support-gg.createAccount.p1=Bydd angen i chi <a href="{0}">greu Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth newydd</a>. Gallwch ei ddefnyddio i greu cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.

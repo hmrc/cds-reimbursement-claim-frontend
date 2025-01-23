@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -79,70 +79,6 @@ class BillOfDischarge3ControllerSpec
         .split("<a href")
         .head
 
-    "show page" must {
-
-      def showBod3Page: Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(showBod3Page) shouldBe NOT_FOUND
-      }
-
-      "display the page if securities feature is enabled (BOD3)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          showBod3Page,
-          messageFromMessageKey(s"$confirmBodMessagesKey.bod3.title"),
-          implicit doc => {
-            messageFromMessageKey(s"$confirmBodMessagesKey.bod3.p1") should include(getContentsOfParagraph(1))
-            messageFromMessageKey(s"$confirmBodMessagesKey.p2")      should include(getContentsOfParagraph(2))
-          }
-        )
-      }
-
-    }
-
-    "submitting Yes/No form" must {
-
-      def submitBod3Action(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "select 'Yes' should redirect to select securities page (BOD3)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod3Action(confirmBodMessagesKey -> "true"),
-          routes.AddOtherDocumentsController.show
-        )
-      }
-
-      "select 'No' should redirect to 'Bill of Discharge' error page (BOD3)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod3Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischarge3Controller.invalid
-        )
-      }
-
-    }
-
     "Bill of Discharge Error page" must {
 
       def invalidBod3Action: Future[Result] = controller.invalid()(FakeRequest())
@@ -154,7 +90,12 @@ class BillOfDischarge3ControllerSpec
         status(invalidBod3Action) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled (BOD3)" in forAll(completeJourneyGen) { journey =>
+      "display the page if securities feature is enabled (BOD3)" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+        )
+      ) { case (journey, _) =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {

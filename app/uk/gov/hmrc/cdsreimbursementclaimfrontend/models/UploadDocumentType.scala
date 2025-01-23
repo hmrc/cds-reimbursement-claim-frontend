@@ -264,6 +264,10 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       )
   }
 
+  def isUploadedSeparately(document: UploadDocumentType): Boolean =
+    document == BillOfDischarge3
+      || document == ScheduleOfMRNs
+
   val validator: Validator[Id, UploadDocumentType] = maybeUploadDocumentType =>
     maybeUploadDocumentType.toValidNel(MissingAnswerError("Upload Document Type"))
 

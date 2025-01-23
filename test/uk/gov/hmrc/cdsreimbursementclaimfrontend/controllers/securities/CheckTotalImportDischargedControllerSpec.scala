@@ -158,7 +158,7 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischarge3Controller.show
+          routes.UploadBillOfDischarge3Controller.show
         )
       }
 

@@ -55,8 +55,13 @@ class UploadFilesController @Inject() (
   final val selectDocumentTypePageAction: Call = routes.ChooseFileTypeController.show
   final val callbackAction: Call               = routes.UploadFilesController.submit
 
+  final override def documentUploadRequired(journey: Journey): Boolean =
+    journey.needsOtherSupportingEvidence
+
   final def nextPageInJourney(journey: Journey): Call =
-    if journey.reasonForSecurityIsIPR
+    if journey.hasCompleteAnswers
+    then routes.CheckYourAnswersController.show
+    else if journey.reasonForSecurityIsIPR
     then routes.ChoosePayeeTypeController.show
     else routes.EnterAdditionalDetailsController.show
 

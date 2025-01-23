@@ -22,14 +22,10 @@ import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectBillOfDischargeForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_bill_of_discharge
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.invalid_bill_of_discharge
 
 import scala.concurrent.ExecutionContext
@@ -37,7 +33,6 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class BillOfDischarge3Controller @Inject() (
   val jcc: JourneyControllerComponents,
-  confirmBillOfDischarge: confirm_bill_of_discharge,
   invalidBillOfDischarge: invalid_bill_of_discharge
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
@@ -45,28 +40,10 @@ class BillOfDischarge3Controller @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
-        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+      hasMRNAndDisplayDeclarationAndRfS
+        & declarantOrImporterEoriMatchesUserOrHasBeenVerified
+        & reasonForSecurityIsIPR
     )
-
-  private val submitRoute = routes.BillOfDischarge3Controller.submit
-
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(confirmBillOfDischarge(selectBillOfDischargeForm, submitRoute, BOD3)).asFuture
-  }
-
-  def submit: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    selectBillOfDischargeForm
-      .bindFromRequest()
-      .fold(
-        formWithError => BadRequest(confirmBillOfDischarge(formWithError, submitRoute, BOD3)),
-        {
-          case Yes => Redirect(routes.AddOtherDocumentsController.show)
-          case No  => Redirect(routes.BillOfDischarge3Controller.invalid)
-        }
-      )
-      .asFuture
-  }
 
   val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(invalidBillOfDischarge(BOD3)).asFuture

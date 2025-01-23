@@ -139,7 +139,15 @@ class CheckYourAnswersControllerSpec
         // ("Export MRN"                   -> journey.answers.exportMovementReferenceNumber.map(_.map(_.value))),
         "Contact details"                            -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
         "Contact address"                            -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-        "Uploaded"                                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
+        "Uploaded"                                   ->
+          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then None
+           else Some(expectedDocuments.mkString(" "))),
+        "Bill of discharge 3"                        ->
+          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then Some("bod.pdf") else None),
+        "Other supporting documents"                 ->
+          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then
+             Some(expectedDocuments.filterNot(_ == "bod.pdf").mkString(" "))
+           else None),
         "Any information that may support the claim" -> claim.additionalDetails.map(_.value),
         "Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value),
         "Sort code"                                  -> claim.bankAccountDetails.map(_.sortCode.value),

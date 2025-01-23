@@ -83,4 +83,4 @@
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+@summary(EvidenceDocumentsSummary(messages(s"check-your-answers.attached-documents.label"),claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
