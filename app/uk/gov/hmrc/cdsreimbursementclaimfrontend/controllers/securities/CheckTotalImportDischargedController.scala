@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrEndUseRelief
 
 @Singleton
 class CheckTotalImportDischargedController @Inject() (
@@ -47,8 +48,9 @@ class CheckTotalImportDischargedController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
-        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+      hasMRNAndDisplayDeclarationAndRfS
+        & declarantOrImporterEoriMatchesUserOrHasBeenVerified
+        & reasonForSecurityIsIPROrEndUseRelief
     )
 
   // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.

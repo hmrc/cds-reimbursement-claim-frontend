@@ -368,57 +368,55 @@ class ChooseReasonForSecurityControllerSpec
       // }
 
       "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(
+          securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen
+        ) { (declaration: DisplayDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
-          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
-            val initialJourney =
-              SecuritiesJourney
-                .empty(declaration.getDeclarantEori)
-                .submitMovementReferenceNumber(declaration.getMRN)
-                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
-                .getOrFail
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+              .getOrFail
 
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-            }
-
-            checkIsRedirect(
-              performAction(
-                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
-              ),
-              routes.SelectSecuritiesController.showFirst()
-            )
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
           }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+            ),
+            routes.SelectSecuritiesController.showFirst()
+          )
         }
       }
 
       "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen) { (declaration: DisplayDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
-          whenever(rfs.exists(_ !== ReasonForSecurity.InwardProcessingRelief)) {
-            val initialJourney =
-              SecuritiesJourney
-                .empty(declaration.getDeclarantEori)
-                .submitMovementReferenceNumber(declaration.getMRN)
-                .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
-                .map(_.submitCheckDeclarationDetailsChangeMode(true))
-                .getOrFail
+          val initialJourney =
+            SecuritiesJourney
+              .empty(declaration.getDeclarantEori)
+              .submitMovementReferenceNumber(declaration.getMRN)
+              .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
 
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-            }
-
-            checkIsRedirect(
-              performAction(
-                Seq("choose-reason-for-security.securities" -> rfs.get.toString)
-              ),
-              routes.CheckDeclarationDetailsController.show
-            )
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
           }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> rfs.get.toString)
+            ),
+            routes.CheckDeclarationDetailsController.show
+          )
         }
       }
 
@@ -456,7 +454,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.CheckTotalImportDischargedController.show
+            routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show
           )
         }
       }

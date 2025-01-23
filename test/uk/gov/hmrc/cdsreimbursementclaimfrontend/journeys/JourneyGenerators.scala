@@ -80,6 +80,15 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       securitiesDisplayDeclarationNotGuaranteeEligibleGen
     )
 
+  final lazy val securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen =
+    securitiesDisplayDeclarationGen
+      .suchThat(
+        _.getReasonForSecurity.exists(rfs =>
+          rfs != ReasonForSecurity.InwardProcessingRelief
+            && rfs != ReasonForSecurity.EndUseRelief
+        )
+      )
+
   final val exampleDisplayDeclaration: DisplayDeclaration =
     displayDeclarationGen.sample.get
 

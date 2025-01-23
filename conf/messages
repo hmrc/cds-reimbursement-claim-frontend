@@ -175,6 +175,27 @@ check-declaration-details.subsidy-status-label=Subsidy status
 check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.yes=Yes
 
+check-import-declaration-details.title=Check these details
+check-import-declaration-details.card.claim-details=Claim details
+check-import-declaration-details.card.import-details=Import details
+check-import-declaration-details.card.security-deposits=Security deposits
+check-import-declaration-details.card.importer-details=Importer details
+check-import-declaration-details.card.declarant-details=Declarant details
+check-import-declaration-details.mrn-label=Movement Reference Number (MRN)
+check-import-declaration-details.reason-for-security-label=Why was a security deposit needed?
+check-import-declaration-details.import-declaration-details.h2=Import declaration details
+check-import-declaration-details.import-declaration-details.help-text=You can <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contact HMRC if these details are incorrect (opens in new tab)</a>.
+check-import-declaration-details.securities.lrn-label=Local Reference Number (LRN)
+check-import-declaration-details.acceptance-date-label=Date of import
+check-import-declaration-details.security-deposit-id=Security deposit ID
+check-import-declaration-details.security-deposit-value=Value of the deposit
+check-import-declaration-details.importer-name-label=Name
+check-import-declaration-details.importer-email-label=Email
+check-import-declaration-details.importer-address-label=Address
+check-import-declaration-details.declarant-name-label=Name
+check-import-declaration-details.declarant-email-label=Email
+check-import-declaration-details.declarant-address-label=Address
+
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-incorrect=No
