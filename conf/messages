@@ -175,6 +175,8 @@ check-declaration-details.subsidy-status-label=Subsidy status
 check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.yes=Yes
 
+check-import-declaration-details.title=Check these details
+
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-incorrect=No

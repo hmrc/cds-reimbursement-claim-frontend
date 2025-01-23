@@ -175,6 +175,8 @@ check-declaration-details.subsidy-status-label=Statws cymhorthdal
 check-declaration-details.title=Gwnewch yn siŵr bod manylion y datganiad hwn yn gywir
 check-declaration-details.yes=Iawn
 
+check-import-declaration-details.title=Check these details
+
 check-eori-details.eori-correct=Iawn
 check-eori-details.eori-correct-label=A yw’r manylion hyn yn gywir?
 check-eori-details.eori-incorrect=Na
