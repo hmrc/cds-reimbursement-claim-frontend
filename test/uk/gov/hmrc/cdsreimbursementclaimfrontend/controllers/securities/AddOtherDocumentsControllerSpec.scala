@@ -81,7 +81,7 @@ class AddOtherDocumentsControllerSpec
       "display the page if securities feature is enabled" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          journeyBuilder = buildSecuritiesJourneyReadyForIPR
         )
       ) { case (journey, _) =>
         val updatedSession = SessionData(journey)
@@ -107,7 +107,7 @@ class AddOtherDocumentsControllerSpec
       "select 'Yes' should redirect to choose document type page" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          journeyBuilder = buildSecuritiesJourneyReadyForIPR
         )
       ) { case (journey, _) =>
         val updatedSession = SessionData(journey)
@@ -126,7 +126,7 @@ class AddOtherDocumentsControllerSpec
       "select 'No' should redirect to choose payee type page" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          journeyBuilder = buildSecuritiesJourneyReadyForIPR
         )
       ) { case (journey, _) =>
         val updatedSession = SessionData(journey)

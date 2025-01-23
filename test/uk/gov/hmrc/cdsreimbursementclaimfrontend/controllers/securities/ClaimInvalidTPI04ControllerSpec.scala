@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.*
 
 class ClaimInvalidTPI04ControllerSpec
     extends PropertyBasedControllerSpec
