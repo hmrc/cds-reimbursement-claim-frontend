@@ -35,8 +35,9 @@ final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
 
-  def hasBankDetails: Boolean                       =
+  def hasBankDetails: Boolean =
     displayResponseDetail.bankDetails.isDefined
+
   def getConsigneeDetails: Option[ConsigneeDetails] =
     displayResponseDetail.consigneeDetails
 
@@ -83,6 +84,9 @@ final case class DisplayDeclaration(
 
   def getSecurityDepositIds: Option[List[String]] =
     displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
+
+  def getSecurityDetails: Option[List[SecurityDetails]] =
+    displayResponseDetail.securityDetails
 
   def getNumberOfSecurityDeposits: Int = getSecurityDepositIds
     .map(_.size)
@@ -305,9 +309,7 @@ object DisplayDeclaration {
       )
 
     def consigneeTelephone: Option[String] =
-      displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
-        details.contactDetails.flatMap(f => f.telephone)
-      )
+      displayDeclaration.getConsigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
 
     def consigneeAddress(implicit messages: Messages): Option[String] =
       displayDeclaration.displayResponseDetail.consigneeDetails.map(details =>

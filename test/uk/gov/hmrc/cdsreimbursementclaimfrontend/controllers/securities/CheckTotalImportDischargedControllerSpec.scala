@@ -70,6 +70,7 @@ class CheckTotalImportDischargedControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "check-total-import-discharged"
+
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)

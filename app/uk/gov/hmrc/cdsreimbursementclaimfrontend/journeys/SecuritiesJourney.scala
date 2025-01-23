@@ -92,6 +92,11 @@ final class SecuritiesJourney private (
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
+  def getSecurityDetails: Seq[SecurityDetails] =
+    getLeadDisplayDeclaration
+      .flatMap(_.getSecurityDetails)
+      .getOrElse(Seq.empty)
+
   /** Returns true if the security ID is available on the ACC14 declaration. */
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
     getLeadDisplayDeclaration
