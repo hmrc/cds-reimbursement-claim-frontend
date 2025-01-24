@@ -414,6 +414,12 @@ choose-claim-type.securities.hint=Os oedd angen blaendal sicrwydd neu warant ar 
 choose-claim-type.securities.title=Hawlio blaendal sicrwydd yn ôl
 choose-claim-type.title=Dechrau hawliad newydd
 
+choose-claim-type.p1=Bydd angen y Cyfeirnod Symud (MRN) Mewnforio arnoch ac unrhyw ddogfennau ategol, fel:
+choose-claim-type.l1=anfonebau
+choose-claim-type.l2=tystiolaeth o warediad
+choose-claim-type.l3=tystiolaeth o awdurdod (i ddiweddaru manylion cyfrif banc)
+
+choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
 choose-export-method.export-method-description.DeclaredToAFreeZone=Wedi’u datgan i Barth Rhydd
