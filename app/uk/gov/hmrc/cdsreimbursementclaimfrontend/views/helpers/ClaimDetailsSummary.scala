@@ -71,17 +71,20 @@ object ClaimDetailsSummary {
             value = Value(
               Text(duplicateMrn.value)
             ),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = singleRoutes.EnterDuplicateMovementReferenceNumberController.show.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.duplicate-mrn"))
+            actions =
+              if isPrintView then None
+              else
+                Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = singleRoutes.EnterDuplicateMovementReferenceNumberController.show.url,
+                        content = Text(messages("cya.change")),
+                        visuallyHiddenText = Some(messages("check-your-answers.duplicate-mrn"))
+                      )
+                    )
                   )
                 )
-              )
-            )
           )
         },
         newEoriAndDanOpt.map { newEoriAndDan =>
