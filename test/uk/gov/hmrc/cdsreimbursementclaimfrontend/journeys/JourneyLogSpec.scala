@@ -29,6 +29,7 @@ import scala.collection.immutable.SortedMap
 class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
 
   case class TestJourneyAnalytics(
+    journeyDurationSeconds: Long = 12345,
     emailAddressHasChanged: Boolean = true,
     contactNameHasChanged: Boolean = true,
     phoneNumberHasChanged: Boolean = true,
@@ -105,6 +106,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log OverpaymentsMultipleJourney.Output" in {
@@ -160,6 +162,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log OverpaymentsScheduledJourney.Output" in {
@@ -224,6 +227,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log RejectedGoodsSingleJourney.Output" in {
@@ -296,6 +300,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe false
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log RejectedGoodsMultipleJourney.Output" in {
@@ -354,6 +359,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe false
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log RejectedGoodsScheduledJourney.Output" in {
@@ -421,6 +427,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe false
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
     "log SecuritiesJourney.Output" in {
@@ -477,6 +484,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.changes.phoneNumber                   shouldBe true
       log.changes.contactAddress                shouldBe true
       log.changes.bankAccount                   shouldBe true
+      log.journeyDurationSeconds                shouldBe 12345
     }
 
   }

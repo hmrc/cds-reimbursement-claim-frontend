@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
+import java.time.Instant
 
 /** An encapsulated C&E1179 multiple MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.
@@ -44,6 +45,7 @@ import scala.collection.immutable.SortedMap
   */
 final class RejectedGoodsMultipleJourney private (
   val answers: RejectedGoodsMultipleJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[RejectedGoodsMultipleJourney.Features]
@@ -63,7 +65,7 @@ final class RejectedGoodsMultipleJourney private (
   private def copy(
     newAnswers: RejectedGoodsMultipleJourney.Answers
   ): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(newAnswers, caseNumber, submissionDateTime, features)
+    new RejectedGoodsMultipleJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -321,6 +323,7 @@ final class RejectedGoodsMultipleJourney private (
                       eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
                     ),
+                  startTimeSeconds = this.startTimeSeconds,
                   features = features
                 )
               )
@@ -715,6 +718,7 @@ final class RejectedGoodsMultipleJourney private (
             Right(
               new RejectedGoodsMultipleJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now()),
                 features = features
@@ -784,7 +788,11 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): RejectedGoodsMultipleJourney =
-    new RejectedGoodsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
+    new RejectedGoodsMultipleJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
@@ -888,14 +896,16 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
   implicit val format: Format[RejectedGoodsMultipleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
         and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleJourney(_, _, _, _)),
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 
