@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
+import java.time.Instant
 
 /** An encapsulated Securities journey logic. The constructor of this class MUST stay PRIVATE to protected integrity of
   * the journey.
@@ -49,6 +50,7 @@ import scala.collection.immutable.SortedMap
   */
 final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None
 ) extends JourneyBase
@@ -67,7 +69,7 @@ final class SecuritiesJourney private (
   private def copy(
     newAnswers: SecuritiesJourney.Answers
   ): SecuritiesJourney =
-    new SecuritiesJourney(newAnswers, caseNumber, submissionDateTime)
+    new SecuritiesJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime)
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -934,6 +936,7 @@ final class SecuritiesJourney private (
             Right(
               new SecuritiesJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now())
               )
@@ -1012,7 +1015,10 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): SecuritiesJourney =
-    new SecuritiesJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce))
+    new SecuritiesJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond()
+    )
 
   type CorrectedAmounts = SortedMap[TaxCode, Option[BigDecimal]]
 
@@ -1200,12 +1206,14 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
   implicit val format: Format[SecuritiesJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime])(new SecuritiesJourney(_, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime])(new SecuritiesJourney(_, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime)
       )
     )
 

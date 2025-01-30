@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDateTime
+import java.time.Instant
 
 /** An encapsulated C285 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.
@@ -43,6 +44,7 @@ import java.time.LocalDateTime
   */
 final class OverpaymentsSingleJourney private (
   val answers: OverpaymentsSingleJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsSingleJourney.Features]
@@ -62,7 +64,7 @@ final class OverpaymentsSingleJourney private (
   private def copy(
     newAnswers: OverpaymentsSingleJourney.Answers
   ): OverpaymentsSingleJourney =
-    new OverpaymentsSingleJourney(newAnswers, caseNumber, submissionDateTime, features)
+    new OverpaymentsSingleJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
@@ -173,6 +175,7 @@ final class OverpaymentsSingleJourney private (
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
                   ),
+                startTimeSeconds = this.startTimeSeconds,
                 features = features
               )
             )
@@ -433,7 +436,7 @@ final class OverpaymentsSingleJourney private (
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
 
-            case _ =>
+            case Some(ndrcDetails) =>
               Left("submitCorrectAmount.invalidAmount")
           }
       }
@@ -582,6 +585,7 @@ final class OverpaymentsSingleJourney private (
             Right(
               new OverpaymentsSingleJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now()),
                 features = features
@@ -651,7 +655,11 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): OverpaymentsSingleJourney =
-    new OverpaymentsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
+    new OverpaymentsSingleJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
 
   type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
 
@@ -831,14 +839,16 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   implicit val format: Format[OverpaymentsSingleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
         and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsSingleJourney(_, _, _, _)),
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsSingleJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Repres
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
+import java.time.Instant
 
 /** Common properties and computations of all of the journeys. */
 trait CommonJourneyProperties {
@@ -43,10 +44,9 @@ trait CommonJourneyProperties {
 
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
-
   def submissionDateTime: Option[LocalDateTime]
-
   def needsDocumentType: Boolean = true
+  def startTimeSeconds: Long
 
   def declarantEoriMatchesConsignee: Boolean =
     getDeclarantEoriFromACC14.isDefined &&
@@ -216,6 +216,9 @@ trait CommonJourneyProperties {
       contactDetails,
       contactAddress
     )
+
+  final def journeyDurationSeconds: Long =
+    Instant.now().getEpochSecond() - startTimeSeconds
 
   final def emailAddressHasChanged: Boolean =
     answers.contactDetails.exists(_.emailAddressHasChanged)

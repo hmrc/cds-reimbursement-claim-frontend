@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.*
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
+import java.time.Instant
 
 /** An encapsulated C285 multiple MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.
@@ -44,6 +45,7 @@ import scala.collection.immutable.SortedMap
   */
 final class OverpaymentsMultipleJourney private (
   val answers: OverpaymentsMultipleJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsMultipleJourney.Features]
@@ -62,7 +64,7 @@ final class OverpaymentsMultipleJourney private (
   private def copy(
     newAnswers: OverpaymentsMultipleJourney.Answers
   ): OverpaymentsMultipleJourney =
-    new OverpaymentsMultipleJourney(newAnswers, caseNumber, submissionDateTime, features)
+    new OverpaymentsMultipleJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -343,6 +345,7 @@ final class OverpaymentsMultipleJourney private (
                       eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
                     ),
+                  startTimeSeconds = this.startTimeSeconds,
                   features = features
                 )
               )
@@ -719,6 +722,7 @@ final class OverpaymentsMultipleJourney private (
             Right(
               new OverpaymentsMultipleJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now()),
                 features = features
@@ -783,7 +787,11 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): OverpaymentsMultipleJourney =
-    new OverpaymentsMultipleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
+    new OverpaymentsMultipleJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
@@ -883,14 +891,16 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
   implicit val format: Format[OverpaymentsMultipleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
         and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleJourney(_, _, _, _)),
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

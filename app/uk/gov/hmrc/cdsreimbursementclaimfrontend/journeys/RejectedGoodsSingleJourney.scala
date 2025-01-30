@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Instant
 
 /** An encapsulated C&E1179 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.
@@ -43,6 +44,7 @@ import java.time.LocalDateTime
   */
 final class RejectedGoodsSingleJourney private (
   val answers: RejectedGoodsSingleJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[RejectedGoodsSingleJourney.Features]
@@ -63,7 +65,7 @@ final class RejectedGoodsSingleJourney private (
   private def copy(
     newAnswers: RejectedGoodsSingleJourney.Answers
   ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(newAnswers, caseNumber, submissionDateTime, features)
+    new RejectedGoodsSingleJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] =
     duties
@@ -108,6 +110,7 @@ final class RejectedGoodsSingleJourney private (
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
                   ),
+                startTimeSeconds = this.startTimeSeconds,
                 features = features
               )
             )
@@ -443,6 +446,7 @@ final class RejectedGoodsSingleJourney private (
             Right(
               new RejectedGoodsSingleJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now()),
                 features = features
@@ -513,7 +517,11 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
+    new RejectedGoodsSingleJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
 
   type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
 
@@ -634,14 +642,16 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
   implicit val format: Format[RejectedGoodsSingleJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
         and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsSingleJourney(_, _, _, _)),
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsSingleJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

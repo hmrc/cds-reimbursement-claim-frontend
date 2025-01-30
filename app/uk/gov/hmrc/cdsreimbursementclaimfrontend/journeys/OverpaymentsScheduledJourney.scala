@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap
+import java.time.Instant
 
 /** An encapsulated C285 scheduled MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.
@@ -43,6 +44,7 @@ import scala.collection.immutable.SortedMap
   */
 final class OverpaymentsScheduledJourney private (
   val answers: OverpaymentsScheduledJourney.Answers,
+  val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
   val submissionDateTime: Option[LocalDateTime] = None,
   val features: Option[OverpaymentsScheduledJourney.Features]
@@ -62,7 +64,7 @@ final class OverpaymentsScheduledJourney private (
   private def copy(
     newAnswers: OverpaymentsScheduledJourney.Answers
   ): OverpaymentsScheduledJourney =
-    new OverpaymentsScheduledJourney(newAnswers, caseNumber, submissionDateTime, features)
+    new OverpaymentsScheduledJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
@@ -98,6 +100,7 @@ final class OverpaymentsScheduledJourney private (
                     displayDeclaration = Some(displayDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly)
                   ),
+                startTimeSeconds = this.startTimeSeconds,
                 features = features
               )
             )
@@ -370,6 +373,7 @@ final class OverpaymentsScheduledJourney private (
             Right(
               new OverpaymentsScheduledJourney(
                 answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
                 submissionDateTime = Some(LocalDateTime.now()),
                 features = features
@@ -458,7 +462,11 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     nonce: Nonce = Nonce.random,
     features: Option[Features] = None
   ): OverpaymentsScheduledJourney =
-    new OverpaymentsScheduledJourney(Answers(userEoriNumber = userEoriNumber, nonce = nonce), features = features)
+    new OverpaymentsScheduledJourney(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
 
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
@@ -557,14 +565,16 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
   implicit val format: Format[OverpaymentsScheduledJourney] =
     Format(
       ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
         and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledJourney(_, _, _, _)),
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
         and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
         and (JsPath \ "features").writeNullable[Features])(journey =>
-        (journey.answers, journey.caseNumber, journey.submissionDateTime, journey.features)
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 

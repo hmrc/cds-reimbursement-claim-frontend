@@ -42,7 +42,8 @@ final case class JourneyLog(
   uploads: JourneyLog.Uploads,
   changes: JourneyLog.Changes,
   userHash: String,
-  caseNumber: Option[String] = None
+  caseNumber: Option[String] = None,
+  journeyDurationSeconds: Long
 ) {
 
   def logInfo(): JsObject = {
@@ -123,7 +124,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -158,7 +160,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -193,7 +196,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -228,7 +232,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -263,7 +268,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -298,7 +304,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   def apply(
@@ -335,7 +342,8 @@ object JourneyLog {
       ),
       changes = Changes.from(analytics),
       userHash = Hash(userEORI).take(8),
-      caseNumber = caseNumber
+      caseNumber = caseNumber,
+      journeyDurationSeconds = analytics.journeyDurationSeconds
     )
 
   private def threshold(amount: BigDecimal): String =

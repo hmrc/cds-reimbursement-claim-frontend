@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 trait JourneyAnalytics {
+  def journeyDurationSeconds: Long
   def emailAddressHasChanged: Boolean
   def contactNameHasChanged: Boolean
   def phoneNumberHasChanged: Boolean
