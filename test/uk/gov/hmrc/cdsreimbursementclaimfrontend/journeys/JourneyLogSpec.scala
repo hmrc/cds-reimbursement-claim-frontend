@@ -273,7 +273,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
       log.consigneeIsDeclarant                  shouldBe true
-      log.payeeType                             shouldBe "not implemented yet"
+      log.payeeType                             shouldBe "Consignee"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -331,7 +331,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.numberOfMultipleMRNs                  shouldBe Some(2)
       log.claimantType                          shouldBe "Consignee"
       log.consigneeIsDeclarant                  shouldBe true
-      log.payeeType                             shouldBe "not implemented yet"
+      log.payeeType                             shouldBe "Consignee"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -398,7 +398,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "User"
       log.consigneeIsDeclarant                  shouldBe true
-      log.payeeType                             shouldBe "not implemented yet"
+      log.payeeType                             shouldBe "Consignee"
       log.basisOfClaim                          shouldBe Some("DamagedBeforeClearance")
       log.basisOfClaimSpecialCircumstances      shouldBe Some("BasisOfClaimSpecialCircumstances")
       log.methodOfDisposal                      shouldBe Some("Destruction")
@@ -454,7 +454,7 @@ class JourneyLogSpec extends AnyWordSpec with Matchers with JourneyTestData {
       log.numberOfMultipleMRNs                  shouldBe None
       log.claimantType                          shouldBe "Consignee"
       log.consigneeIsDeclarant                  shouldBe true
-      log.payeeType                             shouldBe "not implemented yet"
+      log.payeeType                             shouldBe "Consignee"
       log.basisOfClaim                          shouldBe None
       log.basisOfClaimSpecialCircumstances      shouldBe None
       log.methodOfDisposal                      shouldBe None
