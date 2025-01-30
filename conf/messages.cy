@@ -422,10 +422,15 @@ choose-claim-type.l3=tystiolaeth o awdurdod (i ddiweddaru manylion cyfrif banc)
 choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
+choose-export-method.export-method-hint.DeclaredToACustomsWarehouse=Symudwyd y nwyddau i gyfleuster tollau lle gellir eu storio heb dalu treth
 choose-export-method.export-method-description.DeclaredToAFreeZone=Wedi’u datgan i Barth Rhydd
-choose-export-method.export-method-description.DeclaredToEndUse=Wedi’u datgan i Ddefnydd Terfynol
+choose-export-method.export-method-hint.DeclaredToAFreeZone=Symudwyd y nwyddau i barth tollau diogel o fewn y DU lle mae rheolau tollau gwahanol yn berthnasol
+choose-export-method.export-method-description.DeclaredToEndUse=Datgan i ryddhad defnydd awdurdodedig neu ddefnydd terfyno
+choose-export-method.export-method-hint.DeclaredToEndUse=Symudwyd y nwyddau i fewnforio defnydd awdurdodedig (Prydain Fawr) neu ddefnydd terfynol (Gogledd Iwerddon) at ddefnydd penodol yn y DU
 choose-export-method.export-method-description.DeclaredToFreeCirculation=Wedi’u datgan i gylchrediad rhydd
+choose-export-method.export-method-hint.DeclaredToFreeCirculation=Gwerthwyd y nwyddau a byddant yn aros ym Mhrydain Fawr
 choose-export-method.export-method-description.DeclaredToInwardProcessingRelief=Wedi’u datgan i Ryddhad Prosesu Mewnol
+choose-export-method.export-method-hint.DeclaredToInwardProcessingRelief=Symudwyd y nwyddau i fewnforio prosesu mewnol i’w atgyweirio
 choose-export-method.export-method-description.DeclaredToOtherTraderUnderTemporaryAdmission=Wedi’u datgan i fasnachwr arall o dan fynediad dros dro
 choose-export-method.export-method-description.Destroyed=Wedi’u difetha
 choose-export-method.export-method-description.ExportedInSingleOrMultipleShipments=Wedi’u hallforio mewn llwyth sengl neu sawl llwyth
