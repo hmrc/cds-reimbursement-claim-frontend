@@ -67,7 +67,7 @@ class CheckDeclarationDetailsController @Inject() (
         (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
       else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
       else if journey.getReasonForSecurity.exists(ntas.contains) then
-        (updatedJourney, Redirect(routes.ChooseExportMethodController.show))
+        (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
       else (updatedJourney.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
     }
 }
