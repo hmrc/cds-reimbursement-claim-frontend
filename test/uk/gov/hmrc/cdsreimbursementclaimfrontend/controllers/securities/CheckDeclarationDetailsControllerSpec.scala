@@ -322,7 +322,7 @@ class CheckDeclarationDetailsControllerSpec
         }
       }
 
-      "continue to the export method page if some securities has been selected (Temporary Admission)" in {
+      "continue to the have your documents ready page if some securities has been selected (Temporary Admission)" in {
         forAll(
           mrnWithRfsWithDisplayDeclarationGen(
             ReasonForSecurity.ntas
@@ -347,7 +347,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.ChooseExportMethodController.show
+              routes.HaveDocumentsReadyController.show
             )
           }
         }
