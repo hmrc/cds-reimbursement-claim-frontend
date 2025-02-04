@@ -48,18 +48,17 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), classes="govuk-heading-l")
 
-        @dropdownDetails(summary = combine(key, subKey, "details.heading").head ,
-        html(
-            paragraph(Html(messages(combine(key, subKey, "details.paragraph").head)))
-        ))
+        @paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph.1")))
+        @paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph.2")))
 
         @inputText(
             form = form,
             id = key,
             name = key,
             label = combine(key, subKey, "enter-mrn.label").head,
+            labelClasses = Some("govuk-!-font-weight-bold"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(combine(key, subKey, "help").head)

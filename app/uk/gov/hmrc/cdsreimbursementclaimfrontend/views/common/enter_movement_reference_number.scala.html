@@ -63,20 +63,17 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), classes="govuk-heading-l")
 
-        @dropdownDetails(
-            summary = s"enter-movement-reference-number.details.heading",
-            html(
-                paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph")))
-            )
-        )
+        @paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph.1")))
+        @paragraph(Html(messages(s"enter-movement-reference-number.details.paragraph.2")))
 
         @inputText(
             form = form,
             id = key,
             name = key,
             label = label,
+            labelClasses = Some("govuk-!-font-weight-bold"),
             doNotResolveLabel = true,
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
