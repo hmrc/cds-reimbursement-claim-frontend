@@ -1180,6 +1180,7 @@ enter-inspection-date.rejected-goods.title=Making your goods available for inspe
 enter-inspection-date.rejected-goods.year.error.required=Inspection date must include a year
 
 enter-movement-reference-number.details.heading=What is a Movement Reference Number (MRN)
+enter-movement-reference-number.details.paragraph=You can find this 18-digit reference in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.details.paragraph.1=An MRN is a unique 18-digit reference that is issued when an import is declared.
 enter-movement-reference-number.details.paragraph.2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-movement-reference-number.multiple.error.existingMRN=This MRN has already been used. Enter a different MRN

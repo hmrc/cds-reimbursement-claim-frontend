@@ -1146,6 +1146,7 @@ enter-inspection-date.rejected-goods.title=Sicrhau bod eich nwyddau ar gael i’
 enter-inspection-date.rejected-goods.year.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys blwyddyn
 
 enter-movement-reference-number.details.heading=Beth yw Cyfeirnod Symud (MRN)
+enter-movement-reference-number.details.paragraph=Gallwch ddod o hyd i’r cyfeirnod 18 digid hwn yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfonwr nwyddau neu asiantaeth.
 enter-movement-reference-number.details.paragraph.1=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw MRN.
 enter-movement-reference-number.details.paragraph.2=Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-movement-reference-number.multiple.error.existingMRN=Mae’r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o’r blaen. Nodwch MRN gwahanol
