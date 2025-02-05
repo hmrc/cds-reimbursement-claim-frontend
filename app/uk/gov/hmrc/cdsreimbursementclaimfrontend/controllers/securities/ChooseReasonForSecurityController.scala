@@ -82,31 +82,9 @@ class ChooseReasonForSecurityController @Inject() (
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
-  private def ntasOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if featureSwitchService.isEnabled(Feature.SecurityReasonsNtas) then ReasonForSecurity.ntas else Set.empty
-  private def niruOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if featureSwitchService.isEnabled(Feature.SecurityReasonsNiru) then
-      filterDisabledNiruOptions(ReasonForSecurity.niru)
-    else Set.empty
-
-  private def filterDisabledNiruOptions(
-    options: Set[ReasonForSecurity]
-  )(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    options
-      .filterNot(rfs =>
-        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruOpr) then { rfs == OutwardProcessingRelief }
-        else false
-      )
-      .filterNot(rfs =>
-        if featureSwitchService.isDisabled(Feature.SecurityReasonsNiruCsdr) then { rfs == CommunitySystemsOfDutyRelief }
-        else false
-      )
-
-  private def nidacOptions(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    if featureSwitchService.isEnabled(Feature.SecurityReasonsNidac) then ReasonForSecurity.nidac else Set.empty
-
-  private def reasonsForSecurity(implicit hc: HeaderCarrier): Set[ReasonForSecurity] =
-    ntasOptions ++ niruOptions ++ nidacOptions
+  private def reasonsForSecurity(journey: SecuritiesJourney): Set[ReasonForSecurity] = journey.features match
+    case Some(features) => features.availableReasonsForSecurity
+    case None           => Set.empty
 
   private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
@@ -117,10 +95,12 @@ class ChooseReasonForSecurityController @Inject() (
     journey.submitUserXiEori(userXiEori)
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+
     val reasonForSecurityForm: Form[ReasonForSecurity] =
       Forms.reasonForSecurityForm.withDefault(journey.getReasonForSecurity)
+
     Ok(
-      chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity, postAction)
+      chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity(journey), postAction)
     ).asFuture
   }
 
@@ -131,7 +111,7 @@ class ChooseReasonForSecurityController @Inject() (
         formWithErrors =>
           (
             journey,
-            BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity, postAction))
+            BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(journey), postAction))
           ).asFuture,
         reasonForSecurity =>
           if journey.getReasonForSecurity.contains(reasonForSecurity) then

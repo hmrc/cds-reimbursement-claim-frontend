@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.syntax.eq.*
 import com.github.arturopala.validator.Validator
 import play.api.libs.json.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
@@ -52,7 +53,8 @@ final class SecuritiesJourney private (
   val answers: SecuritiesJourney.Answers,
   val startTimeSeconds: Long,
   val caseNumber: Option[String] = None,
-  val submissionDateTime: Option[LocalDateTime] = None
+  val submissionDateTime: Option[LocalDateTime] = None,
+  val features: Option[journeys.SecuritiesJourney.Features]
 ) extends JourneyBase
     with CommonJourneyProperties
     with DirectFluentSyntax[SecuritiesJourney]
@@ -69,7 +71,7 @@ final class SecuritiesJourney private (
   private def copy(
     newAnswers: SecuritiesJourney.Answers
   ): SecuritiesJourney =
-    new SecuritiesJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime)
+    new SecuritiesJourney(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   import SecuritiesJourney.Answers
   import SecuritiesJourney.Checks._
@@ -938,7 +940,8 @@ final class SecuritiesJourney private (
                 answers = this.answers,
                 startTimeSeconds = this.startTimeSeconds,
                 caseNumber = Some(caseNumber),
-                submissionDateTime = Some(LocalDateTime.now())
+                submissionDateTime = Some(LocalDateTime.now()),
+                features = this.features
               )
             )
         )
@@ -1017,13 +1020,17 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
   ): SecuritiesJourney =
     new SecuritiesJourney(
       Answers(userEoriNumber = userEoriNumber, nonce = nonce),
-      startTimeSeconds = Instant.now().getEpochSecond()
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
     )
 
   type CorrectedAmounts = SortedMap[TaxCode, Option[BigDecimal]]
 
-  // so far empty but required by the JourneyCompanion interface
-  final case class Features()
+  final case class Features(availableReasonsForSecurity: Set[ReasonForSecurity])
+
+  object Features {
+    implicit val format: Format[Features] = Json.format[Features]
+  }
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -1208,12 +1215,14 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       ((JsPath \ "answers").read[Answers]
         and (JsPath \ "startTimeSeconds").read[Long]
         and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime])(new SecuritiesJourney(_, _, _, _)),
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new SecuritiesJourney(_, _, _, _, _)),
       ((JsPath \ "answers").write[Answers]
         and (JsPath \ "startTimeSeconds").write[Long]
         and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime])(journey =>
-        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime)
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(journey =>
+        (journey.answers, journey.startTimeSeconds, journey.caseNumber, journey.submissionDateTime, journey.features)
       )
     )
 
