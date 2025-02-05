@@ -149,7 +149,9 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if request.sessionData.overpaymentsSingleJourney.isEmpty then
+                  (if request.sessionData.overpaymentsSingleJourney.isEmpty
+                     || request.sessionData.overpaymentsSingleJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsSingleJourney.empty(eori, features = overpaymentsSingleJourneyFeatures)
@@ -159,7 +161,9 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if request.sessionData.overpaymentsMultipleJourney.isEmpty then
+                  (if request.sessionData.overpaymentsMultipleJourney.isEmpty
+                     || request.sessionData.overpaymentsMultipleJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsMultipleJourney.empty(eori, features = overpaymentsMultipleJourneyFeatures)
@@ -169,7 +173,9 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst))
 
                 case Scheduled =>
-                  (if request.sessionData.overpaymentsScheduledJourney.isEmpty then
+                  (if request.sessionData.overpaymentsScheduledJourney.isEmpty
+                     || request.sessionData.overpaymentsScheduledJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          OverpaymentsScheduledJourney.empty(eori, features = overpaymentsScheduledJourneyFeatures)
