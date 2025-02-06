@@ -147,7 +147,9 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if request.sessionData.rejectedGoodsSingleJourney.isEmpty then
+                  (if request.sessionData.rejectedGoodsSingleJourney.isEmpty
+                     || request.sessionData.rejectedGoodsSingleJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsSingleJourney.empty(eori, features = rejectedGoodsSingleJourneyFeatures)
@@ -157,7 +159,9 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show))
 
                 case Multiple =>
-                  (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty then
+                  (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty
+                     || request.sessionData.rejectedGoodsMultipleJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsMultipleJourney.empty(eori, features = rejectedGoodsMultipleJourneyFeatures)
@@ -167,7 +171,9 @@ class ChooseHowManyMrnsController @Inject() (
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst()))
 
                 case Scheduled =>
-                  (if request.sessionData.rejectedGoodsScheduledJourney.isEmpty then
+                  (if request.sessionData.rejectedGoodsScheduledJourney.isEmpty
+                     || request.sessionData.rejectedGoodsScheduledJourney.exists(_.isFinalized)
+                   then
                      updateSession(sessionStore, request)(
                        SessionData(
                          RejectedGoodsScheduledJourney.empty(eori, features = rejectedGoodsScheduledJourneyFeatures)
