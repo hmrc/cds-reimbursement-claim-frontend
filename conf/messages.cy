@@ -413,11 +413,14 @@ choose-claim-type.ce1179.title=Hawlio taliadau tollau yn ôl ar nwyddau wedi’u
 choose-claim-type.securities.hint=Os oedd angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio.
 choose-claim-type.securities.title=Hawlio blaendal sicrwydd yn ôl
 choose-claim-type.title=Dechrau hawliad newydd
-
+choose-claim-type.legend=Pa fath o hawliad yr hoffech ei wneud?
 choose-claim-type.p1=Bydd angen y Cyfeirnod Symud (MRN) Mewnforio arnoch ac unrhyw ddogfennau ategol, fel:
 choose-claim-type.l1=anfonebau
 choose-claim-type.l2=tystiolaeth o warediad
 choose-claim-type.l3=tystiolaeth o awdurdod (i ddiweddaru manylion cyfrif banc)
+choose-claim-type.error.required=Dewiswch fath o gais
+choose-claim-type.error.unknown=Dewiswch fath o gais
+choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 
 have-documents-ready.securities.title=Sicrhewch fod eich dogfennau ategol yn barod
 have-documents-ready.securities.p1=Bydd yn rhaid i chi uwchlwytho dogfennau ategol yn ddiweddarach yn yr hawliad hwn, fel:
@@ -427,7 +430,6 @@ have-documents-ready.securities.l3=rhestr pacio mewnforio neu allforio
 have-documents-ready.securities.l4=datganiad amgen neu ddargyfeirio, os yw’r statws tollau wedi newid
 have-documents-ready.securities.l5=tystiolaeth o awdurdod, os yw manylion y banc yn wahanol i’r rhai a ddarperir gan y mewnforiwr
 
-choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
 choose-export-method.export-method-hint.DeclaredToACustomsWarehouse=Symudwyd y nwyddau i gyfleuster tollau lle gellir eu storio heb dalu treth
