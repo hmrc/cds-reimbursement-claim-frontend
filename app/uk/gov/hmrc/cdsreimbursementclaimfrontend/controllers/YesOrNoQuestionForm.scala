@@ -35,11 +35,11 @@ object YesOrNoQuestionForm {
   private def isBoolean(s: String): ValidationResult = s match {
     case "true"  => Valid
     case "false" => Valid
-    case _       => Invalid(ValidationError("error.invalid"))
+    case _       => Invalid(ValidationError("error.required"))
   }
 
   private def booleanThatExists: Constraint[String] = {
-    lazy val errorMessage: String = "error.invalid"
+    lazy val errorMessage: String = "error.required"
     Constraint[String]("constraint.yesno") { s =>
       if s === null then Invalid(ValidationError(errorMessage))
       else if s.trim.isEmpty then Invalid(ValidationError(errorMessage))
