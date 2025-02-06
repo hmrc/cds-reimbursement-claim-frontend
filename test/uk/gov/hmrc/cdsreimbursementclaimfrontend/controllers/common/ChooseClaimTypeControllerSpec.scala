@@ -152,6 +152,7 @@ class ChooseClaimTypeControllerSpec
       authenticatedAction,
       sessionDataAction,
       mockSessionCache,
+      featureSwitch,
       chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger

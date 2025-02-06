@@ -40,11 +40,6 @@ object Feature extends EnumerationFormat[Feature] {
   case object SubsidiesForOverpayments extends Feature { val name = "subsidies-for-overpayments" }
   case object RedirectToGovUkLandingPage extends Feature { val name = "redirect-to-gov-uk-landing-page" }
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
-  case object SecurityReasonsNtas extends Feature { val name = "security-reasons.ntas" }
-  case object SecurityReasonsNiru extends Feature { val name = "security-reasons.niru" }
-  case object SecurityReasonsNiruOpr extends Feature { val name = "security-reasons.niru-opr" }
-  case object SecurityReasonsNiruCsdr extends Feature { val name = "security-reasons.niru-csdr" }
-  case object SecurityReasonsNidac extends Feature { val name = "security-reasons.nidac" }
   case object BasisOfClaimQuota extends Feature { val name = "basis-of-claim.quota.enabled" }
 
   def of(name: String): Option[Feature] =
@@ -64,11 +59,6 @@ object Feature extends EnumerationFormat[Feature] {
       SubsidiesForOverpayments,
       RedirectToGovUkLandingPage,
       SkipDocumentType,
-      SecurityReasonsNtas,
-      SecurityReasonsNiru,
-      SecurityReasonsNiruOpr,
-      SecurityReasonsNiruCsdr,
-      SecurityReasonsNidac,
       BasisOfClaimQuota
     )
 }

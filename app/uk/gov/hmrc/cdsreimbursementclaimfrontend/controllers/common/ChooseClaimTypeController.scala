@@ -38,10 +38,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.routes as overpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.routes as rejectGoodsRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ReasonForSecurityHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.LimitedAccessSecurities
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -56,6 +59,7 @@ class ChooseClaimTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
+  val featureSwitchService: FeatureSwitchService,
   chooseClaimTypePage: choose_claim_type
 )(implicit viewConfig: ViewConfig, val controllerComponents: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendBaseController
@@ -94,11 +98,27 @@ class ChooseClaimTypeController @Inject() (
               Future.successful(Redirect(rejectGoodsRoutes.ChooseHowManyMrnsController.show))
 
             case Securities =>
+              val reasonForSecurityHelper = new ReasonForSecurityHelper(
+                configuration = viewConfig.config,
+                limitedSecuritiesAccessEnabled = featureSwitchService.isEnabled(LimitedAccessSecurities),
+                userHasSecuritiesAccess =
+                  request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
+              )
               request.authenticatedRequest.journeyUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
                     .store(
-                      SessionData(SecuritiesJourney.empty(eori, Nonce.random))
+                      SessionData(
+                        SecuritiesJourney.empty(
+                          eori,
+                          Nonce.random,
+                          features = Some(
+                            SecuritiesJourney.Features(availableReasonsForSecurity =
+                              reasonForSecurityHelper.avalaibleReasonsForSecurity()
+                            )
+                          )
+                        )
+                      )
                         .withExistingUserData(request.sessionData)
                     )
                     .map(_ => Redirect(securitiesRoutes.EnterMovementReferenceNumberController.show))
