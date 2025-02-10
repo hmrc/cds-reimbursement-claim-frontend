@@ -563,25 +563,21 @@ choose-payment-method.rejected-goods.single.title=Dewiswch ddull ad-dalu
 choose-reason-for-security.securities.AccountSales=Gwerthiannau Cyfrif
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Dogfen ar goll: System Rhyddhad Tollau Gymunedol (CSDR)
 choose-reason-for-security.securities.EndUseRelief=Rhyddhad defnydd awdurdodedig (Prydain Fawr) neu ryddhad defnydd terfynol (Gogledd Iwerddon)
+choose-reason-for-security.securities.EndUseRelief.hint=Ar gyfer nwyddau a fewnforiwyd gennych at ddefnydd penodol
 choose-reason-for-security.securities.InwardProcessingRelief=Rhyddhad Prosesu Mewnol (IPR)
+choose-reason-for-security.securities.InwardProcessingRelief.hint=Ar gyfer nwyddau a fewnforiwyd gennych i’w prosesu neu eu trwsio
 choose-reason-for-security.securities.ManualOverrideDeposit=Diystyru swm y doll â llaw
 choose-reason-for-security.securities.MissingLicenseQuota=Dogfen ar goll: trwydded cwota
 choose-reason-for-security.securities.MissingPreferenceCertificate=Dogfen ar goll: ffafriol
 choose-reason-for-security.securities.OutwardProcessingRelief=Rhyddhad Prosesau Allanol (OPR)
 choose-reason-for-security.securities.RevenueDispute=Anghydfod Refeniw neu Gyn-clirio Mewndirol (IPC)
-choose-reason-for-security.securities.TemporaryAdmission2M=Mynediad Dros Dro (Dod i ben mewn 2 fis)
-choose-reason-for-security.securities.TemporaryAdmission2Y=Mynediad Dros Dro (yn dod i ben mewn 24 mis)
-choose-reason-for-security.securities.TemporaryAdmission3M=Mynediad Dros Dro (Dod i ben mewn 3 mis)
-choose-reason-for-security.securities.TemporaryAdmission6M=Mynediad Dros Dro (Dod i ben mewn 6 mis)
+choose-reason-for-security.securities.TemporaryAdmission2M=Mynediad dros dro (2 fis)
+choose-reason-for-security.securities.TemporaryAdmission2Y=Mynediad dros dro (24 mis)
+choose-reason-for-security.securities.TemporaryAdmission2Y.hint=Ar gyfer nwyddau a fewnforiwyd gennych dros dro am hyd at 2 flynedd
+choose-reason-for-security.securities.TemporaryAdmission3M=Mynediad dros dro (3 mis)
+choose-reason-for-security.securities.TemporaryAdmission6M=Mynediad dros dro (6 mis)
 choose-reason-for-security.securities.UKAPEntryPrice=Pris Mynediad UKAP
 choose-reason-for-security.securities.UKAPSafeguardDuties=Tollau Diogelu UKAP
-choose-reason-for-security.securities.details=Enghreifftiau o resymau dros wneud hawliad
-choose-reason-for-security.securities.details.ENU=<span class="govuk-body govuk-!-font-weight-bold">Rhyddhad defnydd awdurdodedig (Prydain Fawr) neu ryddhad defnydd terfynol (Gogledd Iwerddon):</span> Ar gyfer nwyddau a fewnforiwyd gennych at ddefnydd penodol
-choose-reason-for-security.securities.details.IPR=<span class="govuk-body govuk-!-font-weight-bold">Rhyddhad Prosesu Mewnol (IPR):</span> Ar gyfer nwyddau a fewnforiwyd gennych i’w prosesu neu eu trwsio
-choose-reason-for-security.securities.details.T24=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 flynedd):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 flynedd
-choose-reason-for-security.securities.details.TA6=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 6 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 6 mis
-choose-reason-for-security.securities.details.TA3=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 3 mis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 3 mis
-choose-reason-for-security.securities.details.TA2=<span class="govuk-body govuk-!-font-weight-bold">Mynediad dros dro (cyfnod o 2 fis):</span> mae modd adennill blaendal sicrwydd neu warant os caiff nwyddau eu hail-allforio allan o’r DU o fewn 2 fis
 choose-reason-for-security.securities.error.required=Dewiswch reswm dros y sicrwydd
 choose-reason-for-security.securities.hint=Dewiswch un opsiwn o’r rhestr.
 choose-reason-for-security.securities.paragraph=Dywedwch wrthym pam fod angen blaendal sicrwydd neu warant ar CThEF am nwyddau y gwnaethoch eu mewnforio

@@ -599,38 +599,24 @@ choose-payment-method.rejected-goods.single.title=Choose repayment method
 choose-reason-for-security.securities.AccountSales=Account Sales
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Missing document — community system of duty relief (CSDR)
 choose-reason-for-security.securities.EndUseRelief=Authorised-use (Great Britain) or end-use (Northern Ireland) relief
+choose-reason-for-security.securities.EndUseRelief.hint=For goods you imported for a specific use
 choose-reason-for-security.securities.InwardProcessingRelief=Inward-processing relief (IPR)
+choose-reason-for-security.securities.InwardProcessingRelief.hint=For goods you imported to process or repair
 choose-reason-for-security.securities.ManualOverrideDeposit=Manual override of duty amount
 choose-reason-for-security.securities.MissingLicenseQuota=Missing document: quota license
 choose-reason-for-security.securities.MissingPreferenceCertificate=Missing document: preference
 choose-reason-for-security.securities.OutwardProcessingRelief=Outward-processing relief (OPR)
 choose-reason-for-security.securities.RevenueDispute=Revenue Dispute or Inland Pre-Clearance (IPC)
-choose-reason-for-security.securities.TemporaryAdmission2M=Temporary Admissions (2 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary Admissions (24 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission3M=Temporary Admissions (3 months Expiration)
-choose-reason-for-security.securities.TemporaryAdmission6M=Temporary Admissions (6 months Expiration)
+choose-reason-for-security.securities.TemporaryAdmission2M=Temporary admissions (2 months)
+choose-reason-for-security.securities.TemporaryAdmission2Y=Temporary admissions (24 months)
+choose-reason-for-security.securities.TemporaryAdmission2Y.hint=For goods you imported temporarily for up to 2 years
+choose-reason-for-security.securities.TemporaryAdmission3M=Temporary admissions (3 months)
+choose-reason-for-security.securities.TemporaryAdmission6M=Temporary admissions (6 months)
 choose-reason-for-security.securities.UKAPEntryPrice=UKAP Entry Price
 choose-reason-for-security.securities.UKAPSafeguardDuties=UKAP Safeguard Duties
-choose-reason-for-security.securities.details=Examples of reasons for making a claim
-choose-reason-for-security.securities.details.T24=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (2-year period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 years
-choose-reason-for-security.securities.details.TA6=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions (6-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 6 months
-choose-reason-for-security.securities.details.TA3=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (3-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 3 months
-choose-reason-for-security.securities.details.TA2=<span class="govuk-body govuk-!-font-weight-bold">Temporary admissions  (2-month period):</span> a security deposit or guarantee can be reclaimed if goods are re-exported out of the UK within 2 months
-choose-reason-for-security.securities.details.ACS=<span class="govuk-body govuk-!-font-weight-bold">Account sales:</span> The security must be equivalent to the difference between the outright duty and what would have been paid if the standard import value (SIV) had been chosen
-choose-reason-for-security.securities.details.ENU=<span class="govuk-body govuk-!-font-weight-bold">Authorised-use (Great Britain) or end-use (Northern Ireland) relief:</span> For goods you imported for a specific use
-choose-reason-for-security.securities.details.IPR=<span class="govuk-body govuk-!-font-weight-bold">Inward-processing relief (IPR):</span> For goods you imported to process or repair
-choose-reason-for-security.securities.details.MOD=<span class="govuk-body govuk-!-font-weight-bold">Manual override of duty amount:</span> The duty amount is amended after the customer believes that the suggested duties are incorrect
-choose-reason-for-security.securities.details.MDC=<span class="govuk-body govuk-!-font-weight-bold">Missing document — community system of duty relief (CDSR):</span> The reliefs applied to goods for a social purpose such as imports for charities, museum or event exhibits, scientific purposes or low-value samples
-choose-reason-for-security.securities.details.MDP=<span class="govuk-body govuk-!-font-weight-bold">Missing document — preference:</span> Missing preference certificate needed to claim a reduced rate of duty
-choose-reason-for-security.securities.details.MDL=<span class="govuk-body govuk-!-font-weight-bold">Missing document - quota licence:</span> Missing quota license document needed to claim a reduced rate of duty
-choose-reason-for-security.securities.details.OPR=<span class="govuk-body govuk-!-font-weight-bold">Outward-processing relief:</span> A claim reduced duty payments on goods sent outside the UK for processing or repair which have been re-imported
-choose-reason-for-security.securities.details.RED=<span class="govuk-body govuk-!-font-weight-bold">Revenue dispute or inland pre-clearance (IPC):</span> This is used where HMRC suspects that goods have been undervalued
-choose-reason-for-security.securities.details.CEP=<span class="govuk-body govuk-!-font-weight-bold">United Kingdom Advisory Panel (UKAP) entry price:</span> UKAP advises about the transmission and management of bloodborne viruses among healthcare workers
-choose-reason-for-security.securities.details.CSD=<span class="govuk-body govuk-!-font-weight-bold">United Kingdom Advisory Panel (UKAP) safeguard duties:</span> UKAP advises about the transmission and management of bloodborne viruses among healthcare workers
 choose-reason-for-security.securities.error.required=Choose the reason for security
-choose-reason-for-security.securities.hint=Select one option from the list.
 choose-reason-for-security.securities.paragraph=Tell us why HMRC required a security deposit or guarantee for your import
-choose-reason-for-security.securities.title=Why was a security deposit or guarantee required?
+choose-reason-for-security.securities.title=Why was a security deposit or guarantee needed?
 
 claim-invalid-not-exported-all.title=You cannot continue with your claim
 claim-invalid-not-exported-all.p1=HMRC will only accept a claim for a security deposit or guarantee repayment under inward-processing relief, authorised-use relief (Great Britain), or end-use relief (Northern Ireland) once you have disposed of all the imported goods.
