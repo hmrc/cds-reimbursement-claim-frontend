@@ -31,9 +31,7 @@ import uk.gov.hmrc.http.hooks.HttpHook
 import uk.gov.hmrc.http.hooks.RequestData
 import uk.gov.hmrc.http.hooks.ResponseData
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import java.net.URL
 import javax.inject.Inject
@@ -49,21 +47,9 @@ import scala.util.Try
 class Module extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[HttpClient]).to(classOf[DebuggingHttpClient])
     bind(classOf[HttpClientV2]).to(classOf[DebuggingHttpClientV2])
     ()
   }
-}
-
-@Singleton
-class DebuggingHttpClient @Inject() (
-  config: Configuration,
-  val httpAuditing: HttpAuditing,
-  override val wsClient: WSClient,
-  override protected val actorSystem: ActorSystem
-) extends DefaultHttpClient(config, httpAuditing, wsClient, actorSystem) {
-
-  override val hooks: Seq[HttpHook] = Seq(httpAuditing.AuditingHook, new DebuggingHook(config))
 }
 
 class DebuggingHook(config: Configuration) extends HttpHook {
