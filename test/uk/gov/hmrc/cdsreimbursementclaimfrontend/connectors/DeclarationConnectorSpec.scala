@@ -32,8 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -41,11 +44,11 @@ class DeclarationConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with ConnectorSpec
     with ScalaCheckPropertyChecks {
 
-  val config: Configuration      = Configuration(
+  val config: Configuration = Configuration(
     ConfigFactory.parseString(
       """
         | self {
@@ -63,8 +66,8 @@ class DeclarationConnectorSpec
         |""".stripMargin
     )
   )
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val timeout: Timeout  = Timeout(5, TimeUnit.SECONDS)
+
+  implicit val timeout: Timeout = Timeout(5, TimeUnit.SECONDS)
 
   val connector = new DefaultDeclarationConnector(mockHttp, new ServicesConfig(config))
 
@@ -72,10 +75,11 @@ class DeclarationConnectorSpec
 
     "handling requests to get a declaration" must {
       val mrn = sample[MRN]
-      val url = s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}"
+      val url = URL(s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}")
 
       behave like connectorBehaviour(
-        mockGet(url)(_),
+        mockHttpGetSuccess[HttpResponse](url)(_),
+        mockHttpGetFailure(url)(new NotFoundException("error")),
         () => connector.getDeclaration(mrn)
       )
     }
@@ -88,12 +92,12 @@ class DeclarationConnectorSpec
 
     "handling requests to see if a declaration is a duplicate do a http call and return the result" in forAll {
       (mrn: MRN, reason: ReasonForSecurity, existingClaim: ExistingClaim) =>
-        mockGet(url(mrn, reason))(Some(existingClaim))
+        mockHttpGetSuccess[ExistingClaim](URL(url(mrn, reason)))(existingClaim)
         await(connector.getIsDuplicate(mrn, reason).value) shouldBe Right(existingClaim)
     }
 
     "return an error when the call fails" in forAll { (mrn: MRN, reason: ReasonForSecurity) =>
-      mockGet(url(mrn, reason))(None)
+      mockHttpGetFailure(URL(url(mrn, reason)))(new NotFoundException("error"))
       await(connector.getIsDuplicate(mrn, reason).value).isLeft shouldBe true
     }
   }

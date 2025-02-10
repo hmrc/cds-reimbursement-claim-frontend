@@ -19,13 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import cats.data.EitherT
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.JsonBodyWritables.*
 
 import java.net.URL
 import java.util.UUID
@@ -44,7 +46,7 @@ trait AddressLookupConnector {
 }
 
 class DefaultAddressLookupConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   addressLookupServiceConfig: AddressLookupConfig
 )(implicit ec: ExecutionContext)
     extends AddressLookupConnector {
@@ -53,10 +55,9 @@ class DefaultAddressLookupConnector @Inject() (
     request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = EitherT {
     http
-      .POST[AddressLookupRequest, HttpResponse](
-        addressLookupServiceConfig.startLookupUrl,
-        request
-      )
+      .post(addressLookupServiceConfig.startLookupUrl)
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
       .map(Right(_))
       .recover { case NonFatal(e) =>
         Left(Error(e))
@@ -66,7 +67,8 @@ class DefaultAddressLookupConnector @Inject() (
   def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT {
       http
-        .GET[HttpResponse](URL(s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId"))
+        .get(URL(s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId"))
+        .execute[HttpResponse]
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))

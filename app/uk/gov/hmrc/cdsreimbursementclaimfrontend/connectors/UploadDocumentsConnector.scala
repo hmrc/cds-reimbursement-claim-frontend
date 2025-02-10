@@ -31,10 +31,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.JsonBodyWritables.*
+import play.api.libs.ws.writeableOf_String
 import uk.gov.hmrc.play.bootstrap.config.AppName
 
+import java.net.URL
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -68,7 +71,7 @@ object UploadDocumentsConnector {
 
 @Singleton
 class UploadDocumentsConnectorImpl @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
@@ -85,7 +88,9 @@ class UploadDocumentsConnectorImpl @Inject() (
   ): Future[Response] =
     retry(uploadDocumentsConfig.retryIntervals*)(shouldRetry, retryReason)(
       http
-        .POST[Request, HttpResponse](java.net.URL(uploadDocumentsConfig.initializationUrl), request)
+        .post(URL(uploadDocumentsConfig.initializationUrl))
+        .withBody(Json.toJson(request))
+        .execute[HttpResponse]
     ).flatMap[Response](response =>
       if response.status === 201 then {
         val maybeUrl: Option[String] =
@@ -104,7 +109,9 @@ class UploadDocumentsConnectorImpl @Inject() (
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
     retry(uploadDocumentsConfig.retryIntervals*)(shouldRetry, retryReason)(
       http
-        .POST[String, HttpResponse](java.net.URL(uploadDocumentsConfig.wipeOutUrl), "")
+        .post(URL(uploadDocumentsConfig.wipeOutUrl))
+        .withBody("")
+        .execute[HttpResponse]
     ).map[Unit](response =>
       if response.status === 204 then ()
       else {

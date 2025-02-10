@@ -25,10 +25,10 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -42,7 +42,7 @@ class RejectedGoodsScheduledClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with BeforeAndAfterAll {
 
   val config: Configuration = Configuration(
@@ -57,7 +57,7 @@ class RejectedGoodsScheduledClaimConnectorSpec
         |        protocol = http
         |        host     = host-2
         |        port     = 312
-        |        retryIntervals = [5ms,25ms] 
+        |        retryIntervals = [5ms,25ms]
         |        context-path = "/foo-claim-scheduled"
         |      }
         |   }
@@ -74,8 +74,6 @@ class RejectedGoodsScheduledClaimConnectorSpec
   val connector =
     new RejectedGoodsScheduledClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
   val expectedUrl = "http://host-2:312/foo-claim-scheduled/claims/rejected-goods-scheduled"
 
   val requestGen: Gen[RejectedGoodsScheduledClaimConnector.Request] =
@@ -87,8 +85,8 @@ class RejectedGoodsScheduledClaimConnectorSpec
   val sampleRequest: RejectedGoodsScheduledClaimConnector.Request = sample(requestGen)
   val validResponseBody                                           = """{"caseNumber":"ABC312"}"""
 
-  val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
-    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest)(_)
+  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
 
   "RejectedGoodsScheduledClaimConnector" must {
     "have retries defined" in {
@@ -96,33 +94,33 @@ class RejectedGoodsScheduledClaimConnectorSpec
     }
 
     "return caseNumber when successful call" in {
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsScheduledClaimConnector.Response("ABC312")
     }
 
     "throw exception when empty response" in {
-      givenServiceReturns(Some(HttpResponse(200, ""))).once()
+      givenServiceReturns(HttpResponse(200, "")).once()
       a[RejectedGoodsScheduledClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid response" in {
-      givenServiceReturns(Some(HttpResponse(200, """{"case":"ABC312"}"""))).once()
+      givenServiceReturns(HttpResponse(200, """{"case":"ABC312"}""")).once()
       a[RejectedGoodsScheduledClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid success response status" in {
-      givenServiceReturns(Some(HttpResponse(201, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(201, validResponseBody)).once()
       a[RejectedGoodsScheduledClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when 4xx response status" in {
-      givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
+      givenServiceReturns(HttpResponse(404, "case not found")).once()
       Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
         new RejectedGoodsScheduledClaimConnector.Exception(
           "Request to POST http://host-2:312/foo-claim-scheduled/claims/rejected-goods-scheduled failed because of HttpResponse status=404 case not found"
@@ -131,22 +129,25 @@ class RejectedGoodsScheduledClaimConnectorSpec
     }
 
     "throw exception when 5xx response status in the third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(3)
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).never()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+
       a[RejectedGoodsScheduledClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "accept valid response in a second attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsScheduledClaimConnector.Response("ABC312")
     }
 
     "accept valid response in a third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsScheduledClaimConnector.Response("ABC312")
     }
 

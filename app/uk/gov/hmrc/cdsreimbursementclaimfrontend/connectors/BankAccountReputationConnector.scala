@@ -21,6 +21,7 @@ import cats.implicits.*
 import com.google.inject.Inject
 import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.libs.json.Writes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
@@ -34,8 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.HttpRespo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.JsonBodyWritables.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
@@ -46,7 +48,7 @@ import scala.concurrent.Future
 
 @Singleton
 class BankAccountReputationConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
@@ -100,7 +102,9 @@ class BankAccountReputationConnector @Inject() (
     EitherT {
       retry(retryIntervals*)(shouldRetry, retryReason)(
         http
-          .POST[T, HttpResponse](URL(url), data)
+          .post(URL(url))
+          .withBody(Json.toJson(data))
+          .execute[HttpResponse]
       )
         .map(checkResponse(_, url))
     }
