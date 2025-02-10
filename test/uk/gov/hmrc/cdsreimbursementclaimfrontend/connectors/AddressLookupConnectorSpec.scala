@@ -21,13 +21,17 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -35,7 +39,7 @@ class AddressLookupConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with ConnectorSpec {
 
   val config: Configuration = Configuration(
@@ -68,15 +72,26 @@ class AddressLookupConnectorSpec
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     "handling requests to submit claim" must {
-      val request = sample[AddressLookupRequest]
-      val url     = "http://localhost:9028/api/init"
-      behave like connectorBehaviour(mockPost(url, Seq(), request)(_), () => connector.initiate(request))
+      val url         = "http://localhost:9028/api/init"
+      val request     = sample[AddressLookupRequest]
+      val jsonRequest = Json.toJson(request)
+
+      behave like connectorBehaviour(
+        mockHttpPostSuccess[HttpResponse](url, jsonRequest)(_),
+        mockHttpPostWithException(url, jsonRequest)(new NotFoundException("error")),
+        () => connector.initiate(request)
+      )
     }
 
     "Retrieve address" must {
       val uuid = UUID.randomUUID()
-      val url  = s"http://localhost:9028/api/confirmed?id=$uuid"
-      behave like connectorBehaviour(mockGet(url)(_), () => connector.retrieveAddress(uuid))
+      val url  = URL(s"http://localhost:9028/api/confirmed?id=$uuid")
+
+      behave like connectorBehaviour(
+        mockHttpGetSuccess[HttpResponse](url)(_),
+        mockHttpGetFailure(url)(new NotFoundException("error")),
+        () => connector.retrieveAddress(uuid)
+      )
     }
 
   }

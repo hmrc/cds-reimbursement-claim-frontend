@@ -25,6 +25,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -42,7 +43,7 @@ class SecuritiesClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with BeforeAndAfterAll {
 
   val config: Configuration = Configuration(
@@ -57,7 +58,7 @@ class SecuritiesClaimConnectorSpec
         |        protocol = http
         |        host     = host3
         |        port     = 123
-        |        retryIntervals = [10ms,50ms] 
+        |        retryIntervals = [10ms,50ms]
         |        context-path = "/foo-claim"
         |      }
         |   }
@@ -74,8 +75,6 @@ class SecuritiesClaimConnectorSpec
   val connector =
     new SecuritiesClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
   val expectedUrl = "http://host3:123/foo-claim/claims/securities"
 
   val requestGen: Gen[SecuritiesClaimConnector.Request] =
@@ -87,8 +86,8 @@ class SecuritiesClaimConnectorSpec
   val sampleRequest: SecuritiesClaimConnector.Request = sample(requestGen)
   val validResponseBody                               = """{"caseNumber":"ABC123"}"""
 
-  val givenServiceReturns: Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
-    mockPost(expectedUrl, Seq("Accept-Language" -> "en"), sampleRequest)
+  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
 
   "SecuritiesClaimConnector" must {
     "have retries defined" in {
@@ -96,33 +95,33 @@ class SecuritiesClaimConnectorSpec
     }
 
     "return caseNumber when successful call" in {
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe SecuritiesClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
-      givenServiceReturns(Some(HttpResponse(200, ""))).once()
+      givenServiceReturns(HttpResponse(200, "")).once()
       a[SecuritiesClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid response" in {
-      givenServiceReturns(Some(HttpResponse(200, """{"case":"ABC123"}"""))).once()
+      givenServiceReturns(HttpResponse(200, """{"case":"ABC123"}""")).once()
       a[SecuritiesClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when invalid success response status" in {
-      givenServiceReturns(Some(HttpResponse(201, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(201, validResponseBody)).once()
       a[SecuritiesClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "throw exception when 4xx response status" in {
-      givenServiceReturns(Some(HttpResponse(404, "case not found"))).once()
+      givenServiceReturns(HttpResponse(404, "case not found")).once()
       Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
         SecuritiesClaimConnector.Exception(
           "Request to POST http://host3:123/foo-claim/claims/securities failed because of HttpResponse status=404 case not found"
@@ -131,22 +130,25 @@ class SecuritiesClaimConnectorSpec
     }
 
     "throw exception when 5xx response status in the third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(3)
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).never()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+
       a[SecuritiesClaimConnector.Exception] shouldBe thrownBy {
         await(connector.submitClaim(sampleRequest))
       }
     }
 
     "accept valid response in a second attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe SecuritiesClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
-      givenServiceReturns(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(Some(HttpResponse(200, validResponseBody))).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(500, "")).once()
+      givenServiceReturns(HttpResponse(200, validResponseBody)).once()
       await(connector.submitClaim(sampleRequest)) shouldBe SecuritiesClaimConnector.Response("ABC123")
     }
 

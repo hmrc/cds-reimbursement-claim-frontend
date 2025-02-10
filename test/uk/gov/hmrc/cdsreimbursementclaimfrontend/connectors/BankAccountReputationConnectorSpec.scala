@@ -19,13 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalamock.handlers.CallHandler
+import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
@@ -39,11 +40,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpReads
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 
@@ -52,13 +54,12 @@ class BankAccountReputationConnectorSpec
     with ScalaCheckDrivenPropertyChecks
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with ConnectorSpec
     with BeforeAndAfterAll
     with TypeCheckedTripleEquals {
 
-  val config                     = Configuration(ConfigFactory.load)
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  val config = Configuration(ConfigFactory.load)
 
   val actorSystem = ActorSystem("test-BankAccountReputationConnector")
 
@@ -78,11 +79,10 @@ class BankAccountReputationConnectorSpec
   val businessUrl                                    = "http://localhost:7502/verify/business"
   val personalUrl                                    = "http://localhost:7502/verify/personal"
 
-  def givenServiceReturns[T](
-    expectedUrl: String,
-    request: T
-  ): Option[HttpResponse] => CallHandler[Future[HttpResponse]] =
-    mockPost(expectedUrl, Seq.empty[(String, String)], request)
+  def givenServiceReturns(expectedUrl: String, request: JsValue)(
+    response: HttpResponse
+  ): CallHandler2[HttpReads[HttpResponse], ExecutionContext, Future[HttpResponse]] =
+    mockHttpPostSuccess(expectedUrl, request)(response)
 
   "BankAccountReputationConnector" should {
     "have retries defined" in {
@@ -91,19 +91,25 @@ class BankAccountReputationConnectorSpec
 
     "return bank account reputation information from a successful business request call" in
       forAll { (request: BarsBusinessAssessRequest, response: BusinessCompleteResponse) =>
-        givenServiceReturns(businessUrl, request)(Some(HttpResponse(200, Json.toJson(response).toString()))).once()
+        givenServiceReturns(businessUrl, Json.toJson(request))(
+          HttpResponse(200, Json.toJson(response).toString())
+        ).once()
         await(connector.getBusinessReputation(request).value) shouldBe a[Right[?, BankAccountReputation]]
       }
 
     "return bank account reputation information from a successful personal request call" in {
       forAll { (request: BarsPersonalAssessRequest, response: PersonalCompleteResponse) =>
-        givenServiceReturns(personalUrl, request)(Some(HttpResponse(200, Json.toJson(response).toString()))).once()
+        givenServiceReturns(personalUrl, Json.toJson(request))(
+          HttpResponse(200, Json.toJson(response).toString())
+        ).once()
         await(connector.getPersonalReputation(request).value) shouldBe a[Right[?, BankAccountReputation]]
       }
     }
 
     "return an error when business response is 200 but payload is empty" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(200, ""))).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(
+        HttpResponse(200, "")
+      ).once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
@@ -114,7 +120,7 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when personal response is 200 but payload is empty" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(200, ""))).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(200, "")).once()
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
@@ -125,7 +131,7 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when business response is 200 but payload is invalid" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(200, """{"foo":"bar"}"""))).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(200, """{"foo":"bar"}""")).once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ConnectorFailure(
@@ -136,7 +142,7 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when personal response is 200 but payload is invalid" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(200, """{"foo":"bar"}"""))).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(200, """{"foo":"bar"}""")).once()
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ConnectorFailure(
@@ -148,7 +154,9 @@ class BankAccountReputationConnectorSpec
 
     "return an error when business request returns invalid success response status" in {
       val response = Json.toJson(businessResponseBody).toString()
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(201, Json.toJson(response).toString())))
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(
+        HttpResponse(201, Json.toJson(response).toString())
+      )
         .once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
@@ -162,7 +170,9 @@ class BankAccountReputationConnectorSpec
 
     "return an error when personal request returns invalid success response status" in {
       val response = Json.toJson(personalResponseBody).toString()
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(201, Json.toJson(response).toString())))
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(
+        HttpResponse(201, Json.toJson(response).toString())
+      )
         .once()
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
@@ -175,7 +185,7 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when business request returns 4xx response status" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(404, "not found"))).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(404, "not found")).once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           TechnicalServiceError(
@@ -186,7 +196,7 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when personal request returns 4xx response status" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(404, "not found"))).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(404, "not found")).once()
       await(connector.getPersonalReputation(personalRequest).value) shouldBe (
         Left(
           TechnicalServiceError(
@@ -197,10 +207,9 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when 5xx response status from a business request in the third attempt" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(500, ""))).repeat(3)
-      givenServiceReturns(businessUrl, businessRequest)(
-        Some(HttpResponse(200, Json.toJson(businessResponseBody).toString()))
-      ).never()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
           ServiceUnavailableError(
@@ -211,10 +220,9 @@ class BankAccountReputationConnectorSpec
     }
 
     "return an error when 5xx response status from a personal request in the third attempt" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(500, ""))).repeat(3)
-      givenServiceReturns(personalUrl, personalRequest)(
-        Some(HttpResponse(200, Json.toJson(personalResponseBody).toString()))
-      ).never()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
       await(connector.getPersonalReputation(personalRequest).value) should ===(
         Left(
           ServiceUnavailableError(
@@ -225,33 +233,35 @@ class BankAccountReputationConnectorSpec
     }
 
     "accept valid response from a business request on a second attempt" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(businessUrl, businessRequest)(
-        Some(HttpResponse(200, Json.toJson(businessResponseBody).toString()))
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(
+        HttpResponse(200, Json.toJson(businessResponseBody).toString())
       ).once()
       await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a personal request on a second attempt" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(500, ""))).once()
-      givenServiceReturns(personalUrl, personalRequest)(
-        Some(HttpResponse(200, Json.toJson(personalResponseBody).toString()))
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(
+        HttpResponse(200, Json.toJson(personalResponseBody).toString())
       ).once()
       await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a business request on a third attempt" in {
-      givenServiceReturns(businessUrl, businessRequest)(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(businessUrl, businessRequest)(
-        Some(HttpResponse(200, Json.toJson(businessResponseBody).toString()))
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(
+        HttpResponse(200, Json.toJson(businessResponseBody).toString())
       ).once()
       await(connector.getBusinessReputation(businessRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }
 
     "accept valid response from a personal request on a third attempt" in {
-      givenServiceReturns(personalUrl, personalRequest)(Some(HttpResponse(500, ""))).repeat(2)
-      givenServiceReturns(personalUrl, personalRequest)(
-        Some(HttpResponse(200, Json.toJson(personalResponseBody).toString()))
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(500, "")).once()
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(
+        HttpResponse(200, Json.toJson(personalResponseBody).toString())
       ).once()
       await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[?, BankAccountReputation]]
     }

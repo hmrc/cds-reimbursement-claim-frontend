@@ -24,10 +24,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -38,7 +39,7 @@ trait VerifiedEmailAddressConnector {
 }
 
 @Singleton
-class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
+class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClientV2, servicesConfig: ServicesConfig)(implicit
   ec: ExecutionContext
 ) extends VerifiedEmailAddressConnector
     with Logging {
@@ -55,7 +56,8 @@ class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClient, services
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](java.net.URL(getUri(eori)))
+        .get(URL(getUri(eori)))
+        .execute[HttpResponse]
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )

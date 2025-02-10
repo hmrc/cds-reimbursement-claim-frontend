@@ -29,9 +29,10 @@ import scala.concurrent.Future
 trait ConnectorSpec { this: Matchers & AnyWordSpec =>
 
   def connectorBehaviour(
-    mockResponse: Option[HttpResponse] => Any,
+    mockResponse: HttpResponse => Any,
+    mockErrorResponse: => Any,
     performCall: () => EitherT[Future, Error, HttpResponse]
-  ): Unit = {
+  ): Unit =
     "do a http call and return the result" in {
       List(
         HttpResponse(200, "{}"),
@@ -40,7 +41,7 @@ trait ConnectorSpec { this: Matchers & AnyWordSpec =>
         HttpResponse(500, "{}")
       ).foreach { httpResponse =>
         withClue(s"For http response [${httpResponse.toString}]") {
-          mockResponse(Some(httpResponse))
+          mockResponse(httpResponse)
 
           await(performCall().value) shouldBe Right(httpResponse)
         }
@@ -49,10 +50,9 @@ trait ConnectorSpec { this: Matchers & AnyWordSpec =>
 
     "return an error" when {
       "the future fails" in {
-        mockResponse(None)
+        mockErrorResponse
         await(performCall().value).isLeft shouldBe true
       }
     }
-  }
 
 }

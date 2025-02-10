@@ -27,10 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.JsonBodyWritables.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import javax.inject.Singleton
 import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext
@@ -44,7 +46,7 @@ trait SecuritiesClaimConnector {
 }
 @Singleton
 class SecuritiesClaimConnectorImpl @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
   val actorSystem: ActorSystem
@@ -66,11 +68,10 @@ class SecuritiesClaimConnectorImpl @Inject() (
   ): Future[Response] =
     retry(retryIntervals*)(shouldRetry, retryReason)(
       http
-        .POST[Request, HttpResponse](
-          claimUrl,
-          claimRequest,
-          Seq("Accept-Language" -> "en")
-        )
+        .post(URL(claimUrl))
+        .withBody(Json.toJson(claimRequest))
+        .transform(_.addHttpHeaders(Seq("Accept-Language" -> "en")*))
+        .execute[HttpResponse]
     ).flatMap(response =>
       if response.status === 200 then
         response

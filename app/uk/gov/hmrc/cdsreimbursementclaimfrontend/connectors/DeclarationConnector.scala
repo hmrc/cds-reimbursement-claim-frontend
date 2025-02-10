@@ -26,10 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -50,7 +51,7 @@ trait DeclarationConnector {
 }
 
 @Singleton
-class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
+class DefaultDeclarationConnector @Inject() (http: HttpClientV2, servicesConfig: ServicesConfig)(implicit
   ec: ExecutionContext
 ) extends DeclarationConnector
     with Logging {
@@ -62,7 +63,8 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](java.net.URL(getDeclarationUrl))
+        .get(URL(getDeclarationUrl))
+        .execute[HttpResponse]
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
@@ -76,7 +78,8 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](java.net.URL(getDeclarationUrl))
+        .get(URL(getDeclarationUrl))
+        .execute[HttpResponse]
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
@@ -91,7 +94,8 @@ class DefaultDeclarationConnector @Inject() (http: HttpClient, servicesConfig: S
 
     EitherT[Future, Error, ExistingClaim](
       http
-        .GET[ExistingClaim](java.net.URL(getDeclarationUrl))
+        .get(URL(getDeclarationUrl))
+        .execute[ExistingClaim]
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )

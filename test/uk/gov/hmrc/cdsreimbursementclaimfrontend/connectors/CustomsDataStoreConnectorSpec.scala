@@ -25,15 +25,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class VerifiedEmailAddressConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
-    with HttpSupport
+    with HttpV2Support
     with ConnectorSpec {
 
   val configuration: Configuration = Configuration(
@@ -56,18 +59,17 @@ class VerifiedEmailAddressConnectorSpec
     )
   )
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
   val connector = new DefaultVerifiedEmailAddressConnector(mockHttp, new ServicesConfig(configuration))
 
   "Custom Data Store Connector" must {
 
     val eori = sample[Eori]
-    val url  = s"http://localhost:9893/customs-data-store/eori/${eori.value}/verified-email"
+    val url  = URL(s"http://localhost:9893/customs-data-store/eori/${eori.value}/verified-email")
 
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
-        mockGet(url)(_),
+        mockHttpGetSuccess[HttpResponse](url)(_),
+        mockHttpGetFailure(url)(new NotFoundException("error")),
         () => connector.getVerifiedEmailAddress(eori)
       )
     }
