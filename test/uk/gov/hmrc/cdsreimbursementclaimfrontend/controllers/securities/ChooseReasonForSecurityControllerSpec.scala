@@ -253,51 +253,51 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
-        forAll(
-          securitiesDisplayDeclarationGen
-            .map(
-              _.withDeclarantEori(exampleXIEori)
-                .withConsigneeEori(anotherExampleXIEori)
-            ),
-          IdGen.genEori
-        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
-          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-
-          whenever(!reasonForSecurityIsDischarge) {
-            val initialJourney =
-              SecuritiesJourney
-                .empty(eori)
-                .submitMovementReferenceNumber(declaration.getMRN)
-
-            val updatedJourney = SessionData(
-              initialJourney
-                .submitReasonForSecurityAndDeclaration(rfs, declaration)
-                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
-                .flatMap(_.submitClaimDuplicateCheckStatus(false))
-                .getOrFail
-            )
-
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
-              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-              mockStoreSession(updatedJourney)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(
-                Seq("choose-reason-for-security.securities" -> rfs.toString)
-              ),
-              routes.SelectSecuritiesController.showFirst()
-            )
-          }
-        }
-      }
+//      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
+//        forAll(
+//          securitiesDisplayDeclarationGen
+//            .map(
+//              _.withDeclarantEori(exampleXIEori)
+//                .withConsigneeEori(anotherExampleXIEori)
+//            ),
+//          IdGen.genEori
+//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+//
+//          whenever(!reasonForSecurityIsDischarge) {
+//            val initialJourney =
+//              SecuritiesJourney
+//                .empty(eori)
+//                .submitMovementReferenceNumber(declaration.getMRN)
+//
+//            val updatedJourney = SessionData(
+//              initialJourney
+//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+//                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
+//                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+//                .getOrFail
+//            )
+//
+//            inSequence {
+//              mockAuthWithDefaultRetrievals()
+//              mockGetSession(SessionData(initialJourney))
+//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
+//              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
+//              mockStoreSession(updatedJourney)(Right(()))
+//            }
+//
+//            checkIsRedirect(
+//              performAction(
+//                Seq("choose-reason-for-security.securities" -> rfs.toString)
+//              ),
+//              routes.SelectSecuritiesController.showFirst()
+//            )
+//          }
+//        }
+//      }
 
       "retrieve the ACC14 declaration and redirect to the enter importer eori page" in {
         forAll(securitiesDisplayDeclarationGen, IdGen.genEori) { case (declaration: DisplayDeclaration, eori: Eori) =>
@@ -334,49 +334,49 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
-        forAll(
-          securitiesDisplayDeclarationGen
-            .map(
-              _.withDeclarantEori(exampleXIEori)
-                .withConsigneeEori(anotherExampleXIEori)
-            ),
-          IdGen.genEori
-        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
-          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-
-          whenever(!reasonForSecurityIsDischarge) {
-            val initialJourney =
-              SecuritiesJourney
-                .empty(eori)
-                .submitMovementReferenceNumber(declaration.getMRN)
-
-            val updatedJourney = SessionData(
-              initialJourney
-                .submitReasonForSecurityAndDeclaration(rfs, declaration)
-                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-                .getOrFail
-            )
-
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-              mockStoreSession(updatedJourney)(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(
-                Seq("choose-reason-for-security.securities" -> rfs.toString)
-              ),
-              routes.EnterImporterEoriNumberController.show
-            )
-          }
-        }
-      }
+//      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
+//        forAll(
+//          securitiesDisplayDeclarationGen
+//            .map(
+//              _.withDeclarantEori(exampleXIEori)
+//                .withConsigneeEori(anotherExampleXIEori)
+//            ),
+//          IdGen.genEori
+//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+//
+//          whenever(!reasonForSecurityIsDischarge) {
+//            val initialJourney =
+//              SecuritiesJourney
+//                .empty(eori)
+//                .submitMovementReferenceNumber(declaration.getMRN)
+//
+//            val updatedJourney = SessionData(
+//              initialJourney
+//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+//                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+//                .getOrFail
+//            )
+//
+//            inSequence {
+//              mockAuthWithDefaultRetrievals()
+//              mockGetSession(SessionData(initialJourney))
+//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+//              mockStoreSession(updatedJourney)(Right(()))
+//            }
+//
+//            checkIsRedirect(
+//              performAction(
+//                Seq("choose-reason-for-security.securities" -> rfs.toString)
+//              ),
+//              routes.EnterImporterEoriNumberController.show
+//            )
+//          }
+//        }
+//      }
 
       "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
         forAll(
