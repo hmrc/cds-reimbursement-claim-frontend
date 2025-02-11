@@ -39,8 +39,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
@@ -92,17 +94,17 @@ class ChooseReasonForSecurityControllerSpec
   private val messagesKey: String = "choose-reason-for-security.securities"
 
   private val ntasOptions = Seq(
-    ("Temporary Admissions (24 months Expiration)", "TemporaryAdmission2Y"),
-    ("Temporary Admissions (6 months Expiration)", "TemporaryAdmission6M"),
-    ("Temporary Admissions (3 months Expiration)", "TemporaryAdmission3M"),
-    ("Temporary Admissions (2 months Expiration)", "TemporaryAdmission2M")
+    ("Temporary admissions (24 months)", "TemporaryAdmission2Y"),
+    ("Temporary admissions (2 months)", "TemporaryAdmission2M"),
+    ("Temporary admissions (3 months)", "TemporaryAdmission3M"),
+    ("Temporary admissions (6 months)", "TemporaryAdmission6M")
   )
 
   private val niruOptions =
     Seq(
 //      ("Missing document — community system of duty relief (CSDR)", "CommunitySystemsOfDutyRelief"),   //currently disabled
-      ("Authorised-use (Great Britain) or end-use (Northern Ireland) relief", "EndUseRelief"),
-      ("Inward-processing relief (IPR)", "InwardProcessingRelief")
+      ("Inward-processing relief (IPR)", "InwardProcessingRelief"),
+      ("Authorised-use (Great Britain) or end-use (Northern Ireland) relief", "EndUseRelief")
 //      ("Outward-processing relief (OPR)", "OutwardProcessingRelief")   //currently disabled
     )
 
@@ -120,7 +122,16 @@ class ChooseReasonForSecurityControllerSpec
     )
 
   val initialJourney: SecuritiesJourney = SecuritiesJourney
-    .empty(exampleEori)
+    .empty(
+      userEoriNumber = exampleEori,
+      features = Some(
+        SecuritiesJourney.Features(availableReasonsForSecurity =
+          ReasonForSecurity.ntas ++ ReasonForSecurity.niru.filterNot(option =>
+            option == OutwardProcessingRelief || option == CommunitySystemsOfDutyRelief
+          )
+        )
+      )
+    )
     .submitMovementReferenceNumber(exampleMrn)
 
   override def beforeEach(): Unit = {
@@ -153,7 +164,7 @@ class ChooseReasonForSecurityControllerSpec
     hasContinueButton(doc)
   }
 
-  "ChooseReasonForSecuritiesController" when {
+  "ChooseReasonForSecurityController" when {
 
     "show page" must {
 
@@ -165,20 +176,20 @@ class ChooseReasonForSecurityControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      // "display the page for the first time" in {
-      //   featureSwitch.enable(Feature.Securities)
+      "display the page for the first time" in {
+        featureSwitch.enable(Feature.Securities)
 
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(SessionData(initialJourney))
-      //   }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
 
-      //   checkPageIsDisplayed(
-      //     performAction(),
-      //     messageFromMessageKey(s"$messagesKey.title"),
-      //     doc => validateChooseReasonForSecurityPage(doc)
-      //   )
-      // }
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => validateChooseReasonForSecurityPage(doc)
+        )
+      }
 
     }
 
@@ -242,51 +253,51 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      // "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
-      //   forAll(
-      //     securitiesDisplayDeclarationGen
-      //       .map(
-      //         _.withDeclarantEori(exampleXIEori)
-      //           .withConsigneeEori(anotherExampleXIEori)
-      //       ),
-      //     IdGen.genEori
-      //   ) { case (declaration: DisplayDeclaration, eori: Eori) =>
-      //     val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-      //     val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-      //     val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-
-      //     whenever(!reasonForSecurityIsDischarge) {
-      //       val initialJourney =
-      //         SecuritiesJourney
-      //           .empty(eori)
-      //           .submitMovementReferenceNumber(declaration.getMRN)
-
-      //       val updatedJourney = SessionData(
-      //         initialJourney
-      //           .submitReasonForSecurityAndDeclaration(rfs, declaration)
-      //           .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
-      //           .flatMap(_.submitClaimDuplicateCheckStatus(false))
-      //           .getOrFail
-      //       )
-
-      //       inSequence {
-      //         mockAuthWithDefaultRetrievals()
-      //         mockGetSession(SessionData(initialJourney))
-      //         mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-      //         mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
-      //         mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-      //         mockStoreSession(updatedJourney)(Right(()))
-      //       }
-
-      //       checkIsRedirect(
-      //         performAction(
-      //           Seq("choose-reason-for-security.securities" -> rfs.toString)
-      //         ),
-      //         routes.SelectSecuritiesController.showFirst()
-      //       )
-      //     }
-      //   }
-      // }
+//      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
+//        forAll(
+//          securitiesDisplayDeclarationGen
+//            .map(
+//              _.withDeclarantEori(exampleXIEori)
+//                .withConsigneeEori(anotherExampleXIEori)
+//            ),
+//          IdGen.genEori
+//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+//
+//          whenever(!reasonForSecurityIsDischarge) {
+//            val initialJourney =
+//              SecuritiesJourney
+//                .empty(eori)
+//                .submitMovementReferenceNumber(declaration.getMRN)
+//
+//            val updatedJourney = SessionData(
+//              initialJourney
+//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+//                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
+//                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+//                .getOrFail
+//            )
+//
+//            inSequence {
+//              mockAuthWithDefaultRetrievals()
+//              mockGetSession(SessionData(initialJourney))
+//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
+//              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
+//              mockStoreSession(updatedJourney)(Right(()))
+//            }
+//
+//            checkIsRedirect(
+//              performAction(
+//                Seq("choose-reason-for-security.securities" -> rfs.toString)
+//              ),
+//              routes.SelectSecuritiesController.showFirst()
+//            )
+//          }
+//        }
+//      }
 
       "retrieve the ACC14 declaration and redirect to the enter importer eori page" in {
         forAll(securitiesDisplayDeclarationGen, IdGen.genEori) { case (declaration: DisplayDeclaration, eori: Eori) =>
@@ -323,49 +334,49 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      // "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
-      //   forAll(
-      //     securitiesDisplayDeclarationGen
-      //       .map(
-      //         _.withDeclarantEori(exampleXIEori)
-      //           .withConsigneeEori(anotherExampleXIEori)
-      //       ),
-      //     IdGen.genEori
-      //   ) { case (declaration: DisplayDeclaration, eori: Eori) =>
-      //     val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-      //     val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-      //     val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-
-      //     whenever(!reasonForSecurityIsDischarge) {
-      //       val initialJourney =
-      //         SecuritiesJourney
-      //           .empty(eori)
-      //           .submitMovementReferenceNumber(declaration.getMRN)
-
-      //       val updatedJourney = SessionData(
-      //         initialJourney
-      //           .submitReasonForSecurityAndDeclaration(rfs, declaration)
-      //           .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-      //           .getOrFail
-      //       )
-
-      //       inSequence {
-      //         mockAuthWithDefaultRetrievals()
-      //         mockGetSession(SessionData(initialJourney))
-      //         mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-      //         mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-      //         mockStoreSession(updatedJourney)(Right(()))
-      //       }
-
-      //       checkIsRedirect(
-      //         performAction(
-      //           Seq("choose-reason-for-security.securities" -> rfs.toString)
-      //         ),
-      //         routes.EnterImporterEoriNumberController.show
-      //       )
-      //     }
-      //   }
-      // }
+//      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
+//        forAll(
+//          securitiesDisplayDeclarationGen
+//            .map(
+//              _.withDeclarantEori(exampleXIEori)
+//                .withConsigneeEori(anotherExampleXIEori)
+//            ),
+//          IdGen.genEori
+//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
+//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
+//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
+//
+//          whenever(!reasonForSecurityIsDischarge) {
+//            val initialJourney =
+//              SecuritiesJourney
+//                .empty(eori)
+//                .submitMovementReferenceNumber(declaration.getMRN)
+//
+//            val updatedJourney = SessionData(
+//              initialJourney
+//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
+//                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+//                .getOrFail
+//            )
+//
+//            inSequence {
+//              mockAuthWithDefaultRetrievals()
+//              mockGetSession(SessionData(initialJourney))
+//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+//              mockStoreSession(updatedJourney)(Right(()))
+//            }
+//
+//            checkIsRedirect(
+//              performAction(
+//                Seq("choose-reason-for-security.securities" -> rfs.toString)
+//              ),
+//              routes.EnterImporterEoriNumberController.show
+//            )
+//          }
+//        }
+//      }
 
       "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
         forAll(
@@ -615,7 +626,5 @@ class ChooseReasonForSecurityControllerSpec
           )
       }
     }
-
   }
-
 }
