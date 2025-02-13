@@ -453,13 +453,20 @@ choose-claim-type.securities.hint=If HMRC required a security deposit or guarant
 choose-claim-type.securities.title=Claim back a security deposit
 choose-claim-type.title=Start a new claim
 
-have-documents-ready.securities.title=Have your supporting documents ready
+have-documents-ready.title=Have your supporting documents ready
+have-documents-ready.overpayments.single.p1=You’ll have to upload a commercial invoice later in this claim.
+have-documents-ready.overpayments.single.p2=You can also upload other documents to support your claim, such as:
 have-documents-ready.securities.p1=You’ll have to upload supporting documents later in this claim, such as:
-have-documents-ready.securities.l1=a commercial invoice
-have-documents-ready.securities.l2=an export declaration
-have-documents-ready.securities.l3=an import or export packing list
-have-documents-ready.securities.l4=a substitute or diversion entry, if the customs status has changed
-have-documents-ready.securities.l5=a proof of authority, if the bank details are different from the ones provided by the importer
+have-documents-ready.airWaybill=an air waybill
+have-documents-ready.billOfLanding=a bill of lading
+have-documents-ready.correspondenceTraderAndAgent=correspondence between trader and agent
+have-documents-ready.importOrExportDeclaration=an import or export declaration
+have-documents-ready.packingList=a packing list
+have-documents-ready.proofOfAuthority=a proof of authority, if the bank details are different from the ones provided by the importer
+have-documents-ready.substituteOrDiversionEntry=a substitute or diversion entry, if the customs status has changed
+have-documents-ready.commercialInvoice=a commercial invoice
+have-documents-ready.exportDeclaration=an export declaration
+have-documents-ready.importOrExportPackingList=an import or export packing list
 
 choose-export-method.error.required=Select what you did with the goods
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Declared to a customs warehouse

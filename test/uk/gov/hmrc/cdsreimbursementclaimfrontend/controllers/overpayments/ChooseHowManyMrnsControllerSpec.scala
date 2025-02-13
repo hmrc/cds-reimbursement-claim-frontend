@@ -148,7 +148,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
-        checkIsRedirect(result, overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show)
+        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
       "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {

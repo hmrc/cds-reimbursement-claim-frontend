@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -29,19 +26,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
-import scala.jdk.CollectionConverters.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithJourneyGenerator}
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class HaveDocumentsReadyControllerSpec
     extends PropertyBasedControllerSpec
@@ -49,7 +42,7 @@ class HaveDocumentsReadyControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithJourneyGenerator[OverpaymentsSingleJourney] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -64,12 +57,12 @@ class HaveDocumentsReadyControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private val haveDocumentsReadyMessagesKey: String = "have-documents-ready.securities"
+  val session: SessionData = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
-  override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
+  private val haveDocumentsReadyMessagesKey: String = "have-documents-ready.overpayments.single"
+
+  override def beforeEach(): Unit =
+      featureSwitch.enable(Feature.Overpayments_v2)
 
   "HaveDocumentsReadyController" when {
 
@@ -83,17 +76,15 @@ class HaveDocumentsReadyControllerSpec
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
+      "not find the page if overpayments feature is disabled" in {
+        featureSwitch.disable(Feature.Overpayments_v2)
         status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
+      "display the page" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(
@@ -105,8 +96,13 @@ class HaveDocumentsReadyControllerSpec
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                                    shouldBe Some(routes.ChooseExportMethodController.show.url)
+              .map(_.attr("href"))                                    shouldBe Some(routes.EnterMovementReferenceNumberController.show.url)
         )
+      }
+    }
+    "start" must {
+      "redirect to show" in {
+        checkIsRedirect(controller.start(FakeRequest()), routes.HaveDocumentsReadyController.show)
       }
     }
   }

@@ -89,7 +89,4 @@ class EnterMovementReferenceNumberController @Inject() (
       Redirect(routes.CheckDeclarationDetailsController.show)
     }
 
-  final val start: Action[AnyContent] =
-    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
-
 }

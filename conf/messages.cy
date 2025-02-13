@@ -422,13 +422,20 @@ choose-claim-type.error.required=Dewiswch fath o gais
 choose-claim-type.error.unknown=Dewiswch fath o gais
 choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 
-have-documents-ready.securities.title=Sicrhewch fod eich dogfennau ategol yn barod
+have-documents-ready.title=Sicrhewch fod eich dogfennau ategol yn barod
+have-documents-ready.overpayments.single.p1=Bydd yn rhaid i chi uwchlwytho anfoneb fasnachol yn ddiweddarach yn yr hawliad hwn.
+have-documents-ready.overpayments.single.p2=Yn ogystal, gallwch uwchlwytho dogfennau eraill i ategu’ch cais, fel:
 have-documents-ready.securities.p1=Bydd yn rhaid i chi uwchlwytho dogfennau ategol yn ddiweddarach yn yr hawliad hwn, fel:
-have-documents-ready.securities.l1=anfoneb fasnachol
-have-documents-ready.securities.l2=datganiad allforio
-have-documents-ready.securities.l3=rhestr pacio mewnforio neu allforio
-have-documents-ready.securities.l4=datganiad amgen neu ddargyfeirio, os yw’r statws tollau wedi newid
-have-documents-ready.securities.l5=tystiolaeth o awdurdod, os yw manylion y banc yn wahanol i’r rhai a ddarperir gan y mewnforiwr
+have-documents-ready.airWaybill=bil teithrestr awyr
+have-documents-ready.billOfLanding=bil llwytho
+have-documents-ready.correspondenceTraderAndAgent=gohebiaeth rhwng y masnachwr a’r asiant
+have-documents-ready.importOrExportDeclaration=datganiad mewnforio neu allforio
+have-documents-ready.packingList=rhestr bacio
+have-documents-ready.proofOfAuthority=tystiolaeth o awdurdod, os yw manylion y banc yn wahanol i’r rhai a ddarperir gan y mewnforiwr
+have-documents-ready.substituteOrDiversionEntry=datganiad amgen neu ddargyfeirio, os yw’r statws tollau wedi newid
+have-documents-ready.commercialInvoice=anfoneb fasnachol
+have-documents-ready.exportDeclaration=datganiad allforio
+have-documents-ready.importOrExportPackingList=rhestr pacio mewnforio neu allforio
 
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
