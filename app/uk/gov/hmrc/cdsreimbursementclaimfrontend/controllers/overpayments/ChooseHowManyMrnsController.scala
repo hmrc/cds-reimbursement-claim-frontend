@@ -158,7 +158,7 @@ class ChooseHowManyMrnsController @Inject() (
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
-                    .map(_ => Redirect(overpaymentsSingleRoutes.EnterMovementReferenceNumberController.show))
+                    .map(_ => Redirect(overpaymentsSingleRoutes.HaveDocumentsReadyController.show))
 
                 case Multiple =>
                   (if request.sessionData.overpaymentsMultipleJourney.isEmpty

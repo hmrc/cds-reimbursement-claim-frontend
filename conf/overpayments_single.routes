@@ -1,4 +1,6 @@
-GET         /overpayments/single                                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.start
+GET         /overpayments/single                                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.HaveDocumentsReadyController.start
+GET         /overpayments/single/have-your-documents-ready                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.HaveDocumentsReadyController.show
+
 GET         /overpayments/single/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.show
 POST        /overpayments/single/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.submit
 

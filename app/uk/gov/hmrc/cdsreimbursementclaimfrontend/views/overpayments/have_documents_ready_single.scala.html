@@ -18,13 +18,15 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
@@ -38,17 +40,21 @@
 
     @heading(Html(title), classes="govuk-heading-l")
 
-    @paragraph(Html(messages(s"have-documents-ready.securities.p1")))
+    @insetText(content = HtmlContent(messages("have-documents-ready.overpayments.single.p1")))
+
+    @paragraph(Html(messages("have-documents-ready.overpayments.single.p2")))
 
     @bulletList(
         Seq(
-            Html(messages("have-documents-ready.commercialInvoice")),
-            Html(messages("have-documents-ready.exportDeclaration")),
-            Html(messages("have-documents-ready.importOrExportPackingList")),
-            Html(messages("have-documents-ready.substituteOrDiversionEntry")),
-            Html(messages("have-documents-ready.proofOfAuthority"))
+            Html(messages("have-documents-ready.airWaybill")),
+            Html(messages("have-documents-ready.billOfLanding")),
+            Html(messages("have-documents-ready.correspondenceTraderAndAgent")),
+            Html(messages("have-documents-ready.importOrExportDeclaration")),
+            Html(messages("have-documents-ready.packingList")),
+            Html(messages("have-documents-ready.proofOfAuthority")),
+            Html(messages("have-documents-ready.substituteOrDiversionEntry"))
         )
     )
 
-    @submitButton("button.continue", href = Some(routes.ChooseExportMethodController.show.url))
+    @submitButton("button.continue", href = Some(routes.EnterMovementReferenceNumberController.show.url))
 }
