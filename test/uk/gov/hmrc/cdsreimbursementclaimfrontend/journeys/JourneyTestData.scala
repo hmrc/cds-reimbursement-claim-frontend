@@ -102,7 +102,8 @@ trait JourneyTestData {
   final val anotherExampleMrn: MRN     = IdGen.genMRN.sample.get
   final val exampleMrnAsString: String = exampleMrn.value
 
-  final val exampleUploadedFile = buildUploadDocument("foo")
+  final val exampleUploadedFile  = buildUploadDocument("foo")
+  final val exampleUploadedFiles = Seq("foo", "zoo", "coo").map(buildUploadDocument)
 
   final val exampleDeclarationContactDetails: ContactDetails =
     Acc14Gen.genContactDetails.sample.get

@@ -131,7 +131,7 @@
 }
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(BillOfDischargeDocumentSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
+@summary(BillOfDischargeDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
 @summary(EvidenceDocumentsSummary(supportingEvidenceLabel, claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
 
 @subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))

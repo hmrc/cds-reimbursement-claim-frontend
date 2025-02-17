@@ -19,12 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
-object BillOfDischargeDocumentSummary {
+object BillOfDischargeDocumentsSummary {
 
   def apply(
     documents: Seq[EvidenceDocument],
@@ -33,16 +35,24 @@ object BillOfDischargeDocumentSummary {
   )(implicit
     messages: Messages
   ): SummaryList =
-    SummaryList(
-      documents
-        .find(document =>
-          document.documentType == UploadDocumentType.BillOfDischarge3
-            || document.documentType == UploadDocumentType.BillOfDischarge4
-        )
-        .map(document =>
+    val ds = documents.filter(f => f.documentType == UploadDocumentType.BillOfDischarge3)
+    if ds.isEmpty then SummaryList()
+    else
+      SummaryList(
+        Seq(
           SummaryListRow(
-            key = Key(Text(messages(s"choose-file-type.file-type.${document.documentType}"))),
-            value = Value(Text(document.fileName)),
+            key = Key(Text(messages(s"choose-file-type.file-type.${ds.head.documentType}"))),
+            value = Value(
+              HtmlContent(
+                ds
+                  .map(uploadDocument =>
+                    Paragraph(
+                      uploadDocument.fileName
+                    ).toString
+                  )
+                  .mkString("")
+              )
+            ),
             actions = changeCallOpt.map(changeCall =>
               Actions(
                 items = Seq(
@@ -56,6 +66,5 @@ object BillOfDischargeDocumentSummary {
             )
           )
         )
-        .toSeq
-    )
+      )
 }

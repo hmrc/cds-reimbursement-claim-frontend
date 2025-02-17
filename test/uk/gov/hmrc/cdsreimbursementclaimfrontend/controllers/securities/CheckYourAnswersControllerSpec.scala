@@ -128,10 +128,15 @@ class CheckYourAnswersControllerSpec
     )
 
     val expectedDocuments: Seq[String] =
-      journey.answers.supportingEvidences.map { uploadDocument =>
-        s"${uploadDocument.fileName} ${uploadDocument.documentType
-            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
-      }
+      journey.answers.supportingEvidences
+        .map { uploadDocument =>
+          s"${uploadDocument.fileName} ${uploadDocument.documentType
+              .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
+        }
+
+    val expectedBillOfDischarge: Seq[String] =
+      journey.answers.billOfDischargeDocuments
+        .map(uploadDocument => s"${uploadDocument.fileName}")
 
     summaries.toSeq should containAllDefinedPairsOf(
       Seq(
@@ -143,10 +148,12 @@ class CheckYourAnswersControllerSpec
           (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then None
            else Some(expectedDocuments.mkString(" "))),
         "Bill of discharge 3"                        ->
-          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then Some("bod.pdf") else None),
+          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief
+           then Some(expectedBillOfDischarge.mkString(" "))
+           else None),
         "Other supporting documents"                 ->
-          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then
-             Some(expectedDocuments.filterNot(_ == "bod.pdf").mkString(" "))
+          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief
+           then Some(expectedDocuments.mkString(" "))
            else None),
         "Any information that may support the claim" -> claim.additionalDetails.map(_.value),
         "Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value),

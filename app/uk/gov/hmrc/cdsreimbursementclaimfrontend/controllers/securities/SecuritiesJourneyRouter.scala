@@ -50,7 +50,7 @@ trait SecuritiesJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                          => undefined
       case MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER                          => routes.EnterExportMovementReferenceNumberController.showFirst
       case MISSING_METHOD_OF_DISPOSAL                                        => undefined
-      case MISSING_BILL_OF_DISCHARGE_3_DOCUMENT                              => routes.UploadBillOfDischarge3Controller.show
+      case MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS                             => routes.UploadBillOfDischarge3Controller.show
       case INVALID_REASON_FOR_SECURITY                                       => routes.ChooseReasonForSecurityController.show
       case _                                                                 => undefined
     }
