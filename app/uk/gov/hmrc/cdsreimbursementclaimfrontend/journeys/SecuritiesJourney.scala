@@ -912,21 +912,16 @@ final class SecuritiesJourney private (
         )
     }
 
-  def receiveBillOfDischarge3Document(
+  def receiveBillOfDischargeDocuments(
     requestNonce: Nonce,
-    uploadedFile: UploadedFile
+    uploadedFiles: Seq[UploadedFile]
   ): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
       if answers.nonce.equals(requestNonce) then {
         Right(
-          this.copy(answers.copy(billOfDischarge3Document = Some(uploadedFile)))
+          this.copy(answers.copy(billOfDischargeDocuments = uploadedFiles))
         )
-      } else Left("receiveBillOfDischarge3Document.invalidNonce")
-    }
-
-  def removeBillOfDischarge3Document: SecuritiesJourney =
-    whileClaimIsAmendable {
-      this.copy(answers.copy(billOfDischarge3Document = None))
+      } else Left("receiveBillOfDischargeDocuments.invalidNonce")
     }
 
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
@@ -967,7 +962,7 @@ final class SecuritiesJourney private (
           mrn                     <- getLeadMovementReferenceNumber
           rfs                     <- getReasonForSecurity
           supportingEvidences      = answers.supportingEvidences
-          billOfDischarge3Document = answers.billOfDischarge3Document.toSeq
+          billOfDischargeDocuments = answers.billOfDischargeDocuments
           claimantInformation     <- getClaimantInformation
           payeeType               <- getPayeeTypeForOutput(answers.payeeType)
           displayPayeeType        <- answers.payeeType
@@ -983,7 +978,7 @@ final class SecuritiesJourney private (
             if needsBanksAccountDetailsSubmission then answers.bankAccountDetails
             else None,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from)
-            ++ billOfDischarge3Document.map(EvidenceDocument.from),
+            ++ billOfDischargeDocuments.map(EvidenceDocument.from),
           temporaryAdmissionMethodsOfDisposal = answers.temporaryAdmissionMethodsOfDisposal match {
             case Some(mods) if mods.contains(ExportedInSingleOrMultipleShipments) =>
               def updateModsWith(
@@ -1052,7 +1047,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     additionalDetails: Option[String] = None,
-    billOfDischarge3Document: Option[UploadedFile] = None,
+    billOfDischargeDocuments: Seq[UploadedFile] = Seq.empty,
     modes: SecuritiesJourneyModes = SecuritiesJourneyModes()
   ) extends CommonAnswers {
 
@@ -1143,14 +1138,17 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         )
       )
 
-    val hasBillOfDischarge3DocumentIfNeeded: Validate[SecuritiesJourney] =
+    val hasBillOfDischarge3DocumentsIfNeeded: Validate[SecuritiesJourney] =
       conditionally[SecuritiesJourney](
         _.reasonForSecurityIsIPR,
         checkIsTrue(
-          _.answers.billOfDischarge3Document.nonEmpty,
-          MISSING_BILL_OF_DISCHARGE_3_DOCUMENT
+          _.answers.billOfDischargeDocuments.nonEmpty,
+          MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS
         ),
-        checkIsEmpty(_.answers.billOfDischarge3Document, "unexpected BOD3 document, should be empty")
+        checkIsTrue(
+          _.answers.billOfDischargeDocuments.isEmpty,
+          "unexpected BOD3 document, should be empty"
+        )
       )
 
     val reasonForSecurityIsIPR: Validate[SecuritiesJourney] =
@@ -1194,7 +1192,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         supportingEvidenceHasBeenProvided
       ),
       payeeTypeIsDefined,
-      hasBillOfDischarge3DocumentIfNeeded
+      hasBillOfDischarge3DocumentsIfNeeded
     )
 
   import JourneyFormats._
@@ -1269,9 +1267,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
             j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
-      .flatMapWhenDefined(answers.billOfDischarge3Document)(j =>
-        d => j.receiveBillOfDischarge3Document(j.answers.nonce, d)
-      )
+      .flatMap(j => j.receiveBillOfDischargeDocuments(answers.nonce, answers.billOfDischargeDocuments))
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }

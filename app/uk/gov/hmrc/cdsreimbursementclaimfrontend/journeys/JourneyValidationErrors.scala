@@ -40,7 +40,7 @@ object JourneyValidationErrors {
   val MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER: String = "missingExportMovementReferenceNumber"
   val MISSING_NEW_EORI: String                         = "missingNewEori"
   val MISSING_NEW_DAN: String                          = "missingNewDan"
-  val MISSING_BILL_OF_DISCHARGE_3_DOCUMENT: String     = "missingBillOfDischarge3Document"
+  val MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS: String    = "missingBillOfDischarge3Documents"
   val INVALID_REASON_FOR_SECURITY: String              = "invalidReasonForSecurity"
 
   val EXPECTED_SINGLE_EXPORT_MOVEMENT_REFERENCE_NUMBER: String    = "expectedSingleExportMovementReferenceNumber"
