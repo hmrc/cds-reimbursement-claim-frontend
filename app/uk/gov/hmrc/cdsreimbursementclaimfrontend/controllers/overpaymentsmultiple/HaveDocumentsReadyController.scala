@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -22,22 +22,19 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.have_documents_ready_single
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.have_documents_ready_multiple
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class HaveDocumentsReadyController @Inject() (
   val jcc: JourneyControllerComponents,
-  val haveDocumentsReadyPage: have_documents_ready_single
+  val haveDocumentsReadyPage: have_documents_ready_multiple
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController {
+    extends OverpaymentsMultipleJourneyBaseController {
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => _ =>
       Ok(haveDocumentsReadyPage()).asFuture
     }
-
-  final val start: Action[AnyContent] =
-    Action(Redirect(routes.HaveDocumentsReadyController.show))
 }

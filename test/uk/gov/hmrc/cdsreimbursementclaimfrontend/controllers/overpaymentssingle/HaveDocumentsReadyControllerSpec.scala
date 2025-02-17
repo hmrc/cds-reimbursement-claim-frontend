@@ -18,7 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -26,12 +29,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithJourneyGenerator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -59,10 +66,8 @@ class HaveDocumentsReadyControllerSpec
 
   val session: SessionData = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
-  private val haveDocumentsReadyMessagesKey: String = "have-documents-ready.overpayments.single"
-
   override def beforeEach(): Unit =
-      featureSwitch.enable(Feature.Overpayments_v2)
+    featureSwitch.enable(Feature.Overpayments_v2)
 
   "HaveDocumentsReadyController" when {
 
@@ -91,16 +96,16 @@ class HaveDocumentsReadyControllerSpec
           showHaveDocumentsReadyPage,
           messageFromMessageKey(s"have-documents-ready.title"),
           implicit doc =>
-            messageFromMessageKey(s"$haveDocumentsReadyMessagesKey.p1") should include(getContentsOfParagraph(1))
+            messageFromMessageKey("have-documents-ready.overpayments.p1") should include(getContentsOfParagraph(1))
             doc
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                                    shouldBe Some(routes.EnterMovementReferenceNumberController.show.url)
+              .map(_.attr("href"))                                      shouldBe Some(routes.EnterMovementReferenceNumberController.show.url)
         )
       }
     }
-    "start" must {
+    "start"     must {
       "redirect to show" in {
         checkIsRedirect(controller.start(FakeRequest()), routes.HaveDocumentsReadyController.show)
       }
