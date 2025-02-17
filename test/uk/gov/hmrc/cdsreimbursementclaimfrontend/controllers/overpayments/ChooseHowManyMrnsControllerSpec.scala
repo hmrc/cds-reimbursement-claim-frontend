@@ -136,7 +136,7 @@ class ChooseHowManyMrnsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
+      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual" in {
 
         val updatedSession = SessionData(OverpaymentsSingleJourney.empty(eoriExample, Nonce.Any))
 
@@ -151,7 +151,7 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple" in {
 
         val updatedSession = SessionData(OverpaymentsMultipleJourney.empty(eoriExample, Nonce.Any))
 
@@ -163,7 +163,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Multiple.toString))
-        checkIsRedirect(result, overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.showFirst)
+        checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
       "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
