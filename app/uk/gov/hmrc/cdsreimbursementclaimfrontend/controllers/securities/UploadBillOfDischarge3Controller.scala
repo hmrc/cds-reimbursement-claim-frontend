@@ -74,7 +74,7 @@ class UploadBillOfDischarge3Controller @Inject() (
               journey.answers.nonce,
               continueUrl
             ),
-            journey.answers.billOfDischarge3Document.map(file => Seq(file)).getOrElse(Seq.empty)
+            journey.answers.billOfDischargeDocuments
           )
       )
       .map {
@@ -100,21 +100,15 @@ class UploadBillOfDischarge3Controller @Inject() (
             (journey, BadRequest("missing or invalid callback payload"))
 
           case Some(callback) =>
-            callback.uploadedFiles.headOption match {
-              case Some(uploadedFile) =>
-                journey
-                  .receiveBillOfDischarge3Document(
-                    callback.nonce,
-                    uploadedFile.copy(cargo = callback.cargo)
-                  )
-                  .fold(
-                    error => (journey, BadRequest(error)),
-                    modifiedJourney => (modifiedJourney, NoContent)
-                  )
-              case None               =>
-                (journey.removeBillOfDischarge3Document, NoContent)
-            }
-
+            journey
+              .receiveBillOfDischargeDocuments(
+                callback.nonce,
+                callback.uploadedFiles.map(_.copy(cargo = callback.cargo))
+              )
+              .fold(
+                error => (journey, BadRequest(error)),
+                modifiedJourney => (modifiedJourney, NoContent)
+              )
         },
     isCallback = true
   )
@@ -129,7 +123,7 @@ class UploadBillOfDischarge3Controller @Inject() (
       continueWhenFullUrl = selfUrl + continueUrl.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 1,
-      maximumNumberOfFiles = 1,
+      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("bill-of-discharge"),
       initialNumberOfEmptyRows = 1,
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("bill-of-discharge"),
       allowedContentTypes =

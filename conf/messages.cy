@@ -1070,8 +1070,8 @@ enter-declarant-eori-number.error.required=Nodwch rif EORI
 enter-declarant-eori-number.help=Gallwch gael y rhif EORI gan y datganydd. Ni fyddwch yn gallu gwneud hawliad heb y rhif hwn.
 enter-declarant-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
 enter-declarant-eori-number.input-label=Nodwch rif EORI yr datganydd
-enter-declarant-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
-enter-declarant-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+enter-declarant-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-declarant-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-declarant-eori-number.title=Nodwch rif EORI y datganydd
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
@@ -1132,8 +1132,8 @@ enter-importer-eori-number.error.required=Nodwch rif EORI
 enter-importer-eori-number.help=Gallwch gael y rhif EORI gan y mewnforiwr. Ni fyddwch yn gallu gwneud hawliad heb y rhif hwn.
 enter-importer-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
 enter-importer-eori-number.input-label=Nodwch rif EORI y mewnforiwr
-enter-importer-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
-enter-importer-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+enter-importer-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-importer-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-importer-eori-number.title=Nodwch rif EORI y mewnforiwr
 
 enter-inspection-date.rejected-goods.day.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod
@@ -1262,9 +1262,9 @@ enter-new-dan.title=Rhowch y rhif cyfrif gohirio newydd
 enter-new-dan.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r cyfrif gohirio hwn.
 enter-new-dan.hint=Mae rhif cyfrif gohirio yn cynnwys hyd at 7 digid (er enghraifft, ’1234567’).
 
-enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 1 i 9 yn unig
+enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
 enter-new-dan.error.required=Nodwch rif cyfrif gohirio
-enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 1 i 9 yn unig
+enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
 
 
 enter-new-eori-number.title=Nodwch y rhif EORI newydd
@@ -1273,8 +1273,8 @@ enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI.
 
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-new-eori-number.error.required=Nodwch rif EORI
-enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
-enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 1 i 9 yn unig
+enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-new-eori-number.doesNotExist=Nid yw’r rhif EORI a nodwyd i’w weld ar y system.
 
 enter-rejected-goods-details.rejected-goods.error.maxLength=Mae’n rhaid i fanylion y nwyddau wedi’u gwrthod fod yn 500 o gymeriadau neu lai

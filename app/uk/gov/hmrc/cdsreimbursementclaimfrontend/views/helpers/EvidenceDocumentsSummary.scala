@@ -19,13 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Empty
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 object EvidenceDocumentsSummary {
 

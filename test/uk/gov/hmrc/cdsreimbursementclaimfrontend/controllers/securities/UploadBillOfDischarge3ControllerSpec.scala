@@ -50,11 +50,11 @@ class UploadBillOfDischarge3ControllerSpec
 
   val expectedUploadDocumentsLocation: String = "http://foo:123/bar/upload-bill-of-discharge3"
 
-  def mockInitializeCall(existingFile: Option[UploadedFile] = None) =
+  def mockInitializeCall(existingFiles: Seq[UploadedFile] = Seq.empty) =
     (mockUploadDocumentsConnector
       .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
       .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
-        request.existingFiles.map(_.upscanReference) == existingFile.toList.map(_.upscanReference)
+        request.existingFiles.map(_.upscanReference) == existingFiles.map(_.upscanReference)
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
 
@@ -112,9 +112,9 @@ class UploadBillOfDischarge3ControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey.receiveBillOfDischarge3Document(journey.answers.nonce, exampleUploadedFile).getOrFail)
+            SessionData(journey.receiveBillOfDischargeDocuments(journey.answers.nonce, exampleUploadedFiles).getOrFail)
           )
-          mockInitializeCall(Some(exampleUploadedFile))
+          mockInitializeCall(exampleUploadedFiles)
         }
 
         checkIsRedirect(
@@ -128,7 +128,7 @@ class UploadBillOfDischarge3ControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
-            mockInitializeCall(journey.answers.billOfDischarge3Document)
+            mockInitializeCall(journey.answers.billOfDischargeDocuments)
           }
 
           checkIsRedirect(
@@ -148,7 +148,7 @@ class UploadBillOfDischarge3ControllerSpec
       val callbackPayload: UploadMrnListCallback =
         UploadMrnListCallback(
           nonce = Nonce.random,
-          uploadedFiles = Seq(exampleUploadedFile)
+          uploadedFiles = exampleUploadedFiles
         )
 
       "return 204 if callback accepted" in forSomeWith(
@@ -163,7 +163,7 @@ class UploadBillOfDischarge3ControllerSpec
           mockStoreSession(
             SessionData(
               journey
-                .receiveBillOfDischarge3Document(journey.answers.nonce, exampleUploadedFile)
+                .receiveBillOfDischargeDocuments(journey.answers.nonce, exampleUploadedFiles)
                 .getOrFail
             )
           )(Right(()))
