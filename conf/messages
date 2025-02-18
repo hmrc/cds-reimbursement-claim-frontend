@@ -1101,8 +1101,8 @@ enter-declarant-eori-number.error.required=Enter an EORI number
 enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
 enter-declarant-eori-number.input-label=Enter declarant EORI number
-enter-declarant-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
-enter-declarant-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-declarant-eori-number.invalid=EORI number must only include letters a to z and numbers 0 to 9
+enter-declarant-eori-number.invalid.number=EORI number must only include letters a to z and numbers 0 to 9
 enter-declarant-eori-number.title=Enter the declarant’s EORI number
 
 enter-duplicate-movement-reference-number.error.required=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
@@ -1120,8 +1120,8 @@ enter-new-eori-number.inset-text=You must be authorised to use this EORI number.
 enter-new-eori-number.hint=The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
 enter-new-eori-number.error.maxLength=EORI number must be 17 characters or less
 enter-new-eori-number.error.required=Enter an EORI number
-enter-new-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
-enter-new-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-new-eori-number.invalid=EORI number must only include letters a to z and numbers 0 to 9
+enter-new-eori-number.invalid.number=EORI number must only include letters a to z and numbers 0 to 9
 enter-new-eori-number.doesNotExist=The entered EORI number is not found in the system.
 
 enter-export-movement-reference-number.error.required=Enter an export Movement Reference Number (MRN)
@@ -1154,8 +1154,8 @@ enter-importer-eori-number.error.required=Enter an EORI number
 enter-importer-eori-number.help=You can get the EORI number from the importer, otherwise you will be unable to make a claim.
 enter-importer-eori-number.help-text=The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
 enter-importer-eori-number.input-label=Enter importer EORI number
-enter-importer-eori-number.invalid=EORI number must only include letters a to z and numbers 1 to 9
-enter-importer-eori-number.invalid.number=EORI number must only include letters a to z and numbers 1 to 9
+enter-importer-eori-number.invalid=EORI number must only include letters a to z and numbers 0 to 9
+enter-importer-eori-number.invalid.number=EORI number must only include letters a to z and numbers 0 to 9
 enter-importer-eori-number.title=Enter the importer’s EORI number
 
 enter-inspection-date.rejected-goods.day.error.required=Inspection date must include a day
@@ -1203,9 +1203,9 @@ enter-movement-reference-number.single.title=Movement Reference Number (MRN)
 enter-new-dan.title=Enter the new deferment account number
 enter-new-dan.inset-text=You must be authorised to use this deferment account.
 enter-new-dan.hint=A deferment account number is made up of 7 numbers (for example, ‘1234567’).
-enter-new-dan.error.maxLength=Deferment account number must only include numbers 1 to 9
+enter-new-dan.error.maxLength=Deferment account number must only include numbers 0 to 9
 enter-new-dan.error.required=Enter deferment account number
-enter-new-dan.invalid.number=Deferment account number must only include numbers 1 to 9
+enter-new-dan.invalid.number=Deferment account number must only include numbers 0 to 9
 
 enter-rejected-goods-details.rejected-goods.bullet.1=preference codes
 enter-rejected-goods-details.rejected-goods.bullet.2=proof of return or refunds

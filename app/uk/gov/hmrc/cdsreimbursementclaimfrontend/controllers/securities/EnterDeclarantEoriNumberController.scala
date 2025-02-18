@@ -59,7 +59,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
   private val successResultBOD3: Result =
-    Redirect(routes.UploadBillOfDischarge3Controller.show)
+    Redirect(routes.CheckTotalImportDischargedController.show)
 
   // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
