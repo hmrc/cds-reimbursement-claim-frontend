@@ -26,7 +26,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

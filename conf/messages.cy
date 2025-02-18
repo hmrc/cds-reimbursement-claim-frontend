@@ -1917,9 +1917,12 @@ timed-out.p1=Roedd hyn oherwydd eich bod wedi bod yn segur am rhy hir.
 timed-out.p2=Er mwyn cael mynediad at y gwasanaeth hawlio tollau mewnforio a TAW yn ôl, bydd angen i chi fewngofnodi eto.
 timed-out.title=Er eich diogelwch, gwnaethom eich allgofnodi
 
-unauthorised.help=Mae angen rhif EORI arnoch i ddefnyddio’r gwasanaeth hwn. Mae’n rhaid i’r rhif EORI gynnwys 14 o gymeriadau neu lai, a chynnwys llythrennau a i z a’r rhifau 1 i 9 yn unig
-unauthorised.help-text=Dysgu <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">sut i gael rhif EORI (yn agor tab newydd)</a>
-unauthorised.title=Mae problem wedi codi
+unauthorised.title=Nid oes gennych fynediad at y Gwasanaeth Datganiadau Tollau (CDS)
+unauthorised.p1=Gallai hyn fod oherwydd y canlynol:
+unauthorised.p1.li1=nid ydych eto wedi <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">tanysgrifio i’r CDS</a>
+unauthorised.p1.li2=rydych wedi mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth anghywir - gwnewch yn siŵr eich bod yn defnyddio’r un sy’n gysylltiedig â’ch rhif EORI
+unauthorised.p1.li3=nid yw’ch sefydliad wedi rhoi mynediad i chi - gofynnwch i’r person a sefydlodd y mynediad i’ch <a href="https://www.gov.uk/guidance/manage-team-members-using-your-hmrc-business-tax-account" class="govuk-link">ychwanegu chi fel aelod o’r tîm a rhoi mynediad i chi at y CDS</a>
+unauthorised.p2=<a href="https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in" class="govuk-link">Cael help os ydych yn cael trafferthion mewngofnodi o hyd</a>
 
 upload-bill-of-discharge-3.title=Bill of discharge (BOD) form
 upload-bill-of-discharge-3.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under inward-processing relief (IPR).

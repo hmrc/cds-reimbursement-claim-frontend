@@ -22,18 +22,17 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+    bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
 @()(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
-@title = @{messages(s"unauthorised.title")}
+@title = @{messages("unauthorised.title")}
 
 @layout(pageTitle = Some(s"$title")) {
-    @heading(Html(title))
-    @subHeading(Html(messages("unauthorised.h2.already-subscribed")), classes = "govuk-heading-m govuk-!-margin-top-8")
-    @paragraph(Html(messages(s"unauthorised.p1")))
-    @subHeading(Html(messages("unauthorised.h2.subscribe")), classes = "govuk-heading-m")
-    @paragraph(Html(messages(s"unauthorised.link-to-subscribe", viewConfig.subscribeToCdsUrl)))
+    @heading(heading = Html(title), classes = "govuk-heading-l govuk-!-margin-bottom-4")
+    @paragraph(Html(messages("unauthorised.p1")))
+    @bullets((1 to 3).map(i => Html(messages(s"unauthorised.p1.li$i"))))
+    @paragraph(Html(messages("unauthorised.p2")))
 }

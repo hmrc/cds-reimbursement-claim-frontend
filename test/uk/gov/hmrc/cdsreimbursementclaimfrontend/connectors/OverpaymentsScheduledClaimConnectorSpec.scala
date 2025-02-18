@@ -28,11 +28,9 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.URL
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration

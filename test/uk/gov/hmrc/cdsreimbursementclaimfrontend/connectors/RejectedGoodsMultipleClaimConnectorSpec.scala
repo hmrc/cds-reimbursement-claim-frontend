@@ -28,7 +28,6 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

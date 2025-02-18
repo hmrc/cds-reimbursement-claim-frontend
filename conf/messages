@@ -1925,11 +1925,12 @@ timed-out.p1=This was because you were inactive for too long.
 timed-out.p2=To access the claim back import duty and VAT service, you’ll need to sign back in.
 timed-out.title=For your security, we signed you out
 
-unauthorised.h2.already-subscribed=If you are already subscribed to CDS
-unauthorised.h2.subscribe=Subscribe to CDS
-unauthorised.link-to-subscribe=<a href="{0}" class="govuk-link">Subscribe to the Custom Declaration Service</a>
-unauthorised.p1=Check that you signed in with the Government Gateway user ID that is linked to your Economic Operator and Registration Identification (EORI) number and CDS account.
-unauthorised.title=To continue you need to subscribe to the Customs Declaration Service (CDS)
+unauthorised.title=You do not have access to the Customs Declaration Service (CDS)
+unauthorised.p1=This may be because:
+unauthorised.p1.li1=you have not yet <a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link">subscribed to CDS</a>
+unauthorised.p1.li2=you''re signed in with the wrong Government Gateway user ID – make sure you''re using the one that is linked to your EORI number
+unauthorised.p1.li3=your organisation has not given you access – ask the person who set up the access to <a href="https://www.gov.uk/guidance/manage-team-members-using-your-hmrc-business-tax-account" class="govuk-link">add you as a team member and give you access to CDS</a>
+unauthorised.p2=<a href="https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in" class="govuk-link">Get help if you still have problems signing in</a>
 
 upload-bill-of-discharge-3.title=Bill of discharge (BOD) form
 upload-bill-of-discharge-3.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under inward-processing relief (IPR).
