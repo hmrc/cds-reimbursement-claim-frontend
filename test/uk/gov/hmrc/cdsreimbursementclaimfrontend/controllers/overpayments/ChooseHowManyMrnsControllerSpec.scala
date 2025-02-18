@@ -166,7 +166,7 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
+      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled" in {
         val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
 
         inSequence {
@@ -178,7 +178,7 @@ class ChooseHowManyMrnsControllerSpec
 
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Scheduled.toString))
 
-        checkIsRedirect(result, overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show)
+        checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
       }
 
       "Show error message when no data selected" in {
