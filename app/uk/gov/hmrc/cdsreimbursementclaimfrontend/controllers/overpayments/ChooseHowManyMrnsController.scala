@@ -182,7 +182,7 @@ class ChooseHowManyMrnsController @Inject() (
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
-                    .map(_ => Redirect(overpaymentsScheduledRoutes.EnterMovementReferenceNumberController.show))
+                    .map(_ => Redirect(overpaymentsScheduledRoutes.HaveDocumentsReadyController.show))
               }
             )
         }
