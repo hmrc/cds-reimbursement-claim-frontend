@@ -32,6 +32,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 
 @this(
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
@@ -42,87 +43,98 @@
 
 @key = @{"check-your-answers"}
 
-@displayDeclarationOpt.map { displayDeclaration =>
-    @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-    @summary(SummaryList(
-        SecuritiesCdsDisplayDeclarationSummary(
-            displayDeclaration,
-            s"check-your-answers.declaration-details",
-            if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
-            if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)).rows 
-        ++ SecuritiesSelectionSummary(
-            claim.securitiesReclaims,
-            displayDeclaration,
-            key,
-            if(isPrintView) None else Some(routes.SelectSecuritiesController.show)).rows
-        ++ PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows
-        ++ SecuritiesPaymentMethodSummary(displayDeclaration, claim.securitiesReclaims.keySet, s"check-your-answers.payment-method")
-    ))
-}
-
-@claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>
-    @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
-    @summary(SummaryList(
-        Seq(SummaryListRow(
-                    key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
-                    value = Value(HtmlContent(mods.map(mod => messages(s"choose-export-method.export-method-description.$mod")).mkString("<br/>"))),
-                    actions = if(isPrintView) None else Some(Actions(
-                        items = Seq(ActionItem(
-                            href = routes.ChooseExportMethodController.show.url,
-                            content = Text(messages("cya.change")),
-                            visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))
-                ))))
-        )) ++
-        exportDeclarationMrnOpt.map { exportDeclarationMrns =>
-            exportDeclarationMrns.zipWithIndex.map{
-                case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
-                    key = Key(HtmlContent(OrdinalNumberExportMrnHelper(mrnIndex+1))),
-                    value = Value(Text(exportDeclarationMrn.value)),
-                    actions = if(isPrintView) None else Some(Actions(
-                        items = Seq(ActionItem(
-                            href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
-                            content = Text(messages("cya.change")),
-                            visuallyHiddenText = Some(OrdinalNumberExportMrnHelper(mrnIndex+1))
-                ))))
-        )}
-    }.getOrElse(Seq.empty)))
-}
-
-@subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-@summary(
-    if(isPrintView)
-        ClaimantInformationSummary(
-            claimantInformation = claim.claimantInformation,
-            key = s"check-your-answers.contact-information"
-        )
-    else
-        ClaimantInformationSummary(
-            claimantInformation = claim.claimantInformation,
-            key = s"check-your-answers.contact-information",
-            changeContactDetailsCall = routes.EnterContactDetailsController.show,
-            changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF())
-        )
-)
-
-@displayDeclarationOpt.map { displayDeclaration =>
-    @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
-        @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", securityDepositId)))
-        @summary(SecuritiesReclaimDetailsSummary(
-            securityDepositId,
-            reclaims,
-            displayDeclaration,
-            s"check-your-answers.claim-for-security",
-            if(isPrintView) None else Some(routes.ConfirmFullRepaymentController.show),
-            if(isPrintView) None else Some(routes.SelectDutiesController.show),
-            if(isPrintView) None else Some(routes.EnterClaimController.show)
+@declarationDetails = {
+    @displayDeclarationOpt.map { displayDeclaration =>
+        @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
+        @summary(SummaryList(
+            SecuritiesCdsDisplayDeclarationSummary(
+                displayDeclaration,
+                s"check-your-answers.declaration-details",
+                if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
+                if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)).rows
+            ++ SecuritiesSelectionSummary(
+                claim.securitiesReclaims,
+                displayDeclaration,
+                key,
+                if(isPrintView) None else Some(routes.SelectSecuritiesController.show)).rows
+            ++ PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows
+            ++ SecuritiesPaymentMethodSummary(displayDeclaration, claim.securitiesReclaims.keySet, s"check-your-answers.payment-method")
         ))
     }
 }
 
-@claim.bankAccountDetails.map { bankAccountDetails =>
-    @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
+@temporaryAdmissionMethodsOfDisposal = {
+    @claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>
+        @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
+        @summary(SummaryList(
+            Seq(SummaryListRow(
+                        key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
+                        value = Value(HtmlContent(mods.map(mod => messages(s"choose-export-method.export-method-description.$mod")).mkString("<br/>"))),
+                        actions = if(isPrintView) None else Some(Actions(
+                            items = Seq(ActionItem(
+                                href = routes.ChooseExportMethodController.show.url,
+                                content = Text(messages("cya.change")),
+                                visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))
+                    ))))
+            )) ++
+            exportDeclarationMrnOpt.map { exportDeclarationMrns =>
+                exportDeclarationMrns.zipWithIndex.map{
+                    case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
+                        key = Key(HtmlContent(OrdinalNumberExportMrnHelper(mrnIndex+1))),
+                        value = Value(Text(exportDeclarationMrn.value)),
+                        actions = if(isPrintView) None else Some(Actions(
+                            items = Seq(ActionItem(
+                                href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
+                                content = Text(messages("cya.change")),
+                                visuallyHiddenText = Some(OrdinalNumberExportMrnHelper(mrnIndex+1))
+                    ))))
+            )}
+        }.getOrElse(Seq.empty)))
+    }
 }
+
+@contactInformation = {
+    @subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
+    @summary(
+        if(isPrintView)
+            ClaimantInformationSummary(
+                claimantInformation = claim.claimantInformation,
+                key = s"check-your-answers.contact-information"
+            )
+        else
+            ClaimantInformationSummary(
+                claimantInformation = claim.claimantInformation,
+                key = s"check-your-answers.contact-information",
+                changeContactDetailsCall = routes.EnterContactDetailsController.show,
+                changeContactAddressCall = Some(routes.CheckClaimantDetailsController.redirectToALF())
+            )
+    )
+}
+
+@securitiesReclaims = {
+    @displayDeclarationOpt.map { displayDeclaration =>
+        @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
+            @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", securityDepositId)))
+            @summary(SecuritiesReclaimDetailsSummary(
+                securityDepositId,
+                reclaims,
+                displayDeclaration,
+                s"check-your-answers.claim-for-security",
+                if(isPrintView) None else Some(routes.ConfirmFullRepaymentController.show),
+                if(isPrintView) None else Some(routes.SelectDutiesController.show),
+                if(isPrintView) None else Some(routes.EnterClaimController.show)
+            ))
+        }
+    }
+}
+
+@bankDetails = {
+    @claim.bankAccountDetails.map { bankAccountDetails =>
+        @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
+        @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
+    }
+}
+
 
 @supportingEvidenceLabel = @{
     if(claim.reasonForSecurity==ReasonForSecurity.InwardProcessingRelief)
@@ -130,9 +142,31 @@
     else messages(s"check-your-answers.attached-documents.label")
 }
 
-@subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(BillOfDischargeDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
-@summary(EvidenceDocumentsSummary(supportingEvidenceLabel, claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+@supportingEvidence = {
+    @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
+    @summary(BillOfDischargeDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
+    @summary(EvidenceDocumentsSummary(supportingEvidenceLabel, claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+}
 
-@subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))
-@summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
+
+@additionalDetails = {
+    @subHeading(Html(messages(s"check-your-answers.additional-details.securities.h2")))
+    @summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
+}
+
+
+@if(claim.reasonForSecurity == InwardProcessingRelief){
+    @declarationDetails
+    @supportingEvidence
+    @bankDetails
+    @additionalDetails
+    @contactInformation
+}else{
+    @declarationDetails
+    @temporaryAdmissionMethodsOfDisposal
+    @contactInformation
+    @securitiesReclaims
+    @bankDetails
+    @supportingEvidence
+    @additionalDetails
+}
