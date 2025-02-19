@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
@@ -114,17 +115,19 @@ class CheckYourAnswersControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
+    val commonHeaders = Seq(
+      "Declaration details".expectedAlways,
+      "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodsOfDisposal),
+      "Contact details for this claim".expectedAlways,
+      "Bank details".expectedWhen(claim.bankAccountDetails),
+      "Supporting documents".expectedAlways,
+      "Additional details".expectedAlways,
+      "Now send your claim".expectedAlways
+    )
+    val claimsHeaders = claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)
+
     headers.toSeq should containOnlyDefinedElementsOf(
-      (Seq(
-        "Declaration details".expectedAlways,
-        "Claim details".expectedWhen(journey.answers.temporaryAdmissionMethodsOfDisposal),
-        "Contact details for this claim".expectedAlways,
-        "Bank details".expectedWhen(claim.bankAccountDetails),
-        "Supporting documents".expectedAlways,
-        "Additional details".expectedAlways,
-        "Now send your claim".expectedAlways
-      ) ++
-        claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways))*
+      (if claim.reasonForSecurity == InwardProcessingRelief then commonHeaders else commonHeaders ++ claimsHeaders)*
     )
 
     val expectedDocuments: Seq[String] =
@@ -137,6 +140,38 @@ class CheckYourAnswersControllerSpec
     val expectedBillOfDischarge: Seq[String] =
       journey.answers.billOfDischargeDocuments
         .map(uploadDocument => s"${uploadDocument.fileName}")
+
+    val validateSecurityReclaims = journey.answers.displayDeclaration
+      .flatMap(_.getSecurityDepositIds)
+      .getOrElse(Seq.empty)
+      .map { sid =>
+        s"Claim for $sid" -> Some(
+          if claim.securitiesReclaims.contains(sid) then "Yes"
+          else "No"
+        )
+      } ++
+      claim.securitiesReclaims.flatMap { case (sid, reclaims) =>
+        Seq(
+          "Claim full amount" -> Some(
+            if journey.answers.displayDeclaration
+                .map(_.isFullSecurityAmount(sid, reclaims.values.sum))
+                .getOrElse(false)
+            then "Yes"
+            else "No"
+          ),
+          "Duties selected"   -> Some(
+            reclaims.keys.toList.sorted
+              .map(taxCode => messages(s"tax-code.$taxCode"))
+              .mkString(" ")
+          ),
+          "Total"             -> Some(
+            reclaims.values.sum.toPoundSterlingString
+          )
+        ) ++
+          reclaims.map { case (taxCode, amount) =>
+            messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString)
+          }
+      }
 
     summaries.toSeq should containAllDefinedPairsOf(
       Seq(
@@ -194,38 +229,7 @@ class CheckYourAnswersControllerSpec
           then "Guarantee"
           else "Bank account transfer"
         )
-      ) ++
-        journey.answers.displayDeclaration
-          .flatMap(_.getSecurityDepositIds)
-          .getOrElse(Seq.empty)
-          .map { sid =>
-            s"Claim for $sid" -> Some(
-              if claim.securitiesReclaims.contains(sid) then "Yes"
-              else "No"
-            )
-          } ++
-        claim.securitiesReclaims.flatMap { case (sid, reclaims) =>
-          Seq(
-            "Claim full amount" -> Some(
-              if journey.answers.displayDeclaration
-                  .map(_.isFullSecurityAmount(sid, reclaims.values.sum))
-                  .getOrElse(false)
-              then "Yes"
-              else "No"
-            ),
-            "Duties selected"   -> Some(
-              reclaims.keys.toList.sorted
-                .map(taxCode => messages(s"tax-code.$taxCode"))
-                .mkString(" ")
-            ),
-            "Total"             -> Some(
-              reclaims.values.sum.toPoundSterlingString
-            )
-          ) ++
-            reclaims.map { case (taxCode, amount) =>
-              messages(s"tax-code.$taxCode") -> Some(amount.toPoundSterlingString)
-            }
-        }
+      ) ++ (if claim.reasonForSecurity == InwardProcessingRelief then Seq.empty else validateSecurityReclaims)
     )
 
     claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)
