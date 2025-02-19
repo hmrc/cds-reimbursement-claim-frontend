@@ -178,8 +178,10 @@ class ChooseHowManyMrnsControllerSpec
         messageFromMessageKey(s"$formKey.title"),
         doc => {
           val bullets = doc.select("ul.govuk-list li").asScala.toList
-          bullets.length      shouldBe 3
-          bullets.last.html() shouldBe messageFromMessageKey(s"$formKey.inset.bullet.mop")
+          bullets.length shouldBe 3
+          bullets.zipWithIndex.foreach { (bullet, index) =>
+            bullet.text() shouldBe messageFromMessageKey(s"choose-how-many-mrns.p1.li${index + 1}")
+          }
 
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")

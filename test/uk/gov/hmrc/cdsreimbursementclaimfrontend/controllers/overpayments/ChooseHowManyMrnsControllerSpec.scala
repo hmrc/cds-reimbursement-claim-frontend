@@ -121,6 +121,13 @@ class ChooseHowManyMrnsControllerSpec
           val individualButton = extractButton(buttons, "Individual")
           val multipleButton   = extractButton(buttons, "Multiple")
           val scheduledButton  = extractButton(buttons, "Scheduled")
+          val bullets          = doc.select("ul.govuk-list li").asScala.toList
+
+          bullets.length shouldBe 3
+          bullets.zipWithIndex.foreach { (bullet, index) =>
+            bullet.text() shouldBe messageFromMessageKey(s"choose-how-many-mrns.p1.li${index + 1}")
+          }
+
           extractLabel(individualButton) shouldBe messageFromMessageKey(s"$formKey.individual.title")
           extractHint(individualButton)  shouldBe ""
           extractLabel(multipleButton)   shouldBe messageFromMessageKey(s"$formKey.multiple.title")

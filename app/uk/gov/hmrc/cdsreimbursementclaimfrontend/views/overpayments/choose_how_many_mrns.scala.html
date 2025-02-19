@@ -67,22 +67,23 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
+    @heading(Html(title), classes = "govuk-heading-l")
 
     @dropdownDetails(summary = s"overpayments.choose-how-many-mrns.details.heading",
         html(
             paragraph(Html(messages(s"overpayments.choose-how-many-mrns.details.paragraph")))
     ))
 
+    @paragraph(Html(messages("choose-how-many-mrns.p1")))
+    @bullets((1 to 3).map(i => Html(messages(s"choose-how-many-mrns.p1.li$i"))))
+
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages("choose-how-many-mrns.question"),
             hintKey = None,
-            classes = "govuk-visually-hidden",
-            paddingClasses = "govuk-!-margin-bottom-0",
             items = Seq(
                 RadioItem(
                     id = Some(s"overpayments.choose-how-many-mrns.individual"),
@@ -106,8 +107,6 @@
                 )
             )
         )
-
-        @insetText(content = HtmlContent(inset), classes = Some("govuk-!-margin-top-0"))
 
         @submitButton("button.continue")
     }

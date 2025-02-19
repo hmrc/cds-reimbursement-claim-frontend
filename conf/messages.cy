@@ -1486,16 +1486,10 @@ ordinal-number-mrn.export.8=Yr wythfed MRN allforio
 ordinal-number-mrn.export.9=Y nawfed MRN allforio
 ordinal-number-mrn.export.default=Yr MRN allforio
 
-overpayments.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
+overpayments.choose-how-many-mrns.details.heading=Beth yw MRN?
 overpayments.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 overpayments.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 overpayments.choose-how-many-mrns.individual.title=Nodwch un MRN
-overpayments.choose-how-many-mrns.inset.bullet.importer=i gyd o’r un mewnforiwr
-overpayments.choose-how-many-mrns.inset.bullet.mop=â’r un dull talu
-overpayments.choose-how-many-mrns.inset.bullet.reason=â’r un rheswm dros ordalu
-overpayments.choose-how-many-mrns.inset.paragraph=Os yw’ch hawliad yn cynnwys mwy nag un MRN, mae’n rhaid i’r nwyddau i gyd fod o’r un mewnforiwr a chael yr un rheswm dros ordalu. Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
-overpayments.choose-how-many-mrns.inset.paragraph-xi-info=Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI. Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
-overpayments.choose-how-many-mrns.inset.title=Nodi sawl MRN
 overpayments.choose-how-many-mrns.multiple-mrns.heading=Nodi sawl MRN
 overpayments.choose-how-many-mrns.multiple-mrns.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 overpayments.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
@@ -1504,7 +1498,13 @@ overpayments.choose-how-many-mrns.p1=Rhif 18 digid unigryw sy’n cael ei gyhoed
 overpayments.choose-how-many-mrns.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiant.
 overpayments.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 overpayments.choose-how-many-mrns.scheduled.title=Uwchlwytho sawl MRN
-overpayments.choose-how-many-mrns.title=Sawl Cyfeirnod Symud yr hoffech ei gyflwyno?
+overpayments.choose-how-many-mrns.title=Un Cyfeirnod Symud (MRN) neu fwy nag un
+
+choose-how-many-mrns.p1=Os yw’ch hawliad yn cynnwys mwy nag un MRN, mae’n rhaid i’r holl nwyddau:
+choose-how-many-mrns.p1.li1=bod o’r un mewnforiwr
+choose-how-many-mrns.p1.li2=bod â’r un rheswm dros ordalu
+choose-how-many-mrns.p1.li3=bod â’r un dull talu
+choose-how-many-mrns.question=Faint o MRNau yr ydych am eu cyflwyno?
 
 phasebanner.feedback.text=Gwasanaeth newydd yw hwn - bydd eich <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">adborth (yn agor tab newydd)</a> yn ein helpu i’w wella.
 phasebanner.phase=Y Cyfnod Beta
@@ -1531,17 +1531,10 @@ reimbursement-method.error.invalid=Dewiswch i gael eich ad-dalu drwy Addasiad Mi
 reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.title=Dewiswch ddull ad-dalu
 
-rejected-goods.choose-how-many-mrns.details.heading=Beth yw Cyfeirnod Symud (MRN)
+rejected-goods.choose-how-many-mrns.details.heading=Beth yw MRN?
 rejected-goods.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 rejected-goods.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 rejected-goods.choose-how-many-mrns.individual.title=Nodwch un MRN
-rejected-goods.choose-how-many-mrns.inset.bullet.importer=i gyd o’r un mewnforiwr
-rejected-goods.choose-how-many-mrns.inset.bullet.mop=â’r un dull talu
-rejected-goods.choose-how-many-mrns.inset.bullet.reason=â’r un rheswm dros ordalu
-rejected-goods.choose-how-many-mrns.inset.bullet.subsidy=bod naill ai’n gymhorthdal yn unig, neu heb fod yn gymhorthdal yn unig
-rejected-goods.choose-how-many-mrns.inset.paragraph=Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
-rejected-goods.choose-how-many-mrns.inset.paragraph-xi-info=Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI. Os yw’ch hawliad yn cynnwys sawl MRN, mae’n rhaid i’r nwyddau fod:
-rejected-goods.choose-how-many-mrns.inset.title=Nodi sawl MRN
 rejected-goods.choose-how-many-mrns.multiple.hint=Gallwch nodi manylion hyd at 20 o MRNau.
 rejected-goods.choose-how-many-mrns.multiple.title=Nodwch sawl MRN
 rejected-goods.choose-how-many-mrns.p1=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN).
@@ -1549,7 +1542,7 @@ rejected-goods.choose-how-many-mrns.p1-xi-info=Rhif 18 digid unigryw sy’n cael
 rejected-goods.choose-how-many-mrns.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiant.
 rejected-goods.choose-how-many-mrns.scheduled.hint=Gallwch uwchlwytho hyd at 250 o MRNau mewn un ffeil.
 rejected-goods.choose-how-many-mrns.scheduled.title=Uwchlwytho sawl MRN
-rejected-goods.choose-how-many-mrns.title=Sawl Cyfeirnod Symud yr hoffech ei gyflwyno?
+rejected-goods.choose-how-many-mrns.title=Un Cyfeirnod Symud (MRN) neu fwy nag un
 
 schedule-document.file-type.ScheduleOfMRNs=Dogfen restredig
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
