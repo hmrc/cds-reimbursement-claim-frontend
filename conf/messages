@@ -1382,16 +1382,10 @@ ordinal.suffix.7=th
 ordinal.suffix.8=th
 ordinal.suffix.9=th
 
-overpayments.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+overpayments.choose-how-many-mrns.details.heading=What is an MRN?
 overpayments.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 overpayments.choose-how-many-mrns.individual.title=Enter one MRN
-overpayments.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
-overpayments.choose-how-many-mrns.inset.bullet.mop=have the same method of payment
-overpayments.choose-how-many-mrns.inset.bullet.reason=have the same reason for overpayment
-overpayments.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must all be from the same importer and have the same reason for overpayment. You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI.
-overpayments.choose-how-many-mrns.inset.paragraph-xi-info=You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI. If your claim includes multiple MRNs, the goods must:
-overpayments.choose-how-many-mrns.inset.title=Entering Multiple MRNs
 overpayments.choose-how-many-mrns.multiple-mrns.heading=Entering Multiple MRNs
 overpayments.choose-how-many-mrns.multiple-mrns.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 overpayments.choose-how-many-mrns.multiple.hint=You can enter details for up to 20 MRNs.
@@ -1400,7 +1394,13 @@ overpayments.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a uniq
 overpayments.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agent.
 overpayments.choose-how-many-mrns.scheduled.hint=You can upload up to 250 MRNs in one file.
 overpayments.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-overpayments.choose-how-many-mrns.title=How many Movement Reference Numbers (MRNs) do you want to submit?
+overpayments.choose-how-many-mrns.title=Single or multiple Movement Reference Numbers (MRNs)
+
+choose-how-many-mrns.p1=If your claim includes multiple MRNs, the goods must all:
+choose-how-many-mrns.p1.li1=be from the same importer
+choose-how-many-mrns.p1.li2=have the same reason for overpayment
+choose-how-many-mrns.p1.li3=have the same method of payment
+choose-how-many-mrns.question=How many MRNs do you want to submit?
 
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta
@@ -1439,17 +1439,10 @@ reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustme
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.title=Choose repayment method
 
-rejected-goods.choose-how-many-mrns.details.heading=What is a Movement Reference Number (MRN)
+rejected-goods.choose-how-many-mrns.details.heading=What is an MRN?
 rejected-goods.choose-how-many-mrns.details.paragraph=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared. An MRN can be associated with an EORI number starting GB or an EORI number starting XI.<br><br>You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 rejected-goods.choose-how-many-mrns.error.required=Select how many MRNs you want to submit in this claim
 rejected-goods.choose-how-many-mrns.individual.title=Enter one MRN
-rejected-goods.choose-how-many-mrns.inset.bullet.importer=all be from the same importer
-rejected-goods.choose-how-many-mrns.inset.bullet.mop=have the same method of payment
-rejected-goods.choose-how-many-mrns.inset.bullet.reason=all have the same reason for overpayment
-rejected-goods.choose-how-many-mrns.inset.bullet.subsidy=be either subsidy only, or non-subsidy only
-rejected-goods.choose-how-many-mrns.inset.paragraph=If your claim includes multiple MRNs, the goods must:
-rejected-goods.choose-how-many-mrns.inset.paragraph-xi-info=You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI. If your claim includes multiple MRNs, the goods must:
-rejected-goods.choose-how-many-mrns.inset.title=Entering Multiple MRNs
 rejected-goods.choose-how-many-mrns.multiple.hint=You can enter details for up to 20 MRNs.
 rejected-goods.choose-how-many-mrns.multiple.title=Enter multiple MRNs
 rejected-goods.choose-how-many-mrns.p1=A Movement Reference Number (MRN) is a unique 18-digit number that is issued when an import is declared.
@@ -1457,7 +1450,7 @@ rejected-goods.choose-how-many-mrns.p1-xi-info=A Movement Reference Number (MRN)
 rejected-goods.choose-how-many-mrns.p2=You can find it in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agent.
 rejected-goods.choose-how-many-mrns.scheduled.hint=You can upload up to 250 MRNs in one file.
 rejected-goods.choose-how-many-mrns.scheduled.title=Upload multiple MRNs
-rejected-goods.choose-how-many-mrns.title=How many Movement Reference Numbers (MRNs) do you want to submit?
+rejected-goods.choose-how-many-mrns.title=Single or multiple Movement Reference Numbers (MRNs)
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
