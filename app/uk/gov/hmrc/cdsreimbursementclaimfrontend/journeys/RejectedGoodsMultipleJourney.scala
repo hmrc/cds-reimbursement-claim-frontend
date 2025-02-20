@@ -734,7 +734,7 @@ final class RejectedGoodsMultipleJourney private (
     } else false
 
   override def hashCode(): Int  = answers.hashCode
-  override def toString: String = s"RejectedGoodsMultipleJourney($answers,$caseNumber)"
+  override def toString: String = s"RejectedGoodsMultipleJourney${Json.prettyPrint(Json.toJson(this))}"
 
   /** Validates the journey and retrieves the output. */
 

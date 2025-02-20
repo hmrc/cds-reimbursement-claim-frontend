@@ -461,9 +461,8 @@ final class RejectedGoodsSingleJourney private (
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
 
-  override def hashCode(): Int    = answers.hashCode
-  override def toString(): String =
-    s"RejectedGoodsSingleJourney($answers, caseNumber=$caseNumber, features=$features)"
+  override def hashCode(): Int  = answers.hashCode
+  override def toString: String = s"RejectedGoodsSingleJourney${Json.prettyPrint(Json.toJson(this))}"
 
   /** Validates the journey and retrieves the output. */
 
