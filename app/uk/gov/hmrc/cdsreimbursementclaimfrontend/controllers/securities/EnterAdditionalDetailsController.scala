@@ -52,14 +52,18 @@ class EnterAdditionalDetailsController @Inject() (
     else routes.CheckYourAnswersController.show
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadWriteJourney { implicit request => journey =>
+      val form: Form[String] =
+        Forms.enterAdditionalDetailsSecuritiesForm.withDefault(journey.answers.additionalDetails)
+
       Future.successful {
-        val form: Form[String] =
-          Forms.enterAdditionalDetailsSecuritiesForm.withDefault(journey.answers.additionalDetails)
-        Ok(
-          enterAdditionalDetailsPage(
-            form,
-            postAction
+        (
+          journey.submitAdditionalDetailsPageVisited(true),
+          Ok(
+            enterAdditionalDetailsPage(
+              form,
+              postAction
+            )
           )
         )
       }

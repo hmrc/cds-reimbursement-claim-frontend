@@ -340,7 +340,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitBankAccountType = submitBankAccountType,
       submitBankAccountDetails = submitBankAccountDetails,
       submitFullAmount = submitFullAmount,
-      reasonsForSecurity = reasonsForSecurity
+      reasonsForSecurity = reasonsForSecurity,
+      additionalDetailsVisited = true
     ).map(
       _.fold(
         error =>
@@ -363,7 +364,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     submitFullAmount: Boolean = false,
-    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
+    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values,
+    additionalDetailsVisited: Boolean = false
   ): Gen[Either[String, SecuritiesJourney]] =
     for
       userEoriNumber              <- IdGen.genEori
@@ -420,6 +422,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
+      additionalDetailsPageVisited = additionalDetailsVisited
     yield {
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -476,7 +479,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           modes = SecuritiesJourneyModes(
             checkDeclarationDetailsChangeMode = false,
             checkClaimDetailsChangeMode = true,
-            checkYourAnswersChangeMode = true
+            checkYourAnswersChangeMode = true,
+            additionalDetailsPageVisitedMode = additionalDetailsPageVisited
           )
         )
 

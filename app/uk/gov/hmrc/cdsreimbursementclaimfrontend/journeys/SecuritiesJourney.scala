@@ -895,6 +895,17 @@ final class SecuritiesJourney private (
       )
     }
 
+  def submitAdditionalDetailsPageVisited(visited: Boolean): SecuritiesJourney =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(modes =
+          answers.modes.copy(
+            additionalDetailsPageVisitedMode = visited
+          )
+        )
+      )
+    }
+
   def submitCheckYourAnswersChangeMode(enabled: Boolean): SecuritiesJourney =
     whileClaimIsAmendable {
       validate(this)
@@ -1151,6 +1162,12 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         )
       )
 
+    val additionalDetailsPageVisited: Validate[SecuritiesJourney] =
+      checkIsTrue(
+        _.answers.modes.additionalDetailsPageVisitedMode,
+        ADDITIONAL_DETAILS_NOT_YET_VISITED
+      )
+
     val reasonForSecurityIsIPR: Validate[SecuritiesJourney] =
       checkIsTrue(
         _.reasonForSecurityIsIPR,
@@ -1192,7 +1209,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         supportingEvidenceHasBeenProvided
       ),
       payeeTypeIsDefined,
-      hasBillOfDischarge3DocumentsIfNeeded
+      hasBillOfDischarge3DocumentsIfNeeded,
+      additionalDetailsPageVisited
     )
 
   import JourneyFormats._
@@ -1268,6 +1286,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       )
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMap(j => j.receiveBillOfDischargeDocuments(answers.nonce, answers.billOfDischargeDocuments))
+      .map(_.submitAdditionalDetailsPageVisited(answers.modes.additionalDetailsPageVisitedMode))
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
 }
