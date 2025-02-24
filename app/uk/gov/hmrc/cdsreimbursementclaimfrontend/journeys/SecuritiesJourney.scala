@@ -961,7 +961,7 @@ final class SecuritiesJourney private (
     }
 
   override def hashCode(): Int  = answers.hashCode
-  override def toString: String = s"SecuritiesJourney($answers, $caseNumber)"
+  override def toString: String = s"SecuritiesJourney${Json.prettyPrint(Json.toJson(this))}"
 
   /** Validates the journey and retrieves the output. */
 
@@ -1210,6 +1210,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       ),
       payeeTypeIsDefined,
       hasBillOfDischarge3DocumentsIfNeeded,
+      paymentMethodHasBeenProvidedIfNeeded,
       additionalDetailsPageVisited
     )
 

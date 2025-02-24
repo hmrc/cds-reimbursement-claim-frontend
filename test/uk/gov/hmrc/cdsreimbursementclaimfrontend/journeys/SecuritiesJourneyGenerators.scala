@@ -319,7 +319,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = false,
-    allDutiesGuaranteeEligibleOpt: Option[Boolean] = None,
+    allDutiesGuaranteeEligibleOpt: Option[Boolean] = Some(false),
     hasConsigneeDetailsInACC14: Boolean = true,
     submitConsigneeDetails: Boolean = true,
     submitContactDetails: Boolean = true,

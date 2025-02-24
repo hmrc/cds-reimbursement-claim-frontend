@@ -600,8 +600,8 @@ final class OverpaymentsSingleJourney private (
       that.answers === this.answers && that.caseNumber === this.caseNumber
     } else false
 
-  override def hashCode(): Int    = answers.hashCode
-  override def toString(): String = s"OverpaymentsSingleJourney($answers,$caseNumber)"
+  override def hashCode(): Int  = answers.hashCode
+  override def toString: String = s"OverpaymentsSingleJourney${Json.prettyPrint(Json.toJson(this))}"
 
   /** Validates the journey and retrieves the output. */
 
