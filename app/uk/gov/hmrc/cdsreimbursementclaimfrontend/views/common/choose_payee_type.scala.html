@@ -60,7 +60,7 @@
               ))
             )),
             name = key,
-            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-payee-type.error.required")))) else None,
+            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-payee-type.error.required")), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText")))) else None,
             items = Seq(
                 RadioItem(
                     value = Some("Consignee"),

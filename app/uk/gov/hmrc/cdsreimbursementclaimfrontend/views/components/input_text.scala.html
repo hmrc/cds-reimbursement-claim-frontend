@@ -68,5 +68,5 @@
     autocomplete = autocomplete,
     spellcheck = spellcheck,
     prefix = prefix,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = HtmlContent(messages(s"$name.${err.message}", err.args*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = HtmlContent(messages(s"$name.${err.message}", err.args*)), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText"))))
 ))

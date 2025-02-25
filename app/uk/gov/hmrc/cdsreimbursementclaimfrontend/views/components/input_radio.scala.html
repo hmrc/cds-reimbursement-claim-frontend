@@ -71,7 +71,7 @@
         content = HtmlContent(messages(hint))
     )},
     items = if(hideError) itemsFirst else itemsFirst.headOption.map(item => item.copy(id = Some(name), attributes = item.attributes + (("data-id",item.id.getOrElse(""))))).fold(Seq.empty[RadioItem])(_ +: itemsFirst.tail.map(item => item.copy(attributes = item.attributes + (("data-id",item.id.getOrElse("")))))),
-    errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else HtmlContent(messages(s"${name}.${err.message}", err.args*)))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = (if (hideError) Empty else HtmlContent(messages(s"${name}.${err.message}", err.args*))), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText"))))
 ))
 
 @if(itemsSecond.nonEmpty){
