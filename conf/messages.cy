@@ -1931,3 +1931,5 @@ we-only-support-gg.p1=Ni allwch gael mynediad at y gwasanaeth hwn drwy ddefnyddi
 we-only-support-gg.signIn=Mewngofnodwch os oes gennych gyfrif eisoes
 we-only-support-gg.signIn.p1=<a href="{0}">Mewngofnodwch</a> gyda’r un Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a ddefnyddiwyd gennych i greu’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.
 we-only-support-gg.title=Rhoi gwybod am Dreth Enillion Cyfalaf ar eiddo yn y DU a’i thalu
+
+govukErrorMessage.visuallyHiddenText = Gwall

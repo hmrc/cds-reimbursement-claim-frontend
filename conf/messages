@@ -1941,3 +1941,4 @@ we-only-support-gg.signIn.p1=<a href="{0}" class="govuk-link">Sign in</a> with t
 we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
 
 common.blank=
+govukErrorMessage.visuallyHiddenText = Error

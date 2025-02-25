@@ -71,5 +71,5 @@
         )
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
-    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(s"${id}.${err.message}", err.args*))))
+    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(s"${id}.${err.message}", err.args*)), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText"))))
 ))

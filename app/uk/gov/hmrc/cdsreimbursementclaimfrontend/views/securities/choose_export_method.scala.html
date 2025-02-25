@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.TemporaryAdmissionMethodOfDisposalSummary
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukCheckboxes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.Checkboxes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
@@ -65,7 +64,7 @@
             name = "choose-export-method[]",
             items = items,
             idPrefix = Some("choose-export-method"),
-            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-export-method.error.required")))) else None
+            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-export-method.error.required")), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText")))) else None
         ))
 
 
