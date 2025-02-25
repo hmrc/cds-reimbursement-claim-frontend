@@ -24,7 +24,8 @@ final case class SecuritiesJourneyModes(
   checkDeclarationDetailsChangeMode: Boolean = false,
   checkClaimDetailsChangeMode: Boolean = false,
   claimFullAmountMode: Boolean = true,
-  enterContactDetailsMode: Boolean = false
+  enterContactDetailsMode: Boolean = false,
+  additionalDetailsPageVisitedMode: Boolean = false
 )
 
 object SecuritiesJourneyModes {

@@ -131,7 +131,7 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "submit valid additional details" in forAll(
-        buildJourneyGen()
+        buildJourneyGen(additionalDetailsVisited = true)
           .map(_.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity))
       ) { journey =>
         inSequence {
