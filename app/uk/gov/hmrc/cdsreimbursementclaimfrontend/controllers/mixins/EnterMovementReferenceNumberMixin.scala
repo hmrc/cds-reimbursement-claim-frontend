@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -73,7 +72,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
       mrn =>
         {
           for
-            maybeAcc14      <- getDeclaration(mrn)
+            maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
             _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
@@ -90,7 +89,6 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
                 )
               )
             } else {
-              logger.error(s"Unable to record $mrn", error.toException)
               (journey, Redirect(problemWithMrnCall(mrn)))
             },
           updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
@@ -111,11 +109,6 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
     }
-
-  private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
-    claimService
-      .getDisplayDeclaration(mrn)
-
 }
 
 object EnterMovementReferenceNumberUtil {

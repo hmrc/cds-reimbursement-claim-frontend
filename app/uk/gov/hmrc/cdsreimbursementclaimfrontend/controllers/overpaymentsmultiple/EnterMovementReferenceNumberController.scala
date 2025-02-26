@@ -143,7 +143,6 @@ class EnterMovementReferenceNumberController @Inject() (
                 } else if error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists" then {
                   (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {
-                  logger.error(s"Unable to record $mrn", error.toException)
                   (journey, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
                 },
               updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, mrn, pageIndex))
