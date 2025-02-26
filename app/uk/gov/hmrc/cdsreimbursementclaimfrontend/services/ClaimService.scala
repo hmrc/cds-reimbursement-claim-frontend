@@ -83,6 +83,7 @@ class DefaultClaimService @Inject() (
             .map(Some(_))
             .leftMap(Error(_))
         } else if response.status === NO_CONTENT then {
+          logger.error(s"Unable to find declaration for $mrn")
           Right(None)
         } else Left(Error(s"call to get declaration details ${response.status}"))
       }
