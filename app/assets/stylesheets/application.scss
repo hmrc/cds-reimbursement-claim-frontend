@@ -80,18 +80,6 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
     }
 }
 
-
-// Fix for non-JS back link
-
-.govuk-back-link {
-    display:none;
-}
-
-.js-enabled .govuk-back-link {
-    display:inline-block;
-}
-
-
 // Fix for hidden legends on small or zoomed viewports
 
 .govuk-fieldset__legend.govuk-visually-hidden {

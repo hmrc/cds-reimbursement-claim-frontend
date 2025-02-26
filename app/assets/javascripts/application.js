@@ -8,6 +8,7 @@ const CDSR = {
     Init: function () {
         // Add back link
         if (CDSR.backLinkAnchor) {
+            CDSR.backLinkAnchor.classList.remove('govuk-!-display-none');
             CDSR.backLinkAnchor.addEventListener('click', CDSR.NavigateBack);
         }
 

@@ -97,7 +97,7 @@
     ),
     pageTitle = Some(viewConfig.pageTitleWithServiceNameAndError(pageTitle.getOrElse(""), messages("service.title"), messages("service.title.error"), hasErrors)),
     isWelshTranslationAvailable = !suppressLanguageToggle && viewConfig.enableLanguageSwitching,
-    backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")))) else None },
+    backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")), classes = "govuk-!-display-none")) else None },
     templateOverrides = TemplateOverrides(
         additionalScriptsBlock = Some(scripts),
         additionalHeadBlock = { if(timeOut && signOutUrl.isDefined) Some(hmrcTimeoutDialog(TimeoutDialog(
