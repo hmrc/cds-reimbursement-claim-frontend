@@ -303,6 +303,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   val completeJourneyGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen()
 
+  def completeJourneyGenWithReasonsForSecurity(reasonsForSecurity: Set[ReasonForSecurity]): Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(reasonsForSecurity = reasonsForSecurity)
+
   val completeJourneyWithoutIPRGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen(
       reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
