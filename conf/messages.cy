@@ -1131,12 +1131,12 @@ enter-export-movement-reference-number.securities.next.error.duplicate-number=Th
 enter-importer-eori-number.caption=Rhif EORI y mewnforiwr
 enter-importer-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-importer-eori-number.error.required=Nodwch rif EORI
-enter-importer-eori-number.help=Gallwch gael y rhif EORI gan y mewnforiwr. Ni fyddwch yn gallu gwneud hawliad heb y rhif hwn.
+enter-importer-eori-number.help=Mae’r MRN rydych wedi’i nodi yn gysylltiedig â rhif EORI gwahanol. Os ydych yn gweithredu ar ran y mewnforiwr, bydd angen i chi nodi ei rif EORI er mwyn parhau â’r hawliad hwn.
 enter-importer-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
 enter-importer-eori-number.input-label=Nodwch rif EORI y mewnforiwr
 enter-importer-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-importer-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
-enter-importer-eori-number.title=Nodwch rif EORI y mewnforiwr
+enter-importer-eori-number.title=Beth yw rhif EORI y mewnforiwr?
 
 enter-inspection-date.rejected-goods.day.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod a mis
