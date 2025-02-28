@@ -156,7 +156,7 @@ class ChooseHowManyMrnsController @Inject() (
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
-                    .map(_ => Redirect(rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show))
+                    .map(_ => Redirect(rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show))
 
                 case Multiple =>
                   (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty
