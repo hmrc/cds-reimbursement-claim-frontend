@@ -1487,7 +1487,8 @@ ordinal-number-mrn.export.9=Y nawfed MRN allforio
 ordinal-number-mrn.export.default=Yr MRN allforio
 
 overpayments.choose-how-many-mrns.details.heading=Beth yw MRN?
-overpayments.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
+overpayments.choose-how-many-mrns.details.p1=Cyfeirnod 18 digid unigryw yw MRN sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio.
+overpayments.choose-how-many-mrns.details.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 overpayments.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 overpayments.choose-how-many-mrns.individual.title=Nodwch un MRN
 overpayments.choose-how-many-mrns.multiple-mrns.heading=Nodi sawl MRN
@@ -1532,6 +1533,8 @@ reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad M
 reimbursement-method.title=Dewiswch ddull ad-dalu
 
 rejected-goods.choose-how-many-mrns.details.heading=Beth yw MRN?
+rejected-goods.choose-how-many-mrns.details.p1=Cyfeirnod 18 digid unigryw yw MRN sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio.
+rejected-goods.choose-how-many-mrns.details.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 rejected-goods.choose-how-many-mrns.details.paragraph=Rhif 18 digid unigryw sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio yw Cyfeirnod Symud (MRN). Gall MRN fod yn gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.<br><br>Gallwch ddod o hyd i’ch rhif EORI yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 rejected-goods.choose-how-many-mrns.error.required=Dewiswch faint o MRNau yr hoffech eu cyflwyno yn yr hawliad hwn
 rejected-goods.choose-how-many-mrns.individual.title=Nodwch un MRN
