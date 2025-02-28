@@ -30,7 +30,7 @@ final case class Eori(value: String) {
 
 object Eori {
 
-  private val validityRegex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
+  private val validityRegex = """^[a-zA-Z]{2}[a-zA-Z0-9]{1,15}$"""
 
   implicit val equality: Eq[Eori] = Eq.fromUniversalEquals[Eori]
 
