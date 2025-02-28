@@ -202,7 +202,7 @@ class ChooseHowManyMrnsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "Redirect to (single route) EnterMovementReferenceNumber page when user chooses Individual" in {
+      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual" in {
 
         val updatedSession = SessionData(RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any))
 
@@ -214,7 +214,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Individual.toString))
-        checkIsRedirect(result, rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show)
+        checkIsRedirect(result, rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
       "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {

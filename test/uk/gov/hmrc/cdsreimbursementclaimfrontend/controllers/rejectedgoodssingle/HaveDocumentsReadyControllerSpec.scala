@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
@@ -32,16 +32,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
-import scala.jdk.CollectionConverters.*
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class HaveDocumentsReadyControllerSpec
     extends PropertyBasedControllerSpec
@@ -49,7 +49,7 @@ class HaveDocumentsReadyControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithJourneyGenerator[RejectedGoodsSingleJourney] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -64,10 +64,10 @@ class HaveDocumentsReadyControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
+  val session: SessionData = SessionData(RejectedGoodsSingleJourney.empty(exampleEori))
+
+  override def beforeEach(): Unit =
+    featureSwitch.enable(Feature.RejectedGoods)
 
   "HaveDocumentsReadyController" when {
 
@@ -81,17 +81,15 @@ class HaveDocumentsReadyControllerSpec
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
         status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
+      "display the page" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(
@@ -103,7 +101,7 @@ class HaveDocumentsReadyControllerSpec
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
+              .map(_.attr("href"))                         shouldBe Some(routes.EnterMovementReferenceNumberController.show.url)
         )
       }
     }

@@ -18,7 +18,8 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -38,17 +39,19 @@
 
     @heading(Html(title), classes="govuk-heading-l")
 
-    @paragraph(Html(messages(s"have-documents-ready.p1")))
+    @paragraph(Html(messages("have-documents-ready.p1")))
 
     @bulletList(
         Seq(
+            Html(messages("have-documents-ready.calculationWorksheet")),
             Html(messages("have-documents-ready.commercialInvoice")),
-            Html(messages("have-documents-ready.exportDeclaration")),
-            Html(messages("have-documents-ready.importOrExportPackingList")),
-            Html(messages("have-documents-ready.substituteOrDiversionEntry")),
-            Html(messages("have-documents-ready.proofOfAuthority"))
+            Html(messages("have-documents-ready.correspondenceTraderAndAgent")),
+            Html(messages("have-documents-ready.importOrExportDeclaration")),
+            Html(messages("have-documents-ready.proofOfAuthority")),
+            Html(messages("have-documents-ready.proofOfExportOrDestruction")),
+            Html(messages("have-documents-ready.proofOfFaultyGoods"))
         )
     )
 
-    @submitButton("button.continue", href = Some(routes.ChooseExportMethodController.show.url))
+    @submitButton("button.continue", href = Some(routes.EnterMovementReferenceNumberController.show.url))
 }
