@@ -1100,12 +1100,13 @@ enter-contact-details.title=Provide the contact details for this claim
 enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.error.maxLength=EORI number must be 17 characters or less
 enter-declarant-eori-number.error.required=Enter an EORI number
-enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
-enter-declarant-eori-number.help-text=The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
-enter-declarant-eori-number.input-label=Enter declarant EORI number
+enter-declarant-eori-number.help.p1=You also need to provide the EORI number used by the declarant - the organisation that submitted the import declaration on behalf of the importer.
+enter-declarant-eori-number.help.p2=You can get this number from the importer. You will not be able to make a claim without it.
+enter-declarant-eori-number.help-text=The first 2 letters are the country code, like GB or XI. This is followed by 1 to 15 numbers or letters, like GB123456123456.
+enter-declarant-eori-number.input-label=Enter the declarant’s EORI number
 enter-declarant-eori-number.invalid=EORI number must only include letters a to z and numbers 0 to 9
 enter-declarant-eori-number.invalid.number=EORI number must only include letters a to z and numbers 0 to 9
-enter-declarant-eori-number.title=Enter the declarant’s EORI number
+enter-declarant-eori-number.title=What’s the declarant’s EORI number?
 
 enter-duplicate-movement-reference-number.error.required=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time

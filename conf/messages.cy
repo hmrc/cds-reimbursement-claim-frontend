@@ -1069,12 +1069,13 @@ enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
 enter-declarant-eori-number.caption=Rhif EORI y datganydd
 enter-declarant-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-declarant-eori-number.error.required=Nodwch rif EORI
-enter-declarant-eori-number.help=Gallwch gael y rhif EORI gan y datganydd. Ni fyddwch yn gallu gwneud hawliad heb y rhif hwn.
+enter-declarant-eori-number.help.p1=Bydd angen i chi hefyd nodi’r rhif EORI a ddefnyddir gan y datganydd ? hynny yw, y sefydliad a wnaeth gyflwyno’r datganiad mewnforio ar ran y mewnforiwr.
+enter-declarant-eori-number.help.p2=Bydd y rhif hwn ar gael gan y mewnforiwr. Ni fyddwch yn gallu gwneud hawliad hebddo.
 enter-declarant-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
-enter-declarant-eori-number.input-label=Nodwch rif EORI yr datganydd
+enter-declarant-eori-number.input-label=Nodwch rif EORI y datganydd
 enter-declarant-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-declarant-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
-enter-declarant-eori-number.title=Nodwch rif EORI y datganydd
+enter-declarant-eori-number.title=Beth yw rhif EORI y datganydd?
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
