@@ -125,7 +125,6 @@ check-claimant-details.contact.details=Contact details
 check-claimant-details.inset-text=Contact details are used only for this claim.
 check-claimant-details.title=Confirm contact details for this claim
 
-check-declaration-details.acceptance-date-label=Date duty to be collected
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 check-declaration-details.bta-due-date-label=Date security deposit made
 check-declaration-details.declarant-address-label=Declarant address
@@ -292,7 +291,6 @@ check-your-answers.contact-information.contact-address=Contact address
 check-your-answers.contact-information.contact-details=Contact details
 check-your-answers.contact-information.h2=Contact details for this claim
 check-your-answers.declarant-type.label=Declarant Type
-check-your-answers.declaration-details.acceptance-date-label=Date duty to be collected
 check-your-answers.declaration-details.bta-due-date-label=Date security deposit made
 check-your-answers.declaration-details.declarant-address-label=Declarant address
 check-your-answers.declaration-details.declarant-name-label=Declarant name

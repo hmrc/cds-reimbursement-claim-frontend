@@ -55,14 +55,6 @@ object SecuritiesCdsDisplayDeclarationClaimDetailsSummary {
         )
       ),
       DateUtils
-        .displayFormat(declaration.displayResponseDetail.acceptanceDate)
-        .map(formattedDate =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.acceptance-date-label"))),
-            value = Value(Text(toDisplayDate(formattedDate)))
-          )
-        ),
-      DateUtils
         .displayFormat(declaration.displayResponseDetail.btaDueDate)
         .map(formattedDate =>
           SummaryListRow(
