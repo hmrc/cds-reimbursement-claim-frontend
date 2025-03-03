@@ -42,9 +42,10 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), classes = "govuk-heading-l")
 
-        @paragraph(Html(messages(s"enter-declarant-eori-number.help")), Some("govuk-body govuk-!-margin-bottom-4"))
+        @paragraph(Html(messages(s"enter-declarant-eori-number.help.p1")))
+        @paragraph(Html(messages(s"enter-declarant-eori-number.help.p2")), Some("govuk-body govuk-!-margin-bottom-4"))
 
         @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
@@ -55,7 +56,8 @@
                 label = s"enter-declarant-eori-number.input-label",
                 isPageHeading = false,
                 hint = Some(s"enter-declarant-eori-number.help-text"),
-                classes = Some("govuk-input--width-20")
+                classes = Some("govuk-input--width-20"),
+                labelClasses = Some("govuk-!-font-weight-bold")
             )
 
             @submitButton("button.continue")
