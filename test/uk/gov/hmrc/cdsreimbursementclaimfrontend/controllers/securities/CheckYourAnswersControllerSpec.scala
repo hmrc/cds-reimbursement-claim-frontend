@@ -209,9 +209,6 @@ class CheckYourAnswersControllerSpec
         "Reason for security deposit"                -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         ),
-        "Date duty to be collected"                  -> journey.answers.displayDeclaration
-          .map(_.displayResponseDetail.acceptanceDate)
-          .flatMap(DateUtils.displayFormat),
         "Date security deposit made"                 -> journey.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat),

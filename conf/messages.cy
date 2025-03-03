@@ -125,7 +125,6 @@ check-claimant-details.contact.details=Manylion cyswllt
 check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
 check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
 
-check-declaration-details.acceptance-date-label=Dyddiad casglu’r tollau
 check-declaration-details.banner.empty-securities-selection=Mae’n rhaid i chi ddewis o leiaf un sicrwydd er mwyn symud ymlaen gyda’r hawliad hwn.
 check-declaration-details.bta-due-date-label=Dyddiad gwneud y blaendal sicrwydd
 check-declaration-details.declarant-address-label=Cyfeiriad y datganydd
@@ -291,7 +290,6 @@ check-your-answers.contact-information.contact-address=Cyfeiriad cyswllt
 check-your-answers.contact-information.contact-details=Manylion cyswllt
 check-your-answers.contact-information.h2=Gwybodaeth gyswllt ar gyfer yr hawliad hwn
 check-your-answers.declarant-type.label=Mathau o Ddatganydd
-check-your-answers.declaration-details.acceptance-date-label=Dyddiad casglu’r tollau
 check-your-answers.declaration-details.bta-due-date-label=Dyddiad gwneud y blaendal sicrwydd
 check-your-answers.declaration-details.declarant-address-label=Cyfeiriad y datganydd
 check-your-answers.declaration-details.declarant-name-label=Enw’r datganydd
