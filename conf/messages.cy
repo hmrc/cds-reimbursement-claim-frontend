@@ -438,6 +438,9 @@ have-documents-ready.substituteOrDiversionEntry=datganiad amgen neu ddargyfeirio
 have-documents-ready.commercialInvoice=anfoneb fasnachol
 have-documents-ready.exportDeclaration=datganiad allforio
 have-documents-ready.importOrExportPackingList=rhestr pacio mewnforio neu allforio
+have-documents-ready.calculationWorksheet=taflen waith cyfrifo
+have-documents-ready.proofOfExportOrDestruction=tystiolaeth o allforio neu ddinistrio
+have-documents-ready.proofOfFaultyGoods=tystiolaeth bod y nwyddau’n ddiffygiol neu nid beth y gwnaethoch ei archebu
 
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau

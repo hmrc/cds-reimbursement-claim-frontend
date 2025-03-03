@@ -18,7 +18,7 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -52,5 +52,5 @@
         )
     )
 
-    @submitButton("button.continue", href = Some(routes.EnterMovementReferenceNumberController.show.url))
+    @submitButton("button.continue", href = Some(routes.EnterMovementReferenceNumberController.showFirst().url))
 }

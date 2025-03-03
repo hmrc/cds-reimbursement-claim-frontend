@@ -1,3 +1,5 @@
+GET          /rejected-goods/multiple/have-your-documents-ready                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.HaveDocumentsReadyController.show
+
 GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showFirst()
 GET          /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show(index: Int)
 POST         /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submit(index: Int)

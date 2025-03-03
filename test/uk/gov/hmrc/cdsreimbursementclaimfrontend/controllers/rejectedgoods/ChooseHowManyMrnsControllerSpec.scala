@@ -217,7 +217,7 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (multiple route) EnterMovementReferenceNumber page when user chooses Multiple" in {
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple" in {
 
         val updatedSession = SessionData(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any))
 
@@ -229,7 +229,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Multiple.toString))
-        checkIsRedirect(result, rejectedGoodsMultipleRoutes.EnterMovementReferenceNumberController.showFirst())
+        checkIsRedirect(result, rejectedGoodsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
       "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
