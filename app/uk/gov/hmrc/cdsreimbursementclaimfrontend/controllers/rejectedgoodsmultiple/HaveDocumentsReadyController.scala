@@ -37,7 +37,4 @@ class HaveDocumentsReadyController @Inject() (
     actionReadJourney { implicit request => _ =>
       Ok(haveDocumentsReadyPage()).asFuture
     }
-
-  final val start: Action[AnyContent] =
-    Action(Redirect(routes.HaveDocumentsReadyController.show))
 }
