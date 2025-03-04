@@ -18,7 +18,7 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
@@ -26,7 +26,6 @@
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading
 )
@@ -45,19 +44,17 @@
 
     @subHeading(Html(messages("have-documents-ready.title")), classes = "govuk-heading-m")
 
-    @insetText(content = HtmlContent(messages("have-documents-ready.overpayments.p1")))
-
-    @paragraph(Html(messages("have-documents-ready.overpayments.p2")))
+    @paragraph(Html(messages("have-documents-ready.p1")))
 
     @bulletList(
         Seq(
-            Html(messages("have-documents-ready.airWaybill")),
-            Html(messages("have-documents-ready.billOfLanding")),
+            Html(messages("have-documents-ready.calculationWorksheet")),
+            Html(messages("have-documents-ready.commercialInvoice")),
             Html(messages("have-documents-ready.correspondenceTraderAndAgent")),
             Html(messages("have-documents-ready.importOrExportDeclaration")),
-            Html(messages("have-documents-ready.packingList")),
             Html(messages("have-documents-ready.proofOfAuthority")),
-            Html(messages("have-documents-ready.substituteOrDiversionEntry"))
+            Html(messages("have-documents-ready.proofOfExportOrDestruction")),
+            Html(messages("have-documents-ready.proofOfFaultyGoods"))
         )
     )
 

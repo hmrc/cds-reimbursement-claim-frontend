@@ -421,8 +421,8 @@ choose-claim-type.error.unknown=Dewiswch fath o gais
 choose-claim-type.view-upload-inset = Gallwch hefyd <a class="govuk-link" rel="noreferrer noopener" href={0}>wirio statws hawliad presennol</a>.
 
 have-documents-ready.title=Sicrhewch fod eich dogfennau ategol yn barod
-have-documents-ready.overpayments.scheduled.title=Ffeiliau y bydd eu hangen arnoch ar gyfer yr hawliad hwn
-have-documents-ready.overpayments.scheduled.p1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl Gyfeirnodau Symud (MRNs) yr ydych am eu cynnwys yn yr hawliad hwn.
+have-documents-ready.scheduled.title=Ffeiliau y bydd eu hangen arnoch ar gyfer yr hawliad hwn
+have-documents-ready.scheduled.p1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl Gyfeirnodau Symud (MRNs) yr ydych am eu cynnwys yn yr hawliad hwn.
 have-documents-ready.overpayments.p1=Bydd yn rhaid i chi uwchlwytho anfoneb fasnachol yn ddiweddarach yn yr hawliad hwn.
 have-documents-ready.overpayments.p2=Yn ogystal, gallwch uwchlwytho dogfennau eraill i ategu’ch cais, fel:
 have-documents-ready.p1=Bydd yn rhaid i chi uwchlwytho dogfennau ategol yn ddiweddarach yn yr hawliad hwn, fel:

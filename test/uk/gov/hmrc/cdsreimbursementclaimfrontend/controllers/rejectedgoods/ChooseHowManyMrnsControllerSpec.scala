@@ -243,7 +243,7 @@ class ChooseHowManyMrnsControllerSpec
         }
 
         val result = performAction(Seq(controller.dataKey -> Scheduled.toString))
-        checkIsRedirect(result, rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show)
+        checkIsRedirect(result, rejectedGoodsScheduledRoutes.HaveDocumentsReadyController.show)
       }
 
       "Show error message when no data selected" in {
