@@ -248,22 +248,6 @@ class CheckBankDetailsControllerSpec
         )
       }
 
-      "redirect to UploadFilesController when needsDocumentTypeSelection is false" ignore {
-        val journey = completeJourneyOnlyIPRGen.sample
-          .getOrElse(fail("Journey building has failed."))
-          .submitCheckYourAnswersChangeMode(false)
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-        }
-
-        checkIsRedirect(
-          performAction("bank-details" -> "true"),
-          routes.UploadFilesController.show
-        )
-      }
-
       "return status 500 when submitting empty Yes/No answer without bank details" in {
         val journey = completeJourneyGen.sample
           .getOrElse(fail("Journey building has failed."))
