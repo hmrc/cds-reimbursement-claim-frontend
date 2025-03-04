@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -49,7 +49,7 @@ class HaveDocumentsReadyControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[OverpaymentsScheduledJourneyBaseController] {
+    with TestWithJourneyGenerator[RejectedGoodsScheduledJourneyBaseController] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -64,10 +64,10 @@ class HaveDocumentsReadyControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(OverpaymentsScheduledJourney.empty(exampleEori))
+  val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
   override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
+    featureSwitch.enable(Feature.RejectedGoods)
 
   "HaveDocumentsReadyController" when {
 
@@ -81,8 +81,8 @@ class HaveDocumentsReadyControllerSpec
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
         status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
       }
 

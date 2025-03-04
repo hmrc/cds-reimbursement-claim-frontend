@@ -180,7 +180,7 @@ class ChooseHowManyMrnsController @Inject() (
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
-                    .map(_ => Redirect(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show))
+                    .map(_ => Redirect(rejectedGoodsScheduledRoutes.HaveDocumentsReadyController.show))
 
               }
             )

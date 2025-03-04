@@ -452,8 +452,8 @@ choose-claim-type.securities.title=Claim back a security deposit
 choose-claim-type.title=Start a new claim
 
 have-documents-ready.title=Have your supporting documents ready
-have-documents-ready.overpayments.scheduled.title=Files you need for this claim
-have-documents-ready.overpayments.scheduled.p1=You need to create and upload a list of all the Movement Reference Numbers (MRNs) you want to include in this claim.
+have-documents-ready.scheduled.title=Files you need for this claim
+have-documents-ready.scheduled.p1=You need to create and upload a list of all the Movement Reference Numbers (MRNs) you want to include in this claim.
 have-documents-ready.overpayments.p1=You’ll have to upload a commercial invoice later in this claim.
 have-documents-ready.overpayments.p2=You can also upload other documents to support your claim, such as:
 have-documents-ready.p1=You’ll have to upload supporting documents later in this claim, such as:
