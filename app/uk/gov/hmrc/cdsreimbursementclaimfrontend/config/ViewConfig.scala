@@ -152,6 +152,7 @@ class ViewConfig @Inject() (
   val researchUrl: String     = getString("external-url.research")
 
   val legacyC285FormUrl: String = getString("external-url.c285-form")
+  val ce1179FormUrl: String     = getString("external-url.ce1179-form")
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 

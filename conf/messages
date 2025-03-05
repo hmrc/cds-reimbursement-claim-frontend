@@ -1422,7 +1422,9 @@ problem-with-declaration.continue.yes=Yes
 problem-with-declaration.error.required=Select yes to continue with this claim without these tax-type codes
 problem-with-declaration.paragraph.1=The MRN {0} includes a tax-type code we do not support in our service.
 problem-with-declaration.paragraph.2=Please use the <a href="{0}" class="govuk-link" rel="noreferrer noopener">form C285</a> for MRNs containing these tax-type codes.
-problem-with-declaration.paragraph.3=Please provide <a href="{0}" class="govuk-link" rel="noreferrer noopener">another MRN</a> or use <a href="{1}" class="govuk-link" rel="noreferrer noopener">form C285</a> for MRNs containing these tax-type codes.
+problem-with-declaration.paragraph.3=Please provide <a href="{0}" class="govuk-link" rel="noreferrer noopener">another MRN</a> or use {1} for MRNs containing these tax-type codes.
+problem-with-declaration.c285-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">form C285</a>
+problem-with-declaration.ce1179-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">form C&E1179</a>
 problem-with-declaration.title=Sorry, there is a problem with this Movement Reference Number (MRN)
 
 problem-with-mrn.help=Please provide another <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> or you can get help by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">contacting HMRC (opens in new tab)</a>.
