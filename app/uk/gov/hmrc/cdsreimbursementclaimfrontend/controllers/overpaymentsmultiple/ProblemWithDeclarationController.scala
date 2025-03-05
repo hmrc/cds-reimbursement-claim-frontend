@@ -70,7 +70,8 @@ class ProblemWithDeclarationController @Inject() (
           Ok(
             problemWithDeclarationDeadEndPage(
               declaration.getMRN,
-              routes.EnterMovementReferenceNumberController.show(pageIndex)
+              routes.EnterMovementReferenceNumberController.show(pageIndex),
+              getFormMessageKeyAndUrl(journey)
             )
           )
         case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>

@@ -22,6 +22,11 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FormMessageKeyAndUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
@@ -34,12 +39,26 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
   val enterAnotherMrnAction: Call
   val checkDeclarationDetailsAction: Call
 
+  def getFormMessageKeyAndUrl(journey: JourneyBase): FormMessageKeyAndUrl =
+    journey match {
+      case j @ (_: OverpaymentsSingleJourney | _: OverpaymentsMultipleJourney | _: OverpaymentsScheduledJourney) =>
+        FormMessageKeyAndUrl("problem-with-declaration.c285-form", viewConfig.legacyC285FormUrl)
+      case _                                                                                                     =>
+        FormMessageKeyAndUrl("problem-with-declaration.ce1179-form", viewConfig.ce1179FormUrl)
+    }
+
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
       (journey.getLeadDisplayDeclaration match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
-          Ok(problemWithDeclarationDeadEndPage(declaration.getMRN, enterAnotherMrnAction))
+          Ok(
+            problemWithDeclarationDeadEndPage(
+              declaration.getMRN,
+              enterAnotherMrnAction,
+              getFormMessageKeyAndUrl(journey)
+            )
+          )
         case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>
           Ok(problemWithDeclarationCanContinuePage(form, declaration.getMRN, postAction))
         case Some(_)                                                          =>

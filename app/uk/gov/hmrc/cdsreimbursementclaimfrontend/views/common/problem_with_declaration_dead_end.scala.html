@@ -19,6 +19,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FormMessageKeyAndUrl
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -26,13 +27,15 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(mrn: MRN, enterAnotherMrnAction: Call)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
+@(mrn: MRN, enterAnotherMrnAction: Call, formMessageKeyAndUrl: FormMessageKeyAndUrl)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"problem-with-declaration.title")}
+@manualForm = @{
+    messages(formMessageKeyAndUrl.messageKey, formMessageKeyAndUrl.url)
+}
 
 @layout(pageTitle = Some(s"$title")) {
-
     @heading(Html(title))
     @paragraph(Html(messages(s"problem-with-declaration.paragraph.1", mrn.value)))
-    @paragraph(Html(messages(s"problem-with-declaration.paragraph.3", enterAnotherMrnAction.url, viewConfig.legacyC285FormUrl)))
+    @paragraph(Html(messages(s"problem-with-declaration.paragraph.3", enterAnotherMrnAction.url, manualForm)))
 }
