@@ -41,6 +41,7 @@ object Feature extends EnumerationFormat[Feature] {
   case object RedirectToGovUkLandingPage extends Feature { val name = "redirect-to-gov-uk-landing-page" }
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
   case object BasisOfClaimQuota extends Feature { val name = "basis-of-claim.quota.enabled" }
+  case object NewEoriFormat extends Feature { val name = "new-eori-format" }
 
   def of(name: String): Option[Feature] =
     values.find(_.name === name)
@@ -59,7 +60,8 @@ object Feature extends EnumerationFormat[Feature] {
       SubsidiesForOverpayments,
       RedirectToGovUkLandingPage,
       SkipDocumentType,
-      BasisOfClaimQuota
+      BasisOfClaimQuota,
+      NewEoriFormat
     )
 }
 

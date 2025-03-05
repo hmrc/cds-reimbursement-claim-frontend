@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import app.RoutesPrefix.prefix
 
 object IdGen {
 
@@ -52,6 +53,42 @@ object IdGen {
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"GB${n.mkString}")
     yield Eori(s)
+
+  val eoriPrefixes = Seq(
+    "BG",
+    "CZ",
+    "DK",
+    "DE",
+    "EE",
+    "IE",
+    "EL",
+    "ES",
+    "FR",
+    "HR",
+    "IT",
+    "CY",
+    "LV",
+    "LT",
+    "LU",
+    "HU",
+    "MT",
+    "NL",
+    "AT",
+    "PL",
+    "PT",
+    "RO",
+    "SI",
+    "SK",
+    "FI",
+    "SE",
+    "UK"
+  )
+
+  lazy val genNewEoriFormat: Gen[Eori] =
+    for
+      prefix <- Gen.oneOf(eoriPrefixes)
+      suffix <- genStringWithMaxSizeOfN(15)
+    yield Eori(prefix + suffix)
 
   lazy val genXiEori: Gen[Eori] =
     for

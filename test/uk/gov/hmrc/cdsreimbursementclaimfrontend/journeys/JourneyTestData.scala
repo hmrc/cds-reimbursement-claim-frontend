@@ -92,6 +92,8 @@ trait JourneyTestData {
   final val anotherExampleEori: Eori    = IdGen.genEori.sample.get
   final val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
 
+  final val exampleEoriNewFormat = IdGen.genNewEoriFormat.sample.get
+
   final val exampleXIEori: Eori           = IdGen.genXiEori.sample.get
   final val anotherExampleXIEori: Eori    = IdGen.genXiEori.sample.get
   final val yetAnotherExampleXIEori: Eori = IdGen.genXiEori.sample.get

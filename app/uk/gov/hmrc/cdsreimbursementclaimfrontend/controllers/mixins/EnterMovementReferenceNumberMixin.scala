@@ -26,10 +26,13 @@ import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -39,6 +42,8 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
 
   def claimService: ClaimService
+  def featureSwitchService: FeatureSwitchService
+
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
@@ -73,6 +78,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
         {
           for
             maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
+            -               <- EnterMovementReferenceNumberUtil.validateEoriFormats(journey, maybeAcc14, featureSwitchService)
             _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
@@ -125,4 +131,40 @@ object EnterMovementReferenceNumberUtil {
           case Some(error) => EitherT.leftT(Error(error))
         }
     }
+
+  def validateEoriFormats[Journey <: CommonJourneyProperties](
+    journey: Journey,
+    maybeAcc14: Option[DisplayDeclaration],
+    featureSwitchService: FeatureSwitchService
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): EitherT[Future, Error, Unit] =
+    if featureSwitchService.isDisabled(Feature.NewEoriFormat)
+    then {
+      if journey.answers.userEoriNumber.doesNotMatchOldFormat
+      then
+        EitherT.leftT(
+          Error(
+            s"user's eori got new format (${journey.answers.userEoriNumber}) but the new-eori-format feature is off"
+          )
+        )
+      else
+        maybeAcc14 match {
+          case None              => EitherT.rightT(())
+          case Some(declaration) =>
+            if declaration.getDeclarantEori.doesNotMatchOldFormat
+            then
+              EitherT.leftT(
+                Error(
+                  s"declarant eori got new format (${declaration.getDeclarantEori.value}) but the new-eori-format feature is off"
+                )
+              )
+            else if declaration.getConsigneeEori.exists(_.doesNotMatchOldFormat)
+            then
+              EitherT.leftT(
+                Error(
+                  s"consignee eori got new format (${declaration.getConsigneeEori.get.value}) format but the new-eori-format feature is off"
+                )
+              )
+            else EitherT.rightT(())
+        }
+    } else EitherT.rightT(())
 }
