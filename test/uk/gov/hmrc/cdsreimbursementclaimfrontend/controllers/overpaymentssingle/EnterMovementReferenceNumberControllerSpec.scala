@@ -312,7 +312,6 @@ class EnterMovementReferenceNumberControllerSpec
         val declarantXiEori = genXiEori.sample.get
         val consigneeXiEori = genXiEori.sample.get
 
-        val journey            = session.overpaymentsSingleJourney.getOrElse(fail("No overpayments journey"))
         val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
@@ -324,20 +323,12 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedDisplayDeclaration     =
           displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val updatedJourney =
-          journey
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-            .map(_.submitUserXiEori(UserXiEori(consigneeXiEori.value)))
-            .getOrFail
-
-        val updatedSession = SessionData(updatedJourney)
-
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
           mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
-          mockStoreSession(updatedSession)(Right(()))
+          mockStoreSessions()
         }
 
         checkIsRedirect(
@@ -351,7 +342,6 @@ class EnterMovementReferenceNumberControllerSpec
         val declarantEori   = genEori.sample.get
         val consigneeXiEori = genXiEori.sample.get
 
-        val journey            = session.overpaymentsSingleJourney.getOrElse(fail("No overpayments journey"))
         val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
@@ -363,20 +353,12 @@ class EnterMovementReferenceNumberControllerSpec
         val updatedDisplayDeclaration     =
           displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val updatedJourney =
-          journey
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-            .getOrFail
-
-        val updatedSession = SessionData(updatedJourney)
-
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
           mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-          mockStoreSession(updatedSession)(Right(()))
+          mockStoreSessions()
         }
 
         checkIsRedirect(

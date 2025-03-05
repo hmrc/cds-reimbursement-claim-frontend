@@ -82,4 +82,11 @@ trait SessionSupport { this: MockFactory =>
       .expects(*, *)
       .noMoreThanOnce()
       .returning(Future.successful(result))
+
+  def mockStoreSessions(): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
+    (mockSessionCache
+      .store(_: SessionData)(_: HeaderCarrier))
+      .expects(*, *)
+      .atLeastOnce()
+      .returning(Future.successful(Right(())))
 }
