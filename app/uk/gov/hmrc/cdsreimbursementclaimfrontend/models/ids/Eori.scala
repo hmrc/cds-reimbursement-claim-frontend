@@ -19,20 +19,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 import cats.Eq
 import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori.validityRegex
 
-final case class Eori(value: String) {
-
-  def isValid: Boolean = value `matches` validityRegex
-
-  def isXiEori: Boolean = value.toUpperCase(java.util.Locale.ENGLISH).startsWith("XI")
-}
+final case class Eori(value: String)
 
 object Eori {
 
-  private val validityRegex = """^[a-zA-Z]{2}[a-zA-Z0-9]{1,15}$"""
+  val validityRegex    = """^[a-zA-Z]{2}[a-zA-Z0-9]{1,15}$"""
+  val oldValidityRegex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
 
-  implicit val equality: Eq[Eori] = Eq.fromUniversalEquals[Eori]
-
+  implicit val equality: Eq[Eori]   = Eq.fromUniversalEquals[Eori]
   implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+
+  extension (eori: Eori) {
+    def isValid: Boolean               = eori.value.matches(validityRegex)
+    def doesNotMatchOldFormat: Boolean = !eori.value.matches(oldValidityRegex)
+
+    def isXiEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("XI")
+    def isGBEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("GB")
+  }
 }

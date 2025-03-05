@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimQuota
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim

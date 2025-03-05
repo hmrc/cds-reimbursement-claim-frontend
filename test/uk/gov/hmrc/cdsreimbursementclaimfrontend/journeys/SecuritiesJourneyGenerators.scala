@@ -425,7 +425,6 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           )
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
-      additionalDetailsPageVisited = additionalDetailsVisited
     yield {
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
@@ -483,7 +482,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
             checkDeclarationDetailsChangeMode = false,
             checkClaimDetailsChangeMode = true,
             checkYourAnswersChangeMode = true,
-            additionalDetailsPageVisitedMode = additionalDetailsPageVisited
+            additionalDetailsPageVisitedMode = additionalDetailsVisited
           )
         )
 
