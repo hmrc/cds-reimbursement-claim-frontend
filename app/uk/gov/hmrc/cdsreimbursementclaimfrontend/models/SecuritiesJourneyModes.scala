@@ -24,7 +24,6 @@ final case class SecuritiesJourneyModes(
   checkDeclarationDetailsChangeMode: Boolean = false,
   checkClaimDetailsChangeMode: Boolean = false,
   claimFullAmountMode: Boolean = true,
-  enterContactDetailsMode: Boolean = false,
   additionalDetailsPageVisitedMode: Boolean = false
 )
 

@@ -147,16 +147,11 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockStoreSession(
-            session.copy(
-              overpaymentsSingleJourney = session.overpaymentsSingleJourney.map(_.withEnterContactDetailsMode(true))
-            )
-          )(Right(()))
         }
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.EnterContactDetailsController.show
+          routes.BasisForClaimController.show
         )
       }
 
