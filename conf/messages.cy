@@ -1271,15 +1271,18 @@ enter-new-dan.error.required=Nodwch rif cyfrif gohirio
 enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
 
 
-enter-new-eori-number.title=Nodwch y rhif EORI newydd
+enter-new-eori-number.title=Beth yw’r rhif EORI cywir?
+enter-new-eori-number.questionText=Nodwch y rhif EORI newydd
 enter-new-eori-number.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r rhif EORI hwn.
-enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 12 neu 15 digid, megis GB123456123456.
+enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 1 i 15 rhif neu lythyren, er enghraifft GB123456123456.
 
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
 enter-new-eori-number.error.required=Nodwch rif EORI
 enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
 enter-new-eori-number.doesNotExist=Nid yw’r rhif EORI a nodwyd i’w weld ar y system.
+enter-new-eori-number.mustStartWithGB=Mae’n rhaid i’r rhif EORI hwn dechrau gyda GB
+enter-new-eori-number.mustNotStartWithGB=Mae’n rhaid i’r rhif EORI hwn dechrau ag XI neu god gwlad yn yr UE
 
 enter-rejected-goods-details.rejected-goods.error.maxLength=Mae’n rhaid i fanylion y nwyddau wedi’u gwrthod fod yn 500 o gymeriadau neu lai
 enter-rejected-goods-details.rejected-goods.error.required=Nodwch fanylion y nwyddau wedi’u gwrthod

@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
@@ -377,10 +378,11 @@ object OverpaymentsMultipleJourneyGenerators extends JourneyGenerators with Jour
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty,
+    currentUserEoriNumber: Gen[Eori] = IdGen.genEori
   ): Gen[OverpaymentsMultipleJourney.Answers] =
     for
-      userEoriNumber   <- IdGen.genEori
+      userEoriNumber   <- currentUserEoriNumber
       mrns             <- Gen.listOfN(3, IdGen.genMRN)
       declarantEORI    <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI    <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori

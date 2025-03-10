@@ -36,5 +36,37 @@ object Eori {
 
     def isXiEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("XI")
     def isGBEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("GB")
+    def isEuEori: Boolean =
+      euEoriPrefixes.contains(prefix => eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith(prefix))
   }
+
+  val euEoriPrefixes = Seq(
+    "AT",
+    "BE",
+    "BG",
+    "HR",
+    "CY",
+    "CZ",
+    "DK",
+    "EE",
+    "FI",
+    "FR",
+    "DE",
+    "GR",
+    "HU",
+    "IE",
+    "IT",
+    "LV",
+    "LT",
+    "LU",
+    "MT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SK",
+    "SI",
+    "ES",
+    "SE"
+  )
 }

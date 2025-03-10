@@ -44,11 +44,20 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
   def getNewEoriAnswer(journey: Journey): Option[Eori] =
     journey.answers.newEori
 
+  def getImporterEori(journey: Journey) =
+    journey.getConsigneeEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
+
+  private def newEoriStartWithValidCountryCode(newEori: Eori, importerEori: Eori): Option[String] = importerEori match
+    case importEori if importEori.isGBEori && !newEori.isGBEori                        => Some("mustStartWithGB")
+    case importEori if (importEori.isXiEori | importEori.isEuEori) && newEori.isGBEori => Some("mustNotStartWithGB")
+    case _                                                                             => None
+
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
       Ok(
         newEoriPage(
-          eoriNumberForm(formKey).withDefault(getNewEoriAnswer(journey)),
+          eoriNumberForm(formKey)
+            .withDefault(getNewEoriAnswer(journey)),
           postAction
         )
       )
@@ -73,10 +82,8 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
               )
             ),
           eori =>
-            eoriDetailsConnector.getEoriDetails(eori).flatMap {
-              case Some(_) =>
-                Future.successful((modifyJourney(journey, eori), Redirect(continueAction)))
-              case None    =>
+            newEoriStartWithValidCountryCode(eori, getImporterEori(journey)) match {
+              case Some(errorMessageKey) =>
                 Future.successful(
                   (
                     journey,
@@ -84,12 +91,31 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
                       newEoriPage(
                         eoriNumberForm(formKey)
                           .fill(eori)
-                          .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                          .withError(FormError("enter-new-eori-number", errorMessageKey)),
                         postAction
                       )
                     )
                   )
                 )
+              case None                  =>
+                eoriDetailsConnector.getEoriDetails(eori).flatMap {
+                  case Some(_) =>
+                    Future.successful((modifyJourney(journey, eori), Redirect(continueAction)))
+                  case None    =>
+                    Future.successful(
+                      (
+                        journey,
+                        BadRequest(
+                          newEoriPage(
+                            eoriNumberForm(formKey)
+                              .fill(eori)
+                              .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                            postAction
+                          )
+                        )
+                      )
+                    )
+                }
             }
         )
     }
