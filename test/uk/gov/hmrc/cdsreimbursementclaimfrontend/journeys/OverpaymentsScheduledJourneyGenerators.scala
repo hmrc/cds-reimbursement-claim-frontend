@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
@@ -323,10 +324,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
     submitContactDetails: Boolean = true,
     submitContactAddress: Boolean = true,
     taxCodes: Seq[TaxCode] = TaxCodes.all,
-    forcedTaxCodes: Seq[TaxCode] = Seq.empty
+    forcedTaxCodes: Seq[TaxCode] = Seq.empty,
+    currentUserEoriNumber: Gen[Eori] = IdGen.genEori
   ): Gen[OverpaymentsScheduledJourney.Answers] =
     for
-      userEoriNumber   <- IdGen.genEori
+      userEoriNumber   <- currentUserEoriNumber
       mrn              <- IdGen.genMRN
       declarantEORI    <- if acc14DeclarantMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       consigneeEORI    <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori

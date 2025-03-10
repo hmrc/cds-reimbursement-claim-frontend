@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -165,6 +166,50 @@ class EnterNewEoriNumberControllerSpec
           },
           expectedStatus = BAD_REQUEST
         )
+      }
+
+      "submit a valid Eori format but new eori does not start with GB" in forAll(
+        journeyGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
+      ) { journey =>
+        val eori = Eori("FR123456123456")
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> eori.value),
+          messageFromMessageKey("enter-new-eori-number.title"),
+          doc => {
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey("enter-new-eori-number.mustStartWithGB")
+            doc.select("#enter-new-eori-number").`val`() shouldBe eori.value
+          },
+          expectedStatus = BAD_REQUEST
+        )
+
+      }
+
+      "submit a valid Eori format, importer has XI eori but new eori starts with GB" in forAll(
+        buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(currentUserEoriNumber = IdGen.genXiEori)).flatMap(j =>
+          j.submitBasisOfClaim(IncorrectEoriAndDan)
+        )
+      ) { journey =>
+        val eori = Eori("GB123456123456")
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> eori.value),
+          messageFromMessageKey("enter-new-eori-number.title"),
+          doc => {
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey("enter-new-eori-number.mustNotStartWithGB")
+            doc.select("#enter-new-eori-number").`val`() shouldBe eori.value
+          },
+          expectedStatus = BAD_REQUEST
+        )
+
       }
 
       "submit a valid Eori format but eori does not exist" in forAll(
