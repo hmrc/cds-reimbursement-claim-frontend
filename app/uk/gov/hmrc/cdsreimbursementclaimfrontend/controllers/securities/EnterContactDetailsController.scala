@@ -49,7 +49,7 @@ class EnterContactDetailsController @Inject() (
     routes.EnterContactDetailsController.submit
 
   final override val continueRoute: Call =
-    routes.CheckClaimantDetailsController.show // change to redirectToALF when CheckDeclarationDetails page is removed
+    routes.CheckClaimantDetailsController.show // change to redirectToALF when CheckClaimantDetails page is removed
 
   final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
     journey.submitContactDetails(contactDetails)
