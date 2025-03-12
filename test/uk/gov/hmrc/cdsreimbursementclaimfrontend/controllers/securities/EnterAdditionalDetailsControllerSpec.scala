@@ -35,7 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -131,8 +134,15 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "submit valid additional details" in forAll(
-        buildJourneyGen(additionalDetailsVisited = true)
-          .map(_.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity))
+        buildJourneyGen(
+          additionalDetailsVisited = true,
+          reasonsForSecurity = Set(
+            genReasonForSecurity
+              .suchThat(rfs => rfs != ReasonForSecurity.InwardProcessingRelief)
+              .sample
+              .getOrElse(EndUseRelief)
+          )
+        ).map(_.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity))
       ) { journey =>
         inSequence {
           mockAuthWithDefaultRetrievals()
