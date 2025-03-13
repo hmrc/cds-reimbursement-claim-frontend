@@ -226,7 +226,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                 )
                               else
                                 (
-                                  updatedJourney.withEnterContactDetailsMode(true),
+                                  updatedJourney,
                                   Redirect(routes.EnterContactDetailsController.show)
                                 )
                           }

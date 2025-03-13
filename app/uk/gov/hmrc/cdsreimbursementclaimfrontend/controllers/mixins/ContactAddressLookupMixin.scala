@@ -31,22 +31,20 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
 
   def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey
 
-  def modifyJourney(journey: Journey, enterContactDetailsMode: Boolean): Journey
-
   def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
     val (maybeContactDetails, maybeAddressDetails) = (journey.answers.contactDetails, journey.answers.contactAddress)
     (maybeContactDetails, maybeAddressDetails) match {
       case (Some(cd), Some(ca)) =>
-        (modifyJourney(journey, enterContactDetailsMode = false), Ok(viewTemplate(cd)(ca)(request)))
+        (journey, Ok(viewTemplate(cd)(ca)(request)))
       case (Some(cd), None)     =>
-        (modifyJourney(journey, enterContactDetailsMode = false), Redirect(startAddressLookup))
+        (journey, Redirect(startAddressLookup))
       case _                    =>
         logger.warn(
           s"Cannot compute ${maybeContactDetails.map(_ => "").getOrElse("contact details")} ${maybeAddressDetails.map(_ => "").getOrElse("address details")}."
         )
-        ((modifyJourney(journey, enterContactDetailsMode = false), Redirect(redirectWhenNoAddressDetailsFound)))
+        (journey, Redirect(redirectWhenNoAddressDetailsFound))
     }
   }
 

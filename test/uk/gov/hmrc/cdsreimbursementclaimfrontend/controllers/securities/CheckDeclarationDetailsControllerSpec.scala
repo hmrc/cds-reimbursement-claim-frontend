@@ -306,7 +306,7 @@ class CheckDeclarationDetailsControllerSpec
               mockGetSession(SessionData(initialJourney))
               mockStoreSession(
                 SessionData(
-                  initialJourney.submitCheckDeclarationDetailsChangeMode(false).withEnterContactDetailsMode(true)
+                  initialJourney.submitCheckDeclarationDetailsChangeMode(false)
                 )
               )(Right(()))
             }

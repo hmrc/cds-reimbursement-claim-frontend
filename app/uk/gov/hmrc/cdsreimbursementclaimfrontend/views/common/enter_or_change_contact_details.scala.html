@@ -33,7 +33,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[MrnContactDetails], postAction: Call, enterContactDetails: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[MrnContactDetails], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"enter-contact-details.title")}
 

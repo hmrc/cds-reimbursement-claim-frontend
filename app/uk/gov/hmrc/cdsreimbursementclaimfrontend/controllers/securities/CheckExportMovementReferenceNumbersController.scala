@@ -113,7 +113,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                   )
                 )
               case No  =>
-                (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep))
+                (journey, Redirect(enterContactDetailsStep))
             }
         )
         .asFuture
@@ -161,11 +161,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && containsExportedMod(mod)               =>
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
       case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !containsExportedMod(mod)                 =>
-        (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
+        (journey, Redirect(enterContactDetailsStep)).asFuture
       case (Some(rfs), None, _) if ntas.contains(rfs)                                                   =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _, _)                                                                              =>
-        (journey.withEnterContactDetailsMode(true), Redirect(enterContactDetailsStep)).asFuture
+        (journey, Redirect(enterContactDetailsStep)).asFuture
     }
 
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =

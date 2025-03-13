@@ -95,7 +95,7 @@ class ChooseExportMethodController @Inject() (
                     (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
                   } else {
                     (
-                      updatedJourney.withEnterContactDetailsMode(true),
+                      updatedJourney,
                       Redirect(routes.EnterContactDetailsController.show)
                     )
                   }
