@@ -142,7 +142,7 @@ class EnterNewEoriNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.formKey -> ""),
+          performAction(),
           messageFromMessageKey("enter-new-eori-number.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-new-eori-number.error.required"),
           expectedStatus = BAD_REQUEST
