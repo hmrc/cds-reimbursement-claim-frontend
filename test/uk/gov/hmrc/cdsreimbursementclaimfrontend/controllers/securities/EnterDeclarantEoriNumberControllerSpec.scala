@@ -253,7 +253,7 @@ class EnterDeclarantEoriNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(enterDeclarantEoriNumberKey -> ""),
+          performAction(),
           messageFromMessageKey(s"$enterDeclarantEoriNumberKey.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterDeclarantEoriNumberKey.error.required"),
           expectedStatus = BAD_REQUEST

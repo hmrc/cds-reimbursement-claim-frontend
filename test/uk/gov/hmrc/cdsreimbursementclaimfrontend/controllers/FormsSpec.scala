@@ -40,13 +40,13 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
       errors shouldBe Nil
     }
 
-    "Accept longest possible Eori" in forAll(Gen.listOfN(15, Gen.numChar)) { ending =>
-      val errors = form.bind(Map(eoriNumber -> s"GB${ending.mkString}")).errors
+    "Accept longest possible Eori" in forAll(Gen.listOfN(14, Gen.numChar)) { ending =>
+      val errors = form.bind(Map(eoriNumber -> s"GB1${ending.mkString}")).errors
       errors shouldBe Nil
     }
 
-    "Reject too long Eori" in forAll(Gen.listOfN(16, Gen.numChar)) { ending =>
-      val errors = form.bind(Map(eoriNumber -> s"GB${ending.mkString}")).errors
+    "Reject too long Eori" in forAll(Gen.listOfN(14, Gen.numChar)) { ending =>
+      val errors = form.bind(Map(eoriNumber -> s"GB?${ending.mkString}")).errors
       errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
     }
 

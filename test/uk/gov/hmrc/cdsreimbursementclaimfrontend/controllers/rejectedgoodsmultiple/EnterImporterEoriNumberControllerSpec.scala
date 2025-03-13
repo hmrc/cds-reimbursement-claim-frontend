@@ -184,7 +184,7 @@ class EnterImporterEoriNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(controller.eoriNumberFormKey -> ""),
+          performAction(),
           messageFromMessageKey("enter-importer-eori-number.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-importer-eori-number.error.required"),
           expectedStatus = BAD_REQUEST

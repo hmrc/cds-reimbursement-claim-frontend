@@ -1068,14 +1068,15 @@ enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu â
 enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
 
 enter-declarant-eori-number.caption=Rhif EORI y datganydd
+enter-declarant-eori-number.error.minLength=Mae’n rhaid i’r rhif EORI fod yn 3 o gymeriadau neu fwy
 enter-declarant-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
-enter-declarant-eori-number.error.required=Nodwch rif EORI
+enter-declarant-eori-number.error.required=Nodwch y rhif EORI cywir
 enter-declarant-eori-number.help.p1=Bydd angen i chi hefyd nodi’r rhif EORI a ddefnyddir gan y datganydd - hynny yw, y sefydliad a wnaeth gyflwyno’r datganiad mewnforio ar ran y mewnforiwr.
 enter-declarant-eori-number.help.p2=Bydd y rhif hwn ar gael gan y mewnforiwr. Ni fyddwch yn gallu gwneud hawliad hebddo.
 enter-declarant-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 1 i 15 rhif neu lythyren, er enghraifft GB123456123456.
 enter-declarant-eori-number.input-label=Nodwch rif EORI y datganydd
-enter-declarant-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
-enter-declarant-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-declarant-eori-number.invalid=Nodwch y rif EORI yn y fformat cywir
+enter-declarant-eori-number.invalid.number=Nodwch y rif EORI yn y fformat cywir
 enter-declarant-eori-number.title=Beth yw rhif EORI y datganydd?
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
@@ -1131,13 +1132,14 @@ enter-export-movement-reference-number.securities.error.duplicate-number=This ex
 enter-export-movement-reference-number.securities.next.error.duplicate-number=This export Movement Reference Number (MRN) has already been used. Enter a different MRN
 
 enter-importer-eori-number.caption=Rhif EORI y mewnforiwr
+enter-importer-eori-number.error.minLength=Mae’n rhaid i’r rhif EORI fod yn 3 o gymeriadau neu fwy
 enter-importer-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
-enter-importer-eori-number.error.required=Nodwch rif EORI
+enter-importer-eori-number.error.required=Nodwch y rhif EORI cywir
 enter-importer-eori-number.help=Mae’r MRN rydych wedi’i nodi yn gysylltiedig â rhif EORI gwahanol. Os ydych yn gweithredu ar ran y mewnforiwr, bydd angen i chi nodi ei rif EORI er mwyn parhau â’r hawliad hwn.
 enter-importer-eori-number.help-text=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 1 i 15 rhif neu lythyren, er enghraifft GB123456123456.
 enter-importer-eori-number.input-label=Nodwch rif EORI y mewnforiwr
-enter-importer-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
-enter-importer-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-importer-eori-number.invalid=Nodwch y rif EORI yn y fformat cywir
+enter-importer-eori-number.invalid.number=Nodwch y rif EORI yn y fformat cywir
 enter-importer-eori-number.title=Beth yw rhif EORI y mewnforiwr?
 
 enter-inspection-date.rejected-goods.day.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod
@@ -1276,10 +1278,11 @@ enter-new-eori-number.questionText=Nodwch y rhif EORI newydd
 enter-new-eori-number.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r rhif EORI hwn.
 enter-new-eori-number.hint=Cod y wlad yw’r 2 lythyren gyntaf, megis GB neu XI. Dilynir hyn gan 1 i 15 rhif neu lythyren, er enghraifft GB123456123456.
 
+enter-new-eori-number.error.minLength=Mae’n rhaid i’r rhif EORI fod yn 3 o gymeriadau neu fwy
 enter-new-eori-number.error.maxLength=Mae’n rhaid i’r rhif EORI fod yn 17 o gymeriadau neu lai
-enter-new-eori-number.error.required=Nodwch rif EORI
-enter-new-eori-number.invalid=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
-enter-new-eori-number.invalid.number=Mae’n rhaid i’r rif EORI gynnwys y llythrennau a i z a’r rhifau 0 i 9 yn unig
+enter-new-eori-number.error.required=Nodwch y rhif EORI cywir
+enter-new-eori-number.invalid=Nodwch y rif EORI yn y fformat cywir
+enter-new-eori-number.invalid.number=Nodwch y rif EORI yn y fformat cywir
 enter-new-eori-number.doesNotExist=Nid yw’r rhif EORI a nodwyd i’w weld ar y system.
 enter-new-eori-number.mustStartWithGB=Mae’n rhaid i’r rhif EORI hwn dechrau gyda GB
 enter-new-eori-number.mustNotStartWithGB=Mae’n rhaid i’r rhif EORI hwn dechrau ag XI neu god gwlad yn yr UE
