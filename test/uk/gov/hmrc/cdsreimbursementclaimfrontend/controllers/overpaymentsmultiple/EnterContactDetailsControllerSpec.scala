@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.emptyJourney
@@ -47,7 +48,8 @@ class EnterContactDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with JourneyTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -100,6 +102,26 @@ class EnterContactDetailsControllerSpec
               doc
                 .select("form input[name='enter-contact-details.contact-email']")
                 .`val`() shouldBe contactDetails.get.emailAddress.get.value
+            }
+          )
+        }
+      }
+
+      "display the page with contact details populated" in {
+        forAll(buildCompleteJourneyGen().map(_.submitContactDetails(Some(exampleContactDetails)))) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("enter-contact-details.title"),
+            doc => {
+              doc.select("form").attr("action")  shouldBe routes.EnterContactDetailsController.submit.url
+              doc.select("input").get(0).`val`() shouldBe exampleContactDetails.fullName
+              doc.select("input").get(1).`val`() shouldBe exampleContactDetails.emailAddress.get.value
+              doc.select("input").get(2).`val`() shouldBe exampleContactDetails.phoneNumber.get.value
             }
           )
         }
