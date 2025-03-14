@@ -311,7 +311,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performAction(formKey -> "false"),
-            routes.EnterContactDetailsController.show
+            routes.BasisForClaimController.show
           )
         }
       }
