@@ -46,7 +46,7 @@ object Forms {
   def eoriNumberForm(key: String): Form[Eori] = Form(
     mapping(
       key -> nonEmptyText(maxLength = 17, minLength = 3)
-        .verifying("invalid.number", str => str.length > 17 || str.isEmpty || Eori(str).isValid)
+        .verifying("invalid.number", str => str.length < 3 || str.length > 17 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(v => Some(v.value))
   )
 
