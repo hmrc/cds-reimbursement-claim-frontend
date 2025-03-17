@@ -91,6 +91,26 @@ class EnterContactDetailsControllerSpec
           )
         }
       }
+
+      "display the page with contact details populated" in {
+        forAll(buildCompleteJourneyGen().map(_.submitContactDetails(Some(exampleContactDetails)))) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("enter-contact-details.title"),
+            doc => {
+              doc.select("form").attr("action")  shouldBe routes.EnterContactDetailsController.submit.url
+              doc.select("input").get(0).`val`() shouldBe exampleContactDetails.fullName
+              doc.select("input").get(1).`val`() shouldBe exampleContactDetails.emailAddress.get.value
+              doc.select("input").get(2).`val`() shouldBe exampleContactDetails.phoneNumber.get.value
+            }
+          )
+        }
+      }
     }
 
     "Submit Contact Details" must {
