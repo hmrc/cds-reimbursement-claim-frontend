@@ -148,7 +148,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.EnterContactDetailsController.show
+          routes.UploadMrnListController.show
         )
       }
 
@@ -162,10 +162,7 @@ class CheckDeclarationDetailsControllerSpec
           performAction("check-declaration-details" -> "false"),
           routes.EnterMovementReferenceNumberController.submit
         )
-
       }
-
     }
   }
-
 }

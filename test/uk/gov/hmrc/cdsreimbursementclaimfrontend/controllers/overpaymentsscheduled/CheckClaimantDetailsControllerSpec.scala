@@ -133,7 +133,7 @@ class CheckClaimantDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the select basis for claim page and do not update the contact/address details if they are already present" in {
+      "redirect to the check your answers page and do not update the contact/address details if they are already present" in {
         forAll(displayDeclarationGen, genMrnContactDetails, genContactAddress) {
           (displayDeclaration, contactDetails, contactAddress) =>
             val journey = OverpaymentsScheduledJourney
@@ -156,12 +156,12 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.UploadMrnListController.show
+              routes.CheckYourAnswersController.show
             )
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if third party user" in {
+      "redirect to the check your answers page and update the contact/address details if third party user" in {
         forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
           val journey = OverpaymentsScheduledJourney
             .empty(userEori)
@@ -180,7 +180,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.UploadMrnListController.show
+            routes.CheckYourAnswersController.show
           )
         }
       }
