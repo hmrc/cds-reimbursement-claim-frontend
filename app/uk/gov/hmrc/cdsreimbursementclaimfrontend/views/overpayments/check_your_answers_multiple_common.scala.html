@@ -36,13 +36,6 @@
     @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"check-your-answers.declaration-details", showImportMrn = false))
 }
 
-@subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-@summary(
-    if(isPrintView)
-        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
-    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
-)
-
 @subHeading(Html(messages(s"check-your-answers.claim-details")))
 @summary(ClaimDetailsSummary(claim.basisOfClaim, claim.additionalDetails, if(isPrintView) None else Some(routes.BasisForClaimController.show), if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show), claim.newEoriAndDan, "multiple"))
 
@@ -62,3 +55,10 @@
 
 @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
 @summary(EvidenceDocumentsSummary(messages(s"check-your-answers.attached-documents.label"),claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
+
+@subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
+@summary(
+    if(isPrintView)
+        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
+    else ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF))
+)
