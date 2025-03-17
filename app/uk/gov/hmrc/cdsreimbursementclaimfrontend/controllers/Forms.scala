@@ -18,8 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Forms.*
+import play.api.data.format.Formats.*
+import play.api.data.format.Formatter
 import play.api.data.validation.Constraints.maxLength
 import play.api.data.validation.Constraint
+import play.api.data.validation.Constraints
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import play.api.data.Form
@@ -43,10 +46,32 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.TimeUtils
 
 object Forms {
 
+  extension [A](left: Constraint[A]) {
+    inline def or(right: Constraint[A]): Constraint[A] =
+      Constraint(value =>
+        left(value) match {
+          case Valid   => right(value)
+          case invalid => invalid
+        }
+      )
+  }
+
+  extension [A : Formatter](m: Mapping[A]) {
+    inline def sequential: Mapping[A] =
+      of[A].verifying(m.constraints.reduce(_.or(_)))
+  }
+
+  val eoriNumberMapping: Mapping[String] =
+    text
+      .verifying(Constraints.nonEmpty)
+      .verifying(Constraints.minLength(3))
+      .verifying(Constraints.maxLength(17))
+      .verifying("invalid.number", str => Eori(str).isValid)
+      .sequential
+
   def eoriNumberForm(key: String): Form[Eori] = Form(
     mapping(
-      key -> nonEmptyText(maxLength = 17, minLength = 3)
-        .verifying("invalid.number", str => str.length < 3 || str.length > 17 || str.isEmpty || Eori(str).isValid)
+      key -> eoriNumberMapping
     )(Eori.apply)(v => Some(v.value))
   )
 
