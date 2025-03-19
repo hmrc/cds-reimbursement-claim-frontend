@@ -71,7 +71,7 @@ class CheckClaimDetailsController @Inject() (
   final val redirectToSelectDuties: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       (
-        journey,
+        journey.withDutiesChangeMode(true),
         Redirect(routes.SelectDutiesController.show)
       ).asFuture
     }
@@ -79,7 +79,7 @@ class CheckClaimDetailsController @Inject() (
   final val continue: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       (
-        journey.withDutiesChangeMode(false),
+        journey,
         Redirect(
           if journey.userHasSeenCYAPage then checkYourAnswers
           else routes.EnterInspectionDateController.show

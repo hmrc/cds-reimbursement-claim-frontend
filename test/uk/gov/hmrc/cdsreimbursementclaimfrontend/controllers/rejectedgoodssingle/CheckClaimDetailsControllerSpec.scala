@@ -112,7 +112,6 @@ class CheckClaimDetailsControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(session)
-
           }
 
           checkPageIsDisplayed(
@@ -133,6 +132,7 @@ class CheckClaimDetailsControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
+          mockStoreSession(SessionData(journeyWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
         }
 
         checkIsRedirect(performAction(), routes.SelectDutiesController.show)
@@ -158,7 +158,6 @@ class CheckClaimDetailsControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(journey.withDutiesChangeMode(false)))(Right(()))
           }
 
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)
