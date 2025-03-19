@@ -52,7 +52,8 @@ GET          /rejected-goods/single/enter-claim/:taxCode                        
 POST         /rejected-goods/single/enter-claim/:taxCode                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterClaimController.submit(taxCode: TaxCode)
 
 GET          /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.show
-POST         /rejected-goods/single/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.submit
+GET          /rejected-goods/single/check-claim/change-duties                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.redirectToSelectDuties
+GET          /rejected-goods/single/check-claim/continue                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimDetailsController.continue
 
 GET          /rejected-goods/single/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseRepaymentMethodController.show
 POST         /rejected-goods/single/choose-repayment-method                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseRepaymentMethodController.submit

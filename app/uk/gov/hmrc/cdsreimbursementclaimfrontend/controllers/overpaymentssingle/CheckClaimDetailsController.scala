@@ -64,11 +64,9 @@ class CheckClaimDetailsController @Inject() (
           case Some(mrn) if journey.hasCompleteReimbursementClaims =>
             Ok(
               checkClaimDetails(
-                whetherClaimDetailsCorrect,
-                mrn,
                 getReimbursementWithCorrectAmount(journey.getReimbursements),
-                enterClaimAction,
-                routes.CheckClaimDetailsController.submit
+                journey.getSelectedDuties,
+                enterClaimAction
               )
             )
 
@@ -78,45 +76,23 @@ class CheckClaimDetailsController @Inject() (
       ).asFuture
     }
 
-  final val submit: Action[AnyContent] =
+  final val redirectToSelectDuties: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      journey.answers.movementReferenceNumber match {
-        case Some(mrn) =>
-          whetherClaimDetailsCorrect
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    checkClaimDetails(
-                      formWithErrors,
-                      mrn,
-                      getReimbursementWithCorrectAmount(journey.getReimbursements),
-                      enterClaimAction,
-                      routes.CheckClaimDetailsController.submit
-                    )
-                  )
-                ).asFuture,
-              {
-                case Yes =>
-                  (
-                    journey.withDutiesChangeMode(false),
-                    Redirect(
-                      if journey.userHasSeenCYAPage then checkYourAnswers
-                      else routes.ChoosePayeeTypeController.show
-                    )
-                  ).asFuture
-                case No  =>
-                  (
-                    journey.withDutiesChangeMode(true),
-                    Redirect(routes.SelectDutiesController.show)
-                  ).asFuture
-              }
-            )
-        case None      =>
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
-      }
+      (
+        journey.withDutiesChangeMode(true),
+        Redirect(routes.SelectDutiesController.show)
+      ).asFuture
+    }
+
+  final val continue: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      (
+        journey.withDutiesChangeMode(false),
+        Redirect(
+          if journey.userHasSeenCYAPage then checkYourAnswers
+          else routes.ChoosePayeeTypeController.show
+        )
+      ).asFuture
     }
 
 }

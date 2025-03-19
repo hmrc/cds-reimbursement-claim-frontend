@@ -77,14 +77,15 @@ class CheckClaimDetailsControllerSpec
       routes.EnterClaimController.show
     )
     summaryKeyValueList(doc) should containOnlyPairsOf(
-      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
+      Seq(
+        m("check-claim.selected-duties.question") -> journey.getSelectedDuties
+          .getOrElse(Seq.empty)
+          .map(taxCode => s"${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+          .mkString(" "),
+        m("check-claim.table.total")              -> journey.getTotalReimbursementAmount.toPoundSterlingString
+      )
     )
 
-    val mrn = journey.getLeadMovementReferenceNumber.get.value
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-section-$mrn" -> m("check-claim.duty.label", mrn),
-      "check-claim-yes-no"        -> s"${m("check-claim.is-this-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
-    )
   }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
@@ -140,62 +141,49 @@ class CheckClaimDetailsControllerSpec
         }
     }
 
-    "Submit Enter Claim  page" must {
+    "redirectToSelectDuties" must {
 
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data*)
-        )
+      def performAction(): Future[Result] =
+        controller.redirectToSelectDuties(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
-      "accept YES response and redirect to the next page" in
+      "redirect to select duties page" in
         forAll(journeyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
           }
 
-          checkIsRedirect(
-            performAction("check-claim" -> "true"),
-            routes.ChoosePayeeTypeController.show
-//            if (journey.isAllSelectedDutiesAreCMAEligible)
-//              routes.ChooseRepaymentMethodController.show
-//            else
-//              routes.CheckBankDetailsController.show
-          )
+          checkIsRedirect(performAction(), routes.SelectDutiesController.show)
+        }
+    }
+
+    "continue to next page" must {
+
+      def performAction(): Future[Result] =
+        controller.continue(FakeRequest())
+
+      "redirect to choose payee type page for incomplete journey" in
+        forAll(journeyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.withDutiesChangeMode(false)))(Right(()))
+          }
+
+          checkIsRedirect(performAction(), routes.ChoosePayeeTypeController.show)
         }
 
-      "accept YES response and redirect to the CYA page when in change mode" in
+      "continue to cya page for complete journey" in
         forAll(completeJourneyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(journey.withDutiesChangeMode(false)))(Right(()))
           }
 
-          checkIsRedirect(
-            performAction("check-claim" -> "true"),
-            routes.CheckYourAnswersController.show
-          )
+          checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)
         }
-
-      "accept NO response and redirect to select duties page" in {
-        val journey = journeyGen.sample.get
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction("check-claim" -> "false"),
-          routes.SelectDutiesController.show
-        )
-      }
     }
   }
 }

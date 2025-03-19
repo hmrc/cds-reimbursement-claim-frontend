@@ -65,7 +65,8 @@ GET         /overpayments/single/enter-claim/:taxCode                           
 POST        /overpayments/single/enter-claim/:taxCode                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterClaimController.submit(taxCode: TaxCode)
 
 GET         /overpayments/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimDetailsController.show
-POST        /overpayments/single/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimDetailsController.submit
+GET         /overpayments/single/check-claim/change-duties                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimDetailsController.redirectToSelectDuties
+GET        /overpayments/single/check-claim/continue                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimDetailsController.continue
 
 GET         /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentMethodController.show
 POST        /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentMethodController.submit

@@ -65,11 +65,58 @@ object ClaimsTableHelper {
       )
     )
 
+  def selectedDuties(selectedTaxCodes: Seq[TaxCode], changeLink: Call)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(messages("check-claim.selected-duties.question")),
+          classes = "govuk-!-font-weight-bold govuk-!-padding-bottom-3"
+        ),
+        value = Value(
+          content = HtmlContent(
+            selectedTaxCodes
+              .map(taxCode => s"${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+              .mkString("<br/>")
+          ),
+          classes = "govuk-!-margin-bottom-3"
+        ),
+        classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-summary-list--no-border",
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = changeLink.url,
+                content = Text(messages("check-claim.change")),
+                visuallyHiddenText = Some(messages("check-claim.selected-duties.question"))
+              )
+            )
+          )
+        )
+      )
+    )
+
   def claimsRowsForSingle(claims: Seq[ReimbursementWithCorrectAmount], claimAction: TaxCode => Call)(implicit
     messages: Messages
   ): Seq[Seq[TableRow]] =
     claims.map { case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, _) =>
-      makeCommonRowCells(taxCode, claimAmount, paidAmount, taxCode.value) ++ Seq(
+      Seq(
+        TableRow(
+          content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
+          attributes = Map("id" -> s"selected-claim-${taxCode.value}"),
+          classes = "govuk-table__cell"
+        ),
+        TableRow(
+          content = Text(paidAmount.toPoundSterlingString),
+          attributes = Map("id" -> s"what-you-paid-${taxCode.value}"),
+          classes = "govuk-table__cell--numeric"
+        ),
+        TableRow(
+          content = Text(claimAmount.toPoundSterlingString),
+          attributes = Map("id" -> s"claim-amount-${taxCode.value}"),
+          classes = "govuk-table__cell--numeric"
+        ),
         TableRow(
           content = HtmlContent(
             messages("check-claim.table.change-link", claimAction(taxCode).url, s"change-link-$taxCode")
