@@ -32,6 +32,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
   val postAction: Call
   val continueAction: Call
   val whenEoriInputNotRequiredAction: Call
+  val changeMrnAction: Call
   val enterImporterEoriNumber: enter_importer_eori_number
 
   def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey]
@@ -51,7 +52,9 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
         Ok(
           enterImporterEoriNumber(
             eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(journey)),
-            postAction
+            postAction,
+            journey.getLeadMovementReferenceNumber,
+            changeMrnAction
           )
         )
     }
@@ -70,7 +73,9 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
                 BadRequest(
                   enterImporterEoriNumber(
                     formWithErrors.fill(Eori("")),
-                    postAction
+                    postAction,
+                    journey.getLeadMovementReferenceNumber,
+                    changeMrnAction
                   )
                 )
               )

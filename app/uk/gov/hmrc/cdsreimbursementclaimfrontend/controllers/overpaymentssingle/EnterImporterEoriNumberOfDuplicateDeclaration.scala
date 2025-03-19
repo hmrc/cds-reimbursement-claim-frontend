@@ -53,6 +53,9 @@ class EnterImporterEoriNumberOfDuplicateDeclaration @Inject() (
   final override val continueAction: Call =
     routes.EnterDeclarantEoriNumberOfDuplicateDeclarationController.show
 
+  final override val changeMrnAction: Call =
+    routes.EnterMovementReferenceNumberController.show
+
   final override val whenEoriInputNotRequiredAction: Call =
     routes.EnterAdditionalDetailsController.show
 

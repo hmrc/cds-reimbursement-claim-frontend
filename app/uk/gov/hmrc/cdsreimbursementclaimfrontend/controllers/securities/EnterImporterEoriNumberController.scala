@@ -49,6 +49,9 @@ class EnterImporterEoriNumberController @Inject() (
   final override val continueAction: Call =
     routes.EnterDeclarantEoriNumberController.show
 
+  final override val changeMrnAction: Call =
+    routes.EnterMovementReferenceNumberController.show
+
   final override val whenEoriInputNotRequiredAction: Call =
     routes.SelectSecuritiesController.showFirst()
 

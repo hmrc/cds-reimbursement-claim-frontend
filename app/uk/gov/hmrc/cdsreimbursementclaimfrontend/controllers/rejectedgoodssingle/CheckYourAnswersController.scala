@@ -180,7 +180,6 @@ class CheckYourAnswersController @Inject() (
                         claim = output,
                         isAllSelectedDutiesAreCMAEligible = journey.isAllSelectedDutiesAreCMAEligible,
                         displayDeclarationOpt = journey.answers.displayDeclaration,
-                        subKey = Some("single"),
                         isSubsidy = journey.isSubsidyOnlyJourney,
                         submissionDate = submissionDate
                       )

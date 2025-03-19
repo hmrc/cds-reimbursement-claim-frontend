@@ -31,4 +31,12 @@ object MessagesHelper {
     else candidates
   }
 
+  def combine(level1: String, level3: String)(implicit messages: Messages): List[String] = {
+    val default    = s"$level1.$level3"
+    val keys       = List(default)
+    val candidates = keys.filter(key => messages.isDefinedAt(key))
+    if candidates.isEmpty then List(s"cannot find any of messages: ${keys.mkString(",")}")
+    else candidates
+  }
+
 }
