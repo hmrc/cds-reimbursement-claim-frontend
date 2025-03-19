@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
@@ -38,7 +37,7 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
 
@@ -46,10 +45,10 @@
 
     @heading(Html(title))
 
-    @subHeading(Html(messages(combine(s"check-your-answers.reference-number", subKey, "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, s"check-your-answers.reference-number", subKey, Some(routes.EnterMovementReferenceNumberController.show)))
+    @subHeading(Html(messages("check-your-answers.reference-number.h2")), classes = "govuk-heading-m govuk-!-margin-top-7")
+    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, "check-your-answers.reference-number.label", Some(routes.EnterMovementReferenceNumberController.show)))
 
-    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isSubsidy, displayDeclarationOpt, subKey, isPrintView = false)
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isSubsidy, displayDeclarationOpt, isPrintView = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

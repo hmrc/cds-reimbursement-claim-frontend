@@ -35,12 +35,10 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
-        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
@@ -49,17 +47,6 @@
 
 @key = @{"overpayments.choose-how-many-mrns"}
 @title = @{messages(s"overpayments.choose-how-many-mrns.title")}
-
-
-@inset = {
-    @subHeading(Html(messages(s"overpayments.choose-how-many-mrns.inset.title")), classes = "govuk-heading-s")
-    @paragraph(Html(messages(s"overpayments.choose-how-many-mrns.inset.paragraph-xi-info")))
-    @bullets(Seq(
-        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.importer")),
-        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.reason")),
-        Html(messages(s"overpayments.choose-how-many-mrns.inset.bullet.mop"))
-    ))
-}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

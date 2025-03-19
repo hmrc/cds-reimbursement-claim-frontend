@@ -95,12 +95,6 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
-  private def mockGetXiEori(response: Future[UserXiEori]) =
-    (mockXiEoriConnector
-      .getXiEori(_: HeaderCarrier))
-      .expects(*)
-      .returning(response)
-
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 

@@ -20,6 +20,8 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MovementReferenceNumberSummary
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -28,10 +30,11 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(form: Form[Eori], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[Eori], postAction: Call, mrnOpt: Option[MRN], changeMrnAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-importer-eori-number"}
     @title = @{messages(s"enter-importer-eori-number.title")}
@@ -43,6 +46,10 @@
         @errorSummary(form.errors)
 
         @heading(Html(title), classes = "govuk-heading-l")
+
+        @mrnOpt.map{ mrn =>
+            @summary(MovementReferenceNumberSummary.single(mrn, "check-declaration-details.mrn-label", Some(changeMrnAction)))
+        }
 
         @paragraph(Html(messages(s"enter-importer-eori-number.help")), Some("govuk-body govuk-!-margin-bottom-8"))
 

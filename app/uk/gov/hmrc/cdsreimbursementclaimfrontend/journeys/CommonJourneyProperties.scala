@@ -51,6 +51,7 @@ trait CommonJourneyProperties {
   def declarantEoriMatchesConsignee: Boolean =
     getDeclarantEoriFromACC14.isDefined &&
       getDeclarantEoriFromACC14 === getConsigneeEoriFromACC14
+
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
   def needsBanksAccountDetailsSubmission: Boolean

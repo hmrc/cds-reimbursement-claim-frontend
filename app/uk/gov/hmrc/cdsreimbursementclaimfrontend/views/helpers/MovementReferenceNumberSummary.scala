@@ -25,13 +25,13 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object MovementReferenceNumberSummary {
 
-  def single(answer: MRN, key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
+  def single(answer: MRN, key: String, changeCallOpt: Option[Call])(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(HtmlContent(messages("check-your-answers.single.mrn-label"))),
+          key = Key(HtmlContent(messages(key))),
           value = Value(Text(answer.value)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
