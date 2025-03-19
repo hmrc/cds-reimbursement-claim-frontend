@@ -79,13 +79,13 @@ class CheckClaimDetailsControllerSpec
       routes.EnterClaimController.show
     )
     summaryKeyValueList(doc) should containOnlyPairsOf(
-      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
-    )
-
-    val mrn = journey.getLeadMovementReferenceNumber.get.value
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-section-$mrn" -> m("check-claim.duty.label", mrn),
-      "check-claim-yes-no"        -> s"${m("check-claim.is-this-correct")} ${m("check-claim.yes")} ${m("check-claim.no")}"
+      Seq(
+        m("check-claim.selected-duties.question") -> journey.getSelectedDuties
+          .getOrElse(Seq.empty)
+          .map(taxCode => s"${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
+          .mkString(" "),
+        m("check-claim.table.total")              -> journey.getTotalReimbursementAmount.toPoundSterlingString
+      )
     )
   }
 
@@ -112,7 +112,6 @@ class CheckClaimDetailsControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(session)
-
           }
 
           checkPageIsDisplayed(
@@ -124,57 +123,45 @@ class CheckClaimDetailsControllerSpec
       }
     }
 
-    "Submit Enter Claim  page" must {
+    "redirectToSelectDuties" must {
 
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data*)
-        )
+      def performAction(): Future[Result] =
+        controller.redirectToSelectDuties(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
-      "reject an empty response" in {
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionWithMRN)
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("check-claim.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("check-claim.error.invalid"),
-          BAD_REQUEST
-        )
-      }
-
-      "accept YES response and redirect to enter inspection date page" in {
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionWithMRN)
-        }
-
-        checkIsRedirect(
-          performAction("check-claim" -> "true"),
-          routes.EnterInspectionDateController.show
-        )
-      }
-
-      "accept NO response and redirect to enter inspection date page" in {
+      "redirect to select duties page" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
           mockStoreSession(SessionData(journeyWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
         }
 
-        checkIsRedirect(
-          performAction("check-claim" -> "false"),
-          routes.SelectDutiesController.show
-        )
+        checkIsRedirect(performAction(), routes.SelectDutiesController.show)
       }
+    }
+
+    "continue to next page" must {
+
+      def performAction(): Future[Result] =
+        controller.continue(FakeRequest())
+
+      "redirect to enter inspection date page for incomplete journey" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(sessionWithMRN)
+        }
+
+        checkIsRedirect(performAction(), routes.EnterInspectionDateController.show)
+      }
+
+      "continue to cya page for complete journey" in
+        forAll(completeJourneyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)
+        }
     }
   }
 }

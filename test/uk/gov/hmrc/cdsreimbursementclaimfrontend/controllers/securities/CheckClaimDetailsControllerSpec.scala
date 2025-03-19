@@ -105,7 +105,7 @@ class CheckClaimDetailsControllerSpec
 
     validateClaimsTablesForSecurities(doc, claims, routes.EnterClaimController.show)
     val repaymentTotalElement = doc.getElementById("repayment-total")
-    repaymentTotalElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Repayment claim total"
+    repaymentTotalElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Total claim amount"
     repaymentTotalElement
       .getElementsByClass("govuk-summary-list__value")
       .text()                                                                  shouldBe journey.getReclaimWithAmounts.values.flatten.map(_.claimAmount).sum.toPoundSterlingString

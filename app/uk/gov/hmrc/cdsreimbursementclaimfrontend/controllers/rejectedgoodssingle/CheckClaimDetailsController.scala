@@ -24,13 +24,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_single
 
 import javax.inject.Inject
@@ -48,9 +44,6 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val whetherClaimDetailsCorrect: Form[YesNo] =
-    YesOrNoQuestionForm("check-claim")
-
   final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 
   final val show: Action[AnyContent] =
@@ -63,11 +56,9 @@ class CheckClaimDetailsController @Inject() (
           case Some(mrn) if journey.hasCompleteReimbursementClaims =>
             Ok(
               checkClaimDetails(
-                whetherClaimDetailsCorrect,
-                mrn,
-                getReimbursementWithCorrectAmount(journey.getReimbursements),
-                enterClaimAction,
-                routes.CheckClaimDetailsController.submit
+                claims = getReimbursementWithCorrectAmount(journey.getReimbursements),
+                selectedDuties = journey.getSelectedDuties,
+                enterClaimAction = enterClaimAction
               )
             )
 
@@ -77,47 +68,23 @@ class CheckClaimDetailsController @Inject() (
       ).asFuture
     }
 
-  final val submit: Action[AnyContent] =
-    actionReadWriteJourney(
-      implicit request =>
-        journey =>
-          journey.answers.movementReferenceNumber match {
-            case Some(mrn) =>
-              whetherClaimDetailsCorrect
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      journey,
-                      BadRequest(
-                        checkClaimDetails(
-                          formWithErrors,
-                          mrn,
-                          getReimbursementWithCorrectAmount(journey.getReimbursements),
-                          enterClaimAction,
-                          routes.CheckClaimDetailsController.submit
-                        )
-                      )
-                    ).asFuture,
-                  {
-                    case Yes =>
-                      (
-                        journey,
-                        Redirect(
-                          if journey.userHasSeenCYAPage then checkYourAnswers
-                          else routes.EnterInspectionDateController.show
-                        )
-                      ).asFuture
-                    case No  =>
-                      (
-                        journey.withDutiesChangeMode(true),
-                        Redirect(routes.SelectDutiesController.show)
-                      ).asFuture
-                  }
-                )
-            case None      =>
-              (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
-          },
-      fastForwardToCYAEnabled = false
-    )
+  final val redirectToSelectDuties: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      (
+        journey.withDutiesChangeMode(true),
+        Redirect(routes.SelectDutiesController.show)
+      ).asFuture
+    }
+
+  final val continue: Action[AnyContent] =
+    actionReadWriteJourney { implicit request => journey =>
+      (
+        journey,
+        Redirect(
+          if journey.userHasSeenCYAPage then checkYourAnswers
+          else routes.EnterInspectionDateController.show
+        )
+      ).asFuture
+    }
+
 }
