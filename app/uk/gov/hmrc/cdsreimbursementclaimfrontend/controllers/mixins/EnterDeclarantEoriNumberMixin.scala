@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
+import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
@@ -73,7 +75,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                   journey,
                   BadRequest(
                     enterDeclarantEoriNumber(
-                      formWithErrors.fill(Eori("")),
+                      formWithErrors,
                       postAction
                     )
                   )
@@ -83,9 +85,27 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
               Future.successful(
                 modifyJourney(journey, eori)
                   .fold(
-                    errors => {
-                      logger.error(s"Unable to record $eori - $errors")
-                      (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                    {
+                      case JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI =>
+                        (
+                          journey,
+                          BadRequest(
+                            enterDeclarantEoriNumber(
+                              eoriNumberForm(eoriNumberFormKey)
+                                .withError(
+                                  FormError(
+                                    eoriNumberFormKey,
+                                    "eori-should-match-declarant"
+                                  )
+                                )
+                                .withDefault(Some(eori)),
+                              postAction
+                            )
+                          )
+                        )
+                      case errors                                                    =>
+                        logger.error(s"Unable to record $eori - $errors")
+                        (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                     },
                     updatedJourney => (updatedJourney, Redirect(continueAction))
                   )

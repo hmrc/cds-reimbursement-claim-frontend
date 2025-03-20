@@ -217,7 +217,7 @@ class EnterDeclarantEoriNumberControllerSpec
           messageFromMessageKey("enter-declarant-eori-number.title"),
           doc => {
             getErrorSummary(doc)                               shouldBe messageFromMessageKey("enter-declarant-eori-number.invalid.number")
-            doc.select("#enter-declarant-eori-number").`val`() shouldBe ""
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe invalidEori.value
           },
           expectedStatus = BAD_REQUEST
         )
@@ -272,9 +272,16 @@ class EnterDeclarantEoriNumberControllerSpec
               mockGetSession(requiredSession)
             }
 
-            checkIsRedirect(
+            checkPageIsDisplayed(
               performAction(controller.eoriNumberFormKey -> enteredDeclarantEori.value),
-              baseRoutes.IneligibleController.ineligible
+              messageFromMessageKey("enter-declarant-eori-number.title"),
+              doc => {
+                getErrorSummary(doc)                               shouldBe messageFromMessageKey(
+                  "enter-declarant-eori-number.eori-should-match-declarant"
+                )
+                doc.select("#enter-declarant-eori-number").`val`() shouldBe enteredDeclarantEori.value
+              },
+              expectedStatus = BAD_REQUEST
             )
           }
       }
