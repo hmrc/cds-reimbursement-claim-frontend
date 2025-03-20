@@ -20,6 +20,7 @@ import cats.data.EitherT
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
@@ -31,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -92,16 +94,28 @@ class EnterDeclarantEoriNumberController @Inject() (
       eoriNumberForm(formKey)
         .bindFromRequest()
         .fold(
-          formWithErrors =>
-            journey -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors.fill(Eori("")), postAction)) asFuture,
+          formWithErrors => journey -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors, postAction)) asFuture,
           eori =>
             journey
               .submitDeclarantEoriNumber(eori)
               .fold(
                 e => {
-                  logger
-                    .error(s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e")
-                  journey -> Redirect(controllers.routes.IneligibleController.ineligible) asFuture
+                  logger.error(
+                    s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e"
+                  )
+                  journey -> BadRequest(
+                    enterDeclarantEoriNumberPage(
+                      eoriNumberForm(formKey)
+                        .withError(
+                          FormError(
+                            formKey,
+                            "eori-should-match-declarant"
+                          )
+                        )
+                        .withDefault(Some(eori)),
+                      postAction
+                    )
+                  ) asFuture
                 },
                 updatedJourney =>
                   (for

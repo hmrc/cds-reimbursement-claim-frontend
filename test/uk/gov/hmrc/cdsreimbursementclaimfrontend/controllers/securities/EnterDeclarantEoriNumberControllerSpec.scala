@@ -266,9 +266,16 @@ class EnterDeclarantEoriNumberControllerSpec
           mockGetSession(initialSession)
         }
 
-        checkIsRedirect(
-          performAction(enterDeclarantEoriNumberKey -> eori.value),
-          baseRoutes.IneligibleController.ineligible
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> exampleEori.value),
+          messageFromMessageKey("enter-declarant-eori-number.title"),
+          doc => {
+            getErrorSummary(doc)                               shouldBe messageFromMessageKey(
+              "enter-declarant-eori-number.eori-should-match-declarant"
+            )
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe exampleEori.value
+          },
+          expectedStatus = BAD_REQUEST
         )
       }
 
