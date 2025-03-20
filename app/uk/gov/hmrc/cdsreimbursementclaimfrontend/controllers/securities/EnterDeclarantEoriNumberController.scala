@@ -99,28 +99,24 @@ class EnterDeclarantEoriNumberController @Inject() (
             journey
               .submitDeclarantEoriNumber(eori)
               .fold(
-                e =>
-                  e match {
-                    case JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI =>
-                      journey -> BadRequest(
-                        enterDeclarantEoriNumberPage(
-                          eoriNumberForm(formKey)
-                            .withError(
-                              FormError(
-                                formKey,
-                                "eori-should-match-declarant"
-                              )
-                            )
-                            .withDefault(Some(eori)),
-                          postAction
+                e => {
+                  logger.error(
+                    s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e"
+                  )
+                  journey -> BadRequest(
+                    enterDeclarantEoriNumberPage(
+                      eoriNumberForm(formKey)
+                        .withError(
+                          FormError(
+                            formKey,
+                            "eori-should-match-declarant"
+                          )
                         )
-                      ) asFuture
-                    case errors                                                    =>
-                      logger.error(
-                        s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e"
-                      )
-                      journey -> Redirect(controllers.routes.IneligibleController.ineligible) asFuture
-                  },
+                        .withDefault(Some(eori)),
+                      postAction
+                    )
+                  ) asFuture
+                },
                 updatedJourney =>
                   (for
                     mrn                              <- getMovementReferenceNumber(journey)
