@@ -66,7 +66,9 @@ class CheckClaimDetailsController @Inject() (
               checkClaimDetails(
                 getReimbursementWithCorrectAmount(journey.getReimbursements),
                 journey.getSelectedDuties,
-                enterClaimAction
+                enterClaimAction,
+                routes.SelectDutiesController.show,
+                routes.CheckClaimDetailsController.continue
               )
             )
 

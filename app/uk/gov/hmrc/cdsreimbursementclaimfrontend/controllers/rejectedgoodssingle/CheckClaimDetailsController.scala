@@ -56,9 +56,11 @@ class CheckClaimDetailsController @Inject() (
           case Some(mrn) if journey.hasCompleteReimbursementClaims =>
             Ok(
               checkClaimDetails(
-                claims = getReimbursementWithCorrectAmount(journey.getReimbursements),
-                selectedDuties = journey.getSelectedDuties,
-                enterClaimAction = enterClaimAction
+                getReimbursementWithCorrectAmount(journey.getReimbursements),
+                journey.getSelectedDuties,
+                enterClaimAction,
+                routes.SelectDutiesController.show,
+                routes.CheckClaimDetailsController.continue
               )
             )
 
