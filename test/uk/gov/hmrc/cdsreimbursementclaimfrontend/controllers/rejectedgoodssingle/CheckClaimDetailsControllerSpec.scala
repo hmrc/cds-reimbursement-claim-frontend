@@ -87,6 +87,13 @@ class CheckClaimDetailsControllerSpec
         m("check-claim.table.total")              -> journey.getTotalReimbursementAmount.toPoundSterlingString
       )
     )
+
+    doc
+      .getElementsByClass("govuk-summary-list__actions")
+      .get(0)
+      .getElementsByClass("govuk-link")
+      .attr("href")                                     shouldBe routes.CheckClaimDetailsController.redirectToSelectDuties.url
+    doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
   }
 
   override def beforeEach(): Unit =

@@ -86,6 +86,13 @@ class CheckClaimDetailsControllerSpec
       )
     )
 
+    doc
+      .getElementsByClass("govuk-summary-list__actions")
+      .get(0)
+      .getElementsByClass("govuk-link")
+      .attr("href")                                     shouldBe routes.CheckClaimDetailsController.redirectToSelectDuties.url
+    doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
+
   }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
