@@ -1115,13 +1115,13 @@ enter-declarant-eori-number.title=What is the declarant’s EORI number?
 
 enter-duplicate-movement-reference-number.error.required=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
-enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.help-text=You can find your MRN number in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
-enter-duplicate-movement-reference-number.input-title=Enter MRN
+enter-duplicate-movement-reference-number.help=For example, 24GB03152858027001
+enter-duplicate-movement-reference-number.help-text=You can find this 18-digit reference in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
+enter-duplicate-movement-reference-number.input-title=Enter the duplicate MRN
 enter-duplicate-movement-reference-number.invalid=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI3
 enter-duplicate-movement-reference-number.invalid.enter-different-mrn=This Movement Reference Number (MRN) has already been used. Enter a different MRN
 enter-duplicate-movement-reference-number.invalid.number=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.title=Enter the duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.title=Duplicate Movement Reference Number (MRN)
 
 enter-new-eori-number.title=What’s the correct EORI number?
 enter-new-eori-number.questionText=Enter the new EORI number

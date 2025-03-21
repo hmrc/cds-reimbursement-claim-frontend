@@ -1084,13 +1084,13 @@ enter-declarant-eori-number.title=Beth yw rhif EORI y datganydd?
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
 enter-duplicate-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
-enter-duplicate-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 nod, er enghraifft 19GB03I52858027017.
-enter-duplicate-movement-reference-number.help-text=Gallwch ddod o hyd i’ch rhif MRN yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
-enter-duplicate-movement-reference-number.input-title=Nodwch MRN
+enter-duplicate-movement-reference-number.help=Er enghraifft, 24GB03152858027001
+enter-duplicate-movement-reference-number.help-text=Gallwch ddod o hyd i’r cyfeirnod 18 digid hwn yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
+enter-duplicate-movement-reference-number.input-title=Nodwch yr MRN dyblyg
 enter-duplicate-movement-reference-number.invalid=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI3
 enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Mae’r Cyfeirnod Symud (MRN) hwn wedi ei ddefnyddio o’r blaen. Nodwch MRN gwahanol
 enter-duplicate-movement-reference-number.invalid.number=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI2
-enter-duplicate-movement-reference-number.title=Nodwch yr MRN dyblyg
+enter-duplicate-movement-reference-number.title=Cyfeirnod Symud (MRN) dyblyg
 
 enter-export-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN) allforio
 enter-export-movement-reference-number.next.error.required=Nodwch Gyfeirnod Symud (MRN) allforio
