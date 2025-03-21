@@ -45,7 +45,7 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title))
+        @heading(Html(title), classes = "govuk-heading-l")
 
         @paragraph(Html(messages(combine(key, refNumberKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-8"))
 
@@ -54,6 +54,7 @@
             id = key,
             name = key,
             label = combine(key, refNumberKey, "input-title").head,
+            labelClasses = Some("govuk-!-font-weight-bold"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = combine(key, refNumberKey, "help").headOption
