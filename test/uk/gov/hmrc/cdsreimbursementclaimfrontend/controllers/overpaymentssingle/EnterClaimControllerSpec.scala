@@ -141,11 +141,13 @@ class EnterClaimControllerSpec
       }
 
       "display the page back in the change mode" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(journeyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
           }
+
+          println(">>>>>>>>> correct amounts: " + journey.answers.correctedAmounts)
 
           val expectedTaxCode: TaxCode =
             journey.getSelectedDuties.get.head

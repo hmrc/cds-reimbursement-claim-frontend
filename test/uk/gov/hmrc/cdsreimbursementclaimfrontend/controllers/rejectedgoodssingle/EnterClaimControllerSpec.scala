@@ -141,7 +141,7 @@ class EnterClaimControllerSpec
       }
 
       "display the page back in the change mode" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(journeyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
