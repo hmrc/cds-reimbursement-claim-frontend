@@ -50,12 +50,23 @@ class EnterClaimController @Inject() (
 
   final val showFirst: Action[AnyContent] =
     simpleActionReadJourney(journey =>
-      journey.getSelectedDuties.flatMap(_.headOption) match {
-        case None =>
-          Redirect(routes.SelectDutiesController.show)
+      journey.answers.correctedAmounts match {
+        case None                   => Redirect(routes.SelectDutiesController.show)
+        case Some(correctedAmounts) =>
+          val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.getOrElse(Seq.empty)
+          correctedAmounts.find((taxCode, claimOpt) => claimOpt.isEmpty) match {
+            case None                      => Redirect(routes.CheckClaimDetailsController.show)
+            case Some((taxCode, claimOpt)) =>
+              Redirect {
+                taxCodes.indexOf(taxCode) match {
+                  case -1 => // invalid tax code
+                    routes.SelectDutiesController.show
 
-        case Some(taxCode) =>
-          Redirect(routes.EnterClaimController.show(taxCode))
+                  case n =>
+                    routes.EnterClaimController.show(taxCodes(n))
+                }
+              }
+          }
       }
     )
 
@@ -169,21 +180,21 @@ class EnterClaimController @Inject() (
     }
 
   private def redirectToNextPage(journey: Journey, taxCode: TaxCode): Result =
-    Redirect {
-      if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then
-        routes.CheckClaimDetailsController.show
-      else {
-        val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)
-        selectedTaxCodes.indexOf(taxCode) match {
-          case -1 => // invalid tax code
-            routes.SelectDutiesController.show
-
-          case n if n < selectedTaxCodes.size - 1 =>
-            routes.EnterClaimController.show(selectedTaxCodes(n + 1))
-
-          case _ =>
-            routes.CheckClaimDetailsController.show
-        }
+    if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then
+      Redirect(routes.CheckClaimDetailsController.show)
+    else {
+      val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)
+      selectedTaxCodes.indexOf(taxCode) match {
+        case -1                                 => // invalid tax code
+          Redirect(routes.SelectDutiesController.show)
+        case n if n < selectedTaxCodes.size - 1 =>
+          val nextTaxCode = selectedTaxCodes(n + 1)
+          journey.answers.correctedAmounts.getOrElse(Map.empty).get(nextTaxCode) match
+            case None                                          => Redirect(routes.CheckClaimDetailsController.show)
+            case Some(correctAmount) if correctAmount.isEmpty  => Redirect(routes.EnterClaimController.show(nextTaxCode))
+            case Some(correctAmount) if correctAmount.nonEmpty => redirectToNextPage(journey, nextTaxCode)
+        case _                                  =>
+          Redirect(routes.CheckClaimDetailsController.show)
       }
     }
 

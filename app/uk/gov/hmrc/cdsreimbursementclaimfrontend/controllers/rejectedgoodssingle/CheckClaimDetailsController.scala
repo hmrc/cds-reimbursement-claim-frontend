@@ -81,7 +81,7 @@ class CheckClaimDetailsController @Inject() (
   final val continue: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
       (
-        journey,
+        journey.withDutiesChangeMode(false),
         Redirect(
           if journey.userHasSeenCYAPage then checkYourAnswers
           else routes.EnterInspectionDateController.show
