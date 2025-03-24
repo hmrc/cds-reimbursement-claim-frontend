@@ -18,7 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -26,15 +29,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
 class ProblemWithDeclarationControllerSpec
-  extends PropertyBasedControllerSpec
+    extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {
@@ -48,7 +54,7 @@ class ProblemWithDeclarationControllerSpec
   val controller: ProblemWithDeclarationController = instanceOf[ProblemWithDeclarationController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -81,12 +87,15 @@ class ProblemWithDeclarationControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
+          doc =>
             doc
               .select("main p")
               .get(0)
-              .text() shouldBe Jsoup.parse(messageFromMessageKey(s"$messagesKey.paragraph.1", journey.answers.movementReferenceNumber.get.value)).text()
-          }
+              .text() shouldBe Jsoup
+              .parse(
+                messageFromMessageKey(s"$messagesKey.paragraph.1", journey.answers.movementReferenceNumber.get.value)
+              )
+              .text()
         )
       }
 
@@ -107,7 +116,11 @@ class ProblemWithDeclarationControllerSpec
             doc
               .select("main p")
               .get(0)
-              .text() shouldBe Jsoup.parse(messageFromMessageKey(s"$messagesKey.paragraph.1", journey.answers.movementReferenceNumber.get.value)).text()
+              .text() shouldBe Jsoup
+              .parse(
+                messageFromMessageKey(s"$messagesKey.paragraph.1", journey.answers.movementReferenceNumber.get.value)
+              )
+              .text()
             doc
               .select("main legend")
               .get(0)
@@ -132,7 +145,7 @@ class ProblemWithDeclarationControllerSpec
     "Submit problem with declaration page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data *))
+        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "not find the page if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)

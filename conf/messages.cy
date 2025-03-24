@@ -1066,8 +1066,8 @@ enter-contact-details.contact-phone-number.error.maxLength=Mae’n rhaid i’r r
 enter-contact-details.contact-phone-number.error.required=Nodwch rif ffôn, fel 01632 960000, 07700 900000 neu +44 1632 960000
 enter-contact-details.contact-phone-number.invalid=Nodwch rif ffôn, fel 01632 960000, 07700 900000 neu +44 1632 960000
 enter-contact-details.contact-phone-number.label=Ffôn (dewisol)
-enter-contact-details.inset-text=Byddwn ond yn defnyddio hyn er mwyn cysylltu â chi ynglŷn â’r hawliad hwn.
-enter-contact-details.title=Rhoi’r manylion cyswllt ar gyfer yr hawliad hwn
+enter-contact-details.p1=Byddwn yn defnyddio’r manylion hyn i gysylltu â chi ynglŷn â’r hawliad hwn yn unig.
+enter-contact-details.title=Â phwy y dylem gysylltu ynglŷn â’r hawliad hwn?
 
 enter-declarant-eori-number.caption=Rhif EORI y datganydd
 enter-declarant-eori-number.error.minLength=Mae’n rhaid i’r rhif EORI fod yn 3 o gymeriadau neu fwy
