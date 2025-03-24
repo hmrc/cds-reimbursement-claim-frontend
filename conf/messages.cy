@@ -1144,6 +1144,7 @@ enter-importer-eori-number.input-label=Nodwch rif EORI y mewnforiwr
 enter-importer-eori-number.invalid=Nodwch y rif EORI yn y fformat cywir
 enter-importer-eori-number.invalid.number=Nodwch y rif EORI yn y fformat cywir
 enter-importer-eori-number.title=Beth yw rhif EORI y mewnforiwr?
+enter-importer-eori-number.eori-should-match-importer=Nid yw’r rhif EORI a gofnodwyd gennych yn rhif EORI y mewnforiwr
 
 enter-inspection-date.rejected-goods.day.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Mae’n rhaid i ddyddiad yr archwiliad gynnwys diwrnod a mis

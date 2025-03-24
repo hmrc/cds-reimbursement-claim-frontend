@@ -33,12 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.*
@@ -229,7 +227,7 @@ class EnterImporterEoriNumberControllerSpec
           messageFromMessageKey("enter-importer-eori-number.title"),
           doc => {
             getErrorSummary(doc)                              shouldBe messageFromMessageKey("enter-importer-eori-number.invalid.number")
-            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
+            doc.select("#enter-importer-eori-number").`val`() shouldBe "INVALID_MRN"
           },
           expectedStatus = BAD_REQUEST
         )
@@ -299,9 +297,16 @@ class EnterImporterEoriNumberControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          checkIsRedirect(
+          checkPageIsDisplayed(
             performAction(controller.eoriNumberFormKey -> enteredConsigneeEori.value),
-            baseRoutes.IneligibleController.ineligible
+            messageFromMessageKey("enter-importer-eori-number.title"),
+            doc => {
+              getErrorSummary(doc)                              shouldBe messageFromMessageKey(
+                "enter-importer-eori-number.eori-should-match-importer"
+              )
+              doc.select("#enter-importer-eori-number").`val`() shouldBe enteredConsigneeEori.value
+            },
+            expectedStatus = BAD_REQUEST
           )
         }
       }

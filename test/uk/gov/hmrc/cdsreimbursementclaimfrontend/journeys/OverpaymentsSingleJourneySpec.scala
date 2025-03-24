@@ -433,7 +433,7 @@ class OverpaymentsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
-      journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+      journeyEither shouldBe Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
     }
 
     "submit declarant eori number" in {
@@ -469,7 +469,7 @@ class OverpaymentsSingleJourneySpec
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
-      journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+      journeyEither shouldBe Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
     }
 
     "submit contact details" in {

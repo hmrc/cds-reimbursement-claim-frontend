@@ -1163,13 +1163,14 @@ enter-export-movement-reference-number.securities.yes-no.error.required=Select y
 enter-importer-eori-number.caption=Importer EORI number
 enter-importer-eori-number.error.minLength=EORI number must be 3 characters or more
 enter-importer-eori-number.error.maxLength=EORI number must be 17 characters or less
-enter-importer-eori-number.error.required=Enter the correct EORI number
+enter-importer-eori-number.error.required=Enter the importer’s EORI number
 enter-importer-eori-number.help=The MRN you entered is linked to a different EORI number. If you’re acting on behalf of the importer, you need to provide their EORI number to continue with this claim.
 enter-importer-eori-number.help-text=The first 2 letters are the country code, like GB or XI. This is followed by 1 to 15 numbers or letters, like GB123456123456.
 enter-importer-eori-number.input-label=Enter the importer’s EORI number
 enter-importer-eori-number.invalid=Enter a EORI number in the correct format
 enter-importer-eori-number.invalid.number=Enter a EORI number in the correct format
 enter-importer-eori-number.title=What is the importer’s EORI number?
+enter-importer-eori-number.eori-should-match-importer=The EORI number you entered is not the importer’s EORI number
 
 enter-inspection-date.rejected-goods.day.error.required=Inspection date must include a day
 enter-inspection-date.rejected-goods.dayAndMonth.error.required=Inspection date must include a day and a month

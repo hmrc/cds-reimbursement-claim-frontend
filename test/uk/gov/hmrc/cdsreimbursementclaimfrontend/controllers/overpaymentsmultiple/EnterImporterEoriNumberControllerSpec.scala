@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
@@ -218,7 +217,7 @@ class EnterImporterEoriNumberControllerSpec
           messageFromMessageKey("enter-importer-eori-number.title"),
           doc => {
             getErrorSummary(doc)                              shouldBe messageFromMessageKey("enter-importer-eori-number.invalid.number")
-            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
+            doc.select("#enter-importer-eori-number").`val`() shouldBe "INVALID_MRN"
           },
           expectedStatus = BAD_REQUEST
         )
@@ -274,9 +273,16 @@ class EnterImporterEoriNumberControllerSpec
               mockGetSession(requiredSession)
             }
 
-            checkIsRedirect(
+            checkPageIsDisplayed(
               performAction(controller.eoriNumberFormKey -> enteredConsigneeEori.value),
-              baseRoutes.IneligibleController.ineligible
+              messageFromMessageKey("enter-importer-eori-number.title"),
+              doc => {
+                getErrorSummary(doc)                              shouldBe messageFromMessageKey(
+                  "enter-importer-eori-number.eori-should-match-importer"
+                )
+                doc.select("#enter-importer-eori-number").`val`() shouldBe enteredConsigneeEori.value
+              },
+              expectedStatus = BAD_REQUEST
             )
           }
       }
