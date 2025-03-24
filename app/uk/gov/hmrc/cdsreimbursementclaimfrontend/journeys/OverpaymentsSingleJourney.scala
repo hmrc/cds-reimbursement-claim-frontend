@@ -210,7 +210,7 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
-        else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+        else Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
       else Left("submitConsigneeEoriNumber.unexpected")
     }
 

@@ -142,7 +142,7 @@ final class RejectedGoodsScheduledJourney private (
               )
             )
           )
-        else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+        else Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
       else Left("submitConsigneeEoriNumber.unexpected")
     }
 
@@ -159,7 +159,7 @@ final class RejectedGoodsScheduledJourney private (
               )
             )
           )
-        else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+        else Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
       else Left("submitDeclarantEoriNumber.unexpected")
     }
 

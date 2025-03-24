@@ -26,6 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors
+import play.api.data.FormError
 
 trait EnterImporterEoriNumberMixin extends JourneyBaseController {
 
@@ -72,7 +74,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
                 journey,
                 BadRequest(
                   enterImporterEoriNumber(
-                    formWithErrors.fill(Eori("")),
+                    formWithErrors,
                     postAction,
                     journey.getLeadMovementReferenceNumber,
                     changeMrnAction
@@ -84,15 +86,30 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
             Future.successful(
               modifyJourney(journey, eori)
                 .fold(
-                  errors => {
-                    logger.error(s"Unable to record $eori - $errors")
-                    (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                  {
+                    case JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI =>
+                      (
+                        journey,
+                        BadRequest(
+                          enterImporterEoriNumber(
+                            eoriNumberForm(eoriNumberFormKey)
+                              .withError(
+                                FormError(
+                                  eoriNumberFormKey,
+                                  "eori-should-match-importer"
+                                )
+                              )
+                              .withDefault(Some(eori)),
+                            postAction,
+                            journey.getLeadMovementReferenceNumber,
+                            changeMrnAction
+                          )
+                        )
+                      )
+                    case errors                                                    =>
+                      (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                   },
-                  updatedJourney =>
-                    (
-                      updatedJourney,
-                      Redirect(continueAction)
-                    )
+                  updatedJourney => (updatedJourney, Redirect(continueAction))
                 )
             )
         )

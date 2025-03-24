@@ -98,6 +98,8 @@ object JourneyValidationErrors {
     "displayDeclarationHasSubsidyPayment"
   val DISPLAY_DECLARATION_MUST_HAVE_ONLY_SUBSIDY_PAYMENTS: String               =
     "displayDeclarationMustHaveOnlySubsidyPayments"
+  val SHOULD_MATCH_ACC14_CONSIGNEE_EORI: String                                 =
+    "submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
   val SHOULD_MATCH_ACC14_DECLARANT_EORI: String                                 =
     "submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14"
 
