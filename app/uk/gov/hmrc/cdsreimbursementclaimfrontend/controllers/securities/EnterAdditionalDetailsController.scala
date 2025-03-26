@@ -47,9 +47,7 @@ class EnterAdditionalDetailsController @Inject() (
 
   final val postAction: Call                      = routes.EnterAdditionalDetailsController.submit
   final def continueRoute(journey: Journey): Call =
-    if journey.reasonForSecurityIsIPR
-    then routes.EnterContactDetailsController.show
-    else routes.CheckYourAnswersController.show
+    routes.EnterContactDetailsController.show
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>

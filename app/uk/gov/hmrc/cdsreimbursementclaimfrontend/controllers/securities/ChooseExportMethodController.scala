@@ -96,7 +96,7 @@ class ChooseExportMethodController @Inject() (
                   } else {
                     (
                       updatedJourney,
-                      Redirect(routes.EnterContactDetailsController.show)
+                      Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )
                   }
               )
