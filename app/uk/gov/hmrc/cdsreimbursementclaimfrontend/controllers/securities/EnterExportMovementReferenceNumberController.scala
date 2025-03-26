@@ -171,9 +171,10 @@ class EnterExportMovementReferenceNumberController @Inject() (
           { case (exportMrn, decision) =>
             claimService
               .getDisplayDeclaration(exportMrn)
-              .fold(
-                // when import declaration does not exist with the given exportMRN
-                _ =>
+              .fold(_ => None, identity)
+              .map {
+                case None              =>
+                  // when import declaration does not exist with the given exportMRN
                   journey
                     .submitExportMovementReferenceNumber(0, exportMrn)
                     .fold(
@@ -183,7 +184,10 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
                         case "submitExportMovementReferenceNumber.duplicated" =>
                           val updatedForm = form
-                            .withError(enterFirstExportMovementReferenceNumberKey, "securities.error.duplicate-number")
+                            .withError(
+                              enterFirstExportMovementReferenceNumberKey,
+                              "securities.error.duplicate-number"
+                            )
                           (
                             journey,
                             BadRequest(
@@ -231,9 +235,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                 )
                           }
                         }
-                    ),
+                    )
                 // when import declaration exists with the given exportMRN
-                _ => {
+                case Some(declaration) =>
                   val formErrorKey = enterFirstExportMovementReferenceNumberKey
                   val updatedForm  =
                     form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
@@ -246,8 +250,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                       )
                     )
                   )
-                }
-              )
+              }
           }
         )
     }
@@ -273,9 +276,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
           exportMrn =>
             claimService
               .getDisplayDeclaration(exportMrn)
-              .fold(
-                // when import declaration does not exist with the given exportMRN
-                _ =>
+              .fold(_ => None, identity)
+              .map {
+                case None              =>
                   journey
                     .submitExportMovementReferenceNumber(pageIndex - 1, exportMrn)
                     .fold(
@@ -316,9 +319,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
                         } else {
                           (updatedJourney, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
                         }
-                    ),
+                    )
                 // when import declaration exists with the given exportMRN
-                _ => {
+                case Some(declaration) =>
                   val formErrorKey = enterNextExportMovementReferenceNumberKey
                   val updatedForm  =
                     form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
@@ -332,8 +335,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                       )
                     )
                   )
-                }
-              )
+              }
         )
     }
   }
