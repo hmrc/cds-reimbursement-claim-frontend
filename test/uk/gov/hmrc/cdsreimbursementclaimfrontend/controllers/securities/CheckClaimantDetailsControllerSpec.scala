@@ -287,10 +287,7 @@ class CheckClaimantDetailsControllerSpec
         mockStoreSession(Right(()))
       }
 
-      val expectedRoute =
-        if rfs == ReasonForSecurity.InwardProcessingRelief
-        then routes.CheckYourAnswersController.show
-        else routes.CheckClaimantDetailsController.show
+      val expectedRoute = routes.CheckClaimantDetailsController.show
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
