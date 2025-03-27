@@ -28,7 +28,7 @@
         bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@()(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(continueUrl: String)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     messages("have-documents-ready.title")
@@ -50,5 +50,5 @@
         )
     )
 
-    @submitButton("button.continue", href = Some(routes.ChooseExportMethodController.show.url))
+    @submitButton("button.continue", href = Some(continueUrl))
 }

@@ -330,7 +330,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitBankAccountDetails: Boolean = true,
     submitBankAccountType: Boolean = true,
     submitFullAmount: Boolean = false,
-    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values
+    reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values,
+    numberOfSecurityDetails: Option[Int] = None
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -344,7 +345,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitBankAccountDetails = submitBankAccountDetails,
       submitFullAmount = submitFullAmount,
       reasonsForSecurity = reasonsForSecurity,
-      additionalDetailsVisited = true
+      additionalDetailsVisited = true,
+      numberOfSecurityDetails = numberOfSecurityDetails
     ).map(
       _.fold(
         error =>
@@ -368,7 +370,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitBankAccountType: Boolean = true,
     submitFullAmount: Boolean = false,
     reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values,
-    additionalDetailsVisited: Boolean = false
+    additionalDetailsVisited: Boolean = false,
+    numberOfSecurityDetails: Option[Int] = None
   ): Gen[Either[String, SecuritiesJourney]] =
     for
       userEoriNumber              <- IdGen.genEori
@@ -387,7 +390,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       consigneeEORI               <- if acc14ConsigneeMatchesUserEori then Gen.const(userEoriNumber) else IdGen.genEori
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
-      numberOfSecurities          <- Gen.choose(2, 5)
+      numberOfSecurities           = numberOfSecurityDetails match
+                                       case None      => Gen.choose(2, 5).sample.get
+                                       case Some(num) => num
       payeeType                   <- Gen.oneOf(PayeeType.values)
       depositsDetails             <-
         listOfExactlyN(

@@ -1,0 +1,100 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SummaryListCreator
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+
+@this(
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+)
+
+@(form: Form[YesNo], model: SecurityDetails, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+
+@title = @{messages("confirm-full-repayment.single-deposit-id.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@summaryItems = @{
+    SummaryList(
+        model.taxDetails.map{ taxDetail =>
+            SummaryListRow(
+                Key(HtmlContent(messages(s"tax-code.${taxDetail.taxType}"))),
+                Value(Text(taxDetail.getAmount.toPoundSterlingString), classes = "govuk-!-text-align-right")
+            )
+        } ++ Seq(
+            SummaryListRow(
+                Key(HtmlContent(messages("confirm-full-repayment.single-deposit-id.total"))),
+                Value(Text(model.getTotalAmount.toPoundSterlingString), classes = "govuk-!-text-align-right")
+            )
+        )
+    )
+}
+
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
+
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+
+        @errorSummary(form.errors)
+
+        @heading(Html(title), classes = "govuk-heading-l")
+
+        @summary(summaryItems)
+
+        @radios(
+            form = form,
+            name = "confirm-full-repayment",
+            legend = messages("confirm-full-repayment.single-deposit-id.question"),
+            legendAsHeading = false,
+            hintKey = None,
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages("generic.yes")),
+                    checked = form.value.contains(Yes)
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages("generic.no")),
+                    checked = form.value.contains(No)
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+    }
+}

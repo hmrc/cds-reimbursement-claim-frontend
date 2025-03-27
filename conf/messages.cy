@@ -602,6 +602,9 @@ claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">cysylltu â CThEF (yn agor tab newydd)</a> i ddiweddaru’ch hawliad neu i drafod eich blaendal sicrwydd neu warant
 
 
+confirm-full-repayment.single-deposit-id.title=Rhowch wybod i ni beth yr ydych yn hawlio
+confirm-full-repayment.single-deposit-id.total=Cyfanswm y blaendal sicrwydd neu swm y warant
+confirm-full-repayment.single-deposit-id.question=A hoffech hawlio’r swm llawn yn ôl?
 
 confirm-full-repayment.error.required=Dewiswch &apos;Iawn&apos; os hoffech hawlio’r swm cyfan yn ôl
 confirm-full-repayment.mrn=Cyfeirnod Symud (MRN)
