@@ -68,6 +68,6 @@ class CheckDeclarationDetailsController @Inject() (
       else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
       else if journey.getReasonForSecurity.exists(ntas.contains) then
         (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
-      else (updatedJourney, Redirect(routes.EnterContactDetailsController.show))
+      else (updatedJourney, Redirect(routes.ConfirmFullRepaymentController.showFirst))
     }
 }
