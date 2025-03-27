@@ -71,7 +71,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterContactDetailsController.show
 
   override val nextPageInTheJourney: Call =
-    routes.ConfirmFullRepaymentController.showFirst
+    routes.CheckYourAnswersController.show
 
   override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
     journey.submitContactDetails(Some(contactDetails))
@@ -80,7 +80,7 @@ class CheckClaimantDetailsController @Inject() (
     journey.submitContactAddress(contactAddress)
 
   override def redirectToTheNextPage(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    if journey.userHasSeenCYAPage || journey.reasonForSecurityIsIPR
+    if journey.userHasSeenCYAPage
     then (journey, Redirect(routes.CheckYourAnswersController.show))
     else (journey, Redirect(routes.CheckClaimantDetailsController.show))
 }

@@ -135,14 +135,11 @@ class EnterAdditionalDetailsControllerSpec
 
       "submit valid additional details" in forAll(
         buildJourneyGen(
-          additionalDetailsVisited = true,
-          reasonsForSecurity = Set(
-            genReasonForSecurity
-              .suchThat(rfs => rfs != ReasonForSecurity.InwardProcessingRelief)
-              .sample
-              .getOrElse(EndUseRelief)
-          )
-        ).map(_.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity))
+          additionalDetailsVisited = true
+        ).map(
+          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity)
+            .submitCheckYourAnswersChangeMode(false)
+        )
       ) { journey =>
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -165,7 +162,7 @@ class EnterAdditionalDetailsControllerSpec
           performAction(
             "enter-additional-details" -> "additional details"
           ),
-          routes.CheckYourAnswersController.show
+          routes.EnterContactDetailsController.show
         )
       }
 

@@ -146,7 +146,7 @@ class CheckClaimantDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the first confirm full repayment page and do not update the contact/address details if they are already present" in {
+      "redirect to the CYA page and do not update the contact/address details if they are already present" in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
           genMrnContactDetails,
@@ -173,13 +173,13 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.ConfirmFullRepaymentController.showFirst
+              routes.CheckYourAnswersController.show
             )
           }
         }
       }
 
-      "redirect to the first confirm full repayment page and update the contact/address details if the journey does not already contain them." in {
+      "redirect to the CYA page and update the contact/address details if the journey does not already contain them." in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
           genConsigneeDetails,
@@ -216,12 +216,12 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.ConfirmFullRepaymentController.showFirst
+            routes.CheckYourAnswersController.show
           )
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if third party user" in {
+      "redirect to the CYA page and update the contact/address details if third party user" in {
         forAll(mrnWithtRfsWithDisplayDeclarationGen, genEori) { case ((mrn, rfs, decl), userEori) =>
           val declarationWithoutContactDetails =
             decl.copy(displayResponseDetail =
@@ -249,9 +249,8 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.ConfirmFullRepaymentController.showFirst
+            routes.CheckYourAnswersController.show
           )
-
         }
       }
     }
@@ -288,10 +287,7 @@ class CheckClaimantDetailsControllerSpec
         mockStoreSession(Right(()))
       }
 
-      val expectedRoute =
-        if rfs == ReasonForSecurity.InwardProcessingRelief
-        then routes.CheckYourAnswersController.show
-        else routes.CheckClaimantDetailsController.show
+      val expectedRoute = routes.CheckClaimantDetailsController.show
 
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),

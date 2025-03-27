@@ -191,7 +191,7 @@ class ChooseExportMethodControllerSpec
         )
       }
 
-      "redirect to /claimant-details if any option other than" in forAllWith(
+      "redirect to /confirm-full-repayment if any option other than" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
@@ -205,10 +205,9 @@ class ChooseExportMethodControllerSpec
 
         checkIsRedirect(
           performAction(Some(List(methodOfDisposal))),
-          routes.EnterContactDetailsController.show
+          routes.ConfirmFullRepaymentController.showFirst
         )
       }
     }
-
   }
 }
