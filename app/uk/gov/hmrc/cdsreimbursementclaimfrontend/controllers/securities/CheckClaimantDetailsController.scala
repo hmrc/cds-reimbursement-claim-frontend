@@ -83,6 +83,16 @@ class CheckClaimantDetailsController @Inject() (
     if journey.userHasSeenCYAPage || journey.reasonForSecurityIsIPR
     then (journey, Redirect(routes.CheckYourAnswersController.show))
     else (journey, Redirect(routes.CheckClaimantDetailsController.show))
+
+  override val submit: Action[AnyContent] = simpleActionReadJourney { journey =>
+    if journey.userHasSeenCYAPage then {
+      Redirect(checkYourAnswers)
+    } else {
+      if journey.getSecurityDetails.size == 1
+      then Redirect(routes.CheckClaimDetailsController.show)
+      else Redirect(nextPageInTheJourney)
+    }
+  }
 }
 
 object CheckClaimantDetailsController {

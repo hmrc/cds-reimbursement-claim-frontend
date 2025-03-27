@@ -34,7 +34,12 @@ class HaveDocumentsReadyController @Inject() (
     extends SecuritiesJourneyBaseController {
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => _ =>
-      Ok(haveDocumentsReadyPage()).asFuture
+    actionReadJourney { implicit request => journey =>
+      val continueUrl =
+        if journey.getSecurityDetails.size == 1
+        then routes.ConfirmSingleDepositRepaymentController.show.url
+        else routes.ChooseExportMethodController.show.url
+
+      Ok(haveDocumentsReadyPage(continueUrl)).asFuture
     }
 }

@@ -33,14 +33,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
-import scala.jdk.CollectionConverters.*
 
+import scala.jdk.CollectionConverters.*
 import scala.concurrent.Future
 
 class HaveDocumentsReadyControllerSpec
@@ -104,6 +105,29 @@ class HaveDocumentsReadyControllerSpec
               .asScala
               .find(_.text() == "Continue")
               .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
+        )
+      }
+
+      "display the page with correct continue url when declaration has only one security deposit" in {
+
+        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
+        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          showHaveDocumentsReadyPage,
+          messageFromMessageKey(s"have-documents-ready.title"),
+          implicit doc =>
+            messageFromMessageKey("have-documents-ready.p1") should include(getContentsOfParagraph(1))
+            doc
+              .select("a.govuk-button")
+              .asScala
+              .find(_.text() == "Continue")
+              .map(_.attr("href"))                         shouldBe Some(routes.ConfirmSingleDepositRepaymentController.show.url)
         )
       }
     }

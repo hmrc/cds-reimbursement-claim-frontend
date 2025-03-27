@@ -642,6 +642,11 @@ confirm-full-repayment.title=Claiming back security deposit ID: {0}
 confirm-full-repayment.question=Do you want to claim back the full amount?
 confirm-full-repayment.securityDeposit=Security deposit
 
+confirm-full-repayment.single-deposit-id.title=Tell us what you’re claiming
+confirm-full-repayment.single-deposit-id.total=Total security deposit or guarantee amount
+confirm-full-repayment.single-deposit-id.question=Do you want to claim back the full amount?
+
+
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}
 confirmation-of-submission.email-spam=Check your spam folder or contact HMRC if you haven’t received it.
