@@ -284,7 +284,7 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "continue to the check claimant details page if some securities has been selected" in {
+      "continue to the confirm full repayment page if some securities has been selected" in {
         forAll(
           mrnWithRfsExcludingWithDisplayDeclarationGen(
             ReasonForSecurity.ntas
@@ -313,7 +313,7 @@ class CheckDeclarationDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.EnterContactDetailsController.show
+              routes.ConfirmFullRepaymentController.showFirst
             )
           }
         }
