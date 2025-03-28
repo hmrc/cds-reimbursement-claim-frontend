@@ -100,7 +100,6 @@ class ChooseClaimTypeController @Inject() (
             case Securities =>
               val reasonForSecurityHelper = new ReasonForSecurityHelper(
                 configuration = viewConfig.config,
-                limitedSecuritiesAccessEnabled = featureSwitchService.isEnabled(LimitedAccessSecurities),
                 userHasSecuritiesAccess =
                   request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
               )

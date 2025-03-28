@@ -29,37 +29,36 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
 
   "ReasonForSecurityHelper" should {
 
-    "show only public options (ntas), limited access is on and all other reasons are dev-only" in {
+    "show only public options (ntas) when all other reasons are hidden" in {
 
       val config = Configuration(
         ConfigFactory.parseString(
           """
             | features.security-reasons.ntas = public
-            | features.security-reasons.niru = dev-only
-            | features.security-reasons.niru-opr = dev-only
-            | features.security-reasons.niru-csdr = dev-only
-            | features.security-reasons.nidac = dev-only
+            | features.security-reasons.niru = hidden
+            | features.security-reasons.niru-opr = hidden
+            | features.security-reasons.niru-csdr = hidden
+            | features.security-reasons.nidac = hidden
             |""".stripMargin
         )
       )
 
       new ReasonForSecurityHelper(
         configuration = config,
-        limitedSecuritiesAccessEnabled = true,
         userHasSecuritiesAccess = true
       ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.ntas
 
     }
 
-    "show only all options when limited access is off and regardless of the values of flags" in {
+    "show only all options when user has private beta access to all" in {
 
       val config = Configuration(
         ConfigFactory.parseString(
           """
             | features.security-reasons.ntas = private
-            | features.security-reasons.niru = dev-only
-            | features.security-reasons.niru-opr = dev-only
-            | features.security-reasons.niru-csdr = dev-only
+            | features.security-reasons.niru = private
+            | features.security-reasons.niru-opr = private
+            | features.security-reasons.niru-csdr = private
             | features.security-reasons.nidac = private
             |""".stripMargin
         )
@@ -67,13 +66,12 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
 
       new ReasonForSecurityHelper(
         configuration = config,
-        limitedSecuritiesAccessEnabled = false,
         userHasSecuritiesAccess = true
       ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.values
 
     }
 
-    "show public (ntas) and private (only the enabled niru options) when limited access is on and user has securities access" in {
+    "show public (ntas) and private (only the enabled niru options) when user has private beta access" in {
 
       val expectedOptions = Set(EndUseRelief, InwardProcessingRelief) ++ ReasonForSecurity.ntas
 
@@ -82,22 +80,21 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
           """
             | features.security-reasons.ntas = public
             | features.security-reasons.niru = private
-            | features.security-reasons.niru-opr = dev-only
-            | features.security-reasons.niru-csdr = dev-only
-            | features.security-reasons.nidac = dev-only
+            | features.security-reasons.niru-opr = hidden
+            | features.security-reasons.niru-csdr = hidden
+            | features.security-reasons.nidac = hidden
             |""".stripMargin
         )
       )
 
       new ReasonForSecurityHelper(
         configuration = config,
-        limitedSecuritiesAccessEnabled = true,
         userHasSecuritiesAccess = true
       ).avalaibleReasonsForSecurity() shouldBe expectedOptions
 
     }
 
-    "show public security reasons when limited access is on and user does not have securities access" in {
+    "show only public (ntas) when user does not have private beta access" in {
 
       val expectedOptions = ReasonForSecurity.ntas
 
@@ -106,47 +103,21 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
           """
             | features.security-reasons.ntas = public
             | features.security-reasons.niru = private
-            | features.security-reasons.niru-opr = dev-only
-            | features.security-reasons.niru-csdr = dev-only
-            | features.security-reasons.nidac = dev-only
+            | features.security-reasons.niru-opr = hidden
+            | features.security-reasons.niru-csdr = hidden
+            | features.security-reasons.nidac = hidden
             |""".stripMargin
         )
       )
 
       new ReasonForSecurityHelper(
         configuration = config,
-        limitedSecuritiesAccessEnabled = true,
         userHasSecuritiesAccess = false
       ).avalaibleReasonsForSecurity() shouldBe expectedOptions
 
     }
 
-    "show private security reasons when limited access is on and user does not have securities access" in {
-
-      val expectedOptions =
-        ReasonForSecurity.niru.filterNot(rfs => rfs == CommunitySystemsOfDutyRelief) ++ ReasonForSecurity.nidac
-
-      val config = Configuration(
-        ConfigFactory.parseString(
-          """
-            | features.security-reasons.ntas = dev-only
-            | features.security-reasons.niru = private
-            | features.security-reasons.niru-opr = private
-            | features.security-reasons.niru-csdr = dev-only
-            | features.security-reasons.nidac = private
-            |""".stripMargin
-        )
-      )
-
-      new ReasonForSecurityHelper(
-        configuration = config,
-        limitedSecuritiesAccessEnabled = true,
-        userHasSecuritiesAccess = true
-      ).avalaibleReasonsForSecurity() shouldBe expectedOptions
-
-    }
-
-    "show no options  when flag values are not recognised" in {
+    "show no options when flag values are not recognised" in {
 
       val config = Configuration(
         ConfigFactory.parseString(
@@ -162,7 +133,6 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
 
       new ReasonForSecurityHelper(
         configuration = config,
-        limitedSecuritiesAccessEnabled = true,
         userHasSecuritiesAccess = true
       ).avalaibleReasonsForSecurity() shouldBe Set.empty
 
