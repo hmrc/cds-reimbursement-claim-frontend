@@ -96,7 +96,9 @@ class ChooseExportMethodController @Inject() (
                   } else {
                     (
                       updatedJourney,
-                      Redirect(routes.ConfirmFullRepaymentController.showFirst)
+                      if journey.getSecurityDetails.size == 1
+                      then Redirect(routes.ChoosePayeeTypeController.show)
+                      else Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )
                   }
               )
