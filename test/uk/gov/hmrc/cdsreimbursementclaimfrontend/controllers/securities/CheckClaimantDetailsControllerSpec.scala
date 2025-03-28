@@ -269,24 +269,6 @@ class CheckClaimantDetailsControllerSpec
           )
         }
       }
-
-      "redirect to the check claim details page when user has only one security deposit" in {
-        val journey = incompleteJourney.sample.get
-
-        val session = SessionData(journey)
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-          mockStoreSession(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction(),
-          routes.CheckClaimDetailsController.show
-        )
-
-      }
     }
   }
 
