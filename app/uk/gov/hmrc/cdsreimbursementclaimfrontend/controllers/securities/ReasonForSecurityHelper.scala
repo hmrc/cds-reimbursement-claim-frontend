@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.Outwar
 
 class ReasonForSecurityHelper(
   configuration: Configuration,
-  limitedSecuritiesAccessEnabled: Boolean,
   userHasSecuritiesAccess: Boolean
 ) {
 
@@ -56,11 +55,8 @@ class ReasonForSecurityHelper(
     if !isEnabled(niruCsdrVisibility) then rfs === CommunitySystemsOfDutyRelief else false
 
   private def isEnabled(visibility: String): Boolean = visibility match
-    case "public"                                      => true
-    case "private" if limitedSecuritiesAccessEnabled   => userHasSecuritiesAccess
-    case "private" if !limitedSecuritiesAccessEnabled  => true
-    case "dev-only" if limitedSecuritiesAccessEnabled  => false
-    case "dev-only" if !limitedSecuritiesAccessEnabled => true
-    case _                                             => false
+    case "public"  => true
+    case "private" => userHasSecuritiesAccess
+    case _         => false
 
 }
