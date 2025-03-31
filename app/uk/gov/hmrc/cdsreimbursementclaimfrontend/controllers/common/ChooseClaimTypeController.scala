@@ -41,7 +41,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.route
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ReasonForSecurityHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.LimitedAccessSecurities
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService

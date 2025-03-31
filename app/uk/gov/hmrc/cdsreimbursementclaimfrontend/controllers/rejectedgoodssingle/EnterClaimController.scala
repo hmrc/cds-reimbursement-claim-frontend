@@ -54,7 +54,7 @@ class EnterClaimController @Inject() (
         case None                   => Redirect(routes.SelectDutiesController.show)
         case Some(correctedAmounts) =>
           val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.getOrElse(Seq.empty)
-          correctedAmounts.find((taxCode, claimOpt) => claimOpt.isEmpty) match {
+          correctedAmounts.find((_, claimOpt) => claimOpt.isEmpty) match {
             case None                      => Redirect(routes.CheckClaimDetailsController.show)
             case Some((taxCode, claimOpt)) =>
               Redirect {
@@ -191,10 +191,10 @@ class EnterClaimController @Inject() (
         case n if n < selectedTaxCodes.size - 1 =>
           val nextTaxCode = selectedTaxCodes(n + 1)
           journey.answers.correctedAmounts.getOrElse(Map.empty).get(nextTaxCode) match
-            case None                                          => Redirect(routes.CheckClaimDetailsController.show)
-            case Some(correctAmount) if correctAmount.isEmpty  =>
+            case None                                         => Redirect(routes.CheckClaimDetailsController.show)
+            case Some(correctAmount) if correctAmount.isEmpty =>
               Redirect(routes.EnterClaimController.show(nextTaxCode))
-            case Some(correctAmount) if correctAmount.nonEmpty => redirectToNextPage(journey, nextTaxCode)
+            case Some(correctAmount)                          => redirectToNextPage(journey, nextTaxCode)
 
         case _ => Redirect(routes.CheckClaimDetailsController.show)
       }

@@ -33,7 +33,9 @@ import uk.gov.hmrc.http.client.RequestBuilder
 import java.net.URL
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.annotation.nowarn
 
+@nowarn
 trait HttpV2Support { this: MockFactory & Matchers =>
 
   implicit val hc: HeaderCarrier                            = HeaderCarrier()

@@ -19,14 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
-final case class Duty(taxCode: TaxCode)
-object Duty {
-  implicit val format: OFormat[Duty] = Json.format[Duty]
-}
-
-final case class DutyAmount(taxCode: TaxCode, amount: BigDecimal) {
-  def asDuty: Duty = Duty(taxCode)
-}
+final case class DutyAmount(taxCode: TaxCode, amount: BigDecimal)
 
 object DutyAmount {
   implicit val format: OFormat[DutyAmount] = Json.format[DutyAmount]

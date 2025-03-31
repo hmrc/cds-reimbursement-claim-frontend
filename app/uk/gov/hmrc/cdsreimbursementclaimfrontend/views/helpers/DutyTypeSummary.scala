@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -33,9 +32,6 @@ object DutyTypeSummary {
 
   final case class ExciseDutyTypeSummary(override val total: BigDecimal)
       extends DutyTypeSummary(total, messageKey = "excise-duty.label")
-
-  def buildFrom(reimbursements: ClaimedReimbursementsAnswer): Seq[DutyTypeSummary] =
-    buildFrom(reimbursements.toList.map(r => (r.taxCode, r.claimAmount)))
 
   def buildFrom(reimbursements: Seq[(TaxCode, BigDecimal)]): Seq[DutyTypeSummary] = {
     val totals = reimbursements
