@@ -64,6 +64,40 @@ class SelectDutiesController @Inject() (
       .noneIfEmpty
       .fold(error(CdsError("no tax codes available")))(f)
 
+  final val showFirst: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    journey.getSecurityDepositIds.headOption
+      .map { securityId =>
+        processAvailableDuties[Result](
+          securityId: String,
+          journey: SecuritiesJourney,
+          error => {
+            logger.warn(s"No Available duties: $error")
+            Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+          },
+          dutiesAvailable =>
+            {
+              val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
+
+              val filledForm =
+                emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
+
+              Ok(
+                selectDutiesPage(
+                  filledForm,
+                  securityId,
+                  dutiesAvailable,
+                  routes.SelectDutiesController.submit(securityId)
+                )
+              )
+            }.asFuture
+        )
+      }
+      .getOrElse {
+        logger.warn(s"Cannot find any security deposit")
+        Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+      }
+  }
+
   final def show(securityId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     processAvailableDuties[Result](
       securityId: String,
