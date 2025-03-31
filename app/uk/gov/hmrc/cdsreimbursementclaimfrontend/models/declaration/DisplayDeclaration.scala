@@ -88,6 +88,9 @@ final case class DisplayDeclaration(
   def getSecurityDetails: Option[List[SecurityDetails]] =
     displayResponseDetail.securityDetails
 
+  def getSingleSecurityDetails: Option[SecurityDetails] =
+    displayResponseDetail.securityDetails.flatMap(_.headOption)
+
   def getNumberOfSecurityDeposits: Int = getSecurityDepositIds
     .map(_.size)
     .getOrElse(0)

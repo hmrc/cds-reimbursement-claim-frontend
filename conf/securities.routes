@@ -23,6 +23,10 @@ POST         /securities/select-securities/:id                         @uk.gov.h
 GET          /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.show
 POST         /securities/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsController.submit
 
+#TODO remove these temporary routes for single security deposit ID
+GET          /securities/single/check-mrn                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsSingleSecurityController.show
+POST         /securities/single/check-mrn                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsSingleSecurityController.submit
+
 GET          /securities/have-your-documents-ready                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.HaveDocumentsReadyController.show
 
 GET          /securities/check-import-declaration-details              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show
