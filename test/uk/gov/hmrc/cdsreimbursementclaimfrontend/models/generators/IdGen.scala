@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -28,13 +27,6 @@ object IdGen {
 
   lazy val genCaseNumber: Gen[String] =
     Gen.listOfN(25, Gen.numChar).map(_.mkString(""))
-
-  lazy val genAssociatedMrnIndex: Gen[AssociatedMrnIndex] = Gen
-    .chooseNum(0, 100)
-    .map(AssociatedMrnIndex.fromListIndex)
-
-  implicit lazy val arbitraryAssociatedMrnIndex: Arbitrary[AssociatedMrnIndex] =
-    Arbitrary(genAssociatedMrnIndex)
 
   lazy val genDan: Gen[Dan] =
     for

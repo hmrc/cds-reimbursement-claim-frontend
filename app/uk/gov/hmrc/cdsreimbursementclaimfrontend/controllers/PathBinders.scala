@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.PathBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -54,18 +53,6 @@ object PathBinders {
 
       override def unbind(key: String, dutyType: DutyType): String =
         stringBinder.unbind(key, dutyType.repr)
-    }
-
-  implicit def associatedMrnIndexPathBinder(implicit intBinder: PathBindable[Int]): PathBindable[AssociatedMrnIndex] =
-    new PathBindable[AssociatedMrnIndex] {
-      def bind(key: String, value: String): Either[String, AssociatedMrnIndex] =
-        for
-          index <- intBinder.bind(key, value)
-          user  <- Either.cond(index >= 2, AssociatedMrnIndex.fromUrlIndex(index), "Invalid MRN index")
-        yield user
-
-      def unbind(key: String, associatedMrnIndex: AssociatedMrnIndex): String =
-        AssociatedMrnIndex.toUrlIndex(associatedMrnIndex).toString
     }
 
 }

@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.PathBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class PathBindersSpec extends AnyWordSpec with Matchers {
@@ -28,21 +27,6 @@ class PathBindersSpec extends AnyWordSpec with Matchers {
     PathBindable.bindableInt
 
   "The path binders" should {
-
-    "parse associated mrn index" in {
-      PathBinders.associatedMrnIndexPathBinder.bind("key", "-1").isLeft shouldBe true
-      PathBinders.associatedMrnIndexPathBinder.bind("key", "0").isLeft  shouldBe true
-      PathBinders.associatedMrnIndexPathBinder.bind("key", "1").isLeft  shouldBe true
-      PathBinders.associatedMrnIndexPathBinder.bind("key", "2")         shouldBe Right(AssociatedMrnIndex(2))
-      PathBinders.associatedMrnIndexPathBinder.bind("key", "3")         shouldBe Right(AssociatedMrnIndex(3))
-    }
-
-    "serialize associated mrn index" in {
-      PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(-1)) shouldBe "-1"
-      PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(0))  shouldBe "0"
-      PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(1))  shouldBe "1"
-      PathBinders.associatedMrnIndexPathBinder.unbind("key", AssociatedMrnIndex(2))  shouldBe "2"
-    }
 
     "parse and serialize MRN" in {
       PathBinders.mrnBinder.bind("key", "foo")         shouldBe Right(MRN("FOO"))

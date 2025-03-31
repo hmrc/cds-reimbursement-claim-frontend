@@ -39,9 +39,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Consignee
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Consignee
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
