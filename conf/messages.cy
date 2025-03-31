@@ -175,27 +175,30 @@ check-declaration-details.subsidy-label=Cymhorthdal
 check-declaration-details.subsidy-status-label=Statws cymhorthdal
 check-declaration-details.title=Gwnewch yn siŵr bod manylion y datganiad hwn yn gywir
 check-declaration-details.yes=Iawn
+check-declaration-details.card.security-deposit-or-guarantee=Blaendal sicrwydd neu warant
+check-declaration-details.card.total-deposit=Cyfanswm y blaendal neu warant
 
-check-import-declaration-details.title=Check these details
-check-import-declaration-details.card.claim-details=Claim details
-check-import-declaration-details.card.import-details=Import details
+
+check-import-declaration-details.title=Gwiriwch y Cyfeirnod Symud (MRN) a nodwyd gennych
+check-import-declaration-details.card.claim-details=Manylion yr hawliad
+check-import-declaration-details.card.import-details=Manylion y mewnforio
 check-import-declaration-details.card.security-deposits=Security deposits
-check-import-declaration-details.card.importer-details=Importer details
-check-import-declaration-details.card.declarant-details=Declarant details
-check-import-declaration-details.mrn-label=Movement Reference Number (MRN)
-check-import-declaration-details.reason-for-security-label=Why was a security deposit needed?
-check-import-declaration-details.import-declaration-details.h2=Import declaration details
-check-import-declaration-details.import-declaration-details.help-text=You can <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">contact HMRC if these details are incorrect (opens in new tab)</a>.
-check-import-declaration-details.securities.lrn-label=Local Reference Number (LRN)
-check-import-declaration-details.acceptance-date-label=Date of import
+check-import-declaration-details.card.importer-details=Manylion y mewnforiwr
+check-import-declaration-details.card.declarant-details=Manylion y datganydd
+check-import-declaration-details.mrn-label=Cyfeirnod Symud (MRN)
+check-import-declaration-details.reason-for-security-label=Pam oedd angen blaendal sicrwydd?
+check-import-declaration-details.import-declaration-details.h2=Manylion y datganiad mewnforio ar gyfer yr MRN hwn
+check-import-declaration-details.import-declaration-details.help-text=Gallwch <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">gysylltu â CThEF os yw’r manylion yn anghywir (yn agor tab newydd)</a>.
+check-import-declaration-details.securities.lrn-label=Cyfeirnod Lleol (LRN)
+check-import-declaration-details.acceptance-date-label=Dyddiad mewnforio
 check-import-declaration-details.security-deposit-id=Security deposit ID
 check-import-declaration-details.security-deposit-value=Value of the deposit
-check-import-declaration-details.importer-name-label=Name
-check-import-declaration-details.importer-email-label=Email
-check-import-declaration-details.importer-address-label=Address
-check-import-declaration-details.declarant-name-label=Name
-check-import-declaration-details.declarant-email-label=Email
-check-import-declaration-details.declarant-address-label=Address
+check-import-declaration-details.importer-name-label=Enw
+check-import-declaration-details.importer-email-label=E-bost
+check-import-declaration-details.importer-address-label=Cyfeiriad
+check-import-declaration-details.declarant-name-label=Enw
+check-import-declaration-details.declarant-email-label=E-bost
+check-import-declaration-details.declarant-address-label=Cyfeiriad
 
 check-eori-details.eori-correct=Iawn
 check-eori-details.eori-correct-label=A yw’r manylion hyn yn gywir?
