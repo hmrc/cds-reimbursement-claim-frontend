@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -27,15 +26,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object ClaimedReimbursementsAnswerSummary {
-
-  def apply(
-    reimbursements: ClaimedReimbursementsAnswer,
-    key: String,
-    changeCallOpt: Option[Call]
-  )(implicit
-    messages: Messages
-  ): SummaryList =
-    apply(reimbursements.toList.map(r => (r.taxCode, r.claimAmount)), key, changeCallOpt)
 
   def apply(
     reimbursements: Seq[(TaxCode, BigDecimal)],

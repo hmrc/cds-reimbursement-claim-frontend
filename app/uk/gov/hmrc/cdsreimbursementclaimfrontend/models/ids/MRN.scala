@@ -16,12 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-import cats.data.Validated
-import cats.implicits.catsSyntaxOption
 import cats.Eq
-import cats.Id
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
@@ -35,11 +31,6 @@ final case class MRN private (value: String) {
 object MRN {
 
   private val validityRegex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
-
-  val validator: Validator[Id, MRN] = (maybeMrn: Option[MRN]) =>
-    maybeMrn.toValidNel[AnswerError](MissingAnswerError("MRN")).andThen { mrn =>
-      Validated.condNel[AnswerError, MRN](mrn.isValid, mrn, IncorrectAnswerError("MRN", "Invalid"))
-    }
 
   def apply(value: String): MRN = {
     val valueInUppercaseWithNoSpaces = value.toUpperCase(Locale.UK).replaceAll("\\s", "")

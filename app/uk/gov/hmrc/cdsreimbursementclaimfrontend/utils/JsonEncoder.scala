@@ -34,8 +34,10 @@ import java.util.Locale
 import scala.jdk.CollectionConverters.*
 import scala.util.Success
 import scala.util.Try
+import scala.annotation.nowarn
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+@nowarn
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
   private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)

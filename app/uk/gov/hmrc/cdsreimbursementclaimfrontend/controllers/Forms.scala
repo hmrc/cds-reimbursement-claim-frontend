@@ -30,8 +30,6 @@ import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AdditionalDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
@@ -192,14 +190,6 @@ object Forms {
       .verifying(maxLength(500))
   )
 
-  val additionalDetailsForm: Form[AdditionalDetailsAnswer] = Form(
-    mapping(
-      "enter-additional-details" -> nonEmptyText()
-        .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
-        .verifying(maxLength(500))
-    )(AdditionalDetailsAnswer.apply)(v => Some(v.value))
-  )
-
   val enterAdditionalDetailsForm: Form[String] = Form(
     "enter-additional-details" -> nonEmptyText()
       .transform[String](_.replace("\r\n", "\n"), _.replace("\n", "\r\n"))
@@ -229,24 +219,6 @@ object Forms {
   val checkTotalImportDischargedForm: Form[YesNo] = YesOrNoQuestionForm("check-total-import-discharged")
 
   val addOtherDocumentsForm: Form[YesNo] = YesOrNoQuestionForm("add-other-documents")
-
-  def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
-    mapping(
-      "select-duties" -> list(
-        mapping(
-          "" -> nonEmptyText
-            .verifying(
-              "invalid tax code",
-              code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
-            )
-            .transform[TaxCode](
-              (x: String) => TaxCodes.findUnsafe(x),
-              (t: TaxCode) => t.value
-            )
-        )(Duty.apply)(v => Some(v.taxCode))
-      ).verifying("error.required", _.nonEmpty)
-    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail*))(dsa => Some(dsa.toList))
-  )
 
   val selectDutyTypesForm: Form[List[DutyType]] = Form(
     mapping(

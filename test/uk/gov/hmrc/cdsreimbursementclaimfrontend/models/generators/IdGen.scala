@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import cats.data.NonEmptyList
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
@@ -37,9 +35,6 @@ object IdGen {
 
   implicit lazy val arbitraryAssociatedMrnIndex: Arbitrary[AssociatedMrnIndex] =
     Arbitrary(genAssociatedMrnIndex)
-
-  implicit lazy val arbitraryAssociatedMRNsAnswer: Arbitrary[NonEmptyList[AssociatedMrn]] =
-    GeneratorUtils.gen[NonEmptyList[AssociatedMrn]]
 
   lazy val genDan: Gen[Dan] =
     for

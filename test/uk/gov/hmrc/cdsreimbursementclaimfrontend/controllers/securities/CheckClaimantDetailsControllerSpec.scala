@@ -72,22 +72,6 @@ class CheckClaimantDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  private val incompleteJourney = buildJourneyGen(
-    acc14ConsigneeMatchesUserEori = true,
-    submitBankAccountDetails = false,
-    submitBankAccountType = false,
-    submitDeclarantDetails = false,
-    numberOfSecurityDetails = Some(1)
-  ).map(
-    _.fold(
-      error =>
-        throw new Exception(
-          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
-        ),
-      identity
-    )
-  )
-
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)

@@ -17,15 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.Validated.Valid
-import cats.data.Validated.invalidNel
 import cats.syntax.all.*
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.IncorrectAnswerError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 
 final case class BankAccountDetails(
@@ -78,19 +73,7 @@ object BankAccountDetails {
   def unapply3(bankAccountDetails: BankAccountDetails): Option[(AccountName, SortCode, AccountNumber)] =
     Some((bankAccountDetails.accountName, bankAccountDetails.sortCode, bankAccountDetails.accountNumber))
 
-  val validator: Validator[Option, BankAccountDetails] = (maybeBankDetails: Option[BankAccountDetails]) =>
-    maybeBankDetails
-      .toValidNel(MissingAnswerError("Bank account details"))
-      .andThen(bankDetails =>
-        if !AccountName.isValid(bankDetails.accountName.value) then
-          invalidNel(IncorrectAnswerError("Account name", "Invalid"))
-        else if !AccountNumber.isValid(bankDetails.accountNumber.value) then
-          invalidNel(IncorrectAnswerError("Account number", "Invalid"))
-        else if !SortCode.isValid(bankDetails.sortCode.value) then
-          invalidNel(IncorrectAnswerError("Sort code", "Invalid"))
-        else Valid(Some(bankDetails))
-      )
-  implicit val equality: Eq[BankAccountDetails]        =
+  implicit val equality: Eq[BankAccountDetails] =
     Eq.fromUniversalEquals[BankAccountDetails]
 
   implicit val format: OFormat[BankAccountDetails] =

@@ -16,13 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Id
-import cats.implicits.catsSyntaxOption
 import cats.kernel.Eq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
@@ -267,9 +263,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
   def isUploadedSeparately(document: UploadDocumentType): Boolean =
     document == BillOfDischarge3
       || document == ScheduleOfMRNs
-
-  val validator: Validator[Id, UploadDocumentType] = maybeUploadDocumentType =>
-    maybeUploadDocumentType.toValidNel(MissingAnswerError("Upload Document Type"))
 
   implicit val eq: Eq[UploadDocumentType] = Eq.fromUniversalEquals
 }

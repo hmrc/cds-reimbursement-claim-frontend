@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Id
-import cats.implicits.catsSyntaxOption
 import cats.kernel.Eq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
@@ -106,9 +103,6 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   private def excludeQuotaIfNeeded(isQuotaEnabled: Boolean): Set[BasisOfOverpaymentClaim] =
     if isQuotaEnabled then values else values - Quota
-
-  val validator: Validator[Id, BasisOfOverpaymentClaim] = maybeBasisOfClaim =>
-    maybeBasisOfClaim.toValidNel(MissingAnswerError("Basis of claims"))
 
   private[models] val basisOfOverpaymentsGoodsStringMap: Map[String, BasisOfOverpaymentClaim] =
     values.map(a => a.toString -> a).toMap

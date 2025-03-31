@@ -32,19 +32,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -110,15 +108,12 @@ class ConfirmSingleDepositRepaymentControllerSpec
     journey: SecuritiesJourney,
     isError: Boolean = false
   ) = {
-    val title               = doc.select("title").first().text()
-    val heading             = doc.select(".govuk-heading-l").eachText().asScala.toList
-    val legend              = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
-    val summaryKeys         = doc.select(".govuk-summary-list__key").eachText().asScala.toList
-    val summaryValues       = doc.select(".govuk-summary-list__value").eachText().asScala.toList
-    val currencyFormatter   = NumberFormat.getCurrencyInstance(Locale.UK)
-    val amountPaidFormatted = currencyFormatter.format(
-      journey.getSecurityDetailsFor(securityId).value.getTotalAmount
-    )
+    val title             = doc.select("title").first().text()
+    val heading           = doc.select(".govuk-heading-l").eachText().asScala.toList
+    val legend            = doc.select(".govuk-fieldset__legend").eachText().asScala.toList
+    val summaryKeys       = doc.select(".govuk-summary-list__key").eachText().asScala.toList
+    val summaryValues     = doc.select(".govuk-summary-list__value").eachText().asScala.toList
+    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
     val taxDetails = journey.getSecurityDetails.head.taxDetails.map(td =>
       messages(s"tax-code.${td.taxType}")
