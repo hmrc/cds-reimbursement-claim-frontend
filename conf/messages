@@ -648,6 +648,10 @@ confirm-full-repayment.single-deposit-id.title=Tell us what you’re claiming
 confirm-full-repayment.single-deposit-id.total=Total security deposit or guarantee amount
 confirm-full-repayment.single-deposit-id.question=Do you want to claim back the full amount?
 
+partial-claims.title=Partial claims
+partial-claims.p1=You can only submit one claim per Movement Reference Number (MRN) using this online service. If you make a partial claim now and need to submit another claim for the same MRN later, you will need to email <a id="contact-hmrc" href="mailto:ntis@hmrc.gov.uk" class="govuk-link">ntis@hmrc.gov.uk</a> with your claim details.
+partial-claims.h2=Do you want to continue?
+partial-claims.error.required=Select yes if you want to continue
 
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}

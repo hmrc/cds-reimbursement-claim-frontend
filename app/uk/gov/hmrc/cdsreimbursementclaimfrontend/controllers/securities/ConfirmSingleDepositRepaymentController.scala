@@ -136,5 +136,5 @@ class ConfirmSingleDepositRepaymentController @Inject() (
       .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture // fixme will me implemented in CDSR-3859
+    (journey, Redirect(routes.PartialClaimsController.show)).asFuture
 }
