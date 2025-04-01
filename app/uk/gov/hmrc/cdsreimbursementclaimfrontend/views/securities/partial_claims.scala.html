@@ -1,0 +1,74 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
+        radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio)
+
+
+@(form: Form[YesNo], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+
+@title = @{messages("partial-claims.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @heading(Html(title), classes="govuk-heading-l")
+
+    @paragraph(Html(messages("partial-claims.p1")))
+
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+
+        @radios(
+            form = form,
+            name = "partial-claims",
+            legend = messages("partial-claims.h2"),
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    value = Some("true"),
+                    content = Text(messages("generic.yes")),
+                    checked = form.value.contains(Yes)
+                ),
+                RadioItem(
+                    value = Some("false"),
+                    content = Text(messages("generic.no")),
+                    checked = form.value.contains(No)
+                )
+            )
+        )
+        @submitButton("button.continue")
+    }
+}

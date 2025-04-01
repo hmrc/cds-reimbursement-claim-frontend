@@ -69,6 +69,9 @@ GET          /securities/confirm-full-repayment                        @uk.gov.h
 GET          /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
 POST         /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
 
+GET          /securities/partial-claims                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.PartialClaimsController.show
+POST         /securities/partial-claims                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.PartialClaimsController.submit
+
 GET          /securities/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.showFirst
 GET          /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.show(id: String)
 POST         /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.submit(id: String)

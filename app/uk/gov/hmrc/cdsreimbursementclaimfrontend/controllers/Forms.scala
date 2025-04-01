@@ -98,6 +98,8 @@ object Forms {
 
   val selectSecuritiesForm: Form[YesNo] = YesOrNoQuestionForm("select-securities")
 
+  val partialClaimsForm: Form[YesNo] = YesOrNoQuestionForm("partial-claims")
+
   val selectBillOfDischargeForm: Form[YesNo] = YesOrNoQuestionForm("bill-of-discharge")
 
   val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
