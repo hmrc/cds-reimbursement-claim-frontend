@@ -27,8 +27,8 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging

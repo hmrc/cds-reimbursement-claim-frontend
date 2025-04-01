@@ -30,8 +30,8 @@ import play.api.data.Mapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.BankAccountTransfer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.CurrentMonthAdjustment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan

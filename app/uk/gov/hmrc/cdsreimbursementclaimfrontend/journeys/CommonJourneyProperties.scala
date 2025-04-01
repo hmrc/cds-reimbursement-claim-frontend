@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Declarant
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType.Representative
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Representative
 
 import java.time.LocalDateTime
 import scala.collection.immutable.SortedMap

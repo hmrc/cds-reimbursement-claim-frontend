@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed trait ClaimantType
+sealed trait YesNo extends Product with Serializable {
+  def asBoolean: Boolean
+}
 
-/** The type of a user filling out the claim. */
-object ClaimantType extends EnumerationFormat[ClaimantType] {
+object YesNo extends EnumerationFormat[YesNo] {
 
-  /** Importer of the goods. */
-  case object Consignee extends ClaimantType
+  def of(flag: Boolean): YesNo = if flag then Yes else No
 
-  /** A representative (a.k.a. Agent) who has submitted original import declaration. */
-  case object Declarant extends ClaimantType
+  case object No extends YesNo {
+    override final val asBoolean: Boolean = false
+  }
+  case object Yes extends YesNo {
+    override final val asBoolean: Boolean = true
+  }
 
-  /** New representative, not a consignee nor the original declarant. */
-  case object User extends ClaimantType
+  implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
 
-  override val values: Set[ClaimantType] = Set(Consignee, Declarant, User)
+  override val values: Set[YesNo] = Set(Yes, No)
+
 }

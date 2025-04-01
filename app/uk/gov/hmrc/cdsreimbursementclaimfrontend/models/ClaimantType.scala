@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed trait PayeeType
+sealed trait ClaimantType
 
 /** The type of a user filling out the claim. */
-object PayeeType extends EnumerationFormat[PayeeType] {
+object ClaimantType extends EnumerationFormat[ClaimantType] {
 
   /** Importer of the goods. */
-  case object Consignee extends PayeeType
+  case object Consignee extends ClaimantType
 
-  /** The organisation that submitted an import declaration on the importer's behalf */
-  case object Declarant extends PayeeType
+  /** A representative (a.k.a. Agent) who has submitted original import declaration. */
+  case object Declarant extends ClaimantType
 
-  /** Third parties, such as customs agents, freight forwarders, or fast parcel operators acting on the importer's
-    * behalf
-    */
-  case object Representative extends PayeeType
+  /** New representative, not a consignee nor the original declarant. */
+  case object User extends ClaimantType
 
-  override val values: Set[PayeeType] = Set(Consignee, Declarant, Representative)
+  override val values: Set[ClaimantType] = Set(Consignee, Declarant, User)
 }

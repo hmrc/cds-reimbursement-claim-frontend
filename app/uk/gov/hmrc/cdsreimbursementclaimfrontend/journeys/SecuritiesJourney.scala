@@ -26,9 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails

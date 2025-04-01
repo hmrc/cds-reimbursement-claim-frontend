@@ -26,9 +26,9 @@ import play.api.data.validation.ValidationError
 import play.api.data.validation.ValidationResult
 import play.api.data.Form
 import play.api.data.Mapping
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 
 object YesOrNoQuestionForm {
 

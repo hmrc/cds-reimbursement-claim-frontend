@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 
 object PayeeTypeGen {
   implicit lazy val arbitraryPayeeType: Arbitrary[PayeeType] =

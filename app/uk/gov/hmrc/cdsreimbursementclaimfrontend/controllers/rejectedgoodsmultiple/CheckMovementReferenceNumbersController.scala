@@ -26,8 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_movement_reference_numbers
 
