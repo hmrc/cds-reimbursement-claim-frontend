@@ -83,8 +83,8 @@ class PartialClaimsController @Inject() (
             case YesNo.No  =>
               (
                 journey,
-                Redirect(commonRoutes.ChooseClaimTypeController.show)
-              ) // TODO change this once CDSR-3864 is completed
+                Redirect(routes.ClaimDeletedController.show)
+              )
           }).asFuture
       )
   }
