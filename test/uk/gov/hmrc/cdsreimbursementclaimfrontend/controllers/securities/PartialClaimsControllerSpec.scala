@@ -169,8 +169,7 @@ class PartialClaimsControllerSpec
         }
       }
 
-      // TODO implement once CDSR-3864 has been completed
-      "continue to claim deleted page when no is selected" ignore {
+      "continue to claim deleted page when no is selected" in {
         forAll(incompleteJourney) { journey =>
           val sessionData = SessionData(journey)
           inSequence {
@@ -181,7 +180,7 @@ class PartialClaimsControllerSpec
 
           checkIsRedirect(
             performAction(Seq(partialClaimsKey -> "false")),
-            "/claim-deleted"
+            routes.ClaimDeletedController.show
           )
         }
       }

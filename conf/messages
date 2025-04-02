@@ -653,6 +653,11 @@ partial-claims.p1=You can only submit one claim per Movement Reference Number (M
 partial-claims.h2=Do you want to continue?
 partial-claims.error.required=Select yes if you want to continue
 
+claim-deleted.title=Your claim details have not been saved
+claim-deleted.p1=You’ve chosen not to continue with your claim for repayment of a security deposit or guarantee at this time.
+claim-deleted.link1=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Start another claim</a>
+claim-deleted.link2=<a class="govuk-link" rel="noreferrer noopener" href="{0}">Visit your claims dashboard</a>
+
 confirmation-of-submission.claim-reference=Claim reference number
 confirmation-of-submission.email-sent=We have sent a confirmation email to {0}
 confirmation-of-submission.email-spam=Check your spam folder or contact HMRC if you have not received it.

@@ -64,13 +64,16 @@ POST         /securities/claimant-details/confirm-contact-details      @uk.gov.h
 GET          /securities/single/confirm-full-repayment                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmSingleDepositRepaymentController.show
 POST         /securities/single/confirm-full-repayment                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmSingleDepositRepaymentController.submit
 
-
 GET          /securities/confirm-full-repayment                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.showFirst
 GET          /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.show(id: String)
 POST         /securities/confirm-full-repayment/:id                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ConfirmFullRepaymentController.submit(id: String)
 
 GET          /securities/partial-claims                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.PartialClaimsController.show
 POST         /securities/partial-claims                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.PartialClaimsController.submit
+
+GET          /securities/claim-deleted                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimDeletedController.show
+GET          /securities/start-new-claim                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimDeletedController.startNewClaim
+GET          /securities/dashboard                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimDeletedController.redirectToDashboard
 
 GET          /securities/select-duties                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.showFirst
 GET          /securities/select-duties/:id                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesController.show(id: String)
