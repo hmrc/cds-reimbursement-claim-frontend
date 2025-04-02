@@ -38,6 +38,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
             | features.security-reasons.niru-opr = hidden
             | features.security-reasons.niru-csdr = hidden
             | features.security-reasons.nidac = hidden
+            | features.security-reasons.nidac-mdp = hidden
             |""".stripMargin
         )
       )
@@ -59,6 +60,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
             | features.security-reasons.niru-opr = private
             | features.security-reasons.niru-csdr = private
             | features.security-reasons.nidac = private
+            | features.security-reasons.nidac-mdp = hidden
             |""".stripMargin
         )
       )
@@ -82,6 +84,55 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
             | features.security-reasons.niru-opr = hidden
             | features.security-reasons.niru-csdr = hidden
             | features.security-reasons.nidac = hidden
+            | features.security-reasons.nidac-mdp = hidden
+            |""".stripMargin
+        )
+      )
+
+      new ReasonForSecurityHelper(
+        configuration = config,
+        userHasSecuritiesAccess = true
+      ).avalaibleReasonsForSecurity() shouldBe expectedOptions
+
+    }
+
+    "show public (ntas, nidac-mdp)" in {
+
+      val expectedOptions = Set(ReasonForSecurity.MissingPreferenceCertificate) ++ ReasonForSecurity.ntas
+
+      val config = Configuration(
+        ConfigFactory.parseString(
+          """
+            | features.security-reasons.ntas = public
+            | features.security-reasons.niru = hidden
+            | features.security-reasons.niru-opr = hidden
+            | features.security-reasons.niru-csdr = hidden
+            | features.security-reasons.nidac = hidden
+            | features.security-reasons.nidac-mdp = public
+            |""".stripMargin
+        )
+      )
+
+      new ReasonForSecurityHelper(
+        configuration = config,
+        userHasSecuritiesAccess = false
+      ).avalaibleReasonsForSecurity() shouldBe expectedOptions
+
+    }
+
+    "show public ntas and private nidac-mdp" in {
+
+      val expectedOptions = Set(ReasonForSecurity.MissingPreferenceCertificate) ++ ReasonForSecurity.ntas
+
+      val config = Configuration(
+        ConfigFactory.parseString(
+          """
+            | features.security-reasons.ntas = public
+            | features.security-reasons.niru = hidden
+            | features.security-reasons.niru-opr = hidden
+            | features.security-reasons.niru-csdr = hidden
+            | features.security-reasons.nidac = hidden
+            | features.security-reasons.nidac-mdp = private
             |""".stripMargin
         )
       )
@@ -105,6 +156,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
             | features.security-reasons.niru-opr = hidden
             | features.security-reasons.niru-csdr = hidden
             | features.security-reasons.nidac = hidden
+            | features.security-reasons.nidac-mdp = hidden
             |""".stripMargin
         )
       )
@@ -126,6 +178,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
             | features.security-reasons.niru-opr = bar
             | features.security-reasons.niru-csdr = blah
             | features.security-reasons.nidac = poublic
+            | features.security-reasons.nidac-mdp = hiden
             |""".stripMargin
         )
       )

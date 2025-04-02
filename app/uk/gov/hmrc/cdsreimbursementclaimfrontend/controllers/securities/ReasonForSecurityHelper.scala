@@ -29,6 +29,7 @@ class ReasonForSecurityHelper(
 
   private lazy val ntasVisibility: String     = configuration.get[String]("features.security-reasons.ntas")
   private lazy val nidacVisibility: String    = configuration.get[String]("features.security-reasons.nidac")
+  private lazy val nidacMdpVisibility: String = configuration.get[String]("features.security-reasons.nidac-mdp")
   private lazy val niruVisibility: String     = configuration.get[String]("features.security-reasons.niru")
   private lazy val niruOprVisibility: String  = configuration.get[String]("features.security-reasons.niru-opr")
   private lazy val niruCsdrVisibility: String = configuration.get[String]("features.security-reasons.niru-csdr")
@@ -39,7 +40,8 @@ class ReasonForSecurityHelper(
     if isEnabled(ntasVisibility) then ReasonForSecurity.ntas else Set.empty
 
   private def getNidacOptions() =
-    if isEnabled(nidacVisibility) then ReasonForSecurity.nidac else Set.empty
+    (if isEnabled(nidacVisibility) then ReasonForSecurity.nidac else Set.empty)
+      ++ (if isEnabled(nidacMdpVisibility) then Set(ReasonForSecurity.MissingPreferenceCertificate) else Set.empty)
 
   private def getNiruOptions() = {
     val options = if isEnabled(niruVisibility) then ReasonForSecurity.niru else Set.empty
