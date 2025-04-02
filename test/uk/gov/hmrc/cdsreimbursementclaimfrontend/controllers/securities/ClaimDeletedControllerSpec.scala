@@ -29,7 +29,6 @@ import play.api.mvc.MessagesRequest
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -38,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
@@ -63,15 +61,23 @@ class ClaimDeletedControllerSpec
 
   val controller: ClaimDeletedController = instanceOf[ClaimDeletedController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
+  val eori = Eori("AB12345678901234Z")
+
+  lazy val authenticatedRequest =
+    AuthenticatedRequestWithRetrievedData(
+      AuthenticatedUser.Individual(
+        None,
+        eori,
+        Some("John Smith")
+      ),
+      Some(UserType.Individual),
+      messagesRequest
+    )
+
+  lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
   "ClaimDeletedController" when {
 
@@ -83,12 +89,7 @@ class ClaimDeletedControllerSpec
         .head
 
     "show page" must {
-      def showClaimDeletedPage: Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(showClaimDeletedPage) shouldBe NOT_FOUND
-      }
+      def showClaimDeletedPage(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.show()(rh)
 
       "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
@@ -99,7 +100,7 @@ class ClaimDeletedControllerSpec
         }
 
         checkPageIsDisplayed(
-          showClaimDeletedPage,
+          showClaimDeletedPage(authenticatedRequest),
           messageFromMessageKey("claim-deleted.title"),
           implicit doc => messageFromMessageKey("claim-deleted.p1") should include(getContentsOfParagraph(1))
         )
@@ -111,28 +112,36 @@ class ClaimDeletedControllerSpec
 
       "redirect to start of journey" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-        val eori           = Eori("AB12345678901234Z")
-
-        lazy val authenticatedRequest =
-          AuthenticatedRequestWithRetrievedData(
-            AuthenticatedUser.Individual(
-              None,
-              eori,
-              Some("John Smith")
-            ),
-            Some(UserType.Individual),
-            messagesRequest
-          )
-
-          lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
+          mockStoreSession(
+            SessionData.empty
+          )(Right(()))
         }
 
         val result = performAction(authenticatedRequest)
         checkIsRedirect(result, baseRoutes.StartController.start())
+      }
+    }
+
+    "redirect to dashboard" must {
+      def performAction(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.redirectToDashboard()(rh)
+
+      "redirect to the claims dashboard" in forAll(completeJourneyGen) { journey =>
+        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+          mockStoreSession(
+            SessionData.empty
+          )(Right(()))
+        }
+
+        val result = performAction(authenticatedRequest)
+        checkIsRedirect(result, viewConfig.viewUploadUrl)
       }
     }
   }
