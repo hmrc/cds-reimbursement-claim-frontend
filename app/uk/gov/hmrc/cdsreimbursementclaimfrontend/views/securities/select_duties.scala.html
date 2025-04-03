@@ -35,11 +35,12 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[Seq[TaxCode]], securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[Seq[TaxCode]], singleSecurityDeposit: Boolean, securityId: String, dutiesToDisplay : Seq[DutyAmount], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
   @title = @{messages(s"select-duties.securities.title")}
   @caption = @{messages(s"select-duties.caption", securityId)}
   @pageTitleWithCaption = @{s"$caption: $title"}
+  @pageTitle = @{if (singleSecurityDeposit) title else pageTitleWithCaption}
 
   @options = @{SelectDutiesSummary(dutiesToDisplay).zipWithIndex.map {
     case (dutyDescription: DutyDescription, _: Int) =>
@@ -48,19 +49,23 @@
             name = Some(s"select-duties[]"),
             value = dutyDescription.duty.taxCode.value,
             content = Text(dutyDescription.toString),
-            checked = form.data.exists(_._2 == dutyDescription.duty.taxCode.value),
-            hint = Some(Hint(content = Text(dutyDescription.caption)))
+            checked = form.data.exists(_._2 == dutyDescription.duty.taxCode.value)
         )
     }}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(pageTitleWithCaption), hasErrors = hasErrors) {
+    @layout(pageTitle = Some(pageTitle), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
         @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
-        @heading(Html(title), caption)
+        @if(singleSecurityDeposit){
+            @heading(Html(title))
+        }else{
+            @heading(Html(title), caption)
+        }
+
         @checkboxes(
             field = form(s"select-duties"),
             legendAsHeading = false,

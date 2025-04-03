@@ -44,7 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -94,6 +93,7 @@ class SelectDutiesControllerSpec
 
   def validateSelectDutiesPage(
     securityId: String,
+    singleSecurity: Boolean,
     doc: Document,
     journey: SecuritiesJourney,
     isError: Boolean = false
@@ -108,23 +108,33 @@ class SelectDutiesControllerSpec
     val taxDetails: Seq[TaxDetails] =
       dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
 
-    title                    should ===(
+    val expectedTitle =
+      if (singleSecurity)
+        s"What do you want to claim? - Claim back import duty and VAT - GOV.UK"
+      else
+        s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
+
+    if (singleSecurity) {
+      println("here")
+    }
+
+    title       should ===(
       (if isError then "Error: "
-       else
-         ""
-      ) + s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
+       else "") + expectedTitle
     )
-    caption                  should ===(List(s"Security deposit ID: $securityId"))
-    formHeading              should ===(List(s"Security deposit ID: $securityId What do you want to claim?"))
-    checkboxes(doc)          should contain theSameElementsAs dutiesAvailable.map(tc =>
+    caption     should ===(
+      if singleSecurity then List.empty
+      else List(s"Security deposit ID: $securityId")
+    )
+    formHeading should ===(
+      if singleSecurity then List("What do you want to claim?")
+      else List(s"Security deposit ID: $securityId What do you want to claim?")
+    )
+
+    checkboxes(doc) should contain theSameElementsAs dutiesAvailable.map(tc =>
       (s"${tc.value} - ${messages(s"$messagesKey.duty.${tc.value}")}", tc.value)
     )
-    checkboxesWithHints(doc) should contain theSameElementsAs taxDetails.map(td =>
-      (
-        s"${td.getTaxCode} - ${messages(s"$messagesKey.duty.${td.getTaxCode}")}",
-        messages(s"$messagesKey.duty.caption").format(td.getAmount.toPoundSterlingString)
-      )
-    )
+
     val checkboxDescriptions: List[String] = checkboxes(doc).map(_._1).toList
     val taxCodeDescriptions: List[String]  = taxDetails
       .map(_.getTaxCode)
@@ -157,7 +167,25 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, doc, journey)
+              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
+            )
+          }
+        }
+      "display the page on a journey with a single security deposit" in
+        forAll(buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))) { journey =>
+          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          securityIdWithTaxCodes(journey).fold(
+            (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
+          ) { securityId =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(updatedSession)
+            }
+
+            checkPageIsDisplayed(
+              performAction(securityId),
+              messageFromMessageKey(s"$messagesKey.securities.title"),
+              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
             )
           }
         }
@@ -251,7 +279,14 @@ class SelectDutiesControllerSpec
               checkPageIsDisplayed(
                 performAction(securityId, Seq.empty),
                 messageFromMessageKey(s"$messagesKey.securities.title"),
-                doc => validateSelectDutiesPage(securityId = securityId, doc = doc, journey = journey, isError = true)
+                doc =>
+                  validateSelectDutiesPage(
+                    securityId = securityId,
+                    journey.getSecurityDetails.size == 1,
+                    doc = doc,
+                    journey = journey,
+                    isError = true
+                  )
               )
             }
           }
