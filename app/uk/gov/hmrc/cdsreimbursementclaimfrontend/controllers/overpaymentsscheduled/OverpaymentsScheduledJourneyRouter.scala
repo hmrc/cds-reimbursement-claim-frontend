@@ -46,6 +46,7 @@ trait OverpaymentsScheduledJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
       case DUTIES_CHANGE_MODE_ENABLED                               => routes.CheckClaimDetailsController.show
+      case PAYEE_TYPE_MUST_BE_DEFINED                               => routes.ChoosePayeeTypeController.show
       case _                                                        => undefined
     }
 

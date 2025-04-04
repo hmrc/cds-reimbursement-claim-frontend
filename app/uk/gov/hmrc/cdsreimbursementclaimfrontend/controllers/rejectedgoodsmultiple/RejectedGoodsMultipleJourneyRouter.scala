@@ -55,7 +55,9 @@ trait RejectedGoodsMultipleJourneyRouter {
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
       case REIMBURSEMENT_METHOD_MUST_BE_DEFINED                     => undefined
       case REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED          => undefined
+      case PAYEE_TYPE_MUST_BE_DEFINED                               => routes.ChoosePayeeTypeController.show
       case _                                                        => undefined
+
     }
 
   def routeForValidationErrors(errors: Seq[String]): Call =
