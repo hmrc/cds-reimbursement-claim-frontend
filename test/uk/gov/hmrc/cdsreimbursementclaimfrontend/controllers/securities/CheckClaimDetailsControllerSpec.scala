@@ -36,6 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -150,9 +152,42 @@ class CheckClaimDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the next page" in forAllWith(
+      "redirect to the choose export method page when RFS is NTAS" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen
+            .map((mrn, _, decl, reclaims) =>
+              (
+                mrn,
+                ReasonForSecurity.TemporaryAdmission3M,
+                decl.withReasonForSecurity(ReasonForSecurity.TemporaryAdmission3M),
+                reclaims
+              )
+            ),
+          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+        )
+      ) { case (initialJourney, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ChooseExportMethodController.show
+        )
+      }
+
+      "redirect to the choose payee type page when RFS is not NTAS" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen
+            .map((mrn, _, decl, reclaims) =>
+              (
+                mrn,
+                ReasonForSecurity.MissingPreferenceCertificate,
+                decl.withReasonForSecurity(MissingPreferenceCertificate),
+                reclaims
+              )
+            ),
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>

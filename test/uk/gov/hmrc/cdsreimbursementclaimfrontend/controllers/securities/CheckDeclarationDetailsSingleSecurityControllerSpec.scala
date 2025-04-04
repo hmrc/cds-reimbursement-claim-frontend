@@ -225,7 +225,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.ConfirmFullRepaymentController.showFirst
+              routes.ConfirmSingleDepositRepaymentController.show
             )
           }
         }

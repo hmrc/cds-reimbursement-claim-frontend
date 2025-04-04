@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment_for_single_depositId
 
 import scala.concurrent.ExecutionContext
@@ -129,7 +130,8 @@ class ConfirmSingleDepositRepaymentController @Inject() (
             updatedJourney,
             Redirect {
               if journey.userHasSeenCYAPage then routes.CheckYourAnswersController.show
-              else routes.ChooseExportMethodController.show
+              else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show
+              else routes.ChoosePayeeTypeController.show
             }
           )
       )

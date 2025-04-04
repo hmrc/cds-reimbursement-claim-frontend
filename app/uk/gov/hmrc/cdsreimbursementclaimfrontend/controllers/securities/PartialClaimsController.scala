@@ -79,7 +79,7 @@ class PartialClaimsController @Inject() (
         yesNo =>
           (yesNo match {
             case YesNo.Yes =>
-              (journey, Redirect(routes.ChooseExportMethodController.show)) // TODO change to SelectDutiesController
+              (journey, Redirect(routes.SelectDutiesController.showFirst))
             case YesNo.No  =>
               (
                 journey,

@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details
 
 import scala.concurrent.ExecutionContext
@@ -92,5 +93,6 @@ class CheckClaimDetailsController @Inject() (
 
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if journey.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
+    else if journey.getReasonForSecurity.exists(ntas.contains) then Redirect(routes.ChooseExportMethodController.show)
     else Redirect(routes.ChoosePayeeTypeController.show)
 }

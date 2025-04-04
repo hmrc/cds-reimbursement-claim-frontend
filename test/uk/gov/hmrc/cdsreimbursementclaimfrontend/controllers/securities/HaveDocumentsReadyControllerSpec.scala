@@ -87,27 +87,6 @@ class HaveDocumentsReadyControllerSpec
         status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          showHaveDocumentsReadyPage,
-          messageFromMessageKey(s"have-documents-ready.title"),
-          implicit doc =>
-            messageFromMessageKey("have-documents-ready.p1") should include(getContentsOfParagraph(1))
-            doc
-              .select("a.govuk-button")
-              .asScala
-              .find(_.text() == "Continue")
-              .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
-        )
-      }
-
       "display the page with correct continue url when declaration has only one security deposit" in {
 
         val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
@@ -128,6 +107,29 @@ class HaveDocumentsReadyControllerSpec
               .asScala
               .find(_.text() == "Continue")
               .map(_.attr("href"))                         shouldBe Some(routes.ConfirmSingleDepositRepaymentController.show.url)
+        )
+      }
+
+      "display the page with correct continue url when declaration has multiple security deposits" in {
+
+        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(3)).sample.get
+        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          showHaveDocumentsReadyPage,
+          messageFromMessageKey(s"have-documents-ready.title"),
+          implicit doc =>
+            messageFromMessageKey("have-documents-ready.p1") should include(getContentsOfParagraph(1))
+            doc
+              .select("a.govuk-button")
+              .asScala
+              .find(_.text() == "Continue")
+              .map(_.attr("href"))                         shouldBe Some(routes.ConfirmFullRepaymentController.showFirst.url)
         )
       }
     }

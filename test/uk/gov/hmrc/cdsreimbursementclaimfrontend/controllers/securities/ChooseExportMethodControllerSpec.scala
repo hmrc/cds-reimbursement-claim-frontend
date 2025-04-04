@@ -191,7 +191,7 @@ class ChooseExportMethodControllerSpec
         )
       }
 
-      "redirect to /confirm-full-repayment if any option other than" in forAllWith(
+      "redirect to /choose-payee-type if any other option selected" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
@@ -205,7 +205,7 @@ class ChooseExportMethodControllerSpec
 
         checkIsRedirect(
           performAction(Some(List(methodOfDisposal))),
-          routes.ConfirmFullRepaymentController.showFirst
+          routes.ChoosePayeeTypeController.show
         )
       }
     }

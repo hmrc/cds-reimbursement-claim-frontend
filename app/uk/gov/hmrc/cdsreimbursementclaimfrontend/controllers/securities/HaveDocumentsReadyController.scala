@@ -38,7 +38,7 @@ class HaveDocumentsReadyController @Inject() (
       val continueUrl =
         if journey.getSecurityDetails.size == 1
         then routes.ConfirmSingleDepositRepaymentController.show.url
-        else routes.ChooseExportMethodController.show.url
+        else routes.ConfirmFullRepaymentController.showFirst.url
 
       Ok(haveDocumentsReadyPage(continueUrl)).asFuture
     }

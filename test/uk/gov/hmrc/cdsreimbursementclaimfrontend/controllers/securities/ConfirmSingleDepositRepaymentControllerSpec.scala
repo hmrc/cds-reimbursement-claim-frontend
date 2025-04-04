@@ -41,6 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission3M
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -92,6 +94,40 @@ class ConfirmSingleDepositRepaymentControllerSpec
     submitBankAccountType = false,
     submitDeclarantDetails = false,
     numberOfSecurityDetails = Some(1)
+  ).map(
+    _.fold(
+      error =>
+        throw new Exception(
+          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
+        ),
+      identity
+    )
+  )
+
+  private val incompleteJourneyNtas = buildJourneyGen(
+    acc14ConsigneeMatchesUserEori = true,
+    submitBankAccountDetails = false,
+    submitBankAccountType = false,
+    submitDeclarantDetails = false,
+    numberOfSecurityDetails = Some(1),
+    reasonsForSecurity = Set(TemporaryAdmission3M)
+  ).map(
+    _.fold(
+      error =>
+        throw new Exception(
+          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
+        ),
+      identity
+    )
+  )
+
+  private val incompleteJourneyNidac = buildJourneyGen(
+    acc14ConsigneeMatchesUserEori = true,
+    submitBankAccountDetails = false,
+    submitBankAccountType = false,
+    submitDeclarantDetails = false,
+    numberOfSecurityDetails = Some(1),
+    reasonsForSecurity = Set(MissingPreferenceCertificate)
   ).map(
     _.fold(
       error =>
@@ -176,8 +212,8 @@ class ConfirmSingleDepositRepaymentControllerSpec
         status(performAction(Seq.empty)) shouldBe NOT_FOUND
       }
 
-      "continue to choose export method page when yes is selected" in {
-        forAll(incompleteJourney) { journey =>
+      "continue to choose export method page when yes is selected and reason for security is NTAS" in {
+        forAll(incompleteJourneyNtas) { journey =>
           val sessionData = SessionData(journey)
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -192,9 +228,8 @@ class ConfirmSingleDepositRepaymentControllerSpec
         }
       }
 
-      // TODO implement once the new single security journey is fully connected
-      "continue to partial claims page when no is selected" ignore {
-        forAll(incompleteJourney) { journey =>
+      "continue to choose payee type page when yes is selected and reason for security is NIDAC" in {
+        forAll(incompleteJourneyNidac) { journey =>
           val sessionData = SessionData(journey)
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -204,6 +239,22 @@ class ConfirmSingleDepositRepaymentControllerSpec
 
           checkIsRedirect(
             performAction(Seq(confirmFullRepaymentKey -> "true")),
+            routes.ChoosePayeeTypeController.show
+          )
+        }
+      }
+
+      "continue to partial claims page when no is selected" in {
+        forAll(incompleteJourney) { journey =>
+          val sessionData = SessionData(journey)
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(sessionData)
+            mockStoreSession(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(Seq(confirmFullRepaymentKey -> "false")),
             routes.PartialClaimsController.show
           )
         }

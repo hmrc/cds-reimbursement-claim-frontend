@@ -64,6 +64,6 @@ class CheckDeclarationDetailsSingleSecurityController @Inject() (
       if (journey.getReasonForSecurity.exists(ntas.contains))
         Redirect(routes.HaveDocumentsReadyController.show)
       else
-        Redirect(routes.ConfirmFullRepaymentController.showFirst)
+        Redirect(routes.ConfirmSingleDepositRepaymentController.show)
     }
 }
