@@ -1004,6 +1004,8 @@ enter-claim.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod
 enter-claim.error.required=Nodwch y swm a ddylai fod wedi’i dalu, mewn punnoedd
 enter-claim.exchange-rate-details.heading=Cyfrifo’ch taliad
 enter-claim.exchange-rate-details.paragraph=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>. <br><br> Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch gyflwyno’ch datganiad gwreiddiol. Wrth drosi i GBP, os cyflwynwyd eich datganiad gwreiddiol ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer mis Hydref 2023.
+enter-claim.securities.exchange-rate-details.p1=Os oes angen i chi gyfrifo gwerth eich nwyddau mewn punnoedd sterling (GBP), dylech ond ddefnyddio cyfraddau cyfnewid CThEF <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank"> (yn agor mewn tab newydd)</a>.
+enter-claim.securities.exchange-rate-details.p2=Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch fewnforio’r nwyddau. Er enghraifft, os gwnaethoch gyflwyno’ch datganiad mewnforio ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer Hydref 2023.
 enter-claim.help-text.excise=Dylech gynnwys manylion toll {0} ({1}).
 enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
@@ -1061,7 +1063,6 @@ enter-claim.scheduled.subsidy-inset-text=Bydd balans eich cymhorthdal wedi’i d
 enter-claim.scheduled.title={0} {1} - {2}
 enter-claim.scheduled.title.excise={0} - {1} {2}
 
-enter-claim.securities.paid-amount-label=Faint o {1} - {2} a dalwyd: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=ID y Blaendal Sicrwydd: {0}
 enter-claim.securities.title={0} - {1}
 

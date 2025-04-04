@@ -80,20 +80,27 @@ class EnterClaimControllerSpec
   def validateEnterClaimPage(
     doc: Document,
     securityDepositId: String,
+    singleSecurity: Boolean,
     taxCode: TaxCode,
     amount: BigDecimal
   ) = {
 
-    val caption         = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val heading         = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val caption         = doc.select("span.govuk-caption-l").eachText().asScala.toList
+    val heading         = doc.select(".govuk-heading-l").eachText().asScala.toList
     val expectedCaption = messages("enter-claim.securities.securityIdLabel", securityDepositId)
 
-    caption shouldBe List(expectedCaption)
-    heading shouldBe List(s"$expectedCaption $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+    caption should ===(
+      if singleSecurity then List.empty
+      else List(expectedCaption)
+    )
+    heading should ===(
+      if singleSecurity then List(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+      else List(s"$expectedCaption $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+    )
 
-    doc.select("#amount-paid").text()                      shouldBe amount.toPoundSterlingString
-    doc.select("input[name='enter-claim-amount']").`val`() shouldBe ""
-    doc.select("form").attr("action")                      shouldBe routes.EnterClaimController.submit(securityDepositId, taxCode).url
+    doc.select(".govuk-summary-list__row dd.govuk-summary-list__value").text() shouldBe amount.toPoundSterlingString
+    doc.select("input[name='enter-claim-amount']").`val`()                     shouldBe ""
+    doc.select("form").attr("action")                                          shouldBe routes.EnterClaimController.submit(securityDepositId, taxCode).url
   }
 
   "EnterClaimController" when {
@@ -182,7 +189,14 @@ class EnterClaimControllerSpec
           checkPageIsDisplayed(
             performAction(depositId, taxCode),
             messageFromMessageKey(s"$messagesKey.title", taxCode, messages(s"select-duties.duty.$taxCode")),
-            doc => validateEnterClaimPage(doc, depositId, taxCode, depositAmount)
+            doc =>
+              validateEnterClaimPage(
+                doc,
+                depositId,
+                initialJourney.getSecurityDetails.size == 1,
+                taxCode,
+                depositAmount
+              )
           )
         }
       }

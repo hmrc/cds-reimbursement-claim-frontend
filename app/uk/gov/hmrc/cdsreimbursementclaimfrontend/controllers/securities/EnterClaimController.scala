@@ -80,6 +80,7 @@ class EnterClaimController @Inject() (
               enterClaimPage(
                 form,
                 securityDepositId,
+                journey.getSecurityDetails.size == 1,
                 taxCode,
                 paidAmount,
                 routes.EnterClaimController.submit(securityDepositId, taxCode)
@@ -109,6 +110,7 @@ class EnterClaimController @Inject() (
                           enterClaimPage(
                             formWithErrors,
                             securityDepositId,
+                            journey.getSecurityDetails.size == 1,
                             taxCode,
                             totalAmount,
                             routes.EnterClaimController.submit(securityDepositId, taxCode)

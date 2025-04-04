@@ -99,8 +99,8 @@ class SelectDutiesControllerSpec
     isError: Boolean = false
   ) = {
     val title       = doc.select("title").first().text()
-    val caption     = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val formHeading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val caption     = doc.select("span.govuk-caption-l").eachText().asScala.toList
+    val formHeading = doc.select(".govuk-heading-l").eachText().asScala.toList
 
     val dutiesAvailable: Seq[TaxCode] =
       journey.getSecurityTaxCodesFor(securityId)
