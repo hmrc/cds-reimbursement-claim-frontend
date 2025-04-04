@@ -45,9 +45,13 @@ class EnterAdditionalDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val postAction: Call                      = routes.EnterAdditionalDetailsController.submit
+  final val postAction: Call = routes.EnterAdditionalDetailsController.submit
+
   final def continueRoute(journey: Journey): Call =
-    routes.EnterContactDetailsController.show
+    if journey.answers.contactDetails.isDefined
+      && journey.answers.contactAddress.isDefined
+    then routes.CheckYourAnswersController.show
+    else routes.EnterContactDetailsController.show
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>

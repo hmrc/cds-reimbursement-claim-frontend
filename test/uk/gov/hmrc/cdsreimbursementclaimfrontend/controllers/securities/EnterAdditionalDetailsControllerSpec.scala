@@ -138,6 +138,40 @@ class EnterAdditionalDetailsControllerSpec
             .submitCheckYourAnswersChangeMode(false)
         )
       ) { journey =>
+        val journey2 = journey.submitContactDetails(None)
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey2))
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey2))
+          mockStoreSession(
+            SessionData(
+              journey2.submitAdditionalDetails("additional details")
+            )
+          )(Right(()))
+        }
+
+        checkPageIsDisplayed(
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-additional-details.securities.title")
+        )
+
+        checkIsRedirect(
+          performAction(
+            "enter-additional-details" -> "additional details"
+          ),
+          routes.EnterContactDetailsController.show
+        )
+      }
+
+      "submit valid additional details when contact details already provided" in forAll(
+        buildJourneyGen(
+          additionalDetailsVisited = true
+        ).map(
+          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity)
+            .submitCheckYourAnswersChangeMode(false)
+        )
+      ) { journey =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(journey))
@@ -159,7 +193,7 @@ class EnterAdditionalDetailsControllerSpec
           performAction(
             "enter-additional-details" -> "additional details"
           ),
-          routes.EnterContactDetailsController.show
+          routes.CheckYourAnswersController.show
         )
       }
 
