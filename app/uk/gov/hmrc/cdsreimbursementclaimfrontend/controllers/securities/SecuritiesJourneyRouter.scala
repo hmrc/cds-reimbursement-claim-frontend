@@ -52,7 +52,9 @@ trait SecuritiesJourneyRouter {
       case MISSING_METHOD_OF_DISPOSAL                                        => undefined
       case MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS                             => routes.UploadBillOfDischarge3Controller.show
       case INVALID_REASON_FOR_SECURITY                                       => routes.ChooseReasonForSecurityController.show
+      case PAYEE_TYPE_MUST_BE_DEFINED                                        => routes.ChoosePayeeTypeController.show
       case _                                                                 => undefined
+
     }
 
   final def routeForValidationErrors(errors: Seq[String]): Call =

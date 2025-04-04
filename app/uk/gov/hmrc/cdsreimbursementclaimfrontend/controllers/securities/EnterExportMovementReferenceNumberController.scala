@@ -65,7 +65,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val nextStepInJourney = routes.EnterBankAccountDetailsController.show
+  val nextStepInJourney = routes.ChoosePayeeTypeController.show
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {

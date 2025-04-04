@@ -51,6 +51,7 @@ trait RejectedGoodsScheduledJourneyRouter {
       case BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED                 => undefined
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_BE_DEFINED     => routes.EnterSpecialCircumstancesController.show
       case BASIS_OF_CLAIM_SPECIAL_CIRCUMSTANCES_MUST_NOT_BE_DEFINED => undefined
+      case PAYEE_TYPE_MUST_BE_DEFINED                               => routes.ChoosePayeeTypeController.show
       case _                                                        => undefined
     }
 
