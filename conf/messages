@@ -1036,10 +1036,13 @@ enter-claim-amount.error.invalid=The amount that you want to claim back must be 
 enter-claim-amount.error.required=Enter the amount you want to claim back, in pounds
 enter-claim-amount.error.amount=The amount that you want to claim back must be more than zero and less or equal to the amount paid
 
+enter-claim.summary.amount=Amount
 enter-claim.error.invalid=The amount that should have been paid must be a number, like 30 or 60.55
 enter-claim.error.required=Enter the amount that should have been paid, in pounds
 enter-claim.exchange-rate-details.heading=Calculating your payment
 enter-claim.exchange-rate-details.paragraph=If you need to work out the value of your goods in pounds sterling (GBP), you must only use HMRC’s <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank">exchange rates (opens in new tab)</a>. <br><br> The exchange rate you use must be the same as when you filed your original declaration. When converting to GBP, if your original declaration was submitted in October 2023, you should use the exchange rate for October 2023.
+enter-claim.securities.exchange-rate-details.p1=If you need to work out the value of your goods in pounds sterling (GBP), you must only use HMRC’s <a class="govuk-link" rel="noreferrer noopener" href="https://www.trade-tariff.service.gov.uk/exchange_rates?_ga=2.25820287.35392525.1701271874-1706312369.1687774251" target="_blank">exchange rates (opens in new tab)</a>.
+enter-claim.securities.exchange-rate-details.p2=The exchange rate you use must be the same as when you imported the goods. For example, if you submitted your import declaration in October 2023, you should use the exchange rate for October 2023.
 enter-claim.help-text.excise=Include {0} duty details ({1}).
 enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.inset-text.subsidy=Your subsidy allocation balance will be credited with any claim repayments.
@@ -1094,7 +1097,6 @@ enter-claim.scheduled.paid-amount.excise=How much {0} duty {1} was paid, in poun
 enter-claim.scheduled.subsidy-inset-text=Your subsidy allocation balance will be credited with any claim repayments.
 enter-claim.scheduled.title={0} {1} - {2}
 enter-claim.scheduled.title.excise={0} - {1} {2}
-enter-claim.securities.paid-amount-label=How much {1} - {2} was paid: <span id="amount-paid">{0}</span>
 enter-claim.securities.securityIdLabel=Security deposit ID: {0}
 enter-claim.securities.title={0} - {1}
 enter-claim.title={0} - {1}

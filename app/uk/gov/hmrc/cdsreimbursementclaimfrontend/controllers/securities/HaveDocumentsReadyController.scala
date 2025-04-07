@@ -36,7 +36,7 @@ class HaveDocumentsReadyController @Inject() (
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       val continueUrl =
-        if journey.getSecurityDetails.size == 1
+        if journey.isSingleSecurity
         then routes.ConfirmSingleDepositRepaymentController.show.url
         else routes.ChooseExportMethodController.show.url
 

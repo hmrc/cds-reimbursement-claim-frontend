@@ -106,6 +106,9 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
 
+  val isSingleSecurity: Boolean =
+    getSecurityDetails.size == 1
+
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
     getLeadDisplayDeclaration
       .flatMap(_.getSecurityDetailsFor(securityDepositId))

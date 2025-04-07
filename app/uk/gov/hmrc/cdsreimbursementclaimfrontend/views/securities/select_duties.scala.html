@@ -61,9 +61,9 @@
         @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @if(singleSecurityDeposit){
-            @heading(Html(title))
+            @heading(Html(title), classes="govuk-heading-l")
         }else{
-            @heading(Html(title), caption)
+            @heading(Html(title), caption=caption, classes="govuk-heading-l", captionClasses="govuk-caption-l")
         }
 
         @checkboxes(

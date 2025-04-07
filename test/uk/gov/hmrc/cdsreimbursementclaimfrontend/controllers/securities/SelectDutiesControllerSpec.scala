@@ -99,8 +99,8 @@ class SelectDutiesControllerSpec
     isError: Boolean = false
   ) = {
     val title       = doc.select("title").first().text()
-    val caption     = doc.select("span.govuk-caption-xl").eachText().asScala.toList
-    val formHeading = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val caption     = doc.select("span.govuk-caption-l").eachText().asScala.toList
+    val formHeading = doc.select(".govuk-heading-l").eachText().asScala.toList
 
     val dutiesAvailable: Seq[TaxCode] =
       journey.getSecurityTaxCodesFor(securityId)
@@ -167,7 +167,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
+              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
             )
           }
         }
@@ -185,7 +185,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
+              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
             )
           }
         }
@@ -282,7 +282,7 @@ class SelectDutiesControllerSpec
                 doc =>
                   validateSelectDutiesPage(
                     securityId = securityId,
-                    journey.getSecurityDetails.size == 1,
+                    journey.isSingleSecurity,
                     doc = doc,
                     journey = journey,
                     isError = true

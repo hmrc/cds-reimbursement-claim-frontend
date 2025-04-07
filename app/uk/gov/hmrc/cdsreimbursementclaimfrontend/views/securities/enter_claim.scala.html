@@ -24,7 +24,12 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -34,10 +39,10 @@
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(form: Form[BigDecimal], securityDepositId: String, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], securityDepositId: String, singleSecurityDeposit: Boolean, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"enter-claim.securities.title", taxCode, messages(s"select-duties.duty.${taxCode}"))}
 @caption = @{messages("enter-claim.securities.securityIdLabel", securityDepositId)}
@@ -48,17 +53,28 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = caption)
+    @if(singleSecurityDeposit){
+        @heading(Html(title), classes="govuk-heading-l")
+    }else{
+        @heading(Html(title), caption=caption, classes="govuk-heading-l", captionClasses="govuk-caption-l")
+    }
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
-        @paragraph(Html(messages("enter-claim.securities.paid-amount-label", paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")
-
-        @dropdownDetails(summary = s"enter-claim.exchange-rate-details.heading",
-            html(
-                paragraph(Html(messages(s"enter-claim.exchange-rate-details.paragraph")))
+        @summary(
+            SummaryList(
+                Seq(
+                    SummaryListRow(
+                        Key(HtmlContent(messages("enter-claim.summary.amount")), classes = "govuk-!-width-one-half"),
+                        Value(Text(paidAmount.toPoundSterlingString))
+                    )
+                )
             )
         )
+
+        @paragraph(Html(messages(s"enter-claim.securities.exchange-rate-details.p1")))
+
+        @paragraph(Html(messages(s"enter-claim.securities.exchange-rate-details.p2")))
 
         @inputText(
             form = form,
