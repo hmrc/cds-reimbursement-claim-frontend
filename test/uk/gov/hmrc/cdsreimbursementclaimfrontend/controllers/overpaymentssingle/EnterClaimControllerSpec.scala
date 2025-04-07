@@ -147,8 +147,6 @@ class EnterClaimControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          println(">>>>>>>>> correct amounts: " + journey.answers.correctedAmounts)
-
           val expectedTaxCode: TaxCode =
             journey.getSelectedDuties.get.head
 

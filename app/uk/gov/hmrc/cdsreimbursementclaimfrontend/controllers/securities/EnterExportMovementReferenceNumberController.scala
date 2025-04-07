@@ -49,13 +49,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_exp
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class EnterExportMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterFirstExportMovementReferenceNumberPage: enter_export_movement_reference_number_first,
-  enterNextExportMovementReferenceNumberPage: enter_export_movement_reference_number_next
+  enterNextExportMovementReferenceNumberPage: enter_export_movement_reference_number_next,
+  featureSwitchService: FeatureSwitchService
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
@@ -65,7 +69,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val nextStepInJourney = routes.ChoosePayeeTypeController.show
+  def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
+    if journey.isSingleSecurity
+      && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
+    then routes.ChoosePayeeTypeController.show
+    else routes.EnterContactDetailsController.show
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {
@@ -180,7 +188,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                     .fold(
                       {
                         case "submitExportMovementReferenceNumber.unexpected" =>
-                          (journey, Redirect(nextStepInJourney))
+                          (journey, Redirect(nextStepInJourney(journey)))
 
                         case "submitExportMovementReferenceNumber.duplicated" =>
                           val updatedForm = form
@@ -231,7 +239,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                               else
                                 (
                                   updatedJourney,
-                                  Redirect(nextStepInJourney)
+                                  Redirect(nextStepInJourney(journey))
                                 )
                           }
                         }
@@ -284,7 +292,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                     .fold(
                       {
                         case "submitExportMovementReferenceNumber.unexpected" =>
-                          (journey, Redirect(nextStepInJourney))
+                          (journey, Redirect(nextStepInJourney(journey)))
 
                         case "submitExportMovementReferenceNumber.duplicated" =>
                           val updatedForm = form
@@ -349,11 +357,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
       case (Some(rfs), Some(mods)) if ntas.contains(rfs) && containsExportedMethodsOfDisposal(mods)  =>
         body
       case (Some(rfs), Some(mods)) if ntas.contains(rfs) && !containsExportedMethodsOfDisposal(mods) =>
-        (journey, Redirect(nextStepInJourney)).asFuture
+        (journey, Redirect(nextStepInJourney(journey))).asFuture
       case (Some(rfs), None) if ntas.contains(rfs)                                                   =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _)                                                                              =>
-        (journey, Redirect(nextStepInJourney)).asFuture
+        (journey, Redirect(nextStepInJourney(journey))).asFuture
     }
 
 }

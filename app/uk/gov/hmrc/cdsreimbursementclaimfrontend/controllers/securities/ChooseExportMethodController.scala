@@ -37,11 +37,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_ex
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class ChooseExportMethodController @Inject() (
   val jcc: JourneyControllerComponents,
-  chooseExportMethodPage: choose_export_method
+  chooseExportMethodPage: choose_export_method,
+  featureSwitchService: FeatureSwitchService
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
@@ -97,6 +100,7 @@ class ChooseExportMethodController @Inject() (
                     (
                       updatedJourney,
                       if journey.isSingleSecurity
+                        && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
                       then Redirect(routes.SelectDutiesController.showFirst)
                       else Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )

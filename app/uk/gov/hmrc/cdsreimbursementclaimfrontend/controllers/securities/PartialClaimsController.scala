@@ -23,12 +23,9 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.partialClaimsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -40,7 +37,7 @@ import scala.concurrent.ExecutionContext
 class PartialClaimsController @Inject() (
   val jcc: JourneyControllerComponents,
   partialClaimsPage: partial_claims
-)(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
+)(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
     with SecuritiesJourneyRouter
     with Logging {

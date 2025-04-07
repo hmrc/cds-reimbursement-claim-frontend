@@ -84,7 +84,7 @@ class SelectDutiesController @Inject() (
               Ok(
                 selectDutiesPage(
                   filledForm,
-                  journey.getSecurityDepositIds.size == 1,
+                  journey.isSingleSecurity,
                   securityId,
                   dutiesAvailable,
                   routes.SelectDutiesController.submit(securityId)
@@ -117,7 +117,7 @@ class SelectDutiesController @Inject() (
           Ok(
             selectDutiesPage(
               filledForm,
-              journey.getSecurityDepositIds.size == 1,
+              journey.isSingleSecurity,
               securityId,
               dutiesAvailable,
               routes.SelectDutiesController.submit(securityId)
@@ -152,7 +152,7 @@ class SelectDutiesController @Inject() (
                     Ok(
                       selectDutiesPage(
                         boundForm,
-                        journey.getSecurityDepositIds.size == 1,
+                        journey.isSingleSecurity,
                         securityId,
                         dutiesAvailable,
                         routes.SelectDutiesController.submit(securityId)
