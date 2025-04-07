@@ -193,7 +193,7 @@ class EnterClaimControllerSpec
               validateEnterClaimPage(
                 doc,
                 depositId,
-                initialJourney.getSecurityDetails.size == 1,
+                initialJourney.isSingleSecurity,
                 taxCode,
                 depositAmount
               )

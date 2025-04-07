@@ -96,7 +96,7 @@ class ChooseExportMethodController @Inject() (
                   } else {
                     (
                       updatedJourney,
-                      if journey.getSecurityDetails.size == 1
+                      if journey.isSingleSecurity
                       then Redirect(routes.SelectDutiesController.showFirst)
                       else Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )

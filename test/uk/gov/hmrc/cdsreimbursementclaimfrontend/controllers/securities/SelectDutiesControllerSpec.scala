@@ -167,7 +167,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
+              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
             )
           }
         }
@@ -185,7 +185,7 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.getSecurityDetails.size == 1, doc, journey)
+              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
             )
           }
         }
@@ -282,7 +282,7 @@ class SelectDutiesControllerSpec
                 doc =>
                   validateSelectDutiesPage(
                     securityId = securityId,
-                    journey.getSecurityDetails.size == 1,
+                    journey.isSingleSecurity,
                     doc = doc,
                     journey = journey,
                     isError = true
