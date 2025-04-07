@@ -106,7 +106,7 @@ final class SecuritiesJourney private (
     getLeadDisplayDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
 
-  def isSingleSecurity: Boolean =
+  val isSingleSecurity: Boolean =
     getSecurityDetails.size == 1
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
