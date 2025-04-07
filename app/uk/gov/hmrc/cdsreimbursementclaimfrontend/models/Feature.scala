@@ -62,7 +62,8 @@ object Feature extends EnumerationFormat[Feature] {
       RedirectToGovUkLandingPage,
       SkipDocumentType,
       BasisOfClaimQuota,
-      NewEoriFormat
+      NewEoriFormat,
+      SingleSecurityTrack
     )
 }
 
