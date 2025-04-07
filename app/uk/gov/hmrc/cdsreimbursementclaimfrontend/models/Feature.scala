@@ -30,6 +30,7 @@ object Feature extends EnumerationFormat[Feature] {
 
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object Securities extends Feature { val name = "securities" }
+  case object SingleSecurityTrack extends Feature { val name = "single-security-track" }
   case object LimitedAccess extends Feature { val name = "limited-access" }
   case object LimitedAccessSecurities extends Feature { val name = "limited-access-securities" }
   case object ViewUpload extends Feature { val name = "view-upload" }

@@ -110,6 +110,8 @@ class HaveDocumentsReadyControllerSpec
 
       "display the page with correct continue url when declaration has only one security deposit" in {
 
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+
         val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
@@ -128,6 +130,33 @@ class HaveDocumentsReadyControllerSpec
               .asScala
               .find(_.text() == "Continue")
               .map(_.attr("href"))                         shouldBe Some(routes.ConfirmSingleDepositRepaymentController.show.url)
+        )
+
+        featureSwitch.disable(Feature.SingleSecurityTrack)
+      }
+
+      "display the page with correct continue url when declaration has only one security deposit and the single security track feature is off" in {
+
+        featureSwitch.disable(Feature.SingleSecurityTrack)
+
+        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
+        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          showHaveDocumentsReadyPage,
+          messageFromMessageKey(s"have-documents-ready.title"),
+          implicit doc =>
+            messageFromMessageKey("have-documents-ready.p1") should include(getContentsOfParagraph(1))
+            doc
+              .select("a.govuk-button")
+              .asScala
+              .find(_.text() == "Continue")
+              .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
         )
       }
     }
