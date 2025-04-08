@@ -73,7 +73,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
     if journey.isSingleSecurity
       && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
     then routes.ChoosePayeeTypeController.show
-    else routes.EnterContactDetailsController.show
+    else routes.ConfirmFullRepaymentController.showFirst
 
   val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) {

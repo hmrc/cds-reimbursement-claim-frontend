@@ -26,14 +26,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  val checkDeclarationDetailsPage: check_declaration_details
+  val checkDeclarationDetailsPage: check_declaration_details,
+  val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -61,13 +64,15 @@ class CheckDeclarationDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    simpleActionReadWriteJourney { _ => journey =>
+    simpleActionReadWriteJourney { implicit request => journey =>
       val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
       if journey.getSelectedDepositIds.isEmpty then
         (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
       else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
       else if journey.getReasonForSecurity.exists(ntas.contains) then
         (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
+      else if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
+        (updatedJourney, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
       else (updatedJourney, Redirect(routes.ConfirmFullRepaymentController.showFirst))
     }
 }

@@ -78,6 +78,7 @@ class CheckDeclarationDetailsControllerSpec
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)
+    featureSwitch.disable(Feature.SingleSecurityTrack)
   }
 
   def validateCheckDeclarationDetailsPage(
@@ -345,6 +346,43 @@ class CheckDeclarationDetailsControllerSpec
             checkIsRedirect(
               performAction(),
               routes.HaveDocumentsReadyController.show
+            )
+          }
+        }
+      }
+
+      "continue to the confirm single deposit full repayment page if single security" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+
+        forAll(
+          mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
+            Set(ReasonForSecurity.MissingPreferenceCertificate.value)
+          )
+        ) { case (mrn, rfs, decl) =>
+          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+          whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
+
+            val initialJourney = emptyJourney
+              .submitMovementReferenceNumber(mrn)
+              .submitReasonForSecurityAndDeclaration(rfs, decl)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .flatMap(_.selectSecurityDepositId(depositIds.head))
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockStoreSession(
+                SessionData(
+                  initialJourney.submitCheckDeclarationDetailsChangeMode(false)
+                )
+              )(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.ConfirmSingleDepositRepaymentController.show
             )
           }
         }
