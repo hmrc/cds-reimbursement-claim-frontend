@@ -106,6 +106,9 @@ class CheckYourAnswersControllerSpec
     journey: SecuritiesJourney,
     claim: SecuritiesJourney.Output
   ) = {
+
+    val numberOfSecurities: Int = journey.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
+
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -124,7 +127,12 @@ class CheckYourAnswersControllerSpec
       "Additional details".expectedAlways,
       "Now send your claim".expectedAlways
     )
-    val claimsHeaders = claim.securitiesReclaims.keys.map(sid => s"Claim details for: $sid".expectedAlways)
+    val claimsHeaders =
+      claim.securitiesReclaims.keys.map(sid =>
+        s"Claim details for security deposit or guarantee ${journey.getLeadDisplayDeclaration
+            .map(d => d.getSecurityDepositIdIndex(sid) + 1)
+            .getOrElse(0)} of $numberOfSecurities".expectedAlways
+      )
 
     headers.toSeq should containOnlyDefinedElementsOf(
       (if claim.reasonForSecurity == InwardProcessingRelief then commonHeaders else commonHeaders ++ claimsHeaders)*
@@ -144,9 +152,11 @@ class CheckYourAnswersControllerSpec
     val validateSecurityReclaims = journey.answers.displayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
-      .map { sid =>
-        s"Claim for $sid" -> Some(
-          if claim.securitiesReclaims.contains(sid) then "Yes"
+      .zipWithIndex
+      .map { (sid, securityIndex) =>
+        s"Claim for security deposit or guarantee ${securityIndex + 1} of $numberOfSecurities" -> Some(
+          if claim.securitiesReclaims.contains(sid)
+          then "Yes"
           else "No"
         )
       } ++

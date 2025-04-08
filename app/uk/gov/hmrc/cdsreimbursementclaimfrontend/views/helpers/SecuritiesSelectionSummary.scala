@@ -39,14 +39,21 @@ object SecuritiesSelectionSummary {
     showTotalSecuritiesPaidAmount: Boolean = false
   )(implicit
     messages: Messages
-  ): SummaryList =
-    val total: BigDecimal = declaration.getTotalSecuritiesAmountFor(correctedAmounts.keySet)
+  ): SummaryList = {
+    val numberOfSecurities = declaration.getSecurityDepositIds.map(_.size).getOrElse(0)
+    val total: BigDecimal  = declaration.getTotalSecuritiesAmountFor(correctedAmounts.keySet)
     SummaryList(
       if Try(total.toIntExact == 0).getOrElse(false) then Nil
       else
-        declaration.getSecurityDepositIds.getOrElse(Nil).map { securityDepositId =>
+        declaration.getSecurityDepositIds.getOrElse(Nil).zipWithIndex.map { case (securityDepositId, index) =>
           SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.claim-for-security.label", securityDepositId))),
+            key = Key(
+              HtmlContent(
+                if numberOfSecurities > 1
+                then messages(s"$key.claim-for-security.label", index + 1, numberOfSecurities)
+                else messages(s"$key.claim-for-security.single.label")
+              )
+            ),
             value = Value(
               Text(
                 messages(
@@ -61,7 +68,11 @@ object SecuritiesSelectionSummary {
                   ActionItem(
                     href = changeCall(securityDepositId).url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.claim-for-security.label", securityDepositId))
+                    visuallyHiddenText = Some(
+                      if numberOfSecurities > 1
+                      then messages(s"$key.claim-for-security.label", index + 1, numberOfSecurities)
+                      else messages(s"$key.claim-for-security.single.label")
+                    )
                   )
                 )
               )
@@ -87,4 +98,5 @@ object SecuritiesSelectionSummary {
                 )
               else Seq.empty)
     )
+  }
 }

@@ -42,6 +42,7 @@
 @(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-your-answers"}
+@numberOfSecurities = @{displayDeclarationOpt.map(_.getNumberOfSecurityDeposits).getOrElse(0)}
 
 @declarationDetails = {
     @displayDeclarationOpt.map { displayDeclaration =>
@@ -114,7 +115,11 @@
 @securitiesReclaims = {
     @displayDeclarationOpt.map { displayDeclaration =>
         @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
-            @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", securityDepositId)))
+            @if(numberOfSecurities > 1){
+                @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", displayDeclarationOpt.map(d => d.getSecurityDepositIdIndex(securityDepositId) + 1).getOrElse(0), numberOfSecurities )))
+            } else if (claim.temporaryAdmissionMethodsOfDisposal.isEmpty){
+                @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
+            }
             @summary(SecuritiesReclaimDetailsSummary(
                 securityDepositId,
                 reclaims,
