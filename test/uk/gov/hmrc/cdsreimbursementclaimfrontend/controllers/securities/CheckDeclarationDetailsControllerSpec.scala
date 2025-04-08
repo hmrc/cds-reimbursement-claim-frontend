@@ -85,6 +85,9 @@ class CheckDeclarationDetailsControllerSpec
     doc: Document,
     journey: SecuritiesJourney
   ): Assertion = {
+
+    val numberOfSecurities: Int = journey.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
+
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -159,8 +162,9 @@ class CheckDeclarationDetailsControllerSpec
            journey.answers.displayDeclaration
              .flatMap(_.getSecurityDepositIds)
              .getOrElse(Seq.empty)
-             .map { sid =>
-               s"Claim for $sid" -> Some(
+             .zipWithIndex
+             .map { (sid, securityIndex) =>
+               s"Claim for security deposit or guarantee ${securityIndex + 1} of $numberOfSecurities" -> Some(
                  if correctedAmounts.contains(sid) then "Yes"
                  else "No"
                )
