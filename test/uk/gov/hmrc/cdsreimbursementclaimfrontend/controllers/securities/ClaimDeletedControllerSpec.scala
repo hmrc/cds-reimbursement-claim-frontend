@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
@@ -122,7 +122,7 @@ class ClaimDeletedControllerSpec
         }
 
         val result = performAction(authenticatedRequest)
-        checkIsRedirect(result, baseRoutes.StartController.start())
+        checkIsRedirect(result, commonRoutes.ChooseClaimTypeController.show)
       }
     }
 
