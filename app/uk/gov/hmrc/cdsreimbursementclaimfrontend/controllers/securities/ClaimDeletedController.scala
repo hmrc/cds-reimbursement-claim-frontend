@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.claim_deleted
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -64,7 +64,7 @@ class ClaimDeletedController @Inject() (
           logAndDisplayError("could not reset the session"),
           _ =>
             Redirect(
-              baseRoutes.StartController.start()
+              commonRoutes.ChooseClaimTypeController.show
             )
         )
       )
