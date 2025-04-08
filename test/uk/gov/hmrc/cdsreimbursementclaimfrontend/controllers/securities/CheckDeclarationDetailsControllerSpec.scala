@@ -350,6 +350,41 @@ class CheckDeclarationDetailsControllerSpec
         }
       }
 
+      "continue to the confirm single deposit full repayment page if single security" in {
+        forAll(
+          mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
+            Set(ReasonForSecurity.MissingPreferenceCertificate.value)
+          )
+        ) { case (mrn, rfs, decl) =>
+          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+          whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
+
+            val initialJourney = emptyJourney
+              .submitMovementReferenceNumber(mrn)
+              .submitReasonForSecurityAndDeclaration(rfs, decl)
+              .flatMap(_.submitClaimDuplicateCheckStatus(false))
+              .flatMap(_.selectSecurityDepositId(depositIds.head))
+              .map(_.submitCheckDeclarationDetailsChangeMode(true))
+              .getOrFail
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockStoreSession(
+                SessionData(
+                  initialJourney.submitCheckDeclarationDetailsChangeMode(false)
+                )
+              )(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.ConfirmSingleDepositRepaymentController.show
+            )
+          }
+        }
+      }
+
       "re-display the check declaration details page if none securities selected" in {
         forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)

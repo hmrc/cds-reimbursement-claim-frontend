@@ -148,6 +148,20 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, rfs, acc14)
 
+  def mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
+    reasonsForSecurity: Set[ReasonForSecurity]
+  ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(reasonsForSecurity)
+      acc14 <- buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
+                 .map(
+                   _.withDeclarationId(mrn.value)
+                     .withDeclarantEori(exampleEori)
+                     .withReasonForSecurity(rfs)
+                 )
+    yield (mrn, rfs, acc14)
+
   lazy val mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen
     : Gen[(MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)] =
     for

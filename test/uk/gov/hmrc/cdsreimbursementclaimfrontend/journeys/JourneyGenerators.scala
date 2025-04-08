@@ -197,4 +197,27 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       declarantContact = Some(declarantContact)
     )
 
+  final def buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
+    for
+      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
+      declarantEORI      <- IdGen.genEori
+      consigneeEORI      <- IdGen.genEori
+      numberOfSecurities <- Gen.const(1)
+      reclaimsDetails    <- Gen.zip(depositIdGen, taxCodesWithAmountsGen).map(Seq(_))
+      declarantContact   <- Acc14Gen.genContactDetails
+    yield buildSecuritiesDisplayDeclaration(
+      securityReason = reasonForSecurity.acc14Code,
+      declarantEORI = declarantEORI,
+      consigneeEORI = Some(consigneeEORI),
+      depositDetails = reasonForSecurity match {
+        case EndUseRelief =>
+          reclaimsDetails.map { rcd =>
+            (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
+          }
+        case _            => reclaimsDetails
+      },
+      allDutiesGuaranteeEligible = allDutiesGuaranteeEligible,
+      declarantContact = Some(declarantContact)
+    )
+
 }

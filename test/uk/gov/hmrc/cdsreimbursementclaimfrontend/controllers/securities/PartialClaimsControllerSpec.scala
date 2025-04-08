@@ -152,8 +152,7 @@ class PartialClaimsControllerSpec
         status(performAction(Seq.empty)) shouldBe NOT_FOUND
       }
 
-      // TODO implement once the new single security journey is fully connected
-      "continue to select duties page when yes is selected" ignore {
+      "continue to select duties page when yes is selected" in {
         forAll(incompleteJourney) { journey =>
           val sessionData = SessionData(journey)
           inSequence {
