@@ -78,6 +78,7 @@ class CheckDeclarationDetailsControllerSpec
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)
+    featureSwitch.disable(Feature.SingleSecurityTrack)
   }
 
   def validateCheckDeclarationDetailsPage(
@@ -351,6 +352,8 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "continue to the confirm single deposit full repayment page if single security" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+
         forAll(
           mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
             Set(ReasonForSecurity.MissingPreferenceCertificate.value)
