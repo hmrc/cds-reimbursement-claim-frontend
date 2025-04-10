@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -172,24 +173,9 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "redirect to choose payee type page if RFS is not NTAS" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
-        )
-      ) { case (initialJourney, _) =>
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
-        }
-
-        checkIsRedirect(
-          performAction(),
-          routes.ChooseExportMethodController.show
-        )
-      }
-
-      "redirect to choose export method page if RFS is NTAS" in forAllWith(
-        JourneyGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
+            ReasonForSecurity.MissingPreferenceCertificate
+          ),
           journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
         )
       ) { case (initialJourney, _) =>
@@ -201,6 +187,25 @@ class CheckClaimDetailsSingleSecurityControllerSpec
         checkIsRedirect(
           performAction(),
           routes.ChoosePayeeTypeController.show
+        )
+      }
+
+      "redirect to choose export method page if RFS is NTAS" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
+            ReasonForSecurity.TemporaryAdmission2M
+          ),
+          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+        )
+      ) { case (initialJourney, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ChooseExportMethodController.show
         )
       }
 

@@ -41,7 +41,7 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController {
 
-  private val postAction: Call = routes.CheckClaimDetailsController.submit
+  private val postAction: Call = routes.CheckClaimDetailsSingleSecurityController.submit
 
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
     Some(
