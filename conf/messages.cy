@@ -109,7 +109,7 @@ check-claim.securities.title=Gwiriwch fanylion yr hawliad ar gyfer y blaendaliad
 check-claim.table-header.claim-amount=Swm yr hawliad
 check-claim.table-header.selected-charges=Taliadau a ddewiswyd
 check-claim.table-header.should-have-paid=Dylech fod wedi talu
-check-claim.table-header.you-paid=Y swm llawn
+check-claim.table-header.full-amount=Y swm llawn
 check-claim.table.change-link=<a href="{0}" class="govuk-link">Newid</a>
 check-claim.table.total=Cyfanswm yr hawliad
 check-claim.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
@@ -119,6 +119,10 @@ check-claim.uk-duty.label=Toll y DU
 check-claim.yes=Iawn
 check-claim.selected-duties.question=Beth hoffech chi ei hawlio?
 check-claim.change=Newid
+
+check-claim.securities.single.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
+check-claim.securities.single.claiming-full-amount=A hoffech hawlio’r swm llawn yn ôl?
+check-claim.securities.single.what-do-you-want-to-claim=Beth hoffech chi ei hawlio?
 
 check-claimant-details.change-hint.address=Cyfeiriad cyswllt
 check-claimant-details.change-hint.contact=Manylion cyswllt

@@ -32,10 +32,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_duties
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -43,6 +46,7 @@ import scala.concurrent.Future
 @Singleton
 class SelectDutiesController @Inject() (
   val jcc: JourneyControllerComponents,
+  val featureSwitchService: FeatureSwitchService,
   selectDutiesPage: select_duties
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
@@ -172,7 +176,7 @@ class SelectDutiesController @Inject() (
     journey: SecuritiesJourney,
     securityId: String,
     dutiesSelected: Seq[TaxCode]
-  ): (SecuritiesJourney, Result) =
+  )(using HeaderCarrier): (SecuritiesJourney, Result) =
     if journey
         .getSelectedDutiesFor(securityId)
         .containsSameElements(dutiesSelected) && journey.userHasSeenCYAPage
@@ -199,7 +203,9 @@ class SelectDutiesController @Inject() (
                       routes.EnterClaimController.show(depositId, taxCode)
 
                     case None =>
-                      routes.CheckClaimDetailsController.show
+                      if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
+                        routes.CheckClaimDetailsSingleSecurityController.show
+                      else routes.CheckClaimDetailsController.show
                   }
                 else routes.EnterClaimController.showFirst(securityId)
               )
