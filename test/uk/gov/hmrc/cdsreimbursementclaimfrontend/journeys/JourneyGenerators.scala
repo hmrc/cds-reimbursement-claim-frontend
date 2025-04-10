@@ -74,10 +74,22 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
   final val securitiesDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
     buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
 
+  final val securitiesSingleDisplayDeclarationGuaranteeEligibleGen: Gen[DisplayDeclaration] =
+    buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible = true)
+
+  final val securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
+    buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
+
   final lazy val securitiesDisplayDeclarationGen: Gen[DisplayDeclaration] =
     Gen.oneOf(
       securitiesDisplayDeclarationGuaranteeEligibleGen,
       securitiesDisplayDeclarationNotGuaranteeEligibleGen
+    )
+
+  final lazy val securitiesSingleDisplayDeclarationGen: Gen[DisplayDeclaration] =
+    Gen.oneOf(
+      securitiesSingleDisplayDeclarationGuaranteeEligibleGen,
+      securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen
     )
 
   final lazy val securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen =
