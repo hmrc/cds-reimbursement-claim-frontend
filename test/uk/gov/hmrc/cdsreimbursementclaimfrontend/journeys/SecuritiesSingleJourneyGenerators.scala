@@ -106,7 +106,7 @@ object SecuritiesSingleJourneyGenerators extends JourneyGenerators with Securiti
     for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
+      acc14 <- securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
@@ -117,7 +117,7 @@ object SecuritiesSingleJourneyGenerators extends JourneyGenerators with Securiti
     for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
-      acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
+      acc14 <- securitiesSingleDisplayDeclarationGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
