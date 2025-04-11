@@ -1551,6 +1551,21 @@ problem-with-address.title=Mae problem gyda’ch cyfeiriad cyswllt
 problem-with-mrn.help=Darparwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd).</a>.
 radio.divider=neu
 
+problem-with-declaration.continue.no=Na
+problem-with-declaration.continue.question=A hoffech fynd yn eich blaen heb y codau math o dreth hyn ar gyfer yr MRN hwn?
+problem-with-declaration.continue.yes=Iawn
+problem-with-declaration.error.required=Dewiswch ‘Iawn’ i fynd yn eich blaen â’r hawliad hwn heb y codau math treth hyn
+problem-with-declaration.paragraph.1=Mae’r MRN {0} yn cynnwys math o god treth nad yw’n gwasanaeth yn gallu ei gefnogi.
+problem-with-declaration.paragraph.2=Defnyddiwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C285</a> ar gyfer MRNs sy’n cynnwys y codau math o dreth hyn.
+problem-with-declaration.paragraph.3=Rhowch <a href="{0}" class="govuk-link" rel="noreferrer noopener">MRN arall</a> neu defnyddiwch {1} ar gyfer MRNs sy’n cynnwys y codau math o dreth hyn.
+problem-with-declaration.c285-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C285</a>
+problem-with-declaration.ce1179-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C&E1179</a>
+problem-with-declaration.title=Mae’n ddrwg gennyf, mae problem gyda’r Cyfeirnod Symud (MRN) hwn
+
+problem-with-mrn.help=Rhowch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd)</a>.
+problem-with-mrn.paragraph.1=Nid yw’r MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> yn ddilys neu nid oes unrhyw doll na TAW yn yr MRN hwn i’w hawlio.
+problem-with-mrn.title=Mae’n ddrwg gennyf, mae problem gyda’r Cyfeirnod Symud (MRN) hwn
+
 recruitment-banner.dismiss=Dim diolch
 recruitment-banner.link=Byddwch yn rhan o wneud gwasanaethau’r llywodraeth yn well (yn agor ffenestr newydd)
 recruitment-banner.message=Helpwch i wella GOV.UK
