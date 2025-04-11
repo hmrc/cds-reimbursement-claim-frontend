@@ -413,7 +413,7 @@ class EnterClaimControllerSpec
           }
 
           val expectedNextRoute: Call = next match {
-            case None =>
+            case None                     =>
               routes.CheckClaimDetailsSingleSecurityController.show
             case Some((_, secondTaxCode)) =>
               routes.EnterClaimController.show(depositId, secondTaxCode)

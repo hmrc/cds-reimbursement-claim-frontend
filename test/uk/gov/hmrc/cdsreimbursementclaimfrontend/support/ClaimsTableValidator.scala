@@ -178,11 +178,11 @@ trait ClaimsTableValidator {
         .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
       doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
       doc.getElementById(s"claim-amount-$suffix").text() shouldBe claimAmount.toPoundSterlingString
-      doc.getElementById(s"change-$suffix").html()       shouldBe m(
-        "check-claim.table.change-link",
-        claimAction(securityDepositId, taxCode).url,
-        s"change-link-$suffix"
+      doc.getElementById(s"change-$suffix").text()       shouldBe "Change" + m(
+        "check-claim.securities.single.hidden.duty-amount",
+        m(s"select-duties.duty.${taxCode.value}")
       )
+      doc.getElementById(s"change-link-$suffix").attr("href") shouldBe claimAction(securityDepositId, taxCode).url
     }
 
   private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit

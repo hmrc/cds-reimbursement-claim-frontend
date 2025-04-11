@@ -406,36 +406,41 @@ object ClaimsTableHelper {
             )
           )
         )
-      ),
-      SummaryListRow(
-        key = Key(HtmlContent(messages("check-claim.securities.single.what-do-you-want-to-claim"))),
-        value = Value(
-          HtmlContent(
-            reclaims
-              .map(reclaim =>
-                Paragraph(
-                  messages(s"tax-code.${reclaim.taxCode.value}")
-                )
-              )
-              .mkString("")
-          )
-        ),
-        actions = selectDutiesChangeCallOpt.map(selectDutiesChangeCall =>
-          Actions(
-            items = Seq(
-              ActionItem(
-                attributes = Map("id" -> s"change-selected-duties"),
-                href = selectDutiesChangeCall.url,
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(
-                  messages("check-claim.securities.single.hidden.select-duties")
+      )
+    )
+      ++ (if reclaims.size == 1 then List.empty
+          else
+            Seq(
+              SummaryListRow(
+                key = Key(HtmlContent(messages("check-claim.securities.single.what-do-you-want-to-claim"))),
+                value = Value(
+                  HtmlContent(
+                    reclaims
+                      .map(reclaim =>
+                        Paragraph(
+                          messages(s"tax-code.${reclaim.taxCode.value}")
+                        )
+                      )
+                      .mkString("")
+                  )
+                ),
+                actions = selectDutiesChangeCallOpt.map(selectDutiesChangeCall =>
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        attributes = Map("id" -> s"change-selected-duties"),
+                        href = selectDutiesChangeCall.url,
+                        content = Text(messages("cya.change")),
+                        visuallyHiddenText = Some(
+                          messages("check-claim.securities.single.hidden.select-duties")
+                        )
+                      )
+                    )
+                  )
                 )
               )
             )
-          )
-        )
       )
-    )
   )
 
   def claimsRowsForSecurities(
@@ -483,6 +488,11 @@ object ClaimsTableHelper {
               "check-claim.table.change-link",
               claimAction(securityDepositId, taxCode).url,
               s"change-link-${taxCode.value}"
+            ) + visuallyHiddenText(
+              messages(
+                "check-claim.securities.single.hidden.duty-amount",
+                messages(s"select-duties.duty.${taxCode.value}")
+              )
             )
           ),
           attributes = Map("id" -> s"change-${taxCode.value}"),
@@ -490,6 +500,9 @@ object ClaimsTableHelper {
         )
       )
     }
+
+  def visuallyHiddenText(text: String): String =
+    s"<span class='govuk-visually-hidden hmrc-a11y-hiddencopy'>$text</span>"
 
   def sortReimbursementsByDisplayDuty(
     reimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]]

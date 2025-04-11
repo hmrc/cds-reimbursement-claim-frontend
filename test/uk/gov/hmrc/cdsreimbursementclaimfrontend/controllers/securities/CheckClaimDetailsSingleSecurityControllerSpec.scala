@@ -101,24 +101,26 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       .eachText()
       .get(0) shouldBe (if journey.isFullSecurityAmountClaimed(securityDepositId) then "Yes" else "No")
     val fullAmountChangeLink = claimFullAmountDutiesElement.getElementById(s"change-claim-full-amount")
-    fullAmountChangeLink.text()       shouldBe s"Change claim full amount"
+    fullAmountChangeLink.text()       shouldBe s"Change whether you want to claim the full amount"
     fullAmountChangeLink.attr("href") shouldBe routes.ConfirmSingleDepositRepaymentController.show.url
 
     // verify duties selected summary
-    claimFullAmountDutiesElement
-      .getElementsByClass("govuk-summary-list__key")
-      .eachText()
-      .get(1) shouldBe "What do you want to claim?"
-    claimFullAmountDutiesElement
-      .getElementsByClass("govuk-summary-list__value")
-      .eachText()
-      .get(1) shouldBe reclaimsWithAmounts
-      .map(reclaims => messageFromMessageKey(s"tax-code.${reclaims.taxCode.value}"))
-      .toList
-      .mkString(" ")
-    val dutiesChangeLink = claimFullAmountDutiesElement.getElementById(s"change-selected-duties")
-    dutiesChangeLink.text()       shouldBe s"Change what you want to claim"
-    dutiesChangeLink.attr("href") shouldBe routes.SelectDutiesController.showFirst.url
+    if (reclaimsWithAmounts.size > 1) {
+      claimFullAmountDutiesElement
+        .getElementsByClass("govuk-summary-list__key")
+        .eachText()
+        .get(1) shouldBe "What do you want to claim?"
+      claimFullAmountDutiesElement
+        .getElementsByClass("govuk-summary-list__value")
+        .eachText()
+        .get(1) shouldBe reclaimsWithAmounts
+        .map(reclaims => messageFromMessageKey(s"tax-code.${reclaims.taxCode.value}"))
+        .toList
+        .mkString(" ")
+      val dutiesChangeLink = claimFullAmountDutiesElement.getElementById(s"change-selected-duties")
+      dutiesChangeLink.text()       shouldBe s"Change the charges you want to claim"
+      dutiesChangeLink.attr("href") shouldBe routes.SelectDutiesController.showFirst.url
+    }
 
     validateClaimsTablesForSingleSecurities(
       doc,

@@ -121,9 +121,9 @@ check-claim.selected-duties.question=What do you want to claim?
 check-claim.change=Change
 
 check-claim.securities.single.title=Check the repayment total for this claim
-check-claim.securities.single.hidden.claim-full-amount=claim full amount
-check-claim.securities.single.hidden.select-duties=what you want to claim
-check-claim.securities.single.hidden.claim-amount=claim amount
+check-claim.securities.single.hidden.claim-full-amount=whether you want to claim the full amount
+check-claim.securities.single.hidden.select-duties=the charges you want to claim
+check-claim.securities.single.hidden.duty-amount={0} amount
 check-claim.securities.single.claiming-full-amount=Do you want to claim back the full amount?
 check-claim.securities.single.what-do-you-want-to-claim=What do you want to claim?
 
