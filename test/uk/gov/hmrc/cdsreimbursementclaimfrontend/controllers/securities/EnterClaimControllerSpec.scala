@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators as singleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -390,8 +390,8 @@ class EnterClaimControllerSpec
 
       "save claim amount and progress to the next page when single security" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = singleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          journeyBuilder = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForEnteringClaimAmounts
         )
       ) { case (initialJourney, _) =>
         val allSelectedDuties: Seq[(String, TaxCode)] =
