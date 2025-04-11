@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators as singleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -377,6 +378,45 @@ class EnterClaimControllerSpec
             case Some((secondDepositId, secondTaxCode)) =>
               if secondDepositId == depositId then routes.EnterClaimController.show(depositId, secondTaxCode)
               else routes.ConfirmFullRepaymentController.show(secondDepositId)
+          }
+
+          checkIsRedirect(
+            performAction(depositId, taxCode, "enter-claim-amount" -> "0.01"),
+            expectedNextRoute
+          )
+        }
+
+      }
+
+      "save claim amount and progress to the next page when single security" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = singleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+        )
+      ) { case (initialJourney, _) =>
+        val allSelectedDuties: Seq[(String, TaxCode)] =
+          initialJourney.getAllSelectedDuties
+
+        for (depositId, taxCode) <- allSelectedDuties do {
+
+          val next = allSelectedDuties.nextAfter((depositId, taxCode))
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(
+              SessionData(
+                initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+              )
+            )(Right(()))
+
+          }
+
+          val expectedNextRoute: Call = next match {
+            case None =>
+              routes.CheckClaimDetailsSingleSecurityController.show
+            case Some((_, secondTaxCode)) =>
+              routes.EnterClaimController.show(depositId, secondTaxCode)
           }
 
           checkIsRedirect(
