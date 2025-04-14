@@ -51,6 +51,7 @@ trait SecuritiesJourneyRouter {
       case MISSING_EXPORT_MOVEMENT_REFERENCE_NUMBER                          => routes.EnterExportMovementReferenceNumberController.showFirst
       case MISSING_METHOD_OF_DISPOSAL                                        => undefined
       case MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS                             => routes.UploadBillOfDischarge3Controller.show
+      case MISSING_PROOF_OF_ORIGIN_DOCUMENTS                                 => routes.UploadProofOfOriginController.show
       case INVALID_REASON_FOR_SECURITY                                       => routes.ChooseReasonForSecurityController.show
       case PAYEE_TYPE_MUST_BE_DEFINED                                        => routes.ChoosePayeeTypeController.show
       case _                                                                 => undefined

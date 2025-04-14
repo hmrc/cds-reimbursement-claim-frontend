@@ -214,8 +214,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       case (ReasonForSecurity.MissingPreferenceCertificate, _, proofOfAuthorityOpt) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
-          ImportDeclaration,
-          ProofOfOrigin
+          ImportDeclaration
         ) +? proofOfAuthorityOpt
           + Other
 
@@ -263,6 +262,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
   def isUploadedSeparately(document: UploadDocumentType): Boolean =
     document == BillOfDischarge3
       || document == ScheduleOfMRNs
+      || document == ProofOfOrigin
 
   implicit val eq: Eq[UploadDocumentType] = Eq.fromUniversalEquals
 }

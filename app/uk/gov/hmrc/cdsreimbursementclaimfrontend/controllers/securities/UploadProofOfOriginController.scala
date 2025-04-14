@@ -33,19 +33,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_bod3_description
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_proof_of_origin_description
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class UploadBillOfDischarge3Controller @Inject() (
+class UploadProofOfOriginController @Inject() (
   val jcc: JourneyControllerComponents,
   uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
-  val upload_bod3_description: upload_bod3_description
+  val upload_proof_of_origin_description: upload_proof_of_origin_description
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -54,11 +54,11 @@ class UploadBillOfDischarge3Controller @Inject() (
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
-        & reasonForSecurityIsIPR
+        & reasonForSecurityIsNidac
     )
 
   final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show
-  final val callbackAction: Call = routes.UploadBillOfDischarge3Controller.submit
+  final val callbackAction: Call = routes.UploadProofOfOriginController.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -74,7 +74,7 @@ class UploadBillOfDischarge3Controller @Inject() (
               journey.answers.nonce,
               continueUrl
             ),
-            journey.answers.billOfDischargeDocuments
+            journey.answers.proofOfOriginDocuments
           )
       )
       .map {
@@ -101,7 +101,7 @@ class UploadBillOfDischarge3Controller @Inject() (
 
           case Some(callback) =>
             journey
-              .receiveBillOfDischargeDocuments(
+              .receiveProofOfOriginDocuments(
                 callback.nonce,
                 callback.uploadedFiles.map(_.copy(cargo = callback.cargo))
               )
@@ -123,13 +123,13 @@ class UploadBillOfDischarge3Controller @Inject() (
       continueWhenFullUrl = selfUrl + continueUrl.url,
       callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
       minimumNumberOfFiles = 1,
-      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("bill-of-discharge"),
+      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("proof-of-origin"),
       initialNumberOfEmptyRows = 1,
-      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("bill-of-discharge"),
+      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("proof-of-origin"),
       allowedContentTypes =
         "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
       allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
-      cargo = Some(UploadDocumentType.BillOfDischarge3),
+      cargo = Some(UploadDocumentType.ProofOfOrigin),
       newFileDescription = None,
       content = uploadDocumentsContent(),
       features = UploadDocumentsSessionConfig.Features(
@@ -142,12 +142,12 @@ class UploadBillOfDischarge3Controller @Inject() (
     )
 
   def uploadDocumentsContent(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
-    val descriptionHtml = upload_bod3_description(
-      "upload-bill-of-discharge-3"
+    val descriptionHtml = upload_proof_of_origin_description(
+      "upload-proof-of-origin"
     )(messages).body
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
-      title = messages("upload-bill-of-discharge-3.title"),
+      title = messages("upload-proof-of-origin.title"),
       descriptionHtml = descriptionHtml,
       serviceUrl = viewConfig.homePageUrl,
       accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
@@ -159,10 +159,10 @@ class UploadBillOfDischarge3Controller @Inject() (
       timeoutSeconds = viewConfig.ggTimeoutSeconds,
       countdownSeconds = viewConfig.ggCountdownSeconds,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("upload-bill-of-discharge-3.allowed-file-types"),
+      allowedFilesTypesHint = messages("upload-proof-of-origin.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
-      chooseFirstFileLabel = messages("upload-bill-of-discharge-3.choose.description"),
-      fileUploadRequiredError = Some(messages("upload-bill-of-discharge-3.error.file-upload.required"))
+      chooseFirstFileLabel = messages("upload-proof-of-origin.choose.description"),
+      fileUploadRequiredError = Some(messages("upload-proof-of-origin.error.file-upload.required"))
     )
   }
 }

@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrEndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.needsAddOtherDocuments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
@@ -48,7 +48,7 @@ class AddOtherDocumentsController @Inject() (
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
-        & reasonForSecurityIsIPROrEndUseRelief
+        & needsAddOtherDocuments
     )
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -65,7 +65,12 @@ class AddOtherDocumentsController @Inject() (
           ).asFuture,
         {
           case Yes => Redirect(routes.ChooseFileTypeController.show).asFuture
-          case No  => Redirect(routes.ChoosePayeeTypeController.show).asFuture
+          case No  =>
+            Redirect(
+              if journey.reasonForSecurityIsNidac
+              then routes.EnterAdditionalDetailsController.show
+              else routes.ChoosePayeeTypeController.show
+            ).asFuture
         }
       )
 

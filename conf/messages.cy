@@ -1978,6 +1978,10 @@ upload-bill-of-discharge-3.h2=Add a BOD3 form
 upload-bill-of-discharge-3.choose.description=Upload your file
 upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
 
+upload-proof-of-origin.title=Add proof of origin
+upload-proof-of-origin.choose.description=Upload your file
+upload-proof-of-origin.error.file-upload.required=Upload proof of origin
+
 we-only-support-gg.createAccount=Creu cyfrif
 we-only-support-gg.createAccount.p1=Bydd angen i chi <a href="{0}">greu Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth newydd</a>. Gallwch ei ddefnyddio i greu cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU.
 we-only-support-gg.p1=Ni allwch gael mynediad at y gwasanaeth hwn drwy ddefnyddio’r Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a defnyddiwyd gennych i fewngofnodi.

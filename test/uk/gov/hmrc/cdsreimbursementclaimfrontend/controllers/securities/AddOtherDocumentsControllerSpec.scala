@@ -78,10 +78,29 @@ class AddOtherDocumentsControllerSpec
         status(performAction) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled" in forSomeWith(
+      "display the page if securities feature is enabled and RfS is IPR" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForIPR
+        )
+      ) { case (journey, _) =>
+        val updatedSession = SessionData(journey)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkPageIsDisplayed(
+          performAction,
+          messageFromMessageKey(s"add-other-documents.title")
+        )
+      }
+
+      "display the page if securities feature is enabled and RfS is for NIDAC" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForNidac
         )
       ) { case (journey, _) =>
         val updatedSession = SessionData(journey)
@@ -104,7 +123,7 @@ class AddOtherDocumentsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "select 'Yes' should redirect to choose document type page" in forSomeWith(
+      "select 'Yes' should redirect to choose document type page when RfS is IPR" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForIPR
@@ -123,7 +142,26 @@ class AddOtherDocumentsControllerSpec
         )
       }
 
-      "select 'No' should redirect to choose payee type page" in forSomeWith(
+      "select 'Yes' should redirect to choose document type page when RfS is for NIDAC" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForNidac
+        )
+      ) { case (journey, _) =>
+        val updatedSession = SessionData(journey)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(
+          performAction("add-other-documents" -> "true"),
+          routes.ChooseFileTypeController.show
+        )
+      }
+
+      "select 'No' should redirect to choose payee type page when RfS is IPR" in forSomeWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
           journeyBuilder = buildSecuritiesJourneyReadyForIPR
@@ -139,6 +177,25 @@ class AddOtherDocumentsControllerSpec
         checkIsRedirect(
           performAction("add-other-documents" -> "false"),
           routes.ChoosePayeeTypeController.show
+        )
+      }
+
+      "select 'No' should redirect to choose payee type page when RfS is for NIDAC" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForNidac
+        )
+      ) { case (journey, _) =>
+        val updatedSession = SessionData(journey)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(
+          performAction("add-other-documents" -> "false"),
+          routes.EnterAdditionalDetailsController.show
         )
       }
 

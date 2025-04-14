@@ -135,6 +135,9 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   lazy val mrnWithtRfsWithDisplayDeclarationOnlyIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     mrnWithRfsWithDisplayDeclarationGen(Set(ReasonForSecurity.InwardProcessingRelief))
 
+  lazy val mrnWithtRfsWithDisplayDeclarationOnlyNidacGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.nidac)
+
   def mrnWithRfsWithDisplayDeclarationGen(
     reasonsForSecurity: Set[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
@@ -330,6 +333,11 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       reasonsForSecurity = Set(ReasonForSecurity.InwardProcessingRelief)
     )
 
+  val completeJourneyOnlyNidacGen: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      reasonsForSecurity = ReasonForSecurity.nidac
+    )
+
   val genReasonForSecurity: Gen[ReasonForSecurity] =
     Gen.oneOf(ReasonForSecurity.values)
 
@@ -489,6 +497,13 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
             if rfs == ReasonForSecurity.InwardProcessingRelief
             then
               exampleUploadedFiles.map(_.copy(fileName = "bod.pdf", cargo = Some(UploadDocumentType.BillOfDischarge3)))
+            else Seq.empty,
+          proofOfOriginDocuments =
+            if ReasonForSecurity.nidac.contains(rfs)
+            then
+              exampleUploadedFiles.map(
+                _.copy(fileName = "proof-of-origin.pdf", cargo = Some(UploadDocumentType.ProofOfOrigin))
+              )
             else Seq.empty,
           bankAccountDetails =
             if submitBankAccountDetails && (!allDutiesGuaranteeEligible) then Some(exampleBankAccountDetails)
