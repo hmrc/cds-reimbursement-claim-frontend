@@ -136,7 +136,7 @@ object ClaimsTableHelper {
         ),
         TableRow(
           content = Text(paidAmount.toPoundSterlingString),
-          attributes = Map("id" -> s"what-you-paid-${taxCode.value}"),
+          attributes = Map("id" -> s"full-amount-${taxCode.value}"),
           classes = "govuk-table__cell--numeric"
         ),
         TableRow(
@@ -224,7 +224,7 @@ object ClaimsTableHelper {
       ),
       TableRow(
         content = Text(paidAmountTotal.toPoundSterlingString),
-        attributes = Map("id" -> s"what-you-paid-total-$idSuffix"),
+        attributes = Map("id" -> s"full-amount-total-$idSuffix"),
         classes = "govuk-table__cell govuk-table__cell--numeric"
       ),
       TableRow(
