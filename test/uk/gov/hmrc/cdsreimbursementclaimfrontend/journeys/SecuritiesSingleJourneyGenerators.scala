@@ -34,15 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3.reasonForSecurity
 
 /** A collection of generators supporting the tests of SecuritiesJourney with a single security deposit id. */
 object SecuritiesSingleJourneyGenerators extends JourneyGenerators with SecuritiesJourneyTestData with SeqUtils {
-
-  extension (gen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)]) {
-    def withReasonForSecurity(rfs: ReasonForSecurity): Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-      gen.map((mrn, _, declaration) => (mrn, reasonForSecurity, declaration.withReasonForSecurity(reasonForSecurity)))
-  }
 
   def validSecurityReclaimsGen(decl: DisplayDeclaration): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
     Gen
@@ -106,7 +100,7 @@ object SecuritiesSingleJourneyGenerators extends JourneyGenerators with Securiti
     for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values)
-      acc14 <- securitiesDisplayDeclarationNotGuaranteeEligibleGen.map(
+      acc14 <- securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)
@@ -117,7 +111,7 @@ object SecuritiesSingleJourneyGenerators extends JourneyGenerators with Securiti
     for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
-      acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
+      acc14 <- securitiesSingleDisplayDeclarationGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                    .withReasonForSecurity(rfs)

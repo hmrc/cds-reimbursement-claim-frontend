@@ -86,6 +86,9 @@ POST         /securities/enter-claim/:id/:taxCode                      @uk.gov.h
 GET          /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsController.show
 POST         /securities/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsController.submit
 
+GET          /securities/single/check-claim                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsSingleSecurityController.show
+POST         /securities/single/check-claim                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.CheckClaimDetailsSingleSecurityController.submit
+
 GET          /securities/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChoosePayeeTypeController.show
 POST         /securities/choose-payee-type                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ChoosePayeeTypeController.submit
 

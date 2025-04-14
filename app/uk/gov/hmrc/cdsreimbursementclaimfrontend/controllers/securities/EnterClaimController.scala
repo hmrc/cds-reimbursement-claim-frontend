@@ -31,8 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_claim
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -40,6 +43,7 @@ import scala.concurrent.Future
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
+  val featureSwitchService: FeatureSwitchService,
   enterClaimPage: enter_claim
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
@@ -196,7 +200,7 @@ class EnterClaimController @Inject() (
     securityDepositId: String,
     taxCode: TaxCode,
     amountHasChanged: Boolean
-  ): Call =
+  )(using HeaderCarrier): Call =
     if journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode then {
       if journey.userHasSeenCYAPage && !amountHasChanged then routes.CheckYourAnswersController.show
       else
@@ -208,7 +212,9 @@ class EnterClaimController @Inject() (
             routes.EnterClaimController.show(depositId, tc)
 
           case None =>
-            routes.CheckClaimDetailsController.show
+            if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
+              routes.CheckClaimDetailsSingleSecurityController.show
+            else routes.CheckClaimDetailsController.show
         }
     } else
       journey
@@ -226,7 +232,9 @@ class EnterClaimController @Inject() (
               else routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
-              routes.CheckClaimDetailsController.show
+              if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
+                routes.CheckClaimDetailsSingleSecurityController.show
+              else routes.CheckClaimDetailsController.show
           }
       }
 

@@ -1,0 +1,68 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import scala.collection.immutable.SortedMap
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    govukTable: GovukTable
+)
+
+@(displayDeclaration: DisplayDeclaration,securityDepositId: String, reclaims: List[ReclaimWithAmounts],postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+
+@title = @{messages(s"check-claim.securities.single.title")}
+
+@layout(pageTitle = Some(title)) {
+
+    @heading(Html(title), classes="govuk-heading-l")
+
+    @summary(ClaimsTableHelper.makeSingleSecurityClaimFullAmountAndSelectedDuties(
+        securityDepositId,
+        reclaims,
+        displayDeclaration,
+        "check-your-answers.claim-for-security",
+        Some(routes.ConfirmSingleDepositRepaymentController.show),
+        Some(routes.SelectDutiesController.showFirst)
+    ))
+
+    @govukTable(Table(
+        rows = ClaimsTableHelper.claimsRowsForSingleSecurity(securityDepositId, reclaims, routes.EnterClaimController.show),
+        head = Some(ClaimsTableHelper.claimsTableHeadersSingleSecurity()),
+        firstCellIsHeader = true,
+        attributes = Map("id" -> "claims-table"),
+        classes = "govuk-table govuk-table--small-text-until-tablet"
+    ))
+
+    @summary(SummaryList(rows = ClaimsTableHelper.claimsTotalSummarySingleSecurity(reclaims.map(_.claimAmount).sum), classes = "govuk-summary-list--no-border", attributes = Map("id" -> "repayment-total")))
+
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+        @submitButton("button.continue")
+    }
+}

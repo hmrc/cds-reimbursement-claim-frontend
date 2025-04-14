@@ -18,9 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 trait TestWithJourneyGenerator[Journey] {
   self: ScalaCheckPropertyChecks =>
+
+  extension [T <: Tuple](gen: Gen[MRN *: ReasonForSecurity *: DisplayDeclaration *: T]) {
+    def withReasonForSecurity(rfs: ReasonForSecurity): Gen[MRN *: ReasonForSecurity *: DisplayDeclaration *: T] =
+      gen.map { case mrn *: _ *: declaration *: tup =>
+        (mrn, rfs, declaration.withReasonForSecurity(rfs)) ++ tup
+      }
+  }
 
   case class JourneyGenerator[TestInput](
     testParamsGenerator: Gen[TestInput],

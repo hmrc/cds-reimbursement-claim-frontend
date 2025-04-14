@@ -47,10 +47,10 @@ trait ClaimsTableValidator {
     reimbursements.map { case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, _) =>
       doc
         .getElementById(s"selected-claim-$taxCode")
-        .text()                                            shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$taxCode").text() shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$taxCode").text()  shouldBe amount.toPoundSterlingString
-      doc.getElementById(s"change-$taxCode").html()        shouldBe m(
+        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"full-amount-$taxCode").text()  shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$taxCode").text() shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$taxCode").html()       shouldBe m(
         "check-claim.table.change-link",
         claimAction(taxCode).url,
         s"change-link-$taxCode"
@@ -73,10 +73,10 @@ trait ClaimsTableValidator {
 
       doc
         .getElementById(s"selected-claim-$suffix")
-        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
-      doc.getElementById(s"change-$suffix").html()        shouldBe m(
+        .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text() shouldBe amount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()       shouldBe m(
         "check-claim.table.change-link",
         claimAction(index, taxCode).url,
         s"change-link-$suffix"
@@ -109,10 +109,10 @@ trait ClaimsTableValidator {
 
         doc
           .getElementById(s"selected-claim-$suffix")
-          .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-        doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
-        doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
-        doc.getElementById(s"change-$suffix").html()        shouldBe m(
+          .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+        doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
+        doc.getElementById(s"claim-amount-$suffix").text() shouldBe amount.toPoundSterlingString
+        doc.getElementById(s"change-$suffix").html()       shouldBe m(
           "check-claim.table.change-link",
           claimAction(dutyType, taxCode).url,
           s"change-link-$suffix"
@@ -121,9 +121,9 @@ trait ClaimsTableValidator {
         val suffix = s"$taxCode"
         doc
           .getElementById(s"selected-claim-$suffix")
-          .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-        doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
-        doc.getElementById(s"claim-amount-$suffix").text()  shouldBe amount.toPoundSterlingString
+          .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+        doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
+        doc.getElementById(s"claim-amount-$suffix").text() shouldBe amount.toPoundSterlingString
     }
 
   def validateClaimsTablesForScheduled(
@@ -152,14 +152,37 @@ trait ClaimsTableValidator {
 
       doc
         .getElementById(s"selected-claim-$suffix")
-        .text()                                           shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
-      doc.getElementById(s"what-you-paid-$suffix").text() shouldBe paidAmount.toPoundSterlingString
-      doc.getElementById(s"claim-amount-$suffix").text()  shouldBe claimAmount.toPoundSterlingString
-      doc.getElementById(s"change-$suffix").html()        shouldBe m(
+        .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text() shouldBe claimAmount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").html()       shouldBe m(
         "check-claim.table.change-link",
         claimAction(securityDepositId, taxCode).url,
         s"change-link-$suffix"
       )
+    }
+
+  private def validateRowsForSingleSecurity(
+    doc: Document,
+    securityDepositId: String,
+    reimbursements: List[ReclaimWithAmounts],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ) =
+    reimbursements.map { case ReclaimWithAmounts(taxCode, claimAmount, paidAmount) =>
+      val suffix = taxCode.value
+
+      doc
+        .getElementById(s"selected-claim-$suffix")
+        .text()                                               shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+      doc.getElementById(s"full-amount-$suffix").text()       shouldBe paidAmount.toPoundSterlingString
+      doc.getElementById(s"claim-amount-$suffix").text()      shouldBe claimAmount.toPoundSterlingString
+      doc.getElementById(s"change-$suffix").text()            shouldBe "Change" + m(
+        "check-claim.securities.single.hidden.duty-amount",
+        m(s"select-duties.duty.${taxCode.value}")
+      )
+      doc.getElementById(s"change-link-$suffix").attr("href") shouldBe claimAction(securityDepositId, taxCode).url
     }
 
   private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit
@@ -167,7 +190,7 @@ trait ClaimsTableValidator {
   ) = {
     doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
     doc
-      .getElementById(s"what-you-paid-total-$suffix")
+      .getElementById(s"full-amount-total-$suffix")
       .text()                                        shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc
       .getElementById(s"claim-amount-total-$suffix")
@@ -188,6 +211,18 @@ trait ClaimsTableValidator {
       validateTotalRow(doc, reclaimsList, securityDepositId)
     }
 
+  def validateClaimsTablesForSingleSecurities(
+    doc: Document,
+    securityDepositId: String,
+    reclaims: List[ReclaimWithAmounts],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ): immutable.Iterable[Assertion] = {
+    validateClaimsTableSingleSecurityHeaders(doc)
+    validateRowsForSingleSecurity(doc, securityDepositId, reclaims, claimAction)
+  }
+
   def toReimbursementWithCorrectAmount(
     reimbursements: Seq[Reimbursement]
   ): Seq[ReimbursementWithCorrectAmount] =
@@ -202,9 +237,16 @@ trait ClaimsTableValidator {
 
   private def validateClaimsTableHeaders(doc: Document, suffix: String = "")(implicit m: Messages) = {
     doc.getElementById(s"selected-claim-header$suffix").text() shouldBe m("check-claim.table-header.selected-charges")
-    doc.getElementById(s"you-paid-header$suffix").text()       shouldBe m("check-claim.table-header.you-paid")
+    doc.getElementById(s"full-amount-header$suffix").text()    shouldBe m("check-claim.table-header.full-amount")
     doc.getElementById(s"claim-amount-header$suffix").text()   shouldBe m("check-claim.table-header.claim-amount")
     doc.getElementById(s"blank-header$suffix").text()          shouldBe ""
+  }
+
+  private def validateClaimsTableSingleSecurityHeaders(doc: Document)(implicit m: Messages) = {
+    doc.getElementById(s"selected-claim-header").text() shouldBe m("check-claim.table-header.selected-charges")
+    doc.getElementById(s"full-amount-header").text()    shouldBe m("check-claim.table-header.full-amount")
+    doc.getElementById(s"claim-amount-header").text()   shouldBe m("check-claim.table-header.claim-amount")
+    doc.getElementById(s"blank-header").text()          shouldBe ""
   }
 
   private def validateDutyTotalRow(doc: Document, claims: Seq[ReimbursementWithCorrectAmount], suffix: String = "")(
@@ -212,7 +254,7 @@ trait ClaimsTableValidator {
   ) = {
     doc.getElementById(s"total-$suffix").text()              shouldBe m("check-claim.total.header")
     doc
-      .getElementById(s"what-you-paid-total-$suffix")
+      .getElementById(s"full-amount-total-$suffix")
       .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
     doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
