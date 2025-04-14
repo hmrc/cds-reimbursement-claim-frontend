@@ -58,7 +58,8 @@ class PartialClaimsController @Inject() (
     Ok(
       partialClaimsPage(
         form,
-        postAction
+        postAction,
+        journey.getReasonForSecurity.get
       )
     ).asFuture
   }
@@ -71,7 +72,7 @@ class PartialClaimsController @Inject() (
         formWithErrors =>
           (
             journey,
-            BadRequest(partialClaimsPage(formWithErrors, postAction))
+            BadRequest(partialClaimsPage(formWithErrors, postAction, journey.getReasonForSecurity.get))
           ).asFuture,
         yesNo =>
           (yesNo match {

@@ -622,7 +622,7 @@ confirm-full-repayment.question=Ydych chi am hawlio’r swm llawn yn ôl?
 confirm-full-repayment.securityDeposit=Blaendal sicrwydd
 
 partial-claims.title=Hawliadau rhannol
-partial-claims.p1=Dim ond un hawliad y gallwch ei gyflwyno fesul Cyfeirnod Symud (MRN) gan ddefnyddio’r gwasanaeth ar-lein hwn. Os ydych yn gwneud hawliad rhannol nawr ac angen cyflwyno hawliad arall am yr un MRN yn ddiweddarach, bydd angen i chi anfon e-bost at <a id="contact-hmrc" href="mailto:ntis@hmrc.gov.uk" class="govuk-link">ntis@hmrc.gov.uk</a> gyda manylion eich hawliad.
+partial-claims.p1=Dim ond un hawliad y gallwch ei gyflwyno fesul Cyfeirnod Symud (MRN) gan ddefnyddio’r gwasanaeth ar-lein hwn. Os ydych yn gwneud hawliad rhannol nawr ac angen cyflwyno hawliad arall am yr un MRN yn ddiweddarach, bydd angen i chi anfon e-bost at <a id="contact-hmrc" href="mailto:{0}" class="govuk-link">{0}</a> gyda manylion eich hawliad.
 partial-claims.h2=A hoffech fynd yn eich blaen?
 partial-claims.error.required=Dewiswch ‘Iawn’ os ydych am barhau
 
