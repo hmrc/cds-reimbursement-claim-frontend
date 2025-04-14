@@ -388,41 +388,44 @@ class EnterClaimControllerSpec
 
       }
 
-      "save claim amount and progress to the next page when single security" in forAllWith(
-        JourneyGenerator(
-          testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForEnteringClaimAmounts
-        )
-      ) { case (initialJourney, _) =>
-        val allSelectedDuties: Seq[(String, TaxCode)] =
-          initialJourney.getAllSelectedDuties
-
-        for (depositId, taxCode) <- allSelectedDuties do {
-
-          val next = allSelectedDuties.nextAfter((depositId, taxCode))
-
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(
-              SessionData(
-                initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
-              )
-            )(Right(()))
-
-          }
-
-          val expectedNextRoute: Call = next match {
-            case None                     =>
-              routes.CheckClaimDetailsSingleSecurityController.show
-            case Some((_, secondTaxCode)) =>
-              routes.EnterClaimController.show(depositId, secondTaxCode)
-          }
-
-          checkIsRedirect(
-            performAction(depositId, taxCode, "enter-claim-amount" -> "0.01"),
-            expectedNextRoute
+      "save claim amount and progress to the next page when single security" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+        forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+            journeyBuilder = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForEnteringClaimAmounts
           )
+        ) { case (initialJourney, _) =>
+          val allSelectedDuties: Seq[(String, TaxCode)] =
+            initialJourney.getAllSelectedDuties
+
+          for (depositId, taxCode) <- allSelectedDuties do {
+
+            val next = allSelectedDuties.nextAfter((depositId, taxCode))
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(initialJourney))
+              mockStoreSession(
+                SessionData(
+                  initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                )
+              )(Right(()))
+
+            }
+
+            val expectedNextRoute: Call = next match {
+              case None                     =>
+                routes.CheckClaimDetailsSingleSecurityController.show
+              case Some((_, secondTaxCode)) =>
+                routes.EnterClaimController.show(depositId, secondTaxCode)
+            }
+
+            checkIsRedirect(
+              performAction(depositId, taxCode, "enter-claim-amount" -> "0.01"),
+              expectedNextRoute
+            )
+          }
         }
 
       }
