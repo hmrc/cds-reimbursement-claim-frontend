@@ -105,6 +105,10 @@ GET          /securities/upload-bill-of-discharge3                    @uk.gov.hm
 +nocsrf
 POST         /securities/upload-bill-of-discharge3                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadBillOfDischarge3Controller.submit
 
+GET          /securities/upload-proof-of-origin                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadProofOfOriginController.show
++nocsrf
+POST         /securities/upload-proof-of-origin                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.UploadProofOfOriginController.submit
+
 GET          /securities/add-other-documents                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.AddOtherDocumentsController.show
 POST         /securities/add-other-documents                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.AddOtherDocumentsController.submit
 

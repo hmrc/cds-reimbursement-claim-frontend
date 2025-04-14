@@ -318,6 +318,9 @@ final class SecuritiesJourney private (
   def reasonForSecurityIsEndUseRelief: Boolean =
     answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
 
+  def reasonForSecurityIsNidac: Boolean =
+    answers.reasonForSecurity.exists(ReasonForSecurity.nidac.contains)
+
   def requiresBillOfDischargeForm: Boolean =
     reasonForSecurityIsIPR || reasonForSecurityIsEndUseRelief
 
@@ -326,6 +329,11 @@ final class SecuritiesJourney private (
 
   def needsOtherSupportingEvidence: Boolean =
     !reasonForSecurityIsIPR
+
+  def needsAddOtherDocuments =
+    reasonForSecurityIsIPR
+    // || reasonForSecurityIsEndUseRelief
+      || reasonForSecurityIsNidac
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     getReasonForSecurity
@@ -935,6 +943,18 @@ final class SecuritiesJourney private (
       } else Left("receiveBillOfDischargeDocuments.invalidNonce")
     }
 
+  def receiveProofOfOriginDocuments(
+    requestNonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
+  ): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendable {
+      if answers.nonce.equals(requestNonce) then {
+        Right(
+          this.copy(answers.copy(proofOfOriginDocuments = uploadedFiles))
+        )
+      } else Left("receiveProofOfOriginDocuments.invalidNonce")
+    }
+
   def finalizeJourneyWith(caseNumber: String): Either[String, SecuritiesJourney] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
       validate(this)
@@ -970,13 +990,11 @@ final class SecuritiesJourney private (
       .map(_.messages)
       .flatMap(_ =>
         (for
-          mrn                     <- getLeadMovementReferenceNumber
-          rfs                     <- getReasonForSecurity
-          supportingEvidences      = answers.supportingEvidences
-          billOfDischargeDocuments = answers.billOfDischargeDocuments
-          claimantInformation     <- getClaimantInformation
-          payeeType               <- getPayeeTypeForOutput(answers.payeeType)
-          displayPayeeType        <- answers.payeeType
+          mrn                 <- getLeadMovementReferenceNumber
+          rfs                 <- getReasonForSecurity
+          claimantInformation <- getClaimantInformation
+          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType    <- answers.payeeType
         yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
@@ -988,8 +1006,9 @@ final class SecuritiesJourney private (
           bankAccountDetails =
             if needsBanksAccountDetailsSubmission then answers.bankAccountDetails
             else None,
-          supportingEvidences = supportingEvidences.map(EvidenceDocument.from)
-            ++ billOfDischargeDocuments.map(EvidenceDocument.from),
+          supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from)
+            ++ answers.billOfDischargeDocuments.map(EvidenceDocument.from)
+            ++ answers.proofOfOriginDocuments.map(EvidenceDocument.from),
           temporaryAdmissionMethodsOfDisposal = answers.temporaryAdmissionMethodsOfDisposal match {
             case Some(mods) if mods.contains(ExportedInSingleOrMultipleShipments) =>
               def updateModsWith(
@@ -1059,6 +1078,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     bankAccountType: Option[BankAccountType] = None,
     additionalDetails: Option[String] = None,
     billOfDischargeDocuments: Seq[UploadedFile] = Seq.empty,
+    proofOfOriginDocuments: Seq[UploadedFile] = Seq.empty,
     modes: SecuritiesJourneyModes = SecuritiesJourneyModes()
   ) extends CommonAnswers {
 
@@ -1159,6 +1179,15 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         )
       )
 
+    val hasProofOfOriginIfNeeded: Validate[SecuritiesJourney] =
+      whenTrue[SecuritiesJourney](
+        _.reasonForSecurityIsNidac,
+        checkIsTrue(
+          _.answers.proofOfOriginDocuments.nonEmpty,
+          MISSING_PROOF_OF_ORIGIN_DOCUMENTS
+        )
+      )
+
     val additionalDetailsPageVisited: Validate[SecuritiesJourney] =
       checkIsTrue(
         _.answers.modes.additionalDetailsPageVisitedMode,
@@ -1179,9 +1208,20 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
     val reasonForSecurityIsIPROrEndUseRelief: Validate[SecuritiesJourney] =
       checkIsTrue(
-        j => j.reasonForSecurityIsIPR || j.reasonForSecurityIsEndUseRelief,
+        j =>
+          j.reasonForSecurityIsIPR
+            || j.reasonForSecurityIsEndUseRelief,
         INVALID_REASON_FOR_SECURITY
       )
+
+    val reasonForSecurityIsNidac: Validate[SecuritiesJourney] =
+      checkIsTrue(
+        _.reasonForSecurityIsNidac,
+        INVALID_REASON_FOR_SECURITY
+      )
+
+    val needsAddOtherDocuments: Validate[SecuritiesJourney] =
+      checkIsTrue(_.needsAddOtherDocuments, INVALID_REASON_FOR_SECURITY)
   }
 
   import Checks._
@@ -1283,6 +1323,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       )
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
       .flatMap(j => j.receiveBillOfDischargeDocuments(answers.nonce, answers.billOfDischargeDocuments))
+      .flatMap(j => j.receiveProofOfOriginDocuments(answers.nonce, answers.proofOfOriginDocuments))
       .map(_.submitAdditionalDetailsPageVisited(answers.modes.additionalDetailsPageVisitedMode))
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 

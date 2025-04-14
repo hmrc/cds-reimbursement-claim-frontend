@@ -60,6 +60,17 @@ trait SecuritiesJourneyTestData extends JourneyTestData {
         .getOrFail
   }
 
+  final def buildSecuritiesJourneyReadyForNidac(
+    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+  ): SecuritiesJourney = testParams match {
+    case (mrn, rfs, decl) =>
+      emptyJourney
+        .submitMovementReferenceNumber(mrn)
+        .submitReasonForSecurityAndDeclaration(rfs, decl)
+        .flatMap(_.submitClaimDuplicateCheckStatus(false))
+        .getOrFail
+  }
+
   final def buildSecuritiesJourneyWithDocumentTypeSelected(
     testParams: (MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)
   ): SecuritiesJourney = testParams match {

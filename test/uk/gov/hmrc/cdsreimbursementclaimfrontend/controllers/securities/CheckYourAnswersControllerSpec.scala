@@ -149,6 +149,10 @@ class CheckYourAnswersControllerSpec
       journey.answers.billOfDischargeDocuments
         .map(uploadDocument => s"${uploadDocument.fileName}")
 
+    val expectedProofOfOrigin: Seq[String] =
+      journey.answers.proofOfOriginDocuments
+        .map(uploadDocument => s"${uploadDocument.fileName}")
+
     val validateSecurityReclaims = journey.answers.displayDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
@@ -190,14 +194,18 @@ class CheckYourAnswersControllerSpec
         "Contact details"                            -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
         "Contact address"                            -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
         "Uploaded"                                   ->
-          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief then None
+          (if journey.needsAddOtherDocuments then None
            else Some(expectedDocuments.mkString(" "))),
         "Bill of discharge 3"                        ->
           (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief
            then Some(expectedBillOfDischarge.mkString(" "))
            else None),
+        "Proof of origin"                            ->
+          (if ReasonForSecurity.nidac.contains(claim.reasonForSecurity)
+           then Some(expectedProofOfOrigin.mkString(" "))
+           else None),
         "Other supporting documents"                 ->
-          (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief
+          (if journey.needsAddOtherDocuments
            then Some(expectedDocuments.mkString(" "))
            else None),
         "Any information that may support the claim" -> claim.additionalDetails.map(_.value),

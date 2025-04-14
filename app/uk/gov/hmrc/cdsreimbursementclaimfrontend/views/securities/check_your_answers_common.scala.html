@@ -142,7 +142,7 @@
 
 
 @supportingEvidenceLabel = @{
-    if(claim.reasonForSecurity==ReasonForSecurity.InwardProcessingRelief)
+    if(claim.reasonForSecurity==ReasonForSecurity.InwardProcessingRelief || ReasonForSecurity.nidac.contains(claim.reasonForSecurity))
     then messages(s"check-your-answers.other-attached-documents.label")
     else messages(s"check-your-answers.attached-documents.label")
 }
@@ -150,6 +150,7 @@
 @supportingEvidence = {
     @subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
     @summary(BillOfDischargeDocumentsSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadBillOfDischarge3Controller.show)))
+    @summary(ProofOfOriginDocumentSummary(claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadProofOfOriginController.show)))
     @summary(EvidenceDocumentsSummary(supportingEvidenceLabel, claim.supportingEvidences, "check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
 }
 

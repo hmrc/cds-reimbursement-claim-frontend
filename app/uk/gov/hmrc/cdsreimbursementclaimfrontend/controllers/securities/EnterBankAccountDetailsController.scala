@@ -66,6 +66,8 @@ object EnterBankAccountDetailsController {
     successPath = (journey: SecuritiesJourney) =>
       if journey.reasonForSecurityIsIPR
       then routes.EnterAdditionalDetailsController.show
+      else if journey.reasonForSecurityIsNidac
+      then routes.UploadProofOfOriginController.show
       else routes.ChooseFileTypeController.show
   )
 

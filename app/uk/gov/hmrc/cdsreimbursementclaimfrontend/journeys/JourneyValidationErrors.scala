@@ -41,6 +41,7 @@ object JourneyValidationErrors {
   val MISSING_NEW_EORI: String                         = "missingNewEori"
   val MISSING_NEW_DAN: String                          = "missingNewDan"
   val MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS: String    = "missingBillOfDischarge3Documents"
+  val MISSING_PROOF_OF_ORIGIN_DOCUMENTS: String        = "missingProofOfOriginDocuments"
   val INVALID_REASON_FOR_SECURITY: String              = "invalidReasonForSecurity"
   val ADDITIONAL_DETAILS_NOT_YET_VISITED: String       = "additionalDetailsNotYetVisited"
 
