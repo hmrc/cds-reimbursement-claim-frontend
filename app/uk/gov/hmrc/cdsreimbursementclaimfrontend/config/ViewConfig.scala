@@ -20,6 +20,7 @@ import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Inject
@@ -168,4 +169,9 @@ class ViewConfig @Inject() (
 
     s"${servicesConfig.baseUrl(customsEmailFrontend)}$startPage"
   }
+
+  def getSecuritiesEmail(rfs: ReasonForSecurity): String =
+    if ReasonForSecurity.nidac.contains(rfs) then "customsaccountingrepayments@hmrc.gov.uk"
+    else if ReasonForSecurity.niru.contains(rfs) then "niru@hmrc.gov.uk"
+    else "ntis@hmrc.gov.uk"
 }
