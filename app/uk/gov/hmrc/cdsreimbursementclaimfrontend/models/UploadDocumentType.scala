@@ -213,8 +213,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       // Option E
       case (ReasonForSecurity.MissingPreferenceCertificate, _, proofOfAuthorityOpt) =>
         Seq[UploadDocumentType](
-          CommercialInvoice,
-          ImportDeclaration
+          CommercialInvoice
         ) +? proofOfAuthorityOpt
           + Other
 

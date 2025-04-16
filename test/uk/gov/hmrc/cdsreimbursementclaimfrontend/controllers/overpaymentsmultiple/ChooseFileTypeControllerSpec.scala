@@ -78,7 +78,7 @@ class ChooseFileTypeControllerSpec
         ("Packing list", "PackingList"),
         ("Proof of authority", "ProofOfAuthority"),
         ("Substitute entry", "SubstituteEntry"),
-        ("Other documents", "Other")
+        ("Other", "Other")
       )
     )
     hasContinueButton(doc)
