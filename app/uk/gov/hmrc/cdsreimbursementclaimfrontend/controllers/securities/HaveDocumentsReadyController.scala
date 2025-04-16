@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.have_docu
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 
 @Singleton
 class HaveDocumentsReadyController @Inject() (
@@ -51,7 +52,8 @@ class HaveDocumentsReadyController @Inject() (
         if journey.isSingleSecurity
           && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
         then routes.ConfirmSingleDepositRepaymentController.show.url
-        else routes.ChooseExportMethodController.show.url
+        else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+        else routes.ConfirmFullRepaymentController.showFirst.url
 
       Ok(haveDocumentsReadyPage(continueUrl, journey.getReasonForSecurity.get)).asFuture
     }
