@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
@@ -206,10 +207,10 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
           status(performAction()) shouldBe NOT_FOUND
         }
 
-        "redirect to confirm full repayment when reason for security is not NTAS" in {
+        "redirect to confirm full repayment when reason for security is not NTAS or MDP" in {
           forAll(
             mrnWithRfsExcludingWithDisplayDeclarationGen(
-              ReasonForSecurity.ntas
+              ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>
             val initialJourney = emptyJourney
@@ -230,10 +231,10 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
           }
         }
 
-        "redirect to have documents ready when reason for security is NTAS" in {
+        "redirect to have documents ready when reason for security is NTAS or MDP" in {
           forAll(
             mrnWithRfsWithDisplayDeclarationGen(
-              ReasonForSecurity.ntas
+              ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>
             val initialJourney = emptyJourney

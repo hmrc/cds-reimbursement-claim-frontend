@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -99,12 +100,14 @@ class HaveDocumentsReadyControllerSpec
           showHaveDocumentsReadyPage,
           messageFromMessageKey(s"have-documents-ready.title"),
           implicit doc =>
-            messageFromMessageKey("have-documents-ready.p1") should include(getContentsOfParagraph(1))
+            if journey.getReasonForSecurity.contains(MissingPreferenceCertificate) then
+              messageFromMessageKey("have-documents-ready.securities.mdp.p1") should include(getContentsOfParagraph(1))
+            else messageFromMessageKey("have-documents-ready.p1")             should include(getContentsOfParagraph(1))
             doc
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
+              .map(_.attr("href"))                                          shouldBe Some(routes.ChooseExportMethodController.show.url)
         )
       }
 

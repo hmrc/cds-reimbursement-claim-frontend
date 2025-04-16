@@ -25,6 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details_single_security
 
@@ -61,7 +62,10 @@ class CheckDeclarationDetailsSingleSecurityController @Inject() (
 
   final val submit: Action[AnyContent] =
     simpleActionReadJourney { journey =>
-      if (journey.getReasonForSecurity.exists(ntas.contains))
+      if (
+        journey.getReasonForSecurity
+          .exists(ntas.contains) || journey.getReasonForSecurity.contains(MissingPreferenceCertificate)
+      )
         Redirect(routes.HaveDocumentsReadyController.show)
       else
         Redirect(routes.ConfirmFullRepaymentController.showFirst)

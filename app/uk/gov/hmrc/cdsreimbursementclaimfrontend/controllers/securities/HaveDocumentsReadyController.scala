@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.have_documents_ready
 
 import scala.concurrent.ExecutionContext
@@ -36,6 +39,12 @@ class HaveDocumentsReadyController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
+  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+    Some(
+      hasMRNAndDisplayDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       val continueUrl =
@@ -44,6 +53,6 @@ class HaveDocumentsReadyController @Inject() (
         then routes.ConfirmSingleDepositRepaymentController.show.url
         else routes.ChooseExportMethodController.show.url
 
-      Ok(haveDocumentsReadyPage(continueUrl)).asFuture
+      Ok(haveDocumentsReadyPage(continueUrl, journey.getReasonForSecurity.get)).asFuture
     }
 }
