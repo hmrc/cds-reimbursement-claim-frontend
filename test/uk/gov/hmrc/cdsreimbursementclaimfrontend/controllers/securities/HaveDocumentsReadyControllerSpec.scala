@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -89,12 +90,18 @@ class HaveDocumentsReadyControllerSpec
       }
 
       "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
+        featureSwitch.disable(Feature.SingleSecurityTrack)
+
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(updatedSession)
         }
+
+        val expectedContinueUrl =
+          if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+          else routes.ConfirmFullRepaymentController.showFirst.url
 
         checkPageIsDisplayed(
           showHaveDocumentsReadyPage,
@@ -107,7 +114,7 @@ class HaveDocumentsReadyControllerSpec
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                                          shouldBe Some(routes.ChooseExportMethodController.show.url)
+              .map(_.attr("href"))                                          shouldBe Some(expectedContinueUrl)
         )
       }
 
@@ -150,6 +157,10 @@ class HaveDocumentsReadyControllerSpec
           mockGetSession(updatedSession)
         }
 
+        val expectedContinueUrl =
+          if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+          else routes.ConfirmFullRepaymentController.showFirst.url
+
         checkPageIsDisplayed(
           showHaveDocumentsReadyPage,
           messageFromMessageKey(s"have-documents-ready.title"),
@@ -159,7 +170,7 @@ class HaveDocumentsReadyControllerSpec
               .select("a.govuk-button")
               .asScala
               .find(_.text() == "Continue")
-              .map(_.attr("href"))                         shouldBe Some(routes.ChooseExportMethodController.show.url)
+              .map(_.attr("href"))                         shouldBe Some(expectedContinueUrl)
         )
       }
     }
