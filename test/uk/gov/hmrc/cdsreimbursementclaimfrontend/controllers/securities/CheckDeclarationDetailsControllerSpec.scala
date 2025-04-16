@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -289,10 +290,10 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "continue to the confirm full repayment page if some securities has been selected" in {
+      "continue to the confirm full repayment page if some securities has been selected and RFS is not NTAS or MDP" in {
         forAll(
           mrnWithRfsExcludingWithDisplayDeclarationGen(
-            ReasonForSecurity.ntas
+            ReasonForSecurity.ntas + MissingPreferenceCertificate
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -324,10 +325,10 @@ class CheckDeclarationDetailsControllerSpec
         }
       }
 
-      "continue to the have your documents ready page if some securities has been selected (Temporary Admission)" in {
+      "continue to the have your documents ready page if some securities has been selected and RFS is NTAS or MDP" in {
         forAll(
           mrnWithRfsWithDisplayDeclarationGen(
-            ReasonForSecurity.ntas
+            ReasonForSecurity.ntas + MissingPreferenceCertificate
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -360,7 +361,7 @@ class CheckDeclarationDetailsControllerSpec
 
         forAll(
           mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
-            Set(ReasonForSecurity.MissingPreferenceCertificate.value)
+            Set(ReasonForSecurity.RevenueDispute.value)
           )
         ) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)

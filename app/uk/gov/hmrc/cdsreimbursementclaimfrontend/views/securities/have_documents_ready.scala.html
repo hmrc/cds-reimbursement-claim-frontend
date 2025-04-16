@@ -17,26 +17,26 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+        bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+        insetText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
-@(continueUrl: String)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(continueUrl: String, rfs: ReasonForSecurity)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     messages("have-documents-ready.title")
 }
 
-@layout(pageTitle = Some(s"$title")) {
-
-    @heading(Html(title), classes="govuk-heading-l")
-
+@ntasContent = {
     @paragraph(Html(messages(s"have-documents-ready.p1")))
 
     @bulletList(
@@ -48,6 +48,29 @@
             Html(messages("have-documents-ready.proofOfAuthority"))
         )
     )
+}
+@mdpContent = {
+    @insetText(HtmlContent(messages(s"have-documents-ready.securities.mdp.p1")))
+
+    @paragraph(Html(messages(s"have-documents-ready.securities.mdp.p2")))
+
+    @bulletList(
+        Seq(
+            Html(messages("have-documents-ready.commercialInvoice")),
+            Html(messages("have-documents-ready.proofOfAuthority"))
+        )
+    )
+}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @heading(Html(title), classes="govuk-heading-l")
+
+    @if(rfs == ReasonForSecurity.MissingPreferenceCertificate){
+        @mdpContent
+    }else{
+        @ntasContent
+    }
 
     @submitButton("button.continue", href = Some(continueUrl))
 }

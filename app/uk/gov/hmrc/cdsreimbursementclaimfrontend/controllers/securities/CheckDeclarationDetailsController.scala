@@ -25,6 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
@@ -69,8 +70,10 @@ class CheckDeclarationDetailsController @Inject() (
       if journey.getSelectedDepositIds.isEmpty then
         (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
       else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
-      else if journey.getReasonForSecurity.exists(ntas.contains) then
-        (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
+      else if journey.getReasonForSecurity.exists(ntas.contains) || journey.getReasonForSecurity.contains(
+          MissingPreferenceCertificate
+        )
+      then (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
       else if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
         (updatedJourney, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
       else (updatedJourney, Redirect(routes.ConfirmFullRepaymentController.showFirst))
