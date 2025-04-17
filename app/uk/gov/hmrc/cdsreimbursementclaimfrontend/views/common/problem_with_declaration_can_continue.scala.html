@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FormMessageKeyAndUrl
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -34,11 +35,15 @@
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
 )
 
-@(form: Form[YesNo], mrn: MRN, postAction: Call)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], mrn: MRN, postAction: Call, formMessageKeyAndUrl: FormMessageKeyAndUrl)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @title = @{messages(s"problem-with-declaration.title")}
+
+@manualForm = @{
+    messages(formMessageKeyAndUrl.messageKey, formMessageKeyAndUrl.url)
+}
 
 @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -46,7 +51,7 @@
 
     @heading(Html(title))
     @paragraph(Html(messages(s"problem-with-declaration.paragraph.1", mrn.value)))
-    @paragraph(Html(messages(s"problem-with-declaration.paragraph.2", viewConfig.legacyC285FormUrl)))
+    @paragraph(Html(messages(s"problem-with-declaration.paragraph.2", manualForm)))
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @radios(
