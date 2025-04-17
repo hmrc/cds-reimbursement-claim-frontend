@@ -1,6 +1,6 @@
 account-number.mask=Yn gorffen gyda {0}
 
-add-other-documents.title=Do you want to add other documents to support your claim?
+add-other-documents.title=A ydych eisiau ychwanegu rhagor o wybodaeth i ategu’ch hawliad?
 add-other-documents.error.required=Select yes to add other supporting evidence
 
 address-lookup.confirm.h1=Adolygu a chadarnhau’r cyfeiriad
