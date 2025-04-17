@@ -34,9 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.SingleSecurityTrack
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -117,6 +121,8 @@ class SelectSecuritiesControllerSpec
 
       def performAction(id: String): Future[Result] = controller.show(id)(FakeRequest())
 
+      def performActionShowFirst(): Future[Result] = controller.showFirst()(FakeRequest())
+
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
         status(performAction("foo")) shouldBe NOT_FOUND
@@ -124,8 +130,8 @@ class SelectSecuritiesControllerSpec
 
       "redirect to the ineligible page if an invalid security deposit ID" in forSomeWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, _) =>
         inSequence {
@@ -141,8 +147,8 @@ class SelectSecuritiesControllerSpec
 
       "display the page if a valid security deposit ID" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -161,6 +167,27 @@ class SelectSecuritiesControllerSpec
         }
       }
 
+      "select security deposit and redirect to check declaration details if a single security deposit ID" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+        forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+            journeyBuilder = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
+          )
+        ) { case (initialJourney, (_, _, decl)) =>
+          val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(initialJourney.selectSecurityDepositId(depositIds.head).getOrFail))(Right(()))
+          }
+          checkIsRedirect(
+            performActionShowFirst(),
+            routes.CheckDeclarationDetailsSingleSecurityController.show
+          )
+        }
+      }
     }
 
     "submitting securities selection" must {
@@ -170,8 +197,8 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and move to the next security" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -196,8 +223,8 @@ class SelectSecuritiesControllerSpec
 
       "skip the first security deposit and move to the next security" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -221,8 +248,8 @@ class SelectSecuritiesControllerSpec
 
       "select the last security deposit and move to the check declaration details page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -245,8 +272,8 @@ class SelectSecuritiesControllerSpec
 
       "skip the last security deposit and move to the check declaration details page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -269,8 +296,8 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and return to the check details page when in change mode" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyInChangeDeclarationDetailsMode
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -294,8 +321,8 @@ class SelectSecuritiesControllerSpec
 
       "de-select the last security deposit and return to the check details page when in change mode" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
-          journeyBuilder = buildSecuritiesJourneyInChangeDeclarationDetailsMode
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyInChangeDeclarationDetailsMode
         )
       ) { case (initialJourney, (_, _, decl)) =>
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
@@ -318,7 +345,7 @@ class SelectSecuritiesControllerSpec
       }
 
       "after de-selecting any security redirect back to the CYA page when in change your answers mode" in forAll(
-        completeJourneyGen
+        SecuritiesJourneyGenerators.completeJourneyGen
       ) { initialJourney =>
         val selected = initialJourney.getSelectedDepositIds
         for depositId <- selected do {
@@ -337,7 +364,7 @@ class SelectSecuritiesControllerSpec
       }
 
       "after selecting any missing security redirect back to the CYA page when in change your answers mode" in forAll(
-        completeJourneyGen
+        SecuritiesJourneyGenerators.completeJourneyGen
       ) { initialJourney =>
         val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
         for depositId <- unselected do {
@@ -356,7 +383,7 @@ class SelectSecuritiesControllerSpec
       }
 
       "after selecting any missing security ignore change declaration details mode and redirect back to the CYA page when in change your answers mode" in forAll(
-        completeJourneyGen
+        SecuritiesJourneyGenerators.completeJourneyGen
       ) { initialJourney =>
         val unselected = initialJourney.getSecurityDepositIds.toSet -- initialJourney.getSelectedDepositIds.toSet
         for depositId <- unselected do {
