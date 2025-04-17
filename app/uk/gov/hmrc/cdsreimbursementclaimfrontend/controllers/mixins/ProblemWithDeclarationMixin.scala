@@ -60,7 +60,14 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
             )
           )
         case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>
-          Ok(problemWithDeclarationCanContinuePage(form, declaration.getMRN, postAction))
+          Ok(
+            problemWithDeclarationCanContinuePage(
+              form,
+              declaration.getMRN,
+              postAction,
+              getFormMessageKeyAndUrl(journey)
+            )
+          )
         case Some(_)                                                          =>
           Redirect(checkDeclarationDetailsAction)
         case None                                                             =>
@@ -79,7 +86,12 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
               journey.getLeadDisplayDeclaration
                 .map { declaration =>
                   BadRequest(
-                    problemWithDeclarationCanContinuePage(formWithErrors, declaration.getMRN, postAction)
+                    problemWithDeclarationCanContinuePage(
+                      formWithErrors,
+                      declaration.getMRN,
+                      postAction,
+                      getFormMessageKeyAndUrl(journey)
+                    )
                   )
                 }
                 .getOrElse(InternalServerError)

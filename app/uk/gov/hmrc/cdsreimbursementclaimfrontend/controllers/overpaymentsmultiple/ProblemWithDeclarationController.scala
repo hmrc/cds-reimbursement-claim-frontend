@@ -79,7 +79,8 @@ class ProblemWithDeclarationController @Inject() (
             problemWithDeclarationCanContinuePage(
               form,
               declaration.getMRN,
-              routes.ProblemWithDeclarationController.submitNth(pageIndex)
+              routes.ProblemWithDeclarationController.submitNth(pageIndex),
+              getFormMessageKeyAndUrl(journey)
             )
           )
         case Some(_)                                                          =>
@@ -104,7 +105,8 @@ class ProblemWithDeclarationController @Inject() (
                     problemWithDeclarationCanContinuePage(
                       formWithErrors,
                       declaration.getMRN,
-                      routes.ProblemWithDeclarationController.submitNth(pageIndex)
+                      routes.ProblemWithDeclarationController.submitNth(pageIndex),
+                      getFormMessageKeyAndUrl(journey)
                     )
                   )
                 }

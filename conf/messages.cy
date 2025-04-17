@@ -1562,7 +1562,7 @@ problem-with-declaration.continue.question=A hoffech fynd yn eich blaen heb y co
 problem-with-declaration.continue.yes=Iawn
 problem-with-declaration.error.required=Dewiswch ‘Iawn’ i fynd yn eich blaen â’r hawliad hwn heb y codau math treth hyn
 problem-with-declaration.paragraph.1=Mae’r MRN {0} yn cynnwys math o god treth nad yw’n gwasanaeth yn gallu ei gefnogi.
-problem-with-declaration.paragraph.2=Defnyddiwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C285</a> ar gyfer MRNs sy’n cynnwys y codau math o dreth hyn.
+problem-with-declaration.paragraph.2=Defnyddiwch y {0} ar gyfer MRNs sy’n cynnwys y codau math o dreth hyn.
 problem-with-declaration.paragraph.3=Rhowch <a href="{0}" class="govuk-link" rel="noreferrer noopener">MRN arall</a> neu defnyddiwch {1} ar gyfer MRNs sy’n cynnwys y codau math o dreth hyn.
 problem-with-declaration.c285-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C285</a>
 problem-with-declaration.ce1179-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C&E1179</a>
