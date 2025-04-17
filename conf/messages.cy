@@ -1980,8 +1980,8 @@ upload-bill-of-discharge-3.h2=Add a BOD3 form
 upload-bill-of-discharge-3.choose.description=Upload your file
 upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
 
-upload-proof-of-origin.title=Add proof of origin
-upload-proof-of-origin.choose.description=Upload your file
+upload-proof-of-origin.title=Ychwanegwch dystiolaeth o darddiad
+upload-proof-of-origin.choose.description=Uwchlwytho’ch ffeil
 upload-proof-of-origin.error.file-upload.required=Upload proof of origin
 
 we-only-support-gg.createAccount=Creu cyfrif
