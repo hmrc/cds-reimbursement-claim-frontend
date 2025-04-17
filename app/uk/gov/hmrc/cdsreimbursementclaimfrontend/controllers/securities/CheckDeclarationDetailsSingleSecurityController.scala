@@ -39,7 +39,7 @@ class CheckDeclarationDetailsSingleSecurityController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
-  private val postAction: Call = routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.submit
+  private val postAction: Call = routes.CheckDeclarationDetailsSingleSecurityController.submit
 
   import SecuritiesJourney.Checks.*
 
