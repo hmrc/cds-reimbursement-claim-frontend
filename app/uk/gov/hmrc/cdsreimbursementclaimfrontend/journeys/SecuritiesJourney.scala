@@ -328,7 +328,7 @@ final class SecuritiesJourney private (
     !reasonForSecurityIsIPR
 
   def needsOtherSupportingEvidence: Boolean =
-    !reasonForSecurityIsIPR
+    !needsAddOtherDocuments
 
   def needsAddOtherDocuments =
     reasonForSecurityIsIPR
