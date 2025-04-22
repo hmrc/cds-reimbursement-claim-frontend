@@ -114,10 +114,6 @@ class SelectDutiesControllerSpec
       else
         s"Security deposit ID: $securityId: What do you want to claim? - Claim back import duty and VAT - GOV.UK"
 
-    if (singleSecurity) {
-      println("here")
-    }
-
     title       should ===(
       (if isError then "Error: "
        else "") + expectedTitle

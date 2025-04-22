@@ -101,7 +101,7 @@ class ChooseExportMethodController @Inject() (
                       updatedJourney,
                       if journey.isSingleSecurity
                         && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
-                      then Redirect(routes.SelectDutiesController.showFirst)
+                      then Redirect(routes.ChoosePayeeTypeController.show)
                       else Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )
                   }
