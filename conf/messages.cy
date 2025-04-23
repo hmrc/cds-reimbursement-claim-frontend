@@ -564,6 +564,7 @@ choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rh
 choose-files.p2=Gallwch ddewis y botwm ‘Dewis ffeiliau’ i uwchlwytho neu lusgo a gollwng sawl ffeil.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
+choose-files.file=ffeiliau
 
 choose-payee-type.details.declarant=Datganydd
 choose-payee-type.details.importer=Mewnforiwr

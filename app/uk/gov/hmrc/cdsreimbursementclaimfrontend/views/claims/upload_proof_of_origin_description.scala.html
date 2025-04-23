@@ -25,5 +25,5 @@
 
 @(key: String)(implicit messages: Messages)
 
-@paragraph(Html(messages("choose-files.p1", "File", fileUploadConfig.readMaxFileSizeHumanReadable("proof-of-origin"),fileUploadConfig.readMaxUploadsValue("proof-of-origin")).capitalize), Some("govuk-body govuk-!-margin-bottom-2"))
+@paragraph(Html(messages("choose-files.p1", messages("choose-files.file"), fileUploadConfig.readMaxFileSizeHumanReadable("proof-of-origin"),fileUploadConfig.readMaxUploadsValue("proof-of-origin")).capitalize), Some("govuk-body govuk-!-margin-bottom-2"))
 @paragraph(Html(messages("choose-files.p2")),Some("govuk-body govuk-!-margin-bottom-6"))
