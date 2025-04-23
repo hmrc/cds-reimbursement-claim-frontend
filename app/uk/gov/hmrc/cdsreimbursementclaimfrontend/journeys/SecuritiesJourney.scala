@@ -1247,6 +1247,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       ),
       payeeTypeIsDefined,
       hasBillOfDischarge3DocumentsIfNeeded,
+      hasProofOfOriginIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       additionalDetailsPageVisited
     )

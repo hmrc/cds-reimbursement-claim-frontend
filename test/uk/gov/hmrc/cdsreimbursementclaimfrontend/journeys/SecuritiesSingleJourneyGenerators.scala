@@ -480,6 +480,13 @@ object SecuritiesSingleJourneyGenerators extends JourneyGenerators with Securiti
             then
               exampleUploadedFiles.map(_.copy(fileName = "bod.pdf", cargo = Some(UploadDocumentType.BillOfDischarge3)))
             else Seq.empty,
+          proofOfOriginDocuments =
+            if ReasonForSecurity.nidac.contains(rfs)
+            then
+              exampleUploadedFiles.map(
+                _.copy(fileName = "proof-of-origin.pdf", cargo = Some(UploadDocumentType.ProofOfOrigin))
+              )
+            else Seq.empty,
           bankAccountDetails =
             if submitBankAccountDetails && (!allDutiesGuaranteeEligible) then Some(exampleBankAccountDetails)
             else None,
