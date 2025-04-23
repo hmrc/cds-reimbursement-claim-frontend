@@ -599,6 +599,7 @@ choose-files.p1={0} can be up to a maximum of {1} size per file. The selected fi
 choose-files.p2=You can use the ''Choose files'' button to upload or ''drag and drop'' multiple files.
 choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
+choose-files.file=file
 
 choose-payee-type.details.declarant=Declarant
 choose-payee-type.details.importer=Importer

@@ -30,5 +30,5 @@
 @paragraph(Html(messages(s"$key.help-text.para1", viewConfig.bod3FormUrl)))
 @paragraph(Html(messages(s"$key.h2")),Some("govuk-heading-m"))
 
-@paragraph(Html(messages("choose-files.p1", "File", fileUploadConfig.readMaxFileSizeHumanReadable("bill-of-discharge"),fileUploadConfig.readMaxUploadsValue("bill-of-discharge")).capitalize), Some("govuk-body govuk-!-margin-bottom-2"))
+@paragraph(Html(messages("choose-files.p1", messages("choose-files.file"), fileUploadConfig.readMaxFileSizeHumanReadable("bill-of-discharge"),fileUploadConfig.readMaxUploadsValue("bill-of-discharge")).capitalize), Some("govuk-body govuk-!-margin-bottom-2"))
 @paragraph(Html(messages("choose-files.p2")),Some("govuk-body govuk-!-margin-bottom-6"))
