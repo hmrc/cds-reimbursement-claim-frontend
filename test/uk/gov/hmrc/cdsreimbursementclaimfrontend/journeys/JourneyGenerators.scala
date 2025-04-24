@@ -151,6 +151,17 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
         )
     yield taxCodes.distinct.zip(amounts).toSeq
 
+  final def taxCodesWithAmountsGen(numberOfDutyTypes: Option[Int] = None): Gen[Seq[(TaxCode, BigDecimal)]] =
+    for
+      numberOfTaxCodes <- numberOfDutyTypes.map(Gen.const).getOrElse(Gen.choose(2, 5))
+      taxCodes         <- Gen.pick(numberOfTaxCodes, TaxCodes.all).map(_.distinct)
+      amounts          <-
+        listOfExactlyN(
+          numberOfTaxCodes,
+          amountNumberGen
+        )
+    yield taxCodes.distinct.zip(amounts).toSeq
+
   final def taxCodesWithAmountsGen(taxCodes: Seq[TaxCode]): Gen[Seq[(TaxCode, BigDecimal)]] =
     for
       numberOfTaxCodes <- Gen.choose(2, Math.min(5, taxCodes.size))

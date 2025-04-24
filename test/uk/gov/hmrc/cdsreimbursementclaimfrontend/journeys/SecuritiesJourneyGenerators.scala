@@ -353,7 +353,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitBankAccountType: Boolean = true,
     submitFullAmount: Boolean = false,
     reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values,
-    numberOfSecurityDetails: Option[Int] = None
+    numberOfSecurityDetails: Option[Int] = None,
+    numberOfDutyTypes: Option[Int] = None
   ): Gen[SecuritiesJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
@@ -368,7 +369,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       submitFullAmount = submitFullAmount,
       reasonsForSecurity = reasonsForSecurity,
       additionalDetailsVisited = true,
-      numberOfSecurityDetails = numberOfSecurityDetails
+      numberOfSecurityDetails = numberOfSecurityDetails,
+      numberOfDutyTypes = numberOfDutyTypes
     ).map(
       _.fold(
         error =>
@@ -393,7 +395,8 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
     submitFullAmount: Boolean = false,
     reasonsForSecurity: Set[ReasonForSecurity] = ReasonForSecurity.values,
     additionalDetailsVisited: Boolean = false,
-    numberOfSecurityDetails: Option[Int] = None
+    numberOfSecurityDetails: Option[Int] = None,
+    numberOfDutyTypes: Option[Int] = None
   ): Gen[Either[String, SecuritiesJourney]] =
     for
       userEoriNumber              <- IdGen.genEori
@@ -419,7 +422,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
       depositsDetails             <-
         listOfExactlyN(
           numberOfSecurities,
-          Gen.zip(depositIdGen, taxCodesWithAmountsGen)
+          Gen.zip(depositIdGen, taxCodesWithAmountsGen(numberOfDutyTypes))
         )
       allDutiesGuaranteeEligible  <- allDutiesGuaranteeEligibleOpt.map(Gen.const).getOrElse(Gen.oneOf(true, false))
       acc14                        = buildSecuritiesDisplayDeclaration(
