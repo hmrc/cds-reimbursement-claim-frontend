@@ -32,6 +32,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGenSingleDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithMoreChoicesThanThoseSelected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.selectCheckBoxes
@@ -143,6 +144,7 @@ class SelectDutiesControllerSpec
   "Select Duties Controller" when {
     "show page is called" must {
       def performAction(securityId: String): Future[Result] = controller.show(securityId)(FakeRequest())
+      def performActionShowFirst(): Future[Result]          = controller.showFirst()(FakeRequest())
 
       "not find the page if securities feature is disabled" in {
         featureSwitch.disable(Feature.Securities)
@@ -182,6 +184,25 @@ class SelectDutiesControllerSpec
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
               doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
+            )
+          }
+        }
+
+      "select duty and redirect to enter claim page on a journey with a single duty type" in
+        forAll(partialGenSingleDuty) { journey =>
+          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          securityIdWithTaxCodes(journey).fold(
+            (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
+          ) { securityId =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(updatedSession)
+              mockStoreSession(Right(()))
+            }
+
+            checkIsRedirect(
+              performActionShowFirst(),
+              routes.EnterClaimController.showFirst(securityId)
             )
           }
         }
@@ -406,6 +427,21 @@ object SelectDutiesControllerSpec {
       submitBankAccountDetails = false,
       submitBankAccountType = false,
       reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+    )
+
+  val partialGenSingleDuty: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesGuaranteeEligibleOpt = None,
+      hasConsigneeDetailsInACC14 = true,
+      submitConsigneeDetails = false,
+      submitContactDetails = false,
+      submitContactAddress = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief,
+      numberOfDutyTypes = Some(1)
     )
 
   def getSelectedIndices(

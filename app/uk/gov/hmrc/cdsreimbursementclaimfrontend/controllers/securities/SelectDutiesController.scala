@@ -57,59 +57,72 @@ class SelectDutiesController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  private def processAvailableDuties[T](
+  private def processAvailableDuties[J, T](
     securityId: String,
     journey: SecuritiesJourney,
-    error: CdsError => Future[T],
-    f: Seq[DutyAmount] => Future[T]
-  ): Future[T] =
+    error: CdsError => Future[(J, T)],
+    f: Seq[DutyAmount] => Future[(J, T)]
+  ): Future[(J, T)] =
     journey
       .getSecurityTaxCodesWithAmounts(securityId)
       .noneIfEmpty
       .fold(error(CdsError("no tax codes available")))(f)
 
-  final val showFirst: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     journey.getSecurityDepositIds.headOption
       .map { securityId =>
-        processAvailableDuties[Result](
+        processAvailableDuties[SecuritiesJourney, Result](
           securityId: String,
           journey: SecuritiesJourney,
           error => {
             logger.warn(s"No Available duties: $error")
-            Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
           },
           dutiesAvailable =>
             {
-              val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
+              dutiesAvailable.toList match
+                case duty :: Nil =>
+                  journey
+                    .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(duty.taxCode))
+                    .fold(
+                      error => throw new Exception(error),
+                      (_, Redirect(routes.EnterClaimController.showFirst(securityId)))
+                    )
 
-              val filledForm =
-                emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
+                case duties =>
+                  val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
 
-              Ok(
-                selectDutiesPage(
-                  filledForm,
-                  journey.isSingleSecurity,
-                  securityId,
-                  dutiesAvailable,
-                  routes.SelectDutiesController.submit(securityId)
-                )
-              )
+                  val filledForm =
+                    emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
+
+                  (
+                    journey,
+                    Ok(
+                      selectDutiesPage(
+                        filledForm,
+                        journey.isSingleSecurity,
+                        securityId,
+                        dutiesAvailable,
+                        routes.SelectDutiesController.submit(securityId)
+                      )
+                    )
+                  )
             }.asFuture
         )
       }
       .getOrElse {
         logger.warn(s"Cannot find any security deposit")
-        Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+        (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
       }
   }
 
-  final def show(securityId: String): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    processAvailableDuties[Result](
+  final def show(securityId: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    processAvailableDuties[SecuritiesJourney, Result](
       securityId: String,
       journey: SecuritiesJourney,
       error => {
         logger.warn(s"No Available duties: $error")
-        Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+        (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
       },
       dutiesAvailable =>
         {
@@ -118,13 +131,16 @@ class SelectDutiesController @Inject() (
           val filledForm =
             emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
 
-          Ok(
-            selectDutiesPage(
-              filledForm,
-              journey.isSingleSecurity,
-              securityId,
-              dutiesAvailable,
-              routes.SelectDutiesController.submit(securityId)
+          (
+            journey,
+            Ok(
+              selectDutiesPage(
+                filledForm,
+                journey.isSingleSecurity,
+                securityId,
+                dutiesAvailable,
+                routes.SelectDutiesController.submit(securityId)
+              )
             )
           )
         }.asFuture
@@ -134,7 +150,7 @@ class SelectDutiesController @Inject() (
   final def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
     implicit request =>
       journey =>
-        processAvailableDuties[(SecuritiesJourney, Result)](
+        processAvailableDuties[SecuritiesJourney, Result](
           securityId: String,
           journey: SecuritiesJourney,
           error => {
