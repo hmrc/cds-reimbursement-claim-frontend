@@ -219,7 +219,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.EnterContactDetailsController.show
+          routes.BasisForClaimController.show
         )
       }
 
