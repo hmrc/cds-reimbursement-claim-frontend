@@ -320,7 +320,7 @@ object JourneyLog {
       numberOfMultipleMRNs = None,
       claimantType = output.claimantType.toString(),
       consigneeIsDeclarant = analytics.declarantEoriMatchesConsignee,
-      payeeType = output.payeeType.toString(),
+      payeeType = output.payeeType.map(_.toString()).getOrElse("empty"),
       basisOfClaim = None,
       basisOfClaimSpecialCircumstances = None,
       methodOfDisposal = None,

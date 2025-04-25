@@ -39,12 +39,14 @@ class ChoosePayeeTypeController @Inject() (
     with ChoosePayeeTypeMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]]             =
+  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
   final override def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey] =
     journey.submitPayeeType(payeeType)
 
-  final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
+  final val postAction: Call = routes.ChoosePayeeTypeController.submit
+
   final def nextPage(journey: Journey): Call =
     routes.EnterBankAccountDetailsController.show
 

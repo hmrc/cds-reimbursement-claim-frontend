@@ -22,6 +22,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChoosePayeeTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
+import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.*
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,10 +37,15 @@ class ChoosePayeeTypeController @Inject() (
     extends RejectedGoodsMultipleJourneyBaseController
     with ChoosePayeeTypeMixin {
 
+  // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
+  final override val actionPrecondition: Option[Validate[Journey]] =
+    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
   final override def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey] =
     journey.submitPayeeType(payeeType)
 
-  final val postAction: Call                 = routes.ChoosePayeeTypeController.submit
+  final val postAction: Call = routes.ChoosePayeeTypeController.submit
+
   final def nextPage(journey: Journey): Call =
     if journey.isSubsidyOnlyJourney then routes.UploadFilesController.show
     else if journey.needsBanksAccountDetailsSubmission then routes.EnterBankAccountDetailsController.show

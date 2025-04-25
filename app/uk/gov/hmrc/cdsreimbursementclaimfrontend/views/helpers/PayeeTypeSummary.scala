@@ -26,6 +26,18 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 object PayeeTypeSummary {
 
   def apply(
+    answer: Option[PayeeType],
+    key: String,
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    answer match {
+      case Some(a) => apply(a, key, changeCallOpt)
+      case None    => SummaryList(Nil)
+    }
+
+  def apply(
     answer: PayeeType,
     key: String,
     changeCallOpt: Option[Call]

@@ -266,23 +266,30 @@ final class SecuritiesJourney private (
       .forall(_.isGuaranteeEligible)
   }
 
-  def needsBanksAccountDetailsSubmission: Boolean =
-    reasonForSecurityIsIPR
+  override def needsBanksAccountDetailsSubmission: Boolean =
+    needsPayeeTypeSelection
+      && reasonForSecurityIsIPR
       || (getSelectedDepositIds.nonEmpty
         && !isAllSelectedDutiesAreGuaranteeEligible)
 
+  override def needsPayeeTypeSelection: Boolean = !isAllSelectedDutiesAreGuaranteeEligible
+
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
-      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
-      else
-        Right(
-          copy(newAnswers =
-            answers.copy(
-              payeeType = Some(payeeType),
-              bankAccountDetails = None
+      if needsPayeeTypeSelection
+      then
+        if answers.payeeType.contains(payeeType) then
+          Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+        else
+          Right(
+            copy(newAnswers =
+              answers.copy(
+                payeeType = Some(payeeType),
+                bankAccountDetails = None
+              )
             )
           )
-        )
+      else Left("submitPayeeType.unexpected")
     }
 
   def needsMethodOfDisposalSubmission: Boolean =
@@ -993,13 +1000,11 @@ final class SecuritiesJourney private (
           mrn                 <- getLeadMovementReferenceNumber
           rfs                 <- getReasonForSecurity
           claimantInformation <- getClaimantInformation
-          payeeType           <- getPayeeTypeForOutput(answers.payeeType)
-          displayPayeeType    <- answers.payeeType
         yield SecuritiesJourney.Output(
           movementReferenceNumber = mrn,
           claimantType = getClaimantType,
-          payeeType = payeeType,
-          displayPayeeType = displayPayeeType,
+          payeeType = getPayeeTypeForOutput(answers.payeeType),
+          displayPayeeType = answers.payeeType,
           claimantInformation = claimantInformation,
           reasonForSecurity = rfs,
           securitiesReclaims = getSecuritiesReclaims,
@@ -1088,8 +1093,8 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
 
   final case class Output(
     movementReferenceNumber: MRN,
-    payeeType: PayeeType,
-    displayPayeeType: PayeeType,
+    payeeType: Option[PayeeType],
+    displayPayeeType: Option[PayeeType],
     claimantType: ClaimantType,
     claimantInformation: ClaimantInformation,
     reasonForSecurity: ReasonForSecurity,

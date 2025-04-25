@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_
 import scala.concurrent.Future
 
 trait ChoosePayeeTypeMixin extends JourneyBaseController {
+
   def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey]
   val choosePayeeTypePage: choose_payee_type
   val postAction: Call
@@ -48,9 +49,16 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => implicit journey =>
-      val form: Form[PayeeType] =
-        payeeTypeForm.withDefault(journey.answers.payeeType)
-      (journey, Ok(choosePayeeTypePage(form, postAction))).asFuture
+      {
+        if journey.needsPayeeTypeSelection
+        then {
+          val form: Form[PayeeType] =
+            payeeTypeForm.withDefault(journey.answers.payeeType)
+          (journey, Ok(choosePayeeTypePage(form, postAction)))
+        } else {
+          (journey, Redirect(nextPage(journey)))
+        }
+      }.asFuture
     }
 
   final val submit: Action[AnyContent] =

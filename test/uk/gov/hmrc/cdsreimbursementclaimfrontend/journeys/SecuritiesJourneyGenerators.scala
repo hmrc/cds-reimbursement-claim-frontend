@@ -486,7 +486,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           movementReferenceNumber = Some(mrn),
           reasonForSecurity = Some(rfs),
           displayDeclaration = Some(acc14),
-          payeeType = Some(payeeType),
+          payeeType = if allDutiesGuaranteeEligible then None else Some(payeeType),
           similarClaimExistAlreadyInCDFPay = Some(false),
           eoriNumbersVerification = eoriNumbersVerification,
           exportMovementReferenceNumbers = exportMrns,

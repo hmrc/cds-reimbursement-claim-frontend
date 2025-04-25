@@ -78,10 +78,10 @@ class ChoosePayeeTypeControllerSpec
       .getOrFail
   }
 
-  val initialJourneyNonGuarantee: SecuritiesJourney = initialJourney(true)
+  val initialJourneyNonGuarantee: SecuritiesJourney = initialJourney(false)
   val sessionNonGuarantee: SessionData              = SessionData(initialJourneyNonGuarantee)
 
-  val initialJourneyGuarantee: SecuritiesJourney = initialJourney(false)
+  val initialJourneyGuarantee: SecuritiesJourney = initialJourney(true)
   val sessionGuarantee: SessionData              = SessionData(initialJourneyGuarantee)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
@@ -122,6 +122,18 @@ class ChoosePayeeTypeControllerSpec
       checkPageIsDisplayed(
         showPage(),
         messageFromMessageKey(s"$formKey.title")
+      )
+    }
+
+    "display page when all selected method of payments are guarantee" in forAll { (maybePayeeType: Option[PayeeType]) =>
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(sessionGuarantee)
+      }
+
+      checkIsRedirect(
+        showPage(),
+        routes.ChooseFileTypeController.show
       )
     }
 
@@ -168,16 +180,11 @@ class ChoosePayeeTypeControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionGuarantee)
-          mockStoreSession(
-            sessionGuarantee.copy(
-              securitiesJourney = initialJourneyGuarantee.submitPayeeType(payeeType).toOption
-            )
-          )(Right(()))
         }
 
         checkIsRedirect(
           submitPayeeType(formKey -> payeeType.toString),
-          routes.EnterBankAccountDetailsController.show
+          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.IneligibleController.ineligible
         )
       }
     }
