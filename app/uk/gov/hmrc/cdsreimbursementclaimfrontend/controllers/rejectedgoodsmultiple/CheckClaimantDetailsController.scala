@@ -66,7 +66,7 @@ class CheckClaimantDetailsController @Inject() (
     routes.EnterContactDetailsController.show
 
   override val nextPageInTheJourney: Call =
-    routes.BasisForClaimController.show
+    routes.CheckYourAnswersController.show
 
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 

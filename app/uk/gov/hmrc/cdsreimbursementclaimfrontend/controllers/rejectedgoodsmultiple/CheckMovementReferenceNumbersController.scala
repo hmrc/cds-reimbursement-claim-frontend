@@ -99,7 +99,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                   )
                 case No  =>
                   if shouldForwardToCYA(journey) then (journey, Redirect(checkYourAnswers))
-                  else (journey.withEnterContactDetailsMode(true), Redirect(routes.EnterContactDetailsController.show))
+                  else (journey.withEnterContactDetailsMode(true), Redirect(routes.BasisForClaimController.show))
               }
           )
       }
