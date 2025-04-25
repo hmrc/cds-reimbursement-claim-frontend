@@ -232,11 +232,11 @@ class CheckYourAnswersControllerSpec
           .flatMap(DateUtils.displayFormat),
         "Total security deposit value"               -> journey.answers.displayDeclaration
           .map(_.getTotalSecuritiesAmountFor(claim.securitiesReclaims.keySet).toPoundSterlingString),
-        "Payee"                                      -> Some(claim.displayPayeeType match {
+        "Payee"                                      -> claim.displayPayeeType.map {
           case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
           case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
           case PayeeType.Representative => m("choose-payee-type.radio.representative")
-        }),
+        },
         "Payment method"                             -> Some(
           if journey.answers.displayDeclaration
               .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(claim.securitiesReclaims.keySet))
@@ -247,7 +247,7 @@ class CheckYourAnswersControllerSpec
       ) ++ (if claim.reasonForSecurity == InwardProcessingRelief then Seq.empty else validateSecurityReclaims)
     )
 
-    claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)
+    claim.payeeType shouldBe journey.answers.payeeType.map(getPayeeType)
   }
 
   private def getPayeeType(payeeType: PayeeType): PayeeType = payeeType match {

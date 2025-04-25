@@ -61,6 +61,8 @@ object JourneyValidationErrors {
     "consigneeEoriNumberDoesNotHaveToBeProvided if user's EORI is matching those of ACC14 declarant or consignee"
   val PAYEE_TYPE_MUST_BE_DEFINED: String                                        =
     "payeeTypeMustBeDefined"
+  val PAYEE_TYPE_MUST_BE_NOT_DEFINED: String                                    =
+    "payeeTypeMustBeNotDefined"
   val BANK_ACCOUNT_DETAILS_MUST_BE_DEFINED: String                              =
     "bankAccountDetailsMustBeDefined"
   val BANK_ACCOUNT_DETAILS_MUST_NOT_BE_DEFINED: String                          =

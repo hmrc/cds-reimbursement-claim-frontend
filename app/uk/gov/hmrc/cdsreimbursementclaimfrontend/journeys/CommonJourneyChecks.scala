@@ -86,9 +86,16 @@ trait CommonJourneyChecks[J <: CommonJourneyProperties] {
     )
 
   final val payeeTypeIsDefined: Validate[J] =
-    checkIsDefined(
-      _.answers.payeeType,
-      PAYEE_TYPE_MUST_BE_DEFINED
+    conditionally(
+      _.needsPayeeTypeSelection,
+      checkIsDefined(
+        _.answers.payeeType,
+        PAYEE_TYPE_MUST_BE_DEFINED
+      ),
+      checkIsEmpty(
+        _.answers.payeeType,
+        PAYEE_TYPE_MUST_BE_NOT_DEFINED
+      )
     )
 
   final val paymentMethodHasBeenProvidedIfNeeded: Validate[J] =
