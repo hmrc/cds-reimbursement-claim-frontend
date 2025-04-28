@@ -136,7 +136,7 @@ class CheckClaimantDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "redirect to the basis for claims page and do not update the contact/address details if they are already present" in {
+      "redirect to the CYA page and do not update the contact/address details if they are already present" in {
         forAll(genMrnContactDetails, genContactAddress) { (contactDetails, address) =>
           val journey = journeyWithMrnAndDeclaration
             .submitContactDetails(Some(contactDetails))
@@ -151,12 +151,12 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.UploadMrnListController.show
+            routes.CheckYourAnswersController.show
           )
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if the journey does not already contain them." in {
+      "redirect to the CYA page and update the contact/address details if the journey does not already contain them." in {
         forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
           (initialDisplayDeclaration, consignee, declarant, address) =>
             val eori               = exampleEori
@@ -184,12 +184,12 @@ class CheckClaimantDetailsControllerSpec
 
             checkIsRedirect(
               performAction(),
-              routes.UploadMrnListController.show
+              routes.CheckYourAnswersController.show
             )
         }
       }
 
-      "redirect to the basis for claims page and update the contact/address details if third party user" in {
+      "redirect to the CYA page and update the contact/address details if third party user" in {
         forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
           val journey = RejectedGoodsScheduledJourney
             .empty(userEori)
@@ -208,7 +208,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.UploadMrnListController.show
+            routes.CheckYourAnswersController.show
           )
         }
       }
