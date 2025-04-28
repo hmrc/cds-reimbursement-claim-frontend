@@ -186,17 +186,11 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockStoreSession(
-            session.copy(
-              rejectedGoodsScheduledJourney =
-                session.rejectedGoodsScheduledJourney.map(_.withEnterContactDetailsMode(true))
-            )
-          )(Right(()))
         }
 
         checkIsRedirect(
           performAction("check-declaration-details" -> "true"),
-          routes.EnterContactDetailsController.show
+          routes.UploadMrnListController.show
         )
       }
 
