@@ -266,13 +266,22 @@ final class SecuritiesJourney private (
       .forall(_.isGuaranteeEligible)
   }
 
+  def isAllDeclaredDutiesAreGuaranteeEligible: Boolean =
+    getLeadDisplayDeclaration.exists(
+      _.getAllSecurityMethodsOfPayment
+        .exists(mps => mps.nonEmpty && mps.forall(mp => mp == "004" || mp == "005"))
+    )
+
   override def needsBanksAccountDetailsSubmission: Boolean =
     needsPayeeTypeSelection
       && reasonForSecurityIsIPR
       || (getSelectedDepositIds.nonEmpty
         && !isAllSelectedDutiesAreGuaranteeEligible)
 
-  override def needsPayeeTypeSelection: Boolean = !isAllSelectedDutiesAreGuaranteeEligible
+  override def needsPayeeTypeSelection: Boolean =
+    if reasonForSecurityIsIPR
+    then !isAllDeclaredDutiesAreGuaranteeEligible
+    else !isAllSelectedDutiesAreGuaranteeEligible
 
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesJourney] =
     whileClaimIsAmendable {
