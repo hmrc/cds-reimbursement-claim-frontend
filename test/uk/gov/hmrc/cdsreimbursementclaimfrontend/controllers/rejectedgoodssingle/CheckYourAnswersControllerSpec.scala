@@ -147,12 +147,6 @@ class CheckYourAnswersControllerSpec
       ) ++
         declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Importer name"            -> declaration.flatMap(_.consigneeName),
-          "Importer email"           -> declaration.flatMap(_.consigneeEmail),
-          "Importer telephone"       -> declaration.flatMap(_.consigneeTelephone),
-          "Importer address"         -> declaration.flatMap(_.consigneeAddress).map(_.replace("<br>", " ")),
-          "Declarant name"           -> declaration.map(_.declarantName),
-          "Declarant address"        -> declaration.flatMap(_.declarantContactAddress).map(_.replace("<br>", " ")),
           "Contact details"          -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
           "Contact address"          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
           "Basis of claim"           -> Some(

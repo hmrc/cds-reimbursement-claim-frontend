@@ -52,7 +52,8 @@
                 displayDeclaration,
                 s"check-your-answers.declaration-details",
                 if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
-                if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show)).rows
+                if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show),
+                showImporterDeclarantDetails = false).rows
             ++ SecuritiesSelectionSummary(
                 claim.securitiesReclaims,
                 displayDeclaration,

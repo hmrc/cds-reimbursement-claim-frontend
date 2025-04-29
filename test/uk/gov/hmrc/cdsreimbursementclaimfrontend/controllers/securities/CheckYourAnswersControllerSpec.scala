@@ -212,18 +212,6 @@ class CheckYourAnswersControllerSpec
         "Name on the account"                        -> claim.bankAccountDetails.map(_.accountName.value),
         "Sort code"                                  -> claim.bankAccountDetails.map(_.sortCode.value),
         "Account number"                             -> claim.bankAccountDetails.map(_.accountNumber.value),
-        "Importer name"                              -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
-        "Importer email"                             -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
-        "Importer address"                           -> journey.answers.displayDeclaration.flatMap(d =>
-          d.displayResponseDetail.consigneeDetails.map(details =>
-            d.establishmentAddress(details.establishmentAddress).mkString(" ")
-          )
-        ),
-        "Importer telephone"                         -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
-        "Declarant name"                             -> journey.answers.displayDeclaration.map(_.declarantName),
-        "Declarant address"                          -> journey.answers.displayDeclaration.map(d =>
-          d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
-        ),
         "Reason for security deposit"                -> journey.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         ),
