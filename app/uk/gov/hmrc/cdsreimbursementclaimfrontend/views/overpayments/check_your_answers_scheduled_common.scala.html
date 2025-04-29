@@ -35,7 +35,7 @@
 
 @displayDeclarationOpt.map { displayDeclaration =>
     @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-    @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"check-your-answers.declaration-details", showImportMrn = false))
+    @summary(CdsDisplayDeclarationSummary.render(displayDeclaration, s"check-your-answers.declaration-details", showImportMrn = false, showImporterDeclarantDetails = false))
 }
 
 @subHeading(Html(messages(s"check-your-answers.claim-details")))

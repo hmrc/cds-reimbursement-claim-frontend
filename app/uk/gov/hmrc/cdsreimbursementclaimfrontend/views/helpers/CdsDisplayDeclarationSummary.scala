@@ -45,7 +45,8 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
     key: String,
     subKey: Option[String] = None,
     showImportMrn: Boolean = true,
-    showMethodOfPayment: Boolean = true
+    showMethodOfPayment: Boolean = true,
+    showImporterDeclarantDetails: Boolean = true
   )(implicit
     messages: Messages
   ): SummaryList =
@@ -85,40 +86,50 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
             value = Value(Text(vatCharges.toPoundSterlingString))
           )
         ),
-        declaration.consigneeName.map { name =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
-            value = Value(Text(name))
-          )
-        },
-        declaration.consigneeEmail.map { email =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
-            value = Value(Text(email))
-          )
-        },
-        declaration.consigneeTelephone.map { telephone =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
-            value = Value(Text(telephone))
-          )
-        },
-        declaration.consigneeAddress.map { address =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
-            value = Value(HtmlContent(address))
-          )
-        },
+        declaration.consigneeName
+          .map { name =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.importer-name-label"))),
+              value = Value(Text(name))
+            )
+          }
+          .filter(_ => showImporterDeclarantDetails),
+        declaration.consigneeEmail
+          .map { email =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.importer-email-label"))),
+              value = Value(Text(email))
+            )
+          }
+          .filter(_ => showImporterDeclarantDetails),
+        declaration.consigneeTelephone
+          .map { telephone =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.importer-telephone-label"))),
+              value = Value(Text(telephone))
+            )
+          }
+          .filter(_ => showImporterDeclarantDetails),
+        declaration.consigneeAddress
+          .map { address =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.importer-address-label"))),
+              value = Value(HtmlContent(address))
+            )
+          }
+          .filter(_ => showImporterDeclarantDetails),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.declarant-name-label"))),
           value = Value(Text(declaration.declarantName))
-        ).some,
-        declaration.declarantContactAddress.map { address =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
-            value = Value(HtmlContent(address))
-          )
-        }
+        ).some.filter(_ => showImporterDeclarantDetails),
+        declaration.declarantContactAddress
+          .map { address =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"$key.declarant-address-label"))),
+              value = Value(HtmlContent(address))
+            )
+          }
+          .filter(_ => showImporterDeclarantDetails)
       ).flatMap(_.toList)
     )
 }
