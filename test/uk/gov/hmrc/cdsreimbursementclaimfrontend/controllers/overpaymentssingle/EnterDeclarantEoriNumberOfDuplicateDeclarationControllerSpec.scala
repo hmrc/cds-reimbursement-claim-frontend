@@ -71,15 +71,20 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
+  val originalDeclaration  = exampleDisplayDeclaration
+  val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value)
+
   val session: SessionData = SessionData(
     OverpaymentsSingleJourney
-      .empty(exampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .empty(originalDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(originalDeclaration.getMRN, originalDeclaration)
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(
-        anotherExampleMrn,
-        buildDisplayDeclaration(id = anotherExampleMrn.value)
-      ))
+      .flatMap(
+        _.submitDuplicateMovementReferenceNumberAndDeclaration(
+          duplicateDeclaration.getMRN,
+          duplicateDeclaration
+        )
+      )
       .getOrFail
   )
 
@@ -107,9 +112,11 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
           doc => {
             doc
               .select("form div#enter-declarant-eori-number-hint")
-              .text() shouldBe messageFromMessageKey("enter-declarant-eori-number.help-text")
+              .text()                                          shouldBe messageFromMessageKey("enter-declarant-eori-number.help-text")
             doc.select("#enter-declarant-eori-number").`val`() shouldBe ""
-            doc.select("form").attr("action") shouldBe routes.EnterDeclarantEoriNumberController.submit.url
+            doc
+              .select("form")
+              .attr("action")                                  shouldBe routes.EnterDeclarantEoriNumberOfDuplicateDeclarationController.submit.url
           }
         )
       }
