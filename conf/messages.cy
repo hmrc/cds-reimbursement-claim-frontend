@@ -1449,11 +1449,11 @@ language-switcher.welsh=Cymraeg
 language-switcher.welsh.hidden=Newid yr iaith i’r Gymraeg
 language-switcher.welsh.hover=Defnyddio'r cyfrif hwn yn Gymraeg
 
-method-of-payment.001=Taliad ar Unwaith
-method-of-payment.002=Cyfrif Gohirio
-method-of-payment.003=Cyfrif Arian Parod
-method-of-payment.004=Cyfrif Gwarant
-method-of-payment.005=Gwarant Unigol
+method-of-payment.001=Taliad ar unwaith
+method-of-payment.002=Cyfrif gohirio
+method-of-payment.003=Cyfrif arian parod
+method-of-payment.004=Cyfrif gwarant
+method-of-payment.005=Gwarant unigol
 method-of-payment.006=Cymhorthdal
 
 month.april=Ebrill
