@@ -86,7 +86,8 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                 modifyJourney(journey, eori)
                   .fold(
                     {
-                      case JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI =>
+                      case JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI |
+                          JourneyValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI =>
                         (
                           journey,
                           BadRequest(
@@ -103,7 +104,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                             )
                           )
                         )
-                      case errors                                                    =>
+                      case errors =>
                         (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                     },
                     updatedJourney => (updatedJourney, Redirect(continueAction))

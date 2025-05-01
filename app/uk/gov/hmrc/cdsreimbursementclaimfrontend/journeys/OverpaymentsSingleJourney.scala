@@ -369,7 +369,7 @@ final class OverpaymentsSingleJourney private (
               )
             )
           )
-        else Left("checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14")
+        else Left(JourneyValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI)
       else Right(this)
     }
 
