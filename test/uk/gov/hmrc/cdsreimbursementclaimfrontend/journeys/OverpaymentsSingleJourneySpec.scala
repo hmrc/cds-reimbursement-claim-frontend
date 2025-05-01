@@ -1490,7 +1490,7 @@ class OverpaymentsSingleJourneySpec
       .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
 
     journeyEither.getOrFail.checkDeclarantEoriNumberWithDuplicateDeclaration(exampleEori) shouldBe Left(
-      "checkDeclarantEoriNumberWithDuplicateDeclaration.shouldMatchDeclarantEoriFromACC14"
+      JourneyValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI
     )
   }
 

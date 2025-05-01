@@ -105,5 +105,7 @@ object JourneyValidationErrors {
     "submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
   val SHOULD_MATCH_ACC14_DECLARANT_EORI: String                                 =
     "submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14"
+  val SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI: String                       =
+    "submitDuplicateDeclarantEoriNumber.shouldMatchDuplicateDeclarantEoriFromACC14"
 
 }
