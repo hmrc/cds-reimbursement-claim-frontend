@@ -230,7 +230,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(journey))
           mockStoreSession(updatedSession)(Right(()))
         }
 

@@ -87,7 +87,7 @@ trait EnterImporterEoriNumberMixin extends JourneyBaseController {
               modifyJourney(journey, eori)
                 .fold(
                   {
-                    case JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI =>
+                    case JourneyValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI | JourneyValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_CONSIGNEE_EORI =>
                       (
                         journey,
                         BadRequest(
