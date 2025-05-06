@@ -56,7 +56,8 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterImporterEoriNumberOfDuplicateDeclaration = instanceOf[EnterImporterEoriNumberOfDuplicateDeclaration]
+  val controller: EnterImporterEoriNumberOfDuplicateDeclaration =
+    instanceOf[EnterImporterEoriNumberOfDuplicateDeclaration]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -66,8 +67,8 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  val originalDeclaration = exampleDisplayDeclaration
-  val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value)
+  val originalDeclaration  = exampleDisplayDeclaration
+  val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value, consigneeEORI = Some(exampleEori))
 
   val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
     .empty(originalDeclaration.getConsigneeEori.get)
@@ -220,7 +221,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration                 = buildDisplayDeclaration().withDeclarationId(mrn.value).withConsigneeEori(exampleEori)
+        val displayDeclaration                 = buildDisplayDeclaration(consigneeEORI = Some(eori)).withDeclarationId(mrn.value)
         val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
@@ -250,7 +251,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
             val displayDeclaration                 =
-              buildDisplayDeclaration().withDeclarationId(mrn.value).withConsigneeEori(exampleEori)
+              buildDisplayDeclaration(consigneeEORI = Some(exampleEori)).withDeclarationId(mrn.value)
             val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)

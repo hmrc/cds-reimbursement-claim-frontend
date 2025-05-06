@@ -221,12 +221,12 @@ class EnterImporterEoriNumberControllerSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value).withConsigneeEori(eori)
+        val displayDeclaration                 = buildDisplayDeclaration(consigneeEORI = Some(eori)).withDeclarationId(mrn.value)
         val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
           .empty(anotherExampleEori)
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val updatedJourney                     = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
+        val updatedJourney                     = journey.submitConsigneeEoriNumber(eori).getOrFail
         val updatedSession                     = SessionData(updatedJourney)
 
         inSequence {
@@ -245,7 +245,7 @@ class EnterImporterEoriNumberControllerSpec
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
             val displayDeclaration                 =
-              buildDisplayDeclaration().withDeclarationId(mrn.value).withConsigneeEori(wantedConsignee)
+              buildDisplayDeclaration(consigneeEORI = Some(wantedConsignee)).withDeclarationId(mrn.value)
             val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
               .empty(anotherExampleEori)
               .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
