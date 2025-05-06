@@ -221,9 +221,10 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration                 = buildDisplayDeclaration(consigneeEORI = Some(eori)).withDeclarationId(mrn.value)
+        val displayDeclaration                 =
+          buildDisplayDeclaration(consigneeEORI = Some(anotherExampleEori)).withDeclarationId(mrn.value)
         val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
-          .empty(exampleEori)
+          .empty(anotherExampleEori)
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
           .flatMap(
@@ -233,7 +234,8 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
             )
           )
           .getOrFail
-        val updatedJourney                     = journey.checkDeclarantEoriNumberWithDuplicateDeclaration(eori).getOrFail
+
+        val updatedJourney = journey.checkConsigneeEoriNumberWithDuplicateDeclaration(eori).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -243,7 +245,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
 
         checkIsRedirect(
           performAction(controller.eoriNumberFormKey -> eori.value),
-          routes.CheckDuplicateDeclarationDetailsController.show
+          routes.EnterDeclarantEoriNumberOfDuplicateDeclarationController.show
         )
       }
 
