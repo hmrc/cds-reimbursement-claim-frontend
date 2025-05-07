@@ -37,6 +37,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 
 import java.util.Locale
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.Excise
 
 object ClaimsTableHelper {
 
@@ -512,9 +513,9 @@ object ClaimsTableHelper {
     val exciseDuties = reimbursements.filterNot(i => i._1 === UkDuty || i._1 === EuDuty).values.flatten.toList
 
     Map(
-      UkDuty.repr   -> ukDuties,
-      EuDuty.repr   -> euDuties,
-      "excise-duty" -> exciseDuties
+      UkDuty.repr -> ukDuties,
+      EuDuty.repr -> euDuties,
+      Excise.repr -> exciseDuties
     ).filterNot(_._2.isEmpty)
   }
 

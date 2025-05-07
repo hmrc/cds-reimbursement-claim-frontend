@@ -23,28 +23,15 @@ object DutyTypes {
 
   val custom: Seq[DutyType] = List(UkDuty, EuDuty).sorted
 
-  val excise: Seq[DutyType] = List(
-    Beer,
-    Wine,
-    MadeWine,
-    LowAlcoholBeverages,
-    Spirits,
-    CiderPerry,
-    OtherFermentedProducts,
-    HydrocarbonOils,
-    Biofuels,
-    MiscellaneousRoadFuels,
-    Tobacco,
-    ClimateChangeLevy
-  ).sorted
+  val excise: Seq[DutyType] = List(Excise)
 
-  val all: Seq[DutyType] = custom ++ excise
+  val all: Seq[DutyType] = List(UkDuty, EuDuty, Excise).sorted
 
   def categoryOf(dutyType: DutyType): String =
     dutyType match {
       case DutyType.UkDuty => "uk-duty"
       case DutyType.EuDuty => "eu-duty"
-      case _               => "excise-duty"
+      case DutyType.Excise => "excise-duty"
     }
 
   def dutyTypeOf(taxCode: TaxCode): DutyType =
