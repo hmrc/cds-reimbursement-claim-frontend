@@ -164,7 +164,18 @@ final case class DisplayDeclaration(
   def withConsigneeEori(eori: Eori): DisplayDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(consigneeDetails =
-        displayResponseDetail.consigneeDetails.map(_.copy(consigneeEORI = eori.value))
+        displayResponseDetail.consigneeDetails
+          .map(_.copy(consigneeEORI = eori.value))
+          .orElse(
+            Some(
+              ConsigneeDetails(
+                consigneeEORI = eori.value,
+                legalName = getDeclarantDetails.legalName,
+                contactDetails = getDeclarantDetails.contactDetails,
+                establishmentAddress = getDeclarantDetails.establishmentAddress
+              )
+            )
+          )
       )
     )
 

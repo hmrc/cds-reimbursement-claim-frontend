@@ -34,9 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -68,12 +65,11 @@ class EnterImporterEoriNumberControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Overpayments_v2)
 
-  val session: SessionData = SessionData(
+  val journey: OverpaymentsSingleJourney =
     OverpaymentsSingleJourney
       .empty(anotherExampleEori)
       .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
       .getOrFail
-  )
 
   "Importer Eori Number Controller" when {
     "Enter Importer Eori page" must {
@@ -90,7 +86,7 @@ class EnterImporterEoriNumberControllerSpec
       "display the page on a new journey" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -150,15 +146,13 @@ class EnterImporterEoriNumberControllerSpec
       "display the page on a pre-existing journey" in {
         val journey        = buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
-          acc14ConsigneeMatchesUserEori = false,
-          hasConsigneeDetailsInACC14 = true
+          acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )
-        val eori           =
-          journey.answers.eoriNumbersVerification
-            .flatMap(_.consigneeEoriNumber)
-            .getOrElse(fail("No consignee eori found"))
+        val eori           = journey.answers.eoriNumbersVerification
+          .flatMap(_.consigneeEoriNumber)
+          .getOrElse(fail("No consignee eori found"))
         val sessionToAmend = SessionData(journey)
 
         inSequence {
@@ -193,7 +187,7 @@ class EnterImporterEoriNumberControllerSpec
       "reject an empty Eori" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -209,7 +203,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(journey))
         }
 
         checkPageIsDisplayed(
@@ -224,24 +218,17 @@ class EnterImporterEoriNumberControllerSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val initialJourney                = session.overpaymentsSingleJourney.getOrElse(fail("No overpayments journey"))
-        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
-        val consigneeDetails              = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
-        val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-        val journey                       =
-          initialJourney
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-            .getOrFail
-
-        val requiredSession = SessionData(journey)
-        val updatedJourney  = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-        val updatedSession  = SessionData(updatedJourney)
+        val displayDeclaration                 = buildDisplayDeclaration(consigneeEORI = Some(eori)).withDeclarationId(mrn.value)
+        val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+          .empty(anotherExampleEori)
+          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+          .getOrFail
+        val updatedJourney                     = journey.submitConsigneeEoriNumber(eori).getOrFail
+        val updatedSession                     = SessionData(updatedJourney)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(requiredSession)
+          mockGetSession(SessionData(journey))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -254,23 +241,16 @@ class EnterImporterEoriNumberControllerSpec
       "submit a valid Eori which is not the consignee" in forAll {
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
-            val initialJourney                = session.overpaymentsSingleJourney.getOrElse(fail("No overpayments journey"))
-            val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
-            val updatedConsigneDetails        =
-              displayDeclaration.getConsigneeDetails.map(_.copy(consigneeEORI = wantedConsignee.value))
-            val updatedDisplayResponseDetails =
-              displayDeclaration.displayResponseDetail.copy(consigneeDetails = updatedConsigneDetails)
-            val updatedDisplayDeclaration     =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-            val journey                       =
-              initialJourney
-                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
-                .getOrFail
-            val requiredSession               = SessionData(journey)
+            val displayDeclaration                 =
+              buildDisplayDeclaration(consigneeEORI = Some(wantedConsignee)).withDeclarationId(mrn.value)
+            val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+              .empty(anotherExampleEori)
+              .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+              .getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(requiredSession)
+              mockGetSession(SessionData(journey))
             }
 
             checkPageIsDisplayed(
