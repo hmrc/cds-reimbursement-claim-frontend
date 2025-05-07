@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -31,33 +32,21 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
-    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
 
 @(form: Form[List[DutyType]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"select-duty-types.title")}
-@caption = @{messages(s"select-duty-types.title.caption")}
 
 @customsOptions = @{
-    DutyTypes.custom.map { dutyType =>
+    DutyTypes.all.map { dutyType =>
         CheckboxItem(
             name = Some(s"select-duty-types[]"),
             value = dutyType.repr,
-            content = Text(messages(s"duty-type.${dutyType.repr}")),
-            checked = form.data.exists(_._2 == dutyType.repr)
-        )
-    }
-}
-
-@exciseOptions = @{
-    DutyTypes.excise.map { dutyType =>
-        CheckboxItem(
-            name = Some(s"select-duty-types[]"),
-            value = dutyType.repr,
-            content = Text(messages(s"duty-type.${dutyType.repr}")),
+            content = Text(messages(s"select-duty-types.${dutyType.repr}")),
+            hint = Some(Hint(content = HtmlContent(messages(s"select-duty-types.${dutyType.repr}.hint")))),
             checked = form.data.exists(_._2 == dutyType.repr)
         )
     }
@@ -69,39 +58,20 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = caption)
+    @heading(Html(title), classes="govuk-heading-l")
 
-    @dropdownDetails(summary = s"select-duty-types.details.heading",
-        html(
-            paragraph(Html(messages(s"select-duty-types.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
-        )
-    )
+    @paragraph(Html(messages(s"select-duty-types.p1")))
 
-    @paragraph(Html(messages(s"select-duty-types.inset")),Some("govuk-inset-text govuk-!-margin-bottom-5"))
-
-    @paragraph(Html(messages(s"select-duty-types.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
+    @paragraph(Html(messages(s"select-duty-types.p2", viewConfig.ukTradeTariffGuidance)))
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
-        <div class="cds-combined-checkbox-groups">
-
-            @checkboxes(    
-                field = form(s"select-duty-types"),
-                legend = HtmlContent(messages(s"select-duty-types.checkbox-legend.1")),
-                legendAsHeading = false,
-                items = customsOptions
-            )
-
-            @checkboxes(
-                field = form(s"select-duty-types"),
-                legend = HtmlContent(messages(s"select-duty-types.checkbox-legend.2")),
-                legendAsHeading = false,
-                items = exciseOptions,
-                idPrefix = s"select-duty-types-excise",
-                hideError = true
-            )
-
-        </div>
+        @checkboxes(
+            field = form(s"select-duty-types"),
+            legend = HtmlContent(messages(s"select-duty-types.checkbox-legend")),
+            legendAsHeading = false,
+            items = customsOptions
+        )
 
         @submitButton("button.continue")
 

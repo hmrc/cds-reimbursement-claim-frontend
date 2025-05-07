@@ -1752,6 +1752,7 @@ select-duty-codes.h1.spirits=spirits
 select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.wine=wine
+select-duty-codes.h1.excise-duty=Excise
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.p1=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
 select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
@@ -1759,16 +1760,18 @@ select-duty-codes.title=Which {0} duties do you want to claim for?
 select-duty-codes.title.caption=Claim details
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 
-select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
-select-duty-types.checkbox-legend.2=Excise Duties
-select-duty-types.details.heading=Find out more about duties
+select-duty-types.checkbox-legend=What type of duties do you want to claim for?
 select-duty-types.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-types.error.required=Choose the duties you want to include in your claim
-select-duty-types.hidden-help=Use the find feature of your web browser to search for content on the page.
-select-duty-types.inset=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
-select-duty-types.title=Which duties do you want to claim for?
-select-duty-types.title.caption=Claim details
-select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.title=Import tax to claim
+select-duty-types.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim.
+select-duty-types.p2=Find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a>.
+select-duty-types.uk-duty=UK duties
+select-duty-types.uk-duty.hint=including customs, additional, countervailing duties and VAT
+select-duty-types.eu-duty=EU duties
+select-duty-types.eu-duty.hint=including customs, additional, countervailing duties and VAT
+select-duty-types.excise-duty=Excise duties
+select-duty-types.excise-duty.hint=This applies to products like alcoholic drinks, tobacco products, hydrocarbon oil and biofuels
 
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 select-method-of-disposal.rejected-goods.method.Destruction=Destroy the goods

@@ -1789,19 +1789,8 @@ select-duties.details.p3.li2=cadw llwybr archwilio er mwyn ategu’ch hawliad
 select-duty-codes.details.heading=Rhagor o wybodaeth am dollau
 select-duty-codes.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
 select-duty-codes.error.required=Dewiswch un math neu’n fwy o dollau rydych am hawlio ar eu cyfer
-select-duty-codes.h1.beer=cwrw
-select-duty-codes.h1.biofuels=biodanwydd
-select-duty-codes.h1.cider-perry=seidr a pherai
-select-duty-codes.h1.climate-change-levy=Ardoll Newid yn yr Hinsawdd
 select-duty-codes.h1.eu-duty=yr UE
-select-duty-codes.h1.hydrocarbon-oils=olew hydrocarbon
-select-duty-codes.h1.low-alcohol-beverages=diodydd alcohol isel
-select-duty-codes.h1.made-wine=gwin a wnaed
-select-duty-codes.h1.miscellaneous-road-fuels=tanwydd ffordd amrywiol
-select-duty-codes.h1.spirits=gwirodydd
-select-duty-codes.h1.tobacco=cynhyrchion tybaco
 select-duty-codes.h1.uk-duty=y DU
-select-duty-codes.h1.wine=gwin
 select-duty-codes.hidden-help=Defnyddiwch y nodwedd ’chwilio’ ar eich porwr i ddod o hyd i gynnwys ar y dudalen.
 select-duty-codes.p1=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
 select-duty-codes.subsidy-text=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau.
@@ -1809,15 +1798,9 @@ select-duty-codes.title=Pa dollau {0} rydych am hawlio ar eu cyfer?
 select-duty-codes.title.caption=Manylion yr hawliad
 select-duty-codes.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
 
-select-duty-types.checkbox-legend.1=Tollau, Ychwanegol, TAW a Gwrth-Gymhorthdal
-select-duty-types.checkbox-legend.2=Tollau Ecséis
-select-duty-types.details.heading=Rhagor o wybodaeth am dollau
 select-duty-types.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
 select-duty-types.error.required=Dewiswch y tollau rydych am eu hychwanegu yn eich hawliad
-select-duty-types.hidden-help=Defnyddiwch y nodwedd ’chwilio’ ar eich porwr i ddod o hyd i gynnwys ar y dudalen.
 select-duty-types.inset=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
-select-duty-types.title=Pa dollau rydych am hawlio ar eu cyfer?
-select-duty-types.title.caption=Manylion yr hawliad
 select-duty-types.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
 
 select-method-of-disposal.rejected-goods.error.required=Dewiswch y dull gwaredu
