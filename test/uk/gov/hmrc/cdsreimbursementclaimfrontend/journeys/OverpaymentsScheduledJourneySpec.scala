@@ -1024,13 +1024,12 @@ class OverpaymentsScheduledJourneySpec
     "find next duty type - examples" in {
       val journey = OverpaymentsScheduledJourney.empty(exampleEori)
 
-      val dutyTypes       = Seq(DutyType.EuDuty, DutyType.Beer, DutyType.Biofuels)
+      val dutyTypes       = Seq(DutyType.EuDuty, DutyType.Excise)
       val modifiedJourney =
         journey.selectAndReplaceDutyTypeSetForReimbursement(dutyTypes).getOrFail
 
-      modifiedJourney.findNextSelectedDutyAfter(DutyType.Beer)     shouldBe Some(DutyType.Biofuels)
-      modifiedJourney.findNextSelectedDutyAfter(DutyType.EuDuty)   shouldBe Some(DutyType.Beer)
-      modifiedJourney.findNextSelectedDutyAfter(DutyType.Biofuels) shouldBe None
+      modifiedJourney.findNextSelectedDutyAfter(DutyType.Excise) shouldBe None
+      modifiedJourney.findNextSelectedDutyAfter(DutyType.EuDuty) shouldBe Some(DutyType.Excise)
     }
 
     "find next duty type" in {
