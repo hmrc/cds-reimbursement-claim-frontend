@@ -1767,9 +1767,9 @@ select-duty-types.title=Import tax to claim
 select-duty-types.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim.
 select-duty-types.p2=Find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a>.
 select-duty-types.uk-duty=UK duties
-select-duty-types.uk-duty.hint=including customs, additional, countervailing duties and VAT
+select-duty-types.uk-duty.hint=Including customs, additional, countervailing duties and VAT
 select-duty-types.eu-duty=EU duties
-select-duty-types.eu-duty.hint=including customs, additional, countervailing duties and VAT
+select-duty-types.eu-duty.hint=Including customs, additional, countervailing duties and VAT
 select-duty-types.excise-duty=Excise duties
 select-duty-types.excise-duty.hint=This applies to products like alcoholic drinks, tobacco products, hydrocarbon oil and biofuels
 

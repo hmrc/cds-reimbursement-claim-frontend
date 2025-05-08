@@ -1798,10 +1798,20 @@ select-duty-codes.title=Pa dollau {0} rydych am hawlio ar eu cyfer?
 select-duty-codes.title.caption=Manylion yr hawliad
 select-duty-codes.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
 
+select-duty-types.checkbox-legend=Pa fath o dollau ydych am hawlio ar eu cyfer?
 select-duty-types.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir
 select-duty-types.error.required=Dewiswch y tollau rydych am eu hychwanegu yn eich hawliad
 select-duty-types.inset=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
-select-duty-types.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
+select-duty-types.title=Treth mewnforio i’w hawlio
+select-duty-types.p1=Dewiswch bob un o’r mathau o dollau yr ydych am eu hawlio ar gyfer yr holl Gyfeirnodau Symud (MRNau) yn eich hawliad.
+select-duty-types.p2=Dewch o hyd i ragor o wybodaeth ynghylch tollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a>.
+select-duty-types.uk-duty=Tollau’r DU
+select-duty-types.uk-duty.hint=Gan gynnwys tollau tramor, tollau ychwanegol, tollau gwrthbwyso a TAW
+select-duty-types.eu-duty=Tollau’r UE
+select-duty-types.eu-duty.hint=Gan gynnwys tollau tramor, tollau ychwanegol, tollau gwrthbwyso a TAW
+select-duty-types.excise-duty=Tollau ecséis
+select-duty-types.excise-duty.hint=Mae hyn yn berthnasol i gynhyrchion megis diodydd alcoholaidd, cynhyrchion tybaco, olewau hydrocarbon a biodanwyddau
+
 
 select-method-of-disposal.rejected-goods.error.required=Dewiswch y dull gwaredu
 select-method-of-disposal.rejected-goods.method.Destruction=Dinistrio’r nwyddau
