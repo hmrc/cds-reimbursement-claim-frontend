@@ -47,7 +47,7 @@
     if(DutyTypes.custom.contains(dutyType))
         messages(s"enter-claim.scheduled.title", messages(s"tax-code.${taxCode}"))
     else
-        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), taxCode.value, messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"))
+        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), taxCode.value, messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}"))
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -80,7 +80,7 @@
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
-            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.paid-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.paid-amount.hint.excise",  messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
+            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.paid-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.paid-amount.hint.excise",  messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
@@ -93,7 +93,7 @@
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
-            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.claim-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.claim-amount.hint.excise",  messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
+            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.claim-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.claim-amount.hint.excise",  messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 

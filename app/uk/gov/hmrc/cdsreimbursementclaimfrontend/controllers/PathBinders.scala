@@ -20,6 +20,7 @@ import play.api.mvc.PathBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 object PathBinders {
 
@@ -52,6 +53,16 @@ object PathBinders {
         stringBinder.bind(key, value).map(DutyType.apply)
 
       override def unbind(key: String, dutyType: DutyType): String =
+        stringBinder.unbind(key, dutyType.repr)
+    }
+
+  implicit val exciseCategoryBinder: PathBindable[ExciseCategory] =
+    new PathBindable[ExciseCategory] {
+
+      override def bind(key: String, value: String): Either[String, ExciseCategory] =
+        stringBinder.bind(key, value).map(ExciseCategory.apply)
+
+      override def unbind(key: String, dutyType: ExciseCategory): String =
         stringBinder.unbind(key, dutyType.repr)
     }
 

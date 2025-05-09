@@ -264,9 +264,24 @@ object Forms {
             "" -> nonEmptyText
               .verifying(
                 "error.invalid",
-                code => TaxCodes `has` code
+                code => TaxCodes.has(code)
               )
           )(TaxCode.apply)(TaxCode.unapply)
+        ).verifying("error.required", _.nonEmpty)
+      )(identity)(Some(_))
+    )
+
+  val selectExciseCategoriesForm: Form[Seq[ExciseCategory]] =
+    Form(
+      mapping(
+        "select-excise-categories" -> seq(
+          mapping(
+            "" -> nonEmptyText
+              .verifying(
+                "error.invalid",
+                code => ExciseCategory.has(code)
+              )
+          )(ExciseCategory.apply)(ExciseCategory.unapply)
         ).verifying("error.required", _.nonEmpty)
       )(identity)(Some(_))
     )

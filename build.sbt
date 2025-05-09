@@ -41,6 +41,7 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PathBinders._",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN",
       "java.util.UUID"
     )

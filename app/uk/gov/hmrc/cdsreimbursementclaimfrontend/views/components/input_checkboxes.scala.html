@@ -46,7 +46,7 @@
     None
 } else {
     Some(Fieldset(
-        legend = Some(Legend(
+        legend = if(legend==null) None else Some(Legend(
             content = legend,
             isPageHeading = legendAsHeading,
             classes = legendClasses.getOrElse(if(legendAsHeading) "govuk-fieldset__legend--xl" else "govuk-fieldset__legend--m")

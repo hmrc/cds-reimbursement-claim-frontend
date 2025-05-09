@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_scheduled_claim
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 object EnterScheduledClaimMixin {
   final case class RoutesPack(
@@ -38,6 +39,7 @@ object EnterScheduledClaimMixin {
     postAction: (DutyType, TaxCode) => Call,
     showSelectDutyTypes: Call,
     showSelectDuties: DutyType => Call,
+    showSelectExciseCategoryDuties: ExciseCategory => Call,
     showCheckClaimDetails: Call
   )
 }
@@ -125,15 +127,19 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                       (
                         updatedJourney, {
                           updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                            case Some((nextDutyType, nextTaxCode)) =>
+                            case Some((nextDutyType, nextTaxCode: TaxCode)) =>
                               if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
                               else if currentDuty.repr === nextDutyType.repr then
                                 Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
                               else Redirect(routesPack.showSelectDuties(nextDutyType))
-                            case None                              =>
-                              updatedJourney.findNextSelectedDutyAfter(currentDuty) match {
-                                case Some(nextDutyType) =>
-                                  Redirect(routesPack.showSelectDuties(nextDutyType))
+
+                            case Some((nextDutyType, nextExciseCategory: ExciseCategory)) =>
+                              if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                              else Redirect(routesPack.showSelectExciseCategoryDuties(nextExciseCategory))
+
+                            case None =>
+                              updatedJourney.findNextSelectedDutyAfter(currentDuty).match {
+                                case Some(nextDutyType) => Redirect(routesPack.showSelectDuties(nextDutyType))
                                 case None               => Redirect(routesPack.showCheckClaimDetails)
                               }
                           }

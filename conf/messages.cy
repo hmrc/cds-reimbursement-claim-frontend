@@ -932,20 +932,21 @@ declaration-not-found.invalid-mrn=Nid yw MRN, <strong>{0}</strong>, yn ddilys ne
 declaration-not-found.provide-another-mrn-or-contact=Rhowch MRN arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">gysylltu â CThEF (yn agor tab newydd)</a>
 declaration-not-found.submit=Rhowch MRN gwahanol
 
-duty-type.beer=Cwrw
-duty-type.biofuels=Biodanwyddau
-duty-type.cider-perry=Seidr a pherai
-duty-type.climate-change-levy=Ardoll Newid yn yr Hinsawdd
 duty-type.eu-duty=Toll yr UE
 duty-type.excise-duty=Toll Ecséis
-duty-type.hydrocarbon-oils=Olew hydrocarbon
-duty-type.low-alcohol-beverages=Diodydd alcohol isel
-duty-type.made-wine=Gwin a wnaed
-duty-type.miscellaneous-road-fuels=Tanwydd ffordd amrywiol
-duty-type.spirits=Gwirodydd
-duty-type.tobacco=Cynhyrchion tybaco
 duty-type.uk-duty=Toll y DU
-duty-type.wine=Gwin
+
+excise-category.beer=Cwrw
+excise-category.biofuels=Biodanwyddau
+excise-category.cider-perry=Seidr a pherai
+excise-category.climate-change-levy=Ardoll Newid yn yr Hinsawdd
+excise-category.hydrocarbon-oils=Olew hydrocarbon
+excise-category.low-alcohol-beverages=Diodydd alcohol isel
+excise-category.made-wine=Gwin a wnaed
+excise-category.miscellaneous-road-fuels=Tanwydd ffordd amrywiol
+excise-category.spirits=Gwirodydd
+excise-category.tobacco=Cynhyrchion tybaco
+excise-category.wine=Gwin
 
 enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i’r canlynol:
 enter-additional-details.bullet.1=codau ffafriol
