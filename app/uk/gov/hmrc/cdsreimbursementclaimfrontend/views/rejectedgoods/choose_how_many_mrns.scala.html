@@ -21,7 +21,6 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
@@ -82,14 +81,12 @@
                     id = Some(s"rejected-goods.choose-how-many-mrns.multiple"),
                     value = Some(Multiple.toString),
                     content = HtmlContent(messages(s"rejected-goods.choose-how-many-mrns.multiple.title")),
-                    hint = Some(Hint(content = HtmlContent(messages(s"rejected-goods.choose-how-many-mrns.multiple.hint")))),
                     checked = form.value.contains(Multiple)
                 ),
                 RadioItem(
                     id = Some(s"rejected-goods.choose-how-many-mrns.scheduled"),
                     value = Some(Scheduled.toString),
                     content = HtmlContent(messages(s"rejected-goods.choose-how-many-mrns.scheduled.title")),
-                    hint = Some(Hint(content = HtmlContent(messages(s"rejected-goods.choose-how-many-mrns.scheduled.hint")))),
                     checked = form.value.contains(Scheduled)
                 )
             )

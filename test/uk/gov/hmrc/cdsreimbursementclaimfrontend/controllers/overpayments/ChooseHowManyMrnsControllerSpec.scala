@@ -129,11 +129,8 @@ class ChooseHowManyMrnsControllerSpec
           }
 
           extractLabel(individualButton) shouldBe messageFromMessageKey(s"$formKey.individual.title")
-          extractHint(individualButton)  shouldBe ""
           extractLabel(multipleButton)   shouldBe messageFromMessageKey(s"$formKey.multiple.title")
-          extractHint(multipleButton)    shouldBe messageFromMessageKey(s"$formKey.multiple.hint")
           extractLabel(scheduledButton)  shouldBe messageFromMessageKey(s"$formKey.scheduled.title")
-          extractHint(scheduledButton)   shouldBe messageFromMessageKey(s"$formKey.scheduled.hint")
         }
       )
     }
@@ -221,8 +218,4 @@ class ChooseHowManyMrnsControllerSpec
 
   private def extractLabel(button: Element): String =
     button.select("label").text()
-
-  private def extractHint(button: Element): String =
-    button.select("div.govuk-hint").text()
-
 }
