@@ -29,5 +29,6 @@ trait ScheduledVariantAnswers extends CommonAnswers {
   def scheduledDocument: Option[UploadedFile]
   def displayDeclaration: Option[DisplayDeclaration]
   def correctedAmounts: Option[SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]]
+  def exciseCategories: Option[Seq[ExciseCategory]]
 
 }

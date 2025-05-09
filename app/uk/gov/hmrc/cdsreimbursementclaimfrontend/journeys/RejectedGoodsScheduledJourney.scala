@@ -527,6 +527,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     methodOfDisposal: Option[MethodOfDisposal] = None,
     detailsOfRejectedGoods: Option[String] = None,
     correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
     inspectionDate: Option[InspectionDate] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,

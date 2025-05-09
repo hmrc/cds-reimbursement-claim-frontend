@@ -242,6 +242,66 @@ final class OverpaymentsScheduledJourney private (
       }
     }
 
+  def selectAndReplaceExciseCodeCategories(
+    exciseCategories: Seq[ExciseCategory]
+  ): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise))
+      then Left("selectAndReplaceExciseCodeCategories.exciseDutyTypeNotSelected")
+      else if exciseCategories.isEmpty
+      then Left("selectAndReplaceExciseCodeCategories.emptySelection")
+      else
+        val exciseCategoriesSet = exciseCategories.toSet
+        Right(
+          this.copy(
+            answers.copy(
+              exciseCategories = Some(exciseCategories),
+              // remove eventually tax codes belonging to the unchecked excise category
+              correctedAmounts = answers.correctedAmounts.map(_.map {
+                case (DutyType.Excise, claims) =>
+                  (
+                    DutyType.Excise,
+                    claims.filter((tc, _) => exciseCategoriesSet.contains(ExciseCategory.categoryOf(tc)))
+                  )
+                case other                     => other
+              })
+            )
+          )
+        )
+    }
+
+  def selectAndReplaceTaxCodeSetForReimbursement(
+    exciseCategory: ExciseCategory,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise)) then
+        Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
+      else if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else {
+        val allTaxCodesMatchDutyType = taxCodes.forall(tc =>
+          DutyType.Excise.taxCodes.contains(tc)
+            && ExciseCategory.categoryOf(tc) === exciseCategory
+        )
+        if allTaxCodesMatchDutyType then {
+          val newReimbursementClaims =
+            answers.correctedAmounts
+              .map { rc =>
+                SortedMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt === DutyType.Excise =>
+                    dt -> (reimbursementClaims.filterNot((tc, _) =>
+                      ExciseCategory.categoryOf(tc) == exciseCategory
+                    ) ++ SortedMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }*))
+                  case other                                               => other
+                }*)
+              }
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
+        } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+      }
+    }
+
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
@@ -489,6 +549,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
     additionalDetails: Option[String] = None,
     correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,

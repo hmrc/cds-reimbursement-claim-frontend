@@ -21,9 +21,9 @@ import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
-sealed abstract class DutyType(val repr: String, val taxCodes: Seq[TaxCode], val ordinal: Int)
-    extends Product
-    with Serializable
+sealed abstract class DutyType(val repr: String, val ordinal: Int) {
+  def taxCodes: Seq[TaxCode]
+}
 
 object DutyType {
 
@@ -33,11 +33,17 @@ object DutyType {
   def unapply(dutyType: DutyType): Option[String] =
     Some(dutyType.repr)
 
-  case object UkDuty extends DutyType("uk-duty", TaxCodes.UK, 0)
+  case object UkDuty extends DutyType("uk-duty", 0) {
+    override def taxCodes: Seq[TaxCode] = TaxCodes.UK
+  }
 
-  case object EuDuty extends DutyType("eu-duty", TaxCodes.EU, 1)
+  case object EuDuty extends DutyType("eu-duty", 1) {
+    override def taxCodes: Seq[TaxCode] = TaxCodes.EU
+  }
 
-  case object Excise extends DutyType("excise-duty", TaxCodes.excise, 2)
+  case object Excise extends DutyType("excise-duty", 2) {
+    override def taxCodes: Seq[TaxCode] = TaxCodes.excise
+  }
 
   val simpleDutyTypeFormat: Format[DutyType] =
     SimpleStringFormat[DutyType](

@@ -66,6 +66,7 @@ object EnterClaimController {
     postAction = routes.EnterClaimController.submit,
     showSelectDutyTypes = routes.SelectDutyTypesController.show,
     showSelectDuties = routes.SelectDutiesController.show,
+    showSelectExciseCategoryDuties = ???,
     showCheckClaimDetails = routes.CheckClaimDetailsController.show
   )
 }

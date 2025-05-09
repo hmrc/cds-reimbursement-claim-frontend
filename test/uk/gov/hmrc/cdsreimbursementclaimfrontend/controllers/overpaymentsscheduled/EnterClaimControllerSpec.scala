@@ -141,7 +141,7 @@ class EnterClaimControllerSpec
               s"enter-claim.scheduled.title.excise",
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
               taxCode.value,
-              messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+              messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
             )
           ,
           doc => {
@@ -272,7 +272,7 @@ class EnterClaimControllerSpec
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc => {
@@ -310,7 +310,7 @@ class EnterClaimControllerSpec
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>
@@ -344,7 +344,7 @@ class EnterClaimControllerSpec
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>
