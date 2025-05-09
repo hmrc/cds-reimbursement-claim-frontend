@@ -1094,21 +1094,24 @@ enter-claim.rejected-goods.submitAmountForReimbursement.taxCodeNotSelectedYet=
 enter-claim.rejected-goods.subsidy-text=Your subsidy allocation balance will be credited with any claim repayments.
 
 enter-claim.scheduled.claim-amount=How much do you want to claim back, in pounds?
+enter-claim.scheduled.claim-amount.hint=Include all {0} you want to claim for all MRNs
+enter-claim.scheduled.claim-amount.hint.excise=Include all {0} {1} duty you want to claim for all MRNs
 enter-claim.scheduled.claim-amount.error.invalid=The amount that you want to claim back must be a number, like 30 or 60.55
 enter-claim.scheduled.claim-amount.error.required=Enter the amount you want to claim back, in pounds
 enter-claim.scheduled.claim-amount.invalid.claim=The amount that you want to claim back must be more than zero and less or equal to the amount paid
 
-enter-claim.scheduled.help-text=Include {0} {1} details for all Movement Reference Numbers (MRNs) in the file you uploaded.
-enter-claim.scheduled.help-text.excise=Include {0} duty details ({1}) for all Movement Reference Numbers (MRNs) in the file you uploaded.
+enter-claim.scheduled.p1=If you need to work out the value of your goods in pounds sterling (GBP), you must use HMRC’s <a href="https://www.trade-tariff.service.gov.uk/exchange_rates" class="govuk-link" rel="noreferrer noopener" target="_blank">exchange rates (opens in new tab)</a>.
+enter-claim.scheduled.p2=The exchange rate you use must be the same as when you imported the goods. For example, if you submitted your import declaration in October 2023, you should use the exchange rate for October 2023.
 enter-claim.scheduled.inset-text=HMRC does not refund agents’ fees.
 enter-claim.scheduled.invalid.claim=The amount that you want to claim back must be more than zero and less or equal to the amount paid
-enter-claim.scheduled.paid-amount=How much {0} {1} was paid, in pounds?
+enter-claim.scheduled.paid-amount=How much was paid, in pounds?
+enter-claim.scheduled.paid-amount.hint=Include all {0} paid for all Movement Reference Numbers (MRNs) in your claim
+enter-claim.scheduled.paid-amount.hint.excise=Include all {0} {1} duty paid for all Movement Reference Numbers (MRNs) in your claim
 enter-claim.scheduled.paid-amount.error.invalid=The amount paid must be a number, like 30 or 60.55
 enter-claim.scheduled.paid-amount.error.required=Enter the amount that was paid, in pounds
 enter-claim.scheduled.paid-amount.error.zero=The amount paid must be more than zero
-enter-claim.scheduled.paid-amount.excise=How much {0} duty {1} was paid, in pounds?
 enter-claim.scheduled.subsidy-inset-text=Your subsidy allocation balance will be credited with any claim repayments.
-enter-claim.scheduled.title={0} {1} - {2}
+enter-claim.scheduled.title={0}
 enter-claim.scheduled.title.excise={0} - {1} {2}
 enter-claim.securities.securityIdLabel=Security deposit ID: {0}
 enter-claim.securities.title={0} - {1}

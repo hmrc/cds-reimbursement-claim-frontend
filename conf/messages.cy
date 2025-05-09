@@ -1056,21 +1056,16 @@ enter-claim.rejected-goods.subsidy-text=Bydd balans eich cymhorthdal wedi’i dd
 enter-claim.scheduled.claim-amount=Faint yr hoffech ei hawlio yn ôl mewn punnoedd?
 enter-claim.scheduled.claim-amount.error.invalid=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.claim-amount.error.required=Nodwch y swm rydych am ei hawlio yn ôl mewn punnoedd
-enter-claim.scheduled.claim-amount.hint=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai neu’n hafal i’r swm a dalwyd
 enter-claim.scheduled.claim-amount.invalid.claim=Mae’n rhaid i’r swm rydych am ei hawlio yn ôl fod yn llai neu’n hafal i’r swm a dalwyd
 
 enter-claim.scheduled.claim-amount.error.zero=Mae’n rhaid i swm yr hawliad fod yn fwy na sero
-enter-claim.scheduled.help-text=Dylech gynnwys manylion {0} {1} ar gyfer pob cyfeirnod symud yn y ffeil rydych wedi’i huwchlwytho.
-enter-claim.scheduled.help-text.excise=Dylech gynnwys manylion toll {0} ({1}) ar gyfer pob cyfeirnod symud nwyddau yn y ffeil rydych wedi’i huwchlwytho.
 enter-claim.scheduled.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
 enter-claim.scheduled.invalid.claim=Mae’n rhaid i swm a dalwyd fod yn rhif, megis 30 neu 60.55
-enter-claim.scheduled.paid-amount=Faint o {0} {1} a dalwyd, mewn punnoedd?
 enter-claim.scheduled.paid-amount.error.invalid=Mae’n rhaid i swm a dalwyd fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.paid-amount.error.required=Nodwch y swm a dalwyd, mewn punnoedd
 enter-claim.scheduled.paid-amount.error.zero=Mae’n rhaid i’r cyfanswm a dalwyd fod yn fwy na sero
-enter-claim.scheduled.paid-amount.excise=Faint o doll {0} {1} a dalwyd, mewn punnoedd?
 enter-claim.scheduled.subsidy-inset-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
-enter-claim.scheduled.title={0} {1} - {2}
+enter-claim.scheduled.title={0}
 enter-claim.scheduled.title.excise={0} - {1} {2}
 
 enter-claim.securities.securityIdLabel=ID y Blaendal Sicrwydd: {0}

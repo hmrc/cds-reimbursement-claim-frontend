@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
@@ -37,20 +38,18 @@
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
 @(dutyType: DutyType, taxCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     if(DutyTypes.custom.contains(dutyType))
-        messages(s"enter-claim.scheduled.title", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), taxCode.value, messages(s"select-duties.duty.${taxCode}"))
+        messages(s"enter-claim.scheduled.title", messages(s"tax-code.${taxCode}"))
     else
-        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), messages(s"duty-type.${dutyType.repr}"), taxCode.value)
+        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), taxCode.value, messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"))
 }
 
-@caption = @{messages(s"enter-claim.title.caption")}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
@@ -62,16 +61,13 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = caption)
+    @heading(Html(title), classes = "govuk-heading-l")
 
     @insetText(content = HtmlContent(inset))
 
-    @paragraph(
-        if(DutyTypes.custom.contains(dutyType))
-            Html(messages(s"enter-claim.scheduled.help-text", messages(s"duty-type.${dutyType.repr}"), taxCode.value))
-        else 
-            Html(messages(s"enter-claim.scheduled.help-text.excise", messages(s"duty-type.${dutyType.repr}"), messages(s"tax-code.${taxCode}")))
-    )
+    @paragraph(Html(messages(s"enter-claim.scheduled.p1")))
+
+    @paragraph(Html(messages(s"enter-claim.scheduled.p2")))
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
@@ -79,19 +75,13 @@
             form = form,
             id = s"enter-claim.scheduled.paid-amount",
             name = s"enter-claim.scheduled.paid-amount",
-            label = if(DutyTypes.custom.contains(dutyType)) s"enter-claim.scheduled.paid-amount" else s"enter-claim.scheduled.paid-amount.excise",
-            headingMessageArgs = Seq(messages(s"enter-claim.paid-amount.duty-type.${dutyType.repr}"), taxCode.value),
-            labelClasses = Some("govuk-label govuk-label--m"),
+            label = s"enter-claim.scheduled.paid-amount",
+            labelClasses = Some("govuk-label govuk-!-font-weight-bold"),
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
+            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.paid-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.paid-amount.hint.excise",  messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
-        )
-
-        @dropdownDetails(summary = s"enter-claim.exchange-rate-details.heading",
-            html(
-                paragraph(Html(messages(s"enter-claim.exchange-rate-details.paragraph")))
-            )
         )
 
         @inputText(
@@ -99,11 +89,11 @@
             id = s"enter-claim.scheduled.claim-amount",
             name = s"enter-claim.scheduled.claim-amount",
             label = s"enter-claim.scheduled.claim-amount",
-            labelClasses = Some("govuk-label govuk-label--m"),
+            labelClasses = Some("govuk-label govuk-!-font-weight-bold"),
             inputMode = Some("numeric"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
-            hintHtml = None,
+            hintHtml = if(DutyTypes.custom.contains(dutyType)) Some(Html(messages("enter-claim.scheduled.claim-amount.hint", messages(s"select-duties.duty.$taxCode")))) else Some(Html(messages("enter-claim.scheduled.claim-amount.hint.excise",  messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}"), taxCode.value))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
