@@ -27,6 +27,10 @@ sealed abstract class ExciseCategory(val repr: String, val taxCodes: Seq[TaxCode
 
 object ExciseCategory {
 
+  implicit val format: Format[ExciseCategory]       = simpleExciseCategoryFormat
+  implicit val exciseCategoryEq: Eq[ExciseCategory] = Eq.fromUniversalEquals[ExciseCategory]
+  implicit val ordering: Ordering[ExciseCategory]   = Ordering.by(_.ordinal)
+
   def apply(value: String): ExciseCategory =
     ExciseCategory.findUnsafe(value)
 
@@ -147,13 +151,14 @@ object ExciseCategory {
       _.repr
     )
 
-  implicit val dutyTypFormat: Format[ExciseCategory] = simpleExciseCategoryFormat
-  implicit val exciseCategoryEq: Eq[ExciseCategory]  = Eq.fromUniversalEquals[ExciseCategory]
-
-  implicit val ordering: Ordering[ExciseCategory] = Ordering.by(_.ordinal)
-
-  private val exciseCategorysStringMap: Map[String, ExciseCategory] =
+  private lazy val exciseCategorysStringMap: Map[String, ExciseCategory] =
     all.map(exciseCategory => exciseCategory.repr -> exciseCategory).toMap
+
+  private lazy val taxCode2ExciseCategoryMap: Map[TaxCode, ExciseCategory] =
+    all.flatMap(dt => dt.taxCodes.map(tc => (tc, dt))).toMap
+
+  def categoryOf(taxCode: TaxCode): ExciseCategory =
+    taxCode2ExciseCategoryMap(taxCode)
 
   def find(representation: String): Option[ExciseCategory] =
     exciseCategorysStringMap.get(representation)
