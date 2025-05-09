@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -133,16 +134,14 @@ class EnterClaimControllerSpec
           if DutyTypes.custom.contains(dutyType) then
             messageFromMessageKey(
               s"enter-claim.scheduled.title",
-              messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-              taxCode.value,
               messages(s"select-duties.duty.$taxCode")
             )
           else
             messageFromMessageKey(
               s"enter-claim.scheduled.title.excise",
               messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-              messages(s"duty-type.${dutyType.repr}"),
-              taxCode.value
+              taxCode.value,
+              messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
             )
           ,
           doc => {
@@ -266,16 +265,14 @@ class EnterClaimControllerSpec
                 if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    messages(s"duty-type.${dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc => {
@@ -306,16 +303,14 @@ class EnterClaimControllerSpec
                 if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    messages(s"duty-type.${dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>
@@ -342,16 +337,14 @@ class EnterClaimControllerSpec
                 if DutyTypes.custom.contains(dutyType) then
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    taxCode.value,
                     messages(s"select-duties.duty.$taxCode")
                   )
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
                     messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
-                    messages(s"duty-type.${dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>
