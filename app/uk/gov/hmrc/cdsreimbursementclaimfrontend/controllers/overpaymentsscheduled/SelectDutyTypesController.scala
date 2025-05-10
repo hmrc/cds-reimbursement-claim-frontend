@@ -97,8 +97,10 @@ class SelectDutyTypesController @Inject() (
                 (
                   updatedJourney,
                   Redirect(
-                    routes.SelectDutiesController
-                      .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
+                    if updatedJourney.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+                    else
+                      routes.SelectDutiesController
+                        .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
                   )
                 )
             )

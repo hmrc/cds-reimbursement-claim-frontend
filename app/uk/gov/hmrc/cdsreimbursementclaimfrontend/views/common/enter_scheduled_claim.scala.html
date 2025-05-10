@@ -28,7 +28,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -47,7 +46,7 @@
     if(DutyTypes.custom.contains(dutyType))
         messages(s"enter-claim.scheduled.title", messages(s"tax-code.${taxCode}"))
     else
-        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"), taxCode.value, messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}"))
+        messages(s"enter-claim.scheduled.title.excise", messages(s"duty-type.${dutyType.repr}"), taxCode.value, messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}"))
 }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

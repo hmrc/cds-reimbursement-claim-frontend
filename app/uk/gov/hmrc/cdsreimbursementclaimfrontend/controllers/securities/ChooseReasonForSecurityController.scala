@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -133,11 +132,7 @@ class ChooseReasonForSecurityController @Inject() (
                   case EndUseRelief =>
                     val updatedSecurityDetails =
                       declaration.displayResponseDetail.securityDetails.map { securityDetails =>
-                        securityDetails.map(sd =>
-                          sd.copy(taxDetails =
-                            sd.taxDetails.filterNot(td => TaxCodes.vatTaxCodes.contains(td.getTaxCode))
-                          )
-                        )
+                        securityDetails.map(sd => sd.copy(taxDetails = sd.taxDetails.filterNot(_.getTaxCode.isVAT)))
                       }
                     declaration.copy(
                       displayResponseDetail = declaration.displayResponseDetail.copy(

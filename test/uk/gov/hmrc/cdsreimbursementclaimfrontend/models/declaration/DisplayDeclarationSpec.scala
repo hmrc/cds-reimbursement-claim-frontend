@@ -29,7 +29,7 @@ class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPr
     "calculate the vat paid" in forAll(
       displayDeclarationGen,
       Gen.oneOf(TaxCodes.vatTaxCodes),
-      Gen.listOfN(5, Gen.oneOf(TaxCodes.all).filterNot(TaxCodes.vatTaxCodes.contains(_))),
+      Gen.listOfN(5, Gen.oneOf(TaxCodes.all).filterNot(_.isVAT)),
       Gen.choose(100, 10000),
       Gen.listOfN(5, Gen.choose(100, 10000))
     ) { (initialDisplayDeclaration, vatCode, nonVatCode, vatPaidAmount, nonVatPaidAmount) =>
@@ -50,7 +50,7 @@ class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPr
     "calculate the duty paid" in forAll(
       displayDeclarationGen,
       Gen.oneOf(TaxCodes.vatTaxCodes),
-      Gen.listOfN(5, Gen.oneOf(TaxCodes.all).filterNot(TaxCodes.vatTaxCodes.contains(_))),
+      Gen.listOfN(5, Gen.oneOf(TaxCodes.all).filterNot(_.isVAT)),
       Gen.choose(100, 10000),
       Gen.listOfN(5, Gen.choose(100, 10000))
     ) { (initialDisplayDeclaration, vatCode, nonVatCode, vatPaidAmount, nonVatPaidAmount) =>

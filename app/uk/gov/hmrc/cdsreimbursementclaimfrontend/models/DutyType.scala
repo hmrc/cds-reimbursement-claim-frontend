@@ -45,6 +45,10 @@ object DutyType {
     override def taxCodes: Seq[TaxCode] = TaxCodes.excise
   }
 
+  case object Unknown extends DutyType("unknown-duty", 3) {
+    override def taxCodes: Seq[TaxCode] = Seq.empty
+  }
+
   val simpleDutyTypeFormat: Format[DutyType] =
     SimpleStringFormat[DutyType](
       repr =>

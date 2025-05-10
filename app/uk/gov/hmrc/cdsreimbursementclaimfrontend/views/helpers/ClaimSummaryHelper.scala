@@ -22,7 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -60,8 +59,9 @@ object ClaimSummaryHelper {
                 href = s"${claimAction(taxCode).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(
-                  s"${OrdinalNumber(index + 1).capitalize} MRN: ${TaxCodes
-                      .findTaxType(taxCode)} Duty ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
+                  s"${OrdinalNumber(index + 1).capitalize} MRN: ${messages(
+                      s"duty-type.${taxCode.dutyType.repr}"
+                    )} ${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}"
                 )
               )
             )

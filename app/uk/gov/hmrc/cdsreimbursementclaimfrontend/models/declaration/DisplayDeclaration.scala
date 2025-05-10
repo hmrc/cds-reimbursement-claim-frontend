@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -288,7 +287,7 @@ object DisplayDeclaration {
     def totalVatPaidCharges: Option[BigDecimal] =
       displayDeclaration.displayResponseDetail.ndrcDetails
         .map(
-          _.filter(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
+          _.filter(ndrc => TaxCode(ndrc.taxType).isVAT)
         )
         .map(ndrcDetails => BigDecimal(ndrcDetails.map(s => s.amount.toDouble).sum))
         .filter(_ > 0.0)
@@ -297,7 +296,7 @@ object DisplayDeclaration {
       BigDecimal(
         displayDeclaration.displayResponseDetail.ndrcDetails
           .map(
-            _.filterNot(ndrc => TaxCodes.vatTaxCodes.contains(TaxCode(ndrc.taxType)))
+            _.filterNot(ndrc => TaxCode(ndrc.taxType).isVAT)
           )
           .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
       )

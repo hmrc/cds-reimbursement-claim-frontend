@@ -24,7 +24,8 @@ sealed abstract class TaxCode(
   val value: String,
   val dutyType: DutyType,
   val exciseCategory: Option[ExciseCategory] = None,
-  val isSubsidy: Boolean = false
+  val isSubsidy: Boolean = false,
+  val isVAT: Boolean = false
 ) extends Product
     with Serializable {
   override def toString: String = value
@@ -38,7 +39,7 @@ object TaxCode {
   def unapply(taxCode: TaxCode): Option[String] =
     Some(taxCode.value)
 
-  final case class UnsupportedTaxCode(taxCode: String) extends TaxCode(taxCode, DutyType.UkDuty)
+  final case class UnsupportedTaxCode(taxCode: String) extends TaxCode(taxCode, DutyType.Unknown)
 
   case object A00 extends TaxCode("A00", DutyType.UkDuty)
   case object A20 extends TaxCode("A20", DutyType.UkDuty)
@@ -46,7 +47,7 @@ object TaxCode {
   case object A35 extends TaxCode("A35", DutyType.UkDuty)
   case object A40 extends TaxCode("A40", DutyType.UkDuty)
   case object A45 extends TaxCode("A45", DutyType.UkDuty)
-  case object B00 extends TaxCode("B00", DutyType.UkDuty)
+  case object B00 extends TaxCode("B00", DutyType.UkDuty, isVAT = true)
 
   case object A50 extends TaxCode("A50", DutyType.EuDuty, isSubsidy = true)
   case object A70 extends TaxCode("A70", DutyType.EuDuty, isSubsidy = true)
@@ -54,7 +55,7 @@ object TaxCode {
   case object A85 extends TaxCode("A85", DutyType.EuDuty)
   case object A90 extends TaxCode("A90", DutyType.EuDuty, isSubsidy = true)
   case object A95 extends TaxCode("A95", DutyType.EuDuty)
-  case object B05 extends TaxCode("B05", DutyType.EuDuty)
+  case object B05 extends TaxCode("B05", DutyType.EuDuty, isVAT = true)
 
   case object NI311 extends TaxCode("311", DutyType.Excise, Some(ExciseCategory.Beer))
   case object NI321 extends TaxCode("321", DutyType.Excise, Some(ExciseCategory.Beer))

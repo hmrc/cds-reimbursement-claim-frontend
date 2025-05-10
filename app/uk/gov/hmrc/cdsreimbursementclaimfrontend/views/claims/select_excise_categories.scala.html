@@ -23,7 +23,6 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -46,7 +45,7 @@
             name = Some(s"select-excise-categories[]"),
             value = exciseCategory.repr,
             content = Text(messages(s"excise-category.${exciseCategory.repr}")),
-            hint = Some(Hint(content = HtmlContent(messages(s"excise-category.${exciseCategory.repr}.hint")))),
+            hint = None,
             checked = form.data.exists(_._2 == exciseCategory.repr)
         )
     }

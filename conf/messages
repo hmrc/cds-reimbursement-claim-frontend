@@ -2001,3 +2001,11 @@ govukErrorMessage.visuallyHiddenText = Error
 
 select-excise-duty-codes.title=Which {0} duties do you want to claim for?
 select-excise-duty-codes.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim
+
+select-excise-categories.title=Excise duties
+select-excise-categories.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim.
+select-excise-categories.p2=Find more information on <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">products that excise duty applies to (opens in new tab)</a>.
+select-excise-categories.checkbox-legend=Which excise duties do you want to claim for? 
+
+
+
