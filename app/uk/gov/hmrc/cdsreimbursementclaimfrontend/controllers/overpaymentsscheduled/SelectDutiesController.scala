@@ -38,7 +38,6 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
 
 @Singleton
 class SelectDutiesController @Inject() (
@@ -54,12 +53,6 @@ class SelectDutiesController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   def show(dutyType: DutyType): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    ExciseCategory.all.foreach { ec =>
-      ec.taxCodes.foreach { tc =>
-        println(s"""case object NI$tc extends TaxCode("$tc", DutyType.Excise, Some(ExciseCategory.$ec))""")
-      }
-    }
-
     if journey.isDutyTypeSelected then {
       if dutyType == DutyType.Excise then {
         val postAction: Call                                   = routes.SelectDutiesController.submitExciseCategories

@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -96,7 +95,7 @@ class EnterClaimControllerSpec
            m(
              s"enter-claim.paid-amount-label.excise",
              paidAmount.toPoundSterlingString,
-             messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+             messages(s"duty-type.${taxCode.dutyType.repr}"),
              taxCode.value
            )
         ),
@@ -200,8 +199,8 @@ class EnterClaimControllerSpec
             else
               messageFromMessageKey(
                 "enter-claim.title.excise",
-                messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                messages(s"duty-type.${taxCode.dutyType.repr}"),
+                messages(s"duty-type.${taxCode.dutyType.repr}"),
                 taxCode.value
               )
             ,
@@ -232,8 +231,8 @@ class EnterClaimControllerSpec
               else
                 messageFromMessageKey(
                   "enter-claim.title.excise",
-                  messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                  messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                  messages(s"duty-type.${taxCode.dutyType.repr}"),
+                  messages(s"duty-type.${taxCode.dutyType.repr}"),
                   taxCode.value
                 )
               ,
@@ -352,8 +351,8 @@ class EnterClaimControllerSpec
                     else
                       messageFromMessageKey(
                         "enter-claim.title.excise",
-                        messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                        messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                        messages(s"duty-type.${taxCode.dutyType.repr}"),
+                        messages(s"duty-type.${taxCode.dutyType.repr}"),
                         taxCode.value
                       )
                     ,
@@ -389,8 +388,8 @@ class EnterClaimControllerSpec
             else
               messageFromMessageKey(
                 "enter-claim.title.excise",
-                messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                messages(s"duty-type.${taxCode.dutyType.repr}"),
+                messages(s"duty-type.${taxCode.dutyType.repr}"),
                 taxCode.value
               )
             ,

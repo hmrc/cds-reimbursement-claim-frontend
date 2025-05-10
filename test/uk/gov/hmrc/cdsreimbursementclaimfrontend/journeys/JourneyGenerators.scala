@@ -212,7 +212,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       depositDetails = reasonForSecurity match {
         case EndUseRelief =>
           reclaimsDetails.map { rcd =>
-            (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
+            (rcd._1, rcd._2.filterNot(td => td._1.isVAT))
           }
         case _            => reclaimsDetails
       },
@@ -235,7 +235,7 @@ trait JourneyGenerators extends JourneyTestData with BigDecimalGen {
       depositDetails = reasonForSecurity match {
         case EndUseRelief =>
           reclaimsDetails.map { rcd =>
-            (rcd._1, rcd._2.filterNot(td => TaxCodes.vatTaxCodes.contains(td._1)))
+            (rcd._1, rcd._2.filterNot(td => td._1.isVAT))
           }
         case _            => reclaimsDetails
       },

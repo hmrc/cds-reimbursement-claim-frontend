@@ -158,32 +158,9 @@ object TaxCodes {
   lazy val excise: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.Excise)
   lazy val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
 
-  lazy val vatTaxCodes: Seq[TaxCode]   = List(B00, B05)
-  lazy val vatTaxCodeSet: Set[TaxCode] = vatTaxCodes.toSet
+  lazy val vatTaxCodes: Seq[TaxCode] = all.filter(_.isVAT)
 
   lazy val custom = TaxCodes.ukTaxCodeSet ++ TaxCodes.euTaxCodeSet
-
-  def findTaxType(taxCode: TaxCode): String =
-    if ukTaxCodeSet.contains(taxCode) then {
-      "UK"
-    } else if euTaxCodeSet.contains(taxCode) then {
-      "EU"
-    } else if excise.contains(taxCode) then {
-      "Excise"
-    } else if vatTaxCodeSet.contains(taxCode) then {
-      "VAT"
-    } else ""
-
-  def categoryOf(taxCode: TaxCode): String =
-    if ukTaxCodeSet.contains(taxCode) then {
-      "uk-duty"
-    } else if euTaxCodeSet.contains(taxCode) then {
-      "eu-duty"
-    } else if excise.contains(taxCode) then {
-      "excise-duty"
-    } else if vatTaxCodeSet.contains(taxCode) then {
-      "vat-duty"
-    } else "unknown-duty"
 
   def allExcept(taxCodes: Set[TaxCode]): Seq[TaxCode] =
     all.filterNot(taxCodes.contains)

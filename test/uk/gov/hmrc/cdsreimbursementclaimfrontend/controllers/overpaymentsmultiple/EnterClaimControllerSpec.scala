@@ -119,8 +119,8 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     "enter-claim.title.excise",
-                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
                     taxCode.value
                   )
                 ,
@@ -158,8 +158,8 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     "enter-claim.title.excise",
-                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
                     taxCode.value
                   )
                 ,
@@ -204,8 +204,8 @@ class EnterClaimControllerSpec
                   else
                     messageFromMessageKey(
                       "enter-claim.title.excise",
-                      messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                      messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                      messages(s"duty-type.${taxCode.dutyType.repr}"),
+                      messages(s"duty-type.${taxCode.dutyType.repr}"),
                       taxCode.value
                     )
                   ,
@@ -311,8 +311,8 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     "enter-claim.title.excise",
-                    messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"),
-                    messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
+                    messages(s"duty-type.${taxCode.dutyType.repr}"),
                     taxCode.value
                   )
                 ,

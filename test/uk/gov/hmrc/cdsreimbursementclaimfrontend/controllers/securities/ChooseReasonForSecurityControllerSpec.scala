@@ -53,16 +53,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.annotation.nowarn
 
 class ChooseReasonForSecurityControllerSpec
     extends PropertyBasedControllerSpec
@@ -480,9 +479,7 @@ class ChooseReasonForSecurityControllerSpec
                 .copy(
                   securityReason = Some(rfs.acc14Code),
                   securityDetails = declaration.displayResponseDetail.securityDetails.map { securityDetails =>
-                    securityDetails.map(sd =>
-                      sd.copy(taxDetails = sd.taxDetails.filterNot(td => TaxCodes.vatTaxCodes.contains(td.getTaxCode)))
-                    )
+                    securityDetails.map(sd => sd.copy(taxDetails = sd.taxDetails.filterNot(td => td.getTaxCode.isVAT)))
                   }
                 )
             )
