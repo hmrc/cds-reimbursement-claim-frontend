@@ -28,15 +28,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesControllerSpec.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.EitherOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
@@ -44,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -58,7 +56,6 @@ class SelectDutiesControllerSpec
     )
 
   val controller: SelectDutiesController = instanceOf[SelectDutiesController]
-  val selectDutyCodesKey: String         = "select-duty-codes"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -78,9 +75,9 @@ class SelectDutiesControllerSpec
       status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
     }
 
-    "show select tax codes page" when {
+    "show select customs tax codes page" when {
 
-      "the user has not answered this question before" in forAll { (dutyType: DutyType) =>
+      "the user has not answered this question before" in forAll(genCustomsDuty) { (dutyType: DutyType) =>
         val initialJourney = journeyWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
           .getOrFail
@@ -93,8 +90,8 @@ class SelectDutiesControllerSpec
         checkPageIsDisplayed(
           controller.show(dutyType)(FakeRequest()),
           messageFromMessageKey(
-            s"$selectDutyCodesKey.title",
-            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+            "select-duty-codes.title",
+            messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
           ),
           doc => {
             selectedCheckBox(doc) shouldBe empty
@@ -103,7 +100,7 @@ class SelectDutiesControllerSpec
         )
       }
 
-      "user has previously selected duty types" in forAll(completeJourneyGen, genDuty) {
+      "user has previously selected duty types" in forAll(completeJourneyGen, genCustomsDuty) {
         (journey, dutyType: DutyType) =>
           val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
@@ -115,17 +112,66 @@ class SelectDutiesControllerSpec
           checkPageIsDisplayed(
             controller.show(dutyType)(FakeRequest()),
             messageFromMessageKey(
-              s"$selectDutyCodesKey.title",
-              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+              "select-duty-codes.title",
+              messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
             )
           )
       }
 
     }
 
-    "tick existing tax codes" when {
+    "show select excise categories page" when {
 
-      "select tax code page is shown" in forAll(genDutyWithRandomlySelectedTaxCode) {
+      "the user has not answered this question before" in {
+        val initialJourney = journeyWithMrnAndDeclaration
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkPageIsDisplayed(
+          controller.show(DutyType.Excise)(FakeRequest()),
+          messageFromMessageKey(
+            s"select-excise-categories.title"
+          ),
+          doc => {
+            selectedCheckBox(doc) shouldBe empty
+            formAction(doc)       shouldBe routes.SelectDutiesController.submitExciseCategories.url
+          }
+        )
+      }
+
+      "user has previously selected excise categories" in forAll(
+        completeJourneyGen,
+        genExciseCategory
+      ) { (journey, exciseCategory: ExciseCategory) =>
+        val updatedJourney =
+          journey
+            .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
+            .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
+            .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkPageIsDisplayed(
+          controller.show(DutyType.Excise)(FakeRequest()),
+          messageFromMessageKey(
+            s"select-excise-categories.title"
+          )
+        )
+      }
+
+    }
+
+    "tick existing customs tax codes" when {
+
+      "select tax code page is shown" in forAll(genCustomsDutyWithRandomlySelectedTaxCode) {
         case (dutyType: DutyType, taxCode: TaxCode) =>
           val journey = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
@@ -140,11 +186,35 @@ class SelectDutiesControllerSpec
           checkPageIsDisplayed(
             controller.show(dutyType)(FakeRequest()),
             messageFromMessageKey(
-              s"$selectDutyCodesKey.title",
-              messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+              "select-duty-codes.title",
+              messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
             ),
             doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
           )
+      }
+
+    }
+
+    "tick existing excise categories" when {
+
+      "select excise categories page is shown" in forAll(genExciseCategory) { (exciseCategory: ExciseCategory) =>
+        val journey = journeyWithMrnAndDeclaration
+          .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
+          .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkPageIsDisplayed(
+          controller.show(DutyType.Excise)(FakeRequest()),
+          messageFromMessageKey(
+            "select-excise-categories.title"
+          ),
+          doc => isCheckboxChecked(doc, exciseCategory.repr) shouldBe true
+        )
       }
 
     }
@@ -160,26 +230,27 @@ class SelectDutiesControllerSpec
 
     "save user selected tax codes and redirect to the next page" when {
 
-      "no other selected duties remaining" in forAll(genDutyWithRandomlySelectedTaxCode) { case (duty, taxCode) =>
-        val initialJourney = journeyWithMrnAndDeclaration
-          .selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
-          .getOrFail
+      "no other selected duties remaining" in forAll(genCustomsDutyWithRandomlySelectedTaxCode) {
+        case (duty, taxCode) =>
+          val initialJourney = journeyWithMrnAndDeclaration
+            .selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
+            .getOrFail
 
-        val updatedJourney =
-          initialJourney.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)).getOrFail
+          val updatedJourney =
+            initialJourney.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)).getOrFail
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
-        }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
+          }
 
-        checkIsRedirect(
-          controller.submit(duty)(
-            FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> taxCode.value)
-          ),
-          routes.EnterClaimController.show(duty, taxCode)
-        )
+          checkIsRedirect(
+            controller.submit(duty)(
+              FakeRequest().withFormUrlEncodedBody(s"select-duty-codes[]" -> taxCode.value)
+            ),
+            routes.EnterClaimController.show(duty, taxCode)
+          )
       }
     }
 
@@ -202,7 +273,7 @@ class SelectDutiesControllerSpec
 
         checkIsRedirect(
           controller.submit(customDuty)(
-            FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> customDuty.taxCodes.head.value)
+            FakeRequest().withFormUrlEncodedBody(s"select-duty-codes[]" -> customDuty.taxCodes.head.value)
           ),
           routes.EnterClaimController.show(customDuty, taxCode)
         )
@@ -222,16 +293,16 @@ class SelectDutiesControllerSpec
         }
 
         checkPageIsDisplayed(
-          controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey" -> "")),
+          controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"select-duty-codes" -> "")),
           messageFromMessageKey(
-            s"$selectDutyCodesKey.title",
-            messageFromMessageKey(s"$selectDutyCodesKey.h1.${dutyType.repr}")
+            "select-duty-codes.title",
+            messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
           ),
           doc =>
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"$selectDutyCodesKey.error.required"
+              s"select-duty-codes.error.required"
             ),
           BAD_REQUEST
         )
@@ -243,9 +314,14 @@ class SelectDutiesControllerSpec
 
 object SelectDutiesControllerSpec {
 
-  lazy val genDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for
-    duty    <- genDuty
+  lazy val genCustomsDutyWithRandomlySelectedTaxCode: Gen[(DutyType, TaxCode)] = for
+    duty    <- genCustomsDuty
     taxCode <- Gen.oneOf(duty.taxCodes)
   yield (duty, taxCode)
+
+  lazy val genExciseCategoryWithRandomlySelectedTaxCode: Gen[(ExciseCategory, TaxCode)] = for
+    exciseCategory <- Gen.oneOf(ExciseCategory.all)
+    taxCode        <- Gen.oneOf(exciseCategory.taxCodes)
+  yield (exciseCategory, taxCode)
 
 }

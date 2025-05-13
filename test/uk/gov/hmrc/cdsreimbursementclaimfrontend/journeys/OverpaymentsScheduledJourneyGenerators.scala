@@ -69,6 +69,20 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
       completeJourneyWithNonNatchingUserEoriGen
     )
 
+  val completeJourneyWithCustomsOnlyDutiesGen =
+    buildCompleteJourneyGen(
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = true,
+      taxCodes = TaxCodes.UK ++ TaxCodes.EU
+    )
+
+  val completeJourneyWithExciseOnlyDutiesGen =
+    buildCompleteJourneyGen(
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = true,
+      taxCodes = TaxCodes.excise
+    )
+
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
