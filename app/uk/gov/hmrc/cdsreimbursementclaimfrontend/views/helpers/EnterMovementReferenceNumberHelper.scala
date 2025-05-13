@@ -24,54 +24,51 @@ object EnterMovementReferenceNumberHelper {
   def titleSingle()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.single.title")
 
-  def titleMultiple(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
+  def titleMultiple(pageNumber: Int)(implicit messages: Messages): String =
     messages.lang.language match {
-      case "en" => titleMultipleEnglish(pageNumber, isSubsidy)
-      case "cy" => titleMultipleWelsh(pageNumber, isSubsidy)
+      case "en" => titleMultipleEnglish(pageNumber)
+      case "cy" => titleMultipleWelsh(pageNumber)
     }
 
   def titleScheduled()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.scheduled.title")
 
-  private def titleMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
-    val maybeSubsidy = if isSubsidy then ".subsidy" else ""
+  private def titleMultipleWelsh(pageNumber: Int)(implicit messages: Messages): String =
     pageNumber match {
       case x if x <= 20 =>
-        messages(s"enter-movement-reference-number.multiple.title.$pageNumber$maybeSubsidy")
-      case _            => messages(s"enter-movement-reference-number.multiple.title.default$maybeSubsidy")
+        messages(s"enter-movement-reference-number.multiple.title.$pageNumber")
+      case _            => messages(s"enter-movement-reference-number.multiple.title.default")
     }
-  }
 
-  private def titleMultipleEnglish(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
-    val ordinalNumber = OrdinalNumber(pageNumber)
-    val maybeSubsidy  = if isSubsidy then ".subsidy" else ""
-    messages(s"enter-movement-reference-number.multiple.title$maybeSubsidy", ordinalNumber)
+  private def titleMultipleEnglish(pageNumber: Int)(implicit messages: Messages): String = {
+    val ordinalNumber      = OrdinalNumber(pageNumber)
+    val firstCharUppercase =
+      messages(s"enter-movement-reference-number.multiple.title", ordinalNumber).charAt(0).toUpper
+    messages(s"enter-movement-reference-number.multiple.title", ordinalNumber)
+      .replaceFirst("^.", firstCharUppercase.toString)
   }
 
   def labelSingle()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.single.label")
 
-  def labelMultiple(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String =
+  def labelMultiple(pageNumber: Int)(implicit messages: Messages): String =
     messages.lang.language match {
-      case "en" => labelMultipleEnglish(pageNumber, isSubsidy)
-      case "cy" => labelMultipleWelsh(pageNumber, isSubsidy)
+      case "en" => labelMultipleEnglish(pageNumber)
+      case "cy" => labelMultipleWelsh(pageNumber)
     }
 
   def labelScheduled()(implicit messages: Messages): String =
     messages("enter-movement-reference-number.scheduled.label")
 
-  private def labelMultipleWelsh(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
-    val maybeSubsidy = if isSubsidy then ".subsidy" else ""
+  private def labelMultipleWelsh(pageNumber: Int)(implicit messages: Messages): String =
     pageNumber match {
       case x if x <= 20 =>
-        messages(s"enter-movement-reference-number.multiple.label.$pageNumber$maybeSubsidy")
-      case _            => messages(s"enter-movement-reference-number.multiple.label.default$maybeSubsidy")
+        messages(s"enter-movement-reference-number.multiple.label.$pageNumber")
+      case _            => messages(s"enter-movement-reference-number.multiple.label.default")
     }
-  }
 
-  private def labelMultipleEnglish(pageNumber: Int, isSubsidy: Boolean)(implicit messages: Messages): String = {
+  private def labelMultipleEnglish(pageNumber: Int)(implicit messages: Messages): String = {
     val ordinalNumber = OrdinalNumber(pageNumber)
-    val maybeSubsidy  = if isSubsidy then ".subsidy" else ""
-    messages(s"enter-movement-reference-number.multiple.label$maybeSubsidy", ordinalNumber)
+    messages(s"enter-movement-reference-number.multiple.label", ordinalNumber)
   }
 }
