@@ -40,7 +40,7 @@
 @title = @{
     subKey match {
         case "single" => EnterMovementReferenceNumberHelper.titleSingle()
-        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageNumber.getOrElse(1), isSubsidy)
+        case "multiple" => EnterMovementReferenceNumberHelper.titleMultiple(pageNumber.getOrElse(1))
         case "scheduled" => EnterMovementReferenceNumberHelper.titleScheduled()
     }
 }
@@ -48,7 +48,7 @@
 @label = @{
     subKey match {
         case "single" => EnterMovementReferenceNumberHelper.labelSingle()
-        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageNumber.getOrElse(1), isSubsidy)
+        case "multiple" => EnterMovementReferenceNumberHelper.labelMultiple(pageNumber.getOrElse(1))
         case "scheduled" => EnterMovementReferenceNumberHelper.labelScheduled()
     }
 }

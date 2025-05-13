@@ -128,7 +128,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first"),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -156,7 +156,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -186,7 +186,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           controller.show(2)(FakeRequest()),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "second", " subsidy"),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
           doc => {
             doc
               .getElementById(s"$messageKey-hint")
@@ -233,7 +233,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number" -> "")(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -249,7 +249,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number" -> invalidMRN.value)(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc => {
             getErrorSummary(doc)                   shouldBe messageFromMessageKey(s"enter-movement-reference-number.invalid.number")
             doc.getElementById(messageKey).`val`() shouldBe "INVALID_MOVEMENT_REFERENCE_NUMBER"
@@ -465,7 +465,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "first", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
@@ -497,7 +497,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(messageKey -> mrn.value)(2),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "second", ""),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               s"$messageKey.error.subsidy-payment-found"
