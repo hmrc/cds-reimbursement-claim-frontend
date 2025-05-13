@@ -171,10 +171,16 @@ object TaxCode {
   implicit val taxCodeEq: Eq[TaxCode]         = Eq.fromUniversalEquals[TaxCode]
   implicit val taxCodeFormat: Format[TaxCode] = SimpleStringFormat(TaxCode(_), _.value)
 
+  private inline def hash(tc: TaxCode) = tc.dutyType.ordinal * 10000
+    + tc.exciseCategory.map(ec => ec.ordinal * 1000).getOrElse(0)
+    + tc.value.filter(_.isDigit).toIntOption.getOrElse(0)
+
   implicit val ordering: Ordering[TaxCode] =
-    Ordering.by[TaxCode, Int](tc =>
-      tc.dutyType.ordinal * 10000
-        + tc.exciseCategory.map(ec => ec.ordinal * 1000).getOrElse(0)
-        + tc.value.filter(_.isDigit).toIntOption.getOrElse(0)
+    Ordering.fromLessThan[TaxCode]((tc1, tc2) =>
+      val hash1 = hash(tc1)
+      val hash2 = hash(tc2)
+      if hash1 != hash2
+      then summon[Ordering[Int]].lt(hash1, hash2)
+      else summon[Ordering[String]].lt(tc1.value, tc2.value)
     )
 }
