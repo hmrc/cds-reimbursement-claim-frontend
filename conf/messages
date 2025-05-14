@@ -970,21 +970,22 @@ declaration-not-found.invalid-mrn=The MRN <strong>{0}</strong> is invalid or the
 declaration-not-found.provide-another-mrn-or-contact=Please provide another MRN or you can get help by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contacting HMRC (opens in new tab)</a>
 declaration-not-found.submit=Provide another MRN
 
-duty-type.beer=Beer
-duty-type.biofuels=Biofuels
-duty-type.cider-perry=Cider and perry
-duty-type.other-fermented-products=Other fermented products
-duty-type.climate-change-levy=Climate Change Levy
 duty-type.eu-duty=EU Duty
-duty-type.excise-duty=Excise Duty
-duty-type.hydrocarbon-oils=Hydrocarbon oil
-duty-type.low-alcohol-beverages=Low alcohol beverages
-duty-type.made-wine=Made-wine
-duty-type.miscellaneous-road-fuels=Miscellaneous road fuels
-duty-type.spirits=Spirits
-duty-type.tobacco=Tobacco products
 duty-type.uk-duty=UK Duty
-duty-type.wine=Wine
+duty-type.excise-duty=Excise Duty
+
+excise-category.beer=Beer
+excise-category.biofuels=Biofuels
+excise-category.cider-perry=Cider and perry
+excise-category.other-fermented-products=Other fermented products
+excise-category.climate-change-levy=Climate Change Levy
+excise-category.hydrocarbon-oils=Hydrocarbon oil
+excise-category.low-alcohol-beverages=Low alcohol beverages
+excise-category.made-wine=Made-wine
+excise-category.miscellaneous-road-fuels=Miscellaneous road fuels
+excise-category.spirits=Spirits
+excise-category.tobacco=Tobacco products
+excise-category.wine=Wine
 
 enter-additional-details.bullet-help-text=Please include any changes to:
 enter-additional-details.bullet.1=preference codes
@@ -1719,24 +1720,13 @@ select-duties.details.p3=To claim a repayment you''ll need to:
 select-duties.details.p3.li1=reduce the amount of output tax due in Box 1 of the VAT return
 select-duties.details.p3.li2=keep an audit trail to support your claim
 
+select-duty-codes.h1.eu-duty=EU
+select-duty-codes.h1.uk-duty=UK
+select-duty-codes.h1.excise-duty=Excise
+
 select-duty-codes.details.heading=Find out more about duties
 select-duty-codes.error.invalid=The duty code was not recognised. Check the details you entered are correct
 select-duty-codes.error.required=Select one or more duty types you want to claim for
-select-duty-codes.h1.beer=beer
-select-duty-codes.h1.biofuels=biofuels
-select-duty-codes.h1.cider-perry=cider and perry
-select-duty-codes.h1.other-fermented-products=other fermented products
-select-duty-codes.h1.climate-change-levy=Climate Change Levy
-select-duty-codes.h1.eu-duty=EU
-select-duty-codes.h1.hydrocarbon-oils=hydrocarbon oil
-select-duty-codes.h1.low-alcohol-beverages=low alcohol beverages
-select-duty-codes.h1.made-wine=made-wine
-select-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
-select-duty-codes.h1.spirits=spirits
-select-duty-codes.h1.tobacco=tobacco products
-select-duty-codes.h1.uk-duty=UK
-select-duty-codes.h1.wine=wine
-select-duty-codes.h1.excise-duty=Excise
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.p1=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
 select-duty-codes.subsidy-text=Duties shown are all covered by subsidy.
@@ -1756,6 +1746,19 @@ select-duty-types.eu-duty=EU duties
 select-duty-types.eu-duty.hint=Including customs, additional, countervailing duties and VAT
 select-duty-types.excise-duty=Excise duties
 select-duty-types.excise-duty.hint=This applies to products like alcoholic drinks, tobacco products, hydrocarbon oil and biofuels
+
+select-excise-duty-codes.h1.beer=beer
+select-excise-duty-codes.h1.biofuels=biofuels
+select-excise-duty-codes.h1.cider-perry=cider and perry
+select-excise-duty-codes.h1.other-fermented-products=other fermented products
+select-excise-duty-codes.h1.climate-change-levy=Climate Change Levy
+select-excise-duty-codes.h1.hydrocarbon-oils=hydrocarbon oil
+select-excise-duty-codes.h1.low-alcohol-beverages=low alcohol beverages
+select-excise-duty-codes.h1.made-wine=made-wine
+select-excise-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
+select-excise-duty-codes.h1.spirits=spirits
+select-excise-duty-codes.h1.tobacco=tobacco products
+select-excise-duty-codes.h1.wine=wine
 
 select-method-of-disposal.rejected-goods.error.required=Select the method of disposal
 select-method-of-disposal.rejected-goods.method.Destruction=Destroy the goods
@@ -1980,3 +1983,14 @@ we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
 
 common.blank=
 govukErrorMessage.visuallyHiddenText = Error
+
+select-excise-duty-codes.title=Which {0} duties do you want to claim for?
+select-excise-duty-codes.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim
+
+select-excise-categories.title=Excise duties
+select-excise-categories.p1=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim.
+select-excise-categories.p2=Find more information on <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">products that excise duty applies to (opens in new tab)</a>.
+select-excise-categories.checkbox-legend=Which excise duties do you want to claim for? 
+
+
+

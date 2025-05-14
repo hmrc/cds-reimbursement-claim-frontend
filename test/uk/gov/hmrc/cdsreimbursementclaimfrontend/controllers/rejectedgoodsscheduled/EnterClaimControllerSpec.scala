@@ -139,9 +139,9 @@ class EnterClaimControllerSpec
           else
             messageFromMessageKey(
               s"enter-claim.scheduled.title.excise",
-              messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
+              messages(s"duty-type.${dutyType.repr}"),
               taxCode.value,
-              messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+              messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
             )
           ,
           doc => {
@@ -180,9 +180,10 @@ class EnterClaimControllerSpec
 
               val expectedRoute: Call =
                 updatedJourney.findNextSelectedTaxCodeAfter(dutyType, taxCode) match {
-                  case Some((nextDutyType, nextTaxCode)) =>
+                  case Some((nextDutyType, nextTaxCode: TaxCode)) =>
                     routes.EnterClaimController.show(nextDutyType, nextTaxCode)
-                  case None                              =>
+
+                  case None =>
                     updatedJourney.findNextSelectedDutyAfter(dutyType) match {
                       case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
                       case None               => routes.CheckClaimDetailsController.show
@@ -270,9 +271,9 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
+                    messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc => {
@@ -308,9 +309,9 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
+                    messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>
@@ -342,9 +343,9 @@ class EnterClaimControllerSpec
                 else
                   messageFromMessageKey(
                     s"enter-claim.scheduled.title.excise",
-                    messages(s"duty-type.${DutyTypes.categoryOf(dutyType)}"),
+                    messages(s"duty-type.${dutyType.repr}"),
                     taxCode.value,
-                    messages(s"duty-type.${ExciseCategory.categoryOf(taxCode).repr}")
+                    messages(s"excise-category.${ExciseCategory.categoryOf(taxCode).repr}")
                   )
                 ,
                 doc =>

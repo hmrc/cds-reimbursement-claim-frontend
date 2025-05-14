@@ -20,10 +20,14 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 object DutyTypeGen {
 
-  lazy val genDuty: Gen[DutyType] = Gen.oneOf(DutyTypes.all)
+  lazy val genDuty: Gen[DutyType]                 = Gen.oneOf(DutyTypes.all)
+  lazy val genCustomsDuty: Gen[DutyType]          = Gen.oneOf(DutyTypes.custom)
+  lazy val genExciseDuty: Gen[DutyType]           = Gen.oneOf(DutyTypes.excise)
+  lazy val genExciseCategory: Gen[ExciseCategory] = Gen.oneOf(ExciseCategory.all)
 
   lazy val genDuties: Gen[List[DutyType]] = Gen.listOf(genDuty).map(_.distinct)
 

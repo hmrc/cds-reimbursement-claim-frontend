@@ -215,7 +215,7 @@ final class OverpaymentsScheduledJourney private (
       }
     }
 
-  def selectAndReplaceTaxCodeSetForReimbursement(
+  def selectAndReplaceTaxCodeSetForDutyType(
     dutyType: DutyType,
     taxCodes: Seq[TaxCode]
   ): Either[String, OverpaymentsScheduledJourney] =
@@ -239,6 +239,66 @@ final class OverpaymentsScheduledJourney private (
               }
           Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
         } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+      }
+    }
+
+  def selectAndReplaceExciseCodeCategories(
+    exciseCategories: Seq[ExciseCategory]
+  ): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise))
+      then Left("selectAndReplaceExciseCodeCategories.exciseDutyTypeNotSelected")
+      else if exciseCategories.isEmpty
+      then Left("selectAndReplaceExciseCodeCategories.emptySelection")
+      else
+        val exciseCategoriesSet = exciseCategories.toSet
+        Right(
+          this.copy(
+            answers.copy(
+              exciseCategories = Some(exciseCategories),
+              // remove eventually tax codes belonging to the unchecked excise category
+              correctedAmounts = answers.correctedAmounts.map(_.map {
+                case (DutyType.Excise, claims) =>
+                  (
+                    DutyType.Excise,
+                    claims.filter((tc, _) => exciseCategoriesSet.contains(ExciseCategory.categoryOf(tc)))
+                  )
+                case other                     => other
+              })
+            )
+          )
+        )
+    }
+
+  def selectAndReplaceTaxCodeSetForExciseCategory(
+    exciseCategory: ExciseCategory,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, OverpaymentsScheduledJourney] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise)) then
+        Left("selectAndReplaceTaxCodeSetForExciseCategory.dutyTypeNotSelectedBefore")
+      else if taxCodes.isEmpty then Left("selectAndReplaceTaxCodeSetForExciseCategory.emptySelection")
+      else {
+        val allTaxCodesMatchDutyType = taxCodes.forall(tc =>
+          DutyType.Excise.taxCodes.contains(tc)
+            && ExciseCategory.categoryOf(tc) === exciseCategory
+        )
+        if allTaxCodesMatchDutyType then {
+          val newReimbursementClaims =
+            answers.correctedAmounts
+              .map { rc =>
+                SortedMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt === DutyType.Excise =>
+                    dt -> (reimbursementClaims.filterNot((tc, _) =>
+                      ExciseCategory.categoryOf(tc) == exciseCategory
+                    ) ++ SortedMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }*))
+                  case other                                               => other
+                }*)
+              }
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
+        } else Left("selectAndReplaceTaxCodeSetForExciseCategory.someTaxCodesDoesNotMatchDutyType")
       }
     }
 
@@ -489,6 +549,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
     additionalDetails: Option[String] = None,
     correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     selectedDocumentType: Option[UploadDocumentType] = None,
@@ -601,8 +662,9 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
         _.selectAndReplaceDutyTypeSetForReimbursement
       )
+      .flatMapWhenDefined(answers.exciseCategories)(_.selectAndReplaceExciseCodeCategories)
       .flatMapEachWhenDefined(answers.correctedAmounts)(j => { case (dutyType, reimbursements) =>
-        j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, reimbursements.keySet.toSeq)
+        j.selectAndReplaceTaxCodeSetForDutyType(dutyType, reimbursements.keySet.toSeq)
           .flatMapEachWhenMappingDefined(reimbursements)(j => {
             case (taxCode, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
               j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)

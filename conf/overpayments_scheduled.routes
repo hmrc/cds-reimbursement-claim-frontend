@@ -53,8 +53,11 @@ POST        /overpayments/scheduled/enter-additional-details                    
 GET         /overpayments/scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.show
 POST        /overpayments/scheduled/select-duties/select-duty-types                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutyTypesController.submit
 
+GET         /overpayments/scheduled/select-duties/excise-duty/:exciseCategory                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesController.showExciseDuties(exciseCategory: ExciseCategory)
+POST        /overpayments/scheduled/select-duties/excise-duty/:exciseCategory                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesController.submitExciseDuties(exciseCategory: ExciseCategory)
 GET         /overpayments/scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesController.show(dutyType: DutyType)
 POST        /overpayments/scheduled/select-duties/:dutyType                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesController.submit(dutyType: DutyType)
+POST        /overpayments/scheduled/select-excise-categories                                 @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.SelectDutiesController.submitExciseCategories
 
 GET         /overpayments/scheduled/enter-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterClaimController.showFirst
 GET         /overpayments/scheduled/enter-claim/:dutyType/:taxCode                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterClaimController.show(dutyType: DutyType, taxCode: TaxCode)

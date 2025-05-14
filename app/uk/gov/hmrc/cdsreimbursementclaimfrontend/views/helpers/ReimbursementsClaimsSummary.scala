@@ -22,11 +22,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -52,8 +50,9 @@ object ReimbursementsClaimsSummary {
                 ActionItem(
                   href = enterClaimAction(taxCode).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(s"${OrdinalNumber(mrnIndex.getOrElse(1)).capitalize} MRN: ${TaxCodes
-                      .findTaxType(taxCode)} Duty $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+                  visuallyHiddenText = Some(s"${OrdinalNumber(mrnIndex.getOrElse(1)).capitalize} MRN: ${messages(
+                      s"duty-type.${taxCode.dutyType.repr}"
+                    )} $taxCode - ${messages(s"select-duties.duty.$taxCode")}")
                 )
               )
             )
@@ -197,7 +196,7 @@ object ReimbursementsClaimsSummary {
       val m = scala.collection.mutable.Map.empty[String, BigDecimal]
       reimbursementClaims.iterator
         .foreach { case (dutyType, reimbursements) =>
-          val category = DutyTypes.categoryOf(dutyType)
+          val category = dutyType.repr
           val amount   = reimbursements.map(_._2.claimAmount).sum
           m.update(category, m.getOrElse(category, BigDecimal("0.00")) + amount)
         }

@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -48,7 +47,7 @@
     if(TaxCodes.custom.contains(taxCode))
         messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"))
     else
-        messages(s"enter-claim.title.excise", messages(s"duty-type.${TaxCodes.categoryOf(taxCode)}"), messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), taxCode.value)
+        messages(s"enter-claim.title.excise", messages(s"duty-type.${taxCode.dutyType.repr}"), messages(s"duty-type.${taxCode.dutyType.repr}"), taxCode.value)
     }
 @caption = @{messages(s"enter-claim.title.caption")}
 @inset = {
@@ -76,7 +75,7 @@
     @insetText(content = HtmlContent(inset))
 
     @if(!TaxCodes.custom.contains(taxCode)){
-        @paragraph(Html(messages(s"enter-claim.help-text.excise",  messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), messages(s"tax-code.${taxCode}"))))
+        @paragraph(Html(messages(s"enter-claim.help-text.excise",  messages(s"duty-type.${taxCode.dutyType.repr}"), messages(s"tax-code.${taxCode}"))))
     }
     
 
@@ -84,7 +83,7 @@
 
         @paragraph(Html(
             if(!TaxCodes.custom.contains(taxCode))
-                messages(s"enter-claim.paid-amount-label.excise", paidAmount.toPoundSterlingString, messages(s"duty-type.${DutyTypes.dutyTypeOf(taxCode).repr}"), taxCode.value)
+                messages(s"enter-claim.paid-amount-label.excise", paidAmount.toPoundSterlingString, messages(s"duty-type.${taxCode.dutyType.repr}"), taxCode.value)
             else 
                 messages(paidAmountLabel, paidAmount.toPoundSterlingString, taxCode.value, messages(s"select-duties.duty.$taxCode"))
         ), Some("govuk-body-l govuk-!-font-weight-bold"), id = s"enter-claim-how-much-was-paid")

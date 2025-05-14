@@ -517,8 +517,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            journey =>
-              (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForReimbursement(tc._1, tc._2)
+            journey => (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForDutyType(tc._1, tc._2)
           )
           .getOrFail
 
@@ -539,13 +538,11 @@ class OverpaymentsScheduledJourneySpec
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .flatMapEach(
               Seq(dutyType -> taxCodes1),
-              journey =>
-                (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForReimbursement(tc._1, tc._2)
+              journey => (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForDutyType(tc._1, tc._2)
             )
             .flatMapEach(
               Seq(dutyType -> taxCodes2),
-              journey =>
-                (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForReimbursement(tc._1, tc._2)
+              journey => (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForDutyType(tc._1, tc._2)
             )
             .getOrFail
 
@@ -567,7 +564,7 @@ class OverpaymentsScheduledJourneySpec
             dutyTypesWithTaxCodes,
             journey =>
               (tc: (DutyType, Seq[TaxCode])) =>
-                journey.selectAndReplaceTaxCodeSetForReimbursement(tc._1, Seq(TaxCode.A00, TaxCode.A50))
+                journey.selectAndReplaceTaxCodeSetForDutyType(tc._1, Seq(TaxCode.A00, TaxCode.A50))
           )
 
         result shouldBe Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
@@ -582,8 +579,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.all.toSet.diff(dutyTypes.toSet).toSeq)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            journey =>
-              (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForReimbursement(tc._1, tc._2)
+            journey => (tc: (DutyType, Seq[TaxCode])) => journey.selectAndReplaceTaxCodeSetForDutyType(tc._1, tc._2)
           )
 
         result shouldBe Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
@@ -607,7 +603,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypes,
-            journey => (dt: DutyType) => journey.selectAndReplaceTaxCodeSetForReimbursement(dt, taxTypes)
+            journey => (dt: DutyType) => journey.selectAndReplaceTaxCodeSetForDutyType(dt, taxTypes)
           )
 
         result shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
@@ -642,7 +638,7 @@ class OverpaymentsScheduledJourneySpec
         journey.getSelectedDutyTypes.get.foreach { dutyType =>
           val taxCodes = journey.getSelectedDutiesFor(dutyType).get
           val result   = journey
-            .selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodes)
+            .selectAndReplaceTaxCodeSetForDutyType(dutyType, taxCodes)
             .getOrFail
           result.hasCompleteReimbursementClaims shouldBe true
           result.hasCompleteAnswers             shouldBe true
@@ -658,7 +654,7 @@ class OverpaymentsScheduledJourneySpec
         val result = journey
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
           )
           .getOrFail
 
@@ -685,7 +681,7 @@ class OverpaymentsScheduledJourneySpec
             dutyTypesWithTaxCodes,
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
-                j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
+                j.selectAndReplaceTaxCodeSetForDutyType(dutyType, taxCodeSeq)
               }: (((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney])
           )
           .flatMapEach(
@@ -728,7 +724,7 @@ class OverpaymentsScheduledJourneySpec
             dutyTypesWithTaxCodes,
             (j: OverpaymentsScheduledJourney) =>
               { case (dutyType: DutyType, taxCodeSeq: Seq[TaxCode]) =>
-                j.selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodeSeq)
+                j.selectAndReplaceTaxCodeSetForDutyType(dutyType, taxCodeSeq)
               }: (((DutyType, Seq[TaxCode])) => Either[String, OverpaymentsScheduledJourney])
           )
           .flatMapEach(
@@ -766,7 +762,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
           )
           .flatMapEach(
             taxCodesWithAmounts.dropRight(1),
@@ -794,7 +790,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
           )
           .flatMapEach(
             taxCodesWithAmounts,
@@ -828,7 +824,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
           )
           .flatMapEach(
             taxCodesWithAmounts,
@@ -878,7 +874,7 @@ class OverpaymentsScheduledJourneySpec
           .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
           .flatMapEach(
             dutyTypesWithTaxCodes,
-            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+            j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
           )
           .flatMapEach(
             taxCodesWithAmounts,
@@ -959,7 +955,7 @@ class OverpaymentsScheduledJourneySpec
             .empty(exampleEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
             .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
+            .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(DutyType.UkDuty, Seq(TaxCode.A00)))
             .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
             .flatMap(_.submitPayeeType(PayeeType.Consignee))
 
@@ -979,7 +975,7 @@ class OverpaymentsScheduledJourneySpec
             .empty(exampleEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
             .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
+            .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(DutyType.UkDuty, Seq(TaxCode.A00)))
             .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
             .flatMap(_.submitPayeeType(PayeeType.Declarant))
 
@@ -996,7 +992,7 @@ class OverpaymentsScheduledJourneySpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(DutyType.UkDuty, Seq(TaxCode.A00)))
+          .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(DutyType.UkDuty, Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
           .flatMap(_.submitBankAccountDetails(exampleBankAccountDetails))
           .flatMap(_.submitBankAccountType(BankAccountType.Business))
@@ -1059,7 +1055,7 @@ class OverpaymentsScheduledJourneySpec
               .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
               .flatMapEach(
                 dutyTypesWithTaxCodes,
-                j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+                j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
               )
               .getOrFail
 
@@ -1134,7 +1130,7 @@ class OverpaymentsScheduledJourneySpec
         }
 
         journey = journey
-          .selectAndReplaceTaxCodeSetForReimbursement(dutyType, taxCodes)
+          .selectAndReplaceTaxCodeSetForDutyType(dutyType, taxCodes)
           .getOrFail
 
         previousTaxCode = None
@@ -1191,7 +1187,7 @@ class OverpaymentsScheduledJourneySpec
             .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
             .flatMapEach(
               dutyTypesWithTaxCodes,
-              j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForReimbursement(d._1, d._2)
+              j => (d: (DutyType, Seq[TaxCode])) => j.selectAndReplaceTaxCodeSetForDutyType(d._1, d._2)
             )
             .getOrFail
 

@@ -27,19 +27,6 @@ object DutyTypes {
 
   val all: Seq[DutyType] = List(UkDuty, EuDuty, Excise).sorted
 
-  def categoryOf(dutyType: DutyType): String =
-    dutyType match {
-      case DutyType.UkDuty => "uk-duty"
-      case DutyType.EuDuty => "eu-duty"
-      case DutyType.Excise => "excise-duty"
-    }
-
-  def dutyTypeOf(taxCode: TaxCode): DutyType =
-    taxCode2DutyTypeMap(taxCode)
-
-  private val taxCode2DutyTypeMap: Map[TaxCode, DutyType] =
-    all.flatMap(dt => dt.taxCodes.map(tc => (tc, dt))).toMap
-
   private val dutyTypesStringMap: Map[String, DutyType] =
     all.map(dutyType => dutyType.repr -> dutyType).toMap
 

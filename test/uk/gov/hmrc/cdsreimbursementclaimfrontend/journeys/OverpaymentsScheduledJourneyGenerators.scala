@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils.*
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
@@ -67,6 +68,20 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
     Gen.oneOf(
       completeJourneyWithMatchingUserEoriGen,
       completeJourneyWithNonNatchingUserEoriGen
+    )
+
+  val completeJourneyWithCustomsOnlyDutiesGen =
+    buildCompleteJourneyGen(
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = true,
+      taxCodes = TaxCodes.UK ++ TaxCodes.EU
+    )
+
+  val completeJourneyWithExciseOnlyDutiesGen =
+    buildCompleteJourneyGen(
+      acc14ConsigneeMatchesUserEori = true,
+      acc14DeclarantMatchesUserEori = true,
+      taxCodes = TaxCodes.excise
     )
 
   def buildCompleteJourneyGen(
@@ -285,6 +300,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
           basisOfClaim = Some(basisOfClaim),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
+          exciseCategories = correctedAmounts
+            .get(DutyType.Excise)
+            .flatMap(
+              _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+            ),
           selectedDocumentType = None,
           scheduledDocument = Some(scheduledDocument),
           supportingEvidences =
@@ -445,6 +465,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
           basisOfClaim = Some(basisOfClaim),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
+          exciseCategories = correctedAmounts
+            .get(DutyType.Excise)
+            .flatMap(
+              _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+            ),
           modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 
