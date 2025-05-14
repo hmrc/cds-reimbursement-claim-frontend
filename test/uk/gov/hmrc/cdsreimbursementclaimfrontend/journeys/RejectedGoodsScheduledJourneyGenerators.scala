@@ -21,6 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils.*
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
@@ -257,6 +258,11 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
         methodOfDisposal = Some(methodOfDisposal),
         detailsOfRejectedGoods = Some("rejected goods details"),
         correctedAmounts = Some(correctedAmounts),
+        exciseCategories = correctedAmounts
+          .get(DutyType.Excise)
+          .flatMap(
+            _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+          ),
         inspectionDate = Some(exampleInspectionDate),
         inspectionAddress = Some(exampleInspectionAddress),
         selectedDocumentType = None,
@@ -403,6 +409,11 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
           methodOfDisposal = Some(methodOfDisposal),
           detailsOfRejectedGoods = Some("rejected goods details"),
           correctedAmounts = Some(correctedAmounts),
+          exciseCategories = correctedAmounts
+            .get(DutyType.Excise)
+            .flatMap(
+              _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+            ),
           modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 

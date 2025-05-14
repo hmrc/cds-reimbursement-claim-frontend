@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils.*
 
 import scala.collection.immutable.SortedMap
 import scala.util.Random
@@ -299,6 +300,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
           basisOfClaim = Some(basisOfClaim),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
+          exciseCategories = correctedAmounts
+            .get(DutyType.Excise)
+            .flatMap(
+              _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+            ),
           selectedDocumentType = None,
           scheduledDocument = Some(scheduledDocument),
           supportingEvidences =
@@ -459,6 +465,11 @@ object OverpaymentsScheduledJourneyGenerators extends ScheduledJourneyGenerators
           basisOfClaim = Some(basisOfClaim),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
+          exciseCategories = correctedAmounts
+            .get(DutyType.Excise)
+            .flatMap(
+              _.keysIterator.map(_.exciseCategory).collect { case Some(x) => x }.toSeq.distinct.sorted.noneIfEmpty
+            ),
           modes = JourneyModes(checkYourAnswersChangeMode = false)
         )
 

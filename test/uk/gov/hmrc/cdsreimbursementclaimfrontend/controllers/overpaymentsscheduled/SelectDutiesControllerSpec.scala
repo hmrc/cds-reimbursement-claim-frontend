@@ -175,7 +175,7 @@ class SelectDutiesControllerSpec
         case (dutyType: DutyType, taxCode: TaxCode) =>
           val journey = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
-            .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(dutyType, Seq(taxCode)))
+            .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(dutyType, Seq(taxCode)))
             .getOrFail
 
           inSequence {
@@ -237,7 +237,7 @@ class SelectDutiesControllerSpec
             .getOrFail
 
           val updatedJourney =
-            initialJourney.selectAndReplaceTaxCodeSetForReimbursement(duty, Seq(taxCode)).getOrFail
+            initialJourney.selectAndReplaceTaxCodeSetForDutyType(duty, Seq(taxCode)).getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -263,7 +263,7 @@ class SelectDutiesControllerSpec
 
         val taxCode: TaxCode = customDuty.taxCodes.head
         val updatedJourney   =
-          initialJourney.selectAndReplaceTaxCodeSetForReimbursement(customDuty, Seq(taxCode)).getOrFail
+          initialJourney.selectAndReplaceTaxCodeSetForDutyType(customDuty, Seq(taxCode)).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
