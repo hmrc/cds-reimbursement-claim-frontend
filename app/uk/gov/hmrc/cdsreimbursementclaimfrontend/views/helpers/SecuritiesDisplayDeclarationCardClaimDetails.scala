@@ -38,7 +38,7 @@ object SecuritiesDisplayDeclarationCardClaimDetails {
   ): SummaryList = SummaryList(
     Seq(
       SummaryListRow(
-        key = Key(HtmlContent(messages(s"$key.mrn-label"))),
+        key = Key(HtmlContent(messages(s"$key.securities.mrn-label"))),
         value = Value(Text(declaration.displayResponseDetail.declarationId)),
         actions = Some(
           Actions(
@@ -46,7 +46,7 @@ object SecuritiesDisplayDeclarationCardClaimDetails {
               ActionItem(
                 href = mrnChangeCall.url,
                 content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.mrn-label"))
+                visuallyHiddenText = Some(messages(s"$key.securities.mrn-label"))
               )
             )
           )
