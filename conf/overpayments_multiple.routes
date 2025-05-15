@@ -4,8 +4,8 @@ GET         /overpayments/multiple/enter-movement-reference-number              
 GET         /overpayments/multiple/enter-movement-reference-number/:index                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMovementReferenceNumberController.show(index: Int)
 POST        /overpayments/multiple/enter-movement-reference-number/:index                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterMovementReferenceNumberController.submit(index: Int)
 
-GET         /overpayments/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.show
-POST        /overpayments/multiple/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.submit
+GET         /overpayments/multiple/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.show
+POST        /overpayments/multiple/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckDeclarationDetailsController.submit
 
 GET         /overpayments/multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.show
 POST        /overpayments/multiple/check-movement-reference-numbers                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckMovementReferenceNumbersController.submit

@@ -9,8 +9,8 @@ POST        /overpayments/scheduled/enter-importer-eori                         
 GET         /overpayments/scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterDeclarantEoriNumberController.show
 POST        /overpayments/scheduled/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterDeclarantEoriNumberController.submit
 
-GET         /overpayments/scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.show
-POST        /overpayments/scheduled/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.submit
+GET         /overpayments/scheduled/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.show
+POST        /overpayments/scheduled/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.CheckDeclarationDetailsController.submit
 
 GET         /overpayments/scheduled/upload-mrn-list                                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.UploadMrnListController.show
 +nocsrf

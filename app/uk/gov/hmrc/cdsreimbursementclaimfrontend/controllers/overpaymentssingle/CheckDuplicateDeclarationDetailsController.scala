@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import com.github.arturopala.validator.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -28,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
@@ -63,15 +61,14 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDuplicateDeclarationDetailsController.submit
 
-  final override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[?] => HtmlFormat.Appendable = {
-    case (decl, form, _) =>
+  final override def viewTemplate: (DisplayDeclaration, Journey) => Request[?] => HtmlFormat.Appendable = {
+    case (decl, journey) =>
       implicit request =>
         checkDeclarationDetailsPage(
           declaration = decl,
-          form = form,
           isDuplicate = true,
           postAction = postAction,
-          subKey = None
+          enterMovementReferenceNumberRoute
         )
   }
 

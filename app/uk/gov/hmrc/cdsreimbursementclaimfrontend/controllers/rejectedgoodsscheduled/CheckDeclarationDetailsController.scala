@@ -18,14 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_declaration_details
 
@@ -51,16 +49,14 @@ class CheckDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDeclarationDetailsController.submit
 
-  override def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[?] => HtmlFormat.Appendable = {
-    case (decl, form, journey) =>
+  override def viewTemplate: (DisplayDeclaration, Journey) => Request[?] => HtmlFormat.Appendable = {
+    case (decl, journey) =>
       implicit request =>
         checkDeclarationDetailsPage(
           declaration = decl,
-          form = form,
           isDuplicate = false,
           postAction = postAction,
-          subKey = Some("scheduled"),
-          isSubsidy = journey.isSubsidyOnlyJourney
+          enterMovementReferenceNumberRoute
         )
   }
 
