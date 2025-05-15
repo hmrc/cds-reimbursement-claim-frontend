@@ -14,84 +14,67 @@
  * limitations under the License.
  *@
 
-@import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CdsDisplayDeclarationSummary
-@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.govukfrontend.views.html.components.WarningText
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-        warningText: uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call, subKey: Option[String], isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, isDuplicate: Boolean, postAction: Call, enterMrnAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"check-declaration-details"}
-@title = @{if(isDuplicate) messages(s"check-declaration-details.duplicate.title") else messages(s"check-declaration-details.title")}
+@title = @{if(isDuplicate) messages("check-import-declaration-details.duplicate.title") else messages("check-import-declaration-details.title")}
+@layout(pageTitle = Some(s"$title")) {
 
-@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+    @heading(Html(title), classes="govuk-heading-l")
 
-@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+    @card(messages("check-import-declaration-details.card.claim-details"),
+        DisplayDeclarationCardClaimDetails(
+            declaration,
+            "check-import-declaration-details",
+            enterMrnAction
+    ))
 
-    @errorSummary(form.errors)
+    @subHeading(Html(messages(s"check-import-declaration-details.import-declaration-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
+    @paragraph(Html(messages(s"check-import-declaration-details.import-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+    @card(messages("check-import-declaration-details.card.import-details"),
+        DisplayDeclarationCardImportDetails(
+            declaration,
+            "check-import-declaration-details"
+    ))
 
-    @heading(Html(title))
+    @card(messages("check-import-declaration-details.customs-duties-and-vat"),
+        DisplayDeclarationCardDutiesAndVATDetails(
+            declaration,
+            "check-import-declaration-details"
+        )
+    )
 
-    @paragraph(Html(messages(s"check-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+    @if(declaration.getConsigneeDetails.isDefined){
+        @card(messages("check-import-declaration-details.card.importer-details"),
+            DisplayDeclarationCardImporterDetails(
+                declaration,
+                "check-import-declaration-details"
+        ))
+    }
+
+    @card(messages("check-import-declaration-details.card.declarant-details"),
+        DisplayDeclarationCardDeclarantDetails(
+            declaration,
+            "check-import-declaration-details"
+    ))
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
-
-        @dropdownDetails(
-            summary = s"check-declaration-details.details.title",
-            html(
-                subHeading(Html(messages(s"check-declaration-details.details.h1")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"check-declaration-details.details.p1"))),
-                subHeading(Html(messages(s"check-declaration-details.details.h2")), classes = "govuk-heading-s"),
-                paragraph(Html(messages(s"check-declaration-details.details.p2")))
-            )
-        )
-
-        @summary(CdsDisplayDeclarationSummary.render(declaration, key, subKey))
-
-        @if(isSubsidy && subKey.exists(key => key == "multiple" || key == "scheduled")){@warningText(WarningText(content = Text(messages(s"check-declaration-details.multiple.subsidy-warning"))))}
-
-        @radios(
-            form = form,
-            name = key,
-            legend = messages(s"check-declaration-details.is-information-correct"),
-            hintKey = None,
-            inline = true,
-            items = Seq(
-                RadioItem(
-                    value = Some("true"),
-                    content = HtmlContent(messages(s"check-declaration-details.yes")),
-                    checked = false
-                ),
-                RadioItem(
-                    value = Some("false"),
-                    content = HtmlContent(messages(s"check-declaration-details.no")),
-                    checked = false
-                )
-            )
-        )
         @submitButton("button.continue")
     }
 }

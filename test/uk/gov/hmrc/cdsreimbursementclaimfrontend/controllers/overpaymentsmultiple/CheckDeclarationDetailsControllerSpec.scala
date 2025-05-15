@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.Lang
@@ -36,14 +39,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
@@ -71,7 +77,94 @@ class CheckDeclarationDetailsControllerSpec
   val session =
     SessionData.empty.copy(overpaymentsMultipleJourney = Some(OverpaymentsMultipleJourney.empty(exampleEori)))
 
-  val messagesKey: String = "check-declaration-details"
+  val messagesKey: String = "check-import-declaration-details"
+
+  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
+    doc.select(".govuk-summary-card").asScala.find { card =>
+      card.select(".govuk-summary-card__title").text() == title
+    }
+
+  def getSummaryList(card: Element): Seq[(String, String)] = {
+    val rows = card.select(".govuk-summary-list__row").asScala
+    rows.map { row =>
+      val key   = row.select(".govuk-summary-list__key").text
+      val value = row.select(".govuk-summary-list__value").text
+      key -> value
+    }.toSeq
+  }
+
+  def validateCheckDeclarationDetailsPage(
+    doc: Document,
+    journey: OverpaymentsMultipleJourney
+  ): Assertion = {
+
+    val claimDetailsCard     = getSummaryCardByTitle(doc, "Claim details")
+    val importDetailsCard    = getSummaryCardByTitle(doc, "Import details")
+    val dutiesAndVATCard     = getSummaryCardByTitle(doc, "Duties and VAT")
+    val importerDetailsCard  = getSummaryCardByTitle(doc, "Importer details")
+    val declarantDetailsCard = getSummaryCardByTitle(doc, "Declarant details")
+
+    claimDetailsCard.isDefined     should not be false
+    importDetailsCard.isDefined    should not be false
+    dutiesAndVATCard.isDefined     should not be false
+    importerDetailsCard.isDefined  should not be false
+    declarantDetailsCard.isDefined should not be false
+
+    getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
+      Seq(
+        "MRN" -> journey.getLeadMovementReferenceNumber.map(_.value)
+      )
+    )
+    getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
+      Seq(
+        journey.getLeadDisplayDeclaration.get.getMaybeLRN match {
+          case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
+          case _         => ""                             -> None
+        },
+        "Date of import" -> DateUtils.displayFormat(
+          journey.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+        )
+      )
+    )
+    getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
+      Seq(
+        "Method of payment" -> journey.getLeadDisplayDeclaration.get.getMethodsOfPayment
+          .map { methods =>
+            MethodOfPaymentSummary(methods)
+          }
+      ) ++
+        journey.getLeadDisplayDeclaration.get.getNdrcDutiesWithAmount
+          .map(_.map { case (taxCode, amount) =>
+            messageFromMessageKey(s"tax-code.$taxCode") -> Some(
+              amount.toPoundSterlingString
+            )
+          })
+          .get ++
+        Seq(
+          "Total" -> journey.getLeadDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+        )
+    )
+    getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
+      Seq(
+        "Name"    -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> journey.getLeadDisplayDeclaration.flatMap(d =>
+          d.displayResponseDetail.consigneeDetails.map(details =>
+            d.establishmentAddress(details.establishmentAddress).mkString(" ")
+          )
+        )
+      )
+    )
+    getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
+      Seq(
+        "Name"    -> journey.getLeadDisplayDeclaration.map(_.declarantName),
+        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> journey.getLeadDisplayDeclaration.map(d =>
+          d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
+        )
+      )
+    )
+  }
 
   def performAction(data: (String, String)*)(implicit controller: CheckDeclarationDetailsController): Future[Result] =
     controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
@@ -102,7 +195,7 @@ class CheckDeclarationDetailsControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+          doc => validateCheckDeclarationDetailsPage(doc, journey)
         )
       }
 
@@ -127,30 +220,7 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in forAll(Acc14Gen.genDisplayDeclaration) {
-        (displayDeclaration: DisplayDeclaration) =>
-          val journey        = session.overpaymentsMultipleJourney.get
-            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-            .getOrFail
-          val sessionToAmend = SessionData(journey)
-
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionToAmend)
-          }
-
-          checkPageIsDisplayed(
-            performAction("check-declaration-details" -> ""),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
-              doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-            },
-            expectedStatus = BAD_REQUEST
-          )
-      }
-
-      "submit when user selects Yes" in {
+      "submit" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -162,20 +232,8 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-declaration-details" -> "true"),
+          performAction(),
           routes.EnterMovementReferenceNumberController.show(1)
-        )
-      }
-
-      "submit when user selects No" in {
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-        }
-
-        checkIsRedirect(
-          performAction("check-declaration-details" -> "false"),
-          routes.EnterMovementReferenceNumberController.showFirst
         )
       }
     }

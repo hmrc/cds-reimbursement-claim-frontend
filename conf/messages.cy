@@ -189,7 +189,7 @@ check-import-declaration-details.card.import-details=Manylion y mewnforio
 check-import-declaration-details.card.security-deposits=Security deposits
 check-import-declaration-details.card.importer-details=Manylion y mewnforiwr
 check-import-declaration-details.card.declarant-details=Manylion y datganydd
-check-import-declaration-details.mrn-label=Cyfeirnod Symud (MRN)
+check-import-declaration-details.mrn-label=MRN
 check-import-declaration-details.reason-for-security-label=Pam oedd angen blaendal sicrwydd?
 check-import-declaration-details.import-declaration-details.h2=Manylion y datganiad mewnforio ar gyfer yr MRN hwn
 check-import-declaration-details.import-declaration-details.help-text=Gallwch <a href="{0}" rel="noreferrer noopener" target="_blank" class="govuk-link">gysylltu â CThEF os yw’r manylion yn anghywir (yn agor tab newydd)</a>.
@@ -203,6 +203,7 @@ check-import-declaration-details.importer-address-label=Cyfeiriad
 check-import-declaration-details.declarant-name-label=Enw
 check-import-declaration-details.declarant-email-label=E-bost
 check-import-declaration-details.declarant-address-label=Cyfeiriad
+check-import-declaration-details.method-of-payment-label=Dull talu
 
 check-eori-details.eori-correct=Iawn
 check-eori-details.eori-correct-label=A yw’r manylion hyn yn gywir?

@@ -16,18 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.data.Form
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 import scala.concurrent.Future
@@ -40,12 +35,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
   def continueRoute(journey: Journey): Call
   val enterMovementReferenceNumberRoute: Call
 
-  implicit val errorHandler: ErrorHandler
-
-  def viewTemplate: (DisplayDeclaration, Form[YesNo], Journey) => Request[?] => HtmlFormat.Appendable
-
-  val checkDeclarationDetailsAnswerForm: Form[YesNo] =
-    YesOrNoQuestionForm("check-declaration-details")
+  def viewTemplate: (DisplayDeclaration, Journey) => Request[?] => HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful(
@@ -53,7 +43,6 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
         Ok(
           viewTemplate(
             declaration,
-            checkDeclarationDetailsAnswerForm,
             journey
           )(request)
         )
@@ -61,34 +50,7 @@ trait CheckDeclarationDetailsMixin extends JourneyBaseController {
     )
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
-    checkDeclarationDetailsAnswerForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors =>
-          (
-            journey,
-            getDisplayDeclaration(journey)
-              .map(declaration =>
-                BadRequest(
-                  viewTemplate(
-                    declaration,
-                    formWithErrors,
-                    journey
-                  )(request)
-                )
-              )
-              .getOrElse(errorHandler.errorResult())
-          ),
-        answer =>
-          (
-            journey,
-            Redirect(answer match {
-              case Yes => continueRoute(journey)
-              case No  => enterMovementReferenceNumberRoute
-            })
-          )
-      )
+  final val submit: Action[AnyContent] = simpleActionReadJourney { journey =>
+    Redirect(continueRoute(journey))
   }
-
 }

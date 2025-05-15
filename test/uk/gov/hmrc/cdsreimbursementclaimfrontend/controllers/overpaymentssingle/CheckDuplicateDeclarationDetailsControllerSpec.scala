@@ -15,8 +15,10 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
-import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import org.scalacheck.Gen
+import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -36,12 +38,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJour
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class CheckDuplicateDeclarationDetailsControllerSpec
@@ -68,7 +75,94 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
-  val messagesKey: String = "check-declaration-details"
+  val messagesKey: String = "check-import-declaration-details"
+
+  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
+    doc.select(".govuk-summary-card").asScala.find { card =>
+      card.select(".govuk-summary-card__title").text() == title
+    }
+
+  def getSummaryList(card: Element): Seq[(String, String)] = {
+    val rows = card.select(".govuk-summary-list__row").asScala
+    rows.map { row =>
+      val key   = row.select(".govuk-summary-list__key").text
+      val value = row.select(".govuk-summary-list__value").text
+      key -> value
+    }.toSeq
+  }
+
+  def validateCheckDeclarationDetailsPage(
+    doc: Document,
+    journey: OverpaymentsSingleJourney
+  ): Assertion = {
+
+    val claimDetailsCard     = getSummaryCardByTitle(doc, "Claim details")
+    val importDetailsCard    = getSummaryCardByTitle(doc, "Import details")
+    val dutiesAndVATCard     = getSummaryCardByTitle(doc, "Duties and VAT")
+    val importerDetailsCard  = getSummaryCardByTitle(doc, "Importer details")
+    val declarantDetailsCard = getSummaryCardByTitle(doc, "Declarant details")
+
+    claimDetailsCard.isDefined     should not be false
+    importDetailsCard.isDefined    should not be false
+    dutiesAndVATCard.isDefined     should not be false
+    importerDetailsCard.isDefined  should not be false
+    declarantDetailsCard.isDefined should not be false
+
+    getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
+      Seq(
+        "MRN" -> journey.getDuplicateDisplayDeclaration.map(_.getMRN.value)
+      )
+    )
+    getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
+      Seq(
+        journey.getDuplicateDisplayDeclaration.get.getMaybeLRN match {
+          case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
+          case _         => ""                             -> None
+        },
+        "Date of import" -> DateUtils.displayFormat(
+          journey.getDuplicateDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+        )
+      )
+    )
+    getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
+      Seq(
+        "Method of payment" -> journey.getDuplicateDisplayDeclaration.get.getMethodsOfPayment
+          .map { methods =>
+            MethodOfPaymentSummary(methods)
+          }
+      ) ++
+        journey.getDuplicateDisplayDeclaration.get.getNdrcDutiesWithAmount
+          .map(_.map { case (taxCode, amount) =>
+            messageFromMessageKey(s"tax-code.$taxCode") -> Some(
+              amount.toPoundSterlingString
+            )
+          })
+          .get ++
+        Seq(
+          "Total" -> journey.getDuplicateDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+        )
+    )
+    getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
+      Seq(
+        "Name"    -> journey.getDuplicateDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> journey.getDuplicateDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> journey.getDuplicateDisplayDeclaration.flatMap(d =>
+          d.displayResponseDetail.consigneeDetails.map(details =>
+            d.establishmentAddress(details.establishmentAddress).mkString(" ")
+          )
+        )
+      )
+    )
+    getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
+      Seq(
+        "Name"    -> journey.getDuplicateDisplayDeclaration.map(_.declarantName),
+        "Email"   -> journey.getDuplicateDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> journey.getDuplicateDisplayDeclaration.map(d =>
+          d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
+        )
+      )
+    )
+  }
 
   val journeyGen: Gen[OverpaymentsSingleJourney] =
     for
@@ -80,7 +174,8 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       decl           = buildDisplayDeclaration(
                          id = mrn.value,
                          declarantEORI = declarantEori,
-                         consigneeEORI = Some(consigneeEori)
+                         consigneeEORI = Some(consigneeEori),
+                         Seq((TaxCode.A50, 100, false), (TaxCode.B00, 50, false))
                        )
     yield j1
       .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
@@ -109,16 +204,8 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
-            val expectedMainParagraph = Jsoup.parse(messageFromMessageKey(s"$messagesKey.help-text")).text()
-
-            doc
-              .select("main p")
-              .get(0)
-              .text()                                    shouldBe expectedMainParagraph
-            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-          }
+          messageFromMessageKey(s"$messagesKey.duplicate.title"),
+          doc => validateCheckDeclarationDetailsPage(doc, journey)
         )
       }
 
@@ -195,27 +282,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "reject an empty Yes/No answer" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-        }
-
-        checkPageIsDisplayed(
-          performAction("check-declaration-details" -> ""),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
-            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
-            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
-          },
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
-      "submit when user selects Yes" in {
+      "submit" in {
         val journey: OverpaymentsSingleJourney =
           journeyGen.sample.get
 
@@ -230,28 +297,10 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction("check-declaration-details" -> "true"),
+          performAction(),
           routes.EnterAdditionalDetailsController.show
         )
       }
-
-      "submit when user selects No" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-        }
-
-        checkIsRedirect(
-          performAction("check-declaration-details" -> "false"),
-          routes.EnterDuplicateMovementReferenceNumberController.submit
-        )
-
-      }
-
     }
   }
-
 }

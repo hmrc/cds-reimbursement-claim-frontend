@@ -10,8 +10,8 @@ POST        /overpayments/single/enter-importer-eori                            
 GET         /overpayments/single/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberController.show
 POST        /overpayments/single/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberController.submit
 
-GET         /overpayments/single/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.show
-POST        /overpayments/single/check-declaration-details                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.submit
+GET         /overpayments/single/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.show
+POST        /overpayments/single/check-mrn                                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDeclarationDetailsController.submit
 
 GET         /overpayments/single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimantDetailsController.show
 POST        /overpayments/single/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckClaimantDetailsController.submit
@@ -33,8 +33,8 @@ POST        /overpayments/single/enter-importer-eori-of-duplicate-declaration   
 GET         /overpayments/single/enter-declarant-eori-of-duplicate-declaration            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberOfDuplicateDeclarationController.show
 POST        /overpayments/single/enter-declarant-eori-of-duplicate-declaration            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterDeclarantEoriNumberOfDuplicateDeclarationController.submit
 
-GET         /overpayments/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.show
-POST        /overpayments/single/check-duplicate-declaration-details                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.submit
+GET         /overpayments/single/check-duplicate-mrn                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.show
+POST        /overpayments/single/check-duplicate-mrn                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.CheckDuplicateDeclarationDetailsController.submit
 
 GET         /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.show
 POST        /overpayments/single/choose-basis-for-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.BasisForClaimController.submit

@@ -10,8 +10,8 @@ POST         /rejected-goods/multiple/enter-importer-eori                       
 GET          /rejected-goods/multiple/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterDeclarantEoriNumberController.show
 POST         /rejected-goods/multiple/enter-declarant-eori                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterDeclarantEoriNumberController.submit
 
-GET          /rejected-goods/multiple/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.show
-POST         /rejected-goods/multiple/check-declaration-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.submit
+GET          /rejected-goods/multiple/check-mrn                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.show
+POST         /rejected-goods/multiple/check-mrn                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.submit
 
 GET          /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.show
 POST         /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.submit
