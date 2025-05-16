@@ -114,7 +114,7 @@ class ChooseReasonForSecurityControllerSpec
       ("Account Sales", "AccountSales"),
       ("Manual override of duty amount", "ManualOverrideDeposit"),
       ("Missing document: quota license", "MissingLicenseQuota"),
-      ("Missing document: preference", "MissingPreferenceCertificate"),
+      ("Missing proof of origin", "MissingPreferenceCertificate"),
       ("Revenue Dispute or Inland Pre-Clearance (IPC)", "RevenueDispute"),
       ("UKAP Entry Price", "UKAPEntryPrice"),
       ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
