@@ -184,6 +184,7 @@ check-declaration-details.card.total-deposit=Cyfanswm y blaendal neu warant
 
 
 check-import-declaration-details.title=Gwiriwch y Cyfeirnod Symud (MRN) a nodwyd gennych
+check-import-declaration-details.duplicate.title=Gwirio’r Cyfeirnod Symud (MRN) dyblyg
 check-import-declaration-details.card.claim-details=Manylion yr hawliad
 check-import-declaration-details.card.import-details=Manylion y mewnforio
 check-import-declaration-details.card.security-deposits=Security deposits
@@ -204,6 +205,7 @@ check-import-declaration-details.importer-address-label=Cyfeiriad
 check-import-declaration-details.declarant-name-label=Enw
 check-import-declaration-details.declarant-email-label=E-bost
 check-import-declaration-details.declarant-address-label=Cyfeiriad
+check-import-declaration-details.customs-duties-and-vat=Tollau a TAW
 check-import-declaration-details.method-of-payment-label=Dull talu
 
 check-eori-details.eori-correct=Iawn
