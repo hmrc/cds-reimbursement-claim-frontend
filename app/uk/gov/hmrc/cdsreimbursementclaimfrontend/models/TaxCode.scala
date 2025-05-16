@@ -28,7 +28,13 @@ sealed abstract class TaxCode(
   val isVAT: Boolean = false
 ) extends Product
     with Serializable {
+
   override def toString: String = value
+
+  private val order: Int = dutyType.ordinal * 100000
+    + exciseCategory.map(ec => ec.ordinal * 10000).getOrElse(0)
+    + value.headOption.filter(_.isLetter).map(_ * 1000).getOrElse(0)
+    + value.filter(_.isDigit).toIntOption.getOrElse(0)
 }
 
 object TaxCode {
@@ -171,16 +177,10 @@ object TaxCode {
   implicit val taxCodeEq: Eq[TaxCode]         = Eq.fromUniversalEquals[TaxCode]
   implicit val taxCodeFormat: Format[TaxCode] = SimpleStringFormat(TaxCode(_), _.value)
 
-  private inline def hash(tc: TaxCode) = tc.dutyType.ordinal * 10000
-    + tc.exciseCategory.map(ec => ec.ordinal * 1000).getOrElse(0)
-    + tc.value.filter(_.isDigit).toIntOption.getOrElse(0)
-
   implicit val ordering: Ordering[TaxCode] =
     Ordering.fromLessThan[TaxCode]((tc1, tc2) =>
-      val hash1 = hash(tc1)
-      val hash2 = hash(tc2)
-      if hash1 != hash2
-      then summon[Ordering[Int]].lt(hash1, hash2)
+      if tc1.order != tc2.order
+      then summon[Ordering[Int]].lt(tc1.order, tc2.order)
       else summon[Ordering[String]].lt(tc1.value, tc2.value)
     )
 }
