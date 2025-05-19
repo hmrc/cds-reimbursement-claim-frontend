@@ -50,7 +50,7 @@ class VerifiedEmailAddressConnectorSpec
         |        protocol = http
         |        host = localhost
         |        port = 9893
-        |        email-by-eori = "/customs-data-store/eori/:eori/verified-email"
+        |        email-by-eori = "/customs-data-store/eori/verified-email"
         |    }
         |   }
         |}
@@ -63,7 +63,7 @@ class VerifiedEmailAddressConnectorSpec
   "Custom Data Store Connector" must {
 
     val eori = sample[Eori]
-    val url  = URL(s"http://localhost:9893/customs-data-store/eori/${eori.value}/verified-email")
+    val url  = URL(s"http://localhost:9893/customs-data-store/eori/verified-email")
 
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
