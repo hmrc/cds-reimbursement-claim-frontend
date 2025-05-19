@@ -47,7 +47,7 @@ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components
     if(TaxCodes.custom.contains(taxCode))
         messages(s"enter-claim.title", taxCode, messages(s"select-duties.duty.${taxCode}"))
     else
-        messages(s"enter-claim.title.excise", messages(s"duty-type.${taxCode.dutyType.repr}"), messages(s"duty-type.${taxCode.dutyType.repr}"), taxCode.value)
+        messages(s"enter-claim.title.excise", messages(s"duty-type.${taxCode.dutyType.repr}"), taxCode.value, messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}"))
     }
 @caption = @{messages(s"enter-claim.title.caption")}
 

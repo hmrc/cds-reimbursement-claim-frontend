@@ -124,8 +124,8 @@ class EnterClaimControllerSpec
                   messageFromMessageKey(
                     "enter-claim.title.excise",
                     messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                   )
                 ,
                 doc => validateEnterClaimPage(doc, pageIndex, mrn, taxCode, None)
@@ -163,8 +163,8 @@ class EnterClaimControllerSpec
                   messageFromMessageKey(
                     "enter-claim.title.excise",
                     messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                   )
                 ,
                 doc => {
@@ -209,8 +209,8 @@ class EnterClaimControllerSpec
                     messageFromMessageKey(
                       "enter-claim.title.excise",
                       messages(s"duty-type.${taxCode.dutyType.repr}"),
-                      messages(s"duty-type.${taxCode.dutyType.repr}"),
-                      taxCode.value
+                      taxCode.value,
+                      messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                     )
                   ,
                   doc => {
@@ -323,8 +323,8 @@ class EnterClaimControllerSpec
                   messageFromMessageKey(
                     "enter-claim.title.excise",
                     messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    messages(s"duty-type.${taxCode.dutyType.repr}"),
-                    taxCode.value
+                    taxCode.value,
+                    messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                   )
                 ,
                 doc => {
