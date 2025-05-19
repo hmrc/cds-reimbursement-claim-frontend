@@ -184,7 +184,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BillOfDischarge4Controller.show
+          routes.CheckTotalImportDischargedController.show
         )
       }
 
@@ -332,7 +332,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
-          routes.BillOfDischarge4Controller.show
+          routes.CheckTotalImportDischargedController.show
         )
       }
     }

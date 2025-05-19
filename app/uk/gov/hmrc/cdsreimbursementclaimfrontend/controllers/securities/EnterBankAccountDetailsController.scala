@@ -64,7 +64,7 @@ object EnterBankAccountDetailsController {
     retryPath = routes.EnterBankAccountDetailsController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit,
     successPath = (journey: SecuritiesJourney) =>
-      if journey.reasonForSecurityIsIPR
+      if journey.reasonForSecurityIsIPROrENU
       then routes.EnterAdditionalDetailsController.show
       else if journey.reasonForSecurityIsNidac
       then routes.UploadProofOfOriginController.show

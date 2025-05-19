@@ -1910,11 +1910,17 @@ unauthorised.p1.li2=rydych wedi mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) ar
 unauthorised.p1.li3=nid yw’ch sefydliad wedi rhoi mynediad i chi - gofynnwch i’r person a sefydlodd y mynediad i’ch <a href="https://www.gov.uk/guidance/manage-team-members-using-your-hmrc-business-tax-account" class="govuk-link">ychwanegu chi fel aelod o’r tîm a rhoi mynediad i chi at y CDS</a>
 unauthorised.p2=<a href="https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in" class="govuk-link">Cael help os ydych yn cael trafferthion mewngofnodi o hyd</a>
 
-upload-bill-of-discharge-3.title=Bill of discharge (BOD) form
-upload-bill-of-discharge-3.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under inward-processing relief (IPR).
-upload-bill-of-discharge-3.h2=Add a BOD3 form
-upload-bill-of-discharge-3.choose.description=Upload your file
+upload-bill-of-discharge-3.title=Ffurflen bil rhyddhau (BOD)
+upload-bill-of-discharge-3.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 (yn agor tab newydd)</a> i’ch hawliad.
+upload-bill-of-discharge-3.h2=Ychwanegu ffurflen BOD3
+upload-bill-of-discharge-3.choose.description=Uwchlwytho’ch ffeil
 upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
+
+upload-bill-of-discharge-4.title=Ffurflen bil rhyddhau (BOD)
+upload-bill-of-discharge-4.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 (yn agor tab newydd)</a> i’ch hawliad.
+upload-bill-of-discharge-4.h2=Ychwanegu ffurflen BOD4
+upload-bill-of-discharge-4.choose.description=Uwchlwytho’ch ffeil
+upload-bill-of-discharge-4.error.file-upload.required=Upload bill of discharge (BOD4) form
 
 upload-proof-of-origin.title=Ychwanegwch dystiolaeth o darddiad
 upload-proof-of-origin.choose.description=Uwchlwytho’ch ffeil

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.scalatest.Assertion
@@ -42,12 +41,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*

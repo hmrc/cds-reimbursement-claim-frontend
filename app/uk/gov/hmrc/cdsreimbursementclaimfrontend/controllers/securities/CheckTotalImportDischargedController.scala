@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrEndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrENU
 
 @Singleton
 class CheckTotalImportDischargedController @Inject() (
@@ -50,7 +50,7 @@ class CheckTotalImportDischargedController @Inject() (
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
-        & reasonForSecurityIsIPROrEndUseRelief
+        & reasonForSecurityIsIPROrENU
     )
 
   // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
@@ -59,7 +59,7 @@ class CheckTotalImportDischargedController @Inject() (
 
   // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
-    Redirect(routes.BillOfDischarge4Controller.show)
+    Redirect(routes.UploadBillOfDischarge4Controller.show)
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
@@ -77,7 +77,7 @@ class CheckTotalImportDischargedController @Inject() (
           case Yes =>
             {
               if journey.reasonForSecurityIsIPR then successResultBOD3
-              else if journey.reasonForSecurityIsEndUseRelief then successResultBOD4
+              else if journey.reasonForSecurityIsENU then successResultBOD4
               else {
                 logAndDisplayError(
                   "Invalid journey routing",

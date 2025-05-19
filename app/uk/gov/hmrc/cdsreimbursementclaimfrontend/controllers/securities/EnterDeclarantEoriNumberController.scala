@@ -63,7 +63,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
   private val successResultBOD4: Result =
-    Redirect(routes.BillOfDischarge4Controller.show)
+    Redirect(routes.CheckTotalImportDischargedController.show)
 
   // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
@@ -184,6 +184,6 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   private def nextPage(journey: SecuritiesJourney) =
     if journey.reasonForSecurityIsIPR then successResultBOD3
-    else if journey.reasonForSecurityIsEndUseRelief then successResultBOD4
+    else if journey.reasonForSecurityIsENU then successResultBOD4
     else successResultSelectSecurities
 }

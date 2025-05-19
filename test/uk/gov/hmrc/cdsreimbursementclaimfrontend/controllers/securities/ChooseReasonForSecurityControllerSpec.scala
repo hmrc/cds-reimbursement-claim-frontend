@@ -508,7 +508,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.CheckTotalImportDischargedController.show
+            routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show
           )
         }
       }

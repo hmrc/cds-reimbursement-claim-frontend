@@ -274,12 +274,12 @@ final class SecuritiesJourney private (
 
   override def needsBanksAccountDetailsSubmission: Boolean =
     needsPayeeTypeSelection
-      && reasonForSecurityIsIPR
+      && reasonForSecurityIsIPROrENU
       || (getSelectedDepositIds.nonEmpty
         && !isAllSelectedDutiesAreGuaranteeEligible)
 
   override def needsPayeeTypeSelection: Boolean =
-    if reasonForSecurityIsIPR
+    if reasonForSecurityIsIPROrENU
     then !isAllDeclaredDutiesAreGuaranteeEligible
     else !isAllSelectedDutiesAreGuaranteeEligible
 
@@ -328,27 +328,29 @@ final class SecuritiesJourney private (
   def getReasonForSecurity: Option[ReasonForSecurity] =
     answers.reasonForSecurity
 
-  def reasonForSecurityIsIPR: Boolean =
+  inline def reasonForSecurityIsIPR: Boolean =
     answers.reasonForSecurity.contains(ReasonForSecurity.InwardProcessingRelief)
 
-  def reasonForSecurityIsEndUseRelief: Boolean =
+  inline def reasonForSecurityIsENU: Boolean =
     answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
+
+  inline def reasonForSecurityIsIPROrENU: Boolean =
+    reasonForSecurityIsIPR || reasonForSecurityIsENU
 
   def reasonForSecurityIsNidac: Boolean =
     answers.reasonForSecurity.exists(ReasonForSecurity.nidac.contains)
 
   def requiresBillOfDischargeForm: Boolean =
-    reasonForSecurityIsIPR || reasonForSecurityIsEndUseRelief
+    reasonForSecurityIsIPROrENU
 
   def needsReimbursementAmountSubmission: Boolean =
-    !reasonForSecurityIsIPR
+    !reasonForSecurityIsIPROrENU
 
   def needsOtherSupportingEvidence: Boolean =
     !needsAddOtherDocuments
 
   def needsAddOtherDocuments =
-    reasonForSecurityIsIPR
-    // || reasonForSecurityIsEndUseRelief
+    reasonForSecurityIsIPROrENU
       || reasonForSecurityIsNidac
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
@@ -1180,16 +1182,23 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         )
       )
 
-    val hasBillOfDischarge3DocumentsIfNeeded: Validate[SecuritiesJourney] =
+    val hasBillOfDischargeDocumentsIfNeeded: Validate[SecuritiesJourney] =
       conditionally[SecuritiesJourney](
         _.reasonForSecurityIsIPR,
         checkIsTrue(
           _.answers.billOfDischargeDocuments.nonEmpty,
           MISSING_BILL_OF_DISCHARGE_3_DOCUMENTS
         ),
-        checkIsTrue(
-          _.answers.billOfDischargeDocuments.isEmpty,
-          "unexpected BOD3 document, should be empty"
+        conditionally[SecuritiesJourney](
+          _.reasonForSecurityIsENU,
+          checkIsTrue(
+            _.answers.billOfDischargeDocuments.nonEmpty,
+            MISSING_BILL_OF_DISCHARGE_4_DOCUMENTS
+          ),
+          checkIsTrue(
+            _.answers.billOfDischargeDocuments.isEmpty,
+            "unexpected BOD documents, should be empty"
+          )
         )
       )
 
@@ -1214,17 +1223,17 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         INVALID_REASON_FOR_SECURITY
       )
 
-    val reasonForSecurityIsEndUseRelief: Validate[SecuritiesJourney] =
+    val reasonForSecurityIsENU: Validate[SecuritiesJourney] =
       checkIsTrue(
-        _.reasonForSecurityIsEndUseRelief,
+        _.reasonForSecurityIsENU,
         INVALID_REASON_FOR_SECURITY
       )
 
-    val reasonForSecurityIsIPROrEndUseRelief: Validate[SecuritiesJourney] =
+    val reasonForSecurityIsIPROrENU: Validate[SecuritiesJourney] =
       checkIsTrue(
         j =>
           j.reasonForSecurityIsIPR
-            || j.reasonForSecurityIsEndUseRelief,
+            || j.reasonForSecurityIsENU,
         INVALID_REASON_FOR_SECURITY
       )
 
@@ -1260,7 +1269,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         supportingEvidenceHasBeenProvided
       ),
       payeeTypeIsDefined,
-      hasBillOfDischarge3DocumentsIfNeeded,
+      hasBillOfDischargeDocumentsIfNeeded,
       hasProofOfOriginIfNeeded,
       paymentMethodHasBeenProvidedIfNeeded,
       additionalDetailsPageVisited

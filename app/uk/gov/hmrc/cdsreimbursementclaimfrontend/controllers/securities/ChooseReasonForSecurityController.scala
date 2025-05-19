@@ -116,10 +116,8 @@ class ChooseReasonForSecurityController @Inject() (
               journey,
               if journey.answers.modes.checkDeclarationDetailsChangeMode
               then Redirect(routes.CheckDeclarationDetailsController.show)
-              else if journey.reasonForSecurityIsIPR
+              else if journey.reasonForSecurityIsIPROrENU
               then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
-              else if journey.reasonForSecurityIsEndUseRelief
-              then Redirect(routes.CheckTotalImportDischargedController.show)
               else successResultSelectSecurities
             ).asFuture
           else
@@ -245,10 +243,8 @@ class ChooseReasonForSecurityController @Inject() (
             if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if journeyWithUpdatedStatus.reasonForSecurityIsIPR then {
+            } else if journeyWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
               Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
-            } else if journeyWithUpdatedStatus.reasonForSecurityIsEndUseRelief then {
-              Redirect(routes.CheckTotalImportDischargedController.show)
             } else successResultSelectSecurities
           )
         )
