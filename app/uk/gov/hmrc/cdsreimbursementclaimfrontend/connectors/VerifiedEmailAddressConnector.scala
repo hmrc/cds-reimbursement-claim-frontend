@@ -47,16 +47,13 @@ class DefaultVerifiedEmailAddressConnector @Inject() (http: HttpClientV2, servic
   val serviceName: String = "customs-data-store"
   val emailByEori: String = "email-by-eori"
 
-  def getUri(eori: Eori): String = {
-    val url =
-      servicesConfig.baseUrl(serviceName) + servicesConfig.getString(s"microservice.services.$serviceName.$emailByEori")
-    url.replaceAll("/:eori/", s"/${eori.value}/")
-  }
+  val uri: String =
+    servicesConfig.baseUrl(serviceName) + servicesConfig.getString(s"microservice.services.$serviceName.$emailByEori")
 
   def getVerifiedEmailAddress(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
-        .get(URL(getUri(eori)))
+        .get(URL(uri))
         .execute[HttpResponse]
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
