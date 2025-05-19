@@ -35,7 +35,10 @@ object BillOfDischargeDocumentsSummary {
   )(implicit
     messages: Messages
   ): SummaryList =
-    val ds = documents.filter(f => f.documentType == UploadDocumentType.BillOfDischarge3)
+    val ds = documents.filter(f =>
+      f.documentType == UploadDocumentType.BillOfDischarge3
+        || f.documentType == UploadDocumentType.BillOfDischarge4
+    )
     if ds.isEmpty then SummaryList()
     else
       SummaryList(

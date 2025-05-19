@@ -200,6 +200,10 @@ class CheckYourAnswersControllerSpec
           (if claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief
            then Some(expectedBillOfDischarge.mkString(" "))
            else None),
+        "Bill of discharge 4"                        ->
+          (if claim.reasonForSecurity == ReasonForSecurity.EndUseRelief
+           then Some(expectedBillOfDischarge.mkString(" "))
+           else None),
         "Proof of origin"                            ->
           (if ReasonForSecurity.nidac.contains(claim.reasonForSecurity)
            then Some(expectedProofOfOrigin.mkString(" "))

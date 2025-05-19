@@ -46,7 +46,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
-        & reasonForSecurityIsIPR
+        & reasonForSecurityIsIPROrENU
     )
 
   final val show: Action[AnyContent] =

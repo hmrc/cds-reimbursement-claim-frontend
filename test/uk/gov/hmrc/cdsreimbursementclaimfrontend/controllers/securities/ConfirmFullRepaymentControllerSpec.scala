@@ -134,7 +134,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "AC1: Arrive on page; display the page on a complete journey" in
-        forAll(completeJourneyWithoutIPRGen) { journey =>
+        forAll(completeJourneyWithoutIPROrENUGen) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
@@ -160,7 +160,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "redirect to the error page if we have arrived with an invalid security deposit ID" in {
-        mrnWithtRfsWithDisplayDeclarationWithoutIPRGen.sample.map { case (mrn, rfs, decl) =>
+        mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen.sample.map { case (mrn, rfs, decl) =>
           val initialJourney = emptyJourney
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)

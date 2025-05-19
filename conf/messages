@@ -1975,6 +1975,12 @@ upload-bill-of-discharge-3.h2=Add a BOD3 form
 upload-bill-of-discharge-3.choose.description=Upload your file
 upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
 
+upload-bill-of-discharge-4.title=Bill of discharge (BOD) form
+upload-bill-of-discharge-4.help-text.para1=You need to add a completed <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 form (opens in new tab)</a> to your claim. This tells HMRC how you disposed of the goods you imported using an authorisation by declaration under authorised-use relief (Great Britain) or end-use relief (Northern Ireland).
+upload-bill-of-discharge-4.h2=Add a BOD4 form
+upload-bill-of-discharge-4.choose.description=Upload your file
+upload-bill-of-discharge-4.error.file-upload.required=Upload bill of discharge (BOD4) form
+
 upload-proof-of-origin.title=Add proof of origin
 upload-proof-of-origin.choose.description=Upload your file
 upload-proof-of-origin.error.file-upload.required=Upload proof of origin

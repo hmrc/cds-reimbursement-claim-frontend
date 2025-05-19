@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -79,68 +79,8 @@ class BillOfDischarge4ControllerSpec
         .split("<a href")
         .head
 
-    "show page" must {
-      def showBod4Page: Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(showBod4Page) shouldBe NOT_FOUND
-      }
-
-      "display the page if securities feature is enabled (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkPageIsDisplayed(
-          showBod4Page,
-          messageFromMessageKey(s"$confirmBodMessagesKey.bod4.title"),
-          implicit doc => {
-            messageFromMessageKey(s"$confirmBodMessagesKey.bod4.p1") should include(getContentsOfParagraph(1))
-            messageFromMessageKey(s"$confirmBodMessagesKey.p2")      should include(getContentsOfParagraph(2))
-          }
-        )
-      }
-    }
-
-    "submitting Yes/No form" must {
-
-      def submitBod4Action(data: (String, String)*): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "select 'Yes' should redirect to select securities page (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod4Action(confirmBodMessagesKey -> "true"),
-          routes.SelectSecuritiesController.showFirst()
-        )
-      }
-
-      "select 'No' should redirect to 'Bill of Discharge' error page (BOD4)" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
-        }
-
-        checkIsRedirect(
-          submitBod4Action(confirmBodMessagesKey -> "false"),
-          routes.BillOfDischarge4Controller.invalid
-        )
-      }
-    }
-
     "Bill of Discharge Error page" must {
+
       def invalidBod4Action: Future[Result] = controller.invalid()(FakeRequest())
 
       val errorBodMessagesKey: String = s"$confirmBodMessagesKey-error"
@@ -150,7 +90,12 @@ class BillOfDischarge4ControllerSpec
         status(invalidBod4Action) shouldBe NOT_FOUND
       }
 
-      "display the page if securities feature is enabled (BOD4)" in forAll(completeJourneyGen) { journey =>
+      "display the page if securities feature is enabled (BOD4)" in forSomeWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyENUGen,
+          journeyBuilder = buildSecuritiesJourneyReadyForENU
+        )
+      ) { case (journey, _) =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {

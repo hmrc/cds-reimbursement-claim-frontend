@@ -61,7 +61,7 @@ class UploadFilesController @Inject() (
   final def nextPageInJourney(journey: Journey): Call =
     if journey.hasCompleteAnswers
     then routes.CheckYourAnswersController.show
-    else if journey.reasonForSecurityIsIPR
+    else if journey.reasonForSecurityIsIPROrENU
     then routes.ChoosePayeeTypeController.show
     else routes.EnterAdditionalDetailsController.show
 

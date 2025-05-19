@@ -157,12 +157,9 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       // Option B
       case (ReasonForSecurity.EndUseRelief, _, proofOfAuthorityOpt)                 =>
         Seq[UploadDocumentType](
-          ImportDeclaration,
-          ExportDeclaration,
-          ExportPackingList,
-          SubstituteOrDiversionEntry,
-          BillOfDischarge4
+          ExportDeclaration
         ) +? proofOfAuthorityOpt
+          + SubstituteOrDiversionEntry
           + Other
 
       // Option I
@@ -260,6 +257,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
 
   def isUploadedSeparately(document: UploadDocumentType): Boolean =
     document == BillOfDischarge3
+      || document == BillOfDischarge4
       || document == ScheduleOfMRNs
       || document == ProofOfOrigin
 

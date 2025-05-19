@@ -180,7 +180,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPRGen,
+          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
           journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
         )
       ) { case (journey, _) =>

@@ -110,7 +110,12 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   lazy val mrnWithRfsWithDisplayDeclarationGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
+      rfs   <-
+        Gen.oneOf(
+          ReasonForSecurity.values
+            - ReasonForSecurity.InwardProcessingRelief
+            - ReasonForSecurity.EndUseRelief
+        )
       acc14 <- securitiesDisplayDeclarationGuaranteeEligibleGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
@@ -129,11 +134,18 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, rfs, acc14)
 
-  lazy val mrnWithtRfsWithDisplayDeclarationWithoutIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
-    mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief)
+  lazy val mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    mrnWithRfsWithDisplayDeclarationGen(
+      ReasonForSecurity.values
+        - ReasonForSecurity.InwardProcessingRelief
+        - ReasonForSecurity.EndUseRelief
+    )
 
   lazy val mrnWithtRfsWithDisplayDeclarationOnlyIPRGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     mrnWithRfsWithDisplayDeclarationGen(Set(ReasonForSecurity.InwardProcessingRelief))
+
+  lazy val mrnWithtRfsWithDisplayDeclarationOnlyENUGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+    mrnWithRfsWithDisplayDeclarationGen(Set(ReasonForSecurity.EndUseRelief))
 
   lazy val mrnWithtRfsWithDisplayDeclarationOnlyNidacGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.nidac)
@@ -224,7 +236,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, rfs, acc14)
 
-  lazy val mrnWithIprOrEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  lazy val mrnWithIPROrENURfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
       rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
@@ -251,7 +263,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, rfs, acc14)
 
-  lazy val mrnWithIprRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  lazy val mrnWithIPRRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -261,7 +273,7 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
                )
     yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
 
-  lazy val mrnWithEurRfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
+  lazy val mrnWithENURfsWithDisplayDeclarationGen: Gen[(MRN, ReasonForSecurity, DisplayDeclaration)] =
     for
       mrn   <- IdGen.genMRN
       acc14 <- securitiesDisplayDeclarationGen.map(
@@ -323,14 +335,21 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
   def completeJourneyGenWithReasonsForSecurity(reasonsForSecurity: Set[ReasonForSecurity]): Gen[SecuritiesJourney] =
     buildCompleteJourneyGen(reasonsForSecurity = reasonsForSecurity)
 
-  val completeJourneyWithoutIPRGen: Gen[SecuritiesJourney] =
+  val completeJourneyWithoutIPROrENUGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen(
-      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+      reasonsForSecurity = ReasonForSecurity.values
+        - ReasonForSecurity.InwardProcessingRelief
+        - ReasonForSecurity.EndUseRelief
     )
 
   val completeJourneyOnlyIPRGen: Gen[SecuritiesJourney] =
     buildCompleteJourneyGen(
       reasonsForSecurity = Set(ReasonForSecurity.InwardProcessingRelief)
+    )
+
+  val completeJourneyOnlyENUGen: Gen[SecuritiesJourney] =
+    buildCompleteJourneyGen(
+      reasonsForSecurity = Set(ReasonForSecurity.EndUseRelief)
     )
 
   val completeJourneyOnlyNidacGen: Gen[SecuritiesJourney] =
@@ -498,8 +517,18 @@ object SecuritiesJourneyGenerators extends JourneyGenerators with SecuritiesJour
           supportingEvidences = supportingEvidencesExpanded,
           billOfDischargeDocuments =
             if rfs == ReasonForSecurity.InwardProcessingRelief
+              || rfs == ReasonForSecurity.EndUseRelief
             then
-              exampleUploadedFiles.map(_.copy(fileName = "bod.pdf", cargo = Some(UploadDocumentType.BillOfDischarge3)))
+              exampleUploadedFiles.map(
+                _.copy(
+                  fileName = "bod.pdf",
+                  cargo = Some(
+                    if rfs == ReasonForSecurity.InwardProcessingRelief
+                    then UploadDocumentType.BillOfDischarge3
+                    else UploadDocumentType.BillOfDischarge4
+                  )
+                )
+              )
             else Seq.empty,
           proofOfOriginDocuments =
             if ReasonForSecurity.nidac.contains(rfs)

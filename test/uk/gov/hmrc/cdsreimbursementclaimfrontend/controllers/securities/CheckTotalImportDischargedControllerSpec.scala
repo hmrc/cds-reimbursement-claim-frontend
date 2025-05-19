@@ -117,7 +117,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "display page" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -148,7 +148,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to BOD3 form when yes is selected and RFS is InwardProcessingRelief" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPRRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -165,7 +165,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to BOD4 form when yes is selected and RFS is EndUseRelief" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithEurRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithENURfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -176,13 +176,13 @@ class CheckTotalImportDischargedControllerSpec
 
         checkIsRedirect(
           performAction(Some(true)),
-          routes.BillOfDischarge4Controller.show
+          routes.UploadBillOfDischarge4Controller.show
         )
       }
 
       "redirect to correct error page when no is selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>
@@ -199,7 +199,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "stay on the same page and display error message when no option selected" in forAllWith(
         JourneyGenerator(
-          testParamsGenerator = mrnWithIprOrEurRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
         )
       ) { case (journey, _) =>

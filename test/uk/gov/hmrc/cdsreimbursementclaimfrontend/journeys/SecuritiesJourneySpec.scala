@@ -384,7 +384,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept change of the depositIds selection with another valid one" in {
-      forAll(completeJourneyWithoutIPRGen) { journey =>
+      forAll(completeJourneyWithoutIPROrENUGen) { journey =>
         val existingDepositIds = journey.getSelectedDepositIds
         val newDepositIds      = journey.getSecurityDepositIds
           .takeExcept(existingDepositIds)
@@ -645,7 +645,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     }
 
     "accept change of the taxCodes selection with another valid one" in {
-      forAll(completeJourneyWithoutIPRGen) { journey =>
+      forAll(completeJourneyWithoutIPROrENUGen) { journey =>
         val depositId: String                   = journey.getSelectedDepositIds.head
         val validTaxCodeSelection: Seq[TaxCode] = journey.getSecurityTaxCodesFor(depositId).secondHalfNonEmpty
 
