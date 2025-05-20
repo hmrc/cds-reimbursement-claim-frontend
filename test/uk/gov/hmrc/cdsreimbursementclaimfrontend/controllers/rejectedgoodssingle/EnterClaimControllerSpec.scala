@@ -200,8 +200,8 @@ class EnterClaimControllerSpec
               messageFromMessageKey(
                 "enter-claim.title.excise",
                 messages(s"duty-type.${taxCode.dutyType.repr}"),
-                messages(s"duty-type.${taxCode.dutyType.repr}"),
-                taxCode.value
+                taxCode.value,
+                messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
               )
             ,
             assertPageContent(_, journey, taxCode, None)
@@ -232,8 +232,8 @@ class EnterClaimControllerSpec
                 messageFromMessageKey(
                   "enter-claim.title.excise",
                   messages(s"duty-type.${taxCode.dutyType.repr}"),
-                  messages(s"duty-type.${taxCode.dutyType.repr}"),
-                  taxCode.value
+                  taxCode.value,
+                  messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                 )
               ,
               assertPageContent(_, journey, taxCode, actualAmountOpt)
@@ -352,8 +352,8 @@ class EnterClaimControllerSpec
                       messageFromMessageKey(
                         "enter-claim.title.excise",
                         messages(s"duty-type.${taxCode.dutyType.repr}"),
-                        messages(s"duty-type.${taxCode.dutyType.repr}"),
-                        taxCode.value
+                        taxCode.value,
+                        messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                       )
                     ,
                     doc => {
@@ -389,8 +389,8 @@ class EnterClaimControllerSpec
               messageFromMessageKey(
                 "enter-claim.title.excise",
                 messages(s"duty-type.${taxCode.dutyType.repr}"),
-                messages(s"duty-type.${taxCode.dutyType.repr}"),
-                taxCode.value
+                taxCode.value,
+                messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
               )
             ,
             doc => {
