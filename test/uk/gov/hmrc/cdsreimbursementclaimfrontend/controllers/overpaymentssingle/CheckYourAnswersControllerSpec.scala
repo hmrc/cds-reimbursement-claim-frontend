@@ -46,9 +46,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayRespo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -99,7 +102,8 @@ class CheckYourAnswersControllerSpec
   def validateCheckYourAnswersPage(
     doc: Document,
     journey: OverpaymentsSingleJourney,
-    claim: OverpaymentsSingleJourney.Output
+    claim: OverpaymentsSingleJourney.Output,
+    isPrintView: Boolean
   ) = {
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -111,7 +115,7 @@ class CheckYourAnswersControllerSpec
     summaryValues should not be empty
 
     headers.toSeq should containOnlyDefinedElementsOf(
-      "Movement Reference Number (MRN)".expectedAlways,
+      "Movement Reference Number (MRN)".expectedWhen(!isPrintView),
       "Declaration details".expectedAlways,
       "Contact details for this claim".expectedAlways,
       "Claim details".expectedAlways,
@@ -119,7 +123,7 @@ class CheckYourAnswersControllerSpec
       "Repayment details".expectedAlways,
       "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
-      "Now send your claim".expectedAlways
+      "Now send your claim".expectedWhen(!isPrintView)
     )
 
     val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration
@@ -131,9 +135,12 @@ class CheckYourAnswersControllerSpec
             .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
       }
 
+    val submissionDate: LocalDateTime = journey.submissionDateTime.getOrElse(LocalDateTime.now())
+
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "MRN"               -> Some(claim.movementReferenceNumber.value),
+        if (isPrintView) "Movement Reference Number (MRN)" -> Some(claim.movementReferenceNumber.value)
+        else "MRN"                                         -> Some(claim.movementReferenceNumber.value),
         "Import date"       -> declarationDetails.map(_.acceptanceDate),
         "Method of payment" -> Some(
           MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
@@ -172,6 +179,18 @@ class CheckYourAnswersControllerSpec
         ++ claim.reimbursements.map { r =>
           m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)
         }
+        ++ (if (isPrintView) {
+              Seq(
+                "Claim reference number" -> journey.caseNumber.map(_.value),
+                "Amount requested"       -> Some(claim.reimbursements.map(_.amount).sum.toPoundSterlingString),
+                "Submitted"              -> Some(
+                  s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
+                    " " ++ toDisplayDate(submissionDate.toLocalDate)
+                )
+              )
+            } else {
+              Seq.empty
+            })
     )
 
     claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)
@@ -221,7 +240,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, journey, claim)
+            doc => validateCheckYourAnswersPage(doc, journey, claim, false)
           )
         }
       }
@@ -255,7 +274,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, journey, claim)
+            doc => validateCheckYourAnswersPage(doc, journey, claim, false)
           )
         }
       }
@@ -318,6 +337,112 @@ class CheckYourAnswersControllerSpec
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.showConfirmation)
         }
 
+      }
+    }
+
+    "Show print page" must {
+
+      def performAction(): Future[Result] = controller.showPrintView(FakeRequest())
+
+      "not find the page if overpayments feature is disabled" in {
+        featureSwitch.disable(Feature.Overpayments_v2)
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "display the page if journey has complete answers" in {
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.print-view.title"),
+            doc => validateCheckYourAnswersPage(doc, updatedJourney, claim, true)
+          )
+        }
+      }
+
+      "display method of payment when declaration has only subsidy payments" in {
+        forAll(
+          genCaseNumber,
+          buildCompleteJourneyGen(
+            acc14DeclarantMatchesUserEori = false,
+            acc14ConsigneeMatchesUserEori = false,
+            generateSubsidyPayments = GenerateSubsidyPayments.All,
+            features = Some(
+              OverpaymentsSingleJourney
+                .Features(
+                  shouldBlockSubsidies = false,
+                  shouldAllowSubsidyOnlyPayments = true,
+                  shouldSkipDocumentTypeSelection = false
+                )
+            ),
+            submitBankAccountDetails = false,
+            submitBankAccountType = false
+          )
+        ) { (caseNumber, j) =>
+          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
+          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.print-view.title"),
+            doc => validateCheckYourAnswersPage(doc, updatedJourney, claim, true)
+          )
+        }
+      }
+
+      "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
+        val journey =
+          buildCompleteJourneyGen(
+            generateSubsidyPayments = GenerateSubsidyPayments.Some,
+            features = Some(
+              OverpaymentsSingleJourney.Features(
+                shouldBlockSubsidies = true,
+                shouldAllowSubsidyOnlyPayments = false,
+                shouldSkipDocumentTypeSelection = false
+              )
+            )
+          ).sample.getOrElse(fail())
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
+      }
+
+      "redirect to the proper page if any answer is missing" in {
+        val journey =
+          OverpaymentsSingleJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .getOrFail
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
     }
 
