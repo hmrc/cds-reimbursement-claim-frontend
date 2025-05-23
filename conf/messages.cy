@@ -1735,7 +1735,7 @@ select-duty-codes.h1.eu-duty=yr UE
 select-duty-codes.h1.uk-duty=y DU
 select-duty-codes.hidden-help=Defnyddiwch y nodwedd ’chwilio’ ar eich porwr i ddod o hyd i gynnwys ar y dudalen.
 select-duty-codes.p1=Dewiswch bob math o doll rydych am ei hawlio ar gyfer yr holl MRNau yn y ffeil crynodeb o’r hawliad y gwnaethoch ei huwchlwytho.
-select-duty-codes.subsidy-text=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau.
+select-duty-codes.hint=Dewiswch yr holl fathau o dollau rydych chi am eu hawlio ar gyfer pob Cyfeirnod Symud (MRNs) yn eich hawliad
 select-duty-codes.title=Pa dollau {0} rydych am hawlio ar eu cyfer?
 select-duty-codes.title.caption=Manylion yr hawliad
 select-duty-codes.uk-trade-tariff-guidance=Gallwch gael rhagor o wybodaeth am dollau yn ein <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">harweiniad ar Dariff Masnach y DU (yn agor tab newydd)</a> sy’n rhoi gwybodaeth am ble i ddod o hyd i’r tollau a dalwyd.
