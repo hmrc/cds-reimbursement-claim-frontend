@@ -27,18 +27,14 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
-    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
-    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
 @(dutyType: DutyType, form: Form[List[TaxCode]], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"select-duty-codes.title", messages(s"select-duty-codes.h1.${dutyType.repr}"))}
-@caption = @{messages(s"select-duty-codes.title.caption")}
 
 @options = @{
     if (isSubsidy) {
@@ -70,28 +66,14 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), caption = caption)
-
-    @paragraph(Html(messages(s"select-duty-codes.p1")))
-
-    @dropdownDetails(summary = s"select-duty-codes.details.heading",
-        html(
-            paragraph(Html(messages(s"select-duty-codes.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)))
-        )
-    )
-
-    @paragraph(Html(messages(s"select-duty-codes.hidden-help")), classes = Some("govuk-body govuk-visually-hidden"))
-
-    @if(isSubsidy) {
-        @paragraph(Html(messages(s"select-duty-codes.subsidy-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
-    }
-
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @checkboxes(
             field = form(s"select-duty-codes"),
-            legend = HtmlContent(messages(s"duty-type.${dutyType.repr}")),
-            legendAsHeading = false,
+            legend = HtmlContent(title),
+            legendAsHeading = true,
+            legendClasses = Some("govuk-fieldset__legend--l"),
+            hint = Some(Html(messages("select-duty-codes.hint"))),
             items = options
         )
 
