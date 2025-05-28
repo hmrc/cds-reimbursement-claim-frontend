@@ -1735,7 +1735,9 @@ select-duty-codes.error.required=Select one or more duty types you want to claim
 select-duty-codes.hidden-help=Use the find feature of your web browser to search for content on the page.
 select-duty-codes.p1=Select all duty types you want to claim for all Movement Reference Numbers (MRNs) in the claim summary file you uploaded.
 select-duty-codes.hint=Select all the duty types you want to claim for all Movement Reference Numbers (MRNs) in your claim
-select-duty-codes.title=Which {0} duties do you want to claim for?
+select-duty-codes.title.uk-duty=Which UK duties do you want to claim for?
+select-duty-codes.title.eu-duty=Which EU duties do you want to claim for?
+select-duty-codes.title.excise-duty=Which excise duties do you want to claim for?
 select-duty-codes.title.caption=Claim details
 select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 
