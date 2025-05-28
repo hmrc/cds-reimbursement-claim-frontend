@@ -92,10 +92,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           controller.show(dutyType)(FakeRequest()),
-          messageFromMessageKey(
-            "select-duty-codes.title",
-            messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
-          ),
+          messageFromMessageKey(s"select-duty-codes.title.${dutyType.repr}"),
           doc => {
             selectedCheckBox(doc) shouldBe empty
             formAction(doc)       shouldBe routes.SelectDutiesController.submit(dutyType).url
@@ -114,10 +111,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             controller.show(dutyType)(FakeRequest()),
-            messageFromMessageKey(
-              "select-duty-codes.title",
-              messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
-            )
+            messageFromMessageKey(s"select-duty-codes.title.${dutyType.repr}")
           )
       }
 
@@ -188,10 +182,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             controller.show(dutyType)(FakeRequest()),
-            messageFromMessageKey(
-              "select-duty-codes.title",
-              messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
-            ),
+            messageFromMessageKey(s"select-duty-codes.title.${dutyType.repr}"),
             doc => isCheckboxChecked(doc, taxCode.value) shouldBe true
           )
       }
@@ -297,10 +288,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           controller.submit(dutyType)(FakeRequest().withFormUrlEncodedBody(s"select-duty-codes" -> "")),
-          messageFromMessageKey(
-            "select-duty-codes.title",
-            messageFromMessageKey(s"select-duty-codes.h1.${dutyType.repr}")
-          ),
+          messageFromMessageKey(s"select-duty-codes.title.${dutyType.repr}"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
