@@ -69,8 +69,8 @@ class CheckYourAnswersControllerSpec
     response: Future[OverpaymentsSingleClaimConnector.Response]
   ) =
     (mockConnector
-      .submitClaim(_: OverpaymentsSingleClaimConnector.Request)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *)
+      .submitClaim(_: OverpaymentsSingleClaimConnector.Request, _: Boolean)(_: HeaderCarrier))
+      .expects(submitClaimRequest, *, *)
       .returning(response)
 
   def mockWipeOutCall() =

@@ -36,6 +36,13 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Failure
 import scala.util.Try
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.http.HeaderCarrier
+import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.ZoneId
+import java.net.URL
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 
 class OverpaymentsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -70,8 +77,16 @@ class OverpaymentsSingleClaimConnectorSpec
   override protected def afterAll(): Unit =
     actorSystem.terminate()
 
+  val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
+
   val connector =
-    new OverpaymentsSingleClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new OverpaymentsSingleClaimConnectorImpl(
+      http = mockHttp,
+      servicesConfig = new ServicesConfig(config),
+      configuration = config,
+      actorSystem = actorSystem,
+      uploadDocumentsConnector = mockUploadDocumentsConnector
+    )
 
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-single"
 
@@ -84,8 +99,26 @@ class OverpaymentsSingleClaimConnectorSpec
   val sampleRequest: OverpaymentsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                       = """{"caseNumber":"ABC123"}"""
 
-  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+  def givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
+
+  val expectedUploadDocumentsLocation: String = "http://foo:123/bar/upload-mrn-list"
+
+  def mockInitializeCall(existingFile: Option[UploadedFile] = None) =
+    (mockUploadDocumentsConnector
+      .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
+      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
+        request.existingFiles.map(_.upscanReference) == existingFile.toList.map(_.upscanReference)
+      })
+      .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
+
+  def mockUploadFileCall(uploadedFile: UploadedFile) =
+    (mockUploadDocumentsConnector
+      .uploadFile(_: UploadDocumentsConnector.FileToUpload)(_: HeaderCarrier))
+      .expects(where[UploadDocumentsConnector.FileToUpload, HeaderCarrier] { case (fileToUpload, _) =>
+        fileToUpload.contentType == "text/plain"
+      })
+      .returning(Future.successful(Some(uploadedFile)))
 
   "OverpaymentsSingleClaimConnector" must {
     "have retries defined" in {
@@ -94,35 +127,44 @@ class OverpaymentsSingleClaimConnectorSpec
 
     "return caseNumber when successful call" in {
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
       givenServiceReturns(HttpResponse(200, "")).once()
       a[OverpaymentsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid response" in {
       givenServiceReturns(HttpResponse(200, """{"case":"ABC123"}""")).once()
       a[OverpaymentsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid success response status" in {
       givenServiceReturns(HttpResponse(201, validResponseBody)).once()
       a[OverpaymentsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
-    "throw exception when 4xx response status" in {
+    "throw exception when 404 response status" in {
       givenServiceReturns(HttpResponse(404, "case not found")).once()
-      Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
+      Try(await(connector.submitClaim(sampleRequest, false))) shouldBe Failure(
         new OverpaymentsSingleClaimConnector.Exception(
           "Request to POST http://host3:123/foo-claim/claims/overpayments-single failed because of HttpResponse status=404 case not found"
+        )
+      )
+    }
+
+    "throw exception when 403 response status" in {
+      givenServiceReturns(HttpResponse(403, "forbidden")).once()
+      Try(await(connector.submitClaim(sampleRequest, false))) shouldBe Failure(
+        new OverpaymentsSingleClaimConnector.Exception(
+          "Request to POST http://host3:123/foo-claim/claims/overpayments-single failed because of HttpResponse status=403 forbidden"
         )
       )
     }
@@ -133,22 +175,55 @@ class OverpaymentsSingleClaimConnectorSpec
       givenServiceReturns(HttpResponse(500, "")).once()
 
       a[OverpaymentsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "accept valid response in a second attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
     }
 
+    "retry claim submission with a free text input extracted as a separate files when 403 FORBIDDEN" in {
+      val uploadedFile = UploadedFile(
+        upscanReference = s"upscan-reference-123",
+        fileName = s"test.txt",
+        downloadUrl = s"https://foo.bar/test.txt",
+        uploadTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.of("Europe/London")),
+        checksum = "A" * 64,
+        fileMimeType = s"text/plain",
+        fileSize = Some(12)
+      )
+      mockInitializeCall().once()
+      mockUploadFileCall(uploadedFile).once()
+
+      givenServiceReturns(HttpResponse(403, "forbidden"))
+      mockHttpPost(URL(expectedUrl)).once()
+      mockRequestBuilderWithBody(
+        Json.toJson(
+          sampleRequest.copy(claim =
+            sampleRequest.claim
+              .excludeFreeTextInputs()
+              ._2
+              .copy(supportingEvidences =
+                sampleRequest.claim.supportingEvidences :+ EvidenceDocument.from(uploadedFile)
+              )
+          )
+        )
+      ).once()
+      mockRequestBuilderTransform().once()
+      mockRequestBuilderExecuteWithoutException(HttpResponse(200, validResponseBody)).once()
+
+      await(connector.submitClaim(sampleRequest, true)) shouldBe OverpaymentsSingleClaimConnector.Response("ABC123")
+    }
   }
+
 }
