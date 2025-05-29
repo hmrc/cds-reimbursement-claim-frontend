@@ -45,10 +45,10 @@ trait HttpV2Support { this: MockFactory & Matchers =>
   val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
 
   def mockHttpPostSuccess[A](url: String, requestBody: JsValue, hasHeaders: Boolean = false)(response: A) = {
-    mockHttpPost(URL(url))
-    mockRequestBuilderWithBody(requestBody)
-    if hasHeaders then mockRequestBuilderTransform()
-    mockRequestBuilderExecuteWithoutException(response)
+    mockHttpPost(URL(url)).once()
+    mockRequestBuilderWithBody(requestBody).once()
+    if hasHeaders then mockRequestBuilderTransform().once()
+    mockRequestBuilderExecuteWithoutException(response).once()
   }
 
   def mockHttpPostWithException(
@@ -95,13 +95,13 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .expects(url, *)
       .returning(mockRequestBuilder)
 
-  private def mockHttpPost[A](url: URL) =
+  def mockHttpPost[A](url: URL) =
     (mockHttp
       .post(_: URL)(_: HeaderCarrier))
       .expects(url, *)
       .returning(mockRequestBuilder)
 
-  private def mockRequestBuilderWithBody[JsValue](
+  def mockRequestBuilderWithBody[JsValue](
     body: JsValue
   ): CallHandler4[JsValue, BodyWritable[JsValue], Tag[JsValue], ExecutionContext, RequestBuilder] =
     (mockRequestBuilder
@@ -109,7 +109,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .expects(body, *, *, *)
       .returning(mockRequestBuilder)
 
-  private def mockRequestBuilderWithString(
+  def mockRequestBuilderWithString(
     body: String
   ) =
     (mockRequestBuilder
@@ -117,7 +117,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .expects(body, *, *, *)
       .returning(mockRequestBuilder)
 
-  private def mockRequestBuilderExecuteWithoutException[A](
+  def mockRequestBuilderExecuteWithoutException[A](
     value: A
   ): CallHandler2[HttpReads[A], ExecutionContext, Future[A]] =
     (mockRequestBuilder
@@ -125,13 +125,13 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .expects(*, *)
       .returning(Future successful value)
 
-  private def mockRequestBuilderTransform() =
+  def mockRequestBuilderTransform() =
     (mockRequestBuilder
       .transform(_: WSRequest => WSRequest))
       .expects(*)
       .returning(mockRequestBuilder)
 
-  private def mockRequestBuilderExecuteWithException[A](
+  def mockRequestBuilderExecuteWithException[A](
     ex: Exception
   ) =
     (mockRequestBuilder

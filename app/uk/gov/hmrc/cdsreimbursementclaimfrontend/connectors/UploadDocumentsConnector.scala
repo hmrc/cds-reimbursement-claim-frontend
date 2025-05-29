@@ -21,7 +21,6 @@ import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import org.apache.pekko.actor.ActorSystem
 import play.api.http.HeaderNames
-import play.api.libs.json.Format
 import play.api.libs.json.Json
 import play.api.Configuration
 import play.api.Logger
@@ -51,6 +50,11 @@ trait UploadDocumentsConnector {
     hc: HeaderCarrier
   ): Future[Response]
 
+  // Uploads single file content
+  def uploadFile(fileToUpload: FileToUpload)(implicit
+    hc: HeaderCarrier
+  ): Future[Option[UploadedFile]]
+
   /** Wipes-out upload-documents-frontend session state with related file information, prevents futher file preview.
     * Upscan uploads remain intact.
     */
@@ -65,6 +69,16 @@ object UploadDocumentsConnector {
     config: UploadDocumentsSessionConfig,
     existingFiles: Seq[UploadedFile]
   )
+
+  import play.api.libs.json.Format
+  import play.api.libs.json.JsValue
+  import play.api.libs.json.Json
+
+  case class FileToUpload(uploadId: String, name: String, contentType: String, content: Array[Byte])
+
+  object FileToUpload {
+    given Format[FileToUpload] = Json.format[FileToUpload]
+  }
 
   implicit val requestFormat: Format[Request] = Json.format[Request]
 }
@@ -104,6 +118,20 @@ class UploadDocumentsConnectorImpl @Inject() (
             s"Request to POST ${uploadDocumentsConfig.initializationUrl} failed because of $response ${response.body.take(1024)}"
           )
         )
+    )
+
+  override def uploadFile(fileToUpload: FileToUpload)(implicit
+    hc: HeaderCarrier
+  ): Future[Option[UploadedFile]] =
+    retry(uploadDocumentsConfig.retryIntervals*)(shouldRetry, retryReason)(
+      http
+        .post(URL(uploadDocumentsConfig.uploadFileUrl))
+        .withBody(Json.toJson(fileToUpload))
+        .execute[HttpResponse]
+    ).flatMap(response =>
+      if response.status === 201 then {
+        Future.successful(response.json.asOpt[UploadedFile])
+      } else Future.successful(None)
     )
 
   override def wipeOut(implicit hc: HeaderCarrier): Future[Unit] =
