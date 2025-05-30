@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler1
-import org.scalamock.handlers.CallHandler2
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -63,12 +62,10 @@ class CheckYourAnswersControllerSpec
 
   def mockSubmitClaim(submitClaimRequest: OverpaymentsScheduledClaimConnector.Request)(
     response: Future[OverpaymentsScheduledClaimConnector.Response]
-  ): CallHandler2[OverpaymentsScheduledClaimConnector.Request, HeaderCarrier, Future[
-    OverpaymentsScheduledClaimConnector.Response
-  ]] =
+  ) =
     (mockConnector
-      .submitClaim(_: OverpaymentsScheduledClaimConnector.Request)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *)
+      .submitClaim(_: OverpaymentsScheduledClaimConnector.Request, _: Boolean)(_: HeaderCarrier))
+      .expects(submitClaimRequest, *, *)
       .returning(response)
 
   def mockWipeOutCall(): CallHandler1[HeaderCarrier, Future[Unit]] =
