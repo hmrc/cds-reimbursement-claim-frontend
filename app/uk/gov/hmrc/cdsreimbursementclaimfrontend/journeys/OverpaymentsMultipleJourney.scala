@@ -837,7 +837,14 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument],
     newEoriAndDan: Option[NewEoriAndDan]
-  )
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", additionalDetails)),
+        this.copy(additionalDetails = "Additional details are attached as a separate text file")
+      )
+  }
 
   import com.github.arturopala.validator.Validator._
   import JourneyValidationErrors._
