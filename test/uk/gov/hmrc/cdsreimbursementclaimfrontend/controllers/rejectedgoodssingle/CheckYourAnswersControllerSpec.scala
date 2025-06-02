@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler1
-import org.scalamock.handlers.CallHandler2
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -64,12 +63,10 @@ class CheckYourAnswersControllerSpec
 
   def mockSubmitClaim(submitClaimRequest: RejectedGoodsSingleClaimConnector.Request)(
     response: Future[RejectedGoodsSingleClaimConnector.Response]
-  ): CallHandler2[RejectedGoodsSingleClaimConnector.Request, HeaderCarrier, Future[
-    RejectedGoodsSingleClaimConnector.Response
-  ]] =
+  ) =
     (mockConnector
-      .submitClaim(_: RejectedGoodsSingleClaimConnector.Request)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *)
+      .submitClaim(_: RejectedGoodsSingleClaimConnector.Request, _: Boolean)(_: HeaderCarrier))
+      .expects(submitClaimRequest, *, *)
       .returning(response)
 
   def mockWipeOutCall(): CallHandler1[HeaderCarrier, Future[Unit]] =

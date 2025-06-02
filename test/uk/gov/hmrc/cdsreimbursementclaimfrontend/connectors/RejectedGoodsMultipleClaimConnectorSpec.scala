@@ -36,13 +36,21 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Failure
 import scala.util.Try
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import java.net.URL
+import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.ZoneId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
 class RejectedGoodsMultipleClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
     with HttpV2Support
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with WafErrorMitigationTestHelper {
 
   val config: Configuration = Configuration(
     ConfigFactory.parseString(
@@ -71,7 +79,13 @@ class RejectedGoodsMultipleClaimConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new RejectedGoodsMultipleClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new RejectedGoodsMultipleClaimConnectorImpl(
+      http = mockHttp,
+      servicesConfig = new ServicesConfig(config),
+      configuration = config,
+      actorSystem = actorSystem,
+      uploadDocumentsConnector = mockUploadDocumentsConnector
+    )
 
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-multiple"
 
@@ -87,6 +101,11 @@ class RejectedGoodsMultipleClaimConnectorSpec
   val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
 
+  def givenServiceReturnsRequest(
+    request: RejectedGoodsMultipleClaimConnector.Request
+  ): HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpPostSuccess(expectedUrl, Json.toJson(request), hasHeaders = true)(_)
+
   "RejectedGoodsMultipleClaimConnector" must {
     "have retries defined" in {
       connector.retryIntervals shouldBe Seq(FiniteDuration(10, "ms"), FiniteDuration(50, "ms"))
@@ -94,33 +113,33 @@ class RejectedGoodsMultipleClaimConnectorSpec
 
     "return caseNumber when successful call" in {
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
       givenServiceReturns(HttpResponse(200, "")).once()
       a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid response" in {
       givenServiceReturns(HttpResponse(200, """{"case":"ABC123"}""")).once()
       a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid success response status" in {
       givenServiceReturns(HttpResponse(201, validResponseBody)).once()
       a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when 4xx response status" in {
       givenServiceReturns(HttpResponse(404, "case not found")).once()
-      Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
+      Try(await(connector.submitClaim(sampleRequest, false))) shouldBe Failure(
         new RejectedGoodsMultipleClaimConnector.Exception(
           "Request to POST http://host3:123/foo-claim/claims/rejected-goods-multiple failed because of HttpResponse status=404 case not found"
         )
@@ -133,21 +152,61 @@ class RejectedGoodsMultipleClaimConnectorSpec
       givenServiceReturns(HttpResponse(500, "")).once()
 
       a[RejectedGoodsMultipleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "accept valid response in a second attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsMultipleClaimConnector.Response("ABC123")
+    }
+
+    "retry claim submission with a free text input extracted as a separate files when 403 FORBIDDEN and none special circumstances" in {
+      val request = sampleRequest.copy(claim =
+        sampleRequest.claim.copy(
+          basisOfClaim = BasisOfRejectedGoodsClaim.Defective,
+          basisOfClaimSpecialCircumstances = None
+        )
+      )
+
+      val uploadedFile = UploadedFile(
+        upscanReference = s"upscan-reference-123",
+        fileName = s"test.txt",
+        downloadUrl = s"https://foo.bar/test.txt",
+        uploadTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.of("Europe/London")),
+        checksum = "A" * 64,
+        fileMimeType = s"text/plain",
+        fileSize = Some(12)
+      )
+      mockInitializeCall().once()
+      mockUploadFileCall(uploadedFile).once()
+
+      givenServiceReturnsRequest(request)(HttpResponse(403, "forbidden"))
+      mockHttpPost(URL(expectedUrl)).once()
+      mockRequestBuilderWithBody(
+        Json.toJson(
+          request.copy(claim =
+            request.claim
+              .excludeFreeTextInputs()
+              ._2
+              .copy(supportingEvidences = request.claim.supportingEvidences :+ EvidenceDocument.from(uploadedFile))
+          )
+        )
+      ).once()
+      mockRequestBuilderTransform().once()
+      mockRequestBuilderExecuteWithoutException(HttpResponse(200, validResponseBody)).once()
+
+      await(connector.submitClaim(request, true)) shouldBe RejectedGoodsMultipleClaimConnector.Response(
+        "ABC123"
+      )
     }
 
   }

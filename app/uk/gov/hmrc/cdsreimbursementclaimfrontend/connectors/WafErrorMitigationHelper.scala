@@ -42,30 +42,26 @@ trait WafErrorMitigationHelper {
           )
       )
       .flatMap { _ =>
-        Future
-          .sequence(
-            freeTexts
-              .filter(_._2.trim().nonEmpty)
-              .map((prefix, text) =>
-                uploadDocumentsConnector
-                  .uploadFile(
-                    FileToUpload(
-                      uploadId = s"$prefix",
-                      name = s"$prefix.txt",
-                      contentType = "text/plain",
-                      content = text.getBytes(StandardCharsets.UTF_8)
-                    )
-                  )
-                  .map(
-                    _.map(uf =>
-                      EvidenceDocument
-                        .from(uf)
-                        .copy(fileMimeType = "text/plain")
-                    )
-                  )
-              )
+        freeTexts
+          .filter(_._2.trim().nonEmpty)
+          .map((prefix, text) =>
+            FileToUpload(
+              uploadId = s"$prefix",
+              name = s"$prefix.txt",
+              contentType = "text/plain",
+              content = text.getBytes(StandardCharsets.UTF_8)
+            )
           )
-          .map(_.collect { case Some(x) => x })
+          .foldLeft(Future.successful(Seq.empty))((result, file) =>
+            result.flatMap(sequence =>
+              uploadDocumentsConnector
+                .uploadFile(file)
+                .map {
+                  case Some(upload) => sequence :+ EvidenceDocument.from(upload).copy(fileMimeType = "text/plain")
+                  case None         => sequence
+                }
+            )
+          )
       }
 
   private def uploadDocumentsSessionConfig: UploadDocumentsSessionConfig =

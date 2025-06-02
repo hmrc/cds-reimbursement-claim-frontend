@@ -102,7 +102,7 @@ class CheckYourAnswersController @Inject() (
             },
             output =>
               overpaymentsScheduledClaimConnector
-                .submitClaim(OverpaymentsScheduledClaimConnector.Request(output))
+                .submitClaim(OverpaymentsScheduledClaimConnector.Request(output), true)
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."

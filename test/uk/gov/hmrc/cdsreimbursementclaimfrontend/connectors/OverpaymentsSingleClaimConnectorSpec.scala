@@ -28,28 +28,28 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Failure
 import scala.util.Try
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.http.HeaderCarrier
-import java.time.ZonedDateTime
-import java.time.Instant
-import java.time.ZoneId
-import java.net.URL
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 
 class OverpaymentsSingleClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
     with HttpV2Support
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with WafErrorMitigationTestHelper {
 
   val config: Configuration = Configuration(
     ConfigFactory.parseString(
@@ -77,8 +77,6 @@ class OverpaymentsSingleClaimConnectorSpec
   override protected def afterAll(): Unit =
     actorSystem.terminate()
 
-  val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
-
   val connector =
     new OverpaymentsSingleClaimConnectorImpl(
       http = mockHttp,
@@ -101,24 +99,6 @@ class OverpaymentsSingleClaimConnectorSpec
 
   def givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
-
-  val expectedUploadDocumentsLocation: String = "http://foo:123/bar/upload-mrn-list"
-
-  def mockInitializeCall(existingFile: Option[UploadedFile] = None) =
-    (mockUploadDocumentsConnector
-      .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
-      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
-        request.existingFiles.map(_.upscanReference) == existingFile.toList.map(_.upscanReference)
-      })
-      .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
-
-  def mockUploadFileCall(uploadedFile: UploadedFile) =
-    (mockUploadDocumentsConnector
-      .uploadFile(_: UploadDocumentsConnector.FileToUpload)(_: HeaderCarrier))
-      .expects(where[UploadDocumentsConnector.FileToUpload, HeaderCarrier] { case (fileToUpload, _) =>
-        fileToUpload.contentType == "text/plain"
-      })
-      .returning(Future.successful(Some(uploadedFile)))
 
   "OverpaymentsSingleClaimConnector" must {
     "have retries defined" in {

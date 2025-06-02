@@ -40,7 +40,7 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[RejectedGoodsSingleClaimConnectorImpl])
 trait RejectedGoodsSingleClaimConnector {
-  def submitClaim(claimRequest: RejectedGoodsSingleClaimConnector.Request)(implicit
+  def submitClaim(claimRequest: RejectedGoodsSingleClaimConnector.Request, mitigate403: Boolean)(implicit
     hc: HeaderCarrier
   ): Future[RejectedGoodsSingleClaimConnector.Response]
 }
@@ -50,11 +50,13 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
   http: HttpClientV2,
   servicesConfig: ServicesConfig,
   configuration: Configuration,
-  val actorSystem: ActorSystem
+  val actorSystem: ActorSystem,
+  val uploadDocumentsConnector: UploadDocumentsConnector
 )(implicit
   ec: ExecutionContext
 ) extends RejectedGoodsSingleClaimConnector
-    with Retries {
+    with Retries
+    with WafErrorMitigationHelper {
 
   import RejectedGoodsSingleClaimConnector._
 
@@ -64,7 +66,7 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
   lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-single"
   lazy val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
 
-  override def submitClaim(claimRequest: Request)(implicit
+  override def submitClaim(claimRequest: Request, mitigate403: Boolean)(implicit
     hc: HeaderCarrier
   ): Future[Response] =
     retry(retryIntervals*)(shouldRetry, retryReason)(
@@ -78,11 +80,26 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
         response
           .parseJSON[Response]()
           .fold(error => Future.failed(Exception(error)), Future.successful)
+      else if response.status == 403 && mitigate403
+      then retrySubmitWithFreeTextInputAttachedAsAFile(claimRequest)
       else
         Future.failed(
           Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
         )
     )
+
+  def retrySubmitWithFreeTextInputAttachedAsAFile(claimRequest: Request)(implicit
+    hc: HeaderCarrier
+  ): Future[Response] = {
+    val (freeTexts, sanitizedClaim) = claimRequest.claim.excludeFreeTextInputs()
+    uploadFreeTextsAsSeparateFiles(freeTexts)
+      .flatMap(freeTextUploads =>
+        submitClaim(
+          Request(sanitizedClaim.copy(supportingEvidences = sanitizedClaim.supportingEvidences ++ freeTextUploads)),
+          mitigate403 = false
+        )
+      )
+  }
 }
 
 object RejectedGoodsSingleClaimConnector {

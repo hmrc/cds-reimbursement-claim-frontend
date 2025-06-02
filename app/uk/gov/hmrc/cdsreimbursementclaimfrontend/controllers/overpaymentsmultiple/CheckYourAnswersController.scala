@@ -102,7 +102,7 @@ class CheckYourAnswersController @Inject() (
             },
             output =>
               overpaymentsMultipleClaimConnector
-                .submitClaim(OverpaymentsMultipleClaimConnector.Request(output))
+                .submitClaim(OverpaymentsMultipleClaimConnector.Request(output), mitigate403 = true)
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumbers

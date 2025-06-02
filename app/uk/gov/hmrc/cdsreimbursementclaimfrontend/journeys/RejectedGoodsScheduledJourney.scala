@@ -617,7 +617,19 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
     bankAccountDetails: Option[BankAccountDetails],
     scheduledDocument: EvidenceDocument,
     supportingEvidences: Seq[EvidenceDocument]
-  )
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", detailsOfRejectedGoods))
+          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
+        this.copy(
+          detailsOfRejectedGoods = "Additional details are attached as a separate text file",
+          basisOfClaimSpecialCircumstances =
+            basisOfClaimSpecialCircumstances.map(_ => "Attached as a separate text file")
+        )
+      )
+  }
 
   import com.github.arturopala.validator.Validator._
   import JourneyValidationErrors._
