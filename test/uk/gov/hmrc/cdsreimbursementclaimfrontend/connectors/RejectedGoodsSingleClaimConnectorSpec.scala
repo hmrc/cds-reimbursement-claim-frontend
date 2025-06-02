@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import java.time.Instant
 import java.time.ZoneId
 import java.net.URL
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
 class RejectedGoodsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -98,8 +99,13 @@ class RejectedGoodsSingleClaimConnectorSpec
   val sampleRequest: RejectedGoodsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                        = """{"caseNumber":"ABC123"}"""
 
-  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+  def givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
+
+  def givenServiceReturnsRequest(
+    request: RejectedGoodsSingleClaimConnector.Request
+  ): HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpPostSuccess(expectedUrl, Json.toJson(request), hasHeaders = true)(_)
 
   "RejectedGoodsSingleClaimConnector" must {
     "have retries defined" in {
@@ -164,7 +170,14 @@ class RejectedGoodsSingleClaimConnectorSpec
       await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 
-    "retry claim submission with a free text input extracted as a separate files when 403 FORBIDDEN" in {
+    "retry claim submission with a free text input extracted as a separate files when 403 FORBIDDEN and none special circumstances" in {
+      val request      = sampleRequest.copy(claim =
+        sampleRequest.claim
+          .copy(
+            basisOfClaim = BasisOfRejectedGoodsClaim.Defective,
+            basisOfClaimSpecialCircumstances = None
+          )
+      )
       val uploadedFile = UploadedFile(
         upscanReference = s"upscan-reference-123",
         fileName = s"test.txt",
@@ -177,24 +190,22 @@ class RejectedGoodsSingleClaimConnectorSpec
       mockInitializeCall().once()
       mockUploadFileCall(uploadedFile).once()
 
-      givenServiceReturns(HttpResponse(403, "forbidden"))
+      givenServiceReturnsRequest(request)(HttpResponse(403, "forbidden"))
       mockHttpPost(URL(expectedUrl)).once()
       mockRequestBuilderWithBody(
         Json.toJson(
-          sampleRequest.copy(claim =
-            sampleRequest.claim
+          request.copy(claim =
+            request.claim
               .excludeFreeTextInputs()
               ._2
-              .copy(supportingEvidences =
-                sampleRequest.claim.supportingEvidences :+ EvidenceDocument.from(uploadedFile)
-              )
+              .copy(supportingEvidences = request.claim.supportingEvidences :+ EvidenceDocument.from(uploadedFile))
           )
         )
       ).once()
       mockRequestBuilderTransform().once()
       mockRequestBuilderExecuteWithoutException(HttpResponse(200, validResponseBody)).once()
 
-      await(connector.submitClaim(sampleRequest, true)) shouldBe RejectedGoodsSingleClaimConnector.Response(
+      await(connector.submitClaim(request, true)) shouldBe RejectedGoodsSingleClaimConnector.Response(
         "ABC123"
       )
     }

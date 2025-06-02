@@ -105,7 +105,7 @@ class CheckYourAnswersController @Inject() (
             },
             output =>
               rejectedGoodsMultipleClaimConnector
-                .submitClaim(RejectedGoodsMultipleClaimConnector.Request(output))
+                .submitClaim(RejectedGoodsMultipleClaimConnector.Request(output), mitigate403 = true)
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumbers.mkString(",")} with case number ${response.caseNumber}."

@@ -60,8 +60,8 @@ class CheckYourAnswersControllerSpec
     response: Future[RejectedGoodsMultipleClaimConnector.Response]
   ) =
     (mockConnector
-      .submitClaim(_: RejectedGoodsMultipleClaimConnector.Request)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *)
+      .submitClaim(_: RejectedGoodsMultipleClaimConnector.Request, _: Boolean)(_: HeaderCarrier))
+      .expects(submitClaimRequest, *, *)
       .returning(response)
 
   def mockWipeOutCall() =
