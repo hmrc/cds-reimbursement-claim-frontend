@@ -37,12 +37,20 @@ import scala.concurrent.duration.FiniteDuration
 import scala.util.Failure
 import scala.util.Try
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import java.time.ZonedDateTime
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import java.time.Instant
+import java.time.ZoneId
+import java.net.URL
+
 class RejectedGoodsSingleClaimConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
     with HttpV2Support
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with WafErrorMitigationTestHelper {
 
   val config: Configuration = Configuration(
     ConfigFactory.parseString(
@@ -71,7 +79,13 @@ class RejectedGoodsSingleClaimConnectorSpec
     actorSystem.terminate()
 
   val connector =
-    new RejectedGoodsSingleClaimConnectorImpl(mockHttp, new ServicesConfig(config), config, actorSystem)
+    new RejectedGoodsSingleClaimConnectorImpl(
+      mockHttp,
+      new ServicesConfig(config),
+      config,
+      actorSystem,
+      mockUploadDocumentsConnector
+    )
 
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-single"
 
@@ -94,33 +108,33 @@ class RejectedGoodsSingleClaimConnectorSpec
 
     "return caseNumber when successful call" in {
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 
     "throw exception when empty response" in {
       givenServiceReturns(HttpResponse(200, "")).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid response" in {
       givenServiceReturns(HttpResponse(200, """{"case":"ABC123"}""")).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when invalid success response status" in {
       givenServiceReturns(HttpResponse(201, validResponseBody)).once()
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "throw exception when 4xx response status" in {
       givenServiceReturns(HttpResponse(404, "case not found")).once()
-      Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
+      Try(await(connector.submitClaim(sampleRequest, false))) shouldBe Failure(
         new RejectedGoodsSingleClaimConnector.Exception(
           "Request to POST http://host3:123/foo-claim/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
         )
@@ -133,21 +147,56 @@ class RejectedGoodsSingleClaimConnectorSpec
       givenServiceReturns(HttpResponse(500, "")).once()
 
       a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
+        await(connector.submitClaim(sampleRequest, false))
       }
     }
 
     "accept valid response in a second attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
     }
 
     "accept valid response in a third attempt" in {
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(500, "")).once()
       givenServiceReturns(HttpResponse(200, validResponseBody)).once()
-      await(connector.submitClaim(sampleRequest)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+      await(connector.submitClaim(sampleRequest, false)) shouldBe RejectedGoodsSingleClaimConnector.Response("ABC123")
+    }
+
+    "retry claim submission with a free text input extracted as a separate files when 403 FORBIDDEN" in {
+      val uploadedFile = UploadedFile(
+        upscanReference = s"upscan-reference-123",
+        fileName = s"test.txt",
+        downloadUrl = s"https://foo.bar/test.txt",
+        uploadTimestamp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.of("Europe/London")),
+        checksum = "A" * 64,
+        fileMimeType = s"text/plain",
+        fileSize = Some(12)
+      )
+      mockInitializeCall().once()
+      mockUploadFileCall(uploadedFile).once()
+
+      givenServiceReturns(HttpResponse(403, "forbidden"))
+      mockHttpPost(URL(expectedUrl)).once()
+      mockRequestBuilderWithBody(
+        Json.toJson(
+          sampleRequest.copy(claim =
+            sampleRequest.claim
+              .excludeFreeTextInputs()
+              ._2
+              .copy(supportingEvidences =
+                sampleRequest.claim.supportingEvidences :+ EvidenceDocument.from(uploadedFile)
+              )
+          )
+        )
+      ).once()
+      mockRequestBuilderTransform().once()
+      mockRequestBuilderExecuteWithoutException(HttpResponse(200, validResponseBody)).once()
+
+      await(connector.submitClaim(sampleRequest, true)) shouldBe RejectedGoodsSingleClaimConnector.Response(
+        "ABC123"
+      )
     }
 
   }
