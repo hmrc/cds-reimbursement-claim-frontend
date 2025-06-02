@@ -97,7 +97,7 @@ class CheckYourAnswersController @Inject() (
             },
             output =>
               securitiesClaimConnector
-                .submitClaim(SecuritiesClaimConnector.Request(output))
+                .submitClaim(SecuritiesClaimConnector.Request(output), mitigate403 = true)
                 .flatMap { response =>
                   logger.info(
                     s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."

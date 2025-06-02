@@ -1115,7 +1115,18 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
     temporaryAdmissionMethodsOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]],
     exportMovementReferenceNumber: Option[Seq[MRN]],
     additionalDetails: Option[String] = None
-  )
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      additionalDetails
+        .map(value =>
+          (
+            Seq(("additional_details", value)),
+            this.copy(additionalDetails = Some("Additional details are attached as a separate text file"))
+          )
+        )
+        .getOrElse((Seq.empty, this))
+  }
 
   import JourneyValidationErrors._
   import com.github.arturopala.validator.Validator._
