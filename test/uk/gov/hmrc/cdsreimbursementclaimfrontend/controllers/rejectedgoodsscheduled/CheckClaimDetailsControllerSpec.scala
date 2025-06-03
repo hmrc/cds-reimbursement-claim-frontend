@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
+import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -28,15 +29,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.CheckClaimDetailsController.checkClaimDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 
 import scala.concurrent.Future
 
@@ -44,7 +48,8 @@ class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with ClaimsTableValidator {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -62,17 +67,58 @@ class CheckClaimDetailsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.enable(Feature.RejectedGoods)
 
+  def assertPageContent(
+    doc: Document,
+    journey: RejectedGoodsScheduledJourney
+  ): Unit = {
+    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements)
+    val nonExciseDutyClaims          = journey.getNonExciseDutyClaims
+    val selectedExciseCategoryClaims = journey.getSelectedExciseCategoryClaims
+    val selectedExciseCategories     = selectedExciseCategoryClaims.keys.map(_.repr).toList
+
+    validateClaimsTablesForScheduled(
+      doc,
+      nonExciseDutyClaims,
+      selectedExciseCategoryClaims,
+      routes.EnterClaimController.show
+    )
+
+    summaryKeyValueList(doc) should containOnlyPairsOf(
+      Seq(
+        m("check-claim.duty-types-summary.key") -> claims.keys
+          .map(dutyType => m(s"select-duty-types.${dutyType.repr}"))
+          .mkString(" "),
+        m("check-claim.table.total")            -> journey.getTotalReimbursementAmount.toPoundSterlingString
+      ) ++
+        nonExciseDutyClaims.map { case (dutyType, claims) =>
+          m(s"select-duty-codes.title.${dutyType.repr}") -> claims
+            .map(claim => m(s"tax-code.${claim.taxCode}"))
+            .mkString(" ")
+        } ++
+        Seq(
+          m("select-duty-codes.title.excise-duty") -> selectedExciseCategories
+            .map(category => m(s"excise-category.$category"))
+            .mkString(" ")
+        ).filter(_ => selectedExciseCategoryClaims.nonEmpty) ++
+        selectedExciseCategoryClaims
+          .map { case (category, claims) =>
+            m(
+              s"check-claim.duties-selected-summary.key",
+              s"${m(s"excise-category.${category.repr}").headOption.map(_.toLower).getOrElse("")}${m(s"excise-category.${category.repr}").tail}"
+            ) -> claims.map(claim => m(s"tax-code.${claim.taxCode}")).mkString(" ")
+          }
+          .filter(_ => selectedExciseCategoryClaims.nonEmpty)
+    )
+  }
+
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Claim Details Controller" should {
     def performActionShow(): Future[Result] =
       controller.show(FakeRequest())
 
-    def performActionSubmit(value: String): Future[Result] =
-      controller.submit(
-        FakeRequest()
-          .withFormUrlEncodedBody(checkClaimDetailsKey -> value)
-      )
+    def performActionSubmit(data: (String, String)*): Future[Result] =
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     "not find the page if rejected goods feature is disabled" in {
       featureSwitch.disable(Feature.RejectedGoods)
@@ -105,8 +151,8 @@ class CheckClaimDetailsControllerSpec
 
           checkPageIsDisplayed(
             performActionShow(),
-            messageFromMessageKey(messageKey = s"$checkClaimDetailsKey.scheduled.title"),
-            doc => formAction(doc) shouldBe routes.CheckClaimDetailsController.submit.url
+            messageFromMessageKey("check-claim.scheduled.title"),
+            assertPageContent(_, journey)
           )
         }
       }
@@ -116,11 +162,10 @@ class CheckClaimDetailsControllerSpec
 
       "fail if rejected goods feature is disabled" in {
         featureSwitch.disable(Feature.RejectedGoods)
-        status(performActionSubmit("true"))  shouldBe NOT_FOUND
-        status(performActionSubmit("false")) shouldBe NOT_FOUND
+        status(performActionSubmit()) shouldBe NOT_FOUND
       }
 
-      "redirect to the next page if the answer is yes if not all of the questions have been answered" in
+      "redirect to the next page if not all of the questions have been answered" in
         forAll(completeJourneyGen) { completeJourney =>
           val incompleteJourney = completeJourney.submitContactDetails(None)
 
@@ -129,10 +174,10 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(incompleteJourney))
           }
 
-          checkIsRedirect(performActionSubmit("true"), routes.EnterInspectionDateController.show)
+          checkIsRedirect(performActionSubmit(), routes.EnterInspectionDateController.show)
         }
 
-      "redirect to the check your answers page if the answer is yes if all of the questions have been answered" in {
+      "redirect to the check your answers page if all of the questions have been answered" in {
         forAll(completeJourneyGen) { journey =>
           assert(journey.hasCompleteReimbursementClaims)
 
@@ -141,22 +186,7 @@ class CheckClaimDetailsControllerSpec
             mockGetSession(SessionData(journey))
           }
 
-          checkIsRedirect(performActionSubmit("true"), routes.CheckYourAnswersController.show)
-        }
-      }
-
-      "redirect back to select duty types page if the answer is no" in {
-        forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
-
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-          }
-
-          checkIsRedirect(performActionSubmit("false"), routes.SelectDutyTypesController.show)
-
+          checkIsRedirect(performActionSubmit(), routes.CheckYourAnswersController.show)
         }
       }
     }

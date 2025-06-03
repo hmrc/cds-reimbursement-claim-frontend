@@ -24,6 +24,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
@@ -107,15 +108,20 @@ trait ClaimsTableValidator {
       case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, Some(dutyType)) =>
         val suffix = s"$dutyType-$taxCode"
 
+        val selectedClaimText =
+          if (taxCode.exciseCategory.isEmpty) s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+          else s"${m(s"excise-category.${taxCode.exciseCategory.get.repr}")} ($taxCode)"
+
         doc
           .getElementById(s"selected-claim-$suffix")
-          .text()                                          shouldBe s"$taxCode - ${m(s"select-duties.duty.$taxCode")}"
+          .text()                                          shouldBe selectedClaimText
         doc.getElementById(s"full-amount-$suffix").text()  shouldBe paidAmount.toPoundSterlingString
         doc.getElementById(s"claim-amount-$suffix").text() shouldBe amount.toPoundSterlingString
         doc.getElementById(s"change-$suffix").html()       shouldBe m(
-          "check-claim.table.change-link",
+          "check-claim.table.scheduled.change-link",
           claimAction(dutyType, taxCode).url,
-          s"change-link-$suffix"
+          s"change-link-$suffix",
+          m("check-claim.duty-claim-amount.hidden", selectedClaimText)
         )
       case ReimbursementWithCorrectAmount(taxCode, amount, paidAmount, _, None)           =>
         val suffix = s"$taxCode"
@@ -128,16 +134,23 @@ trait ClaimsTableValidator {
 
   def validateClaimsTablesForScheduled(
     doc: Document,
-    reimbursements: Map[String, List[ReimbursementWithCorrectAmount]],
+    reimbursements: Map[DutyType, List[ReimbursementWithCorrectAmount]],
+    exciseReimbursements: Map[ExciseCategory, List[ReimbursementWithCorrectAmount]],
     claimAction: (DutyType, TaxCode) => Call
   )(implicit
     m: Messages
-  ): immutable.Iterable[Assertion] =
-    reimbursements.map { claims =>
-      validateClaimsTableHeaders(doc, s"-${claims._1}")
-      validateRowsForScheduled(doc, claims._2, claimAction)
-      validateDutyTotalRow(doc, claims._2, s"${claims._1}")
+  ): immutable.Iterable[Assertion] = {
+    reimbursements.map { (dutyType, claims) =>
+      validateClaimsTableHeaders(doc, s"-${dutyType.repr}")
+      validateRowsForScheduled(doc, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${dutyType.repr}")
     }
+    exciseReimbursements.map { (exciseCategory, claims) =>
+      validateClaimsTableHeaders(doc, s"-${exciseCategory.repr}")
+      validateRowsForScheduled(doc, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${exciseCategory.repr}")
+    }
+  }
 
   private def validateRowsForSecurities(
     doc: Document,
