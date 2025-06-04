@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page_securities
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.RedirectToGovUkLandingPage
 
 import scala.concurrent.ExecutionContext
 
@@ -42,7 +43,9 @@ class LandingPageSecuritiesController @Inject() (
   final val showLandingPageSecurities: Action[AnyContent] =
     Action { implicit request =>
       if featureSwitchService.isEnabled(Feature.Securities) then {
-        Ok(landingPageSecurities())
+        if featureSwitchService.isEnabled(RedirectToGovUkLandingPage)
+        then Redirect(viewConfig.govUkSecuritiesLandingPageUrl)
+        else Ok(landingPageSecurities())
       } else Redirect(routes.UnauthorisedController.unauthorised())
     }
 }
