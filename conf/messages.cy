@@ -943,7 +943,7 @@ duty-type.uk-duty=Toll y DU
 excise-category.beer=Cwrw
 excise-category.biofuels=Biodanwyddau
 excise-category.cider-perry=Seidr a pherai
-excise-category.climate-change-levy=Ardoll newid yn yr hinsawdd
+excise-category.climate-change-levy=Ardoll Newid yn yr Hinsawdd
 excise-category.hydrocarbon-oils=Olew hydrocarbon
 excise-category.low-alcohol-beverages=Diodydd alcohol isel
 excise-category.made-wine=Gwin a wnaed
@@ -1755,6 +1755,17 @@ select-duty-types.eu-duty.hint=Gan gynnwys tollau tramor, tollau ychwanegol, tol
 select-duty-types.excise-duty=Tollau ecséis
 select-duty-types.excise-duty.hint=Mae hyn yn berthnasol i gynhyrchion megis diodydd alcoholaidd, cynhyrchion tybaco, olewau hydrocarbon a biodanwyddau
 
+select-excise-duty-codes.h1.beer=cwrw
+select-excise-duty-codes.h1.biofuels=biodanwyddau
+select-excise-duty-codes.h1.cider-perry=seidr a pherai
+select-excise-duty-codes.h1.climate-change-levy=Ardoll Newid yn yr Hinsawdd
+select-excise-duty-codes.h1.hydrocarbon-oils=olew hydrocarbon
+select-excise-duty-codes.h1.low-alcohol-beverages=diodydd alcohol isel
+select-excise-duty-codes.h1.made-wine=gwin a wnaed
+select-excise-duty-codes.h1.miscellaneous-road-fuels=tanwydd ffordd amrywiol
+select-excise-duty-codes.h1.spirits=gwirodydd
+select-excise-duty-codes.h1.tobacco=cynhyrchion tybaco
+select-excise-duty-codes.h1.wine=gwin a wnaed
 
 select-method-of-disposal.rejected-goods.error.required=Dewiswch y dull gwaredu
 select-method-of-disposal.rejected-goods.method.Destruction=Dinistrio’r nwyddau
