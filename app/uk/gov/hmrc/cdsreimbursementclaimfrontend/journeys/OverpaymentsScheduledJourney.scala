@@ -211,7 +211,14 @@ final class OverpaymentsScheduledJourney private (
                   .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
               )*
           )
-        Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
+        Right(
+          this.copy(
+            answers.copy(
+              correctedAmounts = Some(newReimbursementClaims),
+              exciseCategories = if dutyTypes.contains(DutyType.Excise) then answers.exciseCategories else None
+            )
+          )
+        )
       }
     }
 

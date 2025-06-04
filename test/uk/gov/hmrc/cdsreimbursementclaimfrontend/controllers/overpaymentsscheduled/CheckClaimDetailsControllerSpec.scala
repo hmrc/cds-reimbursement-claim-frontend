@@ -38,6 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyFromAnswersGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -73,19 +75,43 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: OverpaymentsScheduledJourney
   ): Unit = {
+    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements)
+    val nonExciseDutyClaims          = journey.getNonExciseDutyClaims
+    val selectedExciseCategoryClaims = journey.getSelectedExciseCategoryClaims
+    val selectedExciseCategories     = selectedExciseCategoryClaims.keys.map(_.repr).toList
 
     validateClaimsTablesForScheduled(
       doc,
-      ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements),
+      nonExciseDutyClaims,
+      selectedExciseCategoryClaims,
       routes.EnterClaimController.show
     )
 
     summaryKeyValueList(doc) should containOnlyPairsOf(
-      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
-    )
-
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
+      Seq(
+        m("check-claim.duty-types-summary.key") -> claims.keys
+          .map(dutyType => m(s"select-duty-types.${dutyType.repr}"))
+          .mkString(" "),
+        m("check-claim.table.total")            -> journey.getTotalReimbursementAmount.toPoundSterlingString
+      ) ++
+        nonExciseDutyClaims.map { case (dutyType, claims) =>
+          m(s"select-duty-codes.title.${dutyType.repr}") -> claims
+            .map(claim => m(s"tax-code.${claim.taxCode}"))
+            .mkString(" ")
+        } ++
+        Seq(
+          m("select-duty-codes.title.excise-duty") -> selectedExciseCategories
+            .map(category => m(s"excise-category.$category"))
+            .mkString(" ")
+        ).filter(_ => selectedExciseCategoryClaims.nonEmpty) ++
+        selectedExciseCategoryClaims
+          .map { case (category, claims) =>
+            m(
+              s"check-claim.duties-selected-summary.key",
+              s"${m(s"excise-category.${category.repr}").headOption.map(_.toLower).getOrElse("")}${m(s"excise-category.${category.repr}").tail}"
+            ) -> claims.map(claim => m(s"tax-code.${claim.taxCode}")).mkString(" ")
+          }
+          .filter(_ => selectedExciseCategoryClaims.nonEmpty)
     )
   }
 
@@ -154,7 +180,7 @@ class CheckClaimDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "accept YES response and redirect to the next page" in
+      "redirect to the next page" in
         forAll(journeyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -162,12 +188,12 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim" -> "true"),
+            performAction(),
             routes.ChoosePayeeTypeController.show
           )
         }
 
-      "accept YES response and redirect to the CYA page when in change mode" in
+      "redirect to the CYA page when in change mode" in
         forAll(completeJourneyGen) { journey =>
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -175,24 +201,10 @@ class CheckClaimDetailsControllerSpec
           }
 
           checkIsRedirect(
-            performAction("check-claim" -> "true"),
+            performAction(),
             routes.CheckYourAnswersController.show
           )
         }
-
-      "accept NO response and redirect to select duties page" in {
-        val journey = journeyGen.sample.get
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction("check-claim" -> "false"),
-          routes.SelectDutyTypesController.show
-        )
-      }
     }
   }
 }

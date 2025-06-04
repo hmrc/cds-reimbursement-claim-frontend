@@ -191,11 +191,24 @@ object ClaimsTableHelper {
   ): Seq[Seq[TableRow]] =
     claims.map {
       case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, Some(dutyType)) =>
-        val suffix = s"$dutyType-$taxCode"
-        makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix) ++ Seq(
+        val suffix           = s"$dutyType-$taxCode"
+        val hiddenChangeText =
+          if (taxCode.exciseCategory.isEmpty)
+            messages("check-claim.duty-claim-amount.hidden", s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+          else
+            messages(
+              "check-claim.duty-claim-amount.hidden",
+              s"${messages(s"excise-category.${taxCode.exciseCategory.get.repr}")} ($taxCode)"
+            )
+        makeScheduledRowCells(taxCode, claimAmount, paidAmount, suffix, false) ++ Seq(
           TableRow(
             content = HtmlContent(
-              messages("check-claim.table.change-link", claimAction(dutyType, taxCode).url, s"change-link-$suffix")
+              messages(
+                "check-claim.table.scheduled.change-link",
+                claimAction(dutyType, taxCode).url,
+                s"change-link-$suffix",
+                hiddenChangeText
+              )
             ),
             attributes = Map("id" -> s"change-$suffix"),
             classes = "govuk-link"
@@ -203,7 +216,7 @@ object ClaimsTableHelper {
         )
       case ReimbursementWithCorrectAmount(taxCode, claimAmount, paidAmount, _, None)           =>
         val suffix = s"$taxCode"
-        makeCommonRowCells(taxCode, claimAmount, paidAmount, suffix)
+        makeScheduledRowCells(taxCode, claimAmount, paidAmount, suffix, false)
     } ++ Seq(
       makeTotalRowCells(
         claims.map(_.amount).sum,
@@ -264,6 +277,33 @@ object ClaimsTableHelper {
       )
     )
 
+  private def makeScheduledRowCells(
+    taxCode: TaxCode,
+    claimAmount: BigDecimal,
+    paidAmount: BigDecimal,
+    idSuffix: String,
+    headerBold: Boolean = true
+  )(implicit messages: Messages): Seq[TableRow] =
+    Seq(
+      TableRow(
+        content =
+          if (taxCode.exciseCategory.isEmpty) HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")
+          else HtmlContent(s"${messages(s"excise-category.${taxCode.exciseCategory.get.repr}")} ($taxCode)"),
+        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        classes = if (headerBold) "govuk-table__header" else "govuk-!-font-weight-regular govuk-table__header"
+      ),
+      TableRow(
+        content = Text(paidAmount.toPoundSterlingString),
+        attributes = Map("id" -> s"full-amount-$idSuffix"),
+        classes = "govuk-table__cell--numeric"
+      ),
+      TableRow(
+        content = Text(claimAmount.toPoundSterlingString),
+        attributes = Map("id" -> s"claim-amount-$idSuffix"),
+        classes = "govuk-table__cell--numeric"
+      )
+    )
+
   private def makeCommonRowCellsSingleSecurity(
     taxCode: TaxCode,
     claimAmount: BigDecimal,
@@ -288,6 +328,166 @@ object ClaimsTableHelper {
       )
     )
 
+  def claimsDutyTypesSummary(dutyTypes: Seq[DutyType], dutyTypesChangeCall: Call)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(messages("check-claim.duty-types-summary.key"))
+        ),
+        value = Value(
+          HtmlContent(
+            dutyTypes
+              .map(dutyType =>
+                Paragraph(
+                  messages(s"select-duty-types.${dutyType.repr}")
+                )
+              )
+              .mkString("")
+          )
+        ),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = dutyTypesChangeCall.url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages("check-claim.duty-types-summary.hidden")
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def claimsDutiesSelectedSummary(
+    dutyType: String,
+    claims: List[ReimbursementWithCorrectAmount],
+    dutiesSelectedChangeCall: Call
+  )(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(
+            messages(s"select-duty-codes.title.$dutyType")
+          )
+        ),
+        value = Value(
+          HtmlContent(
+            claims
+              .map(claim =>
+                Paragraph(
+                  messages(s"tax-code.${claim.taxCode}")
+                )
+              )
+              .mkString("")
+          )
+        ),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = dutiesSelectedChangeCall.url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages("check-claim.duties-selected-summary.hidden", messages(s"select-duty-types.$dutyType"))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def claimsExciseCategoriesSummary(exciseCategories: List[String], exciseCategoriesChangeCall: Call)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(
+            messages("select-duty-codes.title.excise-duty")
+          )
+        ),
+        value = Value(
+          HtmlContent(
+            exciseCategories
+              .map(exciseCategory =>
+                Paragraph(
+                  messages(s"excise-category.$exciseCategory")
+                )
+              )
+              .mkString("")
+          )
+        ),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = exciseCategoriesChangeCall.url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages("check-claim.duties-selected-summary.hidden", messages(s"select-duty-types.excise-duty"))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def claimsExciseDutiesSelectedSummary(
+    exciseCategory: String,
+    claims: List[ReimbursementWithCorrectAmount],
+    dutiesSelectedChangeCall: Call
+  )(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(
+            messages(
+              s"check-claim.duties-selected-summary.key",
+              s"${messages(s"excise-category.$exciseCategory").headOption.map(_.toLower).getOrElse("")}${messages(s"excise-category.$exciseCategory").tail}"
+            )
+          )
+        ),
+        value = Value(
+          HtmlContent(
+            claims
+              .map(claim =>
+                Paragraph(
+                  messages(s"tax-code.${claim.taxCode}")
+                )
+              )
+              .mkString("")
+          )
+        ),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = dutiesSelectedChangeCall.url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(
+                  messages(
+                    "check-claim.excise.duties-selected-summary.hidden",
+                    messages(s"excise-category.$exciseCategory")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
   def claimsTotalSummary(claims: Seq[ReimbursementWithCorrectAmount])(implicit
     messages: Messages
   ): Seq[SummaryListRow] = claimsTotalSummary(claims.map(_.amount).sum)
@@ -295,6 +495,10 @@ object ClaimsTableHelper {
   def claimsTotalSummarySingleSecurity(claims: Seq[ReimbursementWithCorrectAmount])(implicit
     messages: Messages
   ): Seq[SummaryListRow] = claimsTotalSummarySingleSecurity(claims.map(_.amount).sum)
+
+  def claimsTotalSummaryScheduled(claims: Seq[ReimbursementWithCorrectAmount])(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] = claimsTotalSummaryScheduled(claims.map(_.amount).sum)
 
   def claimsTotalSummary(total: BigDecimal)(implicit
     messages: Messages
@@ -314,6 +518,21 @@ object ClaimsTableHelper {
     )
 
   def claimsTotalSummarySingleSecurity(total: BigDecimal)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    Seq(
+      SummaryListRow(
+        key = Key(
+          content = HtmlContent(messages("check-claim.table.total"))
+        ),
+        value = Value(
+          content = Text(total.toPoundSterlingString)
+        ),
+        classes = "govuk-summary-list govuk-summary-list--no-border"
+      )
+    )
+
+  def claimsTotalSummaryScheduled(total: BigDecimal)(implicit
     messages: Messages
   ): Seq[SummaryListRow] =
     Seq(
@@ -507,15 +726,15 @@ object ClaimsTableHelper {
 
   def sortReimbursementsByDisplayDuty(
     reimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]]
-  ): Map[String, List[ReimbursementWithCorrectAmount]] = {
+  ): Map[DutyType, List[ReimbursementWithCorrectAmount]] = {
     val ukDuties     = reimbursements.filter(_._1 === UkDuty).values.flatten.toList
     val euDuties     = reimbursements.filter(_._1 === EuDuty).values.flatten.toList
     val exciseDuties = reimbursements.filterNot(i => i._1 === UkDuty || i._1 === EuDuty).values.flatten.toList
 
     Map(
-      UkDuty.repr -> ukDuties,
-      EuDuty.repr -> euDuties,
-      Excise.repr -> exciseDuties
+      UkDuty -> ukDuties,
+      EuDuty -> euDuties,
+      Excise -> exciseDuties
     ).filterNot(_._2.isEmpty)
   }
 

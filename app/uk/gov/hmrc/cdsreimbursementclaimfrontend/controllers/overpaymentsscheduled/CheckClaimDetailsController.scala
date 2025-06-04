@@ -17,19 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import com.github.arturopala.validator.Validator.Validate
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
@@ -45,8 +40,6 @@ class CheckClaimDetailsController @Inject() (
   checkClaimDetails: check_claim_details_scheduled
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends OverpaymentsScheduledJourneyBaseController {
-
-  final val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm("check-claim")
 
   implicit val subKey: Option[String] = Some("scheduled")
 
@@ -73,8 +66,10 @@ class CheckClaimDetailsController @Inject() (
             Ok {
               checkClaimDetails(
                 answers,
+                journey.getSelectedDutyTypes.get,
+                journey.getNonExciseDutyClaims,
+                journey.getSelectedExciseCategoryClaims,
                 reimbursementTotal,
-                checkClaimDetailsForm,
                 postAction,
                 enterClaimAction
               )
@@ -85,48 +80,20 @@ class CheckClaimDetailsController @Inject() (
       ).asFuture
     }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    implicit request =>
-      journey => {
-        val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
-        val reimbursementTotal = journey.getTotalReimbursementAmount
-
-        journey.answers.movementReferenceNumber match {
-          case Some(_) =>
-            checkClaimDetailsForm
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    journey,
-                    BadRequest(
-                      checkClaimDetails(
-                        answers,
-                        reimbursementTotal,
-                        formWithErrors,
-                        postAction,
-                        enterClaimAction
-                      )
-                    )
-                  ),
-                {
-                  case Yes =>
-                    (
-                      journey.withDutiesChangeMode(false),
-                      Redirect(
-                        if journey.hasCompleteAnswers then checkYourAnswers
-                        else routes.ChoosePayeeTypeController.show
-                      )
-                    )
-                  case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
-                }
-              )
-              .asFuture
-          case None    =>
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
-        }
-      },
-    fastForwardToCYAEnabled = false
+  val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
+    journey =>
+      journey.answers.movementReferenceNumber match {
+        case Some(_) =>
+          (
+            journey.withDutiesChangeMode(false),
+            Redirect(
+              if journey.hasCompleteAnswers then checkYourAnswers
+              else routes.ChoosePayeeTypeController.show
+            )
+          ).asFuture
+        case None    =>
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+      }
   )
 
 }

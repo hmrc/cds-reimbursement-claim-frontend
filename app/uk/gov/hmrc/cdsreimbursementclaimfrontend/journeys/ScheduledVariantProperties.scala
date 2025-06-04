@@ -219,4 +219,22 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
   def getTotalPaidAmount: BigDecimal =
     getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
 
+  def getNonExciseDutyClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]] =
+    getReimbursements.filter { case (dutyType, _) => dutyType != DutyType.Excise }
+
+  def getExciseClaims: List[ReimbursementWithCorrectAmount] =
+    getReimbursements.getOrElse(DutyType.Excise, List.empty)
+
+  def getSelectedExciseCategoryClaims: SortedMap[ExciseCategory, List[ReimbursementWithCorrectAmount]] =
+    SortedMap.from(
+      getExciseClaims
+        .flatMap { reimbursement =>
+          reimbursement.taxCode.exciseCategory.map(exciseCategory => (exciseCategory, reimbursement))
+        }
+        .groupBy(_._1)
+        .view
+        .mapValues(_.map(_._2))
+        .toMap
+    )
+
 }

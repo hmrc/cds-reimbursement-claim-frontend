@@ -46,7 +46,7 @@ class SelectDutyTypesController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val form = selectDutyTypesForm
+    val form = selectDutyTypesForm.withDefault(journey.getSelectedDutyTypes.map(_.toList))
 
     if journey.isSubsidyOnlyJourney then {
       journey

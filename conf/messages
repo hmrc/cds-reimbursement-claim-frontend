@@ -111,14 +111,21 @@ check-claim.table-header.selected-charges=Selected charges
 check-claim.table-header.should-have-paid=You should have paid
 check-claim.table-header.full-amount=Full amount
 check-claim.table.change-link=<a href="{0}" id="{1}" class="govuk-link">Change</a>
+check-claim.table.scheduled.change-link=<a href="{0}" id="{1}" class="govuk-link">Change<span class="govuk-visually-hidden">{2}</span></a>
 check-claim.table.total=Total claim amount
-check-claim.title=Check the repayment total for this claim
+check-claim.title=Check the repayment totals for this claim
 check-claim.total=Repayment for this MRN
 check-claim.total.header=Total
 check-claim.uk-duty.label=UK Duty
 check-claim.yes=Yes
 check-claim.selected-duties.question=What do you want to claim?
 check-claim.change=Change
+check-claim.duty-types-summary.key=Which types of duty do you want to claim for?
+check-claim.duty-types-summary.hidden=Duties you want to claim for
+check-claim.duties-selected-summary.key=Which {0} duties do you want to claim for?
+check-claim.duties-selected-summary.hidden={0} you want to claim for
+check-claim.excise.duties-selected-summary.hidden={0} duties you want to claim for
+check-claim.duty-claim-amount.hidden={0} amount
 
 check-claim.securities.single.title=Check the repayment total for this claim
 check-claim.securities.single.hidden.claim-full-amount=whether you want to claim the full amount
@@ -983,7 +990,7 @@ excise-category.beer=Beer
 excise-category.biofuels=Biofuels
 excise-category.cider-perry=Cider and perry
 excise-category.other-fermented-products=Other fermented products
-excise-category.climate-change-levy=Climate Change Levy
+excise-category.climate-change-levy=Climate change levy
 excise-category.hydrocarbon-oils=Hydrocarbon oil
 excise-category.low-alcohol-beverages=Low alcohol beverages
 excise-category.made-wine=Made-wine

@@ -14,84 +14,90 @@
  * limitations under the License.
  *@
 
-@import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode, ReimbursementWithCorrectAmount}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode, ReimbursementWithCorrectAmount, ExciseCategory}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import scala.collection.immutable.SortedMap
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         govukTable: GovukTable
 )
 
-@(answers: Map[String, List[ReimbursementWithCorrectAmount]], reimbursementTotal: BigDecimal, form: Form[YesNo], postAction: Call, enterClaimAction: (DutyType, TaxCode) => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
+@(allClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]],
+    selectedDutyTypes: Seq[DutyType],
+    nonExciseDutyClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]],
+    selectedExciseCategoryClaims: SortedMap[ExciseCategory, List[ReimbursementWithCorrectAmount]],
+    reimbursementTotal: BigDecimal,
+    postAction: Call,
+    enterClaimAction: (DutyType, TaxCode) => Call
+)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @title = @{messages(s"check-claim.scheduled.title")}
 
-@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@selectedExciseCategories: List[String] = @{selectedExciseCategoryClaims.keys.map(_.repr).toList}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false) {
 
-    @errorSummary(form.errors)
+    @heading(Html(title), classes = "govuk-heading-xl")
 
-    @heading(Html(title))
+    @summary(SummaryList(ClaimsTableHelper.claimsDutyTypesSummary(selectedDutyTypes, routes.SelectDutyTypesController.show), classes = "govuk-summary-list--no-border"))
 
-    @answers.map { claim =>
+    @nonExciseDutyClaims.map { case (dutyType, claims) =>
+
+        @subHeading(Html(messages(s"check-claim.${dutyType.repr}.label")), classes = "govuk-heading-l govuk-!-margin-top-9")
+
+        @summary(SummaryList(ClaimsTableHelper.claimsDutiesSelectedSummary(dutyType.repr, claims, routes.SelectDutiesController.show(dutyType)), classes = "govuk-summary-list--no-border"))
 
         @govukTable(Table(
-            rows = ClaimsTableHelper.claimsRowsForScheduled(claim._2, claim._1, enterClaimAction),
-            head = Some(ClaimsTableHelper.claimsTableHeaders(s"-${claim._1}")),
+            rows = ClaimsTableHelper.claimsRowsForScheduled(claims, dutyType.repr, enterClaimAction),
+            head = Some(ClaimsTableHelper.claimsTableHeaders(s"-${dutyType.repr}")),
             firstCellIsHeader = true,
-            attributes = Map("id" -> s"claims-table-${claim._1}"),
-            classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4",
-            caption = Some(messages(s"duty-type.${claim._1}")),
-            captionClasses = "govuk-table__caption govuk-!-margin-top-9 govuk-table__caption--m"
+            attributes = Map("id" -> s"claims-table-${dutyType.repr}"),
+            classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4"
         ))
 
-        <hr class="govuk-section-break govuk-section-break--visible">
-        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-7">
+        <hr class="govuk-section-break govuk-section-break govuk-!-margin-bottom-7">
+    }
+    @if(selectedExciseCategoryClaims.nonEmpty) {
+        @subHeading(Html(messages("check-claim.excise-duty.label")), classes = "govuk-heading-l govuk-!-margin-top-9")
+
+        @summary(SummaryList(ClaimsTableHelper.claimsExciseCategoriesSummary(selectedExciseCategories, routes.SelectDutiesController.show(DutyType.Excise)), classes = "govuk-summary-list--no-border"))
+
+        @selectedExciseCategoryClaims.map { case (exciseCategory, claims) =>
+
+            @subHeading(Html(messages(s"excise-category.${exciseCategory.repr}")), level= "h3")
+
+            @summary(SummaryList(ClaimsTableHelper.claimsExciseDutiesSelectedSummary(exciseCategory.repr, claims, routes.SelectDutiesController.showExciseDuties(exciseCategory)), classes = "govuk-summary-list--no-border"))
+
+            @govukTable(Table(
+                rows = ClaimsTableHelper.claimsRowsForScheduled(claims, exciseCategory.repr, enterClaimAction),
+                head = Some(ClaimsTableHelper.claimsTableHeaders(s"-${exciseCategory.repr}")),
+                firstCellIsHeader = true,
+                attributes = Map("id" -> s"claims-table-${exciseCategory.repr}"),
+                classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4"
+            ))
+
+            <hr class="govuk-section-break govuk-section-break govuk-!-margin-bottom-7">
+        }
     }
 
 
-    @summary(SummaryList(ClaimsTableHelper.claimsTotalSummary(answers.values.flatten.toSeq)))
+    @summary(SummaryList(ClaimsTableHelper.claimsTotalSummaryScheduled(allClaims.values.flatten.toSeq), classes = "govuk-summary-list--no-border"))
 
     <br>
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
-
-        @radios(
-            form = form,
-            name = "check-claim",
-            legend = messages("check-claim.is-this-correct"),
-            inline = true,
-            items = Seq(
-                RadioItem(
-                    value = Some("true"),
-                    content = Text(messages(s"check-claim.yes")),
-                    checked = false
-                ),
-                RadioItem(
-                    value = Some("false"),
-                    content = Text(messages(s"check-claim.no")),
-                    checked = false
-                )
-            ),
-            id = s"check-claim-yes-no"
-        )
-
         @submitButton("button.continue")
     }
 }

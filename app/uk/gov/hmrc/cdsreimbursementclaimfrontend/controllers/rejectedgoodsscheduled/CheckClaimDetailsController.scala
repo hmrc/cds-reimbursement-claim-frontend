@@ -17,18 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
 import com.github.arturopala.validator.Validator.Validate
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
@@ -44,8 +39,6 @@ class CheckClaimDetailsController @Inject() (
   checkClaimDetailsPage: check_claim_details_scheduled
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController {
-
-  val checkClaimDetailsForm: Form[YesNo] = YesOrNoQuestionForm(CheckClaimDetailsController.checkClaimDetailsKey)
 
   implicit val subKey: Option[String] = Some("scheduled")
 
@@ -67,8 +60,10 @@ class CheckClaimDetailsController @Inject() (
         Ok(
           checkClaimDetailsPage(
             answers,
+            journey.getSelectedDutyTypes.get,
+            journey.getNonExciseDutyClaims,
+            journey.getSelectedExciseCategoryClaims,
             reimbursementTotal,
-            checkClaimDetailsForm,
             postAction,
             enterClaimAction
           )
@@ -77,53 +72,17 @@ class CheckClaimDetailsController @Inject() (
     ).asFuture
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
-    implicit request =>
-      journey => {
-        val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
-        val reimbursementTotal = journey.getTotalReimbursementAmount
-
-        if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction)).asFuture
-        else {
-          checkClaimDetailsForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  journey,
-                  BadRequest(
-                    checkClaimDetailsPage(
-                      answers,
-                      reimbursementTotal,
-                      formWithErrors,
-                      postAction,
-                      enterClaimAction
-                    )
-                  )
-                ),
-              {
-                case Yes =>
-                  (
-                    journey.withDutiesChangeMode(false),
-                    Redirect(
-                      if journey.hasCompleteAnswers then checkYourAnswers
-                      else routes.EnterInspectionDateController.show
-                    )
-                  )
-                case No  =>
-                  (
-                    journey.withDutiesChangeMode(true),
-                    Redirect(selectDutiesAction)
-                  )
-              }
-            )
-            .asFuture
-        }
-      },
-    fastForwardToCYAEnabled = false
+  val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
+    journey =>
+      if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction)).asFuture
+      else {
+        (
+          journey.withDutiesChangeMode(false),
+          Redirect(
+            if journey.hasCompleteAnswers then checkYourAnswers
+            else routes.EnterInspectionDateController.show
+          )
+        ).asFuture
+      }
   )
-}
-
-object CheckClaimDetailsController {
-  val checkClaimDetailsKey: String = "check-claim"
 }
