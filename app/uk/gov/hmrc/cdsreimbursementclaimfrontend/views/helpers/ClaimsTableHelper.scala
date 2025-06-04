@@ -454,7 +454,7 @@ object ClaimsTableHelper {
           content = HtmlContent(
             messages(
               s"check-claim.duties-selected-summary.key",
-              s"${messages(s"excise-category.$exciseCategory").headOption.map(_.toLower).getOrElse("")}${messages(s"excise-category.$exciseCategory").tail}"
+              messages(s"select-excise-duty-codes.h1.$exciseCategory")
             )
           )
         ),

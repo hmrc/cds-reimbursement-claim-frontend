@@ -108,7 +108,7 @@ class CheckClaimDetailsControllerSpec
           .map { case (category, claims) =>
             m(
               s"check-claim.duties-selected-summary.key",
-              s"${m(s"excise-category.${category.repr}").headOption.map(_.toLower).getOrElse("")}${m(s"excise-category.${category.repr}").tail}"
+              messages(s"select-excise-duty-codes.h1.${category.repr}")
             ) -> claims.map(claim => m(s"tax-code.${claim.taxCode}")).mkString(" ")
           }
           .filter(_ => selectedExciseCategoryClaims.nonEmpty)
