@@ -78,8 +78,9 @@ class ViewConfig @Inject() (
   val weSignedYouOutPageUrl: String =
     s"$selfBaseUrl/claim-back-import-duty-vat${baseRoutes.StartController.timedOut().url}"
 
-  val govUkUrl: String            = getString("external-url.gov-uk")
-  val govUkLandingPageUrl: String = getString("external-url.gov-uk-landing-page")
+  val govUkUrl: String                      = getString("external-url.gov-uk")
+  val govUkLandingPageUrl: String           = getString("external-url.gov-uk-landing-page")
+  val govUkSecuritiesLandingPageUrl: String = getString("external-url.gov-uk-securities-landing-page")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")
 

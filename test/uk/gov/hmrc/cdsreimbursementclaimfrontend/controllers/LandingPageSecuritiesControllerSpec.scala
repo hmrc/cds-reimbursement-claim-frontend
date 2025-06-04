@@ -21,26 +21,28 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
-class LandingPageControllerSpec extends ControllerSpec {
+class LandingPageSecuritiesControllerSpec extends ControllerSpec {
 
-  private val controller: LandingPageController = instanceOf[LandingPageController]
-  implicit val messagesApi: MessagesApi         = controller.messagesApi
-  private lazy val featureSwitch                = instanceOf[FeatureSwitchService]
+  private val controller: LandingPageSecuritiesController = instanceOf[LandingPageSecuritiesController]
+  implicit val messagesApi: MessagesApi                   = controller.messagesApi
+  private lazy val featureSwitch                          = instanceOf[FeatureSwitchService]
 
   "The Landing Page Controller" must {
     "display the landing page when feature is off" in {
+      featureSwitch.enable(Feature.Securities)
       featureSwitch.disable(Feature.RedirectToGovUkLandingPage)
       checkPageIsDisplayed(
-        controller.showLandingPage()(FakeRequest()),
-        messageFromMessageKey("landing.title")
+        controller.showLandingPageSecurities(FakeRequest()),
+        "Claim back a security deposit or guarantee"
       )
     }
 
     "redirect to GOV.UK when feature is on" in {
+      featureSwitch.enable(Feature.Securities)
       featureSwitch.enable(Feature.RedirectToGovUkLandingPage)
       checkIsRedirect(
-        controller.showLandingPage()(FakeRequest()),
-        "https://www.gov.uk/guidance/how-to-apply-for-a-repayment-of-import-duty-and-vat-if-youve-overpaid-c285"
+        controller.showLandingPageSecurities(FakeRequest()),
+        "https://www.gov.uk/guidance/claim-back-an-import-security-deposit-or-guarantee"
       )
     }
   }
