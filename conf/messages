@@ -99,7 +99,7 @@ check-claim.rejected-goods.multiple.title=Check the repayment totals for this cl
 check-claim.rejected-goods.no=No, select different duties
 check-claim.rejected-goods.single.total=Repayment for this MRN
 check-claim.rejected-goods.yes=Yes
-check-claim.scheduled.title=Check the repayment total for this claim
+check-claim.scheduled.title=Check the repayment totals for this claim
 check-claim.securities.claim-for-security.h2=Security deposit ID: {0}
 check-claim.securities.claiming-full-amount=Claiming full amount?
 check-claim.securities.hidden.claim-full-amount={0} for Security ID: {1}
@@ -113,14 +113,14 @@ check-claim.table-header.full-amount=Full amount
 check-claim.table.change-link=<a href="{0}" id="{1}" class="govuk-link">Change</a>
 check-claim.table.scheduled.change-link=<a href="{0}" id="{1}" class="govuk-link">Change<span class="govuk-visually-hidden">{2}</span></a>
 check-claim.table.total=Total claim amount
-check-claim.title=Check the repayment totals for this claim
+check-claim.title=Check the repayment total for this claim
 check-claim.total=Repayment for this MRN
 check-claim.total.header=Total
 check-claim.uk-duty.label=UK Duty
 check-claim.yes=Yes
 check-claim.selected-duties.question=What do you want to claim?
 check-claim.change=Change
-check-claim.duty-types-summary.key=Which types of duty do you want to claim for?
+check-claim.duty-types-summary.key=Which duties do you want to claim for?
 check-claim.duty-types-summary.hidden=Duties you want to claim for
 check-claim.duties-selected-summary.key=Which {0} duties do you want to claim for?
 check-claim.duties-selected-summary.hidden={0} you want to claim for
