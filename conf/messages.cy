@@ -1927,11 +1927,11 @@ unauthorised.p1.li2=rydych wedi mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) ar
 unauthorised.p1.li3=nid yw’ch sefydliad wedi rhoi mynediad i chi - gofynnwch i’r person a sefydlodd y mynediad i’ch <a href="https://www.gov.uk/guidance/manage-team-members-using-your-hmrc-business-tax-account" class="govuk-link">ychwanegu chi fel aelod o’r tîm a rhoi mynediad i chi at y CDS</a>
 unauthorised.p2=<a href="https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in" class="govuk-link">Cael help os ydych yn cael trafferthion mewngofnodi o hyd</a>
 
-upload-bill-of-discharge-3.title=Ffurflen bil rhyddhau (BOD)
-upload-bill-of-discharge-3.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 (yn agor tab newydd)</a> i’ch hawliad.
-upload-bill-of-discharge-3.h2=Ychwanegu ffurflen BOD3
-upload-bill-of-discharge-3.choose.description=Uwchlwytho’ch ffeil
-upload-bill-of-discharge-3.error.file-upload.required=Upload bill of discharge (BOD3) form
+upload-bill-of-discharge-3.title=Ffurflen bil rhyddhad (BOD)
+upload-bill-of-discharge-3.help-text.para1=Mae angen i chi ychwanegu <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">ffurflen BOD3 wedi’i chwblhau (yn agor tab newydd)</a> i’ch hawliad. Mae hyn yn rhoi gwybod i CThEF sut y gwnaethoch waredu’r nwyddau y gwnaethoch eu mewnforio gan ddefnyddio awdurdodiad drwy ddatganiad o dan ryddhad prosesu mewnol (IPR).
+upload-bill-of-discharge-3.h2=Ychwanegwch ffurflen BOD3
+upload-bill-of-discharge-3.choose.description=Uwchlwythwch eich ffeil
+upload-bill-of-discharge-3.error.file-upload.required=Uwchlwythwch ffurflen bil rhyddhau (BOD3)
 
 upload-bill-of-discharge-4.title=Ffurflen bil rhyddhau (BOD)
 upload-bill-of-discharge-4.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 (yn agor tab newydd)</a> i’ch hawliad.
