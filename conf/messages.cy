@@ -123,6 +123,11 @@ check-claim.change=Newid
 check-claim.securities.single.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.securities.single.claiming-full-amount=A hoffech hawlio’r swm llawn yn ôl?
 check-claim.securities.single.what-do-you-want-to-claim=Beth hoffech chi ei hawlio?
+check-claim.securities.single.hidden.claim-full-amount=a ydych am hawlio'r swm llawn
+check-claim.securities.single.hidden.select-duties=y taliadau rydych am eu hawlio
+check-claim.securities.single.hidden.duty-amount=swm y {0}
+
+
 
 check-claimant-details.change-hint.address=Cyfeiriad cyswllt
 check-claimant-details.change-hint.contact=Manylion cyswllt
