@@ -1934,7 +1934,7 @@ upload-bill-of-discharge-3.choose.description=Uwchlwythwch eich ffeil
 upload-bill-of-discharge-3.error.file-upload.required=Uwchlwythwch ffurflen bil rhyddhau (BOD3)
 
 upload-bill-of-discharge-4.title=Ffurflen bil rhyddhau (BOD)
-upload-bill-of-discharge-4.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD3 (yn agor tab newydd)</a> i’ch hawliad.
+upload-bill-of-discharge-4.help-text.para1=Mae angen i chi ychwanegu ffurflen <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">BOD4 (yn agor tab newydd)</a> i’ch hawliad.
 upload-bill-of-discharge-4.h2=Ychwanegu ffurflen BOD4
 upload-bill-of-discharge-4.choose.description=Uwchlwytho’ch ffeil
 upload-bill-of-discharge-4.error.file-upload.required=Upload bill of discharge (BOD4) form
