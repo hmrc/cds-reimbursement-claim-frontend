@@ -715,7 +715,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     override def excludeFreeTextInputs() =
       (
         Seq(("additional_details", additionalDetails)),
-        this.copy(additionalDetails = "Additional details are attached as a separate text file")
+        this.copy(additionalDetails = additionalDetailsReplacementText)
       )
   }
 

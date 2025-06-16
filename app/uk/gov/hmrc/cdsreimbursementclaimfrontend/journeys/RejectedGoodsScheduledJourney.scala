@@ -624,9 +624,9 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
         Seq(("additional_details", detailsOfRejectedGoods))
           ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
         this.copy(
-          detailsOfRejectedGoods = "Additional details are attached as a separate text file",
+          detailsOfRejectedGoods = additionalDetailsReplacementText,
           basisOfClaimSpecialCircumstances =
-            basisOfClaimSpecialCircumstances.map(_ => "Attached as a separate text file")
+            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
         )
       )
   }
