@@ -1122,7 +1122,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
         .map(value =>
           (
             Seq(("additional_details", value)),
-            this.copy(additionalDetails = Some("Additional details are attached as a separate text file"))
+            this.copy(additionalDetails = Some(additionalDetailsReplacementText))
           )
         )
         .getOrElse((Seq.empty, this))
