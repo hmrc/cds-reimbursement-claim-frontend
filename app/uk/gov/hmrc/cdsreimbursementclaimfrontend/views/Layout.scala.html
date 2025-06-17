@@ -73,9 +73,30 @@
     }
 }
 
-@scripts = {
+@additionalScriptsBlock = {
     @scriptsBlock
     <script @{CSPNonce.attr} src='@_root_.controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+}
+
+@additionalHeadBlock = {
+    <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="all" rel="stylesheet" type="text/css" />
+    @headBlock.getOrElse {
+        @if(timeOut && signOutUrl.isDefined) {
+            @hmrcTimeoutDialog(TimeoutDialog(
+                    timeout = Some(timeoutDialogConfig.timeoutInSeconds),
+                    countdown = Some(timeoutDialogConfig.countdownInSeconds),
+                    message= Some(messages("session-expired-message")),
+                    keepAliveUrl= Some(s"${StartController.keepAlive().url}"),
+                    signOutUrl= signOutUrl,
+                    timeoutUrl= Some(s"${StartController.timedOut().url}"),
+                    keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+                    signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
+                    language = Some(messages.lang.code),
+                    synchroniseTabs = Some(true)
+                )
+            )
+        } else ""
+    }
 }
 
 @hmrcStandardPage(HmrcStandardPageParams(
@@ -96,19 +117,8 @@
     isWelshTranslationAvailable = !suppressLanguageToggle && viewConfig.enableLanguageSwitching,
     backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")), classes = "govuk-!-display-none")) else None },
     templateOverrides = TemplateOverrides(
-        additionalScriptsBlock = Some(scripts),
-        additionalHeadBlock = { if(timeOut && signOutUrl.isDefined) Some(hmrcTimeoutDialog(TimeoutDialog(
-            timeout = Some(timeoutDialogConfig.timeoutInSeconds),
-            countdown = Some(timeoutDialogConfig.countdownInSeconds),
-            message= Some(messages("session-expired-message")),
-            keepAliveUrl= Some(s"${StartController.keepAlive().url}"),
-            signOutUrl= signOutUrl,
-            timeoutUrl= Some(s"${StartController.timedOut().url}"),
-            keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
-            signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
-            language = Some(messages.lang.code),
-            synchroniseTabs = Some(true)
-        ))) else headBlock }
+        additionalScriptsBlock = Some(additionalScriptsBlock),
+        additionalHeadBlock = Some(additionalHeadBlock)
     )
 )){
     @contentBlock
