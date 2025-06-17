@@ -1,79 +1,35 @@
 $govuk-assets-path: "/claim-back-import-duty-vat/assets/lib/govuk-frontend/govuk/assets/";
 $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 
-@import "lib/govuk-frontend/dist/govuk/index";
-@import "lib/hmrc-frontend/hmrc/all";
-@import "language-selection";
+$govuk-include-default-font-face: false;
+@import "lib/govuk-frontend/dist/govuk/base";
 
-@media print {
-    .govuk-panel--confirmation {
-        color: black;
-        background: transparent;
-        h1 {
-            font-weight: bold;
-        }
-    }
-
-    .govuk-phase-banner, .lang, .govuk-footer{
-        display: none;
-    }
+.govuk-summary-list {
+    display: block;
 }
 
-
-// Custom CDS styles
-
-@media only screen and (min-width: 1024px) {
-
-    .govuk-summary-list__key {
-        width:40%;
-    }
-
-    .cds-multi-action .govuk-summary-list__key {
-        width:20%;
-    }
-
+.govuk-summary-list__row.mrn-value .govuk-summary-list__value {
+    white-space: nowrap;
 }
 
-.cds-no-border {
-    border:none;
+.govuk-panel--confirmation strong {
+    overflow-wrap: break-word;
 }
 
 .cds-wrap-content {
 
     @media only screen and (max-width: 600px) {
-        word-wrap:break-word;
-        overflow-wrap:break-word;
-        -webkit-hyphens:auto;
-        -ms-hyphens:auto;
-        -moz-hyphens:auto;
-        hyphens:auto;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        -moz-hyphens: auto;
+        hyphens: auto;
     }
 
     &--forced {
-        word-break:break-word;
+        word-break: break-word;
     }
 
 }
 
-
-
-
-// Fix for automated A11y test contrast issue
-
-.govuk-details {
-    background-color:#fff;
-    
-    .govuk-details__summary-text {
-        background-color:inherit;
-
-        &:focus * {
-            background-color: inherit;
-        }
-    }
-}
-
-// Fix for hidden legends on small or zoomed viewports
-
-.govuk-fieldset__legend.govuk-visually-hidden {
-    display:block;
-}

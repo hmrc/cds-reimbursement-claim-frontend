@@ -43,7 +43,8 @@ object MovementReferenceNumberSummary {
                 )
               )
             )
-          )
+          ),
+          classes = "mrn-value"
         )
       )
     )
@@ -69,7 +70,8 @@ object MovementReferenceNumberSummary {
                 )
               )
             )
-          )
+          ),
+          classes = "mrn-value"
         )
       }
     )
@@ -92,7 +94,8 @@ object MovementReferenceNumberSummary {
                 )
               )
             )
-          )
+          ),
+          classes = "mrn-value"
         )
       )
     )

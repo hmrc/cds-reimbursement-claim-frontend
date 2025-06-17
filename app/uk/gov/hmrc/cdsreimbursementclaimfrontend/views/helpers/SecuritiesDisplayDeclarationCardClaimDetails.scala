@@ -50,7 +50,8 @@ object SecuritiesDisplayDeclarationCardClaimDetails {
               )
             )
           )
-        )
+        ),
+        classes = "mrn-value"
       ).some,
       declaration.getReasonForSecurity.map(rfs =>
         SummaryListRow(

@@ -43,12 +43,14 @@ object SecurityDetailsSummary {
       Seq(
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.mrn-label"))),
-          value = Value(Text(declaration.displayResponseDetail.declarationId))
+          value = Value(Text(declaration.displayResponseDetail.declarationId)),
+          classes = "mrn-value"
         ).some,
         declaration.displayResponseDetail.declarantReferenceNumber.map(lrn =>
           SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.lrn-label"))),
-            value = Value(Text(lrn))
+            value = Value(Text(lrn)),
+            classes = "mrn-value"
           )
         ),
         declaration.getReasonForSecurity.map(rfs =>

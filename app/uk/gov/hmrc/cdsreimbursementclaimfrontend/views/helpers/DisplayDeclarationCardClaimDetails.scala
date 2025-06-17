@@ -47,7 +47,8 @@ object DisplayDeclarationCardClaimDetails {
               )
             )
           )
-        )
+        ),
+        classes = "mrn-value"
       )
     )
   )

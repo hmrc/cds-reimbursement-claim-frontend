@@ -56,13 +56,15 @@ object CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
           case Some(lrn) =>
             SummaryListRow(
               key = Key(HtmlContent(messages(combine(key, subKey, "lrn-label")))),
-              value = Value(Text(lrn))
+              value = Value(Text(lrn)),
+              classes = "mrn-value"
             ).some
           case _         => None
         },
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.mrn-label"))),
-          value = Value(Text(declaration.displayResponseDetail.declarationId))
+          value = Value(Text(declaration.displayResponseDetail.declarationId)),
+          classes = "mrn-value"
         ).some.filter(_ => showImportMrn),
         SummaryListRow(
           key = Key(HtmlContent(messages(s"$key.import-date-label"))),

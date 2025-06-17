@@ -48,13 +48,15 @@ object SecuritiesCdsDisplayDeclarationImportMrnSummary {
               )
             )
           )
-        )
+        ),
+        classes = "mrn-value"
       ).some,
       declaration.getMaybeLRN match {
         case Some(lrn) =>
           SummaryListRow(
             key = Key(HtmlContent(messages(s"$key.securities.lrn-label"))),
-            value = Value(Text(lrn))
+            value = Value(Text(lrn)),
+            classes = "mrn-value"
           ).some
         case _         => None
       }

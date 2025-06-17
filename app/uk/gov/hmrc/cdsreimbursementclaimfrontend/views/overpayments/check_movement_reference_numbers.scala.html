@@ -55,7 +55,7 @@
         @paragraph(Html(messages(s"check-movement-reference-numbers.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
         <dl class="govuk-summary-list cds-multi-action">
-            <div class="govuk-summary-list__row">
+            <div class="govuk-summary-list__row mrn-value">
                 <dt class="govuk-summary-list__key">@Html(messages("check-your-answers.reference-number.multiple.label"))</dt>
                 <dd class="govuk-summary-list__value">@references.head.value</dd>
                 <dd class="govuk-summary-list__actions">
@@ -67,7 +67,7 @@
                 <dd class="govuk-summary-list__actions"></dd>
             </div>
             @references.zipWithIndex.drop(1).map { case (mrn, index) =>
-                <div class="govuk-summary-list__row">
+                <div class="govuk-summary-list__row mrn-value">
                     <dt class="govuk-summary-list__key">@Html(OrdinalNumberMrnHelper(index + 1))</dt>
                     <dd class="govuk-summary-list__value">@mrn.value</dd>
                     <dd class="govuk-summary-list__actions">
