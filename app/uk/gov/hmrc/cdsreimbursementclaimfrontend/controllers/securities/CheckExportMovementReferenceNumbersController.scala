@@ -34,11 +34,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_export_movement_reference_numbers
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -46,7 +49,8 @@ import scala.concurrent.Future
 @Singleton
 class CheckExportMovementReferenceNumbersController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkExportMovementReferenceNumbersPage: check_export_movement_reference_numbers
+  checkExportMovementReferenceNumbersPage: check_export_movement_reference_numbers,
+  featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, errorHandler: ErrorHandler, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -56,7 +60,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val enterContactDetailsStep = routes.EnterContactDetailsController.show
+  def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
+    if journey.isSingleSecurity
+      && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
+    then routes.ChoosePayeeTypeController.show
+    else routes.ConfirmFullRepaymentController.showFirst
 
   private val checkExportMovementReferenceNumbersKey: String = "check-export-movement-reference-numbers"
 
@@ -113,7 +121,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                   )
                 )
               case No  =>
-                (journey, Redirect(enterContactDetailsStep))
+                (journey, Redirect(nextStepInJourney(journey)))
             }
         )
         .asFuture
@@ -161,11 +169,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && containsExportedMod(mod)               =>
         (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
       case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !containsExportedMod(mod)                 =>
-        (journey, Redirect(enterContactDetailsStep)).asFuture
+        (journey, Redirect(nextStepInJourney(journey))).asFuture
       case (Some(rfs), None, _) if ntas.contains(rfs)                                                   =>
         (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _, _)                                                                              =>
-        (journey, Redirect(enterContactDetailsStep)).asFuture
+        (journey, Redirect(nextStepInJourney(journey))).asFuture
     }
 
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =
