@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -171,7 +172,30 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       }
 
-      "redirect to enter contact details page when no is selected" in forAllWith(
+      "redirect to choose payee type page when no is selected and has single security" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+        forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder = SecuritiesSingleJourneyGenerators
+              .buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
+              )
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(Some(false)),
+            routes.ChoosePayeeTypeController.show
+          )
+        }
+      }
+
+      "redirect to confirm full repayment page when no is selected and has multiple securities" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
@@ -186,7 +210,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
         checkIsRedirect(
           performAction(Some(false)),
-          routes.EnterContactDetailsController.show
+          routes.ConfirmFullRepaymentController.showFirst
         )
       }
 
