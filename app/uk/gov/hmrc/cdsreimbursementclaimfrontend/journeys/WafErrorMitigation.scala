@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 trait WafErrorMitigation[A] {
 
-  val additionalDetailsReplacementText    = ""
-  val specialCircumstancesReplacementText = ""
+  val additionalDetailsReplacementText    = " "
+  val specialCircumstancesReplacementText = " "
 
   def excludeFreeTextInputs(): (Seq[(String, String)], A)
 
