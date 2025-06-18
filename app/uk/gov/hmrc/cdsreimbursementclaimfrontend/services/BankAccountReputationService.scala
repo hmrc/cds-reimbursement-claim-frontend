@@ -91,7 +91,7 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
       )
   }
 
-  def getBusinessAccountReputation(
+   def getBusinessAccountReputation(
     bankAccountDetails: BankAccountDetails
   )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
     val barsAccount: BarsAccount               =
@@ -101,7 +101,7 @@ class DefaultBankAccountReputationService @Inject() (bankAccountReputationConnec
     val barsRequest: BarsBusinessAssessRequest = BarsBusinessAssessRequest(barsAccount, barsBusiness)
     bankAccountReputationConnector.getBusinessReputation(barsRequest)
   }
-
+  
   def getPersonalAccountReputation(
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String]
