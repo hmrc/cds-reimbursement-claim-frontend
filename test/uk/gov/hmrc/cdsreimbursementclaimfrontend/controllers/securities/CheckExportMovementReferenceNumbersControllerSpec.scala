@@ -172,24 +172,27 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       }
 
-      "redirect to choose payee type page when no is selected and has single security" in forAllWith(
-        JourneyGenerator(
-          testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = SecuritiesSingleJourneyGenerators
-            .buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
-              Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
-            )
-        )
-      ) { case (journey, _) =>
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-        }
+      "redirect to choose payee type page when no is selected and has single security" in {
+        featureSwitch.enable(Feature.SingleSecurityTrack)
+        forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder = SecuritiesSingleJourneyGenerators
+              .buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
+              )
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
 
-        checkIsRedirect(
-          performAction(Some(false)),
-          routes.ChoosePayeeTypeController.show
-        )
+          checkIsRedirect(
+            performAction(Some(false)),
+            routes.ChoosePayeeTypeController.show
+          )
+        }
       }
 
       "redirect to confirm full repayment page when no is selected and has multiple securities" in forAllWith(
