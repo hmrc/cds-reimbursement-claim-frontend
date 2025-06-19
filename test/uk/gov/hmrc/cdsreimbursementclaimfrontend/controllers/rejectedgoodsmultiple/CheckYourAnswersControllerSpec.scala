@@ -118,7 +118,7 @@ class CheckYourAnswersControllerSpec
     )
 
     val mrnKeys: Seq[String] =
-      (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber(i).capitalize} MRN")
+      (1 to claim.movementReferenceNumbers.size).map(i => s"${OrdinalNumber.numeric(i).capitalize} MRN")
 
     summaryKeys.should(
       contain.allOf(

@@ -161,6 +161,8 @@ final class RejectedGoodsMultipleJourney private (
     toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
   }
 
+  def hasAllClaimsSelectedForIndex(index: Int): Boolean = true
+
   def needsBanksAccountDetailsSubmission: Boolean =
     !this.isSubsidyOnlyJourney
 

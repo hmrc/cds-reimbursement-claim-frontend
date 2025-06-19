@@ -73,19 +73,15 @@ class CheckClaimDetailsControllerSpec
     doc: Document,
     journey: OverpaymentsMultipleJourney
   ): Unit = {
-
     validateClaimsTablesForMultiple(
       doc,
       journey.getReimbursementsWithCorrectAmounts,
       routes.EnterClaimController.show
     )
 
-    summaryKeyValueList(doc) should containOnlyPairsOf(
-      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
-    )
-
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
+    validateCheckClaimTotal(
+      doc,
+      journey.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
 
@@ -118,59 +114,6 @@ class CheckClaimDetailsControllerSpec
             doc => assertPageContent(doc, journey)
           )
         }
-      }
-    }
-
-    "Submit" must {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.submit(
-          FakeRequest().withFormUrlEncodedBody(data*)
-        )
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
-      "accept YES response and redirect to the next page" in
-        forAll(journeyGen) { case (journey, _) =>
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction("check-claim" -> "true"),
-            routes.ChoosePayeeTypeController.show
-          )
-        }
-
-      "accept YES response and redirect to the CYA page when in change mode" in
-        forAll(completeJourneyGen) { journey =>
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction("check-claim" -> "true"),
-            routes.CheckYourAnswersController.show
-          )
-        }
-
-      "accept NO response and redirect to select duties page" in {
-        val (journey, _) = journeyGen.sample.get
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction("check-claim" -> "false"),
-          routes.SelectDutiesController.showFirst
-        )
       }
     }
   }

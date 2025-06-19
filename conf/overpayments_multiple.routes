@@ -59,7 +59,6 @@ GET         /overpayments/multiple/enter-claim/:index/:taxCode                  
 POST        /overpayments/multiple/enter-claim/:index/:taxCode                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterClaimController.submit(index: Int, taxCode: TaxCode)
 
 GET         /overpayments/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.show
-POST        /overpayments/multiple/check-claim                                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimDetailsController.submit
 
 GET         /overpayments/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.show
 POST        /overpayments/multiple/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ChooseFileTypeController.submit

@@ -48,7 +48,6 @@ GET          /rejected-goods/multiple/enter-claim/:index/:taxCode               
 POST         /rejected-goods/multiple/enter-claim/:index/:taxCode                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterClaimController.submit(index: Int, taxCode: TaxCode)
 
 GET          /rejected-goods/multiple/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimDetailsController.show
-POST         /rejected-goods/multiple/check-claim                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimDetailsController.submit
 
 GET          /rejected-goods/multiple/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.show
 POST         /rejected-goods/multiple/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.submit

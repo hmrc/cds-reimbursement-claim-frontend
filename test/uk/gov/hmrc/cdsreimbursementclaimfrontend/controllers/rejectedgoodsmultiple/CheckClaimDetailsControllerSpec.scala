@@ -76,12 +76,9 @@ class CheckClaimDetailsControllerSpec
       routes.EnterClaimController.show
     )
 
-    summaryKeyValueList(doc) should containOnlyPairsOf(
-      Seq(m("check-claim.table.total") -> journey.getTotalReimbursementAmount.toPoundSterlingString)
-    )
-
-    assertPageElementsByIdAndExpectedText(doc)(
-      s"check-claim-yes-no" -> s"${m(s"check-claim.is-this-correct")} ${m(s"check-claim.yes")} ${m(s"check-claim.no")}"
+    validateCheckClaimTotal(
+      doc,
+      journey.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
 
@@ -113,83 +110,5 @@ class CheckClaimDetailsControllerSpec
         }
       }
     }
-
-    "Submit" must {
-
-      def performAction(value: String): Future[Result] =
-        controller.submit(
-          FakeRequest()
-            .withFormUrlEncodedBody("check-claim" -> value)
-        )
-
-      "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction("true"))  shouldBe NOT_FOUND
-        status(performAction("false")) shouldBe NOT_FOUND
-      }
-
-      "redirect to the next page if answer is yes" in {
-        forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
-          assert(journey.hasCompleteReimbursementClaims)
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction("true"),
-            "/claim-back-import-duty-vat/rejected-goods/multiple/enter-inspection-date"
-          )
-        }
-      }
-
-      "redirect back to the duties selection if answer is no" in {
-        forAll(incompleteJourneyWithCompleteClaimsGen(2)) { case (journey, _) =>
-          assert(journey.hasCompleteReimbursementClaims)
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-          }
-
-          checkIsRedirect(
-            performAction("false"),
-            "/claim-back-import-duty-vat/rejected-goods/multiple/select-duties"
-          )
-        }
-      }
-
-      "when in change mode redirect to the CYA page if answer is yes" in {
-        forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction("true"),
-            "/claim-back-import-duty-vat/rejected-goods/multiple/check-your-answers"
-          )
-        }
-      }
-
-      "when in change mode redirect back to the duties selection if answer is no" in {
-        forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(journey.withDutiesChangeMode(true)))(Right(()))
-          }
-
-          checkIsRedirect(
-            performAction("false"),
-            "/claim-back-import-duty-vat/rejected-goods/multiple/select-duties"
-          )
-        }
-      }
-    }
   }
-
 }
