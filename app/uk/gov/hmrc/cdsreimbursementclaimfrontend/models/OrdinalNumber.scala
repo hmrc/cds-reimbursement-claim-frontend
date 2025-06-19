@@ -31,4 +31,10 @@ object OrdinalNumber {
         messages.translate(key, Seq.empty).fold(s"$i")(suffix => s"$i$suffix")
       }(identity)
   }
+
+  def numeric(index: Int)(implicit messages: Messages): String = {
+    val i   = Math.abs(index)
+    val key = s"ordinal.suffix.${if i > 9 && i < 20 then "1x" else i % 10}"
+    messages.translate(key, Seq.empty).fold(s"$i")(suffix => s"$i$suffix")
+  }
 }

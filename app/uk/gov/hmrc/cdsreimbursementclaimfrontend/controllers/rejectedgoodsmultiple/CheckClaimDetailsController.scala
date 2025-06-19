@@ -17,19 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import com.github.arturopala.validator.Validator.Validate
-import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_multiple
 
 import javax.inject.Inject
@@ -43,13 +38,11 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleJourneyBaseController {
 
-  val form: Form[YesNo] = YesOrNoQuestionForm("check-claim")
-
-  val submitAction: Call                       = routes.CheckClaimDetailsController.submit
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
+  val selectDutiesActionForIndex: Int => Call  = routes.SelectDutiesController.show(_)
   val enterMrnAction: Call                     = routes.EnterMovementReferenceNumberController.showFirst()
   val enterClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.show
-  val nextAction: Call                         = routes.EnterInspectionDateController.show
+  val continueAction: Call                     = routes.EnterInspectionDateController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
@@ -63,48 +56,15 @@ class CheckClaimDetailsController @Inject() (
       else {
         Ok(
           checkClaimDetails(
-            form,
             journey.getReimbursementsWithCorrectAmounts,
+            journey.hasAllClaimsSelectedForIndex,
             enterClaimAction,
-            submitAction
+            continueAction,
+            selectDutiesActionForIndex
           )
         )
       }
     ).asFuture
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
-    implicit request =>
-      journey =>
-        (if !journey.hasCompleteMovementReferenceNumbers then (journey, Redirect(enterMrnAction))
-         else if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction))
-         else {
-           form
-             .bindFromRequest()
-             .fold(
-               formWithErrors =>
-                 (
-                   journey,
-                   Ok(
-                     checkClaimDetails(
-                       formWithErrors,
-                       journey.getReimbursementsWithCorrectAmounts,
-                       enterClaimAction,
-                       submitAction
-                     )
-                   )
-                 ),
-               {
-                 case Yes =>
-                   (
-                     journey,
-                     if shouldForwardToCYA(journey) then Redirect(checkYourAnswers)
-                     else Redirect(nextAction)
-                   )
-                 case No  => (journey.withDutiesChangeMode(true), Redirect(selectDutiesAction))
-               }
-             )
-         }) .asFuture,
-    fastForwardToCYAEnabled = false
-  )
 }

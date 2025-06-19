@@ -49,7 +49,11 @@ object MovementReferenceNumberSummary {
       )
     )
 
-  def multiple(mrns: Seq[MRN], key: String, subKey: Option[String], changeCallOpt: Option[Call])(implicit
+  extension (actions: Seq[ActionItem])
+    def toActions: Option[Actions] =
+      if actions.isEmpty then None else Some(Actions(items = actions))
+
+  def multiple(mrns: Seq[MRN], changeCallOpt: Option[Int => Call], removeCallOpt: Option[MRN => Call] = None)(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -59,18 +63,32 @@ object MovementReferenceNumberSummary {
             HtmlContent(OrdinalNumberMrnHelper(index + 1))
           ),
           value = Value(Text(mrn.value)),
-          actions = changeCallOpt.map(changeCall =>
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = changeCall.url,
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText =
-                    Some(messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1)))
-                )
+          actions = (changeCallOpt
+            .map(changeCall =>
+              ActionItem(
+                href = changeCall(index + 1).url,
+                content = Text(messages("cya.change")),
+                visuallyHiddenText =
+                  Some(messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1)))
               )
             )
-          ),
+            .toSeq
+            ++ {
+              if mrns.size <= 2 || index <= 0
+              then Seq.empty
+              else
+                removeCallOpt
+                  .map(removeCall =>
+                    ActionItem(
+                      href = removeCall(mrn).url,
+                      content = Text(messages("cya.remove")),
+                      visuallyHiddenText = Some(
+                        messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1))
+                      )
+                    )
+                  )
+                  .toSeq
+            }).toActions,
           classes = "mrn-value"
         )
       }

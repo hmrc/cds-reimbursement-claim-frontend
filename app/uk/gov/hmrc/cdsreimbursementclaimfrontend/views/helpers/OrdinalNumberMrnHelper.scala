@@ -39,7 +39,7 @@ object OrdinalNumberMrnHelper {
   private def applyEnglish(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
     if isFirstOnPage && number === 1 then messages("ordinal-number-mrn-first-on-page")
     else {
-      val ordinalNumber = OrdinalNumber(number)
+      val ordinalNumber = OrdinalNumber.numeric(number)
       messages("ordinal-number-mrn", ordinalNumber.capitalize)
     }
 }

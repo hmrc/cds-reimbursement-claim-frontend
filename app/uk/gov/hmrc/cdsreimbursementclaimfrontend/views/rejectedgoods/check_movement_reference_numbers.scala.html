@@ -19,7 +19,6 @@
 @import play.api.data.Form
 @import play.api.mvc.Call
 @import play.twirl.api.Html
-@import play.twirl.api.TwirlFeatureImports.defining
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -32,6 +31,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
         radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
@@ -54,30 +54,7 @@
 
         @errorSummary(form.errors)
 
-        <dl class="govuk-summary-list cds-multi-action">
-            @references.zipWithIndex.map { mrnWithIndex =>
-                @defining(mrnWithIndex._2) { index =>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">@Html(OrdinalNumberMrnHelper(index + 1))</dt>
-                        <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href=@changeUrl(index + 1).url>
-                                @{messages(s"cya.change")}
-                                <span class="govuk-visually-hidden">@Html(OrdinalNumberMrnHelper(index + 1))</span>
-                            </a>
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                        @if(references.size > 2) {
-                            <a class="govuk-link" href=@removeUrl(mrnWithIndex._1).url>
-                                @{messages(s"cya.remove")}
-                                <span class="govuk-visually-hidden">@Html(OrdinalNumberMrnHelper(index + 1))</span>
-                            </a>
-                        }
-                        </dd>
-                    </div>
-                }
-            }
-        </dl>
+        @summary(MovementReferenceNumberSummary.multiple(references, Some(changeUrl), Some(removeUrl)))
 
         @radios(
             form = form,

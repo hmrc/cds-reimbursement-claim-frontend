@@ -112,13 +112,14 @@ class CheckMovementReferenceNumbersControllerSpec
           .show(index + 1)
           .url
         if hasDeleteLink then {
-          div.select("dd:nth-of-type(3) a").isEmpty shouldBe false
+          val a = div.select("dd:nth-of-type(2) > ul > li:nth-child(2) a")
+          a.isEmpty shouldBe false
           val mrn = MRN(div.select("dd:nth-of-type(1)").text())
           possibleMrns should contain(mrn)
-          val fullHref = div.select("dd:nth-of-type(3) a").attr("href")
+          val fullHref = a.attr("href")
           fullHref shouldBe routes.CheckMovementReferenceNumbersController.delete(mrn).url
         } else {
-          div.select("dd:nth-of-type(3) a").isEmpty shouldBe true
+          div.select("dd:nth-of-type(2) > ul > li:nth-child(2) a").isEmpty shouldBe true
         }
         true
       }
@@ -225,8 +226,9 @@ class CheckMovementReferenceNumbersControllerSpec
               getErrorSummary(doc) shouldBe ""
               formAction(doc)      shouldBe routes.CheckMovementReferenceNumbersController.submit.url
               val lines = doc.select("dl > div").asScala
-              lines.size shouldBe acc14Declarations.size
-              lines.zipWithIndex.forall(line => validateMrnLine(line._1, line._2, mrns))
+              lines.size                                                  shouldBe acc14Declarations.size
+              validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
+              lines.zipWithIndex.drop(1).forall(line => validateMrnLine(line._1, line._2, mrns, hasDeleteLink = true))
             }
           )
         }

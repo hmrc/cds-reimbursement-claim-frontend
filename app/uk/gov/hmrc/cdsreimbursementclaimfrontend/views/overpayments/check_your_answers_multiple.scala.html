@@ -48,7 +48,7 @@
     @heading(Html(title))
 
     @subHeading(Html(messages(combine(s"check-your-answers.reference-number.multiple", subKey, subsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, s"check-your-answers.reference-number.rejectedgoodsmultiple", subKey, Some(routes.CheckMovementReferenceNumbersController.show)))
+    @summary(MovementReferenceNumberSummary.multiple(claim.movementReferenceNumbers, Some(i => routes.CheckMovementReferenceNumbersController.show)))
 
     @cyaCommon(claim, displayDeclarationOpt, isSubsidy, isPrintView = false)
 

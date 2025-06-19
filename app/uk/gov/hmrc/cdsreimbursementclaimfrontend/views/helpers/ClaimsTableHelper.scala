@@ -52,12 +52,12 @@ object ClaimsTableHelper {
       ),
       HeadCell(
         content = Text(messages("check-claim.table-header.full-amount")),
-        classes = "govuk-table__header govuk-table__header--numeric",
+        classes = "govuk-table__header govuk-table__header--numeric govuk-table__header--nowrap",
         attributes = Map("id" -> s"full-amount-header$headerIdSuffix")
       ),
       HeadCell(
         content = Text(messages("check-claim.table-header.claim-amount")),
-        classes = "govuk-table__header govuk-table__header--numeric",
+        classes = "govuk-table__header govuk-table__header--numeric govuk-table__header--nowrap",
         attributes = Map("id" -> s"claim-amount-header$headerIdSuffix")
       ),
       HeadCell(
@@ -234,22 +234,22 @@ object ClaimsTableHelper {
       TableRow(
         content = HtmlContent(messages("check-claim.total.header")),
         attributes = Map("id" -> s"total-$idSuffix"),
-        classes = "govuk-table__header"
+        classes = "govuk-table__header cell-no-border"
       ),
       TableRow(
         content = Text(paidAmountTotal.toPoundSterlingString),
         attributes = Map("id" -> s"full-amount-total-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
+        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       ),
       TableRow(
         content = Text(claimAmountTotal.toPoundSterlingString),
         attributes = Map("id" -> s"claim-amount-total-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
+        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       ),
       TableRow(
         content = Text(""),
         attributes = Map("id" -> s"blank-cell-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric"
+        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       )
     )
 
@@ -263,7 +263,7 @@ object ClaimsTableHelper {
       TableRow(
         content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
         attributes = Map("id" -> s"selected-claim-$idSuffix"),
-        classes = "govuk-table__header"
+        classes = "govuk-table__cell--regular"
       ),
       TableRow(
         content = Text(paidAmount.toPoundSterlingString),
@@ -507,11 +507,11 @@ object ClaimsTableHelper {
       SummaryListRow(
         key = Key(
           content = HtmlContent(messages("check-claim.table.total")),
-          classes = "govuk-heading-m govuk-!-padding-bottom-3"
+          classes = "govuk-heading-m govuk-!-padding-bottom-3 govuk-summary-list__key--nowrap"
         ),
         value = Value(
           content = Text(total.toPoundSterlingString),
-          classes = "govuk-!-margin-bottom-3 govuk-heading-m"
+          classes = "govuk-!-margin-bottom-3 govuk-heading-m govuk-summary-list__value--numeric"
         ),
         classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-heading-l  govuk-summary-list--no-border"
       )
@@ -737,5 +737,44 @@ object ClaimsTableHelper {
       Excise -> exciseDuties
     ).filterNot(_._2.isEmpty)
   }
+
+  // s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"
+
+  def chargesToClaimForMultiple(
+    claims: Seq[ReimbursementWithCorrectAmount],
+    mrn: MRN,
+    index: Int,
+    selectDutiesAction: Int => Call
+  )(implicit messages: Messages): SummaryList =
+    SummaryList(
+      attributes = Map("id" -> s"charges-to-claim-$index"),
+      classes = "govuk-summary-list--no-border",
+      rows = Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("check-claim.multiple.what-do-you-want-to-claim"))),
+          value = Value(
+            HtmlContent(
+              claims
+                .map(r => s"<li>${r.taxCode} - ${messages(s"select-duties.duty.${r.taxCode}")}</li>")
+                .mkString("<ul class=\"govuk-list\">", "", "</ul>")
+            )
+          ),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  attributes = Map("id" -> s"charges-to-claim-$index-action"),
+                  href = selectDutiesAction(index).url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(
+                    messages("check-claim.multiple.what-do-you-want-to-claim")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
 
 }

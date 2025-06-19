@@ -120,6 +120,10 @@ check-claim.yes=Iawn
 check-claim.selected-duties.question=Beth hoffech chi ei hawlio?
 check-claim.change=Newid
 
+check-claim.multiple.card.charges-to-claim=Costau i hawlio
+check-claim.multiple.card.claim-amount=Swm yr hawliad
+check-claim.multiple.what-do-you-want-to-claim=Beth hoffech chi ei hawlio amdano? 
+
 check-claim.securities.single.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.securities.single.claiming-full-amount=A hoffech hawlio’r swm llawn yn ôl?
 check-claim.securities.single.what-do-you-want-to-claim=Beth hoffech chi ei hawlio?

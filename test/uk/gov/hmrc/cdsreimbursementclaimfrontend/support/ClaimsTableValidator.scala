@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.collection.immutable
 
-trait ClaimsTableValidator {
+trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
   this: Matchers =>
 
   def validateClaimsTableForSingle(
@@ -272,4 +272,12 @@ trait ClaimsTableValidator {
     doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
     doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
   }
+
+  def validateCheckClaimTotal(doc: Document, expectedTotal: String)(implicit
+    m: Messages
+  ) =
+    val element = doc.getElementById(s"claim-total")
+    summaryKeyValueList(element) should containOnlyPairsOf(
+      Seq(m("check-claim.table.total") -> expectedTotal)
+    )
 }

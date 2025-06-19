@@ -108,17 +108,21 @@ class CheckMovementReferenceNumbersControllerSpec
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
         // TODO: Get correct URL
-        div.select("dd:nth-of-type(2)").select("a").attr("href") shouldBe routes.EnterMovementReferenceNumberController
+        div
+          .select("dd:nth-of-type(2)")
+          .select("a:nth-of-type(1)")
+          .attr("href") shouldBe routes.EnterMovementReferenceNumberController
           .show(index + 1)
           .url
         if hasDeleteLink then {
-          div.select("dd:nth-of-type(3) a").isEmpty shouldBe false
+          val a = div.select("dd:nth-of-type(2) > ul > li:nth-child(2) a")
+          a.isEmpty shouldBe false
           val mrn = MRN(div.select("dd:nth-of-type(1)").text())
           possibleMrns should contain(mrn)
-          val fullHref = div.select("dd:nth-of-type(3) a").attr("href")
+          val fullHref = a.attr("href")
           fullHref shouldBe routes.CheckMovementReferenceNumbersController.delete(mrn).url
         } else {
-          div.select("dd:nth-of-type(3) a").isEmpty shouldBe true
+          div.select("dd:nth-of-type(2) > ul > li:nth-child(2) a").isEmpty shouldBe true
         }
         true
       }
@@ -227,7 +231,7 @@ class CheckMovementReferenceNumbersControllerSpec
               val lines = doc.select("dl > div").asScala
               lines.size                                                  shouldBe acc14Declarations.size
               validateMrnLine(lines.head, 0, mrns, hasDeleteLink = false) shouldBe true
-              lines.zipWithIndex.drop(1).forall(line => validateMrnLine(line._1, line._2, mrns))
+              lines.zipWithIndex.drop(1).forall(line => validateMrnLine(line._1, line._2, mrns, hasDeleteLink = true))
             }
           )
         }

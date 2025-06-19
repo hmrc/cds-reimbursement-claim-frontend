@@ -127,6 +127,10 @@ check-claim.duties-selected-summary.hidden={0} you want to claim for
 check-claim.excise.duties-selected-summary.hidden={0} duties you want to claim for
 check-claim.duty-claim-amount.hidden={0} amount
 
+check-claim.multiple.card.charges-to-claim=Charges to claim
+check-claim.multiple.card.claim-amount=Claim amount
+check-claim.multiple.what-do-you-want-to-claim=What do you want to claim?
+
 check-claim.securities.single.title=Check the repayment total for this claim
 check-claim.securities.single.hidden.claim-full-amount=whether you want to claim the full amount
 check-claim.securities.single.hidden.select-duties=the charges you want to claim
@@ -1400,7 +1404,7 @@ multiple-select-duties.help-text.1=These are the duties that have been paid unde
 multiple-select-duties.title=Select the duties you want to claim for under {0} Movement Reference Number (MRN)
 
 notification-banner.important=Important
-ordinal-number-mrn-first-on-page=First Movement Reference Number (MRN)
+ordinal-number-mrn-first-on-page=1st Movement Reference Number (MRN)
 ordinal-number-mrn={0} MRN
 ordinal-number-mrn.export={0} export MRN
 

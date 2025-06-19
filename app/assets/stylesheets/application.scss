@@ -4,16 +4,19 @@ $hmrc-assets-path: "/claim-back-import-duty-vat/assets/lib/hmrc-frontend/hmrc/";
 $govuk-include-default-font-face: false;
 @import "lib/govuk-frontend/dist/govuk/base";
 
-.govuk-summary-list {
-    display: block;
-}
-
 .govuk-summary-list__row.mrn-value .govuk-summary-list__value {
     white-space: nowrap;
 }
 
 .govuk-panel--confirmation strong {
     overflow-wrap: break-word;
+}
+
+.govuk-grid-column-two-thirds {
+    @media only screen and (max-width: 800px) {
+        width: 100%;
+        float: left;
+    }
 }
 
 .cds-wrap-content {
@@ -31,5 +34,38 @@ $govuk-include-default-font-face: false;
         word-break: break-word;
     }
 
+}
+
+.govuk-table__cell.cell-no-border {
+    border-bottom-style: none;
+}
+
+.govuk-table__header.cell-no-border {
+    border-bottom-style: none;
+}
+
+.govuk-table__cell--regular {
+    font-weight: normal !important;
+}
+
+.govuk-table__header--nowrap {
+    white-space: nowrap;
+}
+
+.govuk-summary-list--no-border {
+    border-bottom-style: none;
+}
+
+.govuk-summary-list__key--nowrap {
+    white-space: nowrap;
+}
+
+.govuk-summary-list__value--numeric {
+    text-align: right;
+}
+
+.govuk-summary-list__actions-list {
+    display: flex;
+    flex-flow: row;
 }
 

@@ -236,6 +236,11 @@ final class OverpaymentsMultipleJourney private (
     toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
   }
 
+  def hasAllClaimsSelectedForIndex(index: Int): Boolean =
+    getNthMovementReferenceNumber(index - 1).forall { mrn =>
+      getSelectedDuties(mrn).map(_.size).getOrElse(0) == getAvailableDuties(mrn).size
+    }
+
   def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
     getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
