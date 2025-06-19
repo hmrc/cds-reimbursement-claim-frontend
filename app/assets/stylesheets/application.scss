@@ -12,6 +12,13 @@ $govuk-include-default-font-face: false;
     overflow-wrap: break-word;
 }
 
+.govuk-grid-column-two-thirds {
+    @media only screen and (max-width: 800px) {
+        width: 100%;
+        float: left;
+    }
+}
+
 .cds-wrap-content {
 
     @media only screen and (max-width: 600px) {
@@ -55,5 +62,10 @@ $govuk-include-default-font-face: false;
 
 .govuk-summary-list__value--numeric {
     text-align: right;
+}
+
+.govuk-summary-list__actions-list {
+    display: flex;
+    flex-flow: row;
 }
 
