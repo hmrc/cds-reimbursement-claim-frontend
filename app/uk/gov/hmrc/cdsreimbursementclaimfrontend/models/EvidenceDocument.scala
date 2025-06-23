@@ -29,7 +29,8 @@ final case class EvidenceDocument(
   fileMimeType: String,
   size: Long,
   uploadedOn: LocalDateTime,
-  documentType: UploadDocumentType
+  documentType: UploadDocumentType,
+  previewUrl: Option[String] = None
 )
 
 object EvidenceDocument {
@@ -42,7 +43,8 @@ object EvidenceDocument {
       fileMimeType = uploadedFile.fileMimeType,
       size = uploadedFile.fileSize.getOrElse(0L),
       uploadedOn = uploadedFile.uploadTimestamp.toLocalDateTime,
-      documentType = uploadedFile.documentType.getOrElse(UploadDocumentType.Other)
+      documentType = uploadedFile.documentType.getOrElse(UploadDocumentType.Other),
+      previewUrl = uploadedFile.previewUrl
     )
 
   implicit val equality: Eq[EvidenceDocument]   = Eq.fromUniversalEquals
