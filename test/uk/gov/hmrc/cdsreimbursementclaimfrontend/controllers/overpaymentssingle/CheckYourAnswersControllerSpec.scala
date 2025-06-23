@@ -105,76 +105,71 @@ class CheckYourAnswersControllerSpec
     claim: OverpaymentsSingleJourney.Output,
     isPrintView: Boolean
   ) = {
-    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
+    val cardTitles    = doc.select("h2.govuk-summary-card__title").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-    headers       should not be empty
+    cardTitles    should not be empty
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    headers.toSeq should containOnlyDefinedElementsOf(
-      "Movement Reference Number (MRN)".expectedWhen(!isPrintView),
-      "Declaration details".expectedAlways,
-      "Contact details for this claim".expectedAlways,
+    cardTitles.toSeq should containOnlyDefinedElementsOf(
+      "Submission details".expectedWhen(isPrintView),
       "Claim details".expectedAlways,
-      "Claim total".expectedAlways,
+      "Claim amount".expectedAlways,
       "Repayment details".expectedAlways,
-      "Bank details".expectedWhen(claim.bankAccountDetails),
       "Supporting documents".expectedAlways,
-      "Now send your claim".expectedWhen(!isPrintView)
+      "Contact details for this claim".expectedAlways
     )
 
-    val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration
-    val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
+    val declaration: Option[DisplayDeclaration] = journey.answers.displayDeclaration
 
     val expectedDocuments: Seq[String] =
-      journey.answers.supportingEvidences.map { uploadDocument =>
-        s"${uploadDocument.fileName} ${uploadDocument.documentType
-            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
-      }
+      journey.answers.supportingEvidences
+        .groupBy(_.documentType)
+        .flatMap { case (docType, docs) =>
+          Seq(s"${m(s"choose-file-type.file-type.${docType.get}")}:") ++ docs.map(doc => s"${doc.fileName}")
+        }
+        .toSeq
 
     val submissionDate: LocalDateTime = journey.submissionDateTime.getOrElse(LocalDateTime.now())
 
     summaries.toSeq should containOnlyDefinedPairsOf(
-      Seq(
-        if (isPrintView) "Movement Reference Number (MRN)" -> Some(claim.movementReferenceNumber.value)
-        else "MRN"                                         -> Some(claim.movementReferenceNumber.value),
-        "Import date"       -> declarationDetails.map(_.acceptanceDate),
-        "Method of payment" -> Some(
-          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
-        ),
-        "Duties paid"       -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
-      ) ++
-        declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
+      declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
         Seq(
-          "Contact details"              -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"              -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "Basis of claim"               -> Some(
+          "Movement Reference Number (MRN)"  -> Some(claim.movementReferenceNumber.value),
+          "Personal details"                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+          "Address"                          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "Reason for claim"                 -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),
-          "Additional claim details"     -> Some(claim.additionalDetails),
-          "Duplicate MRN"                -> claim.duplicateMovementReferenceNumber.map(_.value),
-          "New EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
-          "New deferment account number" -> claim.newEoriAndDan.map(_.dan),
-          "Total"                        -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Payee"                        ->
+          "Additional claim information"     -> Some(claim.additionalDetails),
+          "Duplicate MRN"                    -> claim.duplicateMovementReferenceNumber.map(_.value),
+          "Correct EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
+          "Correct deferment account number" -> claim.newEoriAndDan.map(_.dan),
+          "Total"                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+          "What do you want to claim?"       -> Some(
+            claim.reimbursements
+              .map(reimbursement => m(s"tax-code.${reimbursement.taxCode}"))
+              .mkString(" ")
+          ),
+          "Payee"                            ->
             Some(claim.displayPayeeType match {
               case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
               case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
               case PayeeType.Representative => m("choose-payee-type.radio.representative")
             }),
-          "Method"                       ->
+          "Method"                           ->
             Some(claim.reimbursementMethod match {
               case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
               case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
               case _                                          => m("check-your-answers.repayment-method.bt")
             }),
-          "Uploaded"                     -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"          -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                    -> claim.bankAccountDetails.map(_.sortCode.value),
-          "Account number"               -> claim.bankAccountDetails.map(_.accountNumber.value)
+          "Uploaded files"                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
+          "Bank details"                     -> claim.bankAccountDetails.map(details =>
+            Seq(details.accountName.value, details.sortCode.value, details.accountNumber.value).mkString(" ")
+          )
         )
         ++ claim.reimbursements.map { r =>
           m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)
@@ -182,7 +177,6 @@ class CheckYourAnswersControllerSpec
         ++ (if (isPrintView) {
               Seq(
                 "Claim reference number" -> journey.caseNumber.map(_.value),
-                "Amount requested"       -> Some(claim.reimbursements.map(_.amount).sum.toPoundSterlingString),
                 "Submitted"              -> Some(
                   s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
                     " " ++ toDisplayDate(submissionDate.toLocalDate)

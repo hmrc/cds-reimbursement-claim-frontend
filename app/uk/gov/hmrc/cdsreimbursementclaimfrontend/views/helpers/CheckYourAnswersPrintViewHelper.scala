@@ -47,6 +47,22 @@ import java.time.format.DateTimeFormatter
 
 object CheckYourAnswersPrintViewHelper {
 
+  def render(caseNumber: String, submissionDate: LocalDateTime)(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("confirmation-of-submission.claim-reference"))),
+          value = Value(Text(caseNumber))
+        ),
+        SummaryListRow(
+          key = Key(HtmlContent(messages("check-your-answers.print-view.submitted"))),
+          value = Value(HtmlContent(getFormattedSubmissionDate(submissionDate)))
+        )
+      )
+    )
+
   def renderClaimDetails(
     caseNumber: String,
     mrn: MRN,
