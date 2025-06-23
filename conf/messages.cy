@@ -1457,6 +1457,30 @@ ordinal-number-mrn.8=Yr wythfed MRN
 ordinal-number-mrn.9=Y nawfed MRN
 ordinal-number-mrn.default=Yr MRN
 
+
+ordinal-number-mrn-first-on-page.numeric=Cyfeirnod Symud (MRN) 1af
+ordinal-number-mrn.numeric.2=Yr 2il MRN
+ordinal-number-mrn.numeric.3=Y 3ydd MRN
+ordinal-number-mrn.numeric.4=Y 4ydd MRN
+ordinal-number-mrn.numeric.5=Y 5ed MRN
+ordinal-number-mrn.numeric.6=Y 6ed MRN
+ordinal-number-mrn.numeric.7=Y 7fed MRN
+ordinal-number-mrn.numeric.8=Yr 8fed MRN
+ordinal-number-mrn.numeric.9=Y 9fed MRN
+ordinal-number-mrn.numeric.10=Y 10fed MRN
+ordinal-number-mrn.numeric.11=Yr 11eg MRN
+ordinal-number-mrn.numeric.12=Y 12fed MRN
+ordinal-number-mrn.numeric.13=Y 13eg MRN
+ordinal-number-mrn.numeric.14=Y 14eg MRN
+ordinal-number-mrn.numeric.15=Y 15fed MRN
+ordinal-number-mrn.numeric.16=Yr 16eg MRN
+ordinal-number-mrn.numeric.17=Yr 17eg MRN
+ordinal-number-mrn.numeric.18=Y 18fed MRN
+ordinal-number-mrn.numeric.19=Y 19eg MRN
+ordinal-number-mrn.numeric.20=Yr 20fed MRN
+ordinal-number-mrn.numeric.default=Yr MRN
+
+
 ordinal-number-mrn.export.1=Yr MRN allforio cyntaf
 ordinal-number-mrn.export.10=Y degfed MRN allforio
 ordinal-number-mrn.export.11=Yr unfed MRN ar ddeg allforio

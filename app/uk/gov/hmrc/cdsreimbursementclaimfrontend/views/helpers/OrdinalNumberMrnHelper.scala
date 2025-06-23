@@ -30,8 +30,8 @@ object OrdinalNumberMrnHelper {
 
   private def applyWelsh(number: Int, isFirstOnPage: Boolean)(implicit messages: Messages): String =
     if number <= 20 then {
-      if isFirstOnPage && number === 1 then messages(s"ordinal-number-mrn-first-on-page")
-      else messages(s"ordinal-number-mrn.$number")
+      if isFirstOnPage && number === 1 then messages(s"ordinal-number-mrn-first-on-page.numeric")
+      else messages(s"ordinal-number-mrn.numeric.$number")
     } else {
       messages(s"ordinal-number-mrn.default")
     }
