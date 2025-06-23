@@ -146,7 +146,7 @@ class CheckYourAnswersControllerSpec
           ),
           "Additional claim information"     -> Some(claim.additionalDetails),
           "Duplicate MRN"                    -> claim.duplicateMovementReferenceNumber.map(_.value),
-          "Correct EORI"                     -> claim.newEoriAndDan.map(_.eori.value),
+          "Correct EORI number"              -> claim.newEoriAndDan.map(_.eori.value),
           "Correct deferment account number" -> claim.newEoriAndDan.map(_.dan),
           "Total"                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
           "What do you want to claim?"       -> Some(
