@@ -21,6 +21,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes as multipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes as scheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as singleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
@@ -190,6 +191,32 @@ object CheckYourAnswersClaimDetailsCardSummary {
       )
     )
 
+  private def makeMrnRowsForMultiple(mrns: Seq[MRN], mrnChangeCallOpt: Option[Int => Call])(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
+    mrns.zipWithIndex.map { case (mrn, index) =>
+      SummaryListRow(
+        key = Key(
+          HtmlContent(OrdinalNumberMrnHelper(index + 1, index == 0))
+        ),
+        value = Value(Text(mrn.value)),
+        actions = mrnChangeCallOpt
+          .map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall(index + 1).url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText =
+                    Some(messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1)))
+                )
+              )
+            )
+          ),
+        classes = "mrn-value"
+      )
+    }
+
   def renderForSingle(claim: OverpaymentsSingleJourney.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
@@ -207,6 +234,25 @@ object CheckYourAnswersClaimDetailsCardSummary {
       claim.additionalDetails,
       if !isPrintView then Some(singleRoutes.BasisForClaimController.show) else None,
       if !isPrintView then Some(singleRoutes.EnterAdditionalDetailsController.show) else None
+    )
+
+  def renderForMultiple(claim: OverpaymentsMultipleJourney.Output, isPrintView: Boolean)(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      "multiple",
+      Some(
+        makeMrnRowsForMultiple(
+          claim.movementReferenceNumbers,
+          if !isPrintView then Some(multipleRoutes.EnterMovementReferenceNumberController.show) else None
+        )
+      ),
+      claim.basisOfClaim,
+      None,
+      claim.newEoriAndDan,
+      claim.additionalDetails,
+      if !isPrintView then Some(multipleRoutes.BasisForClaimController.show) else None,
+      if !isPrintView then Some(multipleRoutes.EnterAdditionalDetailsController.show) else None
     )
 
 }

@@ -21,6 +21,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -87,6 +88,43 @@ object CheckYourAnswersClaimAmountCardSummary {
           SummaryListRow(
             key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
             value = Value(Text(reimbursements.map(_.amount).sum.toPoundSterlingString))
+          )
+        )
+    )
+
+  def renderForMultiple(
+    reimbursementsMap: Map[MRN, Map[TaxCode, BigDecimal]],
+    changeCallOpt: Option[Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      reimbursementsMap.zipWithIndex.map { case ((mrn, claims), index) =>
+        SummaryListRow(
+          key = Key(
+            HtmlContent(
+              s"${OrdinalNumberMrnHelper.apply(index + 1)}" + "<br>" +
+                s"<span class='govuk-body govuk-!-margin-bottom-0 govuk-!-font-weight-regular mrn-value'>${mrn.value}</span>"
+            )
+          ),
+          value = Value(Text(claims.values.sum.toPoundSterlingString)),
+          actions = changeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some("")
+                )
+              )
+            )
+          )
+        )
+      }.toSeq ++
+        Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
+            value = Value(Text(reimbursementsMap.flatMap(_._2.values).sum.toPoundSterlingString))
           )
         )
     )
