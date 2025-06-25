@@ -133,6 +133,15 @@ check-claim.securities.single.hidden.duty-amount=swm y {0}
 
 
 
+check-claim.duties-selected-summary.key=Pa dollau {0} rydych am hawlio ar eu cyfer?
+check-claim.duty-types-summary.key=Pa dollau rydych am hawlio ar eu cyfer?
+select-duty-codes.title.excise-duty=Pa dollau ecséis rydych am hawlio ar eu cyfer?
+check-claim.duty-claim-amount.hidden=Swm y {0}
+check-claim.duty-types-summary.hidden=Y tollau rydych am hawlio ar eu cyfer
+check-claim.excise.duties-selected-summary.hidden=Y tollau {0} rydych am hawlio ar eu cyfer
+check-claim.duties-selected-summary.hidden=Y {0} rydych am hawlio ar eu cyfer
+check-claim.table.scheduled.change-link=<a href="{0}" id="{1}" class="govuk-link">Newid<span class="govuk-visually-hidden">{2}</span></a>
+
 check-claimant-details.change-hint.address=Cyfeiriad cyswllt
 check-claimant-details.change-hint.contact=Manylion cyswllt
 check-claimant-details.contact.address=Cyfeiriad cyswllt
@@ -960,6 +969,7 @@ excise-category.miscellaneous-road-fuels=Tanwydd ffordd amrywiol
 excise-category.spirits=Gwirodydd
 excise-category.tobacco=Cynhyrchion tybaco
 excise-category.wine=Gwin
+excise-category.other-fermented-products=Cynhyrchion eplesedig eraill
 
 enter-additional-details.bullet-help-text=Dylech gynnwys unrhyw newidiadau i’r canlynol:
 enter-additional-details.bullet.1=codau ffafriol
@@ -1040,6 +1050,7 @@ enter-claim.paid-amount.duty-type.spirits=Gwirodydd
 enter-claim.paid-amount.duty-type.tobacco=Cynhyrchion tybaco
 enter-claim.paid-amount.duty-type.uk-duty=doll y DU
 enter-claim.paid-amount.duty-type.wine=Gwin
+enter-claim.paid-amount.duty-type.other-fermented-products=Cynhyrchion eplesedig eraill
 
 enter-claim.rejected-goods.claim-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.rejected-goods.claim-amount.error.invalid-amount=Mae’n rhaid i swm yr hawliad fod yr un peth neu’n llai na’r swm a dalwyd
