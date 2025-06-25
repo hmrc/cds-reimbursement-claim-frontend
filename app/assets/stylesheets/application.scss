@@ -8,6 +8,17 @@ $govuk-include-default-font-face: false;
     white-space: nowrap;
 }
 
+.cya-multiple-claim-amount-mrn-key {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+@media (min-width: 641px) {
+    .responsive-text-align {
+        text-align: right;
+    }
+}
+
 .govuk-panel--confirmation strong {
     overflow-wrap: break-word;
 }

@@ -104,17 +104,19 @@ object CheckYourAnswersClaimAmountCardSummary {
           key = Key(
             HtmlContent(
               s"${OrdinalNumberMrnHelper.apply(index + 1)}" + "<br>" +
-                s"<span class='govuk-body govuk-!-margin-bottom-0 govuk-!-font-weight-regular mrn-value'>${mrn.value}</span>"
-            )
+                s"<span class='govuk-body govuk-!-margin-bottom-0 govuk-!-font-weight-regular'>${mrn.value}</span>"
+            ),
+            classes = "cya-multiple-claim-amount-mrn-key"
           ),
-          value = Value(Text(claims.values.sum.toPoundSterlingString)),
+          value = Value(Text(claims.values.sum.toPoundSterlingString), classes = "responsive-text-align"),
           actions = changeCallOpt.map(changeCall =>
             Actions(
               items = Seq(
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some("")
+                  visuallyHiddenText =
+                    Some(messages("check-your-answers.claim-amount.multiple.hidden", OrdinalNumberMrnHelper(index + 1)))
                 )
               )
             )
@@ -124,7 +126,10 @@ object CheckYourAnswersClaimAmountCardSummary {
         Seq(
           SummaryListRow(
             key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
-            value = Value(Text(reimbursementsMap.flatMap(_._2.values).sum.toPoundSterlingString))
+            value = Value(
+              Text(reimbursementsMap.flatMap(_._2.values).sum.toPoundSterlingString),
+              classes = "responsive-text-align"
+            )
           )
         )
     )

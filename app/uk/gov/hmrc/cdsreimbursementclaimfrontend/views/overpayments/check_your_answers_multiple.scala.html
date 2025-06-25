@@ -36,16 +36,15 @@
     cyaCommon: check_your_answers_multiple_common
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
-@subsidySubHeading = @{if (isSubsidy) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
     @heading(Html(title), classes = "govuk-heading-l")
 
-    @cyaCommon(claim, isSubsidy, isPrintView = false)
+    @cyaCommon(claim, isPrintView = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

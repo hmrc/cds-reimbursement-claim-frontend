@@ -75,7 +75,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
                     ActionItem(
                       href = changeCall.url,
                       content = Text(messages("cya.change")),
-                      visuallyHiddenText = Some(messages("check-your-answers.repayment-method.label"))
+                      visuallyHiddenText = Some(messages("check-your-answers.repayment-method.hidden"))
                     )
                   )
                 )
@@ -148,14 +148,13 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
 
   def renderForMultiple(
     claim: OverpaymentsMultipleJourney.Output,
-    isSubsidy: Boolean,
     isPrintView: Boolean
   )(implicit
     messages: Messages
   ): SummaryList =
     render(
-      if isSubsidy then Some(claim.displayPayeeType) else None,
-      if isSubsidy then Some(claim.reimbursementMethod) else None,
+      Some(claim.displayPayeeType),
+      None,
       claim.bankAccountDetails,
       if !isPrintView then Some(multipleRoutes.ChoosePayeeTypeController.show) else None,
       None,

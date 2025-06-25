@@ -26,13 +26,13 @@
     card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleJourney.Output, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForMultiple(claim, isPrintView))
 
 @card(messages("check-your-answers.claim-amount"), CheckYourAnswersClaimAmountCardSummary.renderForMultiple(claim.reimbursementClaims, if (!isPrintView) Some(routes.CheckClaimDetailsController.show) else None))
 
-@card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForMultiple(claim, isSubsidy, isPrintView))
+@card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForMultiple(claim, isPrintView))
 
 @card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None))
 

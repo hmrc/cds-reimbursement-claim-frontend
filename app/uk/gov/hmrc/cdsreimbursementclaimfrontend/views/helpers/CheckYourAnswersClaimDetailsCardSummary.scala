@@ -207,8 +207,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
                 ActionItem(
                   href = changeCall(index + 1).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText =
-                    Some(messages("check-your-answers.multiple.mrn-label-plaintext", OrdinalNumberMrnHelper(index + 1)))
+                  visuallyHiddenText = Some(OrdinalNumberMrnHelper(index + 1))
                 )
               )
             )

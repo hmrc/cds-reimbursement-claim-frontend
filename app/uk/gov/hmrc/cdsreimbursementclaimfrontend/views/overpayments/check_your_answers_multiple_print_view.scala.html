@@ -27,10 +27,10 @@
     cyaCommon: check_your_answers_multiple_common
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: OverpaymentsMultipleJourney.Output, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @card(messages("check-your-answers.print-view.submission-details"), CheckYourAnswersPrintViewHelper.render(caseNumber, submissionDate = submissionDate))
 
-    @cyaCommon(claim, isSubsidy, isPrintView = true)
+    @cyaCommon(claim, isPrintView = true)
 }
