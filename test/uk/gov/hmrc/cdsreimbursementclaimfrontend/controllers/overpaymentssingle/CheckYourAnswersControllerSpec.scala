@@ -42,12 +42,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDateTime
@@ -136,55 +134,51 @@ class CheckYourAnswersControllerSpec
     val submissionDate: LocalDateTime = journey.submissionDateTime.getOrElse(LocalDateTime.now())
 
     summaries.toSeq should containOnlyDefinedPairsOf(
-      declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
-        Seq(
-          "Movement Reference Number (MRN)"  -> Some(claim.movementReferenceNumber.value),
-          "Personal details"                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Address"                          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "Reason for claim"                 -> Some(
-            m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
-          ),
-          "Additional claim information"     -> Some(claim.additionalDetails),
-          "Duplicate MRN"                    -> claim.duplicateMovementReferenceNumber.map(_.value),
-          "Correct EORI number"              -> claim.newEoriAndDan.map(_.eori.value),
-          "Correct deferment account number" -> claim.newEoriAndDan.map(_.dan),
-          "Total"                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "What do you want to claim?"       -> Some(
-            claim.reimbursements
-              .map(reimbursement => m(s"tax-code.${reimbursement.taxCode}"))
-              .mkString(" ")
-          ),
-          "Payee"                            ->
-            Some(claim.displayPayeeType match {
-              case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
-              case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
-              case PayeeType.Representative => m("choose-payee-type.radio.representative")
-            }),
-          "Method"                           ->
-            Some(claim.reimbursementMethod match {
-              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
-              case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
-              case _                                          => m("check-your-answers.repayment-method.bt")
-            }),
-          "Uploaded files"                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
-          "Bank details"                     -> claim.bankAccountDetails.map(details =>
-            Seq(details.accountName.value, details.sortCode.value, details.accountNumber.value).mkString(" ")
-          )
+      Seq(
+        "Movement Reference Number (MRN)"  -> Some(claim.movementReferenceNumber.value),
+        "Personal details"                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
+        "Address"                          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+        "Reason for claim"                 -> Some(
+          m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
+        ),
+        "Additional claim information"     -> Some(claim.additionalDetails),
+        "Duplicate MRN"                    -> claim.duplicateMovementReferenceNumber.map(_.value),
+        "Correct EORI number"              -> claim.newEoriAndDan.map(_.eori.value),
+        "Correct deferment account number" -> claim.newEoriAndDan.map(_.dan),
+        "Total"                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+        "What do you want to claim?"       -> Some(
+          claim.reimbursements
+            .map(reimbursement => m(s"tax-code.${reimbursement.taxCode}"))
+            .mkString(" ")
+        ),
+        "Payee"                            ->
+          Some(claim.displayPayeeType match {
+            case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
+            case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
+            case PayeeType.Representative => m("choose-payee-type.radio.representative")
+          }),
+        "Method"                           ->
+          Some(claim.reimbursementMethod match {
+            case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
+            case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
+            case _                                          => m("check-your-answers.repayment-method.bt")
+          }),
+        "Uploaded files"                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
+        "Bank details"                     -> claim.bankAccountDetails.map(details =>
+          Seq(details.accountName.value, details.sortCode.value, details.accountNumber.value).mkString(" ")
         )
+      )
         ++ claim.reimbursements.map { r =>
           m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)
         }
-        ++ (if (isPrintView) {
-              Seq(
-                "Claim reference number" -> journey.caseNumber.map(_.value),
-                "Submitted"              -> Some(
-                  s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
-                    " " ++ toDisplayDate(submissionDate.toLocalDate)
-                )
-              )
-            } else {
-              Seq.empty
-            })
+        ++
+        Seq(
+          "Claim reference number" -> journey.caseNumber.map(_.value),
+          "Submitted"              -> Some(
+            s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
+              " " ++ toDisplayDate(submissionDate.toLocalDate)
+          )
+        ).filter(_ => isPrintView)
     )
 
     claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)

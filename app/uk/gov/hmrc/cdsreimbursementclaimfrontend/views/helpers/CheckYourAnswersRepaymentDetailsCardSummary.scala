@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
@@ -34,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 object CheckYourAnswersRepaymentDetailsCardSummary {
 
   def render(
-    payeeType: PayeeType,
+    payeeTypeOpt: Option[PayeeType],
     methodOfPaymentOpt: Option[ReimbursementMethod],
     bankAccountDetailsOpt: Option[BankAccountDetails],
     changePayeeTypeCallOpt: Option[Call],
@@ -44,75 +45,74 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     messages: Messages
   ): SummaryList =
     SummaryList(
-      Seq(
-        Some(
-          SummaryListRow(
-            key = Key(Text(messages("check-your-answers.payee-type.label"))),
-            value = Value(HtmlContent(messages(getPayeeTypeKey(payeeType)))),
-            actions = changePayeeTypeCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.payee-type.label"))
-                  )
+      payeeTypeOpt.map { payeeType =>
+        SummaryListRow(
+          key = Key(Text(messages("check-your-answers.payee-type.label"))),
+          value = Value(HtmlContent(messages(getPayeeTypeKey(payeeType)))),
+          actions = changePayeeTypeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages("check-your-answers.payee-type.label"))
                 )
               )
             )
           )
-        ),
-        methodOfPaymentOpt.map { methodOfPayment =>
-          SummaryListRow(
-            key = Key(Text(messages("check-your-answers.repayment-method.label"))),
-            value = Value(
-              HtmlContent(messages(getRepaymentMethodKey("check-your-answers.repayment-method", methodOfPayment)))
-            ),
-            actions = changeMethodOfPaymentCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.repayment-method.label"))
+        )
+      }.toSeq
+        ++
+          methodOfPaymentOpt.map { methodOfPayment =>
+            SummaryListRow(
+              key = Key(Text(messages("check-your-answers.repayment-method.label"))),
+              value = Value(
+                HtmlContent(messages(getRepaymentMethodKey("check-your-answers.repayment-method", methodOfPayment)))
+              ),
+              actions = changeMethodOfPaymentCallOpt.map(changeCall =>
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = changeCall.url,
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages("check-your-answers.repayment-method.hidden"))
+                    )
                   )
                 )
               )
             )
-          )
-        },
-        bankAccountDetailsOpt.map { bankAccountDetails =>
-          SummaryListRow(
-            key = Key(HtmlContent(messages("check-your-answers.bank-details.label"))),
-            value = Value(
-              HtmlContent(
-                Seq(
-                  Paragraph(
-                    bankAccountDetails.accountName.value
-                  ),
-                  Paragraph(
-                    bankAccountDetails.sortCode.value
-                  ),
-                  Paragraph(
-                    bankAccountDetails.accountNumber.value
-                  )
-                ).mkString("")
-              )
-            ),
-            actions = changeBankAccountDetailsCallOpt.map(changeCall =>
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = changeCall.url,
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages("check-your-answers.bank-details.label"))
+          }.toSeq ++
+          bankAccountDetailsOpt.map { bankAccountDetails =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages("check-your-answers.bank-details.label"))),
+              value = Value(
+                HtmlContent(
+                  Seq(
+                    Paragraph(
+                      bankAccountDetails.accountName.value
+                    ),
+                    Paragraph(
+                      bankAccountDetails.sortCode.value
+                    ),
+                    Paragraph(
+                      bankAccountDetails.accountNumber.value
+                    )
+                  ).mkString("")
+                )
+              ),
+              actions = changeBankAccountDetailsCallOpt.map(changeCall =>
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = changeCall.url,
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages("check-your-answers.bank-details.label"))
+                    )
                   )
                 )
               )
             )
-          )
-        }
-      ).flatten
+          }
     )
 
   private def getPayeeTypeKey(payeeType: PayeeType): String = payeeType match {
@@ -135,7 +135,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     messages: Messages
   ): SummaryList =
     render(
-      claim.displayPayeeType,
+      Some(claim.displayPayeeType),
       Some(claim.reimbursementMethod),
       claim.bankAccountDetails,
       if !isPrintView then Some(singleRoutes.ChoosePayeeTypeController.show) else None,
@@ -143,6 +143,23 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       else None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
         Some(singleRoutes.EnterBankAccountDetailsController.show)
+      else None
+    )
+
+  def renderForMultiple(
+    claim: OverpaymentsMultipleJourney.Output,
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      Some(claim.displayPayeeType),
+      None,
+      claim.bankAccountDetails,
+      if !isPrintView then Some(multipleRoutes.ChoosePayeeTypeController.show) else None,
+      None,
+      if claim.bankAccountDetails.isDefined && !isPrintView then
+        Some(multipleRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 }
