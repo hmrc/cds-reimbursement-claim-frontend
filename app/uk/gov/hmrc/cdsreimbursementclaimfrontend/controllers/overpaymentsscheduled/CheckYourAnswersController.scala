@@ -78,8 +78,6 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
-                  journey.answers.displayDeclaration,
-                  journey.isSubsidyOnlyJourney,
                   postAction
                 )
               )
@@ -174,10 +172,7 @@ class CheckYourAnswersController @Inject() (
                     Ok(
                       checkYourAnswersPagePrintView(
                         caseNumber,
-                        journey.getTotalReimbursementAmount,
                         output,
-                        journey.getLeadDisplayDeclaration,
-                        journey.isSubsidyOnlyJourney,
                         submissionDate
                       )
                     ).asFuture

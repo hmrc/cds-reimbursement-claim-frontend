@@ -23,14 +23,12 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -38,19 +36,15 @@
     cyaCommon: check_your_answers_scheduled_common
 )
 
-@(claim: OverpaymentsScheduledJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsScheduledJourney.Output, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
-@ifSubsidySubHeading = @{if (isSubsidy) "h2-subsidy" else "h2"}
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @heading(Html(title))
+    @heading(Html(title), classes = "govuk-heading-l")
 
-    @subHeading(Html(messages(combine(s"check-your-answers.reference-number", Some("scheduled"), ifSubsidySubHeading))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.scheduled(claim.movementReferenceNumber, s"check-your-answers.reference-number", Some("scheduled"), Some(routes.EnterMovementReferenceNumberController.show)))
-
-    @cyaCommon(claim, displayDeclarationOpt, isSubsidy, isPrintView = false)
+    @cyaCommon(claim,  isPrintView = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

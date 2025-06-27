@@ -18,7 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -116,7 +118,7 @@ object CheckYourAnswersClaimAmountCardSummary {
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText =
-                    Some(messages("check-your-answers.claim-amount.multiple.hidden", OrdinalNumberMrnHelper(index + 1)))
+                    Some(messages("check-your-answers.claim-amount.amount.hidden", OrdinalNumberMrnHelper(index + 1)))
                 )
               )
             )
@@ -133,4 +135,58 @@ object CheckYourAnswersClaimAmountCardSummary {
           )
         )
     )
+
+  def renderForScheduled(
+    reimbursementClaims: Map[DutyType, Map[TaxCode, AmountPaidWithCorrect]],
+    changeCallOpt: Option[Call] = None
+  )(implicit
+    messages: Messages
+  ): SummaryList = {
+
+    val amountsPerDutyCategory: Seq[(String, BigDecimal)] = {
+      val m = scala.collection.mutable.Map.empty[String, BigDecimal]
+      reimbursementClaims.iterator
+        .foreach { case (dutyType, reimbursements) =>
+          val category = dutyType.repr
+          val amount   = reimbursements.map(_._2.claimAmount).sum
+          m.update(category, m.getOrElse(category, BigDecimal("0.00")) + amount)
+        }
+      m.toSeq
+    }
+
+    val totalAmount: BigDecimal =
+      amountsPerDutyCategory.map(_._2).sum
+
+    SummaryList(rows =
+      amountsPerDutyCategory
+        .map { case (category, amount) =>
+          SummaryListRow(
+            key = Key(HtmlContent(messages(s"check-your-answers.claim-amount.$category.label"))),
+            value = Value(Text(amount.toPoundSterlingString)),
+            actions = changeCallOpt.map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(
+                      messages(
+                        "check-your-answers.claim-amount.amount.hidden",
+                        messages(s"check-your-answers.claim-amount.$category.label")
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
+            value = Value(Text(totalAmount.toPoundSterlingString))
+          )
+        )
+    )
+  }
 }

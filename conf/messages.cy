@@ -284,6 +284,10 @@ check-your-answers.bank-details.sort-code.label=Cod didoli
 check-your-answers.basis.h2=Sail yr hawliad
 check-your-answers.basis.l0=Dyma’r sail dros yr hawliad
 check-your-answers.claim-amount=Swm yr hawliad
+check-your-answers.claim-amount.amount.hidden=Swm y {0}
+check-your-answers.claim-amount.uk-duty.label=Toll y DU
+check-your-answers.claim-amount.eu-duty.label=Toll yr UE
+check-your-answers.claim-amount.excise-duty.label=Toll Ecséis
 check-your-answers.claim-calculation.duty.label=hawliad am ad-daliad ar gyfer MRN {0}
 check-your-answers.claim-calculation.eu-duty.label=Toll yr UE
 check-your-answers.claim-calculation.excise-duty.label=Toll Ecséis
@@ -415,6 +419,7 @@ check-your-answers.repayment-method.label=Dull
 check-your-answers.repayment-method.subsidy=Cymhorthdal wedi’i ddyrannu
 check-your-answers.scheduled-document.h2=Dogfen restredig
 check-your-answers.scheduled-document.label=Dogfen restredig
+check-your-answers.scheduled.claim-summary-document=Dogfen gryno o’r hawliad
 check-your-answers.scheduled.confirmation-statement.h2=Nawr anfonwch eich hawliad
 check-your-answers.scheduled.mrn-label=Yr MRN cyntaf
 check-your-answers.scheduled.mrn-label-plaintext=Cyfeirnod Symud (MRN) cyntaf
@@ -1479,6 +1484,7 @@ ordinal-number-mrn.default=Yr MRN
 
 
 ordinal-number-mrn-first-on-page.numeric=Cyfeirnod Symud (MRN) 1af
+ordinal-number-mrn.numeric.1=Yr 1af MRN
 ordinal-number-mrn.numeric.2=Yr 2il MRN
 ordinal-number-mrn.numeric.3=Y 3ydd MRN
 ordinal-number-mrn.numeric.4=Y 4ydd MRN

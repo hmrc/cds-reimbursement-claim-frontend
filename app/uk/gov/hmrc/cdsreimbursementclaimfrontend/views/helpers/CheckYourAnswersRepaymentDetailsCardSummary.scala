@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
@@ -148,6 +149,23 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
 
   def renderForMultiple(
     claim: OverpaymentsMultipleJourney.Output,
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      Some(claim.displayPayeeType),
+      None,
+      claim.bankAccountDetails,
+      if !isPrintView then Some(multipleRoutes.ChoosePayeeTypeController.show) else None,
+      None,
+      if claim.bankAccountDetails.isDefined && !isPrintView then
+        Some(multipleRoutes.EnterBankAccountDetailsController.show)
+      else None
+    )
+
+  def renderForScheduled(
+    claim: OverpaymentsScheduledJourney.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages
