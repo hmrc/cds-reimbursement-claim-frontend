@@ -112,8 +112,7 @@ class BankAccountReputationConnector @Inject() (
   private def checkResponse(response: HttpResponse, url: String): Either[ConnectorError, HttpResponse] =
     response.status match {
       case 200                         => Right(response)
-      case 400                         => Right(response)
-      case x if (x > 400) & (x < 500)  => Left(TechnicalServiceError(errorMessage(url, response)))
+      case x if (x >= 400) & (x < 500) => Left(TechnicalServiceError(errorMessage(url, response)))
       case x if (x >= 500) & (x < 600) => Left(ServiceUnavailableError(errorMessage(url, response)))
       case _                           => Left(ConnectorFailure(errorMessage(url, response)))
     }
