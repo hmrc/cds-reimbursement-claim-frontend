@@ -184,7 +184,20 @@ class BankAccountReputationConnectorSpec
       )
     }
 
-    "return an error when business request returns 4xx response status" in {
+    "return an error when business request returns 400 response status" in {
+      givenServiceReturns(businessUrl, Json.toJson(businessRequest))(
+        HttpResponse(400, """{"code": "MALFORMED_JSON", "desc": "foo: bar"}""")
+      ).once()
+      await(connector.getBusinessReputation(businessRequest).value) should ===(
+        Left(
+          TechnicalServiceError(
+            """Request to POST http://localhost:7502/verify/business failed because of HttpResponse status=400 {"code": "MALFORMED_JSON", "desc": "foo: bar"}"""
+          )
+        )
+      )
+    }
+
+    "return an error when business request returns 404 response status" in {
       givenServiceReturns(businessUrl, Json.toJson(businessRequest))(HttpResponse(404, "not found")).once()
       await(connector.getBusinessReputation(businessRequest).value) should ===(
         Left(
@@ -195,7 +208,20 @@ class BankAccountReputationConnectorSpec
       )
     }
 
-    "return an error when personal request returns 4xx response status" in {
+    "return an error when personal request returns 400 response status" in {
+      givenServiceReturns(personalUrl, Json.toJson(personalRequest))(
+        HttpResponse(400, """{"code": "MALFORMED_JSON", "desc": "foo: bar"}""")
+      ).once()
+      await(connector.getPersonalReputation(personalRequest).value) shouldBe (
+        Left(
+          TechnicalServiceError(
+            """Request to POST http://localhost:7502/verify/personal failed because of HttpResponse status=400 {"code": "MALFORMED_JSON", "desc": "foo: bar"}"""
+          )
+        )
+      )
+    }
+
+    "return an error when personal request returns 404 response status" in {
       givenServiceReturns(personalUrl, Json.toJson(personalRequest))(HttpResponse(404, "not found")).once()
       await(connector.getPersonalReputation(personalRequest).value) shouldBe (
         Left(

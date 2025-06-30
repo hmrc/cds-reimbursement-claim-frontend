@@ -157,7 +157,7 @@ object Forms {
 
   val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText
-      .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
+      .transform[String](s => s.replaceAll("\\D", ""), identity)
       .verifying("error.length", str => AccountNumber.hasValidLength(str))
       .verifying("error.invalid", str => AccountNumber.isValid(str))
       .transform[AccountNumber](
@@ -170,7 +170,7 @@ object Forms {
 
   val sortCodeMapping: Mapping[SortCode] =
     nonEmptyText
-      .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
+      .transform[SortCode](s => SortCode(s.replaceAll("\\D", "")), _.value)
       .verifying("invalid", e => SortCode.isValid(e.value))
 
   val accountNameMapping: Mapping[AccountName] =
