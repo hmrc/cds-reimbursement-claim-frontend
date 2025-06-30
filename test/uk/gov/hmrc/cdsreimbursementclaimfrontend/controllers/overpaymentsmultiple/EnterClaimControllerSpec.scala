@@ -221,6 +221,95 @@ class EnterClaimControllerSpec
             }
         }
       }
+
+      "redirect to select duties when no duties selected" in {
+        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            val pageIndex = mrnIndex + 1
+
+            redirectLocation(performAction(pageIndex, TaxCode.A00)) shouldBe Some(
+              routes.SelectDutiesController.show(pageIndex).url
+            )
+          }
+        }
+      }
+
+      "redirect to MRN not found when page index is out of bounds" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            checkPageIsDisplayed(
+              performAction(100, selectedTaxCodes.head),
+              "This Movement Reference Number (MRN) does not exist",
+              expectedStatus = BAD_REQUEST
+            )
+          }
+        }
+      }
+    }
+
+    "Show first by index enter claim" must {
+
+      def performAction(pageIndex: Int): Future[Result] =
+        controller.showFirstByIndex(pageIndex)(FakeRequest())
+
+      "not find the page if overpayments_v2 feature is disabled" in {
+        featureSwitch.disable(Feature.Overpayments_v2)
+        status(performAction(1)) shouldBe NOT_FOUND
+      }
+
+      "redirect to enter claim" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+            selectedTaxCodes.foreach { taxCode =>
+              inSequence {
+                mockAuthWithDefaultRetrievals()
+                mockGetSession(SessionData(journey))
+              }
+
+              val pageIndex = mrnIndex + 1
+
+              redirectLocation(performAction(pageIndex)) shouldBe Some(
+                routes.EnterClaimController.show(pageIndex, selectedTaxCodes.head).url
+              )
+            }
+          }
+        }
+      }
+
+      "redirect to select duties when no duties selected" in {
+        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            val pageIndex = mrnIndex + 1
+
+            redirectLocation(performAction(pageIndex)) shouldBe Some(routes.SelectDutiesController.showFirst.url)
+          }
+        }
+      }
     }
 
     "Submit Enter Claim page" must {
@@ -325,8 +414,84 @@ class EnterClaimControllerSpec
             }
           }
         }
+      "redirect to select duties when no duties selected" in {
+        forAll(incompleteJourneyWithMrnsGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            val pageIndex = mrnIndex + 1
+
+            redirectLocation(performAction(pageIndex, TaxCode.A00)) shouldBe Some(
+              routes.SelectDutiesController.show(pageIndex).url
+            )
+          }
+        }
+      }
+
+      "redirect to MRN not found when page index is out of bounds" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            val selectedTaxCodes: Seq[TaxCode] =
+              journey
+                .getSelectedDuties(mrn)
+                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+
+            checkPageIsDisplayed(
+              performAction(100, selectedTaxCodes.head),
+              "This Movement Reference Number (MRN) does not exist",
+              expectedStatus = BAD_REQUEST
+            )
+          }
+        }
+      }
+
+      "redirect to claims summary when claims are complete and not in change mode" in {
+        forAll(completeJourneyGen) { journey =>
+          journey.getMovementReferenceNumbers.get.zipWithIndex
+            .foreach { case (mrn, mrnIndex) =>
+              val selectedTaxCodes: Seq[TaxCode] =
+                journey
+                  .getSelectedDuties(mrn)
+                  .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+
+              val updatedJourney = journey.submitCheckYourAnswersChangeMode(false)
+
+              selectedTaxCodes.foreach { taxCode =>
+
+                val pageIndex = mrnIndex + 1
+
+                val claimAmount = BigDecimal("0.01")
+
+                inSequence {
+                  mockAuthWithDefaultRetrievals()
+                  mockGetSession(SessionData(updatedJourney))
+                  mockStoreSession(
+                    SessionData(
+                      updatedJourney
+                        .submitClaimAmount(mrn, taxCode, claimAmount)
+                        .getOrFail
+                    )
+                  )(
+                    Right(())
+                  )
+                }
+
+                checkIsRedirect(
+                  performAction(pageIndex, taxCode, Seq("enter-claim-amount" -> formatAmount(claimAmount))),
+                  routes.CheckClaimDetailsController.show.url
+                )
+              }
+            }
+        }
+      }
     }
-
   }
-
 }
