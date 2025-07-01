@@ -74,6 +74,27 @@ trait SessionSupport { this: MockFactory =>
       .noMoreThanOnce()
       .returning(Future.successful(result))
 
+  def sessionMatcherWithCustomComparator(expectedSession: SessionData, compare: (SessionData, SessionData) => Boolean) =
+    new FunctionAdapter2[SessionData, HeaderCarrier, Boolean]({ case (actualSession, _) =>
+      if !compare(actualSession, expectedSession) then {
+        val s1   = Json.prettyPrint(Json.toJson(expectedSession))
+        val s2   = Json.prettyPrint(Json.toJson(actualSession))
+        val diff = new Diff(s1, s2)
+        println(diff.createReport(s"$RED_B${WHITE}Expected session (red) is not same as actual one (gray) $RESET"))
+        false
+      } else true
+    })
+
+  def mockStoreSessionWithCustomComparator(
+    expectedSession: SessionData,
+    compare: (SessionData, SessionData) => Boolean
+  )(result: Either[Error, Unit]): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
+    (mockSessionCache
+      .store(_: SessionData)(_: HeaderCarrier))
+      .expects(sessionMatcherWithCustomComparator(expectedSession, compare))
+      .noMoreThanOnce()
+      .returning(Future.successful(result))
+
   def mockStoreSession(
     result: Either[Error, Unit]
   ): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
@@ -89,4 +110,109 @@ trait SessionSupport { this: MockFactory =>
       .expects(*, *)
       .atLeastOnce()
       .returning(Future.successful(Right(())))
+
+  lazy val compareOverpaymentsSingleFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.overpaymentsSingleJourney
+            journey2 <- session2.overpaymentsSingleJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareOverpaymentsMultipleFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.overpaymentsMultipleJourney
+            journey2 <- session2.overpaymentsMultipleJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareOverpaymentsScheduledFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.overpaymentsScheduledJourney
+            journey2 <- session2.overpaymentsScheduledJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareRejectedGoodsSingleFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.rejectedGoodsSingleJourney
+            journey2 <- session2.rejectedGoodsSingleJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareRejectedGoodsMultipleFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.rejectedGoodsMultipleJourney
+            journey2 <- session2.rejectedGoodsMultipleJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareRejectedGoodsScheduledFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.rejectedGoodsScheduledJourney
+            journey2 <- session2.rejectedGoodsScheduledJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
+
+  lazy val compareSecuritiesFeatures: (SessionData, SessionData) => Boolean =
+    (session1, session2) =>
+      session1 == session2
+        && (
+          for {
+            journey1 <- session1.securitiesJourney
+            journey2 <- session2.securitiesJourney
+          } yield (for {
+            feature1 <- journey1.features
+            feature2 <- journey2.features
+          } yield feature1 == feature1)
+            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+        )
+          .getOrElse(false)
 }
