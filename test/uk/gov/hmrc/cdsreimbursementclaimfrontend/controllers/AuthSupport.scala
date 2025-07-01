@@ -143,6 +143,13 @@ trait AuthSupport {
       Some(Credentials("gg-cred-id", "GovernmentGateway"))
     )
 
+  def mockAuthWithOrgWithoutEnrolmentRetrievals(): Any =
+    mockAuthWithAllRetrievals(
+      Some(AffinityGroup.Organisation),
+      Set.empty,
+      Some(Credentials("gg-cred-id", "GovernmentGateway"))
+    )
+
   def mockAuthWithNonGGUserRetrievals(): Any =
     mockAuthWithAllRetrievals(
       None,
