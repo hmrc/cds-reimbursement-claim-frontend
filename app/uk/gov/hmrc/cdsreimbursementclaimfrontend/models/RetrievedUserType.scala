@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 
