@@ -19,18 +19,13 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MessagesHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -38,18 +33,15 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
 
 @layout(pageTitle = Some(s"$title")) {
 
-    @heading(Html(title))
+    @heading(Html(title), classes = "govuk-heading-l")
 
-    @subHeading(Html(messages(combine(s"check-your-answers.reference-number",if (isSubsidy) "h2-subsidy" else "h2"))), classes = "govuk-heading-m govuk-!-margin-top-7")
-    @summary(MovementReferenceNumberSummary.single(claim.movementReferenceNumber, "check-your-answers.reference-number.label", Some(routes.EnterMovementReferenceNumberController.show)))
-
-    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, displayDeclarationOpt, isSubsidy, isPrintView = false)
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isPrintView = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

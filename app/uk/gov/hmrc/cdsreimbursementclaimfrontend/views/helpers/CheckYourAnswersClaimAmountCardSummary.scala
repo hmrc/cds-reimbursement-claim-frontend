@@ -67,18 +67,21 @@ object CheckYourAnswersClaimAmountCardSummary {
         )
       ) ++
         reimbursements
-          .map { summary =>
+          .map { reimbursement =>
             SummaryListRow(
-              key = Key(HtmlContent(messages(s"tax-code.${summary.taxCode}"))),
-              value = Value(Text(summary.amount.toPoundSterlingString)),
+              key = Key(HtmlContent(messages(s"tax-code.${reimbursement.taxCode}"))),
+              value = Value(Text(reimbursement.amount.toPoundSterlingString)),
               actions = claimAmountChangeCallOpt.map(changeCall =>
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = changeCall(summary.taxCode).url,
+                      href = changeCall(reimbursement.taxCode).url,
                       content = Text(messages("cya.change")),
                       visuallyHiddenText = Some(
-                        messages(s"check-claim.duty-claim-amount.hidden", messages(s"tax-code.${summary.taxCode}"))
+                        messages(
+                          s"check-claim.duty-claim-amount.hidden",
+                          messages(s"tax-code.${reimbursement.taxCode}")
+                        )
                       )
                     )
                   )

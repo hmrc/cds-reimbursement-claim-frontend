@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.OrdinalNumberMrnHelper
 import uk.gov.hmrc.http.HeaderCarrier
@@ -138,8 +138,10 @@ class CheckYourAnswersControllerSpec
     summaries should containOnlyDefinedPairsOf(
       mrnKeys ++
         Seq(
-          "Personal details"                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Address"                          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+          "Personal details"                 -> Some(
+            CheckYourAnswersContactDetailsCardSummary.getContactDataString(claim.claimantInformation)
+          ),
+          "Address"                          -> Some(CheckYourAnswersContactDetailsCardSummary.getAddressDataString(claim.claimantInformation)),
           "Reason for claim"                 -> Some(
             m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
           ),

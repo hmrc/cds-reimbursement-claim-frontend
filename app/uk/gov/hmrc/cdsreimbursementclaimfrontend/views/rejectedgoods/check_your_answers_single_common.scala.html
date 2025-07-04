@@ -14,67 +14,27 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 @this(
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
-@displayDeclarationOpt.map { displayDeclaration =>
-    @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
-    @summary(CdsDisplayDeclarationSummary.render(displayDeclaration,s"check-your-answers.declaration-details", showImportMrn = false, showImporterDeclarantDetails = false))
-}
+@card(messages("check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSingle(claim, isPrintView))
 
-@subHeading(Html(messages(s"check-your-answers.claim-details")))
-@summary(
-    ClaimDetailsSummary(
-        claim.basisOfClaim,
-        claim.basisOfClaimSpecialCircumstances,
-        claim.detailsOfRejectedGoods,
-        claim.methodOfDisposal,
-        if(isPrintView) None else Some(routes.BasisForClaimController.show),
-        if(isPrintView) None else Some(routes.EnterSpecialCircumstancesController.show),
-        if(isPrintView) None else Some(routes.EnterRejectedGoodsDetailsController.show),
-        if(isPrintView) None else Some(routes.DisposalMethodController.show)
-    )
-)
+@card(messages("check-your-answers.claim-amount"), CheckYourAnswersClaimAmountCardSummary.renderForSingle(claim.reimbursements, if (!isPrintView) then Some(routes.SelectDutiesController.show) else None, if (!isPrintView) Some(routes.EnterClaimController.show) else None))
 
-@subHeading(Html(messages(s"check-your-answers.claim-total.h2")))
-@summary(ReimbursementsClaimsSummary.singleForCYA(claim.reimbursements, s"check-your-answers.claim-total", if(isPrintView) None else Some(routes.CheckClaimDetailsController.show)))
+@card(messages(s"check-your-answers.inspection.inspection-details"), CheckYourAnswersInspectionDetailsCardSummary.renderForSingle(claim, isPrintView))
 
-@subHeading(Html(messages(s"check-your-answers.inspection.h2")))
-@summary(
-    if(isPrintView) InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, "check-your-answers.inspection")
-    else InspectionDateAndAddressSummary(claim.inspectionDate, claim.inspectionAddress, s"check-your-answers.inspection", routes.EnterInspectionDateController.show, routes.ChooseInspectionAddressTypeController.show)
-)
+@card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSingle(claim, isAllSelectedDutiesAreCMAEligible, isPrintView))
 
-@subHeading(Html(messages(s"check-your-answers.reimbursement-method.h2")))
-@summary(PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)))
-@summary(ReimbursementMethodSummary(claim.reimbursementMethod, s"check-your-answers.repayment-method", if (!isPrintView && isAllSelectedDutiesAreCMAEligible && !isSubsidy) Some(routes.ChooseRepaymentMethodController.show) else None))
+@card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None))
 
-@claim.bankAccountDetails.map { bankAccountDetails =>
-    @subHeading(Html(messages(s"check-your-answers.bank-details.h2")))
-    @summary(BankAccountDetailsSummary(bankAccountDetails, s"check-your-answers.bank-details", if(isPrintView) None else Some(routes.EnterBankAccountDetailsController.show)))
-}
-
-@subHeading(Html(messages(s"check-your-answers.attached-documents.h2")))
-@summary(EvidenceDocumentsSummary(messages(s"check-your-answers.attached-documents.label"),claim.supportingEvidences,s"check-your-answers.attached-documents", if(isPrintView) None else Some(routes.UploadFilesController.summary)))
-
-@subHeading(Html(messages(s"check-your-answers.contact-information.h2")))
-    @summary(
-    if(isPrintView){
-        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information")
-    } else {
-        ClaimantInformationSummary(claim.claimantInformation, s"check-your-answers.contact-information", routes.EnterContactDetailsController.show, Some(routes.CheckClaimantDetailsController.redirectToALF()))
-    }
-)
+@card(messages("check-your-answers.contact-information.h2"), CheckYourAnswersContactDetailsCardSummary(claim.claimantInformation, if (!isPrintView) Some(routes.EnterContactDetailsController.show) else None, if (!isPrintView) Some(routes.CheckClaimantDetailsController.redirectToALF()) else None))

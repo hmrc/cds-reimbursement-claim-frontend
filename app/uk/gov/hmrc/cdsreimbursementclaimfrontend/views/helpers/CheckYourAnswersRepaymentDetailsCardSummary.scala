@@ -21,6 +21,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
@@ -28,9 +29,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes as multipleRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes as scheduledRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as singleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes as overpaymentsMultipleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes as overpaymentsScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as overpaymentsSingleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
 object CheckYourAnswersRepaymentDetailsCardSummary {
@@ -139,11 +143,32 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       Some(claim.displayPayeeType),
       Some(claim.reimbursementMethod),
       claim.bankAccountDetails,
-      if !isPrintView then Some(singleRoutes.ChoosePayeeTypeController.show) else None,
-      if showMethodOfPaymentChangeCall && !isPrintView then Some(singleRoutes.ChooseRepaymentMethodController.show)
+      if !isPrintView then Some(overpaymentsSingleRoutes.ChoosePayeeTypeController.show) else None,
+      if showMethodOfPaymentChangeCall && !isPrintView then
+        Some(overpaymentsSingleRoutes.ChooseRepaymentMethodController.show)
       else None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
-        Some(singleRoutes.EnterBankAccountDetailsController.show)
+        Some(overpaymentsSingleRoutes.EnterBankAccountDetailsController.show)
+      else None
+    )
+
+  def renderForSingle(
+    claim: RejectedGoodsSingleJourney.Output,
+    showMethodOfPaymentChangeCall: Boolean,
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      Some(claim.displayPayeeType),
+      Some(claim.reimbursementMethod),
+      claim.bankAccountDetails,
+      if !isPrintView then Some(rejectedGoodsSingleRoutes.ChoosePayeeTypeController.show) else None,
+      if showMethodOfPaymentChangeCall && !isPrintView then
+        Some(rejectedGoodsSingleRoutes.ChooseRepaymentMethodController.show)
+      else None,
+      if claim.bankAccountDetails.isDefined && !isPrintView then
+        Some(rejectedGoodsSingleRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 
@@ -157,10 +182,10 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       Some(claim.displayPayeeType),
       None,
       claim.bankAccountDetails,
-      if !isPrintView then Some(multipleRoutes.ChoosePayeeTypeController.show) else None,
+      if !isPrintView then Some(overpaymentsMultipleRoutes.ChoosePayeeTypeController.show) else None,
       None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
-        Some(multipleRoutes.EnterBankAccountDetailsController.show)
+        Some(overpaymentsMultipleRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 
@@ -174,10 +199,10 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       Some(claim.displayPayeeType),
       None,
       claim.bankAccountDetails,
-      if !isPrintView then Some(multipleRoutes.ChoosePayeeTypeController.show) else None,
+      if !isPrintView then Some(overpaymentsScheduledRoutes.ChoosePayeeTypeController.show) else None,
       None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
-        Some(multipleRoutes.EnterBankAccountDetailsController.show)
+        Some(overpaymentsScheduledRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 }
