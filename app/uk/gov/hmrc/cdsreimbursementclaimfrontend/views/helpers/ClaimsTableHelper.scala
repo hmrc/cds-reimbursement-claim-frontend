@@ -507,13 +507,13 @@ object ClaimsTableHelper {
       SummaryListRow(
         key = Key(
           content = HtmlContent(messages("check-claim.table.total")),
-          classes = "govuk-heading-m govuk-!-padding-bottom-3 govuk-summary-list__key--nowrap"
+          classes = "govuk-!-padding-bottom-3 govuk-summary-list__key--nowrap"
         ),
         value = Value(
           content = Text(total.toPoundSterlingString),
-          classes = "govuk-!-margin-bottom-3 govuk-heading-m govuk-summary-list__value--numeric"
+          classes = "govuk-!-margin-bottom-3"
         ),
-        classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-heading-l  govuk-summary-list--no-border"
+        classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-summary-list--no-border"
       )
     )
 

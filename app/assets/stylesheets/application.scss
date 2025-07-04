@@ -19,6 +19,18 @@ $govuk-include-default-font-face: false;
     }
 }
 
+@media (max-width: 450px) {
+    .govuk-table__row {
+        display: table-caption;
+    }
+    .govuk-table__header {
+        font-size: 0.8em;
+    }
+    .govuk-table__cell.govuk-link {
+        display: block;
+    }
+}
+
 .govuk-panel--confirmation strong {
     overflow-wrap: break-word;
 }
