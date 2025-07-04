@@ -37,7 +37,7 @@ class RejectedGoodsScheduledJourneyFormatSpec
     with ScalaCheckPropertyChecks {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 100)
+    PropertyCheckConfiguration(minSuccessful = 1000)
 
   "RejectedGoodsScheduledJourney.Answers" should {
     "serialize into a JSON format and back" in {

@@ -16,22 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-
 final case class ReimbursementWithCorrectAmount(
   taxCode: TaxCode,
   amount: BigDecimal,
   paidAmount: BigDecimal,
   correctedAmount: BigDecimal,
   dutyOpt: Option[DutyType] = None
-) {
-  override def toString =
-    s"$taxCode: amount = $amount, paid amount = $paidAmount, corrected amount = $correctedAmount ${dutyOpt
-        .map(d => s", dutyOpt = $d")} \n"
-}
-object ReimbursementWithCorrectAmount {
-
-  implicit val format: Format[ReimbursementWithCorrectAmount] =
-    Json.format[ReimbursementWithCorrectAmount]
-}
+)

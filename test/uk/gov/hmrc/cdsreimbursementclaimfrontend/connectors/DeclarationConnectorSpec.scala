@@ -38,6 +38,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.json.Json
 
 class DeclarationConnectorSpec
     extends AnyWordSpec
@@ -99,5 +100,10 @@ class DeclarationConnectorSpec
       mockHttpGetFailure(URL(url(mrn, reason)))(new NotFoundException("error"))
       await(connector.getIsDuplicate(mrn, reason).value).isLeft shouldBe true
     }
+  }
+
+  "parse ExistingClaim from JSON" in {
+    Json.parse("""{"claimFound":false}""").as[ExistingClaim] shouldBe ExistingClaim(claimFound = false)
+    Json.parse("""{"claimFound":true}""").as[ExistingClaim]  shouldBe ExistingClaim(claimFound = true)
   }
 }

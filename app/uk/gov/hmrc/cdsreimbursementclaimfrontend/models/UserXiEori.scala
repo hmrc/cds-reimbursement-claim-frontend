@@ -22,16 +22,8 @@ import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
 import play.api.libs.json.Reads
 import play.api.libs.json.Writes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
-sealed trait UserXiEori {
-
-  final def toEoriOpt: Option[Eori] =
-    this match {
-      case UserXiEori.NotRegistered => None
-      case UserXiEori.Some(value)   => Some(Eori(value))
-    }
-}
+sealed trait UserXiEori
 
 object UserXiEori {
 
@@ -40,9 +32,6 @@ object UserXiEori {
 
   def apply(value: String): UserXiEori =
     UserXiEori.Some(value)
-
-  def unapply(userXiEori: UserXiEori): Option[Eori] =
-    userXiEori.toEoriOpt
 
   private val formatOfSome: Format[Some] = Json.format[Some]
 
