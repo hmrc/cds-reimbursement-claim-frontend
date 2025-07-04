@@ -41,10 +41,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -121,8 +120,6 @@ class CheckYourAnswersControllerSpec
       "Contact details for this claim".expectedAlways
     )
 
-    val declaration: Option[DisplayDeclaration] = journey.answers.displayDeclaration
-
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences
         .groupBy(_.documentType)
@@ -136,8 +133,10 @@ class CheckYourAnswersControllerSpec
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
         "Movement Reference Number (MRN)"  -> Some(claim.movementReferenceNumber.value),
-        "Personal details"                 -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-        "Address"                          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
+        "Personal details"                 -> Some(
+          CheckYourAnswersContactDetailsCardSummary.getContactDataString(claim.claimantInformation)
+        ),
+        "Address"                          -> Some(CheckYourAnswersContactDetailsCardSummary.getAddressDataString(claim.claimantInformation)),
         "Reason for claim"                 -> Some(
           m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
         ),

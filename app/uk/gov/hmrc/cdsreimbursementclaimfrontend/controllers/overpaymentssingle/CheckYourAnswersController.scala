@@ -79,7 +79,6 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   journey.isAllSelectedDutiesAreCMAEligible,
-                  journey.isSubsidyOnlyJourney,
                   journey.answers.displayDeclaration,
                   postAction
                 )
@@ -177,7 +176,6 @@ class CheckYourAnswersController @Inject() (
                         caseNumber,
                         output,
                         journey.isAllSelectedDutiesAreCMAEligible,
-                        journey.isSubsidyOnlyJourney,
                         submissionDate
                       )
                     ).asFuture

@@ -24,13 +24,13 @@
     card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages)
+@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages)
 
 @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSingle(claim, isPrintView))
 
 @card(messages("check-your-answers.claim-amount"), CheckYourAnswersClaimAmountCardSummary.renderForSingle(claim.reimbursements, if (!isPrintView) then Some(routes.SelectDutiesController.show) else None, if (!isPrintView) Some(routes.EnterClaimController.show) else None))
 
-@card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSingle(claim, (isAllSelectedDutiesAreCMAEligible && !isSubsidy), isPrintView))
+@card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSingle(claim, (isAllSelectedDutiesAreCMAEligible), isPrintView))
 
 @card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None))
 

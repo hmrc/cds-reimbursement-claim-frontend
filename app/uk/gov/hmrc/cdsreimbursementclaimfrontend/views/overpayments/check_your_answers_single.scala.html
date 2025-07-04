@@ -34,7 +34,7 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
 
@@ -42,7 +42,7 @@
 
     @heading(Html(title), classes="govuk-heading-l")
 
-    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, isSubsidy, false)
+    @cyaCommon(claim, isAllSelectedDutiesAreCMAEligible, false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

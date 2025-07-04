@@ -44,10 +44,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimantInformationSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -99,85 +101,108 @@ class CheckYourAnswersControllerSpec
     doc: Document,
     journey: RejectedGoodsSingleJourney,
     claim: RejectedGoodsSingleJourney.Output,
-    isSubsidy: Boolean = false
+    isPrintView: Boolean
   ) = {
-    val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
+    val cardTitles    = doc.select("h2.govuk-summary-card__title").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
     val summaries     = summaryKeys.asScala.zip(summaryValues.asScala)
 
-    headers       should not be empty
+    cardTitles    should not be empty
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    headers.toSeq should containOnlyDefinedElementsOf(
-      "Movement Reference Number (MRN)".expectedWhen(!isSubsidy),
-      "Movement Reference Number (MRN) - Subsidy".expectedWhen(isSubsidy),
-      "Declaration details".expectedAlways,
-      "Contact details for this claim".expectedAlways,
+    cardTitles.toSeq should containOnlyDefinedElementsOf(
+      "Submission details".expectedWhen(isPrintView),
       "Claim details".expectedAlways,
-      "Claim total".expectedAlways,
-      "Details of inspection".expectedAlways,
+      "Claim amount".expectedAlways,
       "Repayment details".expectedAlways,
-      "Bank details".expectedWhen(claim.bankAccountDetails),
+      "Inspection details".expectedAlways,
       "Supporting documents".expectedAlways,
-      "Now send your claim".expectedAlways
+      "Contact details for this claim".expectedAlways
     )
 
     val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration
     val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
 
     val expectedDocuments: Seq[String] =
-      journey.answers.supportingEvidences.map { uploadDocument =>
-        s"${uploadDocument.fileName} ${uploadDocument.documentType
-            .fold("")(documentType => messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(documentType)}"))}"
-      }
+      journey.answers.supportingEvidences
+        .groupBy(_.documentType)
+        .flatMap { case (docType, docs) =>
+          Seq(s"${m(s"choose-file-type.file-type.${docType.get}")}:") ++ docs.map(doc => s"${doc.fileName}")
+        }
+        .toSeq
+
+    val submissionDate: LocalDateTime = journey.submissionDateTime.getOrElse(LocalDateTime.now())
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "MRN"               -> Some(claim.movementReferenceNumber.value),
-        "Import date"       -> declarationDetails.map(_.acceptanceDate),
-        "Method of payment" -> Some(
-          MethodOfPaymentSummary(declaration.flatMap(_.getMethodsOfPayment).getOrElse(Set("")))
+        "Movement Reference Number (MRN)" -> Some(claim.movementReferenceNumber.value),
+        "Personal details"                -> Some(
+          CheckYourAnswersContactDetailsCardSummary.getContactDataString(claim.claimantInformation)
         ),
-        "Duties paid"       -> declaration.map(_.totalDutiesPaidCharges.toPoundSterlingString)
-      ) ++
-        declaration.flatMap(_.totalVatPaidCharges).map(vat => "VAT paid" -> Some(vat.toPoundSterlingString)).toList ++
-        Seq(
-          "Contact details"          -> Some(ClaimantInformationSummary.getContactDataString(claim.claimantInformation)),
-          "Contact address"          -> Some(ClaimantInformationSummary.getAddressDataString(claim.claimantInformation)),
-          "Basis of claim"           -> Some(
-            m(s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}")
-          ),
-          "Special circumstances"    -> claim.basisOfClaimSpecialCircumstances,
-          "Disposal method"          -> Some(
-            messages(s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}")
-          ),
-          "Additional claim details" -> Some(claim.detailsOfRejectedGoods),
-          "Inspection date"          -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
-          "Inspection address type"  -> Some(
-            messages(s"inspection-address.type.${claim.inspectionAddress.addressType}")
-          ),
-          "Inspection address"       -> Some(summaryAddress(claim.inspectionAddress, " ")),
-          "Total"                    -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
-          "Payee"                    ->
-            Some(claim.displayPayeeType match {
-              case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
-              case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
-              case PayeeType.Representative => m("choose-payee-type.radio.representative")
-            }),
-          "Method"                   ->
-            Some(claim.reimbursementMethod match {
-              case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
-              case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
-              case _                                          => m("check-your-answers.repayment-method.bt")
-            }),
-          "Uploaded"                 -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
-          "Name on the account"      -> claim.bankAccountDetails.map(_.accountName.value),
-          "Sort code"                -> claim.bankAccountDetails.map(_.sortCode.value),
-          "Account number"           -> claim.bankAccountDetails.map(_.accountNumber.value)
+        "Address"                         -> Some(CheckYourAnswersContactDetailsCardSummary.getAddressDataString(claim.claimantInformation)),
+        "Reason for claim"                -> Some(
+          m(s"select-basis-for-claim.rejected-goods.reason.${claim.basisOfClaim}")
+        ),
+        "Disposal method"                 -> Some(
+          messages(s"select-method-of-disposal.rejected-goods.method.${claim.methodOfDisposal}")
+        ),
+        "Additional claim information"    -> Some(claim.detailsOfRejectedGoods),
+        "Inspection date"                 -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
+        "Total"                           -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+        "What do you want to claim?"      -> Some(
+          claim.reimbursements
+            .map(reimbursement => m(s"tax-code.${reimbursement.taxCode}"))
+            .mkString(" ")
+        ),
+        "Payee"                           ->
+          Some(claim.displayPayeeType match {
+            case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
+            case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
+            case PayeeType.Representative => m("choose-payee-type.radio.representative")
+          }),
+        "Method"                          ->
+          Some(claim.reimbursementMethod match {
+            case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
+            case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
+            case _                                          => m("check-your-answers.repayment-method.bt")
+          }),
+        "Uploaded files"                  -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
+        "Bank details"                    -> claim.bankAccountDetails.map(details =>
+          Seq(details.accountName.value, details.sortCode.value, details.accountNumber.value).mkString(" ")
         )
+      )
         ++ claim.reimbursements.map(r => messages(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString))
+        ++ Seq(
+          "Details of the special circumstances" -> claim.basisOfClaimSpecialCircumstances.map(_.value)
+        ).filter(_ => claim.basisOfClaim.equals(BasisOfRejectedGoodsClaim.SpecialCircumstances))
+        ++
+        Seq(
+          "Claim reference number" -> journey.caseNumber.map(_.value),
+          "Submitted"              -> Some(
+            s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
+              " " ++ toDisplayDate(submissionDate.toLocalDate)
+          )
+        ).filter(_ => isPrintView)
+        ++ (claim.inspectionAddress.addressType match {
+          case InspectionAddressType.Other =>
+            Seq(
+              "Inspection address" -> Some(
+                messages(s"inspection-address.type.${claim.inspectionAddress.addressType}")
+              ),
+              "Address"            -> Some(summaryAddress(claim.inspectionAddress, " "))
+            )
+          case _                           =>
+            Seq(
+              "Inspection address" -> Some(
+                Seq(
+                  messages(s"inspection-address.type.${claim.inspectionAddress.addressType}"),
+                  summaryAddress(claim.inspectionAddress, " ")
+                ).mkString(" ")
+              )
+            )
+        })
     )
 
     claim.payeeType shouldBe journey.answers.payeeType.get
@@ -223,41 +248,6 @@ class CheckYourAnswersControllerSpec
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
             doc => validateCheckYourAnswersPage(doc, journey, claim, journey.isSubsidyOnlyJourney)
-          )
-        }
-      }
-
-      "display subsidy status when declaration has only subsidy payments" in {
-        forAll(
-          buildCompleteJourneyGen(
-            acc14DeclarantMatchesUserEori = false,
-            acc14ConsigneeMatchesUserEori = false,
-            generateSubsidyPayments = GenerateSubsidyPayments.All,
-            features = Some(
-              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            ),
-            submitBankAccountDetails = false,
-            submitBankAccountType = false
-          )
-        ) { j =>
-          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
-          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
-          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => {
-              validateCheckYourAnswersPage(doc, journey, claim, isSubsidy = true)
-              doc
-                .select(".govuk-summary-list__row dt.govuk-summary-list__key")
-                .get(2)
-                .text() shouldBe "Method of payment"
-            }
           )
         }
       }
@@ -316,6 +306,74 @@ class CheckYourAnswersControllerSpec
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.showConfirmation)
         }
 
+      }
+    }
+
+    "Show print page" must {
+
+      def performAction(): Future[Result] = controller.showPrintView(FakeRequest())
+
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "display the page if journey has complete answers" in {
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.print-view.title"),
+            doc => validateCheckYourAnswersPage(doc, updatedJourney, claim, true)
+          )
+        }
+      }
+
+      "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
+        val journey =
+          buildCompleteJourneyGen(
+            generateSubsidyPayments = GenerateSubsidyPayments.Some,
+            features = Some(
+              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+            )
+          ).sample.getOrElse(fail())
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
+      }
+
+      "redirect to the proper page if any answer is missing" in {
+        val journey =
+          RejectedGoodsSingleJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .getOrFail
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSession)
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
     }
 
