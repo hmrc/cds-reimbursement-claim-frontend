@@ -19,16 +19,36 @@ $govuk-include-default-font-face: false;
     }
 }
 
-@media (max-width: 450px) {
-    .govuk-table__row {
-        display: table-caption;
-    }
-    .govuk-table__header {
-        font-size: 0.8em;
-    }
-    .govuk-table__cell.govuk-link {
+@media (max-width: 641px) {
+    .govuk-table table, .govuk-table tbody {
         display: block;
     }
+
+     .govuk-table thead {
+         display: none;
+     }
+
+     .govuk-table tr {
+        margin: 0 0 1rem 0;
+        padding: 0 0 0.5rem 0;
+        border-bottom: 1px solid #b1b4b6;
+        display: block;
+     }
+
+     .govuk-table td, .govuk-table th {
+         display: flex;
+         flex-direction: column;
+         text-align: left !important;
+         border: none !important;
+         padding: 0 0 0.125rem 0;
+       }
+
+     .govuk-table td::before, .govuk-table th::before {
+        content: attr(data-label);
+        font-weight: bold;
+        text-align: left;
+        display: block;
+     }
 }
 
 .govuk-panel--confirmation strong {

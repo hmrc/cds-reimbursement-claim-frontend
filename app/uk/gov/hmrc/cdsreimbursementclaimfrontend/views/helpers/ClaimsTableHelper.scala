@@ -132,17 +132,26 @@ object ClaimsTableHelper {
       Seq(
         TableRow(
           content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-          attributes = Map("id" -> s"selected-claim-${taxCode.value}"),
+          attributes = Map(
+            "id"         -> s"selected-claim-${taxCode.value}",
+            "data-label" -> messages("check-claim.table-header.selected-charges")
+          ),
           classes = "govuk-table__cell"
         ),
         TableRow(
           content = Text(paidAmount.toPoundSterlingString),
-          attributes = Map("id" -> s"full-amount-${taxCode.value}"),
+          attributes = Map(
+            "id"         -> s"full-amount-${taxCode.value}",
+            "data-label" -> messages("check-claim.table-header.full-amount")
+          ),
           classes = "govuk-table__cell--numeric"
         ),
         TableRow(
           content = Text(claimAmount.toPoundSterlingString),
-          attributes = Map("id" -> s"claim-amount-${taxCode.value}"),
+          attributes = Map(
+            "id"         -> s"claim-amount-${taxCode.value}",
+            "data-label" -> messages("check-claim.table-header.claim-amount")
+          ),
           classes = "govuk-table__cell--numeric"
         ),
         TableRow(
@@ -238,12 +247,16 @@ object ClaimsTableHelper {
       ),
       TableRow(
         content = Text(paidAmountTotal.toPoundSterlingString),
-        attributes = Map("id" -> s"full-amount-total-$idSuffix"),
+        attributes =
+          Map("id" -> s"full-amount-total-$idSuffix", "data-label" -> messages("check-claim.table-header.full-amount")),
         classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       ),
       TableRow(
         content = Text(claimAmountTotal.toPoundSterlingString),
-        attributes = Map("id" -> s"claim-amount-total-$idSuffix"),
+        attributes = Map(
+          "id"         -> s"claim-amount-total-$idSuffix",
+          "data-label" -> messages("check-claim.table-header.claim-amount")
+        ),
         classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       ),
       TableRow(
@@ -262,17 +275,22 @@ object ClaimsTableHelper {
     Seq(
       TableRow(
         content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id"         -> s"selected-claim-$idSuffix",
+          "data-label" -> messages("check-claim.table-header.selected-charges")
+        ),
         classes = "govuk-table__cell--regular"
       ),
       TableRow(
         content = Text(paidAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"full-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"full-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.full-amount")),
         classes = "govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(claimAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"claim-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"claim-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.claim-amount")),
         classes = "govuk-table__cell--numeric"
       )
     )
@@ -289,17 +307,22 @@ object ClaimsTableHelper {
         content =
           if (taxCode.exciseCategory.isEmpty) HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")
           else HtmlContent(s"${messages(s"excise-category.${taxCode.exciseCategory.get.repr}")} ($taxCode)"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id"         -> s"selected-claim-$idSuffix",
+          "data-label" -> messages("check-claim.table-header.selected-charges")
+        ),
         classes = if (headerBold) "govuk-table__header" else "govuk-!-font-weight-regular govuk-table__header"
       ),
       TableRow(
         content = Text(paidAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"full-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"full-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.full-amount")),
         classes = "govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(claimAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"claim-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"claim-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.claim-amount")),
         classes = "govuk-table__cell--numeric"
       )
     )
@@ -313,17 +336,22 @@ object ClaimsTableHelper {
     Seq(
       TableRow(
         content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id"         -> s"selected-claim-$idSuffix",
+          "data-label" -> messages("check-claim.table-header.selected-charges")
+        ),
         classes = "govuk-table__header govuk-!-font-weight-regular"
       ),
       TableRow(
         content = Text(paidAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"full-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"full-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.full-amount")),
         classes = "govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(claimAmount.toPoundSterlingString),
-        attributes = Map("id" -> s"claim-amount-$idSuffix"),
+        attributes =
+          Map("id" -> s"claim-amount-$idSuffix", "data-label" -> messages("check-claim.table-header.claim-amount")),
         classes = "govuk-table__cell--numeric"
       )
     )
