@@ -132,17 +132,23 @@ object ClaimsTableHelper {
       Seq(
         TableRow(
           content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-          attributes = Map("id" -> s"selected-claim-${taxCode.value}"),
+          attributes = Map(
+            "id" -> s"selected-claim-${taxCode.value}"
+          ),
           classes = "govuk-table__cell"
         ),
         TableRow(
           content = Text(paidAmount.toPoundSterlingString),
-          attributes = Map("id" -> s"full-amount-${taxCode.value}"),
+          attributes = Map(
+            "id" -> s"full-amount-${taxCode.value}"
+          ),
           classes = "govuk-table__cell--numeric"
         ),
         TableRow(
           content = Text(claimAmount.toPoundSterlingString),
-          attributes = Map("id" -> s"claim-amount-${taxCode.value}"),
+          attributes = Map(
+            "id" -> s"claim-amount-${taxCode.value}"
+          ),
           classes = "govuk-table__cell--numeric"
         ),
         TableRow(
@@ -243,7 +249,9 @@ object ClaimsTableHelper {
       ),
       TableRow(
         content = Text(claimAmountTotal.toPoundSterlingString),
-        attributes = Map("id" -> s"claim-amount-total-$idSuffix"),
+        attributes = Map(
+          "id" -> s"claim-amount-total-$idSuffix"
+        ),
         classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
       ),
       TableRow(
@@ -262,7 +270,9 @@ object ClaimsTableHelper {
     Seq(
       TableRow(
         content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id" -> s"selected-claim-$idSuffix"
+        ),
         classes = "govuk-table__cell--regular"
       ),
       TableRow(
@@ -289,7 +299,9 @@ object ClaimsTableHelper {
         content =
           if (taxCode.exciseCategory.isEmpty) HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}")
           else HtmlContent(s"${messages(s"excise-category.${taxCode.exciseCategory.get.repr}")} ($taxCode)"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id" -> s"selected-claim-$idSuffix"
+        ),
         classes = if (headerBold) "govuk-table__header" else "govuk-!-font-weight-regular govuk-table__header"
       ),
       TableRow(
@@ -313,7 +325,9 @@ object ClaimsTableHelper {
     Seq(
       TableRow(
         content = HtmlContent(s"$taxCode - ${messages(s"select-duties.duty.$taxCode")}"),
-        attributes = Map("id" -> s"selected-claim-$idSuffix"),
+        attributes = Map(
+          "id" -> s"selected-claim-$idSuffix"
+        ),
         classes = "govuk-table__header govuk-!-font-weight-regular"
       ),
       TableRow(
@@ -507,13 +521,13 @@ object ClaimsTableHelper {
       SummaryListRow(
         key = Key(
           content = HtmlContent(messages("check-claim.table.total")),
-          classes = "govuk-heading-m govuk-!-padding-bottom-3 govuk-summary-list__key--nowrap"
+          classes = "govuk-!-padding-bottom-3 govuk-summary-list__key--nowrap"
         ),
         value = Value(
           content = Text(total.toPoundSterlingString),
-          classes = "govuk-!-margin-bottom-3 govuk-heading-m govuk-summary-list__value--numeric"
+          classes = "govuk-!-margin-bottom-3"
         ),
-        classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-heading-l  govuk-summary-list--no-border"
+        classes = "govuk-summary-list govuk-!-margin-bottom-3 govuk-summary-list--no-border"
       )
     )
 
