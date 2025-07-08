@@ -63,7 +63,6 @@ class CheckYourAnswersController @Inject() (
 
   val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
@@ -81,8 +80,6 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
-                  journey.getLeadDisplayDeclaration,
-                  Some(isSubsidyOnly),
                   postAction
                 )
               )
@@ -181,9 +178,6 @@ class CheckYourAnswersController @Inject() (
                         caseNumber = caseNumber,
                         amountRequested = journey.getTotalReimbursementAmount,
                         claim = output,
-                        displayDeclarationOpt = journey.getLeadDisplayDeclaration,
-                        isSubsidyOnly = Some(journey.isSubsidyOnlyJourney),
-                        subKey = Some("multiple"),
                         submissionDate = submissionDate
                       )
                     ).asFuture

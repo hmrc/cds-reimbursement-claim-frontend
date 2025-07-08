@@ -19,12 +19,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import java.time.LocalDateTime
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.PrintViewLayout,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card,
     cyaCommon: check_your_answers_multiple_common
 )
 
@@ -32,15 +31,11 @@
     caseNumber: String,
     amountRequested: BigDecimal,
     claim: RejectedGoodsMultipleJourney.Output,
-    displayDeclarationOpt: Option[DisplayDeclaration],
-    isSubsidyOnly: Option[Boolean],
-    subKey: Option[String] = None,
     submissionDate: LocalDateTime
 )(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
-    @summary(CheckYourAnswersPrintViewHelper.renderClaimDetailsForMultiple(caseNumber, amountRequested, claim.movementReferenceNumbers, submissionDate))
+    @card(messages("check-your-answers.print-view.submission-details"), CheckYourAnswersPrintViewHelper.render(caseNumber, submissionDate = submissionDate))
 
-    @cyaCommon(claim, displayDeclarationOpt, isSubsidyOnly, subKey, isPrintView = true)
-
+    @cyaCommon(claim, isPrintView = true)
 }

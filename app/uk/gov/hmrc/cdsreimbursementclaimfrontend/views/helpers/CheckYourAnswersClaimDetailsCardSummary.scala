@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -229,7 +230,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
       )
     )
 
-  private def makeMrnRowsForMultiple(mrns: Seq[MRN], mrnChangeCallOpt: Option[Int => Call])(implicit
+  private def makeMrnRowsForMultiple(mrns: Seq[MRN], mrnChangeCallOpt: Option[Call])(implicit
     messages: Messages
   ): Seq[SummaryListRow] =
     mrns.zipWithIndex.map { case (mrn, index) =>
@@ -243,7 +244,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
             Actions(
               items = Seq(
                 ActionItem(
-                  href = changeCall(index + 1).url,
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(OrdinalNumberMrnHelper(index + 1))
                 )
@@ -405,17 +406,45 @@ object CheckYourAnswersClaimDetailsCardSummary {
       mrnRowsOpt = Some(
         makeMrnRowsForMultiple(
           claim.movementReferenceNumbers,
-          if !isPrintView then Some(overpaymentsMultipleRoutes.EnterMovementReferenceNumberController.show) else None
+          if !isPrintView then Some(overpaymentsMultipleRoutes.CheckMovementReferenceNumbersController.show) else None
         )
       ),
       basisOfClaimRows = makeBasisOfClaimRowsForOverpayments(
         claim.basisOfClaim,
-        if !isPrintView then Some(overpaymentsSingleRoutes.BasisForClaimController.show) else None
+        if !isPrintView then Some(overpaymentsMultipleRoutes.BasisForClaimController.show) else None
       ),
       newEoriAndDanOpt = claim.newEoriAndDan,
       additionalDetails = claim.additionalDetails,
       additionalDetailsChangeCallOpt =
         if !isPrintView then Some(overpaymentsMultipleRoutes.EnterAdditionalDetailsController.show) else None
+    )
+
+  def renderForMultiple(claim: RejectedGoodsMultipleJourney.Output, isPrintView: Boolean)(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      journeyType = "multiple",
+      isPrintView = isPrintView,
+      mrnRowsOpt = Some(
+        makeMrnRowsForMultiple(
+          claim.movementReferenceNumbers,
+          if !isPrintView then Some(rejectedGoodsMultipleRoutes.CheckMovementReferenceNumbersController.show) else None
+        )
+      ),
+      basisOfClaimRows = makeBasisOfClaimRowsForRejectedGoods(
+        claim.basisOfClaim,
+        claim.basisOfClaimSpecialCircumstances,
+        if !isPrintView then Some(rejectedGoodsMultipleRoutes.BasisForClaimController.show) else None,
+        if !isPrintView && claim.basisOfClaimSpecialCircumstances.isDefined then
+          Some(rejectedGoodsMultipleRoutes.EnterSpecialCircumstancesController.show)
+        else None
+      ),
+      disposalMethodOpt = Some(claim.methodOfDisposal),
+      disposalMethodChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsMultipleRoutes.DisposalMethodController.show) else None,
+      additionalDetails = claim.detailsOfRejectedGoods,
+      additionalDetailsChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsMultipleRoutes.EnterRejectedGoodsDetailsController.show) else None
     )
 
   def renderForScheduled(claim: OverpaymentsScheduledJourney.Output, isPrintView: Boolean)(implicit
