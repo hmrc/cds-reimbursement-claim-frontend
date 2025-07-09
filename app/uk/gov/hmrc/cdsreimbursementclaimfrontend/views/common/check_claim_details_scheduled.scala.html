@@ -19,7 +19,6 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode, ReimbursementWithCorrectAmount, ExciseCategory}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import scala.collection.immutable.SortedMap
@@ -40,7 +39,10 @@
     selectedExciseCategoryClaims: SortedMap[ExciseCategory, List[ReimbursementWithCorrectAmount]],
     reimbursementTotal: BigDecimal,
     postAction: Call,
-    enterClaimAction: (DutyType, TaxCode) => Call
+    enterClaimAction: (DutyType, TaxCode) => Call,
+    selectDutyTypesAction: Call,
+    selectDutiesByTypeAction: DutyType => Call,
+    selectExciseDutiesAction: ExciseCategory => Call
 )(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig, subKey: Option[String])
 
 @title = @{messages(s"check-claim.scheduled.title")}
@@ -51,13 +53,13 @@
 
     @heading(Html(title), classes = "govuk-heading-l")
 
-    @summary(SummaryList(ClaimsTableHelper.claimsDutyTypesSummary(selectedDutyTypes, routes.SelectDutyTypesController.show), classes = "govuk-summary-list--no-border"))
+    @summary(SummaryList(ClaimsTableHelper.claimsDutyTypesSummary(selectedDutyTypes, selectDutyTypesAction), classes = "govuk-summary-list--no-border"))
 
     @nonExciseDutyClaims.map { case (dutyType, claims) =>
 
         @card( 
             title = messages(s"check-claim.${dutyType.repr}.label"),
-            summaryList = SummaryList(ClaimsTableHelper.claimsDutiesSelectedSummary(dutyType.repr, claims, routes.SelectDutiesController.show(dutyType)), classes = "govuk-summary-list--no-border")
+            summaryList = SummaryList(ClaimsTableHelper.claimsDutiesSelectedSummary(dutyType.repr, claims, selectDutiesByTypeAction(dutyType)), classes = "govuk-summary-list--no-border")
         )
 
         @cardTable( 
@@ -76,14 +78,14 @@
 
         @card( 
             title = messages("check-claim.excise-duty.label"),
-            summaryList = SummaryList(ClaimsTableHelper.claimsExciseCategoriesSummary(selectedExciseCategories, routes.SelectDutiesController.show(DutyType.Excise)), classes = "govuk-summary-list--no-border")
+            summaryList = SummaryList(ClaimsTableHelper.claimsExciseCategoriesSummary(selectedExciseCategories, selectDutiesByTypeAction(DutyType.Excise)), classes = "govuk-summary-list--no-border")
         )
 
         @selectedExciseCategoryClaims.map { case (exciseCategory, claims) =>
 
             @card( 
                 title = messages(s"excise-category.${exciseCategory.repr}"),
-                summaryList = SummaryList(ClaimsTableHelper.claimsExciseDutiesSelectedSummary(exciseCategory.repr, claims, routes.SelectDutiesController.showExciseDuties(exciseCategory)), classes = "govuk-summary-list--no-border")
+                summaryList = SummaryList(ClaimsTableHelper.claimsExciseDutiesSelectedSummary(exciseCategory.repr, claims, selectExciseDutiesAction(exciseCategory)), classes = "govuk-summary-list--no-border")
             )
 
             @cardTable( 

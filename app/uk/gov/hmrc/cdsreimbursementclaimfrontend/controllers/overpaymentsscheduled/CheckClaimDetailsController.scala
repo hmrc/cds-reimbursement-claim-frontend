@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
@@ -43,11 +44,14 @@ class CheckClaimDetailsController @Inject() (
 
   implicit val subKey: Option[String] = Some("scheduled")
 
-  final val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
-  final val enterMrnAction: Call                          = routes.EnterMovementReferenceNumberController.show
-  final val enterClaimAction: (DutyType, TaxCode) => Call = routes.EnterClaimController.show
-  final val nextAction: Call                              = routes.EnterBankAccountDetailsController.show
-  final val postAction: Call                              = routes.CheckClaimDetailsController.submit
+  final val selectDutiesAction: Call                         = routes.SelectDutyTypesController.show
+  final val enterMrnAction: Call                             = routes.EnterMovementReferenceNumberController.show
+  final val enterClaimAction: (DutyType, TaxCode) => Call    = routes.EnterClaimController.show
+  final val nextAction: Call                                 = routes.EnterBankAccountDetailsController.show
+  final val postAction: Call                                 = routes.CheckClaimDetailsController.submit
+  final val selectDutyTypesAction: Call                      = routes.SelectDutyTypesController.show
+  final val selectDutiesByTypeAction: DutyType => Call       = routes.SelectDutiesController.show
+  final val selectExciseDutiesAction: ExciseCategory => Call = routes.SelectDutiesController.showExciseDuties
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
@@ -71,7 +75,10 @@ class CheckClaimDetailsController @Inject() (
                 journey.getSelectedExciseCategoryClaims,
                 reimbursementTotal,
                 postAction,
-                enterClaimAction
+                enterClaimAction,
+                selectDutyTypesAction,
+                selectDutiesByTypeAction,
+                selectExciseDutiesAction
               )
             }
           case _                                                 =>

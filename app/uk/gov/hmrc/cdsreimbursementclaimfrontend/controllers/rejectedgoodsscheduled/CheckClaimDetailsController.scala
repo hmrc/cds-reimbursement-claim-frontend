@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
@@ -42,9 +43,12 @@ class CheckClaimDetailsController @Inject() (
 
   implicit val subKey: Option[String] = Some("scheduled")
 
-  private val postAction: Call                              = routes.CheckClaimDetailsController.submit
-  private val selectDutiesAction: Call                      = routes.SelectDutyTypesController.show
-  private val enterClaimAction: (DutyType, TaxCode) => Call = routes.EnterClaimController.show
+  private val postAction: Call                                 = routes.CheckClaimDetailsController.submit
+  private val selectDutiesAction: Call                         = routes.SelectDutyTypesController.show
+  private val enterClaimAction: (DutyType, TaxCode) => Call    = routes.EnterClaimController.show
+  private val selectDutyTypesAction: Call                      = routes.SelectDutyTypesController.show
+  private val selectDutiesByTypeAction: DutyType => Call       = routes.SelectDutiesController.show
+  private val selectExciseDutiesAction: ExciseCategory => Call = routes.SelectDutiesController.showExciseDuties
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
@@ -65,7 +69,10 @@ class CheckClaimDetailsController @Inject() (
             journey.getSelectedExciseCategoryClaims,
             reimbursementTotal,
             postAction,
-            enterClaimAction
+            enterClaimAction,
+            selectDutyTypesAction,
+            selectDutiesByTypeAction,
+            selectExciseDutiesAction
           )
         )
       }
