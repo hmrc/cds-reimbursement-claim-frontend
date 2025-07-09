@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
@@ -157,6 +158,22 @@ object CheckYourAnswersInspectionDetailsCardSummary {
         if !isPrintView then Some(rejectedGoodsMultipleRoutes.ChooseInspectionAddressTypeController.show) else None,
       inspectionAddressChangeCallOpt =
         if !isPrintView then Some(rejectedGoodsMultipleRoutes.ChooseInspectionAddressTypeController.redirectToALF())
+        else None
+    )
+
+  def renderForScheduled(claim: RejectedGoodsScheduledJourney.Output, isPrintView: Boolean)(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      inspectionDate = claim.inspectionDate,
+      inspectionAddressType = claim.inspectionAddress.addressType,
+      inspectionAddress = claim.inspectionAddress,
+      inspectionDateChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.EnterInspectionDateController.show) else None,
+      inspectionAddressTypeChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.ChooseInspectionAddressTypeController.show) else None,
+      inspectionAddressChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.ChooseInspectionAddressTypeController.redirectToALF())
         else None
     )
 }

@@ -176,7 +176,6 @@ class CheckYourAnswersController @Inject() (
                     Ok(
                       checkYourAnswersPagePrintView(
                         caseNumber = caseNumber,
-                        amountRequested = journey.getTotalReimbursementAmount,
                         claim = output,
                         submissionDate = submissionDate
                       )

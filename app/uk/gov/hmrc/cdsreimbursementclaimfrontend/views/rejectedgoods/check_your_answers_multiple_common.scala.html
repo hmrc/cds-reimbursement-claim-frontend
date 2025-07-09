@@ -34,7 +34,6 @@
 
 @card(messages("check-your-answers.claim-amount"), CheckYourAnswersClaimAmountCardSummary.renderForMultiple(claim.reimbursementClaims, if (!isPrintView) Some(routes.CheckClaimDetailsController.show) else None))
 
-
 @card(messages(s"check-your-answers.inspection.inspection-details"), CheckYourAnswersInspectionDetailsCardSummary.renderForMultiple(claim, isPrintView))
 
 @card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForMultiple(claim, isPrintView))

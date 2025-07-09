@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
@@ -221,6 +222,23 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
         Some(overpaymentsScheduledRoutes.EnterBankAccountDetailsController.show)
+      else None
+    )
+
+  def renderForScheduled(
+    claim: RejectedGoodsScheduledJourney.Output,
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      Some(claim.displayPayeeType),
+      None,
+      claim.bankAccountDetails,
+      if !isPrintView then Some(rejectedGoodsScheduledRoutes.ChoosePayeeTypeController.show) else None,
+      None,
+      if claim.bankAccountDetails.isDefined && !isPrintView then
+        Some(rejectedGoodsScheduledRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 }
