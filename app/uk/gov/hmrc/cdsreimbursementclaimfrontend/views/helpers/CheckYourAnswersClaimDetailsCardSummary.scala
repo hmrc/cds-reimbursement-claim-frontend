@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -472,4 +473,34 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(overpaymentsScheduledRoutes.UploadMrnListController.show) else None
     )
 
+  def renderForScheduled(claim: RejectedGoodsScheduledJourney.Output, isPrintView: Boolean)(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      journeyType = "scheduled",
+      isPrintView = isPrintView,
+      mrnRowsOpt = Some(
+        makeMrnRowsForScheduled(
+          claim.movementReferenceNumber,
+          if !isPrintView then Some(rejectedGoodsScheduledRoutes.EnterMovementReferenceNumberController.show) else None
+        )
+      ),
+      claimSummaryDocumentOpt = Some(claim.scheduledDocument),
+      basisOfClaimRows = makeBasisOfClaimRowsForRejectedGoods(
+        claim.basisOfClaim,
+        claim.basisOfClaimSpecialCircumstances,
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.BasisForClaimController.show) else None,
+        if !isPrintView && claim.basisOfClaimSpecialCircumstances.isDefined then
+          Some(rejectedGoodsScheduledRoutes.EnterSpecialCircumstancesController.show)
+        else None
+      ),
+      disposalMethodOpt = Some(claim.methodOfDisposal),
+      disposalMethodChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.DisposalMethodController.show) else None,
+      additionalDetails = claim.detailsOfRejectedGoods,
+      additionalDetailsChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.EnterRejectedGoodsDetailsController.show) else None,
+      claimSummaryDocumentChangeCallOpt =
+        if !isPrintView then Some(rejectedGoodsScheduledRoutes.UploadMrnListController.show) else None
+    )
 }
