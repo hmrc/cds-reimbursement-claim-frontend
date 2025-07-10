@@ -146,9 +146,9 @@ class CheckYourAnswersControllerSpec
         ),
         "Additional claim information"          -> Some(claim.detailsOfRejectedGoods),
         "Inspection date"                       -> Some(claim.inspectionDate.checkYourDetailsDisplayFormat),
-        "EU Duty"                               -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
-        "UK Duty"                               -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
-        "Excise Duty"                           -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "EU duty"                               -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "UK duty"                               -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "Excise duty"                           -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
         "Total"                                 -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
         "Uploaded files"                        -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
         "Payee"                                 ->
