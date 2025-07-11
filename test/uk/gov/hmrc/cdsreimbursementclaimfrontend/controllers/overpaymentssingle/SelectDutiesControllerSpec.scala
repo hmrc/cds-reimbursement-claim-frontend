@@ -41,6 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 
 import scala.concurrent.Future
 
@@ -158,6 +160,38 @@ class SelectDutiesControllerSpec
           )
         }
       }
+
+      "redirect to ineligible when no duties are available" in {
+        val displayResponseDetailWithoutDuties      =
+          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+
+        val journey = OverpaymentsSingleJourney
+          .tryBuildFrom(
+            OverpaymentsSingleJourney.Answers(
+              userEoriNumber = exampleEori,
+              movementReferenceNumber = Some(exampleMrn), // Single MRN not Seq
+              displayDeclaration = Some(
+                displayResponseDeclarationWithoutDuties
+                  .withDeclarationId(exampleMrn.value)
+                  .withDeclarantEori(exampleEori)
+              )
+            )
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          controller.show(
+            FakeRequest()
+          ), // ?how to call the correct method for  SINGLE JOURNEY it's not performAction(2, Seq.empty)
+          baseRoutes.IneligibleController.ineligible.url
+        )
+      }
     }
 
     "Submit Select Duties page" must {
@@ -261,6 +295,35 @@ class SelectDutiesControllerSpec
         )
       }
 
+    }
+    "redirect to ineligible when no duties are available on submit" in {
+      val displayResponseDetailWithoutDuties      =
+        exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+      val displayResponseDeclarationWithoutDuties =
+        exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+      val journey                                 = OverpaymentsSingleJourney
+        .tryBuildFrom(
+          OverpaymentsSingleJourney.Answers(
+            userEoriNumber = exampleEori,
+            movementReferenceNumber = Some(exampleMrn), // Single MRN not Seq
+            displayDeclaration = Some(
+              displayResponseDeclarationWithoutDuties
+                .withDeclarationId(exampleMrn.value)
+                .withDeclarantEori(exampleEori)
+            )
+          )
+        )
+        .getOrFail
+
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(SessionData(journey))
+      }
+
+      checkIsRedirect(
+        controller.submit(FakeRequest().withFormUrlEncodedBody()), // Submit with empty form data
+        baseRoutes.IneligibleController.ineligible.url
+      )
     }
   }
 }
