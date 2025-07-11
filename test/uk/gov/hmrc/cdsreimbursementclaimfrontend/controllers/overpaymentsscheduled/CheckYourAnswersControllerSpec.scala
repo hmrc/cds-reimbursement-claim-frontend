@@ -140,9 +140,9 @@ class CheckYourAnswersControllerSpec
         "Additional claim information"          -> Some(claim.additionalDetails),
         "Correct EORI number"                   -> claim.newEoriAndDan.map(_.eori.value),
         "Correct deferment account number"      -> claim.newEoriAndDan.map(_.dan),
-        "EU Duty"                               -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
-        "UK Duty"                               -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
-        "Excise Duty"                           -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "EU duty"                               -> journey.getEUDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "UK duty"                               -> journey.getUKDutyReimbursementTotal.map(_.toPoundSterlingString),
+        "Excise duty"                           -> journey.getExciseDutyReimbursementTotal.map(_.toPoundSterlingString),
         "Total"                                 -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
         "Uploaded files"                        -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
         "Payee"                                 ->

@@ -146,16 +146,12 @@ object CheckYourAnswersClaimAmountCardSummary {
     messages: Messages
   ): SummaryList = {
 
-    val amountsPerDutyCategory: Seq[(String, BigDecimal)] = {
-      val m = scala.collection.mutable.Map.empty[String, BigDecimal]
-      reimbursementClaims.iterator
-        .foreach { case (dutyType, reimbursements) =>
-          val category = dutyType.repr
-          val amount   = reimbursements.map(_._2.claimAmount).sum
-          m.update(category, m.getOrElse(category, BigDecimal("0.00")) + amount)
-        }
-      m.toSeq
-    }
+    val amountsPerDutyCategory: Seq[(String, BigDecimal)] =
+      reimbursementClaims.map { case (dutyType, reimbursements) =>
+        val category = dutyType.repr
+        val amount   = reimbursements.map(_._2.claimAmount).sum
+        (category, amount)
+      }.toSeq
 
     val totalAmount: BigDecimal =
       amountsPerDutyCategory.map(_._2).sum
