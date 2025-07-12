@@ -40,8 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
@@ -121,9 +119,6 @@ class CheckYourAnswersControllerSpec
       "Supporting documents".expectedAlways,
       "Contact details for this claim".expectedAlways
     )
-
-    val declaration: Option[DisplayDeclaration]           = journey.answers.displayDeclaration
-    val declarationDetails: Option[DisplayResponseDetail] = declaration.map(_.displayResponseDetail)
 
     val expectedDocuments: Seq[String] =
       journey.answers.supportingEvidences

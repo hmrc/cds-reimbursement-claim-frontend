@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -166,6 +167,15 @@ class EnterMovementReferenceNumberControllerSpec
           }
         )
       }
+
+      "redirect to check movement reference number when page index is invalid" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(controller.show(0)(FakeRequest()), routes.CheckMovementReferenceNumbersController.show.url)
+      }
     }
 
     "Submit MRN page" must {
@@ -238,6 +248,15 @@ class EnterMovementReferenceNumberControllerSpec
           performAction("enter-movement-reference-number" -> mrn.value)(),
           routes.ProblemWithMrnController.show(1, mrn)
         )
+      }
+
+      "redirect to check movement reference number when page index is invalid" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(controller.submit(0)(FakeRequest()), routes.CheckMovementReferenceNumbersController.show.url)
       }
 
       "redirect to CheckDeclarationDetails page for first MRN" in {
@@ -470,6 +489,194 @@ class EnterMovementReferenceNumberControllerSpec
               "enter-movement-reference-number.error.subsidy-payment-found"
             ),
           expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject MRN when EORI of lead display declaration doesn't match declaration EORI" in {
+        val updatedJourneyWithLeadMrn = journey
+          .submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
+          mockGetDisplayDeclaration(
+            secondMrn,
+            Right(Some(getDisplayDeclarationForMrn(secondMrn, Some(anotherExampleEori))))
+          )
+        }
+
+        checkPageIsDisplayed(
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.multiple.error.wrongMRN"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject MRN and require subsidy when payment methods are mixed in the declaration being submitted and lead declaration contains subsidy" in {
+        val updatedJourney = OverpaymentsMultipleJourney
+          .tryBuildFrom(
+            journey.answers,
+            Some(
+              OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+          .getOrElse(fail("Failed to update session"))
+
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(leadMrn.value)
+            .withDeclarantEori(updatedJourney.answers.userEoriNumber)
+            .withSomeSubsidiesPaymentMethod()
+
+        val updatedJourneyWithLeadMrn = updatedJourney
+          .submitMovementReferenceNumberAndDeclaration(
+            leadMrn,
+            displayDeclaration
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
+          mockGetDisplayDeclaration(
+            secondMrn,
+            Right(Some(getDisplayDeclarationForMrn(secondMrn).withSomeSubsidiesPaymentMethod()))
+          )
+        }
+
+        checkPageIsDisplayed(
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.error.needsSubsidy"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject MRN and require non subsidy when payment methods are mixed in the declaration being submitted and lead declaration doesn't contain subsidy" in {
+        val updatedJourney = OverpaymentsMultipleJourney
+          .tryBuildFrom(
+            journey.answers,
+            Some(
+              OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+            )
+          )
+          .getOrElse(fail("Failed to update session"))
+
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(leadMrn.value)
+            .withDeclarantEori(updatedJourney.answers.userEoriNumber)
+
+        val updatedJourneyWithLeadMrn = updatedJourney
+          .submitMovementReferenceNumberAndDeclaration(
+            leadMrn,
+            displayDeclaration
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
+          mockGetDisplayDeclaration(
+            secondMrn,
+            Right(Some(getDisplayDeclarationForMrn(secondMrn).withSomeSubsidiesPaymentMethod()))
+          )
+        }
+
+        checkPageIsDisplayed(
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.error.needsNonSubsidy"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "reject MRN when the same MRN already exists at a different index" in {
+        val updatedJourneyWithLeadMrn = journey
+          .submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
+          mockGetDisplayDeclaration(leadMrn, Right(Some(getDisplayDeclarationForMrn(leadMrn))))
+        }
+
+        checkPageIsDisplayed(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(2),
+          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.multiple.error.existingMRN"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "redirect to problem with declaration if there are unsupported tax codes" in {
+        val ndrcDetails                = NdrcDetails("999", "1200", "payment-method", "payment-reference", None)
+        val displayResponseDetail      =
+          getDisplayDeclarationForMrn(leadMrn).displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+        val displayResponseDeclaration =
+          getDisplayDeclarationForMrn(leadMrn).copy(displayResponseDetail = displayResponseDetail)
+
+        val updatedJourneyWithLeadMrn = journey
+          .submitMovementReferenceNumberAndDeclaration(leadMrn, displayResponseDeclaration)
+          .getOrFail
+
+        val updatedSessionWithLeadMrn = SessionData(updatedJourneyWithLeadMrn)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayResponseDeclaration)))
+          mockStoreSession(updatedSessionWithLeadMrn)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(1),
+          routes.ProblemWithDeclarationController.show
+        )
+      }
+
+      "redirect to problem with declaration if there are unsupported tax codes for 2nd MRN" in {
+        val ndrcDetails                = NdrcDetails("999", "1200", "payment-method", "payment-reference", None)
+        val displayResponseDetail      =
+          getDisplayDeclarationForMrn(secondMrn).displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+        val displayResponseDeclaration =
+          getDisplayDeclarationForMrn(secondMrn).copy(displayResponseDetail = displayResponseDetail)
+
+        val updatedJourneyWithLeadMrn   = journey
+          .submitMovementReferenceNumberAndDeclaration(leadMrn, getDisplayDeclarationForMrn(leadMrn))
+          .getOrFail
+        val updatedJourneyWithSecondMrn = updatedJourneyWithLeadMrn
+          .submitMovementReferenceNumberAndDeclaration(1, secondMrn, displayResponseDeclaration)
+          .getOrFail
+
+        val updatedSessionWithLeadMrn   = SessionData(updatedJourneyWithLeadMrn)
+        val updatedSessionWithSecondMrn = SessionData(updatedJourneyWithSecondMrn)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(updatedSessionWithLeadMrn)
+          mockGetDisplayDeclaration(secondMrn, Right(Some(displayResponseDeclaration)))
+          mockStoreSession(updatedSessionWithSecondMrn)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
+          routes.ProblemWithDeclarationController.showNth(2)
         )
       }
     }
