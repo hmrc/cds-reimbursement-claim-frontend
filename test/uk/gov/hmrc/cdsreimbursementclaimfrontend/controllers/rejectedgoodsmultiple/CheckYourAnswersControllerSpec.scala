@@ -296,6 +296,48 @@ class CheckYourAnswersControllerSpec
         }
 
       }
+
+      "redirect to the enter MRN page when missing MRNs answer" in {
+        val journey = RejectedGoodsMultipleJourney.unsafeModifyAnswers(
+          completeJourneyGen.sample.get,
+          _.copy(movementReferenceNumbers = None)
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), routes.EnterMovementReferenceNumberController.showFirst())
+      }
+
+      "redirect to the enter MRN page when missing declarations answer" in {
+        val journey = RejectedGoodsMultipleJourney.unsafeModifyAnswers(
+          completeJourneyGen.sample.get,
+          _.copy(displayDeclarations = None)
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), routes.EnterMovementReferenceNumberController.showFirst())
+      }
+
+      "redirect to the select basis of claim page when missing one" in {
+        val journey = RejectedGoodsMultipleJourney.unsafeModifyAnswers(
+          completeJourneyGen.sample.get,
+          _.copy(basisOfClaim = None)
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), routes.BasisForClaimController.show)
+      }
     }
 
     "Show print page" must {

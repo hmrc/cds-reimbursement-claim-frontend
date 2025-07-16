@@ -1362,4 +1362,15 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
       .map(_.submitAdditionalDetailsPageVisited(answers.modes.additionalDetailsPageVisitedMode))
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    journey: SecuritiesJourney,
+    f: SecuritiesJourney.Answers => SecuritiesJourney.Answers
+  ): SecuritiesJourney =
+    SecuritiesJourney(
+      answers = f(journey.answers),
+      startTimeSeconds = journey.startTimeSeconds,
+      features = journey.features
+    )
+
 }

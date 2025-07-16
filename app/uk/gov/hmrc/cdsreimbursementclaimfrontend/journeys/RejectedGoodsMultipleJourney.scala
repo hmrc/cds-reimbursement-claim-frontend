@@ -963,4 +963,15 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
             j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
+
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    journey: RejectedGoodsMultipleJourney,
+    f: RejectedGoodsMultipleJourney.Answers => RejectedGoodsMultipleJourney.Answers
+  ): RejectedGoodsMultipleJourney =
+    RejectedGoodsMultipleJourney(
+      answers = f(journey.answers),
+      startTimeSeconds = journey.startTimeSeconds,
+      features = journey.features
+    )
 }

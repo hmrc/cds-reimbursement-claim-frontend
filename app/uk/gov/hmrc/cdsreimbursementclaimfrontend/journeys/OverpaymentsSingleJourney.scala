@@ -910,4 +910,15 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    journey: OverpaymentsSingleJourney,
+    f: OverpaymentsSingleJourney.Answers => OverpaymentsSingleJourney.Answers
+  ): OverpaymentsSingleJourney =
+    OverpaymentsSingleJourney(
+      answers = f(journey.answers),
+      startTimeSeconds = journey.startTimeSeconds,
+      features = journey.features
+    )
+
 }

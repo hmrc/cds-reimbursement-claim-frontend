@@ -27,7 +27,7 @@ trait RejectedGoodsMultipleJourneyRouter {
   def routeForValidationError(error: String): Call =
     error match {
       case JOURNEY_ALREADY_FINALIZED                                => routes.CheckYourAnswersController.showConfirmation
-      case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.show(1)
+      case MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER                  => routes.EnterMovementReferenceNumberController.showFirst()
       case MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER                 => routes.EnterMovementReferenceNumberController.show(2)
       case MISSING_DISPLAY_DECLARATION                              => routes.EnterMovementReferenceNumberController.showFirst()
       case UNSUPPORTED_TAX_CODES                                    => routes.ProblemWithDeclarationController.show

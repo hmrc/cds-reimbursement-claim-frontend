@@ -746,4 +746,15 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    journey: RejectedGoodsScheduledJourney,
+    f: RejectedGoodsScheduledJourney.Answers => RejectedGoodsScheduledJourney.Answers
+  ): RejectedGoodsScheduledJourney =
+    RejectedGoodsScheduledJourney(
+      answers = f(journey.answers),
+      startTimeSeconds = journey.startTimeSeconds,
+      features = journey.features
+    )
+
 }
