@@ -313,8 +313,7 @@ final class OverpaymentsScheduledJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        answers.displayDeclaration,
-        isQuotaEnabled = features.exists(_.shouldAllowQuotaBasisOfClaim)
+        answers.displayDeclaration
       )
 
   def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
@@ -539,8 +538,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
 
   final case class Features(
     shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean,
-    shouldAllowQuotaBasisOfClaim: Boolean = true
+    shouldAllowSubsidyOnlyPayments: Boolean
   ) extends SubsidiesFeatures
 
   final case class Answers(

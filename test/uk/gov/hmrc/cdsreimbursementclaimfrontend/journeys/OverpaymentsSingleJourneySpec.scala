@@ -720,7 +720,7 @@ class OverpaymentsSingleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
 
       journeyEither.isRight                        shouldBe true
-      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs BasisOfOverpaymentClaim.values - Quota
+      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs BasisOfOverpaymentClaim.values
     }
 
     "return all available claim types except IncorrectExciseValue when no excise code in declaration" in {
@@ -732,7 +732,7 @@ class OverpaymentsSingleJourneySpec
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
 
       journeyEither.isRight                        shouldBe true
-      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue - Quota)
+      journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue)
     }
 
     "replace valid tax codes for reimbursement" in {

@@ -843,7 +843,7 @@ class OverpaymentsScheduledJourneySpec
 
       val availableClaimTypes =
         BasisOfOverpaymentClaim
-          .excludeNorthernIrelandClaims(false, Some(displayDeclaration), isQuotaEnabled = false)
+          .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
 
       val journey = OverpaymentsScheduledJourney
         .empty(exampleEori)
