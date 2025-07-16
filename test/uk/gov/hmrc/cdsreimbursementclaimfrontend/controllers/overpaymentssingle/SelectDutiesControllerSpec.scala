@@ -254,11 +254,11 @@ class SelectDutiesControllerSpec
       }
 
       "redirect to ineligible when no duties are available on submit" in {
-        val displayResponseDetailWithoutDuties =
+        val displayResponseDetailWithoutDuties      =
           exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
         val displayResponseDeclarationWithoutDuties =
           exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
-        val journey = OverpaymentsSingleJourney
+        val journey                                 = OverpaymentsSingleJourney
           .tryBuildFrom(
             OverpaymentsSingleJourney.Answers(
               userEoriNumber = exampleEori,

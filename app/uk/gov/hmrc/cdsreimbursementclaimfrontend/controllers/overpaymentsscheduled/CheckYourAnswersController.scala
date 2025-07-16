@@ -88,42 +88,40 @@ class CheckYourAnswersController @Inject() (
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if journey.isFinalized then (journey, Redirect(showConfirmationAction)).asFuture
-      else
-        journey
-          .submitCheckYourAnswersChangeMode(true)
-          .toOutput
-          .fold(
-            errors => {
-              logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
-              (journey, Redirect(routeForValidationErrors(errors))).asFuture
-            },
-            output =>
-              overpaymentsScheduledClaimConnector
-                .submitClaim(OverpaymentsScheduledClaimConnector.Request(output), true)
-                .flatMap { response =>
-                  logger.info(
-                    s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
-                  )
-                  val summary =
-                    JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)
-                      .logInfo()
-                  auditService.sendSuccessfulClaimEvent(journey, output, summary)
-                  uploadDocumentsConnector.wipeOut
-                    .map(_ =>
-                      (
-                        journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
-                        Redirect(showConfirmationAction)
-                      )
+      journey
+        .submitCheckYourAnswersChangeMode(true)
+        .toOutput
+        .fold(
+          errors => {
+            logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
+            (journey, Redirect(routeForValidationErrors(errors))).asFuture
+          },
+          output =>
+            overpaymentsScheduledClaimConnector
+              .submitClaim(OverpaymentsScheduledClaimConnector.Request(output), true)
+              .flatMap { response =>
+                logger.info(
+                  s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
+                )
+                val summary =
+                  JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)
+                    .logInfo()
+                auditService.sendSuccessfulClaimEvent(journey, output, summary)
+                uploadDocumentsConnector.wipeOut
+                  .map(_ =>
+                    (
+                      journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
+                      Redirect(showConfirmationAction)
                     )
-                }
-                .recover { case e =>
-                  logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
-                  val summary = JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
-                  auditService.sendFailedClaimEvent(journey, output, summary)
-                  (journey, Ok(submitClaimFailedPage()))
-                }
-          )
+                  )
+              }
+              .recover { case e =>
+                logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
+                val summary = JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
+                auditService.sendFailedClaimEvent(journey, output, summary)
+                (journey, Ok(submitClaimFailedPage()))
+              }
+        )
     }
 
   final val showConfirmation: Action[AnyContent] =

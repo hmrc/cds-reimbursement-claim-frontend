@@ -116,7 +116,7 @@ class CheckClaimantDetailsControllerSpec
 
           checkIsRedirect(
             performAction(),
-            routes.EnterMovementReferenceNumberController.show(1)
+            routes.EnterMovementReferenceNumberController.showFirst()
           )
         }
       }

@@ -953,4 +953,15 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
             j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
+
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    journey: OverpaymentsMultipleJourney,
+    f: OverpaymentsMultipleJourney.Answers => OverpaymentsMultipleJourney.Answers
+  ): OverpaymentsMultipleJourney =
+    OverpaymentsMultipleJourney(
+      answers = f(journey.answers),
+      startTimeSeconds = journey.startTimeSeconds,
+      features = journey.features
+    )
 }
