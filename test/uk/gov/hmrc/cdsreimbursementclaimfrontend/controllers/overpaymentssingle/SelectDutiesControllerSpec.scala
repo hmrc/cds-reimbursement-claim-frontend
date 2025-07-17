@@ -36,11 +36,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import scala.concurrent.Future
@@ -62,8 +60,6 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
@@ -71,9 +67,6 @@ class SelectDutiesControllerSpec
   }
 
   private val messagesKey: String = "select-duties"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   def assertPageContent(
     doc: Document,
@@ -107,12 +100,6 @@ class SelectDutiesControllerSpec
     "Show select duties page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page the first time" in forAll(journeyGen) { journey =>
         inSequence {
@@ -194,12 +181,6 @@ class SelectDutiesControllerSpec
     "Submit Select Duties page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty tax code selection" in {
 

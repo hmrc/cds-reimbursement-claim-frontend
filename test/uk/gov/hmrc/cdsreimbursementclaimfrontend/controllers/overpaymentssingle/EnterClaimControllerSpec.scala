@@ -36,11 +36,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -60,11 +58,6 @@ class EnterClaimControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   def assertPageContent(
     doc: Document,
@@ -118,12 +111,6 @@ class EnterClaimControllerSpec
       def performAction(): Future[Result] =
         controller.showFirst()(FakeRequest())
 
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page" in forAll(journeyGen) { journey =>
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -174,12 +161,6 @@ class EnterClaimControllerSpec
 
       def performAction(taxCode: TaxCode): Future[Result] =
         controller.show(taxCode)(FakeRequest())
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction(TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "display the page" in forAll(journeyGen) { journey =>
         journey.getSelectedDuties.get.foreach { taxCode =>
@@ -276,12 +257,6 @@ class EnterClaimControllerSpec
     "Submit Enter Claim page" must {
       def performAction(taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit(taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction(TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "accept valid amount and redirect to the next claim" in
         forAll(journeyGen) { journey =>

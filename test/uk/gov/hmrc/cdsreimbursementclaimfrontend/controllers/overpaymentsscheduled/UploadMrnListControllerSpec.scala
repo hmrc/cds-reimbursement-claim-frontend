@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -65,21 +64,11 @@ class UploadMrnListControllerSpec
 
   val controller: UploadMrnListController = instanceOf[UploadMrnListController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   "UploadMrnListController" when {
 
     "Show page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if overpayments v2 feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "redirect to 'Upload Mrn List' when no file uploaded yet" in {
         val journey = OverpaymentsScheduledJourney.empty(exampleEori)

@@ -79,7 +79,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   val claimSubmissionConfirmation: Call
 
   /** [Config] Required feature flag or none. */
-  val requiredFeature: Option[Feature]
+  val requiredFeature: Option[Feature] = None
 
   /** [Config] Provides navigation after journey validation failure. */
   def routeForValidationErrors(errors: Seq[String]): Call

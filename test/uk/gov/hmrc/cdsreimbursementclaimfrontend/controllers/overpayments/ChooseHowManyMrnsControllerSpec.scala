@@ -99,8 +99,6 @@ class ChooseHowManyMrnsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
-
   private val formKey = "overpayments.choose-how-many-mrns"
 
   private val eoriExample = exampleEori

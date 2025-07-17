@@ -48,7 +48,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
         "Features",
         Feature.RejectedGoods,
         Feature.LimitedAccess,
-        Feature.Overpayments_v2,
         Feature.ViewUpload
       )
 

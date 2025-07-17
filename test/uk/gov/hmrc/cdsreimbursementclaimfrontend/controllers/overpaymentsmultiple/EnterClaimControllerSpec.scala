@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -55,11 +54,6 @@ class EnterClaimControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   def validateEnterClaimPage(
     doc: Document,
@@ -86,11 +80,6 @@ class EnterClaimControllerSpec
 
       def performAction(pageIndex: Int, taxCode: TaxCode): Future[Result] =
         controller.show(pageIndex, taxCode)(FakeRequest())
-
-      "not find the page if overpayments_v2 feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction(1, TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
@@ -267,11 +256,6 @@ class EnterClaimControllerSpec
       def performAction(pageIndex: Int): Future[Result] =
         controller.showFirstByIndex(pageIndex)(FakeRequest())
 
-      "not find the page if overpayments_v2 feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction(1)) shouldBe NOT_FOUND
-      }
-
       "redirect to enter claim" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
@@ -315,12 +299,6 @@ class EnterClaimControllerSpec
     "Submit Enter Claim page" must {
       def performAction(pageIndex: Int, taxCode: TaxCode, data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction(1, TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "accept valid amount and redirect to the next page" in
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
