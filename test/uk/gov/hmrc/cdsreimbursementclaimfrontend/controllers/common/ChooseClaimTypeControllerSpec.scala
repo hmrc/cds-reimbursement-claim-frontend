@@ -200,7 +200,7 @@ class ChooseClaimTypeControllerSpec
         mockGetSession(SessionData.empty)
       }
 
-      featureSwitch.disable(Feature.ViewUpload)
+
       featureSwitch.disable(Feature.RejectedGoods)
       featureSwitch.disable(Feature.Securities)
 
@@ -213,7 +213,6 @@ class ChooseClaimTypeControllerSpec
           hasButton(buttons, "C285")                     shouldBe true
           hasButton(buttons, "RejectedGoods")            shouldBe false
           hasButton(buttons, "Securities")               shouldBe false
-          doc.select(".govuk-inset-text").text().isEmpty shouldBe true
           extractLabel(c285Button)                       shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)                        shouldBe messageFromMessageKey(s"$formKey.c285.hint")
         }
