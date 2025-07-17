@@ -20,7 +20,6 @@ import play.api.libs.json.Format
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 trait OverpaymentsMultipleJourneyBaseController extends JourneyBaseController with OverpaymentsMultipleJourneyRouter {
@@ -29,9 +28,6 @@ trait OverpaymentsMultipleJourneyBaseController extends JourneyBaseController wi
 
   final val format: Format[OverpaymentsMultipleJourney] =
     OverpaymentsMultipleJourney.format
-
-  final override val requiredFeature: Option[Feature] =
-    Some(Feature.Overpayments_v2)
 
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()

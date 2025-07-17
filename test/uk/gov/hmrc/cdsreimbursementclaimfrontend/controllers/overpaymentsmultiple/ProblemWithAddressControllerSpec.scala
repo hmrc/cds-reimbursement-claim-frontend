@@ -25,7 +25,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -33,9 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -56,11 +53,6 @@ class ProblemWithAddressControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   private val session = SessionData(OverpaymentsMultipleJourney.empty(exampleEori))
 
   "Problem with address Controller" when {
@@ -68,12 +60,6 @@ class ProblemWithAddressControllerSpec
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         inSequence {

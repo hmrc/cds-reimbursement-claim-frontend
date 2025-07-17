@@ -26,16 +26,13 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -56,10 +53,6 @@ class ProblemWithDeclarationControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
-
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val messagesKey: String = "problem-with-declaration"
@@ -68,11 +61,6 @@ class ProblemWithDeclarationControllerSpec
     "Problem with Declaration page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "does not find the page if the overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page with no continue option when all tax codes are unsupported" in {
         val journey = emptyJourney
@@ -146,11 +134,6 @@ class ProblemWithDeclarationControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty Yes/No answer" in {
         inSequence {

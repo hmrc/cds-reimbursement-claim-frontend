@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.OrdinalNumberMrnHelper
@@ -87,12 +86,7 @@ class CheckYourAnswersControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   private val messagesKey: String = "check-your-answers"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   def validateCheckYourAnswersPage(
     doc: Document,
@@ -195,11 +189,6 @@ class CheckYourAnswersControllerSpec
     "Show check your answers page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
@@ -321,11 +310,6 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.showPrintView(FakeRequest())
 
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
@@ -432,11 +416,6 @@ class CheckYourAnswersControllerSpec
     "Show confirmation page" must {
 
       def performAction(): Future[Result] = controller.showConfirmation(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page if journey has been finalized" in {
         forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>

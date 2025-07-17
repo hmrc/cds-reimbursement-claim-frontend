@@ -34,9 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -57,24 +55,13 @@ class SelectDutyTypesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   private val messagesKey: String = "select-duty-types"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   "Select Duty Types Controller" when {
 
     "Show select duty types page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if overpayments v2 feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page for the first time" in {
         inSequence {
@@ -115,12 +102,6 @@ class SelectDutyTypesControllerSpec
     "Submit Select Duty Types page" must {
       def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if Overpayments v2 feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty duty type selection" in {
         inSequence {

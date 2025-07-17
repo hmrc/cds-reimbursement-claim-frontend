@@ -35,11 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
@@ -69,10 +67,6 @@ class CheckDeclarationDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
@@ -170,11 +164,6 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "does not find the page if the overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page" in {
         val journey = buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
@@ -200,11 +189,6 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "submit" in {
         inSequence {

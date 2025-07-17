@@ -67,21 +67,14 @@ class UploadFilesControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.Overpayments_v2)
+  override def beforeEach(): Unit =
     featureSwitch.disable(Feature.SkipDocumentType)
-  }
 
   "UploadFilesController" when {
 
     "Show page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
         val journey =

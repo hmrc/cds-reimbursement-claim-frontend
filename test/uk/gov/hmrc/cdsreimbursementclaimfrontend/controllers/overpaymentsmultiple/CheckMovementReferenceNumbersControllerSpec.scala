@@ -43,9 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryDisplayDeclaration
 
 import scala.concurrent.Future
@@ -71,15 +69,10 @@ class CheckMovementReferenceNumbersControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   val formKey: String = "check-movement-reference-numbers"
 
   def areMrnsUnique(acc14Declarations: List[DisplayDeclaration]): Boolean =
     acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   private val session = SessionData(OverpaymentsMultipleJourney.empty(exampleEori))
 
@@ -125,12 +118,6 @@ class CheckMovementReferenceNumbersControllerSpec
           div.select("dd:nth-of-type(2) > ul > li:nth-child(2) a").isEmpty shouldBe true
         }
         true
-      }
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
       }
 
       "redirect to enter mrn page if no MRNs contained in journey" in {
@@ -245,12 +232,6 @@ class CheckMovementReferenceNumbersControllerSpec
           FakeRequest().withFormUrlEncodedBody(data*)
         )
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val journey = acc14Declarations.foldLeft(session.overpaymentsMultipleJourney.get) {
@@ -339,12 +320,6 @@ class CheckMovementReferenceNumbersControllerSpec
         controller.delete(mrn)(
           FakeRequest()
         )
-
-      "do not find the page if rejected goods feature is disabled" in forAll(genMRN) { (mrn: MRN) =>
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction(mrn)) shouldBe NOT_FOUND
-      }
 
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
         (acc14Declarations: List[DisplayDeclaration]) =>

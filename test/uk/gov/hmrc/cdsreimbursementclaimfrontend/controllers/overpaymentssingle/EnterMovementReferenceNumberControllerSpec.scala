@@ -84,9 +84,6 @@ class EnterMovementReferenceNumberControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   val session = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
 
   private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
@@ -100,12 +97,6 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -147,12 +138,6 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an invalid formatted MRN" in {
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")

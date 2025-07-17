@@ -27,7 +27,6 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
@@ -48,11 +47,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.al
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.numStringGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.BadRequestException
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -78,24 +75,11 @@ class EnterBankAccountDetailsControllerSpec
 
   implicit val request: Request[?] = FakeRequest()
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-bank-account-details"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Enter Bank Account Details Controller" must {
-
-    "not find the page if overpayments feature is disabled" in {
-      def performAction(): Future[Result] =
-        controller.show(FakeRequest())
-
-      featureSwitch.disable(Feature.Overpayments_v2)
-
-      status(performAction()) shouldBe NOT_FOUND
-    }
 
     "display the page" when {
       def performAction(): Future[Result] =

@@ -46,12 +46,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
 
@@ -86,11 +84,6 @@ class EnterMovementReferenceNumberControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   val session: SessionData = SessionData(emptyJourney)
 
   private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
@@ -112,12 +105,6 @@ class EnterMovementReferenceNumberControllerSpec
     "Enter MRN page" must {
 
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -198,11 +185,6 @@ class EnterMovementReferenceNumberControllerSpec
                 declarationId = mrn.value
               )
           )
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()()) shouldBe NOT_FOUND
-      }
 
       "reject an empty MRN" in {
         inSequence {

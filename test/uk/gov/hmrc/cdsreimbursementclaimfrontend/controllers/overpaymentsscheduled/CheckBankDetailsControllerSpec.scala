@@ -33,9 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -56,10 +54,6 @@ class CheckBankDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
-
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   val messagesKey: String = "bank-details"
@@ -68,11 +62,6 @@ class CheckBankDetailsControllerSpec
     "Check Bank Details page" must {
 
       def performAction(): Future[Result] = controller.showWarning(FakeRequest())
-
-      "does not find the page if the overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         val journey        = completeJourneyGen.sample.getOrElse(fail("Journey building has failed."))
@@ -138,11 +127,6 @@ class CheckBankDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submitWarning(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty Yes/No answer" in {
         val journey = journeyWithMrnAndDeclaration

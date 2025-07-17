@@ -16,22 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
-/*
- * Copyright 2023 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import cats.implicits.*
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -56,9 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -79,11 +61,6 @@ class EnterImporterEoriNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   val session: SessionData = SessionData(
     OverpaymentsScheduledJourney
       .empty(anotherExampleEori)
@@ -96,12 +73,6 @@ class EnterImporterEoriNumberControllerSpec
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -199,12 +170,6 @@ class EnterImporterEoriNumberControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty Eori" in {
         inSequence {

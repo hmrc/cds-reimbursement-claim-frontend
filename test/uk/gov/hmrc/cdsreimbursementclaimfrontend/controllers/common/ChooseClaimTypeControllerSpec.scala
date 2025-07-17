@@ -113,7 +113,6 @@ class ChooseClaimTypeControllerSpec
 
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.ViewUpload)
-    featureSwitch.enable(Feature.Overpayments_v2)
     featureSwitch.enable(Feature.RejectedGoods)
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)
@@ -203,7 +202,6 @@ class ChooseClaimTypeControllerSpec
       }
 
       featureSwitch.disable(Feature.ViewUpload)
-      featureSwitch.disable(Feature.Overpayments_v2)
       featureSwitch.disable(Feature.RejectedGoods)
       featureSwitch.disable(Feature.Securities)
 

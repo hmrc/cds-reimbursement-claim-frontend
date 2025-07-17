@@ -37,10 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.emptyJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -62,9 +60,6 @@ class EnterContactDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.Overpayments_v2)
-
   val session: SessionData = SessionData.empty.copy(overpaymentsMultipleJourney = Some(emptyJourney))
 
   val messageKey: String = "enter-movement-reference-number"
@@ -80,12 +75,6 @@ class EnterContactDetailsControllerSpec
   "Enter Contact Details Controller" when {
     "Show Contact Details page" must {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
@@ -131,12 +120,6 @@ class EnterContactDetailsControllerSpec
     "Submit Contact Details" must {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {

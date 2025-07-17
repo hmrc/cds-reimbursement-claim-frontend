@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
 import org.jsoup.nodes.Document
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -36,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 
@@ -59,12 +57,7 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   private val messagesKey: String = "select-duties"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
 
   def validateSelectDutiesPage(
     doc: Document,
@@ -90,11 +83,6 @@ class SelectDutiesControllerSpec
     "Show duties selection for the first MRN" must {
 
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page with no duty selected" in {
         forAll(incompleteJourneyWithMrnsGen(2)) { case (journey, mrns) =>
@@ -165,13 +153,6 @@ class SelectDutiesControllerSpec
 
       def performAction(pageIndex: Int): Future[Result] =
         controller.show(pageIndex)(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        forAll(Gen.choose(1, 1000)) { (pageIndex: Int) =>
-          status(performAction(pageIndex)) shouldBe NOT_FOUND
-        }
-      }
 
       "display the page with no duty selected" in {
         forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
@@ -297,11 +278,6 @@ class SelectDutiesControllerSpec
           FakeRequest()
             .withFormUrlEncodedBody(selectedTaxCodes.map(taxCode => s"$messagesKey[]" -> taxCode.value)*)
         )
-
-      "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-        status(performAction(1, Seq.empty)) shouldBe NOT_FOUND
-      }
 
       "redirect to enter first claim for the MRN when no duty selected before" in {
         forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>

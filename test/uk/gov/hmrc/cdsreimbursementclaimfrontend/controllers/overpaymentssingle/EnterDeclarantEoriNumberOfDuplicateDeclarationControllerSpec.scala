@@ -39,9 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -63,11 +61,6 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Overpayments_v2)
-
   val originalDeclaration  = exampleDisplayDeclaration
   val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value)
 
@@ -88,12 +81,6 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -183,12 +170,6 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if overpayments feature is disabled" in {
-        featureSwitch.disable(Feature.Overpayments_v2)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty Eori" in {
         inSequence {
