@@ -112,7 +112,6 @@ class ChooseClaimTypeControllerSpec
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.ViewUpload)
     featureSwitch.enable(Feature.RejectedGoods)
     featureSwitch.enable(Feature.Securities)
     featureSwitch.disable(Feature.LimitedAccessSecurities)

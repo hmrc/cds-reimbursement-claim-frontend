@@ -47,8 +47,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       Table[Feature](
         "Features",
         Feature.RejectedGoods,
-        Feature.LimitedAccess,
-        Feature.ViewUpload
+        Feature.LimitedAccess
       )
 
     val featuresCache: FeaturesCache = new TestFeaturesCache
