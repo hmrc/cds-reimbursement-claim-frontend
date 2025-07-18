@@ -25,27 +25,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.landing_page_securities
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.RedirectToGovUkLandingPage
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class LandingPageSecuritiesController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  val featureSwitchService: FeatureSwitchService,
-  landingPageSecurities: landing_page_securities
+  val featureSwitchService: FeatureSwitchService
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends FrontendBaseController
     with Logging {
 
   final val showLandingPageSecurities: Action[AnyContent] =
     Action { implicit request =>
-      if featureSwitchService.isEnabled(Feature.Securities) then {
-        if featureSwitchService.isEnabled(RedirectToGovUkLandingPage)
-        then Redirect(viewConfig.govUkSecuritiesLandingPageUrl)
-        else Ok(landingPageSecurities())
-      } else Redirect(routes.UnauthorisedController.unauthorised())
+      if featureSwitchService.isEnabled(Feature.Securities) then Redirect(viewConfig.govUkSecuritiesLandingPageUrl)
+      else Redirect(routes.UnauthorisedController.unauthorised())
     }
 }

@@ -1373,69 +1373,6 @@ invalid-reason-for-security.invalid-mrn=Nid yw MRN, <span id="MRN" class="govuk-
 invalid-reason-for-security.help-links=Gallwch naill ai <a href="{0}" class="govuk-link">weld statws eich hawliad ar y dangosfwrdd hawliadau</a>, <a href="{1}" class="govuk-link">rhoi MRN arall</a> neu gael help drwy <a href="{2}" target="_blank" class="govuk-link">gysylltu â CThEF (yn agor tab newydd)</a>.
 invalid-reason-for-security.title=Mae problem gyda’ch hawliad
 
-landing-securities.title=Hawlio gwarant neu flaendal sicrwydd mewnforio yn ôl
-landing-securities.start-button=Dechrau nawr
-
-landing-securities.what.heading=Yr hyn y mae angen i chi ei wybod
-landing-securities.what.l1=gall hawliadau gymryd 30 diwrnod i’w prosesu, neu’n hirach os bydd angen i ni gysylltu â chi
-landing-securities.what.l2=bydd angen i chi ddarparu dogfennau i ategu’ch hawliad
-landing-securities.what.l3=Ar gyfer hawliadau rhyddhad prosesu mewnol neu hawliadau rhyddhad defnydd terfynol, dim ond pan fydd 100% o’r nwyddau a fewnforiwyd wedi’u rhyddhau y gall hawliad am ad-daliad gael ei dderbyn
-landing-securities.who.heading=Hawlio
-landing-securities.who.l1=mewnforwyr neu eu cynrychiolwyr
-landing-securities.who.l2=asiantau
-landing-securities.who.l3=trefnwyr anfon nwyddau neu gwmnïau cludo parseli’n gyflym
-
-landing-securities.why.heading=Mathau o hawliadau
-landing-securities.why.l1=Mynediad dros dro o nwyddau
-landing-securities.why.l2=Rhyddhad prosesu mewnol
-landing-securities.why.l3=Rhyddhad prosesu allanol
-landing-securities.why.l4=Rhyddhad defnydd terfynol
-landing-securities.why.l5=Gwerthiannau cyfrif
-landing-securities.why.l6=Addasrwydd i hedfan
-landing-securities.why.l7=Dogfennau ar goll ar yr adeg fewnforio
-landing-securities.why.l8=Pris Mynediad UKAP
-landing-securities.why.l9=Tollau Diogelu UKAP
-landing-securities.why.p1=Mae’n bosib y gall blaendal sicrwydd fod wedi’i dalu neu warant fod wedi’i thalu i CThEF am amryw o resymau. Gall y rhain gynnwys:
-
-landing.before.heading=Cyn i chi ddechrau
-landing.before.l1=manylion Porth y Llywodraeth
-landing.before.l2=cysylltu eich rhif EORI â’ch cofrestriad i’r Gwasanaeth Datganiadau Tollau (CDS)
-landing.before.l3=rhif MRN neu rif mynediad
-landing.before.l4=gwybod y math o doll rydych am hawlio ad-daliad amdano
-landing.before.l5=rheswm dros ordalu
-landing.before.l6=manylion y nwyddau
-landing.before.l7=eich manylion banc
-landing.before.l8=enw a chyfeiriad y datganydd
-landing.before.l9=swm y tollau neu’r TAW a oedd yn ddyledus i CThEF ac a gafodd ei dalu iddo
-landing.before.p1=I ddefnyddio’r gwasanaeth hwn bydd angen y canlynol arnoch:
-landing.details.heading=Enghreifftiau o ddogfennau ategol
-landing.details.l1=C88/E2 (tystiolaeth i awdurdodi’r broses o fewnforio o’r wlad tarddiad)
-landing.details.l10=dogfennau ategol ychwanegol (er enghraifft trwydded mewnforio, tystysgrif yswiriant, archebion prynu neu lythyr credyd)
-landing.details.l2=anfoneb fasnachol (yn dangos gwerth y nwyddau)
-landing.details.l3=rhestr bacio (dogfen sy’n nodi manylion pacio pob llwyth)
-landing.details.l4=teithrestr awyr (yn nogfennau eich llwyth)
-landing.details.l5=bil llwytho (derbynneb o’r nwyddau sydd wedi’u cludo)
-landing.details.l6=datganiad amgen (ffurflen i ddatgan dewis amgen pan fo nwyddau wedi’u datgan yn anghywir)
-landing.details.l7=rhestr MRN (rhestr o MRNau blaenorol)
-landing.details.l8=tystiolaeth o awdurdod (gan y mewnforiwr i ad-dalu’r tollau)
-landing.details.l9=gohebiaeth â’r masnachwr neu ohebiaeth fewnol (cadwyn o e-byst neu lythyrau rhyngoch chi a’r masnachwr)
-landing.details.p1=Bydd angen tystiolaeth ategol arnoch sy’n ymwneud â nwyddau rydych wedi’u mewnforio. Gallwch sganio copïau ymlaen llaw er mwyn ei gwneud yn haws eu huwchlwytho yn y gwasanaeth hwn. Gallant fod yn unrhyw un o’r dogfennau hyn:
-landing.help.p1=Gallwch ddefnyddio’r gwasanaeth hwn i hawlio ad-daliad ar ordaliadau ar gyfer taliadau mewnforio. Mae’r rhain yn cynnwys Tollau Tramor, Tollau Ecséis, Tollau Gwrthbwyso a thollau tramor penodol eraill.
-landing.help.p2=Gallwch ddefnyddio’r gwasanaeth hwn ar gyfer sawl hawliad (swmp), a chael eich ad-dalu drwy naill ai Addasiad Mis Cyfredol (CMA) neu drwy drosglwyddiad cyfrif banc.
-landing.start-button=Dechrau nawr
-landing.title=Hawlio tollau mewnforio a TAW yn ôl
-landing.who.heading=Pwy all hawlio
-landing.who.l1=mewnforiwr neu’n gynrychiolydd y mewnforiwr
-landing.who.l2=asiant, trefnydd anfon nwyddau neu’n gyfrifydd
-landing.who.l3=unigolyn preifat
-landing.who.p1=Gallwch wneud hawliad os oes gennych rif EORI dilys yn gysylltiedig â’ch manylion mewngofnodi ar gyfer Porth y Llywodraeth, ac os oes gennych un neu fwy o Gyfeirnod(au) Symud (MRN).
-landing.who.p2=Dewch o hyd i <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">ragor am rifau EORI (yn agor tab newydd)</a> ac am <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">MRN (yn agor tab newydd)</a>.
-landing.who.p3=Fel datganydd hawliad, gallwch fod yn:
-landing.who.p4=Rhaid i chi wneud cais o fewn 3 blynedd o glirio’r nwyddau i gyrraedd y DU.
-landing.why.heading=Pam gwneud hawliad
-landing.why.l1=yw’r swm rydych chi eisoes wedi’i dalu yn y datganiad mewnforio’n anghywir
-landing.why.l2=cafodd eich datganiad mewnforio ei wrthod, ac felly mae angen i chi hawlio’r cyfan neu ran o’r swm rydych eisoes wedi’i dalu yn ôl
-landing.why.p1=Dylech wneud hawliad os:
 lang=en
 
 language-switcher.english=English

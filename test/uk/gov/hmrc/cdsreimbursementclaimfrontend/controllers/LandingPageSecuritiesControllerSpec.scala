@@ -28,21 +28,11 @@ class LandingPageSecuritiesControllerSpec extends ControllerSpec {
   private lazy val featureSwitch                          = instanceOf[FeatureSwitchService]
 
   "The Landing Page Controller" must {
-    "display the landing page when feature is off" in {
+    "redirect to securities GOV.UK landing page url" in {
       featureSwitch.enable(Feature.Securities)
-      featureSwitch.disable(Feature.RedirectToGovUkLandingPage)
-      checkPageIsDisplayed(
-        controller.showLandingPageSecurities(FakeRequest()),
-        "Claim back a security deposit or guarantee"
-      )
-    }
-
-    "redirect to GOV.UK when feature is on" in {
-      featureSwitch.enable(Feature.Securities)
-      featureSwitch.enable(Feature.RedirectToGovUkLandingPage)
       checkIsRedirect(
         controller.showLandingPageSecurities(FakeRequest()),
-        "https://www.gov.uk/guidance/claim-back-an-import-security-deposit-or-guarantee"
+        viewConfig.govUkSecuritiesLandingPageUrl
       )
     }
   }

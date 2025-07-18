@@ -18,29 +18,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 class LandingPageControllerSpec extends ControllerSpec {
 
   private val controller: LandingPageController = instanceOf[LandingPageController]
   implicit val messagesApi: MessagesApi         = controller.messagesApi
-  private lazy val featureSwitch                = instanceOf[FeatureSwitchService]
 
   "The Landing Page Controller" must {
-    "display the landing page when feature is off" in {
-      featureSwitch.disable(Feature.RedirectToGovUkLandingPage)
-      checkPageIsDisplayed(
-        controller.showLandingPage()(FakeRequest()),
-        messageFromMessageKey("landing.title")
-      )
-    }
-
-    "redirect to GOV.UK when feature is on" in {
-      featureSwitch.enable(Feature.RedirectToGovUkLandingPage)
+    "redirect to GOV.UK landing page url" in {
       checkIsRedirect(
         controller.showLandingPage()(FakeRequest()),
-        "https://www.gov.uk/guidance/how-to-apply-for-a-repayment-of-import-duty-and-vat-if-youve-overpaid-c285"
+        viewConfig.govUkLandingPageUrl
       )
     }
   }
