@@ -105,11 +105,7 @@
         )
     )
 
-    @{if(featureSwitchService.isEnabled(Feature.ViewUpload))
-        paragraph(Html(messages("choose-claim-type.view-upload-inset", viewConfig.viewUploadUrl)), Some("govuk-inset-text govuk-!-margin-bottom-5"))
-    else
-        None
-    }
+    @paragraph(Html(messages("choose-claim-type.view-upload-inset", viewConfig.viewUploadUrl)), Some("govuk-inset-text govuk-!-margin-bottom-5"))
 
     @formWithCSRF(routes.ChooseClaimTypeController.submit, Symbol("novalidate") -> "novalidate") {
 

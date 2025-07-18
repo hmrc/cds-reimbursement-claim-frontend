@@ -33,7 +33,6 @@ object Feature extends EnumerationFormat[Feature] {
   case object SingleSecurityTrack extends Feature { val name = "single-security-track" }
   case object LimitedAccess extends Feature { val name = "limited-access" }
   case object LimitedAccessSecurities extends Feature { val name = "limited-access-securities" }
-  case object ViewUpload extends Feature { val name = "view-upload" }
   case object XiEori extends Feature { val name = "xi-eori" }
   case object BlockSubsidies extends Feature { val name = "block-subsidies" }
   case object SubsidiesForRejectedGoods extends Feature { val name = "subsidies-for-rejected-goods" }
@@ -51,7 +50,6 @@ object Feature extends EnumerationFormat[Feature] {
       Securities,
       LimitedAccess,
       LimitedAccessSecurities,
-      ViewUpload,
       XiEori,
       BlockSubsidies,
       SubsidiesForRejectedGoods,
