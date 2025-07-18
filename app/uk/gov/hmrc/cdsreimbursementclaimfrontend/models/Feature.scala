@@ -37,7 +37,6 @@ object Feature extends EnumerationFormat[Feature] {
   case object BlockSubsidies extends Feature { val name = "block-subsidies" }
   case object SubsidiesForRejectedGoods extends Feature { val name = "subsidies-for-rejected-goods" }
   case object SubsidiesForOverpayments extends Feature { val name = "subsidies-for-overpayments" }
-  case object RedirectToGovUkLandingPage extends Feature { val name = "redirect-to-gov-uk-landing-page" }
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
   case object NewEoriFormat extends Feature { val name = "new-eori-format" }
 
@@ -54,7 +53,6 @@ object Feature extends EnumerationFormat[Feature] {
       BlockSubsidies,
       SubsidiesForRejectedGoods,
       SubsidiesForOverpayments,
-      RedirectToGovUkLandingPage,
       SkipDocumentType,
       NewEoriFormat,
       SingleSecurityTrack
