@@ -200,7 +200,6 @@ class ChooseClaimTypeControllerSpec
         mockGetSession(SessionData.empty)
       }
 
-
       featureSwitch.disable(Feature.RejectedGoods)
       featureSwitch.disable(Feature.Securities)
 
@@ -210,11 +209,11 @@ class ChooseClaimTypeControllerSpec
         doc => {
           val buttons    = radioButtons(doc)
           val c285Button = extractButton(buttons, "C285")
-          hasButton(buttons, "C285")                     shouldBe true
-          hasButton(buttons, "RejectedGoods")            shouldBe false
-          hasButton(buttons, "Securities")               shouldBe false
-          extractLabel(c285Button)                       shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)                        shouldBe messageFromMessageKey(s"$formKey.c285.hint")
+          hasButton(buttons, "C285")          shouldBe true
+          hasButton(buttons, "RejectedGoods") shouldBe false
+          hasButton(buttons, "Securities")    shouldBe false
+          extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
+          extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
         }
       )
     }

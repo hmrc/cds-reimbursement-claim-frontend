@@ -29,8 +29,8 @@
         heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-        card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card,
-        cardTable: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cardTable
+        subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
+        govukTable: GovukTable
 )
 
 @(allClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]],
@@ -51,60 +51,50 @@
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = false) {
 
-    @heading(Html(title), classes = "govuk-heading-l")
+    @heading(Html(title), classes = "govuk-heading-xl")
 
     @summary(SummaryList(ClaimsTableHelper.claimsDutyTypesSummary(selectedDutyTypes, selectDutyTypesAction), classes = "govuk-summary-list--no-border"))
 
     @nonExciseDutyClaims.map { case (dutyType, claims) =>
 
-        @card( 
-            title = messages(s"check-claim.${dutyType.repr}.label"),
-            summaryList = SummaryList(ClaimsTableHelper.claimsDutiesSelectedSummary(dutyType.repr, claims, selectDutiesByTypeAction(dutyType)), classes = "govuk-summary-list--no-border")
-        )
+        @subHeading(Html(messages(s"check-claim.${dutyType.repr}.label")), classes = "govuk-heading-l")
+        @summary(SummaryList(ClaimsTableHelper.claimsDutiesSelectedSummary(dutyType.repr, claims, selectDutiesByTypeAction(dutyType)), classes = "govuk-summary-list--no-border"))
 
-        @cardTable( 
-            title = messages(s"check-claim.scheduled.card.claim-amount.${dutyType.repr}"),
-            table = Table(
+        @govukTable(
+            Table(
                 rows = ClaimsTableHelper.claimsRowsForScheduled(claims, dutyType.repr, enterClaimAction),
                 head = Some(ClaimsTableHelper.claimsTableHeaders(s"-${dutyType.repr}")),
                 firstCellIsHeader = true,
                 attributes = Map("id" -> s"claims-table-${dutyType.repr}"),
-                classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4"
-        ))
-
-        <hr class="govuk-section-break govuk-section-break govuk-!-margin-bottom-7">
+                classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-9"
+            )
+        )
     }
+
     @if(selectedExciseCategoryClaims.nonEmpty) {
 
-        @card( 
-            title = messages("check-claim.excise-duty.label"),
-            summaryList = SummaryList(ClaimsTableHelper.claimsExciseCategoriesSummary(selectedExciseCategories, selectDutiesByTypeAction(DutyType.Excise)), classes = "govuk-summary-list--no-border")
-        )
+        @subHeading(Html(messages("check-claim.excise-duty.label")), classes = "govuk-heading-l")
+        @summary(SummaryList(ClaimsTableHelper.claimsExciseCategoriesSummary(selectedExciseCategories, selectDutiesByTypeAction(DutyType.Excise)), classes = "govuk-summary-list--no-border"))
 
         @selectedExciseCategoryClaims.map { case (exciseCategory, claims) =>
 
-            @card( 
-                title = messages(s"excise-category.${exciseCategory.repr}"),
-                summaryList = SummaryList(ClaimsTableHelper.claimsExciseDutiesSelectedSummary(exciseCategory.repr, claims, selectExciseDutiesAction(exciseCategory)), classes = "govuk-summary-list--no-border")
-            )
+            @subHeading(Html(messages(s"excise-category.${exciseCategory.repr}")), level = "h3", classes = "govuk-heading-m")
+            @summary(SummaryList(ClaimsTableHelper.claimsExciseDutiesSelectedSummary(exciseCategory.repr, claims, selectExciseDutiesAction(exciseCategory)), classes = "govuk-summary-list--no-border"))
 
-            @cardTable( 
-                title = messages(s"check-claim.scheduled.card.claim-amount.excise-category.${exciseCategory.repr}"),
-                table = Table(
+            @govukTable(
+                Table(
                     rows = ClaimsTableHelper.claimsRowsForScheduled(claims, exciseCategory.repr, enterClaimAction),
                     head = Some(ClaimsTableHelper.claimsTableHeaders(s"-${exciseCategory.repr}")),
                     firstCellIsHeader = true,
                     attributes = Map("id" -> s"claims-table-${exciseCategory.repr}"),
-                    classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-0 govuk-!-margin-top-4"
-            ))
-
+                    classes = "govuk-table govuk-table--small-text-until-tablet govuk-!-margin-bottom-9"
+                )
+            )
         }
     }
 
 
     @summary(SummaryList(ClaimsTableHelper.claimsTotalSummaryScheduled(allClaims.values.flatten.toSeq), classes = "govuk-summary-list--no-border"))
-
-    <br>
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton("button.continue")

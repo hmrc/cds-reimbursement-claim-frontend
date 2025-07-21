@@ -240,24 +240,24 @@ object ClaimsTableHelper {
       TableRow(
         content = HtmlContent(messages("check-claim.total.header")),
         attributes = Map("id" -> s"total-$idSuffix"),
-        classes = "govuk-table__header cell-no-border"
+        classes = "govuk-table__header"
       ),
       TableRow(
         content = Text(paidAmountTotal.toPoundSterlingString),
         attributes = Map("id" -> s"full-amount-total-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
+        classes = "govuk-table__cell govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(claimAmountTotal.toPoundSterlingString),
         attributes = Map(
           "id" -> s"claim-amount-total-$idSuffix"
         ),
-        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
+        classes = "govuk-table__cell govuk-table__cell--numeric"
       ),
       TableRow(
         content = Text(""),
         attributes = Map("id" -> s"blank-cell-$idSuffix"),
-        classes = "govuk-table__cell govuk-table__cell--numeric  cell-no-border"
+        classes = "govuk-table__cell govuk-table__cell--numeric"
       )
     )
 
