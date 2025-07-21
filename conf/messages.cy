@@ -120,24 +120,7 @@ check-claim.yes=Iawn
 check-claim.selected-duties.question=Beth hoffech chi ei hawlio?
 check-claim.change=Newid
 
-check-claim.multiple.card.charges-to-claim=Costau i hawlio
-check-claim.multiple.card.claim-amount=Swm yr hawliad
-check-claim.multiple.what-do-you-want-to-claim=Beth hoffech chi ei hawlio amdano? 
-
-check-claim.scheduled.card.claim-amount.uk-duty=UK duty amount
-check-claim.scheduled.card.claim-amount.eu-duty=EU duty amount
-check-claim.scheduled.card.claim-amount.excise-category.beer=Beer duty amount
-check-claim.scheduled.card.claim-amount.excise-category.biofuels=Biofuels duty amount
-check-claim.scheduled.card.claim-amount.excise-category.cider-perry=Cider and perry duty amount
-check-claim.scheduled.card.claim-amount.excise-category.other-fermented-products=Other fermented products duty amount
-check-claim.scheduled.card.claim-amount.excise-category.climate-change-levy=Climate Change Levy duty amount
-check-claim.scheduled.card.claim-amount.excise-category.hydrocarbon-oils=Hydrocarbon oil duty amount
-check-claim.scheduled.card.claim-amount.excise-category.low-alcohol-beverages=Low alcohol beverages duty amount
-check-claim.scheduled.card.claim-amount.excise-category.made-wine=Made-wine duty amount
-check-claim.scheduled.card.claim-amount.excise-category.miscellaneous-road-fuels=Miscellaneous road fuels duty amount
-check-claim.scheduled.card.claim-amount.excise-category.spirits=Spirits duty amount
-check-claim.scheduled.card.claim-amount.excise-category.tobacco=Tobacco products duty amount
-check-claim.scheduled.card.claim-amount.excise-category.wine=Wine duty amount
+check-claim.multiple.what-do-you-want-to-claim=Beth hoffech chi ei hawlio amdano?
 
 check-claim.securities.single.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
 check-claim.securities.single.claiming-full-amount=A hoffech hawlio’r swm llawn yn ôl?
