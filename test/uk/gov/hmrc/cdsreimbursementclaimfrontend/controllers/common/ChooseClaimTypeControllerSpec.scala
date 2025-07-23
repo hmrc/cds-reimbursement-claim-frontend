@@ -109,10 +109,6 @@ class ChooseClaimTypeControllerSpec
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.Securities)
-  }
-
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
 
@@ -196,7 +192,6 @@ class ChooseClaimTypeControllerSpec
         mockGetSession(SessionData.empty)
       }
 
-      featureSwitch.disable(Feature.RejectedGoods)
       featureSwitch.disable(Feature.Securities)
 
       checkPageIsDisplayed(
