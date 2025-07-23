@@ -320,12 +320,7 @@ final class OverpaymentsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
-      else if index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(
-          displayDeclaration
-        )
-      then {
-        Left(getSubsidyError)
-      } else
+      else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
@@ -799,10 +794,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -874,7 +866,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       hasMultipleMovementReferenceNumbers,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined,
       newEoriAndDanProvidedIfNeeded
     )

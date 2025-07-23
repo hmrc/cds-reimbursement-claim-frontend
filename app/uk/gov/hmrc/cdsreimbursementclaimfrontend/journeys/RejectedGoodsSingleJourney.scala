@@ -495,12 +495,8 @@ final class RejectedGoodsSingleJourney private (
           reimbursements = getReimbursements,
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod =
-            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
-            else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
-          bankAccountDetails =
-            if isSubsidyOnlyJourney then None
-            else answers.bankAccountDetails
+          reimbursementMethod = answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer),
+          bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -524,10 +520,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
 
   type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -594,17 +587,10 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
     val reimbursementMethodHasBeenProvidedIfNeeded: Validate[RejectedGoodsSingleJourney] =
       all(
         whenTrue(
-          j => j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
+          j => j.isAllSelectedDutiesAreCMAEligible,
           checkIsDefined(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-          )
-        ),
-        whenTrue(
-          _.isSubsidyOnlyJourney,
-          checkIsEmpty(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
           )
         )
       )
@@ -629,7 +615,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments
+      declarationsHasNoSubsidyPayments
     )
 
   import JourneyFormats._

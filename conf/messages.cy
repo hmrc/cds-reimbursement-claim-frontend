@@ -1043,7 +1043,6 @@ enter-claim.securities.exchange-rate-details.p1=Os oes angen i chi gyfrifo gwert
 enter-claim.securities.exchange-rate-details.p2=Mae’n rhaid i’r cyfraddau cyfnewid rydych yn eu defnyddio fod yr un fath â phan wnaethoch fewnforio’r nwyddau. Er enghraifft, os gwnaethoch gyflwyno’ch datganiad mewnforio ym mis Hydref 2023, dylech ddefnyddio’r gyfradd gyfnewid ar gyfer Hydref 2023.
 enter-claim.help-text.excise=Dylech gynnwys manylion toll {0} ({1}).
 enter-claim.inset-text=Nid yw CThEF yn ad-dalu ffioedd asiantau.
-enter-claim.inset-text.subsidy=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.invalid.claim=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.invalid.amount=Mae’n rhaid i’r swm a ddylai fod wedi’i dalu fod yn llai na’r swm a dalwyd
 enter-claim.mrn=Cyfeirnod Symud (MRN):
@@ -1090,7 +1089,6 @@ enter-claim.scheduled.invalid.claim=Mae’n rhaid i swm a dalwyd fod yn rhif, me
 enter-claim.scheduled.paid-amount.error.invalid=Mae’n rhaid i swm a dalwyd fod yn rhif, megis 30 neu 60.55
 enter-claim.scheduled.paid-amount.error.required=Nodwch y swm a dalwyd, mewn punnoedd
 enter-claim.scheduled.paid-amount.error.zero=Mae’n rhaid i’r cyfanswm a dalwyd fod yn fwy na sero
-enter-claim.scheduled.subsidy-inset-text=Bydd balans eich cymhorthdal wedi’i ddyrannu yn cael ei gredydu gydag unrhyw ad-daliadau hawliad.
 enter-claim.scheduled.title={0}
 enter-claim.scheduled.title.excise={0} - {1} {2}
 

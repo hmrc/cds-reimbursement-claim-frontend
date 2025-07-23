@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 trait DeclarationSupport {
-  implicit class TestDisplayDeclaration(val declaration: DisplayDeclaration) {
+  extension (declaration: DisplayDeclaration) {
     def withAllSubsidiesPaymentMethod(): DisplayDeclaration =
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
@@ -36,3 +36,5 @@ trait DeclarationSupport {
       )
   }
 }
+
+object DeclarationSupport extends DeclarationSupport

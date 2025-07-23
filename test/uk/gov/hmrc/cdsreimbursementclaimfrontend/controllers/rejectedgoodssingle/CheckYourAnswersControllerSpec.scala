@@ -160,7 +160,6 @@ class CheckYourAnswersControllerSpec
         "Method"                          ->
           Some(claim.reimbursementMethod match {
             case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
-            case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
             case _                                          => m("check-your-answers.repayment-method.bt")
           }),
         "Uploaded files"                  -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
@@ -242,7 +241,7 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, journey, claim, journey.isSubsidyOnlyJourney)
+            doc => validateCheckYourAnswersPage(doc, journey, claim, false)
           )
         }
       }
@@ -250,10 +249,7 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            generateSubsidyPayments = GenerateSubsidyPayments.Some,
-            features = Some(
-              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-            )
+            generateSubsidyPayments = GenerateSubsidyPayments.Some
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
@@ -334,10 +330,7 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            generateSubsidyPayments = GenerateSubsidyPayments.Some,
-            features = Some(
-              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-            )
+            generateSubsidyPayments = GenerateSubsidyPayments.Some
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)

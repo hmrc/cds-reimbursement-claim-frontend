@@ -72,7 +72,6 @@ class EnterClaimController @Inject() (
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
       journey.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show).asFuture
@@ -96,7 +95,6 @@ class EnterClaimController @Inject() (
                   maybeMRN,
                   TaxCode(ndrcDetails.taxType),
                   amountPaid,
-                  isSubsidyOnly,
                   postAction(taxCode)
                 )
               ).asFuture
@@ -110,8 +108,7 @@ class EnterClaimController @Inject() (
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteJourney(
       implicit request =>
-        journey => {
-          val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
+        journey =>
           journey.getSelectedDuties match {
             case None =>
               (journey, Redirect(routes.SelectDutiesController.show)).asFuture
@@ -135,7 +132,6 @@ class EnterClaimController @Inject() (
                                 maybeMRN,
                                 TaxCode(ndrcDetails.taxType),
                                 BigDecimal(ndrcDetails.amount),
-                                isSubsidyOnly,
                                 postAction(taxCode)
                               )
                             )
@@ -168,8 +164,7 @@ class EnterClaimController @Inject() (
 
             case _ =>
               (journey, redirectWhenInvalidTaxCode(journey)).asFuture
-          }
-        },
+          },
       fastForwardToCYAEnabled = false
     )
 

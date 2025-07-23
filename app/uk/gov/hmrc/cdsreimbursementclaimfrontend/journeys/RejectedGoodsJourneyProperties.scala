@@ -18,13 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
 
 /** Common properties of the rejected-goods single, multiple and scheduled journeys. */
 trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
 
   def answers: RejectedGoodsAnswers
-  def features: Option[SubsidiesFeatures]
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
@@ -32,15 +30,8 @@ trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
   final def needsSpecialCircumstancesBasisOfClaim: Boolean =
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
-  final def isSubsidyOnlyJourney: Boolean =
-    features.exists(_.shouldAllowSubsidyOnlyPayments) &&
-      declarationsHasOnlySubsidyPayments
-
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
-        declaration.hasOnlySubsidyPayments) &&
-      features.exists(_.shouldBlockSubsidies) &&
-      declaration.hasSomeSubsidyPayment
+    if declaration.hasSomeSubsidyPayment
     then Some("error.subsidy-payment-found")
     else None
 

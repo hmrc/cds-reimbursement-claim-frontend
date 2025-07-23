@@ -163,8 +163,7 @@ final class RejectedGoodsMultipleJourney private (
 
   def hasAllClaimsSelectedForIndex(index: Int): Boolean = true
 
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !this.isSubsidyOnlyJourney
+  def needsBanksAccountDetailsSubmission: Boolean = true
 
   def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
     if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
@@ -296,12 +295,7 @@ final class RejectedGoodsMultipleJourney private (
         )
       else if index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs) then
         Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
-      else if index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(
-          displayDeclaration
-        )
-      then {
-        Left(getSubsidyError)
-      } else
+      else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
@@ -769,12 +763,8 @@ final class RejectedGoodsMultipleJourney private (
           reimbursementClaims = OrderedMap(getReimbursementClaims),
           supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod =
-            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
-            else ReimbursementMethod.BankAccountTransfer,
-          bankAccountDetails =
-            if isSubsidyOnlyJourney then None
-            else answers.bankAccountDetails
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
+          bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -798,10 +788,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   // All user answers captured during C&E1179 multiple MRNs journey
   final case class Answers(
@@ -886,7 +873,7 @@ object RejectedGoodsMultipleJourney extends JourneyCompanion[RejectedGoodsMultip
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined
     )
 

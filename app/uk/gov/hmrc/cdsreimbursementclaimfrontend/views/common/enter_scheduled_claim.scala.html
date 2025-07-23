@@ -40,7 +40,7 @@
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph
 )
 
-@(dutyType: DutyType, taxCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, taxCode: TaxCode, form : Form[AmountPaidWithCorrect], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     if(DutyTypes.custom.contains(dutyType))
@@ -52,7 +52,6 @@
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @inset = {
-    @{if (isSubsidy) paragraph(Html(messages(s"enter-claim.scheduled.subsidy-inset-text"))) else None}
     @paragraph(Html(messages(s"enter-claim.scheduled.inset-text")))
 }
 

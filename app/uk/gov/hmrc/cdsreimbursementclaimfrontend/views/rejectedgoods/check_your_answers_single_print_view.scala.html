@@ -27,7 +27,7 @@
     cyaCommon: check_your_answers_single_common
 )
 
-@(caseNumber: String, claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isSubsidy: Boolean = false, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, claim: RejectedGoodsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @card(messages("check-your-answers.print-view.submission-details"), CheckYourAnswersPrintViewHelper.render(caseNumber, submissionDate = submissionDate))

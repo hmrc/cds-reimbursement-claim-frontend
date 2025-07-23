@@ -18,13 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubsidiesFeatures
 
 /** Common properties of the overpayments single, multiple and scheduled journeys. */
 trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
 
   override def answers: OverpaymentsAnswers
-  def features: Option[SubsidiesFeatures]
 
   def hasCompleteReimbursementClaims: Boolean
   def getTotalReimbursementAmount: BigDecimal
@@ -32,14 +30,10 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
   final def isSubsidyOnlyJourney: Boolean =
-    features.exists(_.shouldAllowSubsidyOnlyPayments) &&
-      declarationsHasOnlySubsidyPayments
+    declarationsHasOnlySubsidyPayments
 
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if !(features.exists(_.shouldAllowSubsidyOnlyPayments) &&
-        declaration.hasOnlySubsidyPayments) &&
-      features.exists(_.shouldBlockSubsidies) &&
-      declaration.hasSomeSubsidyPayment
+    if declaration.hasSomeSubsidyPayment
     then Some("error.subsidy-payment-found")
     else None
 }

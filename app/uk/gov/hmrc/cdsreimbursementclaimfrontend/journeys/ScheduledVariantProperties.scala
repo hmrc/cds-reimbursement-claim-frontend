@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.Excise
 trait ScheduledVariantProperties extends CommonJourneyProperties {
 
   override def answers: ScheduledVariantAnswers
-  def isSubsidyOnlyJourney: Boolean
 
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
@@ -64,8 +63,7 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !this.isSubsidyOnlyJourney
+  def needsBanksAccountDetailsSubmission: Boolean = true
 
   def getSelectedDocumentType: Option[UploadDocumentType] =
     answers.selectedDocumentType

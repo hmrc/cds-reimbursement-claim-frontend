@@ -87,7 +87,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
       (
         journeyWithMrnAndDeclarationWithFeatures(
-          RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
+          RejectedGoodsMultipleJourney.Features()
         )
           .flatMapEach(dataWithIndex, submitData)
           .getOrFail,
@@ -223,9 +223,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       acc14ConsigneeMatchesUserEori = true,
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      features =
-        Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
+      submitBankAccountType = false
     )
 
   val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsMultipleJourney] =
@@ -234,9 +232,7 @@ object RejectedGoodsMultipleJourneyGenerators extends JourneyGenerators with Jou
       acc14ConsigneeMatchesUserEori = true,
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      features =
-        Some(RejectedGoodsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true))
+      submitBankAccountType = false
     )
 
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsMultipleJourney] = for

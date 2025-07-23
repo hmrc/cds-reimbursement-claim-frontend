@@ -23,6 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 object ReimbursementMethodGen {
 
   implicit lazy val arbitraryReimbursementMethod: Arbitrary[Option[ReimbursementMethod]] =
-    Arbitrary(Gen.option(Gen.oneOf(ReimbursementMethod.nonSubsidyValues)))
+    Arbitrary(Gen.option(Gen.oneOf(ReimbursementMethod.values)))
 
 }

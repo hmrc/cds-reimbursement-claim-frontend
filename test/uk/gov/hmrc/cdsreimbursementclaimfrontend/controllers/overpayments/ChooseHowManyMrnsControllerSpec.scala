@@ -213,72 +213,6 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and block-subsidies feature is on" in {
-
-        featureSwitch.enable(Feature.BlockSubsidies)
-
-        val updatedSession = SessionData(
-          OverpaymentsSingleJourney
-            .empty(
-              eoriExample,
-              Nonce.Any,
-              features = Some(
-                OverpaymentsSingleJourney.Features(
-                  shouldBlockSubsidies = true,
-                  shouldAllowSubsidyOnlyPayments = false,
-                  shouldSkipDocumentTypeSelection = false
-                )
-              )
-            )
-        )
-
-        inSequence {
-          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-          mockGetEoriDetails(exampleEori)
-          mockGetSession(SessionData.empty)
-          mockStoreSessionWithCustomComparator(updatedSession, compareOverpaymentsSingleFeatures)(Right(()))
-        }
-
-        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
-        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
-
-        featureSwitch.disable(Feature.BlockSubsidies)
-      }
-
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and block-subsidies with subsidies-for-overpayments features is on" in {
-
-        featureSwitch.enable(Feature.BlockSubsidies)
-        featureSwitch.enable(Feature.SubsidiesForOverpayments)
-
-        val updatedSession = SessionData(
-          OverpaymentsSingleJourney
-            .empty(
-              eoriExample,
-              Nonce.Any,
-              features = Some(
-                OverpaymentsSingleJourney.Features(
-                  shouldBlockSubsidies = true,
-                  shouldAllowSubsidyOnlyPayments = true,
-                  shouldSkipDocumentTypeSelection = false
-                )
-              )
-            )
-        )
-
-        inSequence {
-          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-          mockGetEoriDetails(exampleEori)
-          mockGetSession(SessionData.empty)
-          mockStoreSessionWithCustomComparator(updatedSession, compareOverpaymentsSingleFeatures)(Right(()))
-        }
-
-        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
-        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
-
-        featureSwitch.disable(Feature.BlockSubsidies)
-        featureSwitch.disable(Feature.SubsidiesForOverpayments)
-      }
-
       "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and skip-document-type feature is on" in {
 
         featureSwitch.enable(Feature.SkipDocumentType)
@@ -290,9 +224,37 @@ class ChooseHowManyMrnsControllerSpec
               Nonce.Any,
               features = Some(
                 OverpaymentsSingleJourney.Features(
-                  shouldBlockSubsidies = false,
-                  shouldAllowSubsidyOnlyPayments = false,
                   shouldSkipDocumentTypeSelection = true
+                )
+              )
+            )
+        )
+
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
+          mockGetSession(SessionData.empty)
+          mockStoreSessionWithCustomComparator(updatedSession, compareOverpaymentsSingleFeatures)(Right(()))
+        }
+
+        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
+        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
+
+        featureSwitch.disable(Feature.SkipDocumentType)
+      }
+
+      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and skip-document-type feature is off" in {
+
+        featureSwitch.enable(Feature.SkipDocumentType)
+
+        val updatedSession = SessionData(
+          OverpaymentsSingleJourney
+            .empty(
+              eoriExample,
+              Nonce.Any,
+              features = Some(
+                OverpaymentsSingleJourney.Features(
+                  shouldSkipDocumentTypeSelection = false
                 )
               )
             )
@@ -374,18 +336,10 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and block-subsidies feature is on" in {
 
-        featureSwitch.enable(Feature.BlockSubsidies)
-
         val updatedSession = SessionData(
           OverpaymentsMultipleJourney.empty(
             eoriExample,
-            Nonce.Any,
-            features = Some(
-              OverpaymentsMultipleJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false
-              )
-            )
+            Nonce.Any
           )
         )
 
@@ -398,8 +352,6 @@ class ChooseHowManyMrnsControllerSpec
 
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Multiple.toString))
         checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
-
-        featureSwitch.disable(Feature.BlockSubsidies)
 
       }
 
@@ -460,18 +412,10 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and block-subsidies feature is on" in {
 
-        featureSwitch.enable(Feature.BlockSubsidies)
-
         val updatedSession = SessionData(
           OverpaymentsScheduledJourney.empty(
             eoriExample,
-            Nonce.Any,
-            features = Some(
-              OverpaymentsScheduledJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false
-              )
-            )
+            Nonce.Any
           )
         )
 
@@ -486,7 +430,6 @@ class ChooseHowManyMrnsControllerSpec
 
         checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
 
-        featureSwitch.disable(Feature.BlockSubsidies)
       }
 
       "Show error message when no data selected" in {

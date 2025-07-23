@@ -47,8 +47,7 @@
     indexAndMrnOpt: Option[(Int,MRN)], 
     showCmaNotEligibleHint: Boolean,
     subKey: Option[String],
-    postAction: Call,
-    isSubsidyOnly: Boolean = false,
+    postAction: Call
 )(implicit  request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
     @title = @{messages(s"select-duties.title")}

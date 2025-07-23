@@ -252,11 +252,7 @@ class EnterMovementReferenceNumberControllerSpec
           overpaymentsScheduledJourney = Some(
             OverpaymentsScheduledJourney
               .empty(
-                exampleEori,
-                features = Some(
-                  OverpaymentsScheduledJourney
-                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-                )
+                exampleEori
               )
           )
         )

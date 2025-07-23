@@ -131,7 +131,6 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
   private def getRepaymentMethodKey(key: String, answer: ReimbursementMethod): String = answer match {
     case CurrentMonthAdjustment => s"$key.cma"
     case BankAccountTransfer    => s"$key.bt"
-    case Subsidy                => s"$key.subsidy"
   }
 
   def renderForSingle(
