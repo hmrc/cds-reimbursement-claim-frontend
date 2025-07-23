@@ -73,10 +73,8 @@ class EnterClaimControllerSpec
 
   private val messagesKey: String = "enter-claim.securities"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   def validateEnterClaimPage(
     doc: Document,

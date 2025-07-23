@@ -19,21 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc.ActionRefiner
+import play.api.mvc.Call
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.AuthorisedFunctions
-import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.auth.core.NoActiveSession
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.UnauthorisedController.unauthorised
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
-import java.nio.charset.StandardCharsets
-import java.util.Base64
-import java.util.Locale
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -45,39 +41,7 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   val sessionStore: SessionCache
   implicit val executionContext: ExecutionContext
 
-  final def limitedAccessErrorPage = unauthorised()
-  final def unauthorizedErrorPage  = unauthorised()
-
-  private val limitedAccessEoriSet: Set[String] =
-    try
-      config
-        .getOptional[String]("limited-access-eori-csv-base64")
-        .map(s => Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)))
-        .map(a => new String(a, StandardCharsets.UTF_8))
-        .map(_.split(',').map(_.trim.toUpperCase(Locale.ENGLISH)).toSet)
-        .getOrElse(Set.empty)
-    catch {
-      case e: Exception =>
-        throw new Exception("Error while parsing 'limited-access-eori-csv-base64' config property", e)
-    }
-
-  def checkEoriIsAllowed(eori: String): Boolean =
-    limitedAccessEoriSet.contains(eori.trim.toUpperCase(Locale.ENGLISH))
-
-  def checkUserHasAccess(allEnrolments: Enrolments): Boolean =
-    allEnrolments.getEnrolment(EnrolmentConfig.EoriEnrolment.key) match {
-      case Some(eori) =>
-        eori.getIdentifier(EnrolmentConfig.EoriEnrolment.eoriEnrolmentIdentifier) match {
-          case Some(eori) =>
-            checkEoriIsAllowed(eori.value)
-          case None       =>
-            logger.warn("Logged-in user has EORI not allowed in private beta.")
-            false
-        }
-      case None       =>
-        logger.warn(s"User has no ${EnrolmentConfig.EoriEnrolment.key} enrolment.")
-        false
-    }
+  final def unauthorizedErrorPage: Call = unauthorised()
 
   def authorisedFunction[A](
     auth: AuthorisedFunctions,
@@ -113,5 +77,4 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
         )
       )
     }
-
 }

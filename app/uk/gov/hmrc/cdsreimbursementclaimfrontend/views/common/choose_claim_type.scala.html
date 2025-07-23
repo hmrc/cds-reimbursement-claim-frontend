@@ -40,7 +40,7 @@
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading
 )
 
-@(form: Form[ClaimForm], userIsAuthorisedSecuritiesLimitedAccess: Boolean = false)(implicit request: Request[?], hc: HeaderCarrier, messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimForm])(implicit request: Request[?], hc: HeaderCarrier, messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-claim-type"}
 @title = @{messages(s"choose-claim-type.title")}
@@ -78,13 +78,7 @@
                 )
             ) else None,
         if(featureSwitchService.isEnabled(Feature.Securities)) {
-            if (featureSwitchService.isEnabled(Feature.LimitedAccessSecurities)) {
-                if (userIsAuthorisedSecuritiesLimitedAccess)
-                    Some(securitiesRadioButton)
-                else None
-            } else {
-                Some(securitiesRadioButton)
-            }
+            Some(securitiesRadioButton)
         } else None
     ).filter(_.isDefined).map(_.get)
 }

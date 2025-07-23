@@ -107,20 +107,16 @@ class AuthenticatedAction @Inject() (
   private def handleUser[A](
     enrolments: Enrolments,
     request: MessagesRequest[A]
-  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequest[A]]] =
+  ): Future[Either[Result, AuthenticatedRequest[A]]] =
     hasEoriEnrolment(enrolments) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
-        if featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
-          checkEoriIsAllowed(eori.value)
-        then
-          Right(
-            AuthenticatedRequest(
-              request,
-              Some(eori)
-            )
+        Right(
+          AuthenticatedRequest(
+            request,
+            Some(eori)
           )
-        else Left(Results.Redirect(limitedAccessErrorPage))
+        )
       case Right(None)       =>
         Left(Redirect(unauthorizedErrorPage))
     }
@@ -149,7 +145,7 @@ class AuthenticatedAction @Inject() (
     f: => Future[
       Either[Result, AuthenticatedRequest[A]]
     ]
-  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequest[A]]] =
+  ): Future[Either[Result, AuthenticatedRequest[A]]] =
     credentials match {
       case None =>
         logger.warn("No credentials were retrieved")
@@ -160,14 +156,12 @@ class AuthenticatedAction @Inject() (
 
       case Some(Credentials(_, _)) =>
         Future.successful(
-          if featureSwitchService.isDisabled(models.Feature.LimitedAccess) then
-            Right(
-              AuthenticatedRequest(
-                request,
-                None
-              )
+          Right(
+            AuthenticatedRequest(
+              request,
+              None
             )
-          else Left(Results.Redirect(limitedAccessErrorPage))
+          )
         )
     }
 

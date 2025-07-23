@@ -65,10 +65,8 @@ class BillOfDischarge3ControllerSpec
 
   private val confirmBodMessagesKey: String = "bill-of-discharge"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   "BillOfDischargeController" when {
 

@@ -44,8 +44,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = true
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.ntas
 
     }
@@ -66,8 +65,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = true
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.values
 
     }
@@ -90,8 +88,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = true
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe expectedOptions
 
     }
@@ -114,8 +111,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = false
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe expectedOptions
 
     }
@@ -138,32 +134,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = true
-      ).avalaibleReasonsForSecurity() shouldBe expectedOptions
-
-    }
-
-    "show only public (ntas) when user does not have private beta access" in {
-
-      val expectedOptions = ReasonForSecurity.ntas
-
-      val config = Configuration(
-        ConfigFactory.parseString(
-          """
-            | features.security-reasons.ntas = public
-            | features.security-reasons.niru = private
-            | features.security-reasons.niru-opr = hidden
-            | features.security-reasons.niru-csdr = hidden
-            | features.security-reasons.nidac = hidden
-            | features.security-reasons.nidac-mdp = hidden
-            |""".stripMargin
-        )
-      )
-
-      new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = false
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe expectedOptions
 
     }
@@ -184,8 +155,7 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       )
 
       new ReasonForSecurityHelper(
-        configuration = config,
-        userHasSecuritiesAccess = true
+        configuration = config
       ).avalaibleReasonsForSecurity() shouldBe Set.empty
 
     }

@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.RetrievalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -47,7 +46,6 @@ trait AuthSupport {
     instanceOf[Configuration],
     instanceOf[ErrorHandler],
     mockSessionCache,
-    new TestFeatureSwitchService(),
     mockEoriDetailsConnector
   )(instanceOf[ExecutionContext])
 

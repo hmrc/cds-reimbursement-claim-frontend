@@ -74,10 +74,8 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
   private val messagesKey: String = "check-export-movement-reference-numbers"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   def validateCheckExportMovementReferenceNumbersPage(
     doc: Document,

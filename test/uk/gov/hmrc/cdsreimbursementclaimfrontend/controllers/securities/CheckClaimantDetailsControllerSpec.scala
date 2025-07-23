@@ -72,10 +72,8 @@ class CheckClaimantDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {

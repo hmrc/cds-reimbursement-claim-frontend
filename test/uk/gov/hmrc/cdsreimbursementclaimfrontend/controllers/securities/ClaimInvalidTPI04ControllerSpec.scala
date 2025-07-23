@@ -61,10 +61,8 @@ class ClaimInvalidTPI04ControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   def validateClaimInvalidPage(doc: Document, rfsOpt: Option[ReasonForSecurity]) = {
 
