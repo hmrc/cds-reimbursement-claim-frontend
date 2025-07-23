@@ -35,9 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -59,11 +57,7 @@ class EnterSpecialCircumstancesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-special-circumstances.rejected-goods"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
@@ -71,11 +65,6 @@ class EnterSpecialCircumstancesControllerSpec
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -113,11 +102,6 @@ class EnterSpecialCircumstancesControllerSpec
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject submit if no special circumstances entered" in {
         inSequence {

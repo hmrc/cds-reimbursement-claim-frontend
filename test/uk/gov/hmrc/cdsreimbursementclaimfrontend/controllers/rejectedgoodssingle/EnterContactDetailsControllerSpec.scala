@@ -36,10 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -62,10 +60,6 @@ class EnterContactDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
-
   val session: SessionData = SessionData(RejectedGoodsSingleJourney.empty(exampleEori))
 
   private def mockCompleteJourney(journey: RejectedGoodsSingleJourney) =
@@ -78,12 +72,6 @@ class EnterContactDetailsControllerSpec
     "Enter Contact Details page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
@@ -110,12 +98,6 @@ class EnterContactDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {

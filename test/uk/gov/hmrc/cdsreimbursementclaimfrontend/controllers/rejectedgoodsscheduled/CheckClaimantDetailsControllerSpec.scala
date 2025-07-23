@@ -26,7 +26,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
@@ -43,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -72,11 +70,6 @@ class CheckClaimantDetailsControllerSpec
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   private val session = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Claimant Details Controller" when {
@@ -84,12 +77,6 @@ class CheckClaimantDetailsControllerSpec
 
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
@@ -129,12 +116,6 @@ class CheckClaimantDetailsControllerSpec
         controller.submit(
           FakeRequest().withFormUrlEncodedBody(data*)
         )
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "redirect to the CYA page and do not update the contact/address details if they are already present" in {
         forAll(genMrnContactDetails, genContactAddress) { (contactDetails, address) =>

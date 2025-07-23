@@ -110,7 +110,6 @@ class ChooseClaimTypeControllerSpec
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit = {
-    featureSwitch.enable(Feature.RejectedGoods)
     featureSwitch.enable(Feature.Securities)
   }
 
@@ -207,7 +206,7 @@ class ChooseClaimTypeControllerSpec
           val buttons    = radioButtons(doc)
           val c285Button = extractButton(buttons, "C285")
           hasButton(buttons, "C285")          shouldBe true
-          hasButton(buttons, "RejectedGoods") shouldBe false
+          hasButton(buttons, "RejectedGoods") shouldBe true
           hasButton(buttons, "Securities")    shouldBe false
           extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")

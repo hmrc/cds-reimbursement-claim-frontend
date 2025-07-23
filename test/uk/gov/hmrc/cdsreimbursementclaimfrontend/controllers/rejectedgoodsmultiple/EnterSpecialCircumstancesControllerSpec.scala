@@ -36,9 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -61,11 +59,7 @@ class EnterSpecialCircumstancesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-special-circumstances.rejected-goods"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
@@ -76,10 +70,6 @@ class EnterSpecialCircumstancesControllerSpec
     controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
   "Enter Special Circumstances Controller" must {
-    "not find the page if rejected goods feature is disabled" in {
-      featureSwitch.disable(Feature.RejectedGoods)
-      status(showPage()) shouldBe NOT_FOUND
-    }
 
     "display the page" when {
       "the user has not answered this question before" in {

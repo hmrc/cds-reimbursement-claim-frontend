@@ -20,7 +20,6 @@ import play.api.libs.json.Format
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 abstract class RejectedGoodsMultipleJourneyBaseController
@@ -31,9 +30,6 @@ abstract class RejectedGoodsMultipleJourneyBaseController
 
   final val format: Format[RejectedGoodsMultipleJourney] =
     RejectedGoodsMultipleJourney.format
-
-  final override val requiredFeature: Option[Feature] =
-    Some(Feature.RejectedGoods)
 
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()

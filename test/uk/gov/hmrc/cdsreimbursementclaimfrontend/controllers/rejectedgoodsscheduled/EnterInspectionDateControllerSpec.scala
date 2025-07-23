@@ -38,13 +38,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.*
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddresses
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -68,11 +65,7 @@ class EnterInspectionDateControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
@@ -80,11 +73,6 @@ class EnterInspectionDateControllerSpec
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -134,11 +122,6 @@ class EnterInspectionDateControllerSpec
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "the user submits an empty date" in {
         inSequence {

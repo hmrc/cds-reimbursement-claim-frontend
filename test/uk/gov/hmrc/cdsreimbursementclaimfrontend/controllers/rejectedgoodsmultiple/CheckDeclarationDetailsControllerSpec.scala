@@ -42,9 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 
@@ -69,10 +67,6 @@ class CheckDeclarationDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
   val session =
     SessionData.empty.copy(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(exampleEori)))
@@ -174,11 +168,6 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "does not find the page if the rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page" in forAll(
         buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
@@ -213,12 +202,6 @@ class CheckDeclarationDetailsControllerSpec
     }
 
     "Submit Check Declaration Details page" must {
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "submit" in {
         inSequence {

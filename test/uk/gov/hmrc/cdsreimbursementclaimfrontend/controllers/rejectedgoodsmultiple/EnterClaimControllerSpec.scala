@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import org.jsoup.nodes.Document
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -35,9 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -57,11 +54,6 @@ class EnterClaimControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   def validateEnterClaimPage(
     doc: Document,
@@ -88,13 +80,6 @@ class EnterClaimControllerSpec
 
       def performAction(pageIndex: Int, taxCode: TaxCode): Future[Result] =
         controller.show(pageIndex, taxCode)(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        forAll(Gen.choose(1, 1000), TaxCodeGen.genTaxCode) { (pageIndex: Int, taxCode: TaxCode) =>
-          status(performAction(pageIndex, taxCode)) shouldBe NOT_FOUND
-        }
-      }
 
       "display the page" in {
         forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
@@ -230,19 +215,6 @@ class EnterClaimControllerSpec
     "Submit Enter Claim page" must {
       def performAction(pageIndex: Int, taxCode: TaxCode, data: Seq[(String, String)]): Future[Result] =
         controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-      }
-
-      "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        forAll(Gen.choose(1, 1000), TaxCodeGen.genTaxCode) { (pageIndex: Int, taxCode: TaxCode) =>
-          status(
-            performAction(pageIndex, taxCode, Seq("enter-claim-amount" -> formatAmount(BigDecimal("1.00"))))
-          ) shouldBe NOT_FOUND
-        }
-      }
 
       "accept valid amount and redirect to the next page" in
         forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>

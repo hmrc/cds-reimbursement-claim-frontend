@@ -44,10 +44,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.InspectionAddressUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.StringOps
 
@@ -71,11 +69,7 @@ class ChooseInspectionAddressTypeControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "inspection-address.type"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
@@ -83,11 +77,6 @@ class ChooseInspectionAddressTypeControllerSpec
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "Show the page when the lead Acc 14 Declaration does not have a consignee" in forAll {
         (contactDetails: ContactDetails, displayDeclaration: DisplayDeclaration) =>
@@ -214,11 +203,6 @@ class ChooseInspectionAddressTypeControllerSpec
     "Submit Page" when {
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "the user submits an empty form" in {
         inSequence {

@@ -35,9 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -61,11 +59,7 @@ class EnterRejectedGoodsDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-rejected-goods-details.rejected-goods"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsSingleJourney = Some(
@@ -77,15 +71,6 @@ class EnterRejectedGoodsDetailsControllerSpec
   )
 
   "Enter Rejected Goods Details Controller" must {
-
-    "not find the page if rejected goods feature is disabled" in {
-      def performAction(): Future[Result] =
-        controller.show(FakeRequest())
-
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(performAction()) shouldBe NOT_FOUND
-    }
 
     "display the page" when {
       def performAction(): Future[Result] =

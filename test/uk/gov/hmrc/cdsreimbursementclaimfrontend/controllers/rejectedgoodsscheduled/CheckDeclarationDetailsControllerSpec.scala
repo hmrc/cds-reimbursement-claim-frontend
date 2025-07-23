@@ -37,10 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
@@ -69,10 +67,6 @@ class CheckDeclarationDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.enable(Feature.RejectedGoods)
 
   val session =
     SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(exampleEori)))
@@ -170,11 +164,6 @@ class CheckDeclarationDetailsControllerSpec
     "Check Declaration Details page" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "does not find the page if the rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page" in forAll(
         buildCompleteJourneyGen(
           acc14DeclarantMatchesUserEori = false,
@@ -201,12 +190,6 @@ class CheckDeclarationDetailsControllerSpec
           controller: CheckDeclarationDetailsController
         ): Future[Result] =
           controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-        "not find the page if rejected goods feature is disabled" in {
-          featureSwitch.disable(Feature.RejectedGoods)
-
-          status(performAction()) shouldBe NOT_FOUND
-        }
 
         "submit" in {
           inSequence {

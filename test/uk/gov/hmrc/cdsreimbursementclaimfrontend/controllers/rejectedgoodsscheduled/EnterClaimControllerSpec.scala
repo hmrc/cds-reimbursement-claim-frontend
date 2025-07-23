@@ -38,10 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -63,23 +61,10 @@ class EnterClaimControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   val journeyGen: Gen[RejectedGoodsScheduledJourney] =
     buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" should {
-
-    "not find the page if rejected goods feature is disabled" in forAll(journeyGen) { journey =>
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      val (dutyType, taxCode) = journey.getFirstDutyToClaim.get
-
-      status(controller.show(dutyType, taxCode)(FakeRequest())) shouldBe NOT_FOUND
-    }
 
     "redirect to the select duty type page" when {
 

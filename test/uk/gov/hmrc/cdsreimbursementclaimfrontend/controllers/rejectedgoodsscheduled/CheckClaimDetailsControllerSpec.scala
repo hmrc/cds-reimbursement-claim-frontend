@@ -26,7 +26,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -36,9 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
 
@@ -61,11 +58,6 @@ class CheckClaimDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   def assertPageContent(
     doc: Document,
@@ -120,13 +112,6 @@ class CheckClaimDetailsControllerSpec
     def performActionSubmit(data: (String, String)*): Future[Result] =
       controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-    "not find the page if rejected goods feature is disabled" in {
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(controller.show(FakeRequest())) shouldBe NOT_FOUND
-
-    }
-
     "redirect to the select duty types page" when {
       "the user has not entered reimbursement amounts" in {
         inSequence {
@@ -159,11 +144,6 @@ class CheckClaimDetailsControllerSpec
     }
 
     "submit" must {
-
-      "fail if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performActionSubmit()) shouldBe NOT_FOUND
-      }
 
       "redirect to the next page if not all of the questions have been answered" in
         forAll(completeJourneyGen) { completeJourney =>

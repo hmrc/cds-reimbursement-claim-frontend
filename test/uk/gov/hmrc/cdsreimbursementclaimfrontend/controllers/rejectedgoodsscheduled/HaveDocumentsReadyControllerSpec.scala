@@ -34,9 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -59,15 +57,10 @@ class HaveDocumentsReadyControllerSpec
 
   val controller: HaveDocumentsReadyController = instanceOf[HaveDocumentsReadyController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   "HaveDocumentsReadyController" when {
 
@@ -80,11 +73,6 @@ class HaveDocumentsReadyControllerSpec
 
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         inSequence {

@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -64,21 +63,11 @@ class UploadFilesControllerSpec
 
   val controller: UploadFilesController = instanceOf[UploadFilesController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   "UploadFilesController" when {
 
     "Show page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
         val journey = journeyWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
