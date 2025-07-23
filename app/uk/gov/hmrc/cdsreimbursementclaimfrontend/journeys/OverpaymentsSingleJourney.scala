@@ -723,17 +723,10 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     val reimbursementMethodHasBeenProvidedIfNeeded: Validate[OverpaymentsSingleJourney] =
       all(
         whenTrue(
-          j => j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
+          j => j.isAllSelectedDutiesAreCMAEligible,
           checkIsDefined(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-          )
-        ),
-        whenTrue(
-          _.isSubsidyOnlyJourney,
-          checkIsEmpty(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
           )
         )
       )

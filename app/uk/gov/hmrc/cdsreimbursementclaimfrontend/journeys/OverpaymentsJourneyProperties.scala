@@ -29,9 +29,6 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
 
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
-  final def isSubsidyOnlyJourney: Boolean =
-    declarationsHasOnlySubsidyPayments
-
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
     if declaration.hasSomeSubsidyPayment
     then Some("error.subsidy-payment-found")

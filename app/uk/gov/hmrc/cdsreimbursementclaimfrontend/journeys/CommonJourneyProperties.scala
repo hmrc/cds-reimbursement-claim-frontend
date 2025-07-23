@@ -258,10 +258,6 @@ trait CommonJourneyProperties {
     else Some(seq(i + 1))
   }
 
-  final def declarationsHasOnlySubsidyPayments: Boolean =
-    getDisplayDeclarations.nonEmpty &&
-      getDisplayDeclarations.forall(_.hasOnlySubsidyPayments)
-
   def containsUnsupportedTaxCode: Boolean =
     getLeadDisplayDeclaration.map(_.containsSomeUnsupportedTaxCode).getOrElse(false)
 
