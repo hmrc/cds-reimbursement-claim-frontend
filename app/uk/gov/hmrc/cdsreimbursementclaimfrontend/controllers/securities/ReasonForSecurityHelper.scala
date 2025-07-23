@@ -23,8 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.Commun
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 
 class ReasonForSecurityHelper(
-  configuration: Configuration,
-  userHasSecuritiesAccess: Boolean
+  configuration: Configuration
 ) {
 
   private lazy val ntasVisibility: String     = configuration.get[String]("features.security-reasons.ntas")
@@ -58,7 +57,7 @@ class ReasonForSecurityHelper(
 
   private def isEnabled(visibility: String): Boolean = visibility match
     case "public"  => true
-    case "private" => userHasSecuritiesAccess
+    case "private" => true
     case _         => false
 
 }

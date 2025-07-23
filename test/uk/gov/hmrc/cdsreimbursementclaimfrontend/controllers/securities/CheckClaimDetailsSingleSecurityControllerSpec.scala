@@ -74,10 +74,8 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
   private val messagesKey: String = "check-claim.securities.single"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   def validateCheckClaimDetailsPage(
     doc: Document,

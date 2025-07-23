@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.LimitedAccessSecurities
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission2M
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -62,10 +61,8 @@ class CheckBankDetailsControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(LimitedAccessSecurities)
-  }
 
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 

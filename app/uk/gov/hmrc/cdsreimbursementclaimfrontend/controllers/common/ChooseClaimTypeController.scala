@@ -26,7 +26,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
@@ -67,14 +66,9 @@ class ChooseClaimTypeController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private val securitiesAccessEoriSet =
-    EnrolmentConfig.getLimitedAccessEoriSet(viewConfig.config)
-
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      val userIsAuthorisedSecuritiesLimitedAccess =
-        request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
-      Ok(chooseClaimTypePage(claimFormForm, userIsAuthorisedSecuritiesLimitedAccess))
+      Ok(chooseClaimTypePage(claimFormForm))
     }
 
   final val submit: Action[AnyContent] =
@@ -85,9 +79,7 @@ class ChooseClaimTypeController @Inject() (
           formWithErrors => {
             if formWithErrors.data.nonEmpty then
               logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
-            val userIsAuthorisedSecuritiesLimitedAccess =
-              request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
-            Future.successful(BadRequest(chooseClaimTypePage(formWithErrors, userIsAuthorisedSecuritiesLimitedAccess)))
+            Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
           },
           {
             case C285 =>
@@ -98,9 +90,7 @@ class ChooseClaimTypeController @Inject() (
 
             case Securities =>
               val reasonForSecurityHelper = new ReasonForSecurityHelper(
-                configuration = viewConfig.config,
-                userHasSecuritiesAccess =
-                  request.authenticatedRequest.journeyUserType.eoriOpt.exists(securitiesAccessEoriSet.contains)
+                configuration = viewConfig.config
               )
               request.authenticatedRequest.journeyUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>

@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CorrelationIdHeader
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.http.SessionKeys
@@ -72,7 +71,6 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   val config: Configuration,
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
-  featureSwitchService: FeatureSwitchService,
   eoriDetailsConnector: EoriDetailsConnector
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequestWithRetrievedData] {
@@ -130,13 +128,9 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     hasEoriEnrolment(enrolments) flatMap {
       case Left(_)           => Future.successful(Left(Redirect(routes.UnauthorisedController.unauthorised())))
       case Right(Some(eori)) =>
-        if featureSwitchService.isDisabled(models.Feature.LimitedAccess) ||
-          checkEoriIsAllowed(eori.value)
-        then
-          eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
-            handleSignedInUser(eori, affinityGroup, eoriDetailsOpt.map(_.fullName), request)
-          }
-        else Future.successful(Left(Results.Redirect(limitedAccessErrorPage)))
+        eoriDetailsConnector.getCurrentUserEoriDetails.map { eoriDetailsOpt =>
+          handleSignedInUser(eori, affinityGroup, eoriDetailsOpt.map(_.fullName), request)
+        }
       case Right(None)       =>
         Future.successful(Left(Redirect(unauthorizedErrorPage)))
     }
@@ -205,7 +199,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     f: => Future[
       Either[Result, AuthenticatedRequestWithRetrievedData[A]]
     ]
-  )(implicit hc: HeaderCarrier): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
+  ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     credentials match {
       case None =>
         logger.warn("No credentials were retrieved")
@@ -216,17 +210,15 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       case Some(Credentials(_, otherProvider)) =>
         Future.successful(
-          if featureSwitchService.isDisabled(models.Feature.LimitedAccess) then
-            Right(
-              AuthenticatedRequestWithRetrievedData(
-                AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(
-                  otherProvider
-                ),
-                Some(NonGovernmentGatewayUser),
-                request
-              )
+          Right(
+            AuthenticatedRequestWithRetrievedData(
+              AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(
+                otherProvider
+              ),
+              Some(NonGovernmentGatewayUser),
+              request
             )
-          else Left(Results.Redirect(limitedAccessErrorPage))
+          )
         )
     }
 }

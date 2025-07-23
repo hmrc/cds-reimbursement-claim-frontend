@@ -40,7 +40,6 @@ trait AuthActionSpec { this: MockFactory =>
            |bas-gateway.signInUrl = "$signInUrl"
            |gg.origin             = "$origin"
            |self.url              = "$selfBaseUrl"
-           |limited-access-eori-csv-base64 = "R0IwMDAwMDAwMDAwMDAwMDEsR0IwMDAwMDAwMDAwMDAwMDIK"
     """.stripMargin
       )
     )

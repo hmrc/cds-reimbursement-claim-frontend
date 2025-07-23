@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +48,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
     val retrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
       Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials
 
-    "limited access disabled" must {
+    "authenticating a user" must {
 
       val authenticatedAction =
         new AuthenticatedAction(
@@ -137,105 +136,6 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
       }
     }
 
-    "limited access enabled" must {
-
-      val authenticatedAction =
-        new AuthenticatedAction(
-          mockAuthConnector,
-          config,
-          instanceOf[ErrorHandler],
-          mockSessionCache,
-          new TestFeatureSwitchService(Feature.LimitedAccess)
-        )
-
-      def performAction[A](r: FakeRequest[A]): Future[Result] = {
-
-        val request = new MessagesRequest[A](r, stub[MessagesApi])
-        authenticatedAction.invokeBlock(
-          request,
-          { (a: AuthenticatedRequest[A]) =>
-            a.request.messagesApi shouldBe request.messagesApi
-            Future.successful(Ok)
-          }
-        )
-      }
-
-      "handling a not logged in user" must {
-
-        "redirect to the login page" in {
-          val requestUri = "/abc"
-
-          List[NoActiveSession](
-            BearerTokenExpired(),
-            MissingBearerToken(),
-            InvalidBearerToken(),
-            SessionRecordNotFound()
-          ).foreach { e =>
-            withClue(s"For error $e: ") {
-              mockAuth(EmptyPredicate, retrievals)(Future.failed(e))
-
-              val result = performAction(FakeRequest("GET", requestUri))
-              status(result) shouldBe SEE_OTHER
-
-              val redirectTo = redirectLocation(result)
-              redirectTo shouldBe Some(
-                s"$signInUrl?continue=${urlEncode(selfBaseUrl + requestUri)}&origin=$origin"
-              )
-            }
-          }
-        }
-      }
-
-      "handling a logged in user" must {
-
-        "effect the request action when user is on the allow list #1" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000001")))
-
-          val result = performAction(FakeRequest())
-          status(result) shouldBe OK
-        }
-
-        "effect the request action when user is on the allow list #2" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000002")))
-
-          val result = performAction(FakeRequest())
-          status(result) shouldBe OK
-        }
-
-        "redirect to the start page when user is NOT on the allow list" in {
-          mockAuth(EmptyPredicate, retrievals)(Future.successful(retrievedData("GB000000000000003")))
-
-          val result = performAction(FakeRequest())
-          status(result)           shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/claim-back-import-duty-vat/unauthorised")
-        }
-
-        "handling the case when an authorisation exception is thrown" must {
-
-          "throw an exception" in {
-            List[AuthorisationException](
-              InsufficientEnrolments(),
-              UnsupportedAffinityGroup(),
-              UnsupportedCredentialRole(),
-              UnsupportedAuthProvider(),
-              IncorrectCredentialStrength(),
-              InternalError()
-            ).foreach { e =>
-              withClue(s"For error $e: ") {
-                val exception = intercept[AuthorisationException] {
-                  mockAuth(EmptyPredicate, retrievals)(Future.failed(e))
-                  await(performAction(FakeRequest()))
-                }
-
-                exception shouldBe e
-              }
-            }
-          }
-        }
-
-      }
-    }
-
     def retrievedData(eori: String): Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] =
       Some(Organisation) and Enrolments(
         Set(
@@ -251,7 +151,5 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
           )
         )
       ) and Some(Credentials("gg-cred-id", "GovernmentGateway"))
-
   }
-
 }

@@ -133,10 +133,8 @@ class ChooseReasonForSecurityControllerSpec
     )
     .submitMovementReferenceNumber(exampleMrn)
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   private def mockGetDisplayDeclarationWithErrorCodes(response: Either[GetDeclarationError, DisplayDeclaration]) =
     (mockClaimsService

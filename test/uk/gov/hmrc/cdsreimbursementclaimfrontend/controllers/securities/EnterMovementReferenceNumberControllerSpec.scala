@@ -64,10 +64,8 @@ class EnterMovementReferenceNumberControllerSpec
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   val journey              = SecuritiesJourney.empty(exampleEori)
   val session: SessionData = SessionData(journey)

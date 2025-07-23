@@ -81,8 +81,6 @@ class ChooseClaimTypeControllerSpec
       bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
 
-  private val exampleEoriWithoutSecuritiesAccess = IdGen.genEori.sample.get
-
   private val exampleEori: Eori = IdGen.genEori.sample.get
 
   private val encodedEori =
@@ -114,7 +112,6 @@ class ChooseClaimTypeControllerSpec
   override def beforeEach(): Unit = {
     featureSwitch.enable(Feature.RejectedGoods)
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
   }
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
@@ -214,49 +211,6 @@ class ChooseClaimTypeControllerSpec
           hasButton(buttons, "Securities")    shouldBe false
           extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
           extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
-        }
-      )
-    }
-
-    "display the page without securities if securities limited access is enabled and user doesn't have access" in {
-      inSequence {
-        mockAuthWithEoriEnrolmentRetrievals(exampleEoriWithoutSecuritiesAccess)
-        mockGetEoriDetails(exampleEoriWithoutSecuritiesAccess)
-        mockGetSession(SessionData.empty)
-      }
-
-      featureSwitch.enable(Feature.LimitedAccessSecurities)
-
-      checkPageIsDisplayed(
-        performAction(),
-        messageFromMessageKey(s"$formKey.title"),
-        doc => {
-          val buttons = radioButtons(doc)
-          hasButton(buttons, "Securities") shouldBe false
-        }
-      )
-    }
-
-    "display the page with securities if securities limited access is enabled and user has access" in {
-
-      inSequence {
-        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-        mockGetEoriDetails(exampleEori)
-        mockGetSession(SessionData.empty)
-      }
-
-      featureSwitch.enable(Feature.LimitedAccessSecurities)
-
-      checkPageIsDisplayed(
-        performAction(),
-        messageFromMessageKey(s"$formKey.title"),
-        doc => {
-          val buttons          = radioButtons(doc)
-          val securitiesButton = extractButton(buttons, "Securities")
-          hasButton(buttons, "Securities") shouldBe true
-
-          extractLabel(securitiesButton) shouldBe messageFromMessageKey(s"$formKey.securities.title")
-          extractHint(securitiesButton)  shouldBe messageFromMessageKey(s"$formKey.securities.hint")
         }
       )
     }

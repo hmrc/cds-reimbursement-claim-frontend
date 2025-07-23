@@ -71,10 +71,8 @@ class CheckTotalImportDischargedControllerSpec
 
   private val messagesKey: String = "check-total-import-discharged"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.LimitedAccessSecurities)
-  }
 
   def validateCheckTotalImportDischargedPage(
     doc: Document,

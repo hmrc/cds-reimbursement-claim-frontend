@@ -31,8 +31,6 @@ object Feature extends EnumerationFormat[Feature] {
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object Securities extends Feature { val name = "securities" }
   case object SingleSecurityTrack extends Feature { val name = "single-security-track" }
-  case object LimitedAccess extends Feature { val name = "limited-access" }
-  case object LimitedAccessSecurities extends Feature { val name = "limited-access-securities" }
   case object XiEori extends Feature { val name = "xi-eori" }
   case object BlockSubsidies extends Feature { val name = "block-subsidies" }
   case object SubsidiesForRejectedGoods extends Feature { val name = "subsidies-for-rejected-goods" }
@@ -47,8 +45,6 @@ object Feature extends EnumerationFormat[Feature] {
     Set(
       RejectedGoods,
       Securities,
-      LimitedAccess,
-      LimitedAccessSecurities,
       XiEori,
       BlockSubsidies,
       SubsidiesForRejectedGoods,
