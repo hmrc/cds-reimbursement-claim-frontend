@@ -55,9 +55,6 @@ class EnterMovementReferenceNumberController @Inject() (
     extends RejectedGoodsMultipleJourneyBaseController
     with GetXiEoriMixin {
 
-  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
-    featureSwitchService.isEnabled(Feature.XiEori)
-
   final val showFirst: Action[AnyContent] = show(1)
 
   final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>

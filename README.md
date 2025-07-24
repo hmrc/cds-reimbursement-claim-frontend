@@ -63,7 +63,6 @@ The feature set of the service is controlled by a host of feature flags defined 
 | features.block-subsidies | disables support for subsidies-related features |
 | subsidies-for-overpayments | enables subsidies-related features in `Claim back import duty and VAT if you have overpaid` |
 | features.subsidies-for-rejected-goods | enables subsidies-related features in `Claim back customs charges paid on rejected goods` |
-| features.xi-eori | enables support for displaying declarations containing XI EORI identifiers |
 
 ## Development
 
