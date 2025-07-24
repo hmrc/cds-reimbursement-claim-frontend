@@ -20,7 +20,6 @@ import play.api.libs.json.Format
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 trait RejectedGoodsSingleJourneyBaseController extends JourneyBaseController with RejectedGoodsSingleJourneyRouter {
@@ -29,9 +28,6 @@ trait RejectedGoodsSingleJourneyBaseController extends JourneyBaseController wit
 
   final val format: Format[RejectedGoodsSingleJourney] =
     RejectedGoodsSingleJourney.format
-
-  final override val requiredFeature: Option[Feature] =
-    Some(Feature.RejectedGoods)
 
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()

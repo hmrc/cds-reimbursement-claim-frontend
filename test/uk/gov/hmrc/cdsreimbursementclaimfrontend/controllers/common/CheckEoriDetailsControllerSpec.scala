@@ -49,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactNa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -60,8 +59,6 @@ class CheckEoriDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
-
-  lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   val mockVerifiedEmailAddressService = mock[VerifiedEmailAddressService]
 
@@ -183,7 +180,6 @@ class CheckEoriDetailsControllerSpec
       val verifiedEmail = "foo@bar.com"
 
       "Redirect to ChooseClaimTypeController if user says details are correct and email address is verified" in {
-        featureSwitch.disable(Feature.RejectedGoods)
 
         val eori        = sample[Eori]
         val contactName = ContactName("John Smith")
@@ -200,7 +196,6 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to the email frontend if user says details are correct but email address not verified" in {
-        featureSwitch.disable(Feature.RejectedGoods)
 
         val eori        = sample[Eori]
         val contactName = ContactName("John Smith")
@@ -217,7 +212,6 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Display an error page if user says details are correct but email address verification fails" in {
-        featureSwitch.disable(Feature.RejectedGoods)
 
         val eori        = sample[Eori]
         val contactName = ContactName("John Smith")

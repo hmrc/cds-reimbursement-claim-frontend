@@ -42,9 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.genDa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryDeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -66,7 +64,6 @@ class EnterInspectionDateControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch  = instanceOf[FeatureSwitchService]
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
   def showPage(): Future[Result] =
@@ -75,18 +72,9 @@ class EnterInspectionDateControllerSpec
   def submitInspectionDate(data: (String, String)*): Future[Result] =
     controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
 
   "Enter Inspection Date Controller" must {
-
-    "not find the page if rejected goods feature is disabled" in {
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(showPage()) shouldBe NOT_FOUND
-    }
 
     "display the page" when {
       "the user has not answered this question before" in {

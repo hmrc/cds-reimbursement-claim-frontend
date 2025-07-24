@@ -27,7 +27,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -36,9 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
 import scala.concurrent.ExecutionContext
@@ -65,8 +62,6 @@ class CheckClaimDetailsControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   def assertPageContent(
     doc: Document,
@@ -96,21 +91,12 @@ class CheckClaimDetailsControllerSpec
     doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
   }
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   private val sessionWithMRN = SessionData(journeyWithMrnAndDeclaration)
 
   "Check Claim Details Controller" when {
     "Show Check Claim Details page" must {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>

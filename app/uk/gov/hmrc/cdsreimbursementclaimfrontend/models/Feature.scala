@@ -28,7 +28,6 @@ sealed trait Feature {
 
 object Feature extends EnumerationFormat[Feature] {
 
-  case object RejectedGoods extends Feature { val name = "rejected-goods" }
   case object Securities extends Feature { val name = "securities" }
   case object SingleSecurityTrack extends Feature { val name = "single-security-track" }
   case object XiEori extends Feature { val name = "xi-eori" }
@@ -43,7 +42,6 @@ object Feature extends EnumerationFormat[Feature] {
 
   override val values: Set[Feature] =
     Set(
-      RejectedGoods,
       Securities,
       XiEori,
       BlockSubsidies,

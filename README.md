@@ -58,7 +58,6 @@ The feature set of the service is controlled by a host of feature flags defined 
 
 | flag | description |
 |------|-------------|
-| features.rejected-goods | enables `Claim back customs charges paid on rejected goods` journey |
 | features.securities | enables `Claim back a security deposit` journey |
 | features.view-upload | enables `Check your claim status and upload supporting files` dashboard |
 | features.block-subsidies | disables support for subsidies-related features |

@@ -67,16 +67,15 @@
                 checked = form.value.contains(C285)
             )
         ),
-        if(featureSwitchService.isEnabled(Feature.RejectedGoods))
-            Some(
-                RadioItem(
-                    id = Some(s"choose-claim-type-ce1179"),
-                    value = Some(RejectedGoods.toString),
-                    content = HtmlContent(messages(s"choose-claim-type.ce1179.title")),
-                    hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.ce1179.hint")))),
-                    checked = form.value.contains(RejectedGoods)
-                )
-            ) else None,
+        Some(
+            RadioItem(
+                id = Some(s"choose-claim-type-ce1179"),
+                value = Some(RejectedGoods.toString),
+                content = HtmlContent(messages(s"choose-claim-type.ce1179.title")),
+                hint = Some(Hint(content = HtmlContent(messages(s"choose-claim-type.ce1179.hint")))),
+                checked = form.value.contains(RejectedGoods)
+            )
+        ),
         if(featureSwitchService.isEnabled(Feature.Securities)) {
             Some(securitiesRadioButton)
         } else None

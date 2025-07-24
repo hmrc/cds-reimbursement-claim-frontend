@@ -35,10 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -58,11 +56,6 @@ class ChooseRepaymentMethodControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
 
   def assertPageContent(
     doc: Document
@@ -103,12 +96,6 @@ class ChooseRepaymentMethodControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "not find the page if RejectedGoods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page if all duties are are CMA eligible" in
         forAll(journeyCMAEligibleGen) { journey =>
           inSequence {
@@ -143,12 +130,6 @@ class ChooseRepaymentMethodControllerSpec
         controller.submit(
           FakeRequest().withFormUrlEncodedBody(data*)
         )
-
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.RejectedGoods)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "accept selection of Current Method Adjustment" in
         forAll(journeyCMAEligibleGen) { journey =>

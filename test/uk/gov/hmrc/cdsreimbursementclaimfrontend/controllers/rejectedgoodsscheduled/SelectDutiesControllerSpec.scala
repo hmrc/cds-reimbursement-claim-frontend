@@ -40,10 +40,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 class SelectDutiesControllerSpec
@@ -63,20 +61,9 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.RejectedGoods)
-
   val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
 
   "Select Tax Codes Controller" should {
-
-    "not find the page if rejected goods feature is disabled" in forAll { (dutyType: DutyType) =>
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(controller.show(dutyType)(FakeRequest())) shouldBe NOT_FOUND
-    }
 
     "show select customs tax codes page" when {
 
@@ -215,12 +202,6 @@ class SelectDutiesControllerSpec
   }
 
   "Submit Select Tax Codes page" must {
-
-    "not find the page if rejected goods feature is disabled" in forAll { (duty: DutyType) =>
-      featureSwitch.disable(Feature.RejectedGoods)
-
-      status(controller.submit(duty)(FakeRequest())) shouldBe NOT_FOUND
-    }
 
     "save user selected tax codes and redirect to the next page" when {
 
