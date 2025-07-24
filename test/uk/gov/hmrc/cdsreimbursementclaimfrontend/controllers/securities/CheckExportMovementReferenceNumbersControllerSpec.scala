@@ -171,7 +171,6 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to choose payee type page when no is selected and has single security" in {
-        featureSwitch.enable(Feature.SingleSecurityTrack)
         forAllWith(
           JourneyGenerator(
             testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithTaRfsWithDisplayDeclarationGen,

@@ -31,9 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_claim
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -43,7 +41,6 @@ import scala.concurrent.Future
 @Singleton
 class EnterClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  val featureSwitchService: FeatureSwitchService,
   enterClaimPage: enter_claim
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
@@ -212,8 +209,7 @@ class EnterClaimController @Inject() (
             routes.EnterClaimController.show(depositId, tc)
 
           case None =>
-            if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
-              routes.CheckClaimDetailsSingleSecurityController.show
+            if journey.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
             else routes.CheckClaimDetailsController.show
         }
     } else
@@ -232,8 +228,7 @@ class EnterClaimController @Inject() (
               else routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
-              if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
-                routes.CheckClaimDetailsSingleSecurityController.show
+              if journey.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
               else routes.CheckClaimDetailsController.show
           }
       }

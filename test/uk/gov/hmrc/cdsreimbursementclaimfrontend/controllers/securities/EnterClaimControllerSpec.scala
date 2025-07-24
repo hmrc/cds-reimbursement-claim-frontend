@@ -387,7 +387,6 @@ class EnterClaimControllerSpec
       }
 
       "save claim amount and progress to the next page when single security" in {
-        featureSwitch.enable(Feature.SingleSecurityTrack)
         forAllWith(
           JourneyGenerator(
             testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,

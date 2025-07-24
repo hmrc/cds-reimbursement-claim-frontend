@@ -88,8 +88,6 @@ class HaveDocumentsReadyControllerSpec
       }
 
       "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        featureSwitch.disable(Feature.SingleSecurityTrack)
-
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {
@@ -117,9 +115,6 @@ class HaveDocumentsReadyControllerSpec
       }
 
       "display the page with correct continue url when declaration has only one security deposit" in {
-
-        featureSwitch.enable(Feature.SingleSecurityTrack)
-
         val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
@@ -139,15 +134,10 @@ class HaveDocumentsReadyControllerSpec
               .find(_.text() == "Continue")
               .map(_.attr("href"))                         shouldBe Some(routes.ConfirmSingleDepositRepaymentController.show.url)
         )
-
-        featureSwitch.disable(Feature.SingleSecurityTrack)
       }
 
-      "display the page with correct continue url when declaration has only one security deposit and the single security track feature is off" in {
-
-        featureSwitch.disable(Feature.SingleSecurityTrack)
-
-        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
+      "display the page with correct continue url when declaration has multiple security deposits" in {
+        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(3)).sample.get
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
 
         inSequence {

@@ -28,15 +28,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Chec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.have_documents_ready
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 
 @Singleton
 class HaveDocumentsReadyController @Inject() (
   val jcc: JourneyControllerComponents,
-  val haveDocumentsReadyPage: have_documents_ready,
-  featureSwitchService: FeatureSwitchService
+  val haveDocumentsReadyPage: have_documents_ready
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -50,7 +47,6 @@ class HaveDocumentsReadyController @Inject() (
     actionReadJourney { implicit request => journey =>
       val continueUrl =
         if journey.isSingleSecurity
-          && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
         then routes.ConfirmSingleDepositRepaymentController.show.url
         else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
         else routes.ConfirmFullRepaymentController.showFirst.url
