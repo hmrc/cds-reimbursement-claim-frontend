@@ -53,9 +53,6 @@ class EnterMovementReferenceNumberController @Inject() (
 
   override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
 
-  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
-    featureSwitchService.isEnabled(Feature.XiEori)
-
   override def form(journey: Journey): Form[MRN] =
     Forms.movementReferenceNumberForm
 

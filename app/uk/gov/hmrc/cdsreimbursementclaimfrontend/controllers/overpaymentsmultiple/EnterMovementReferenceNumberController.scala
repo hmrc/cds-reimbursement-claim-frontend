@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -49,14 +48,10 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
-  featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends OverpaymentsMultipleJourneyBaseController
     with GetXiEoriMixin {
-
-  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
-    featureSwitchService.isEnabled(Feature.XiEori)
 
   final val showFirst: Action[AnyContent] = show(1)
 

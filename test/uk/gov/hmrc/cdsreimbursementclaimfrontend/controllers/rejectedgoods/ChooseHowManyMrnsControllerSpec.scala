@@ -53,7 +53,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -88,7 +87,6 @@ class ChooseHowManyMrnsControllerSpec
       authenticatedActionWithRetrievedData,
       sessionDataActionWithRetrievedData,
       mockSessionCache,
-      featureSwitch,
       chooseHowManyMrnsPage
     )
 
@@ -110,8 +108,6 @@ class ChooseHowManyMrnsControllerSpec
         mockGetSession(SessionData.empty)
       }
 
-      featureSwitch.disable(Feature.XiEori)
-
       checkPageIsDisplayed(
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
@@ -119,30 +115,6 @@ class ChooseHowManyMrnsControllerSpec
           val bullets = doc.select("ul.govuk-list li").asScala.toList
           bullets.length shouldBe 3
 
-          val buttons          = radioButtons(doc)
-          val individualButton = extractButton(buttons, "Individual")
-          val multipleButton   = extractButton(buttons, "Multiple")
-          val scheduledButton  = extractButton(buttons, "Scheduled")
-          extractLabel(individualButton) shouldBe messageFromMessageKey(s"$formKey.individual.title")
-          extractLabel(multipleButton)   shouldBe messageFromMessageKey(s"$formKey.multiple.title")
-          extractLabel(scheduledButton)  shouldBe messageFromMessageKey(s"$formKey.scheduled.title")
-        }
-      )
-    }
-
-    "display the page with xi info" in {
-      featureSwitch.enable(Feature.XiEori)
-
-      inSequence {
-        mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-        mockGetEoriDetails(exampleEori)
-        mockGetSession(SessionData.empty)
-      }
-
-      checkPageIsDisplayed(
-        performAction(),
-        messageFromMessageKey(s"$formKey.title"),
-        doc => {
           val buttons          = radioButtons(doc)
           val individualButton = extractButton(buttons, "Individual")
           val multipleButton   = extractButton(buttons, "Multiple")

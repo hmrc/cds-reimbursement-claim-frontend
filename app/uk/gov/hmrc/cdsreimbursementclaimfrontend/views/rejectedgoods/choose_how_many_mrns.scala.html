@@ -41,7 +41,7 @@
 )
 
 
-@(form: Form[RejectedGoodsJourneyType], postAction: Call, showXiContent: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[RejectedGoodsJourneyType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"rejected-goods.choose-how-many-mrns"}
 @title = @{messages(s"rejected-goods.choose-how-many-mrns.title")}

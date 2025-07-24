@@ -39,10 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 import uk.gov.hmrc.http.HeaderCarrier
@@ -58,7 +56,6 @@ class ChooseHowManyMrnsController @Inject() (
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
   val sessionStore: SessionCache,
-  featureSwitchService: FeatureSwitchService,
   chooseHowManyMrnsPage: choose_how_many_mrns
 )(implicit
   val ec: ExecutionContext,
@@ -91,8 +88,7 @@ class ChooseHowManyMrnsController @Inject() (
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      val shouldShowXiContent = featureSwitchService.isEnabled(Feature.XiEori)
-      Ok(chooseHowManyMrnsPage(form, postAction, shouldShowXiContent))
+      Ok(chooseHowManyMrnsPage(form, postAction))
     }
 
   final val submit: Action[AnyContent] =

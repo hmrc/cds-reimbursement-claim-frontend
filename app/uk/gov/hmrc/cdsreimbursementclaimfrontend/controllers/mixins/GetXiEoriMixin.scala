@@ -31,15 +31,13 @@ trait GetXiEoriMixin extends JourneyBaseController {
 
   def xiEoriConnector: XiEoriConnector
 
-  def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean
-
   def needsUserXiEoriSubmission(journey: Journey) =
     journey.needsUserXiEoriSubmission
 
   final def getUserXiEoriIfNeeded(journey: Journey, enabled: Boolean)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, Journey] =
-    if enabled && isXiEoriSupported && needsUserXiEoriSubmission(journey) then {
+    if enabled && needsUserXiEoriSubmission(journey) then {
       for
         userXiEori     <-
           EitherT(

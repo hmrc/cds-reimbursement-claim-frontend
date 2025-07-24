@@ -85,9 +85,6 @@ class ChooseReasonForSecurityController @Inject() (
 
   private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
-  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
-    featureSwitchService.isEnabled(Feature.XiEori)
-
   override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
     journey.submitUserXiEori(userXiEori)
 

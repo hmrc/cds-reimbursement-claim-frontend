@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -52,9 +51,6 @@ class EnterMovementReferenceNumberController @Inject() (
     with EnterMovementReferenceNumberMixin {
 
   override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
-
-  override def isXiEoriSupported(implicit hc: HeaderCarrier): Boolean =
-    featureSwitchService.isEnabled(Feature.XiEori)
 
   override def form(journey: Journey): Form[MRN] =
     Forms.movementReferenceNumberForm
