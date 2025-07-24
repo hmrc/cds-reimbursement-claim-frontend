@@ -29,9 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectSecurit
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_securities
 
@@ -40,7 +38,6 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class SelectSecuritiesController @Inject() (
   val jcc: JourneyControllerComponents,
-  val featureSwitchService: FeatureSwitchService,
   selectSecuritiesPage: select_securities
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController
@@ -62,7 +59,7 @@ class SelectSecuritiesController @Inject() (
     journey.getSecurityDepositIds.headOption.fold(
       (journey, Redirect(routes.ChooseReasonForSecurityController.show))
     ) { firstDepositId =>
-      if (journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)) {
+      if (journey.isSingleSecurity) {
         journey
           .selectSecurityDepositId(firstDepositId)
           .fold(

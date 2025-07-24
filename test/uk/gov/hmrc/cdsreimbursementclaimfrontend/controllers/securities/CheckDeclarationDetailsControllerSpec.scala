@@ -76,10 +76,8 @@ class CheckDeclarationDetailsControllerSpec
 
   private val messagesKey: String = "check-declaration-details"
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     featureSwitch.enable(Feature.Securities)
-    featureSwitch.disable(Feature.SingleSecurityTrack)
-  }
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
@@ -356,8 +354,6 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "continue to the confirm single deposit full repayment page if single security" in {
-        featureSwitch.enable(Feature.SingleSecurityTrack)
-
         forAll(
           mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
             Set(ReasonForSecurity.RevenueDispute.value)

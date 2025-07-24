@@ -27,17 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
   val jcc: JourneyControllerComponents,
-  val checkDeclarationDetailsPage: check_declaration_details,
-  val featureSwitchService: FeatureSwitchService
+  val checkDeclarationDetailsPage: check_declaration_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -74,7 +71,7 @@ class CheckDeclarationDetailsController @Inject() (
           MissingPreferenceCertificate
         )
       then (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
-      else if journey.isSingleSecurity && featureSwitchService.isEnabled(Feature.SingleSecurityTrack) then
+      else if journey.isSingleSecurity then
         (updatedJourney, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
       else (updatedJourney, Redirect(routes.ConfirmFullRepaymentController.showFirst))
     }

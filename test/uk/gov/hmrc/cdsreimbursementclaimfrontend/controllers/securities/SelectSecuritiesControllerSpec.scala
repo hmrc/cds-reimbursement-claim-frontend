@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.SingleSecurityTrack
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -166,7 +165,6 @@ class SelectSecuritiesControllerSpec
       }
 
       "select security deposit and redirect to check declaration details if a single security deposit ID" in {
-        featureSwitch.enable(Feature.SingleSecurityTrack)
         forAllWith(
           JourneyGenerator(
             testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,

@@ -49,8 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_exp
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
@@ -58,8 +56,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
   val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterFirstExportMovementReferenceNumberPage: enter_export_movement_reference_number_first,
-  enterNextExportMovementReferenceNumberPage: enter_export_movement_reference_number_next,
-  featureSwitchService: FeatureSwitchService
+  enterNextExportMovementReferenceNumberPage: enter_export_movement_reference_number_next
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesJourneyBaseController {
 
@@ -71,7 +68,6 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
     if journey.isSingleSecurity
-      && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
     then routes.ChoosePayeeTypeController.show
     else routes.ConfirmFullRepaymentController.showFirst
 

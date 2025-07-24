@@ -34,12 +34,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_export_movement_reference_numbers
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -49,8 +47,7 @@ import scala.concurrent.Future
 @Singleton
 class CheckExportMovementReferenceNumbersController @Inject() (
   val jcc: JourneyControllerComponents,
-  checkExportMovementReferenceNumbersPage: check_export_movement_reference_numbers,
-  featureSwitchService: FeatureSwitchService
+  checkExportMovementReferenceNumbersPage: check_export_movement_reference_numbers
 )(implicit val ec: ExecutionContext, errorHandler: ErrorHandler, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController {
 
@@ -62,7 +59,6 @@ class CheckExportMovementReferenceNumbersController @Inject() (
 
   def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
     if journey.isSingleSecurity
-      && featureSwitchService.isEnabled(Feature.SingleSecurityTrack)
     then routes.ChoosePayeeTypeController.show
     else routes.ConfirmFullRepaymentController.showFirst
 
