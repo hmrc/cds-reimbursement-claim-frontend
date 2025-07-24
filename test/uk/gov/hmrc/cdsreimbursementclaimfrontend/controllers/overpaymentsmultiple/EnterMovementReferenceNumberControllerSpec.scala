@@ -92,7 +92,6 @@ class EnterMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
-  @scala.annotation.nowarn
   private def mockGetXiEori(response: Future[UserXiEori]) =
     (mockXiEoriConnector
       .getXiEori(_: HeaderCarrier))
@@ -286,61 +285,61 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      // "redirect to Enter Importer Eori page when user eori is not matching declaration XI eori's for first MRN" in {
-      //   val displayDeclaration =
-      //     getDisplayDeclarationForMrn(leadMrn)
-      //       .withDeclarantEori(anotherExampleXIEori)
-      //       .withConsigneeEori(yetAnotherExampleXIEori)
+      "redirect to Enter Importer Eori page when user eori is not matching declaration XI eori's for first MRN" ignore {
+        val displayDeclaration =
+          getDisplayDeclarationForMrn(leadMrn)
+            .withDeclarantEori(anotherExampleXIEori)
+            .withConsigneeEori(yetAnotherExampleXIEori)
 
-      //   val updatedJourney =
-      //     journey
-      //       .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
-      //       .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-      //       .getOrFail
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
+            .getOrFail
 
-      //   val updatedSession = SessionData(updatedJourney)
+        val updatedSession = SessionData(updatedJourney)
 
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
+          mockStoreSession(updatedSession)(Right(()))
+        }
 
-      //   checkIsRedirect(
-      //     performAction("enter-movement-reference-number" -> leadMrn.value)(),
-      //     routes.EnterImporterEoriNumberController.show
-      //   )
-      // }
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.EnterImporterEoriNumberController.show
+        )
+      }
 
-      // "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" in {
-      //   val displayDeclaration =
-      //     getDisplayDeclarationForMrn(leadMrn)
-      //       .withDeclarantEori(exampleXIEori)
-      //       .withConsigneeEori(anotherExampleXIEori)
+      "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" ignore {
+        val displayDeclaration =
+          getDisplayDeclarationForMrn(leadMrn)
+            .withDeclarantEori(exampleXIEori)
+            .withConsigneeEori(anotherExampleXIEori)
 
-      //   val updatedJourney =
-      //     journey
-      //       .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
-      //       .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
-      //       .getOrFail
+        val updatedJourney =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(leadMrn, displayDeclaration)
+            .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
+            .getOrFail
 
-      //   val updatedSession = SessionData(updatedJourney)
+        val updatedSession = SessionData(updatedJourney)
 
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(leadMrn, Right(Some(displayDeclaration)))
+          mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
+          mockStoreSession(updatedSession)(Right(()))
+        }
 
-      //   checkIsRedirect(
-      //     performAction("enter-movement-reference-number" -> leadMrn.value)(),
-      //     routes.CheckDeclarationDetailsController.show
-      //   )
-      // }
+        checkIsRedirect(
+          performAction("enter-movement-reference-number" -> leadMrn.value)(),
+          routes.CheckDeclarationDetailsController.show
+        )
+      }
 
       "redirect to Check Movement Reference Numbers page for second MRN when declarantEORI matches" in {
         val updatedJourneyWithLeadMrn   = journey
@@ -411,11 +410,7 @@ class EnterMovementReferenceNumberControllerSpec
           overpaymentsMultipleJourney = Some(
             OverpaymentsMultipleJourney
               .empty(
-                exampleEori,
-                features = Some(
-                  OverpaymentsMultipleJourney
-                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-                )
+                exampleEori
               )
           )
         )
@@ -446,7 +441,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "reject a non-first MRN with subsidies payment method" in forAll(
         journeyWithMrnAndDeclarationWithFeatures(
-          OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+          OverpaymentsMultipleJourney.Features()
         ),
         genMRN
       ) { (journey, mrn: MRN) =>
@@ -494,91 +489,6 @@ class EnterMovementReferenceNumberControllerSpec
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
               "enter-movement-reference-number.multiple.error.wrongMRN"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
-      "reject MRN and require subsidy when payment methods are mixed in the declaration being submitted and lead declaration contains subsidy" in {
-        val updatedJourney = OverpaymentsMultipleJourney
-          .tryBuildFrom(
-            journey.answers,
-            Some(
-              OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .getOrElse(fail("Failed to update session"))
-
-        val displayDeclaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
-            .withDeclarationId(leadMrn.value)
-            .withDeclarantEori(updatedJourney.answers.userEoriNumber)
-            .withSomeSubsidiesPaymentMethod()
-
-        val updatedJourneyWithLeadMrn = updatedJourney
-          .submitMovementReferenceNumberAndDeclaration(
-            leadMrn,
-            displayDeclaration
-          )
-          .getOrFail
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
-          mockGetDisplayDeclaration(
-            secondMrn,
-            Right(Some(getDisplayDeclarationForMrn(secondMrn).withSomeSubsidiesPaymentMethod()))
-          )
-        }
-
-        checkPageIsDisplayed(
-          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.needsSubsidy"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
-      "reject MRN and require non subsidy when payment methods are mixed in the declaration being submitted and lead declaration doesn't contain subsidy" in {
-        val updatedJourney = OverpaymentsMultipleJourney
-          .tryBuildFrom(
-            journey.answers,
-            Some(
-              OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .getOrElse(fail("Failed to update session"))
-
-        val displayDeclaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
-            .withDeclarationId(leadMrn.value)
-            .withDeclarantEori(updatedJourney.answers.userEoriNumber)
-
-        val updatedJourneyWithLeadMrn = updatedJourney
-          .submitMovementReferenceNumberAndDeclaration(
-            leadMrn,
-            displayDeclaration
-          )
-          .getOrFail
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourneyWithLeadMrn))
-          mockGetDisplayDeclaration(
-            secondMrn,
-            Right(Some(getDisplayDeclarationForMrn(secondMrn).withSomeSubsidiesPaymentMethod()))
-          )
-        }
-
-        checkPageIsDisplayed(
-          performAction("enter-movement-reference-number" -> secondMrn.value)(2),
-          messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.needsNonSubsidy"
             ),
           expectedStatus = BAD_REQUEST
         )

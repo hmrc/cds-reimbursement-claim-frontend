@@ -227,13 +227,7 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            generateSubsidyPayments = GenerateSubsidyPayments.Some,
-            features = Some(
-              RejectedGoodsScheduledJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false
-              )
-            )
+            generateSubsidyPayments = GenerateSubsidyPayments.Some
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
@@ -309,13 +303,7 @@ class CheckYourAnswersControllerSpec
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
-            generateSubsidyPayments = GenerateSubsidyPayments.Some,
-            features = Some(
-              RejectedGoodsScheduledJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false
-              )
-            )
+            generateSubsidyPayments = GenerateSubsidyPayments.Some
           ).sample.getOrElse(fail())
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)

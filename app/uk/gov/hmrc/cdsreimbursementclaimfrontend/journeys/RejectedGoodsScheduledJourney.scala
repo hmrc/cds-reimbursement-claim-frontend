@@ -538,12 +538,8 @@ final class RejectedGoodsScheduledJourney private (
           scheduledDocument = EvidenceDocument.from(scheduledDocument),
           supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
           basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
-          reimbursementMethod =
-            if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
-            else ReimbursementMethod.BankAccountTransfer,
-          bankAccountDetails =
-            if isSubsidyOnlyJourney then None
-            else answers.bankAccountDetails
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
+          bankAccountDetails = answers.bankAccountDetails
         )).toRight(
           List("Unfortunately could not produce the output, please check if all answers are complete.")
         )
@@ -567,10 +563,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
 
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   // All user answers captured during C&E1179 scheduled MRN journey
   final case class Answers(
@@ -660,7 +653,7 @@ object RejectedGoodsScheduledJourney extends JourneyCompanion[RejectedGoodsSched
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined
     )
 

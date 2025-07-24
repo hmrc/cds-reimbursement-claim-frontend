@@ -38,10 +38,10 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text,
-dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
 )
 
-@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, isSubsidyOnly: Boolean = false, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[BigDecimal], mrnIndex: Int, mrn: MRN, taxCode: TaxCode, paidAmount: BigDecimal, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     if(TaxCodes.custom.contains(taxCode))
@@ -52,13 +52,10 @@ dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components
 @caption = @{messages(s"enter-claim.title.caption")}
 
 @inset = {
-    @if(isSubsidyOnly){
-        @paragraph(Html(messages(s"enter-claim.inset-text.subsidy")))
-    }
     @paragraph(Html(messages(s"enter-claim.inset-text")), id = s"enter-claim-agent-fees-disclaimer")
 }
 
-@paidAmountLabel = @{if (isSubsidyOnly) s"enter-claim.paid-amount-label.subsidy" else s"enter-claim.paid-amount-label"}
+@paidAmountLabel = @{s"enter-claim.paid-amount-label"}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

@@ -64,8 +64,7 @@ class SelectDutiesController @Inject() (
               indexAndMrnOpt = Some((pageIndex, mrn)),
               showCmaNotEligibleHint = false,
               subKey = Some("multiple"),
-              postAction = routes.SelectDutiesController.submit(pageIndex),
-              isSubsidyOnly = journey.isSubsidyOnlyJourney
+              postAction = routes.SelectDutiesController.submit(pageIndex)
             )
           )
         }
@@ -98,8 +97,7 @@ class SelectDutiesController @Inject() (
                           indexAndMrnOpt = Some((pageIndex, mrn)),
                           showCmaNotEligibleHint = false,
                           subKey = Some("multiple"),
-                          postAction = routes.SelectDutiesController.submit(pageIndex),
-                          isSubsidyOnly = journey.isSubsidyOnlyJourney
+                          postAction = routes.SelectDutiesController.submit(pageIndex)
                         )
                       )
                     ),

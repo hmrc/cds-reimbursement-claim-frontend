@@ -172,26 +172,6 @@ class OverpaymentsMultipleJourneySpec
       journeyEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
     }
 
-    "decline submission of a display declaration with subsidy only payments enabled and non-matching payment methods" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(
-          generateSubsidyPayments = GenerateSubsidyPayments.None
-        )
-      val journeyEither      =
-        OverpaymentsMultipleJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsMultipleJourney.Features(shouldAllowSubsidyOnlyPayments = true, shouldBlockSubsidies = false)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-          .getOrFail
-          .submitMovementReferenceNumberAndDeclaration(1, exampleMrn, displayDeclaration)
-
-      journeyEither shouldBe Left("submitMovementReferenceNumber.needsNonSubsidy")
-    }
-
     "decline submission of a display declaration with an already existing MRN" in {
       val displayDeclaration  =
         buildDisplayDeclaration(id = exampleMrnAsString)
@@ -962,100 +942,23 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
-    "validate if any subsidy payment method is in the declaration" when {
+    "validate if any subsidy payment method is in the declaration" in {
 
-      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport.withSomeSubsidiesPaymentMethod
 
-      "BlockSubsidies feature not enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
+      val declaration =
+        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+          .withSomeSubsidiesPaymentMethod()
 
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
+      val journey = OverpaymentsMultipleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+        .getOrFail
 
-        journey.features shouldBe None
+      OverpaymentsMultipleJourney.Checks.declarationsHasNoSubsidyPayments.apply(
+        journey
+      ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
 
-        OverpaymentsMultipleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
-
-      "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsMultipleJourney
-                .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-        )
-
-        OverpaymentsMultipleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
-      }
-
-      "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsMultipleJourney
-                .Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-        )
-
-        OverpaymentsMultipleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
-
-      "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsMultipleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-        )
-
-        OverpaymentsMultipleJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
     }
 
     "remove MRN and display declaration" in {
@@ -1232,72 +1135,6 @@ class OverpaymentsMultipleJourneySpec
 
         journey.isAllSelectedDutiesAreCMAEligible                          shouldBe false
         journey.isAllSelectedDutiesAreCMAEligible(displayDecNotCMA.getMRN) shouldBe false
-      }
-    }
-
-    "isPaymentMethodsMatching" when {
-      "lead display declaration and given display declaration payment methods are both subsidies only return true" in {
-        val leadDisplayDec = displayDeclarationSubsidyOnly.sample.get
-        val displayDec     = displayDeclarationSubsidyOnly.sample.get
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
-          .getOrFail
-
-        journey.isPaymentMethodsMatching(displayDec) shouldBe true
-      }
-
-      "lead display declaration and given display declaration payment methods are both non subsidies return true" in {
-        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
-        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
-          .getOrFail
-
-        journey.isPaymentMethodsMatching(displayDec) shouldBe true
-      }
-
-      "lead display declaration and given display declaration payment methods are subsidy and non subsidy return false" in {
-        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
-        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
-          .getOrFail
-
-        journey.isPaymentMethodsMatching(displayDec) shouldBe false
-      }
-    }
-
-    "getSubsidyError" when {
-      "non matching payment methods return needsSubsidy error message" in {
-        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
-        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
-          .getOrFail
-
-        journey.isPaymentMethodsMatching(displayDec) shouldBe false
-        journey.getSubsidyError                      shouldBe "submitMovementReferenceNumber.needsSubsidy"
-      }
-
-      "non matching payment methods return needsNonSubsidy error message" in {
-        val leadDisplayDec = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.None).sample.get
-        val displayDec     = buildDisplayDeclarationGen(false, GenerateSubsidyPayments.All).sample.get
-
-        val journey = OverpaymentsMultipleJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(0, leadDisplayDec.getMRN, leadDisplayDec)
-          .getOrFail
-
-        journey.isPaymentMethodsMatching(displayDec) shouldBe false
-        journey.getSubsidyError                      shouldBe "submitMovementReferenceNumber.needsNonSubsidy"
       }
     }
 

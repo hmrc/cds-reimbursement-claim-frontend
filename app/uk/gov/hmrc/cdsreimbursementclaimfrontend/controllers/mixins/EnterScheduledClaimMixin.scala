@@ -81,7 +81,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
       val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
       Ok(
-        enterClaimPage(dutyType, taxCode, form, routesPack.postAction(dutyType, taxCode), journey.isSubsidyOnlyJourney)
+        enterClaimPage(dutyType, taxCode, form, routesPack.postAction(dutyType, taxCode))
       ).asFuture
   }
 
@@ -100,8 +100,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                       currentDuty,
                       currentTaxCode,
                       redirectVerificationMessage(formWithErrors),
-                      routesPack.postAction(currentDuty, currentTaxCode),
-                      journey.isSubsidyOnlyJourney
+                      routesPack.postAction(currentDuty, currentTaxCode)
                     )
                   )
                 ),
@@ -117,8 +116,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                             currentDuty,
                             currentTaxCode,
                             enterScheduledClaimForm,
-                            routesPack.postAction(currentDuty, currentTaxCode),
-                            journey.isSubsidyOnlyJourney
+                            routesPack.postAction(currentDuty, currentTaxCode)
                           )
                         )
                       )

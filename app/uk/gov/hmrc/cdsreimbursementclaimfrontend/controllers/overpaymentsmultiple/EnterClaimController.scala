@@ -89,8 +89,6 @@ class EnterClaimController @Inject() (
                   .claimAmountForm(key, amountPaid)
                   .withDefault(actualAmount.map(a => amountPaid - a))
 
-              val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
-
               Ok(
                 enterMultipleClaims(
                   form,
@@ -98,7 +96,6 @@ class EnterClaimController @Inject() (
                   mrn,
                   taxCode,
                   amountPaid,
-                  isSubsidyOnly,
                   submitClaimAction(pageIndex, taxCode)
                 )
               )
@@ -120,7 +117,6 @@ class EnterClaimController @Inject() (
                   (journey, Redirect(selectDutiesAction(pageIndex)))
 
                 case Some(amountPaid) =>
-                  val isSubsidyOnly: Boolean = journey.isSubsidyOnlyJourney
                   Forms
                     .claimAmountForm(key, amountPaid)
                     .bindFromRequest()
@@ -135,7 +131,6 @@ class EnterClaimController @Inject() (
                               mrn,
                               taxCode,
                               amountPaid,
-                              isSubsidyOnly,
                               submitClaimAction(pageIndex, taxCode)
                             )
                           )

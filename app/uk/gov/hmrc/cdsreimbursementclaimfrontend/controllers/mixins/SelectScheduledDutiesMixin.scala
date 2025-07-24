@@ -70,7 +70,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
         val postAction: Call                     = routesPack.submitDutyType(dutyType)
         val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
         val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
-        Ok(selectDutyCodesPage(dutyType, form, postAction, journey.isSubsidyOnlyJourney)).asFuture
+        Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
       }
     } else {
       Redirect(routesPack.showSelectDutyTypes).asFuture
@@ -87,7 +87,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
             formWithErrors =>
               (
                 journey,
-                BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction, journey.isSubsidyOnlyJourney))
+                BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
               ),
             selectedTaxCodes =>
               selectAndReplaceTaxCodeSetForDutyType(journey)(currentDuty, selectedTaxCodes)
@@ -97,7 +97,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
                     (
                       journey,
                       BadRequest(
-                        selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction, journey.isSubsidyOnlyJourney)
+                        selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)
                       )
                     )
                   },
@@ -109,8 +109,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
                           selectDutyCodesPage(
                             currentDuty,
                             selectDutyCodesForm,
-                            postAction,
-                            journey.isSubsidyOnlyJourney
+                            postAction
                           )
                         )
                       )(taxCode => Redirect(routesPack.showEnterClaim(currentDuty, taxCode)))

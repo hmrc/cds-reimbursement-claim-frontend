@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_rejected_goods_details
 
 import javax.inject.Inject
@@ -70,23 +69,8 @@ class EnterRejectedGoodsDetailsController @Inject() (
               )
             ),
           details => {
-            val updatedJourney = journey
-              .submitDetailsOfRejectedGoods(details)
-            if journey.isSubsidyOnlyJourney then {
-              updatedJourney
-                .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.EuDuty))
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating duty types  - $errors")
-                    (journey, BadRequest(enterRejectedGoodsDetailsPage(enterRejectedGoodsDetailsForm, postAction)))
-                  },
-                  subsidyJourney => (subsidyJourney, Redirect(routes.SelectDutiesController.show(DutyType.EuDuty)))
-                )
-
-            } else {
-              (updatedJourney, Redirect(routes.SelectDutyTypesController.show))
-            }
-
+            val updatedJourney = journey.submitDetailsOfRejectedGoods(details)
+            (updatedJourney, Redirect(routes.SelectDutyTypesController.show))
           }
         )
         .asFuture

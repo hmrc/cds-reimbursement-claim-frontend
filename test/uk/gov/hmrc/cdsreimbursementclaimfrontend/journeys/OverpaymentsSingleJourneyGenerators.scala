@@ -236,7 +236,7 @@ object OverpaymentsSingleJourneyGenerators extends JourneyGenerators with Journe
       duplicateMrn                <- if basisOfClaim == BasisOfOverpaymentClaim.DuplicateEntry then IdGen.genMRN.map(Option.apply)
                                      else Gen.const(None)
       reimbursementMethod         <-
-        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.nonSubsidyValues))
+        reimbursementMethod.map(Gen.const).getOrElse(Gen.oneOf(ReimbursementMethod.values))
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       numberOfDocumentTypes       <- Gen.choose(1, 2)

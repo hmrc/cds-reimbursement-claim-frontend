@@ -153,7 +153,6 @@ class CheckYourAnswersControllerSpec
         "Method"                           ->
           Some(claim.reimbursementMethod match {
             case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
-            case ReimbursementMethod.Subsidy                => m("check-your-answers.repayment-method.subsidy")
             case _                                          => m("check-your-answers.repayment-method.bt")
           }),
         "Uploaded files"                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
@@ -221,48 +220,12 @@ class CheckYourAnswersControllerSpec
         }
       }
 
-      "display method of payment when declaration has only subsidy payments" in {
-        forAll(
-          buildCompleteJourneyGen(
-            acc14DeclarantMatchesUserEori = false,
-            acc14ConsigneeMatchesUserEori = false,
-            generateSubsidyPayments = GenerateSubsidyPayments.All,
-            features = Some(
-              OverpaymentsSingleJourney
-                .Features(
-                  shouldBlockSubsidies = false,
-                  shouldAllowSubsidyOnlyPayments = true,
-                  shouldSkipDocumentTypeSelection = false
-                )
-            ),
-            submitBankAccountDetails = false,
-            submitBankAccountType = false
-          )
-        ) { j =>
-          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
-          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, journey, claim, false)
-          )
-        }
-      }
-
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false,
                 shouldSkipDocumentTypeSelection = false
               )
             )
@@ -337,49 +300,12 @@ class CheckYourAnswersControllerSpec
         }
       }
 
-      "display method of payment when declaration has only subsidy payments" in {
-        forAll(
-          genCaseNumber,
-          buildCompleteJourneyGen(
-            acc14DeclarantMatchesUserEori = false,
-            acc14ConsigneeMatchesUserEori = false,
-            generateSubsidyPayments = GenerateSubsidyPayments.All,
-            features = Some(
-              OverpaymentsSingleJourney
-                .Features(
-                  shouldBlockSubsidies = false,
-                  shouldAllowSubsidyOnlyPayments = true,
-                  shouldSkipDocumentTypeSelection = false
-                )
-            ),
-            submitBankAccountDetails = false,
-            submitBankAccountType = false
-          )
-        ) { (caseNumber, j) =>
-          val journey        = j.resetReimbursementMethod().submitCheckYourAnswersChangeMode(true)
-          val claim          = journey.toOutput.fold(error => fail(s"cannot get output of the journey: $error"), x => x)
-          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(s"$messagesKey.print-view.title"),
-            doc => validateCheckYourAnswersPage(doc, updatedJourney, claim, true)
-          )
-        }
-      }
-
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
         val journey =
           buildCompleteJourneyGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldBlockSubsidies = true,
-                shouldAllowSubsidyOnlyPayments = false,
                 shouldSkipDocumentTypeSelection = false
               )
             )

@@ -663,10 +663,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
 
   final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean,
     shouldSkipDocumentTypeSelection: Boolean
-  ) extends SubsidiesFeatures
+  )
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -725,17 +723,10 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
     val reimbursementMethodHasBeenProvidedIfNeeded: Validate[OverpaymentsSingleJourney] =
       all(
         whenTrue(
-          j => j.isAllSelectedDutiesAreCMAEligible && !j.isSubsidyOnlyJourney,
+          j => j.isAllSelectedDutiesAreCMAEligible,
           checkIsDefined(
             _.answers.reimbursementMethod,
             REIMBURSEMENT_METHOD_MUST_BE_DEFINED
-          )
-        ),
-        whenTrue(
-          _.isSubsidyOnlyJourney,
-          checkIsEmpty(
-            _.answers.reimbursementMethod,
-            REIMBURSEMENT_METHOD_ANSWER_MUST_NOT_BE_DEFINED
           )
         )
       )
@@ -816,7 +807,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined,
       newEoriAndDanProvidedIfNeeded,
       duplicateMovementReferenceNumberHasBeenProvidedIfNeeded

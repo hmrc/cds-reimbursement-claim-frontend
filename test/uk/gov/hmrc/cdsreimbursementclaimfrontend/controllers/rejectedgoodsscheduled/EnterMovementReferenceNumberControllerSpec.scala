@@ -357,11 +357,7 @@ class EnterMovementReferenceNumberControllerSpec
           rejectedGoodsScheduledJourney = Some(
             RejectedGoodsScheduledJourney
               .empty(
-                exampleEori,
-                features = Some(
-                  RejectedGoodsScheduledJourney
-                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-                )
+                exampleEori
               )
           )
         )

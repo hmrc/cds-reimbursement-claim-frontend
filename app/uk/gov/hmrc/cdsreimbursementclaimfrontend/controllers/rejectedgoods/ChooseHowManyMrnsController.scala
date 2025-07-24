@@ -76,61 +76,23 @@ class ChooseHowManyMrnsController @Inject() (
 
   private def rejectedGoodsSingleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsSingleJourney.Features] = {
-    val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
-    val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if blockSubsidies || subsidiesForRejectedGoods then
-      Some(
-        RejectedGoodsSingleJourney
-          .Features(
-            shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForRejectedGoods
-          )
-      )
-    else None
-  }
+  ): Option[RejectedGoodsSingleJourney.Features] = None
 
   private def rejectedGoodsMultipleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsMultipleJourney.Features] = {
-    val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
-    val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if blockSubsidies || subsidiesForRejectedGoods then
-      Some(
-        RejectedGoodsMultipleJourney
-          .Features(
-            shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForRejectedGoods
-          )
-      )
-    else None
-  }
+  ): Option[RejectedGoodsMultipleJourney.Features] = None
 
   private def rejectedGoodsScheduledJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsScheduledJourney.Features] = {
-    val blockSubsidies            = featureSwitchService.isEnabled(Feature.BlockSubsidies)
-    val subsidiesForRejectedGoods = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-    if blockSubsidies || subsidiesForRejectedGoods then
-      Some(
-        RejectedGoodsScheduledJourney
-          .Features(
-            shouldBlockSubsidies = blockSubsidies,
-            shouldAllowSubsidyOnlyPayments = subsidiesForRejectedGoods
-          )
-      )
-    else None
-  }
+  ): Option[RejectedGoodsScheduledJourney.Features] = None
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show))
 
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
-      val shouldShowXiContent        = featureSwitchService.isEnabled(Feature.XiEori)
-      val shouldShowSubsidiesContent = featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods) ||
-        featureSwitchService.isEnabled(Feature.SubsidiesForRejectedGoods)
-      Ok(chooseHowManyMrnsPage(form, postAction, shouldShowXiContent, shouldShowSubsidiesContent))
+      val shouldShowXiContent = featureSwitchService.isEnabled(Feature.XiEori)
+      Ok(chooseHowManyMrnsPage(form, postAction, shouldShowXiContent))
     }
 
   final val submit: Action[AnyContent] =

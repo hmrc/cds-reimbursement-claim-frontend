@@ -35,12 +35,6 @@ trait OverpaymentsJourneyChecks[J <: OverpaymentsJourneyProperties]
       checkIsTrue(_.getTotalReimbursementAmount > 0, TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO)
     )
 
-  final def whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments: Validate[J] =
-    whenTrue(
-      journey => journey.features.exists(_.shouldBlockSubsidies) && !journey.isSubsidyOnlyJourney,
-      declarationsHasNoSubsidyPayments
-    )
-
   final val newEoriAndDanProvidedIfNeeded: Validate[J] =
     all(
       whenTrue(

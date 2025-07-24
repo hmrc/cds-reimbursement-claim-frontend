@@ -111,7 +111,6 @@ class ChooseHowManyMrnsControllerSpec
       }
 
       featureSwitch.disable(Feature.XiEori)
-      featureSwitch.disable(Feature.SubsidiesForRejectedGoods)
 
       checkPageIsDisplayed(
         performAction(),
@@ -161,8 +160,6 @@ class ChooseHowManyMrnsControllerSpec
         mockGetEoriDetails(exampleEori)
         mockGetSession(SessionData.empty)
       }
-
-      featureSwitch.enable(Feature.SubsidiesForRejectedGoods)
 
       checkPageIsDisplayed(
         performAction(),

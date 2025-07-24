@@ -536,10 +536,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
 
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -612,7 +609,7 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
       paymentMethodHasBeenProvidedIfNeeded,
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined,
       newEoriAndDanProvidedIfNeeded
     )

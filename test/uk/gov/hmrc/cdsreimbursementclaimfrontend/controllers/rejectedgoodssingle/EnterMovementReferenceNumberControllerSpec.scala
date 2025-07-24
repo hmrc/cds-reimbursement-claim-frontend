@@ -335,52 +335,44 @@ class EnterMovementReferenceNumberControllerSpec
       //   )
       // }
 
-      "reject an MRN with subsidies payment method when blockSubsidies feature enabled" in forAll {
-        (mrn: MRN, declarant: Eori, consignee: Eori) =>
-          val session = SessionData.empty.copy(
-            rejectedGoodsSingleJourney = Some(
-              RejectedGoodsSingleJourney
-                .empty(
-                  exampleEori,
-                  features = Some(
-                    RejectedGoodsSingleJourney
-                      .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-                  )
-                )
-            )
+      "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
+        val session = SessionData.empty.copy(
+          rejectedGoodsSingleJourney = Some(
+            RejectedGoodsSingleJourney
+              .empty(
+                exampleEori
+              )
           )
+        )
 
-          val displayDeclaration =
-            buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
-              .withDeclarationId(mrn.value)
-              .withDeclarantEori(declarant)
-              .withConsigneeEori(consignee)
-              .withSomeSubsidiesPaymentMethod()
+        val displayDeclaration =
+          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withDeclarantEori(declarant)
+            .withConsigneeEori(consignee)
+            .withSomeSubsidiesPaymentMethod()
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(session)
-            mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
-          }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+        }
 
-          checkPageIsDisplayed(
-            performAction(enterMovementReferenceNumberKey -> mrn.value),
-            messageFromMessageKey("enter-movement-reference-number.single.title"),
-            doc =>
-              getErrorSummary(doc) shouldBe messageFromMessageKey(
-                "enter-movement-reference-number.error.subsidy-payment-found"
-              ),
-            expectedStatus = BAD_REQUEST
-          )
+        checkPageIsDisplayed(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          messageFromMessageKey("enter-movement-reference-number.single.title"),
+          doc =>
+            getErrorSummary(doc) shouldBe messageFromMessageKey(
+              "enter-movement-reference-number.error.subsidy-payment-found"
+            ),
+          expectedStatus = BAD_REQUEST
+        )
       }
 
       "not reject an MRN with only subsidies payment methods when subsidies-rejected-goods feature enabled" in forAll {
         (mrn: MRN) =>
           val journey                       = RejectedGoodsSingleJourney.empty(
-            exampleEori,
-            features = Some(
-              RejectedGoodsSingleJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-            )
+            exampleEori
           )
           val displayDeclaration            =
             buildDisplayDeclaration()

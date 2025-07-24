@@ -33,7 +33,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], subKey: String, pageNumber: Option[Int], postAction: Call, isSubsidy: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], subKey: String, pageNumber: Option[Int], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
 

@@ -72,10 +72,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
       acc14ConsigneeMatchesUserEori = true,
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      features = Some(
-        RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-      )
+      submitBankAccountType = false
     )
 
   val completeJourneyWithSomeSubsidiesGen: Gen[RejectedGoodsScheduledJourney] =
@@ -84,10 +81,7 @@ object RejectedGoodsScheduledJourneyGenerators extends ScheduledJourneyGenerator
       acc14ConsigneeMatchesUserEori = true,
       acc14DeclarantMatchesUserEori = false,
       submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      features = Some(
-        RejectedGoodsScheduledJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-      )
+      submitBankAccountType = false
     )
 
   val completeJourneyGenWithoutSpecialCircumstances: Gen[RejectedGoodsScheduledJourney] = for

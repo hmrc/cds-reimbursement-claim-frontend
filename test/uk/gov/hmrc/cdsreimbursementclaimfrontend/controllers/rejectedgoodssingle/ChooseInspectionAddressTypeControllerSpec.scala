@@ -296,18 +296,14 @@ class ChooseInspectionAddressTypeControllerSpec
           val journey =
             RejectedGoodsSingleJourney
               .empty(
-                updatedDeclaration.getDeclarantEori,
-                features = Some(
-                  RejectedGoodsSingleJourney
-                    .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-                )
+                updatedDeclaration.getDeclarantEori
               )
               .submitMovementReferenceNumberAndDeclaration(
                 updatedDeclaration.getMRN,
                 updatedDeclaration
               )
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
-              .flatMap(_.submitReimbursementMethod(ReimbursementMethod.Subsidy))
+              .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
               .toOption
 
           val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)

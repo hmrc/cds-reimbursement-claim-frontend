@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 trait SingleVariantProperties extends CommonJourneyProperties {
 
   override def answers: SingleVariantAnswers
-  def isSubsidyOnlyJourney: Boolean
+
   def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)]
 
   /** Check if all the selected duties have correct amounts provided. */
@@ -43,8 +43,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
-  def needsBanksAccountDetailsSubmission: Boolean =
-    !isSubsidyOnlyJourney
+  def needsBanksAccountDetailsSubmission: Boolean = true
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
@@ -125,8 +124,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   }
 
   def getDefaultReimbursementMethod: ReimbursementMethod =
-    if isSubsidyOnlyJourney then ReimbursementMethod.Subsidy
-    else answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
+    answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
 
   def getUKDutyReimbursementTotal: Option[BigDecimal] =
     getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)

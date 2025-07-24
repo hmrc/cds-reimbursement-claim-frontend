@@ -263,37 +263,6 @@ final class OverpaymentsMultipleJourney private (
         getLeadDisplayDeclaration
       )
 
-  def isPaymentMethodsMatching(displayDeclaration: DisplayDeclaration): Boolean =
-    getLeadDisplayDeclaration
-      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
-      .fold {
-        false
-      } { (leadNdrcDetails: List[NdrcDetails]) =>
-        displayDeclaration.getNdrcDetailsList.fold {
-          false
-        } { (ndrcDetails: List[NdrcDetails]) =>
-          val paymentMethodsFromDisplayDeclaration: List[String] = ndrcDetails.map(_.paymentMethod).distinct
-          val leadPaymentMethods: List[String]                   = leadNdrcDetails.map(_.paymentMethod).distinct
-          (leadPaymentMethods, paymentMethodsFromDisplayDeclaration) match {
-            case (Seq("006"), Seq("006"))                           => true
-            case (a, b) if !a.contains("006") && !b.contains("006") => true
-            case _                                                  => false
-          }
-        }
-      }
-
-  def getSubsidyError: String =
-    getLeadDisplayDeclaration
-      .flatMap(leadDisplayDeclaration => leadDisplayDeclaration.getNdrcDetailsList)
-      .fold {
-        "submitMovementReferenceNumber.needsNonSubsidy"
-      } { (leadNdrcDetails: List[NdrcDetails]) =>
-        leadNdrcDetails.map(_.paymentMethod).distinct match {
-          case a if a.contains("006") => "submitMovementReferenceNumber.needsSubsidy"
-          case _                      => "submitMovementReferenceNumber.needsNonSubsidy"
-        }
-      }
-
   def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
     getDisplayDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
 
@@ -320,12 +289,7 @@ final class OverpaymentsMultipleJourney private (
         Left(
           "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
         )
-      else if index > 0 && features.exists(_.shouldAllowSubsidyOnlyPayments) && !isPaymentMethodsMatching(
-          displayDeclaration
-        )
-      then {
-        Left(getSubsidyError)
-      } else
+      else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
@@ -799,10 +763,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
-  final case class Features(
-    shouldBlockSubsidies: Boolean,
-    shouldAllowSubsidyOnlyPayments: Boolean
-  ) extends SubsidiesFeatures
+  final case class Features()
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -874,7 +835,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       contactDetailsHasBeenProvided,
       supportingEvidenceHasBeenProvided,
       hasMultipleMovementReferenceNumbers,
-      whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments,
+      declarationsHasNoSubsidyPayments,
       payeeTypeIsDefined,
       newEoriAndDanProvidedIfNeeded
     )

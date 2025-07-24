@@ -1286,100 +1286,25 @@ class OverpaymentsScheduledJourneySpec
       }
     }
 
-    "validate if any subsidy payment method is in the declaration" when {
+    "validate if any subsidy payment method is in the declaration" in {
 
-      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport.withSomeSubsidiesPaymentMethod
 
-      "BlockSubsidies feature not enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
+      val declaration =
+        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+          .withSomeSubsidiesPaymentMethod()
 
-        val journey = OverpaymentsScheduledJourney
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe None
-
-        OverpaymentsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
-
-      "BlockSubsidies feature enabled and SubsidyOnlyPayments not" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsScheduledJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsScheduledJourney
-                .Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = false)
+      val journey = OverpaymentsScheduledJourney
+        .empty(
+          exampleEori
         )
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+        .getOrFail
 
-        OverpaymentsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
-      }
+      OverpaymentsScheduledJourney.Checks.declarationsHasNoSubsidyPayments.apply(
+        journey
+      ) shouldBe Validator.Invalid(DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
 
-      "BlockSubsidies feature disabled and SubsidyOnlyPayments enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsScheduledJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsScheduledJourney
-                .Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = false, shouldAllowSubsidyOnlyPayments = true)
-        )
-
-        OverpaymentsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
-
-      "both BlockSubsidies and SubsidyOnlyPayments features enabled" in new DeclarationSupport {
-        val declaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
-            .withSomeSubsidiesPaymentMethod()
-
-        val journey = OverpaymentsScheduledJourney
-          .empty(
-            exampleEori,
-            features = Some(
-              OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-            )
-          )
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .getOrFail
-
-        journey.features shouldBe Some(
-          OverpaymentsScheduledJourney.Features(shouldBlockSubsidies = true, shouldAllowSubsidyOnlyPayments = true)
-        )
-
-        OverpaymentsScheduledJourney.Checks.whenBlockSubsidiesThenDeclarationsHasNoSubsidyPayments.apply(
-          journey
-        ) shouldBe Validator.Valid
-      }
     }
   }
 }

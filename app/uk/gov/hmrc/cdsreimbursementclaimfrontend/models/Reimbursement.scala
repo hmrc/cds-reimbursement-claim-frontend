@@ -50,7 +50,7 @@ object Reimbursement {
       case SplitMethodReimbursementClaim(default, subsidy) =>
         Seq(
           Reimbursement(taxCode, paidAmount - subsidy.amount - default.amount, defaultReimbursementMethod, paidAmount),
-          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.Subsidy, paidAmount)
+          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.BankAccountTransfer, paidAmount)
         )
     }
 
