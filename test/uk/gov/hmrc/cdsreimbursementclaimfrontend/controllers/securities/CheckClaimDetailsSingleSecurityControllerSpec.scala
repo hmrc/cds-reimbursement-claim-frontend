@@ -87,6 +87,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
     val reclaimsWithAmountsAndSecurityId = claims.head
     val securityDepositId                = reclaimsWithAmountsAndSecurityId._1
     val reclaimsWithAmounts              = reclaimsWithAmountsAndSecurityId._2
+    val availableDuties                  = journey.getSecurityTaxCodesWithAmounts(securityDepositId)
 
     // verify claiming full amounts summary
     val claimFullAmountDutiesElement = doc.getElementById("claim-full-amount-selected-duties")
@@ -103,7 +104,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
     fullAmountChangeLink.attr("href") shouldBe routes.ConfirmSingleDepositRepaymentController.show.url
 
     // verify duties selected summary
-    if (reclaimsWithAmounts.size > 1) {
+    if (availableDuties.size > 1) {
       claimFullAmountDutiesElement
         .getElementsByClass("govuk-summary-list__key")
         .eachText()
@@ -159,7 +160,6 @@ class CheckClaimDetailsSingleSecurityControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => validateCheckClaimDetailsPage(doc, initialJourney)
         )
-
       }
     }
 

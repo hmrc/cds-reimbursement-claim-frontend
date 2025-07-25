@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
@@ -607,6 +608,7 @@ object ClaimsTableHelper {
   def makeSingleSecurityClaimFullAmountAndSelectedDuties(
     securityDepositId: String,
     reclaims: List[ReclaimWithAmounts],
+    availableDuties: Seq[DutyAmount],
     declaration: DisplayDeclaration,
     key: String,
     fullAmountChangeCallOpt: Option[Call],
@@ -642,7 +644,7 @@ object ClaimsTableHelper {
         )
       )
     )
-      ++ (if reclaims.size == 1 then List.empty
+      ++ (if availableDuties.size == 1 then List.empty
           else
             Seq(
               SummaryListRow(

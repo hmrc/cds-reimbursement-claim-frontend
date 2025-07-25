@@ -56,14 +56,19 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
           .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
             journey.getReclaimWithAmounts.headOption
               .fold((journey, errorHandler.errorResult())) { reclaims =>
-                (
-                  journey
-                    .submitCheckClaimDetailsChangeMode(true)
-                    .resetClaimFullAmountMode(),
-                  Ok(
-                    checkClaimDetailsPage(displayDeclaration, reclaims._1, reclaims._2, postAction)
+                journey.getSecurityDepositIds.headOption.fold(
+                  throw new Exception("Security deposit ID expected, but none found")
+                ) { firstDepositId =>
+                  val availableDuties = journey.getSecurityTaxCodesWithAmounts(firstDepositId)
+                  (
+                    journey
+                      .submitCheckClaimDetailsChangeMode(true)
+                      .resetClaimFullAmountMode(),
+                    Ok(
+                      checkClaimDetailsPage(displayDeclaration, reclaims._1, reclaims._2, availableDuties, postAction)
+                    )
                   )
-                )
+                }
               }
           }
       }
