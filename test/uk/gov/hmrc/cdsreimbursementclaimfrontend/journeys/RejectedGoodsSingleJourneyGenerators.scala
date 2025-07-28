@@ -262,12 +262,12 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .zip(correctAmount)
           .map { case (t, a) =>
-            (t, Some(DefaultMethodReimbursementClaim(a)))
+            (t, Some(a))
           }
           .toMap
 
@@ -436,7 +436,7 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .map { t =>
@@ -519,12 +519,12 @@ object RejectedGoodsSingleJourneyGenerators extends JourneyGenerators with Journ
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val correctedAmounts: Map[TaxCode, Option[ReimbursementClaim]] =
+      val correctedAmounts: Map[TaxCode, Option[BigDecimal]] =
         taxCodes
           .take(numberOfSelectedTaxCodes)
           .zip(correctAmount)
           .map { case (t, a) =>
-            (t, Some(DefaultMethodReimbursementClaim(a)))
+            (t, Some(a))
           }
           .toMap
 

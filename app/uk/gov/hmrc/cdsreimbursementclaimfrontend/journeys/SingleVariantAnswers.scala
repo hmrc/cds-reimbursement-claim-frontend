@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
@@ -28,6 +27,6 @@ trait SingleVariantAnswers extends CommonAnswers {
   def movementReferenceNumber: Option[MRN]
   def displayDeclaration: Option[DisplayDeclaration]
   def reimbursementMethod: Option[ReimbursementMethod]
-  def correctedAmounts: Option[Map[TaxCode, Option[ReimbursementClaim]]]
+  def correctedAmounts: Option[Map[TaxCode, Option[BigDecimal]]]
 
 }
