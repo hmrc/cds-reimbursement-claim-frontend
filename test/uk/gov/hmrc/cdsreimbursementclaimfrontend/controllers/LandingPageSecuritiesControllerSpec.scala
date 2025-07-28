@@ -17,10 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
 class LandingPageSecuritiesControllerSpec extends ControllerSpec {
 
   private val controller: LandingPageSecuritiesController = instanceOf[LandingPageSecuritiesController]
   implicit val messagesApi: MessagesApi                   = controller.messagesApi
 
+  "The Landing Page Controller" must {
+    "redirect to securities GOV.UK landing page url" in {
+      checkIsRedirect(
+        controller.showLandingPageSecurities(FakeRequest()),
+        viewConfig.govUkSecuritiesLandingPageUrl
+      )
+    }
+  }
 }

@@ -156,7 +156,24 @@ class ChooseReasonForSecurityControllerSpec
 
   "ChooseReasonForSecurityController" when {
 
-    "show page" must {}
+    "show page" must {
+
+      def performAction(): Future[Result] = controller.show(FakeRequest())
+
+      "display the page for the first time" in {
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(initialJourney))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => validateChooseReasonForSecurityPage(doc)
+        )
+      }
+    }
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
