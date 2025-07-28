@@ -43,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -92,12 +91,7 @@ class CheckYourAnswersControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   private val messagesKey: String = "check-your-answers"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateCheckYourAnswersPage(
     doc: Document,
@@ -267,11 +261,6 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
           val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
@@ -375,11 +364,6 @@ class CheckYourAnswersControllerSpec
     "Show confirmation page" must {
 
       def performAction(): Future[Result] = controller.showConfirmation(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page if journey has been finalized" in {
         forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>

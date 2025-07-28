@@ -26,7 +26,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -34,9 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -58,15 +55,10 @@ class BillOfDischarge4ControllerSpec
 
   val controller: BillOfDischarge4Controller = instanceOf[BillOfDischarge4Controller]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val confirmBodMessagesKey: String = "bill-of-discharge"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   "BillOfDischargeController" when {
 
@@ -82,11 +74,6 @@ class BillOfDischarge4ControllerSpec
       def invalidBod4Action: Future[Result] = controller.invalid()(FakeRequest())
 
       val errorBodMessagesKey: String = s"$confirmBodMessagesKey-error"
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(invalidBod4Action) shouldBe NOT_FOUND
-      }
 
       "display the page if securities feature is enabled (BOD4)" in forSomeWith(
         JourneyGenerator(

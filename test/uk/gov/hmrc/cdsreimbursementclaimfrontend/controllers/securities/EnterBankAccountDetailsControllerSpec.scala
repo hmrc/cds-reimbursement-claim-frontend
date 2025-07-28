@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
@@ -69,11 +68,6 @@ class EnterBankAccountDetailsControllerSpec
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   def validateEnterBankAccountDetailsPage(
     doc: Document,
     expectedBankAccountDetails: Option[BankAccountDetails],
@@ -103,12 +97,6 @@ class EnterBankAccountDetailsControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "do not find the page if rejected goods feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "Display the page" in {
         forAll(completeJourneyGen) { journey =>
           val session = SessionData(journey)
@@ -131,11 +119,6 @@ class EnterBankAccountDetailsControllerSpec
         controller.submit(
           FakeRequest().withFormUrlEncodedBody(data*)
         )
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(Seq.empty)) shouldBe NOT_FOUND
-      }
 
 // FIXME
 //      "Continue when Mandatory fields are filled and bank account is unavailable" in {

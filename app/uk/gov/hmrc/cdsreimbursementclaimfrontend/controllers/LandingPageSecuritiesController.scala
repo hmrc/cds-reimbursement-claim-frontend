@@ -22,8 +22,6 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -31,15 +29,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class LandingPageSecuritiesController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  val featureSwitchService: FeatureSwitchService
+  val controllerComponents: MessagesControllerComponents
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends FrontendBaseController
     with Logging {
 
   final val showLandingPageSecurities: Action[AnyContent] =
     Action { implicit request =>
-      if featureSwitchService.isEnabled(Feature.Securities) then Redirect(viewConfig.govUkSecuritiesLandingPageUrl)
-      else Redirect(routes.UnauthorisedController.unauthorised())
+      Redirect(viewConfig.govUkSecuritiesLandingPageUrl)
     }
 }

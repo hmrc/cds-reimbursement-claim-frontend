@@ -34,11 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission2M
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -59,11 +57,6 @@ class CheckBankDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 
   val messagesKey: String = "bank-details"
@@ -72,11 +65,6 @@ class CheckBankDetailsControllerSpec
     "Check Bank Details page" must {
 
       def performAction(): Future[Result] = controller.showWarning(FakeRequest())
-
-      "does not find the page if the securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         val journey        = completeJourneyGen.sample.getOrElse(fail("failed to generate journey"))
@@ -147,11 +135,6 @@ class CheckBankDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submitWarning(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty Yes/No answer" in {
         val journey = completeJourneyGen.sample.getOrElse(fail("Journey building has failed."))

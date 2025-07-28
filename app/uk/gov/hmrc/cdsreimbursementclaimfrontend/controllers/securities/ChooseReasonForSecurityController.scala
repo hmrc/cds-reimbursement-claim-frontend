@@ -38,11 +38,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -55,7 +53,6 @@ class ChooseReasonForSecurityController @Inject() (
   claimService: ClaimService,
   DeclarationConnector: DeclarationConnector,
   val xiEoriConnector: XiEoriConnector,
-  featureSwitchService: FeatureSwitchService,
   chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesJourneyBaseController

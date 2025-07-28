@@ -24,8 +24,6 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 @import uk.gov.hmrc.http.HeaderCarrier
 
 @this(
@@ -34,7 +32,6 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    featureSwitchService: FeatureSwitchService,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading
@@ -76,9 +73,7 @@
                 checked = form.value.contains(RejectedGoods)
             )
         ),
-        if(featureSwitchService.isEnabled(Feature.Securities)) {
             Some(securitiesRadioButton)
-        } else None
     ).filter(_.isDefined).map(_.get)
 }
 

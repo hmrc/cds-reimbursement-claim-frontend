@@ -37,13 +37,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
@@ -69,15 +67,10 @@ class CheckDeclarationDetailsControllerSpec
 
   val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "check-declaration-details"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
@@ -182,11 +175,6 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "redirect to the enter movement reference number if empty journey" in {
         val initialJourney = emptyJourney
 
@@ -280,12 +268,6 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "continue to the confirm full repayment page if some securities has been selected and RFS is not NTAS or MDP" in {
         forAll(

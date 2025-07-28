@@ -36,10 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -80,11 +78,6 @@ class EnterExportMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
   val session: SessionData       = SessionData(journey)
 
@@ -112,11 +105,6 @@ class EnterExportMovementReferenceNumberControllerSpec
       def performAction(mrnIndex: Int): Future[Result] =
         if mrnIndex === 0 then controller.showFirst(FakeRequest())
         else controller.showNext(mrnIndex + 1)(FakeRequest())
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(0)) shouldBe NOT_FOUND
-      }
 
       "display the page if acc14 is present (first mrn)" in forAllWith(
         JourneyGenerator(
@@ -162,16 +150,6 @@ class EnterExportMovementReferenceNumberControllerSpec
     }
 
     "Submit MRN page" must {
-
-      def performAction(mrnIndex: Int, data: (String, String)*): Future[Result] =
-        if mrnIndex === 0 then controller.submitFirst(FakeRequest().withFormUrlEncodedBody(data*))
-        else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction(0)) shouldBe NOT_FOUND
-      }
 
       // "save an export MRN if valid and continue to the check claimant details page (first mrn)" in forAllWith(
       //   JourneyGenerator(

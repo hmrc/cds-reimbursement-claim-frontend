@@ -38,11 +38,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.BankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -87,11 +85,6 @@ class ChoosePayeeTypeControllerSpec
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
   val formKey: String = "choose-payee-type"
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
