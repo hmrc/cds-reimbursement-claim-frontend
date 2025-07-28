@@ -29,7 +29,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
@@ -39,13 +38,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission3M
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
@@ -78,11 +75,6 @@ class ConfirmSingleDepositRepaymentControllerSpec
   val controller: ConfirmSingleDepositRepaymentController = instanceOf[ConfirmSingleDepositRepaymentController]
   implicit val messagesApi: MessagesApi                   = controller.messagesApi
   implicit val messages: Messages                         = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
@@ -179,11 +171,6 @@ class ConfirmSingleDepositRepaymentControllerSpec
     "show page is called" must {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page on a complete journey" in
         forAll(buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
@@ -204,11 +191,6 @@ class ConfirmSingleDepositRepaymentControllerSpec
     "submit page is called" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not succeed if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(Seq.empty)) shouldBe NOT_FOUND
-      }
 
       "continue to choose export method page when yes is selected and reason for security is NTAS" in {
         forAll(incompleteJourneyNtas) { journey =>

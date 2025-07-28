@@ -46,11 +46,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SelectDutiesSummary
@@ -82,11 +80,6 @@ class SelectDutiesControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
@@ -143,11 +136,6 @@ class SelectDutiesControllerSpec
     "show page is called" must {
       def performAction(securityId: String): Future[Result] = controller.show(securityId)(FakeRequest())
       def performActionShowFirst(): Future[Result]          = controller.showFirst()(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("anySecurityId")) shouldBe NOT_FOUND
-      }
 
       "display the page on a journey that has ACC14 tax codes" in
         forAll(completeJourneyWithoutIPROrENUGen) { journey =>
@@ -209,11 +197,6 @@ class SelectDutiesControllerSpec
     "submit page is called" must {
       def performAction(securityId: String, data: Seq[(String, String)]): Future[Result] =
         controller.submit(securityId)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not succeed if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("anySecurityId", Seq.empty)) shouldBe NOT_FOUND
-      }
 
       "redirect to ineligible page when there are no duties returned from ACC14" in
         forAll(genReasonForSecurity) { rfs =>

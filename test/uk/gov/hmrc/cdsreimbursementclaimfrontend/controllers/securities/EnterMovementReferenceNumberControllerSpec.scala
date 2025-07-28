@@ -34,9 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import scala.concurrent.Future
@@ -62,11 +60,6 @@ class EnterMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   val journey              = SecuritiesJourney.empty(exampleEori)
   val session: SessionData = SessionData(journey)
 
@@ -74,12 +67,6 @@ class EnterMovementReferenceNumberControllerSpec
     "Enter MRN page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -124,12 +111,6 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "save an MRN if valid and continue to the choose reason for security page" in {
         inSequence {

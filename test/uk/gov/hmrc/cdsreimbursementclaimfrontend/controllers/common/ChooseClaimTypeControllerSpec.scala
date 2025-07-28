@@ -55,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -108,9 +107,6 @@ class ChooseClaimTypeControllerSpec
       .build()
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
   implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
@@ -183,31 +179,6 @@ class ChooseClaimTypeControllerSpec
           extractLabel(securitiesButton)                 shouldBe messageFromMessageKey(s"$formKey.securities.title")
           extractHint(securitiesButton)                  shouldBe messageFromMessageKey(s"$formKey.securities.hint")
           doc.select(".govuk-inset-text").text().isEmpty shouldBe false
-        }
-      )
-    }
-
-    "display the page when features switched off" in {
-      val eori: Eori = Eori("AB12345678901234Z")
-      inSequence {
-        mockAuthWithEoriEnrolmentRetrievals(eori)
-        mockGetEoriDetails(eori)
-        mockGetSession(SessionData.empty)
-      }
-
-      featureSwitch.disable(Feature.Securities)
-
-      checkPageIsDisplayed(
-        performAction(),
-        messageFromMessageKey(s"$formKey.title"),
-        doc => {
-          val buttons    = radioButtons(doc)
-          val c285Button = extractButton(buttons, "C285")
-          hasButton(buttons, "C285")          shouldBe true
-          hasButton(buttons, "RejectedGoods") shouldBe true
-          hasButton(buttons, "Securities")    shouldBe false
-          extractLabel(c285Button)            shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)             shouldBe messageFromMessageKey(s"$formKey.c285.hint")
         }
       )
     }

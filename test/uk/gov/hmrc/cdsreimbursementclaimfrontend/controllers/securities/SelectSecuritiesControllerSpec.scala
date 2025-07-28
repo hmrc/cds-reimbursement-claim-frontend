@@ -39,11 +39,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
@@ -70,15 +68,10 @@ class SelectSecuritiesControllerSpec
 
   val controller: SelectSecuritiesController = instanceOf[SelectSecuritiesController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "select-securities"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateSelectSecuritiesPage(
     doc: Document,
@@ -119,11 +112,6 @@ class SelectSecuritiesControllerSpec
       def performAction(id: String): Future[Result] = controller.show(id)(FakeRequest())
 
       def performActionShowFirst(): Future[Result] = controller.showFirst()(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("foo")) shouldBe NOT_FOUND
-      }
 
       "redirect to the ineligible page if an invalid security deposit ID" in forSomeWith(
         JourneyGenerator(

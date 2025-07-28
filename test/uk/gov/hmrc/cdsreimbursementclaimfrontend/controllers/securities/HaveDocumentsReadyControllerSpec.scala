@@ -35,11 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -62,13 +60,8 @@ class HaveDocumentsReadyControllerSpec
 
   val controller: HaveDocumentsReadyController = instanceOf[HaveDocumentsReadyController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   "HaveDocumentsReadyController" when {
 
@@ -81,11 +74,6 @@ class HaveDocumentsReadyControllerSpec
 
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(showHaveDocumentsReadyPage) shouldBe NOT_FOUND
-      }
 
       "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
         val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))

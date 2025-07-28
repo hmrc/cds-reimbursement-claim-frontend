@@ -36,10 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -62,11 +60,6 @@ class EnterContactDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
 
   private def mockCompleteJourney(journey: SecuritiesJourney) =
@@ -79,12 +72,6 @@ class EnterContactDetailsControllerSpec
     "Enter Contact Details page" must {
 
       def performAction(): Future[Result] = controller.show()(FakeRequest())
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "display the page" in {
         forAll(buildCompleteJourneyGen()) { journey =>
@@ -131,12 +118,6 @@ class EnterContactDetailsControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "do not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
         inSequence {

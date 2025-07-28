@@ -35,10 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
@@ -66,15 +64,10 @@ class CheckClaimDetailsControllerSpec
 
   val controller: CheckClaimDetailsController = instanceOf[CheckClaimDetailsController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "check-claim.securities"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateCheckClaimDetailsPage(
     doc: Document,
@@ -114,11 +107,6 @@ class CheckClaimDetailsControllerSpec
     "show page" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display page" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
@@ -142,11 +130,6 @@ class CheckClaimDetailsControllerSpec
 
     "submit page" must {
       def performAction(): Future[Result] = controller.submit(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) shouldBe NOT_FOUND
-      }
 
       "redirect to the next page" in forAllWith(
         JourneyGenerator(

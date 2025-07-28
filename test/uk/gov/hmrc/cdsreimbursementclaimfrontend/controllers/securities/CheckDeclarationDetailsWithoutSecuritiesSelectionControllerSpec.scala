@@ -26,7 +26,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -34,9 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
@@ -59,13 +56,8 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
   val controller: CheckDeclarationDetailsWithoutSecuritiesSelectionController =
     instanceOf[CheckDeclarationDetailsWithoutSecuritiesSelectionController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   val messagesKey: String = "check-import-declaration-details"
 
@@ -74,11 +66,6 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
   "CheckDeclarationDetailsWithoutSecuritiesSelectionController" when {
     "show page" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) should ===(NOT_FOUND)
-      }
 
       "display page" in forAllWith(
         JourneyGenerator(
@@ -102,12 +89,6 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
 
         def performAction(data: (String, String)*): Future[Result] =
           controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-        "do not find the page if securities feature is disabled" in {
-          featureSwitch.disable(Feature.Securities)
-
-          status(performAction()) shouldBe NOT_FOUND
-        }
 
         "redirect to CheckTotalImportDischarged" in forSomeWith(
           JourneyGenerator(

@@ -50,12 +50,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -87,8 +85,6 @@ class ChooseReasonForSecurityControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   private val messagesKey: String = "choose-reason-for-security.securities"
 
@@ -133,9 +129,6 @@ class ChooseReasonForSecurityControllerSpec
     )
     .submitMovementReferenceNumber(exampleMrn)
 
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
-
   private def mockGetDisplayDeclarationWithErrorCodes(response: Either[GetDeclarationError, DisplayDeclaration]) =
     (mockClaimsService
       .getDisplayDeclarationWithErrorCodes(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
@@ -167,14 +160,7 @@ class ChooseReasonForSecurityControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-
-        status(performAction()) shouldBe NOT_FOUND
-      }
-
       "display the page for the first time" in {
-        featureSwitch.enable(Feature.Securities)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -187,17 +173,11 @@ class ChooseReasonForSecurityControllerSpec
           doc => validateChooseReasonForSecurityPage(doc)
         )
       }
-
     }
 
     "submit page" must {
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not succeed if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(Seq.empty)) shouldBe NOT_FOUND
-      }
 
       "reject an empty reason selection" in {
         inSequence {

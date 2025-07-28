@@ -28,7 +28,6 @@ sealed trait Feature {
 
 object Feature extends EnumerationFormat[Feature] {
 
-  case object Securities extends Feature { val name = "securities" }
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
   case object NewEoriFormat extends Feature { val name = "new-eori-format" }
 
@@ -37,7 +36,6 @@ object Feature extends EnumerationFormat[Feature] {
 
   override val values: Set[Feature] =
     Set(
-      Securities,
       SkipDocumentType,
       NewEoriFormat
     )

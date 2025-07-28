@@ -46,7 +46,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureList =
       Table[Feature](
         "Features",
-        Feature.Securities
+        Feature.SkipDocumentType
       )
 
     val featuresCache: FeaturesCache = new TestFeaturesCache
@@ -101,7 +101,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.enable(Feature.Securities)
+      featureSwitch.enable(Feature.SkipDocumentType)
       val testController =
         new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -111,7 +111,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Disable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.disable(Feature.Securities)
+      featureSwitch.disable(Feature.SkipDocumentType)
       val testController =
         new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -140,7 +140,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       }
 
     def test(): Action[AnyContent] =
-      hideIfNotEnabled(Feature.Securities) async {
+      hideIfNotEnabled(Feature.SkipDocumentType) async {
         Future.successful(Ok("ok"))
       }
   }

@@ -37,12 +37,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 
 import scala.concurrent.Future
@@ -66,15 +64,10 @@ class EnterClaimControllerSpec
 
   val controller: EnterClaimController = instanceOf[EnterClaimController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "enter-claim.securities"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateEnterClaimPage(
     doc: Document,
@@ -108,11 +101,6 @@ class EnterClaimControllerSpec
 
       def performAction(id: String): Future[Result] =
         controller.showFirst(id)(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("foo")) shouldBe NOT_FOUND
-      }
 
       "redirect to the first enter claim page if a valid security deposit ID with selected duties" in forAllWith(
         JourneyGenerator(
@@ -164,11 +152,6 @@ class EnterClaimControllerSpec
     "show page" must {
 
       def performAction(id: String, taxCode: TaxCode): Future[Result] = controller.show(id, taxCode)(FakeRequest())
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("foo", TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "display the page if a valid security deposit ID" in forAllWith(
         JourneyGenerator(
@@ -273,11 +256,6 @@ class EnterClaimControllerSpec
 
       def performAction(id: String, taxCode: TaxCode, data: (String, String)*): Future[Result] =
         controller.submit(id, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction("foo", TaxCode.A00)) shouldBe NOT_FOUND
-      }
 
       "display error page if an invalid security deposit ID" in forAllWith(
         JourneyGenerator(

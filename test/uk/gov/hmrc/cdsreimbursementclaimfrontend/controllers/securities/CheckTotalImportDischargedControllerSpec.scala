@@ -34,10 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -64,15 +62,10 @@ class CheckTotalImportDischargedControllerSpec
 
   val controller: CheckTotalImportDischargedController = instanceOf[CheckTotalImportDischargedController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "check-total-import-discharged"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateCheckTotalImportDischargedPage(
     doc: Document,
@@ -108,11 +101,6 @@ class CheckTotalImportDischargedControllerSpec
     "show page" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) should ===(NOT_FOUND)
-      }
-
       "display page" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
@@ -138,11 +126,6 @@ class CheckTotalImportDischargedControllerSpec
           FakeRequest()
             .withFormUrlEncodedBody("check-total-import-discharged" -> discharged.map(_.toString).getOrElse(""))
         )
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(Some(true))) shouldBe NOT_FOUND
-      }
 
       "redirect to BOD3 form when yes is selected and RFS is InwardProcessingRelief" in forAllWith(
         JourneyGenerator(

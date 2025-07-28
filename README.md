@@ -58,7 +58,6 @@ The feature set of the service is controlled by a host of feature flags defined 
 
 | flag | description |
 |------|-------------|
-| features.securities | enables `Claim back a security deposit` journey |
 | features.view-upload | enables `Check your claim status and upload supporting files` dashboard |
 | features.block-subsidies | disables support for subsidies-related features |
 | subsidies-for-overpayments | enables subsidies-related features in `Claim back import duty and VAT if you have overpaid` |

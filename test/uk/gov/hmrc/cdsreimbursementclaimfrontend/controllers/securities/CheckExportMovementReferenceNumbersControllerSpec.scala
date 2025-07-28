@@ -36,10 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -67,15 +65,10 @@ class CheckExportMovementReferenceNumbersControllerSpec
   val controller: CheckExportMovementReferenceNumbersController =
     instanceOf[CheckExportMovementReferenceNumbersController]
 
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val messagesKey: String = "check-export-movement-reference-numbers"
-
-  override def beforeEach(): Unit =
-    featureSwitch.enable(Feature.Securities)
 
   def validateCheckExportMovementReferenceNumbersPage(
     doc: Document,
@@ -111,11 +104,6 @@ class CheckExportMovementReferenceNumbersControllerSpec
     "show page" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction()) should ===(NOT_FOUND)
-      }
-
       "display page" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
@@ -145,11 +133,6 @@ class CheckExportMovementReferenceNumbersControllerSpec
               "check-export-movement-reference-numbers" -> addAnotherMRN.map(_.toString).getOrElse("")
             )
         )
-
-      "not find the page if securities feature is disabled" in {
-        featureSwitch.disable(Feature.Securities)
-        status(performAction(Some(true))) shouldBe NOT_FOUND
-      }
 
       "redirect to enter next export MRN form when yes" in forAllWith(
         JourneyGenerator(
