@@ -23,7 +23,6 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DefaultMethodReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 
@@ -45,14 +44,13 @@ class RejectedGoodsSingleJourneyFormatSpec
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          correctedAmounts = Some(Map(TaxCode.A00 -> Some(DefaultMethodReimbursementClaim(BigDecimal("12.99")))))
+          correctedAmounts = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99"))))
         )
       )
       validateCanReadAndWriteJson(
         Answers(
           userEoriNumber = exampleEori,
-          correctedAmounts =
-            Some(Map(TaxCode.A00 -> Some(DefaultMethodReimbursementClaim(BigDecimal("12.99"))), TaxCode.A40 -> None))
+          correctedAmounts = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
         )
       )
       validateCanReadAndWriteJson(

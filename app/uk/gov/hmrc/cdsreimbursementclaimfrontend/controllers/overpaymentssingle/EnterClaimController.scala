@@ -83,7 +83,7 @@ class EnterClaimController @Inject() (
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
-                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
+                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =

@@ -31,28 +31,19 @@ object Reimbursement {
 
   def fromCorrectedAmount(
     taxCode: TaxCode,
-    reimbursement: ReimbursementClaim,
+    correctAmount: BigDecimal,
     defaultReimbursementMethod: ReimbursementMethod,
     paidAmount: BigDecimal
   ): Seq[Reimbursement] =
-    reimbursement match {
-      case DefaultMethodReimbursementClaim(correctAmount) =>
-        Seq(
-          Reimbursement(
-            taxCode,
-            paidAmount - correctAmount,
-            defaultReimbursementMethod,
-            paidAmount,
-            Some(correctAmount)
-          )
-        )
-
-      case SplitMethodReimbursementClaim(default, subsidy) =>
-        Seq(
-          Reimbursement(taxCode, paidAmount - subsidy.amount - default.amount, defaultReimbursementMethod, paidAmount),
-          Reimbursement(taxCode, subsidy.amount, ReimbursementMethod.BankAccountTransfer, paidAmount)
-        )
-    }
+    Seq(
+      Reimbursement(
+        taxCode,
+        paidAmount - correctAmount,
+        defaultReimbursementMethod,
+        paidAmount,
+        Some(correctAmount)
+      )
+    )
 
   implicit val format: Format[Reimbursement] =
     Json.format[Reimbursement]

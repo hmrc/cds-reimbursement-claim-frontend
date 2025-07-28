@@ -199,7 +199,7 @@ class EnterClaimControllerSpec
             }
 
             val actualAmountOpt: Option[BigDecimal] =
-              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
+              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
 
             checkPageIsDisplayed(
               performAction(taxCode),

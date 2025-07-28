@@ -261,7 +261,7 @@ final class RejectedGoodsSingleJourney private (
 
   def submitCorrectAmount(
     taxCode: TaxCode,
-    correctAmount: ReimbursementClaim
+    correctAmount: BigDecimal
   ): Either[String, RejectedGoodsSingleJourney] =
     whileClaimIsAmendable {
       getLeadDisplayDeclaration match {
@@ -273,7 +273,7 @@ final class RejectedGoodsSingleJourney private (
             case None =>
               Left("submitCorrectAmount.taxCodeNotInACC14")
 
-            case Some(ndrcDetails) if isValidCorrectAmount(correctAmount.getAmount, ndrcDetails) =>
+            case Some(ndrcDetails) if isValidCorrectAmount(correctAmount, ndrcDetails) =>
               if getSelectedDuties.exists(_.contains(taxCode)) then {
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
@@ -301,7 +301,7 @@ final class RejectedGoodsSingleJourney private (
 
             case Some(ndrcDetails) if isValidCorrectAmount(BigDecimal(ndrcDetails.amount) - claimAmount, ndrcDetails) =>
               if getSelectedDuties.exists(_.contains(taxCode)) then {
-                val correctAmount       = DefaultMethodReimbursementClaim(BigDecimal(ndrcDetails.amount) - claimAmount)
+                val correctAmount       = BigDecimal(ndrcDetails.amount) - claimAmount
                 val newCorrectedAmounts = answers.correctedAmounts.get + (taxCode -> Some(correctAmount))
                 Right(this.copy(answers.copy(correctedAmounts = Some(newCorrectedAmounts))))
               } else Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -518,7 +518,7 @@ object RejectedGoodsSingleJourney extends JourneyCompanion[RejectedGoodsSingleJo
       features = features
     )
 
-  type CorrectedAmounts = Map[TaxCode, Option[ReimbursementClaim]]
+  type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
 
   final case class Features()
 

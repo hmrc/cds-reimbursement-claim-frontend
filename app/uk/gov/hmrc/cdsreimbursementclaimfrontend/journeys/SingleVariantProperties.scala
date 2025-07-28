@@ -20,7 +20,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
@@ -78,7 +77,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   def isAllSelectedDutiesAreCMAEligible: Boolean =
     answers.correctedAmounts.exists(isAllSelectedDutiesAreCMAEligible)
 
-  def isAllSelectedDutiesAreCMAEligible(amounts: Map[TaxCode, Option[ReimbursementClaim]]): Boolean =
+  def isAllSelectedDutiesAreCMAEligible(amounts: Map[TaxCode, Option[BigDecimal]]): Boolean =
     amounts.keySet
       .map(getNdrcDetailsFor)
       .collect { case Some(d) => d }
@@ -87,7 +86,7 @@ trait SingleVariantProperties extends CommonJourneyProperties {
   def getSelectedTaxCodesWithCorrectAmount: Seq[(TaxCode, BigDecimal)] =
     answers.correctedAmounts
       .map(
-        _.collect { case (taxCode, Some(correctAmount)) => (taxCode, correctAmount.getAmount) }.toSeq
+        _.collect { case (taxCode, Some(correctAmount)) => (taxCode, correctAmount) }.toSeq
       )
       .getOrElse(Seq.empty)
 

@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
@@ -83,7 +82,7 @@ class EnterClaimController @Inject() (
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
-                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten).map(_.getAmount)
+                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
