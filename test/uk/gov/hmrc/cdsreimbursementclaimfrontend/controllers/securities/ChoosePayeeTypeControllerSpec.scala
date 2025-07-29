@@ -65,12 +65,12 @@ class ChoosePayeeTypeControllerSpec
         else securitiesDisplayDeclarationNotGuaranteeEligibleGen
       ).sample.get
         .withBankDetails(Some(BankDetails(None, None)))
-        .withReasonForSecurity(ReasonForSecurity.CommunitySystemsOfDutyRelief)
+        .withReasonForSecurity(ReasonForSecurity.TemporaryAdmission2Y)
 
     SecuritiesJourney
       .empty(displayDeclaration.getDeclarantEori, Nonce.random)
       .submitMovementReferenceNumber(displayDeclaration.getMRN)
-      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.TemporaryAdmission2Y, displayDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(false))
       .flatMap(_.selectSecurityDepositIds(displayDeclaration.getSecurityDepositIds.get))
       .getOrFail

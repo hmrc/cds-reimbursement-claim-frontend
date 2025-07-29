@@ -275,9 +275,6 @@ class ChooseClaimTypeControllerSpec
   private def radioButtons(doc: Document): Elements =
     doc.select("div.govuk-radios div.govuk-radios__item")
 
-  private def hasButton(buttons: Elements, requiredValue: String): Boolean =
-    buttons.asScala.exists(button => !button.select(s"""input[value="$requiredValue"]""").isEmpty)
-
   private def extractButton(buttons: Elements, requiredValue: String): Element =
     buttons.asScala.filterNot(button => button.select(s"""input[value="$requiredValue"]""").isEmpty).head
 
