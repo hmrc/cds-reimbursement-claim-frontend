@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
@@ -82,8 +80,4 @@ class EnterMovementReferenceNumberController @Inject() (
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)
     }
-
-  final val start: Action[AnyContent] =
-    Action(Redirect(routes.EnterMovementReferenceNumberController.show))
-
 }
