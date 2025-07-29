@@ -423,6 +423,35 @@ class EnterMovementReferenceNumberControllerSpec
           routes.ProblemWithMrnController.show(exampleMrn)
         )
       }
+
+      "redirect to problem with declaration if there are unsupported tax codes" in {
+        val dutyDetails                   = Seq((TaxCode("999"), BigDecimal(1200), false))
+        val journey                       = session.overpaymentsSingleJourney.getOrElse(fail("No overpayments journey"))
+        val displayDeclaration            = buildDisplayDeclaration(dutyDetails = dutyDetails).withDeclarationId(exampleMrn.value)
+        val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+          declarantEORI = journey.answers.userEoriNumber.value
+        )
+        val updatedDisplayResponseDetails =
+          displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+        val updatedJourney                =
+          journey
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .getOrFail
+        val updatedSession                = SessionData(updatedJourney)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(exampleMrn, Right(Some(updatedDisplayDeclaration)))
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.ProblemWithDeclarationController.show
+        )
+      }
     }
   }
 }
