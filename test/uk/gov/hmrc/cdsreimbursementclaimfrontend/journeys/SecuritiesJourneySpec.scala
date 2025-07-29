@@ -1180,7 +1180,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleEori,
           consigneeEORI = Some(anotherExampleEori)
         )
@@ -1188,7 +1188,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .getOrFail
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -1199,7 +1199,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleEori)
         )
@@ -1207,7 +1207,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .getOrFail
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -1218,7 +1218,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleXIEori,
           consigneeEORI = None
         )
@@ -1226,7 +1226,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1238,7 +1238,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleXIEori,
           consigneeEORI = Some(anotherExampleEori)
         )
@@ -1246,7 +1246,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1258,7 +1258,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleXIEori)
         )
@@ -1266,7 +1266,7 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1290,14 +1290,14 @@ class SecuritiesJourneySpec extends AnyWordSpec with ScalaCheckPropertyChecks wi
     "fail if submitted consignee EORI is not needed" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.CommunitySystemsOfDutyRelief.acc14Code,
+          securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleEori
         )
       val journeyEither      =
         SecuritiesJourney
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.CommunitySystemsOfDutyRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")

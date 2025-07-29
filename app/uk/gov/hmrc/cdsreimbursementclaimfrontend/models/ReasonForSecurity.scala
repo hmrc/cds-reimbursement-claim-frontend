@@ -52,9 +52,7 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
   val niru: Set[ReasonForSecurity] =
     Set(
       InwardProcessingRelief,
-      OutwardProcessingRelief,
-      EndUseRelief,
-      CommunitySystemsOfDutyRelief
+      EndUseRelief
     )
 
   val nidac: Set[ReasonForSecurity] =
