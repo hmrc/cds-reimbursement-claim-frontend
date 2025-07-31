@@ -89,10 +89,10 @@ class ChooseReasonForSecurityControllerSpec
   private val messagesKey: String = "choose-reason-for-security.securities"
 
   private val ntasOptions = Seq(
-    ("Temporary admissions (24 months)", "TemporaryAdmission2Y"),
-    ("Temporary admissions (2 months)", "TemporaryAdmission2M"),
-    ("Temporary admissions (3 months)", "TemporaryAdmission3M"),
-    ("Temporary admissions (6 months)", "TemporaryAdmission6M")
+    ("Temporary Admission (24 months)", "TemporaryAdmission2Y"),
+    ("Temporary Admission (2 months)", "TemporaryAdmission2M"),
+    ("Temporary Admission (3 months)", "TemporaryAdmission3M"),
+    ("Temporary Admission (6 months)", "TemporaryAdmission6M")
   )
 
   private val niruOptions =
