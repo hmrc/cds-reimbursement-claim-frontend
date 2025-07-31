@@ -81,7 +81,8 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   def excludeNorthernIrelandClaims(
     hasDuplicateEntryClaim: Boolean,
-    displayDeclarationOpt: Option[DisplayDeclaration]
+    displayDeclarationOpt: Option[DisplayDeclaration],
+    isOtherEnabled: Boolean = true
   ): Set[BasisOfOverpaymentClaim] = {
 
     val receivedExciseCodes: List[String] =
@@ -93,12 +94,15 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
       receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
 
     val baseClaims =
-      if hasDuplicateEntryClaim then values
-      else values - DuplicateEntry
+      if hasDuplicateEntryClaim then excludeOtherIfNeeded(isOtherEnabled)
+      else excludeOtherIfNeeded(isOtherEnabled) - DuplicateEntry
 
     if hasNorthernIrelandExciseCodes then baseClaims
     else baseClaims - IncorrectExciseValue
   }
+
+  private def excludeOtherIfNeeded(isOtherEnabled: Boolean): Set[BasisOfOverpaymentClaim] =
+    if isOtherEnabled then values else values - Miscellaneous
 
   private[models] val basisOfOverpaymentsGoodsStringMap: Map[String, BasisOfOverpaymentClaim] =
     values.map(a => a.toString -> a).toMap

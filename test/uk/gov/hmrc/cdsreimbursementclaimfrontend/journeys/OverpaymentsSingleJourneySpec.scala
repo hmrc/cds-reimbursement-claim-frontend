@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.Miscellaneous
 
 import java.util.Locale
 
@@ -715,11 +716,40 @@ class OverpaymentsSingleJourneySpec
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
       )
       val journeyEither      = OverpaymentsSingleJourney
-        .empty(exampleEori)
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsSingleJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = true,
+                shouldSkipDocumentTypeSelection = false
+              )
+          )
+        )
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
 
       journeyEither.isRight                        shouldBe true
       journeyEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs BasisOfOverpaymentClaim.values
+    }
+
+    "return all available claim types except for Other when OtherBasisOfClaim feature is disabled" in {
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = OverpaymentsSingleJourney
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsSingleJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = false,
+                shouldSkipDocumentTypeSelection = false
+              )
+          )
+        )
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+
+      journeyEither.getOrFail.getAvailableClaimTypes.contains(BasisOfOverpaymentClaim.Miscellaneous) shouldBe false
     }
 
     "return all available claim types except IncorrectExciseValue when no excise code in declaration" in {
@@ -727,7 +757,16 @@ class OverpaymentsSingleJourneySpec
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
       val journeyEither      = OverpaymentsSingleJourney
-        .empty(exampleEori)
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsSingleJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = true,
+                shouldSkipDocumentTypeSelection = false
+              )
+          )
+        )
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
 
       journeyEither.isRight                        shouldBe true

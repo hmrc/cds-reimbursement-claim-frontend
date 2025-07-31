@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimOther
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -75,25 +76,34 @@ class ChooseHowManyMrnsController @Inject() (
 
   private def overpaymentsSingleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsSingleJourney.Features] = {
-    val skipDocumentType = featureSwitchService.isEnabled(Feature.SkipDocumentType)
-    if skipDocumentType then
-      Some(
-        OverpaymentsSingleJourney
-          .Features(
-            shouldSkipDocumentTypeSelection = skipDocumentType
-          )
-      )
-    else None
-  }
+  ): Option[OverpaymentsSingleJourney.Features] =
+    Some(
+      OverpaymentsSingleJourney
+        .Features(
+          shouldSkipDocumentTypeSelection = featureSwitchService.isEnabled(Feature.SkipDocumentType),
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
 
   private def overpaymentsMultipleJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsMultipleJourney.Features] = None
+  ): Option[OverpaymentsMultipleJourney.Features] =
+    Some(
+      OverpaymentsMultipleJourney
+        .Features(
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
 
   private def overpaymentsScheduledJourneyFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsScheduledJourney.Features] = None
+  ): Option[OverpaymentsScheduledJourney.Features] =
+    Some(
+      OverpaymentsScheduledJourney
+        .Features(
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show))

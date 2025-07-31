@@ -260,7 +260,8 @@ final class OverpaymentsMultipleJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration
+        getLeadDisplayDeclaration,
+        isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
   def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
@@ -763,7 +764,9 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
 
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
 
-  final case class Features()
+  final case class Features(
+    shouldAllowOtherBasisOfClaim: Boolean = true
+  )
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(

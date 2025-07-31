@@ -313,7 +313,8 @@ final class OverpaymentsScheduledJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        answers.displayDeclaration
+        answers.displayDeclaration,
+        isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
   def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
@@ -536,7 +537,9 @@ object OverpaymentsScheduledJourney extends JourneyCompanion[OverpaymentsSchedul
 
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
 
-  final case class Features()
+  final case class Features(
+    shouldAllowOtherBasisOfClaim: Boolean = true
+  )
 
   final case class Answers(
     nonce: Nonce = Nonce.random,

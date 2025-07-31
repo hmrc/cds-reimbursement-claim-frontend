@@ -879,6 +879,57 @@ class OverpaymentsMultipleJourneySpec
       }
     }
 
+    "get available document types and claim types" in {
+      val displayDeclaration     = exampleDisplayDeclaration
+      val availableDocumentTypes = UploadDocumentType.overpaymentsMultipleDocumentTypes
+
+      val availableClaimTypes =
+        BasisOfOverpaymentClaim
+          .excludeNorthernIrelandClaims(false, Some(displayDeclaration), isOtherEnabled = true)
+
+      val journey = OverpaymentsMultipleJourney
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsMultipleJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = true
+              )
+          )
+        )
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .getOrFail
+
+      journey.getDocumentTypesIfRequired shouldBe Some(availableDocumentTypes)
+
+      journey.getAvailableClaimTypes shouldBe availableClaimTypes
+
+      for document <- availableDocumentTypes do {
+        val result = journey.submitDocumentTypeSelection(document)
+
+        result.answers.selectedDocumentType shouldBe Some(document)
+      }
+    }
+
+    "get available claim types except for Other when OtherBasisOfClaim feature is disabled" in {
+      val displayDeclaration = exampleDisplayDeclaration
+
+      val journey = OverpaymentsMultipleJourney
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsMultipleJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = false
+              )
+          )
+        )
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .getOrFail
+
+      journey.getAvailableClaimTypes.contains(BasisOfOverpaymentClaim.Miscellaneous) shouldBe false
+    }
+
     "change bankAccountDetails in a complete journey" in {
       forAll(completeJourneyGen) { journey =>
         val journeyEither =

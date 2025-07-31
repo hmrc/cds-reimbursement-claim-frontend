@@ -30,6 +30,7 @@ object Feature extends EnumerationFormat[Feature] {
 
   case object SkipDocumentType extends Feature { val name = "skip-document-type" }
   case object NewEoriFormat extends Feature { val name = "new-eori-format" }
+  case object BasisOfClaimOther extends Feature { val name = "basis-of-claim.other.enabled" }
 
   def of(name: String): Option[Feature] =
     values.find(_.name === name)
@@ -37,7 +38,8 @@ object Feature extends EnumerationFormat[Feature] {
   override val values: Set[Feature] =
     Set(
       SkipDocumentType,
-      NewEoriFormat
+      NewEoriFormat,
+      BasisOfClaimOther
     )
 }
 
