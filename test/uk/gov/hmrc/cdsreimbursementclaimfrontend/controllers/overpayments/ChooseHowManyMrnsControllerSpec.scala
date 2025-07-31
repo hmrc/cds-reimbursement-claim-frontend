@@ -52,6 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimOther
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -334,12 +335,19 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and block-subsidies feature is on" in {
+      "Redirect to (multiple route) HaveDocumentsReady page and preserve existing user identity when user chooses Multiple" in {
+
+        featureSwitch.enable(BasisOfClaimOther)
 
         val updatedSession = SessionData(
           OverpaymentsMultipleJourney.empty(
             eoriExample,
-            Nonce.Any
+            Nonce.Any,
+            features = Some(
+              OverpaymentsMultipleJourney.Features(
+                shouldAllowOtherBasisOfClaim = true
+              )
+            )
           )
         )
 
@@ -352,6 +360,8 @@ class ChooseHowManyMrnsControllerSpec
 
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Multiple.toString))
         checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
+
+        featureSwitch.disable(BasisOfClaimOther)
 
       }
 
@@ -410,12 +420,18 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and block-subsidies feature is on" in {
+      "Redirect to (scheduled route) HaveDocumentsReady page and preserve existing user identity when user chooses Scheduled" in {
+        featureSwitch.enable(BasisOfClaimOther)
 
         val updatedSession = SessionData(
           OverpaymentsScheduledJourney.empty(
             eoriExample,
-            Nonce.Any
+            Nonce.Any,
+            features = Some(
+              OverpaymentsScheduledJourney.Features(
+                shouldAllowOtherBasisOfClaim = true
+              )
+            )
           )
         )
 
@@ -429,6 +445,8 @@ class ChooseHowManyMrnsControllerSpec
         val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Scheduled.toString))
 
         checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
+
+        featureSwitch.disable(BasisOfClaimOther)
 
       }
 

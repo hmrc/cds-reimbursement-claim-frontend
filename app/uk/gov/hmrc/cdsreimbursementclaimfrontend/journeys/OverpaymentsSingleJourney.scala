@@ -70,7 +70,8 @@ final class OverpaymentsSingleJourney private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         true,
-        answers.displayDeclaration
+        answers.displayDeclaration,
+        isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
   override def filterAvailableDuties(duties: Seq[(TaxCode, Boolean)]): Seq[(TaxCode, Boolean)] = {
@@ -663,7 +664,8 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
 
   final case class Features(
-    shouldSkipDocumentTypeSelection: Boolean
+    shouldSkipDocumentTypeSelection: Boolean,
+    shouldAllowOtherBasisOfClaim: Boolean = true
   )
 
   // All user answers captured during C&E1179 single MRN journey

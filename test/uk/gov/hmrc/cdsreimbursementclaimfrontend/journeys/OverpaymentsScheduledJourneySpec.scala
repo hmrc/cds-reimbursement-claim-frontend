@@ -843,10 +843,18 @@ class OverpaymentsScheduledJourneySpec
 
       val availableClaimTypes =
         BasisOfOverpaymentClaim
-          .excludeNorthernIrelandClaims(false, Some(displayDeclaration))
+          .excludeNorthernIrelandClaims(false, Some(displayDeclaration), isOtherEnabled = true)
 
       val journey = OverpaymentsScheduledJourney
-        .empty(exampleEori)
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsScheduledJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = true
+              )
+          )
+        )
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .getOrFail
 
@@ -859,6 +867,25 @@ class OverpaymentsScheduledJourneySpec
 
         result.getSelectedDocumentType shouldBe Some(document)
       }
+    }
+
+    "get available claim types except for Other when OtherBasisOfClaim feature is disabled" in {
+      val displayDeclaration = exampleDisplayDeclaration
+
+      val journey = OverpaymentsScheduledJourney
+        .empty(
+          exampleEori,
+          features = Some(
+            OverpaymentsScheduledJourney
+              .Features(
+                shouldAllowOtherBasisOfClaim = false
+              )
+          )
+        )
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .getOrFail
+
+      journey.getAvailableClaimTypes.contains(BasisOfOverpaymentClaim.Miscellaneous) shouldBe false
     }
 
     "reject submit invalid amount for valid selected tax code" in {
