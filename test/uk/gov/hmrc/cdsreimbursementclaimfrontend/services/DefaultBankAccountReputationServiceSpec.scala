@@ -37,7 +37,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.test.Helpers.defaultAwaitTimeout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.Personal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
 

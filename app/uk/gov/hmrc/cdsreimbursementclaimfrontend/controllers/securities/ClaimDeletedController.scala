@@ -23,8 +23,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig

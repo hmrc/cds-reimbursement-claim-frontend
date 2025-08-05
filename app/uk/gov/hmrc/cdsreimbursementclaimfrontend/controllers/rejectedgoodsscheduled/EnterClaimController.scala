@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import com.github.arturopala.validator.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterScheduledClaimMixin

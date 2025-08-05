@@ -33,9 +33,7 @@ import uk.gov.hmrc.http.client.RequestBuilder
 import java.net.URL
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.annotation.nowarn
 
-@nowarn
 trait HttpV2Support { this: MockFactory & Matchers =>
 
   implicit val hc: HeaderCarrier                            = HeaderCarrier()
@@ -105,7 +103,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
     body: JsValue
   ): CallHandler4[JsValue, BodyWritable[JsValue], Tag[JsValue], ExecutionContext, RequestBuilder] =
     (mockRequestBuilder
-      .withBody(_: JsValue)(_: BodyWritable[JsValue], _: Tag[JsValue], _: ExecutionContext))
+      .withBody(_: JsValue)(using _: BodyWritable[JsValue], _: Tag[JsValue], _: ExecutionContext))
       .expects(body, *, *, *)
       .returning(mockRequestBuilder)
 
@@ -113,7 +111,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
     body: String
   ) =
     (mockRequestBuilder
-      .withBody(_: String)(_: BodyWritable[String], _: Tag[String], _: ExecutionContext))
+      .withBody(_: String)(using _: BodyWritable[String], _: Tag[String], _: ExecutionContext))
       .expects(body, *, *, *)
       .returning(mockRequestBuilder)
 
@@ -121,7 +119,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
     value: A
   ): CallHandler2[HttpReads[A], ExecutionContext, Future[A]] =
     (mockRequestBuilder
-      .execute(_: HttpReads[A], _: ExecutionContext))
+      .execute(using _: HttpReads[A], _: ExecutionContext))
       .expects(*, *)
       .returning(Future successful value)
 
@@ -135,7 +133,7 @@ trait HttpV2Support { this: MockFactory & Matchers =>
     ex: Exception
   ) =
     (mockRequestBuilder
-      .execute(_: HttpReads[A], _: ExecutionContext))
+      .execute(using _: HttpReads[A], _: ExecutionContext))
       .expects(*, *)
       .returning(Future failed ex)
 

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq.*
-import com.github.arturopala.validator.Validator
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
@@ -813,7 +812,7 @@ object OverpaymentsMultipleJourney extends JourneyCompanion[OverpaymentsMultiple
       )
   }
 
-  import com.github.arturopala.validator.Validator._
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
   import JourneyValidationErrors._
 
   object Checks extends OverpaymentsJourneyChecks[OverpaymentsMultipleJourney] {

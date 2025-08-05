@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.syntax.eq.*
-import com.github.arturopala.validator.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
@@ -1129,7 +1129,7 @@ object SecuritiesJourney extends JourneyCompanion[SecuritiesJourney] {
   }
 
   import JourneyValidationErrors._
-  import com.github.arturopala.validator.Validator._
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
 
   object Checks extends CommonJourneyChecks[SecuritiesJourney] {
 

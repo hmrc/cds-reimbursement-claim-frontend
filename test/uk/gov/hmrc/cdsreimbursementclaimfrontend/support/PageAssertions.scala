@@ -21,8 +21,6 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.scalactic.source.Position
 import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend
-
 import scala.jdk.CollectionConverters.*
 
 trait PageAssertions {

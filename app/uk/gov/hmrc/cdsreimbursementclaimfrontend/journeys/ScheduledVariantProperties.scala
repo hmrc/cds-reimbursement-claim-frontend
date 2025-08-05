@@ -23,7 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.Excise
 
 /** Common properties of the scheduled journey variant. */
 trait ScheduledVariantProperties extends CommonJourneyProperties {

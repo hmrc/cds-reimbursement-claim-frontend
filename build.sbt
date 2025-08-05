@@ -31,7 +31,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(scalafmtOnCompile := true)
-  .settings(scalaVersion := "3.4.3")
+  .settings(scalaVersion := "3.6.4")
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     routesImport := Seq(

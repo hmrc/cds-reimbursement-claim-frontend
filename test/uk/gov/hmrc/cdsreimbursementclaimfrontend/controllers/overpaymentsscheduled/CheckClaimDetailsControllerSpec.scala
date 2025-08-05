@@ -37,8 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJ
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyFromAnswersGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
