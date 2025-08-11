@@ -24,6 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
@@ -39,6 +40,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 object CheckYourAnswersClaimDetailsCardSummary {
 
@@ -502,5 +508,89 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(rejectedGoodsScheduledRoutes.EnterRejectedGoodsDetailsController.show) else None,
       claimSummaryDocumentChangeCallOpt =
         if !isPrintView then Some(rejectedGoodsScheduledRoutes.UploadMrnListController.show) else None
+    )
+
+  def renderForSecurities(
+    claim: SecuritiesJourney.Output,
+    displayDeclarationOpt: Option[DisplayDeclaration],
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList.optionally(
+      Some(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"check-your-answers.securities.mrn-label-plaintext"))),
+          value = Value(Text(claim.movementReferenceNumber.value)),
+          actions = (if (isPrintView) None else Some(securitiesRoutes.EnterMovementReferenceNumberController.show))
+            .map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"check-your-answers.securities.mrn-label-plaintext"))
+                  )
+                )
+              )
+            ),
+          classes = "mrn-value"
+        )
+      ),
+      Some(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(s"check-your-answers.securities.reason-for-security-label"))),
+          value = Value(
+            Text(
+              messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(claim.reasonForSecurity)}")
+            )
+          ),
+          actions = (if (isPrintView) None else Some(securitiesRoutes.ChooseReasonForSecurityController.show))
+            .map(changeCall =>
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = changeCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"check-your-answers.securities.reason-for-security-label"))
+                  )
+                )
+              )
+            )
+        )
+      ),
+      claim.reasonForSecurity.match {
+        case EndUseRelief | InwardProcessingRelief => None
+        case _                                     =>
+          displayDeclarationOpt.flatMap(declaration =>
+            claim.securitiesReclaims.headOption.map((securityDepositId, reclaims) =>
+              SummaryListRow(
+                key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-full-amount.label"))),
+                value = Value(
+                  Text(
+                    messages(
+                      if declaration.isFullSecurityAmount(securityDepositId, reclaims.values.sum) then
+                        s"check-your-answers.claim-for-security.claim-full-amount.yes"
+                      else s"check-your-answers.claim-for-security.claim-full-amount.no"
+                    )
+                  )
+                ),
+                actions = (if (isPrintView) None
+                           else Some(securitiesRoutes.ConfirmSingleDepositRepaymentController.show))
+                  .map(changeCall =>
+                    Actions(
+                      items = Seq(
+                        ActionItem(
+                          href = changeCall.url,
+                          content = Text(messages("cya.change")),
+                          visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-full-amount.label"))
+                        )
+                      )
+                    )
+                  )
+              )
+            )
+          )
+      }
     )
 }

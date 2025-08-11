@@ -35,7 +35,7 @@ object OrdinalNumberExportMrnHelper {
     }
 
   private def applyEnglish(number: Int)(implicit messages: Messages): String = {
-    val ordinalNumber = OrdinalNumber(number)
+    val ordinalNumber = OrdinalNumber.numeric(number)
     messages("ordinal-number-mrn.export", ordinalNumber.capitalize)
   }
 }

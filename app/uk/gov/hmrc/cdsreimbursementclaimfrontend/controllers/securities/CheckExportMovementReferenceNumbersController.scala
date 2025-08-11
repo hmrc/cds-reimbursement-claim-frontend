@@ -89,40 +89,45 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExported(journey) { exportMRNs =>
-      checkExportMovementReferenceNumbersForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                checkExportMovementReferenceNumbersPage(
-                  exportMRNs,
-                  formWithErrors,
-                  routes.CheckExportMovementReferenceNumbersController.submit,
-                  routes.EnterExportMovementReferenceNumberController.showNext,
-                  routes.CheckExportMovementReferenceNumbersController.delete
-                )
-              )
-            ),
-          answer =>
-            answer match {
-              case Yes =>
+  val submit: Action[AnyContent] = actionReadWriteJourney(
+    implicit request =>
+      journey =>
+        whenTemporaryAdmissionExported(journey) { exportMRNs =>
+          checkExportMovementReferenceNumbersForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
                 (
                   journey,
-                  Redirect(
-                    routes.EnterExportMovementReferenceNumberController.showNext(exportMRNs.size + 1)
+                  BadRequest(
+                    checkExportMovementReferenceNumbersPage(
+                      exportMRNs,
+                      formWithErrors,
+                      routes.CheckExportMovementReferenceNumbersController.submit,
+                      routes.EnterExportMovementReferenceNumberController.showNext,
+                      routes.CheckExportMovementReferenceNumbersController.delete
+                    )
                   )
-                )
-              case No  =>
-                (journey, Redirect(nextStepInJourney(journey)))
-            }
-        )
-        .asFuture
-    }
-  }
+                ),
+              decision =>
+                decision match {
+                  case Yes =>
+                    (
+                      journey,
+                      Redirect(
+                        routes.EnterExportMovementReferenceNumberController.showNext(exportMRNs.size + 1)
+                      )
+                    )
+                  case No  =>
+                    if journey.userHasSeenCYAPage
+                    then (journey, Redirect(routes.CheckYourAnswersController.show))
+                    else (journey, Redirect(nextStepInJourney(journey)))
+                }
+            )
+            .asFuture
+        },
+    fastForwardToCYAEnabled = false
+  )
 
   def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
     implicit request =>

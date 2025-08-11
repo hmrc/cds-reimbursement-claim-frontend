@@ -173,7 +173,7 @@ check-your-answers.declaration-details.importer-telephone-label
 check-your-answers.declaration-details.method-of-payment-label
 check-your-answers.declaration-details.mrn-label
 check-your-answers.declaration-details.paid-duties-charges-label
-check-your-answers.declaration-details.reason-for-security-label
+check-your-answers.securities.reason-for-security-label
 check-your-answers.declaration-details.securities.mrn-label
 check-your-answers.details-rejected-goods.h2
 check-your-answers.details-rejected-goods.label

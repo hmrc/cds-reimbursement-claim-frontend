@@ -136,6 +136,17 @@ class ConfirmSingleDepositRepaymentController @Inject() (
       )
       .asFuture
 
-  def submitNo(securityId: String, journey: SecuritiesJourney): Future[(SecuritiesJourney, Result)] =
-    (journey, Redirect(routes.PartialClaimsController.show)).asFuture
+  def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
+    request: Request[?]
+  ): Future[(SecuritiesJourney, Result)] =
+    journey
+      .clearCorrectedAmounts(securityId)
+      .fold(
+        { error =>
+          logger.warn(error)
+          (journey, errorHandler.errorResult())
+        },
+        updatedJourney => (updatedJourney, Redirect(routes.PartialClaimsController.show))
+      )
+      .asFuture
 }

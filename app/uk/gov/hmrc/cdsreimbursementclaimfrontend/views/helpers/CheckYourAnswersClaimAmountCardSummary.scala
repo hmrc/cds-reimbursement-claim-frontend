@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import scala.collection.immutable.SortedMap
 
 object CheckYourAnswersClaimAmountCardSummary {
 
@@ -188,4 +189,70 @@ object CheckYourAnswersClaimAmountCardSummary {
         )
     )
   }
+
+  def renderForSecurities(
+    reimbursements: SortedMap[TaxCode, BigDecimal],
+    dutiesSelectedChangeCallOpt: Option[Call],
+    claimAmountChangeCallOpt: Option[TaxCode => Call]
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages("check-your-answers.duties-selected"))),
+          value = Value(
+            HtmlContent(
+              reimbursements
+                .map((taxCode, _) =>
+                  Paragraph(
+                    messages(s"tax-code.$taxCode")
+                  )
+                )
+                .mkString("")
+            )
+          ),
+          actions = dutiesSelectedChangeCallOpt.map(changeCall =>
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = changeCall.url,
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"check-claim.duty-types-summary.hidden"))
+                )
+              )
+            )
+          )
+        )
+      ) ++
+        reimbursements
+          .map { (taxCode, amount) =>
+            SummaryListRow(
+              key = Key(HtmlContent(messages(s"tax-code.$taxCode"))),
+              value = Value(Text(amount.toPoundSterlingString)),
+              actions = claimAmountChangeCallOpt.map(changeCall =>
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = changeCall(taxCode).url,
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(
+                        messages(
+                          s"check-claim.duty-claim-amount.hidden",
+                          messages(s"tax-code.$taxCode")
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          } ++
+        Seq(
+          SummaryListRow(
+            key = Key(HtmlContent(messages("check-your-answers.claim-total.total"))),
+            value = Value(Text(reimbursements.map(_._2).sum.toPoundSterlingString))
+          )
+        )
+    )
 }

@@ -73,6 +73,7 @@ class CheckYourAnswersController @Inject() (
               Ok(
                 checkYourAnswersPage(
                   output,
+                  journey.isSingleSecurity,
                   journey.answers.displayDeclaration,
                   journey.answers.exportMovementReferenceNumbers,
                   postAction
@@ -169,6 +170,7 @@ class CheckYourAnswersController @Inject() (
                         caseNumber,
                         journey.getTotalClaimAmount,
                         output,
+                        journey.isSingleSecurity,
                         journey.answers.displayDeclaration,
                         journey.answers.exportMovementReferenceNumbers,
                         submissionDate
