@@ -22,6 +22,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Text}
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,10 +33,11 @@
         inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+        radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
 )
 
-@(pageIndex: Int, form: Form[MRN], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(pageIndex: Int, isLastExportMrn: Boolean, form: Form[(MRN, Option[YesNo])], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-export-movement-reference-number.next"}
 
@@ -73,6 +77,29 @@
             hintHtml = Some(hintHtml),
             doNotResolveLabel = true
         )
+
+        @if(isLastExportMrn){
+            @radios(
+                form = form,
+                name = "enter-export-movement-reference-number.securities.yes-no",
+                legend = messages("enter-export-movement-reference-number.securities.yes-no"),
+                hintKey = None,
+                inline = true,
+                items = Seq(
+                    RadioItem(
+                        value = Some("true"),
+                        content = Text(messages(s"problem-with-declaration.continue.yes")),
+                        checked = false
+                    ),
+                    RadioItem(
+                        value = Some("false"),
+                        content = Text(messages(s"problem-with-declaration.continue.no")),
+                        checked = false
+                    )
+                ),
+                id = key
+            )
+        }
 
         @submitButton("button.continue")
     }

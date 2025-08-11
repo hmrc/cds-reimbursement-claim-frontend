@@ -26,9 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
@@ -755,6 +752,29 @@ final class SecuritiesJourney private (
               fullAmountReclaims
             )
           }
+
+        Right(
+          this.copy(
+            answers.copy(
+              correctedAmounts = updatedCorrectedAmounts
+            )
+          )
+        )
+      }
+    }
+
+  def clearCorrectedAmounts(securityDepositId: String): Either[String, SecuritiesJourney] =
+    whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
+      if !isValidSecurityDepositId(securityDepositId) then Left("submitFullAmountForReclaim.invalidSecurityDepositId")
+      else if !isSelectedDepositId(securityDepositId) then
+        Left("submitFullAmountForReclaim.securityDepositIdNotSelected")
+      else {
+        val updatedCorrectedAmounts: Option[SortedMap[String, CorrectedAmounts]] =
+          answers.correctedAmounts.map(_.map { (sid, correctedAmounts) =>
+            if sid == securityDepositId
+            then (sid, correctedAmounts.map((taxCode, _) => (taxCode, None)))
+            else (sid, correctedAmounts)
+          })
 
         Right(
           this.copy(

@@ -24,22 +24,58 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Value
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 
 @this(
         subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: SecuritiesJourney.Output, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(claim: SecuritiesJourney.Output, isSingleSecurity: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+
+@singleSecurity = {
+    @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSecurities(claim, displayDeclarationOpt, isPrintView))
+    
+    @if(claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief || 
+        claim.reasonForSecurity == ReasonForSecurity.EndUseRelief
+    ){
+        @card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary.withSeparatelyUploadedDocuments(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None, if (!isPrintView) Some({
+            case UploadDocumentType.BillOfDischarge3 => routes.UploadBillOfDischarge3Controller.show
+            case UploadDocumentType.BillOfDischarge4 => routes.UploadBillOfDischarge4Controller.show
+            case _ => routes.UploadFilesController.summary
+        }) else None, if (!isPrintView) Some(routes.AddOtherDocumentsController.show) else None))
+    }
+    
+    @claim.securitiesReclaims.headOption.map{ reclaims =>
+        @card(messages("check-your-answers.claim-amount"), CheckYourAnswersClaimAmountCardSummary.renderForSecurities(reclaims._2, if (!isPrintView) then Some(routes.SelectDutiesController.showFirst) else None, if (!isPrintView) Some(routes.EnterClaimController.show(reclaims._1,_)) else None))
+    }
+    
+    @claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>
+        @card(messages("check-your-answers.securities.disposal-details"), CheckYourAnswersTemporaryAdmissionMethodOfDisposalSummary(claim, mods, isPrintView))
+    }
+
+    @if(claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief || 
+        claim.reasonForSecurity == ReasonForSecurity.EndUseRelief) {
+        @card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSecurities(claim, isPrintView))
+        @card(messages("check-your-answers.additional-details.securities.h2"), AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
+    } else if(claim.reasonForSecurity == ReasonForSecurity.MissingPreferenceCertificate) {
+        @card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSecurities(claim, isPrintView))
+        @card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary.withSeparatelyUploadedDocuments(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None, if (!isPrintView) Some({
+            case UploadDocumentType.ProofOfOrigin => routes.UploadProofOfOriginController.show
+            case _ => routes.UploadFilesController.summary
+        }) else None, if (!isPrintView) Some(routes.AddOtherDocumentsController.show) else None))
+        @card(messages("check-your-answers.additional-details.securities.h2"), AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
+    } else {
+        @card(messages("check-your-answers.additional-details.securities.h2"), AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
+        @card(messages(s"check-your-answers.reimbursement-method.h2"), CheckYourAnswersRepaymentDetailsCardSummary.renderForSecurities(claim, isPrintView))
+        @card(messages(s"check-your-answers.attached-documents.h2"), CheckYourAnswersSupportingDocumentsCardSummary(claim.supportingEvidences, if (!isPrintView) Some(routes.UploadFilesController.summary) else None))
+    }
+
+    @card(messages("check-your-answers.contact-information.h2"), CheckYourAnswersContactDetailsCardSummary(claim.claimantInformation, if (!isPrintView) Some(routes.EnterContactDetailsController.show) else None, if (!isPrintView) Some(routes.CheckClaimantDetailsController.redirectToALF()) else None))
+}
 
 @key = @{"check-your-answers"}
 @numberOfSecurities = @{displayDeclarationOpt.map(_.getNumberOfSecurityDeposits).getOrElse(0)}
@@ -68,30 +104,7 @@
 @temporaryAdmissionMethodsOfDisposal = {
     @claim.temporaryAdmissionMethodsOfDisposal.map{ mods =>
         @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
-        @summary(SummaryList(
-            Seq(SummaryListRow(
-                        key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))),
-                        value = Value(HtmlContent(mods.map(mod => messages(s"choose-export-method.export-method-description.$mod")).mkString("<br/>"))),
-                        actions = if(isPrintView) None else Some(Actions(
-                            items = Seq(ActionItem(
-                                href = routes.ChooseExportMethodController.show.url,
-                                content = Text(messages("cya.change")),
-                                visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))
-                    ))))
-            )) ++
-            exportDeclarationMrnOpt.map { exportDeclarationMrns =>
-                exportDeclarationMrns.zipWithIndex.map{
-                    case (exportDeclarationMrn, mrnIndex) => SummaryListRow(
-                        key = Key(HtmlContent(OrdinalNumberExportMrnHelper(mrnIndex+1))),
-                        value = Value(Text(exportDeclarationMrn.value)),
-                        actions = if(isPrintView) None else Some(Actions(
-                            items = Seq(ActionItem(
-                                href = routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex+1).url,
-                                content = Text(messages("cya.change")),
-                                visuallyHiddenText = Some(OrdinalNumberExportMrnHelper(mrnIndex+1))
-                    ))))
-            )}
-        }.getOrElse(Seq.empty)))
+        @summary(CheckYourAnswersTemporaryAdmissionMethodOfDisposalSummary(claim, mods, isPrintView))
     }
 }
 
@@ -161,19 +174,27 @@
     @summary(AdditionalDetailsSummary(claim.additionalDetails.getOrElse(messages("check-your-answers.none")), "check-your-answers.additional-details.securities", if(isPrintView) None else Some(routes.EnterAdditionalDetailsController.show)))
 }
 
+@multipleSecurities = {
+    @if(claim.reasonForSecurity == InwardProcessingRelief){
+        @declarationDetails
+        @supportingEvidence
+        @bankDetails
+        @additionalDetails
+        @contactInformation
+    }else{
+        @declarationDetails
+        @temporaryAdmissionMethodsOfDisposal
+        @securitiesReclaims
+        @bankDetails
+        @supportingEvidence
+        @additionalDetails
+        @contactInformation
+    }
+}
 
-@if(claim.reasonForSecurity == InwardProcessingRelief){
-    @declarationDetails
-    @supportingEvidence
-    @bankDetails
-    @additionalDetails
-    @contactInformation
-}else{
-    @declarationDetails
-    @temporaryAdmissionMethodsOfDisposal
-    @securitiesReclaims
-    @bankDetails
-    @supportingEvidence
-    @additionalDetails
-    @contactInformation
+
+@if(isSingleSecurity){
+    @singleSecurity 
+} else {
+    @multipleSecurities
 }

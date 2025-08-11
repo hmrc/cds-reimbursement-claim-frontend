@@ -37,7 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 
 object CheckYourAnswersRepaymentDetailsCardSummary {
 
@@ -238,6 +240,23 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
       None,
       if claim.bankAccountDetails.isDefined && !isPrintView then
         Some(rejectedGoodsScheduledRoutes.EnterBankAccountDetailsController.show)
+      else None
+    )
+
+  def renderForSecurities(
+    claim: SecuritiesJourney.Output,
+    isPrintView: Boolean
+  )(implicit
+    messages: Messages
+  ): SummaryList =
+    render(
+      claim.payeeType,
+      None,
+      claim.bankAccountDetails,
+      if !isPrintView then Some(securitiesRoutes.ChoosePayeeTypeController.show) else None,
+      None,
+      if claim.bankAccountDetails.isDefined && !isPrintView then
+        Some(securitiesRoutes.EnterBankAccountDetailsController.show)
       else None
     )
 }
