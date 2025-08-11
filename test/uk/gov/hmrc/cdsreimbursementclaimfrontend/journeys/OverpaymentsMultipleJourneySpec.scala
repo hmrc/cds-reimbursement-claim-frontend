@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 import org.scalacheck.Gen
 import org.scalacheck.ShrinkLowPriority
 import org.scalatest.matchers.should.Matchers
@@ -25,11 +24,10 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 
 class OverpaymentsMultipleJourneySpec
     extends AnyWordSpec
