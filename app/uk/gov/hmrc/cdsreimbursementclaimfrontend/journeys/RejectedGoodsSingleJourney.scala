@@ -18,21 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
 import cats.syntax.eq.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Instant
 
 /** An encapsulated C&E1179 single MRN journey logic. The constructor of this class MUST stay PRIVATE to protected
   * integrity of the journey.

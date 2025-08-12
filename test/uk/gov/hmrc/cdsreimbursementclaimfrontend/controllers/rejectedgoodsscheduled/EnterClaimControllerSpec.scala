@@ -168,7 +168,7 @@ class EnterClaimControllerSpec
                   case Some((nextDutyType, nextTaxCode: TaxCode)) =>
                     routes.EnterClaimController.show(nextDutyType, nextTaxCode)
 
-                  case None =>
+                  case _ =>
                     updatedJourney.findNextSelectedDutyAfter(dutyType) match {
                       case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
                       case None               => routes.CheckClaimDetailsController.show
