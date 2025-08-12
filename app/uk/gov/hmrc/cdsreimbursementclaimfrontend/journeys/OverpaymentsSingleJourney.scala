@@ -663,7 +663,7 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
 
   final case class Features(
     shouldSkipDocumentTypeSelection: Boolean,
-    shouldAllowOtherBasisOfClaim: Boolean = true
+    shouldAllowOtherBasisOfClaim: Boolean
   )
 
   // All user answers captured during C&E1179 single MRN journey

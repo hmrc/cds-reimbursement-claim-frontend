@@ -284,7 +284,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         genMRN,
         journeyWithFeaturesGen(
           OverpaymentsSingleJourney.Features(
-            shouldSkipDocumentTypeSelection = false
+            shouldSkipDocumentTypeSelection = false,
+            shouldAllowOtherBasisOfClaim = true
           )
         )
       ) { (mrn: MRN, journey) =>

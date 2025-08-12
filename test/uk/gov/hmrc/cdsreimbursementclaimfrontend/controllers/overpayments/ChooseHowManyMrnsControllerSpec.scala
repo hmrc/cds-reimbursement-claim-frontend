@@ -222,7 +222,8 @@ class ChooseHowManyMrnsControllerSpec
               Nonce.Any,
               features = Some(
                 OverpaymentsSingleJourney.Features(
-                  shouldSkipDocumentTypeSelection = true
+                  shouldSkipDocumentTypeSelection = true,
+                  shouldAllowOtherBasisOfClaim = true
                 )
               )
             )
@@ -252,7 +253,8 @@ class ChooseHowManyMrnsControllerSpec
               Nonce.Any,
               features = Some(
                 OverpaymentsSingleJourney.Features(
-                  shouldSkipDocumentTypeSelection = false
+                  shouldSkipDocumentTypeSelection = false,
+                  shouldAllowOtherBasisOfClaim = true
                 )
               )
             )

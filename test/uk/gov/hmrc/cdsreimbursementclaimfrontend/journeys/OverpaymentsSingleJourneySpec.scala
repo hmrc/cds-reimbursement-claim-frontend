@@ -1286,7 +1286,8 @@ class OverpaymentsSingleJourneySpec
           features = Some(
             OverpaymentsSingleJourney
               .Features(
-                shouldSkipDocumentTypeSelection = false
+                shouldSkipDocumentTypeSelection = false,
+                shouldAllowOtherBasisOfClaim = true
               )
           )
         )
@@ -1295,7 +1296,8 @@ class OverpaymentsSingleJourneySpec
 
       journey.features shouldBe Some(
         OverpaymentsSingleJourney.Features(
-          shouldSkipDocumentTypeSelection = false
+          shouldSkipDocumentTypeSelection = false,
+          shouldAllowOtherBasisOfClaim = true
         )
       )
 
