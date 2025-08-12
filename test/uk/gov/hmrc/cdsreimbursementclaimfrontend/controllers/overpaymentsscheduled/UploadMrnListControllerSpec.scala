@@ -55,6 +55,14 @@ class UploadMrnListControllerSpec
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
 
+  def mockInitializeCallNotReturningRedirectLocation(existingFile: Option[UploadedFile] = None) =
+    (mockUploadDocumentsConnector
+      .initialize(_: UploadDocumentsConnector.Request)(_: HeaderCarrier))
+      .expects(where[UploadDocumentsConnector.Request, HeaderCarrier] { case (request, _) =>
+        request.existingFiles.map(_.upscanReference) == existingFile.toList.map(_.upscanReference)
+      })
+      .returning(Future.successful(None))
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
@@ -81,6 +89,20 @@ class UploadMrnListControllerSpec
         checkIsRedirect(
           performAction(),
           Call("GET", s"$expectedUploadDocumentsLocation")
+        )
+      }
+
+      "redirect to 'Upload Mrn List' when no file uploaded yet and no redirect location returned" in {
+        val journey = OverpaymentsScheduledJourney.empty(exampleEori)
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockInitializeCallNotReturningRedirectLocation()
+        }
+
+        checkIsRedirect(
+          performAction(),
+          Call("GET", "http://localhost:10110/upload-customs-documents")
         )
       }
 
@@ -142,6 +164,29 @@ class UploadMrnListControllerSpec
           )(Right(()))
         }
         val result  = performAction(callbackPayload.copy(nonce = journey.answers.nonce))
+        status(result) shouldBe 204
+      }
+
+      "return 204 if callback accepted with empty file list" in {
+        val journey = {
+          val j = OverpaymentsScheduledJourney.empty(exampleEori)
+          j.receiveScheduledDocument(j.answers.nonce, exampleUploadedFile).getOrFail
+        }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(
+              journey.removeScheduledDocument
+            )
+          )(Right(()))
+        }
+        val result  = performAction(
+          UploadMrnListCallback(
+            nonce = journey.answers.nonce,
+            uploadedFiles = Seq.empty
+          )
+        )
         status(result) shouldBe 204
       }
 
