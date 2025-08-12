@@ -45,7 +45,6 @@ trait CommonJourneyProperties {
   /** Case number is the final result of successfully submitting the claim. */
   def caseNumber: Option[String]
   def submissionDateTime: Option[LocalDateTime]
-  def needsDocumentType: Boolean = true
   def startTimeSeconds: Long
 
   def declarantEoriMatchesConsignee: Boolean =
@@ -68,8 +67,7 @@ trait CommonJourneyProperties {
 
   final def hasCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.nonEmpty &&
-      (!needsDocumentType ||
-        answers.supportingEvidences.forall(_.documentType.isDefined))
+      answers.supportingEvidences.forall(_.documentType.isDefined)
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
     getLeadDisplayDeclaration.flatMap(_.getConsigneeEori)

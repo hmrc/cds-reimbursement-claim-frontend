@@ -85,8 +85,6 @@ final class OverpaymentsSingleJourney private (
     }
   }
 
-  override def needsDocumentType: Boolean = true
-
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
 

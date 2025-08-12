@@ -59,32 +59,8 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
-      case None if journey.needsDocumentType =>
-        Redirect(selectDocumentTypePageAction).asFuture
-
       case None =>
-        uploadDocumentsConnector
-          .initialize(
-            UploadDocumentsConnector
-              .Request(
-                uploadDocumentsSessionConfigIfSkipDocumentType(
-                  journey.getDocumentTypesIfRequired.getOrElse(Seq.empty),
-                  nextPageInJourney(journey).url,
-                  journey.answers.nonce
-                ),
-                journey.answers.supportingEvidences
-                  .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
-              )
-          )
-          .map {
-            case Some(url) =>
-              Redirect(url)
-
-            case None =>
-              Redirect(
-                s"${uploadDocumentsConfig.publicUrl}${uploadDocumentsConfig.contextPath}"
-              )
-          }
+        Redirect(selectDocumentTypePageAction).asFuture
 
       case Some(documentType) =>
         val continueAfterYesAnswerUrl =
