@@ -720,8 +720,7 @@ class OverpaymentsSingleJourneySpec
           features = Some(
             OverpaymentsSingleJourney
               .Features(
-                shouldAllowOtherBasisOfClaim = true,
-                shouldSkipDocumentTypeSelection = false
+                shouldAllowOtherBasisOfClaim = true
               )
           )
         )
@@ -741,8 +740,7 @@ class OverpaymentsSingleJourneySpec
           features = Some(
             OverpaymentsSingleJourney
               .Features(
-                shouldAllowOtherBasisOfClaim = false,
-                shouldSkipDocumentTypeSelection = false
+                shouldAllowOtherBasisOfClaim = false
               )
           )
         )
@@ -761,8 +759,7 @@ class OverpaymentsSingleJourneySpec
           features = Some(
             OverpaymentsSingleJourney
               .Features(
-                shouldAllowOtherBasisOfClaim = true,
-                shouldSkipDocumentTypeSelection = false
+                shouldAllowOtherBasisOfClaim = true
               )
           )
         )
@@ -1286,7 +1283,6 @@ class OverpaymentsSingleJourneySpec
           features = Some(
             OverpaymentsSingleJourney
               .Features(
-                shouldSkipDocumentTypeSelection = false,
                 shouldAllowOtherBasisOfClaim = true
               )
           )
@@ -1296,7 +1292,6 @@ class OverpaymentsSingleJourneySpec
 
       journey.features shouldBe Some(
         OverpaymentsSingleJourney.Features(
-          shouldSkipDocumentTypeSelection = false,
           shouldAllowOtherBasisOfClaim = true
         )
       )

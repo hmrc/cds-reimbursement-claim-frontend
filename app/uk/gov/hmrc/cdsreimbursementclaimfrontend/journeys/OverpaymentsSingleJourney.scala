@@ -85,10 +85,7 @@ final class OverpaymentsSingleJourney private (
     }
   }
 
-  override def needsDocumentType: Boolean =
-    features
-      .map(feature => !feature.shouldSkipDocumentTypeSelection)
-      .getOrElse(true)
+  override def needsDocumentType: Boolean = true
 
   def needsDuplicateMrnAndDeclaration: Boolean =
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
@@ -662,7 +659,6 @@ object OverpaymentsSingleJourney extends JourneyCompanion[OverpaymentsSingleJour
   type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
 
   final case class Features(
-    shouldSkipDocumentTypeSelection: Boolean,
     shouldAllowOtherBasisOfClaim: Boolean
   )
 

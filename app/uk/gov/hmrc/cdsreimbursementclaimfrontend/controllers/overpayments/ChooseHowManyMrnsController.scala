@@ -80,7 +80,6 @@ class ChooseHowManyMrnsController @Inject() (
     Some(
       OverpaymentsSingleJourney
         .Features(
-          shouldSkipDocumentTypeSelection = featureSwitchService.isEnabled(Feature.SkipDocumentType),
           shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
         )
     )

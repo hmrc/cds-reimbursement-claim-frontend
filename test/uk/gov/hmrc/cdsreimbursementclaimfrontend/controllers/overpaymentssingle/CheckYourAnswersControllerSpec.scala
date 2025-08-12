@@ -225,7 +225,6 @@ class CheckYourAnswersControllerSpec
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldSkipDocumentTypeSelection = false,
                 shouldAllowOtherBasisOfClaim = true
               )
             )
@@ -306,7 +305,6 @@ class CheckYourAnswersControllerSpec
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldSkipDocumentTypeSelection = false,
                 shouldAllowOtherBasisOfClaim = true
               )
             )
