@@ -225,7 +225,7 @@ class CheckYourAnswersControllerSpec
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldSkipDocumentTypeSelection = false
+                shouldAllowOtherBasisOfClaim = true
               )
             )
           ).sample.getOrElse(fail())
@@ -305,7 +305,7 @@ class CheckYourAnswersControllerSpec
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
               OverpaymentsSingleJourney.Features(
-                shouldSkipDocumentTypeSelection = false
+                shouldAllowOtherBasisOfClaim = true
               )
             )
           ).sample.getOrElse(fail())

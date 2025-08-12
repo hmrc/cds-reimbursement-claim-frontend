@@ -211,66 +211,6 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and skip-document-type feature is on" in {
-
-        featureSwitch.enable(Feature.SkipDocumentType)
-
-        val updatedSession = SessionData(
-          OverpaymentsSingleJourney
-            .empty(
-              eoriExample,
-              Nonce.Any,
-              features = Some(
-                OverpaymentsSingleJourney.Features(
-                  shouldSkipDocumentTypeSelection = true
-                )
-              )
-            )
-        )
-
-        inSequence {
-          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-          mockGetEoriDetails(exampleEori)
-          mockGetSession(SessionData.empty)
-          mockStoreSessionWithCustomComparator(updatedSession, compareOverpaymentsSingleFeatures)(Right(()))
-        }
-
-        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
-        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
-
-        featureSwitch.disable(Feature.SkipDocumentType)
-      }
-
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and skip-document-type feature is off" in {
-
-        featureSwitch.enable(Feature.SkipDocumentType)
-
-        val updatedSession = SessionData(
-          OverpaymentsSingleJourney
-            .empty(
-              eoriExample,
-              Nonce.Any,
-              features = Some(
-                OverpaymentsSingleJourney.Features(
-                  shouldSkipDocumentTypeSelection = false
-                )
-              )
-            )
-        )
-
-        inSequence {
-          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
-          mockGetEoriDetails(exampleEori)
-          mockGetSession(SessionData.empty)
-          mockStoreSessionWithCustomComparator(updatedSession, compareOverpaymentsSingleFeatures)(Right(()))
-        }
-
-        val result = performAction(Seq("overpayments.choose-how-many-mrns" -> Individual.toString))
-        checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
-
-        featureSwitch.disable(Feature.SkipDocumentType)
-      }
-
       "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple" in {
 
         val updatedSession = SessionData(

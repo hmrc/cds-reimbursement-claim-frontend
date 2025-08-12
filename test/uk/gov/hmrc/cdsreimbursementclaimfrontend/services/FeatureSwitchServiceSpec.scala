@@ -46,7 +46,8 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureList =
       Table[Feature](
         "Features",
-        Feature.SkipDocumentType
+        Feature.BasisOfClaimOther,
+        Feature.NewEoriFormat
       )
 
     val featuresCache: FeaturesCache = new TestFeaturesCache
@@ -67,19 +68,19 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
     }
 
-    // "enable and disable all features for session" in forAll(featureList) { feature =>
-    //   val featureSwitch: FeatureSwitchService =
-    //     new ConfiguredFeatureSwitchService(configuration, featuresCache)
+    "enable and disable all features for session" ignore forAll(featureList) { feature =>
+      val featureSwitch: FeatureSwitchService =
+        new ConfiguredFeatureSwitchService(configuration, featuresCache)
 
-    //   featureSwitch.enableForSession(feature)
-    //   featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
-    //   featureSwitch.disableForSession(feature)
-    //   featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
-    //   featureSwitch.enableForSession(feature)
-    //   featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
-    //   featureSwitch.disableForSession(feature)
-    //   featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
-    // }
+      featureSwitch.enableForSession(feature)
+      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
+      featureSwitch.disableForSession(feature)
+      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
+      featureSwitch.enableForSession(feature)
+      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
+      featureSwitch.disableForSession(feature)
+      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
+    }
 
     "enable and disable all features for test and session" in forAll(featureList) { feature =>
       val featureSwitch: FeatureSwitchService =
@@ -101,7 +102,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.enable(Feature.SkipDocumentType)
+      featureSwitch.enable(Feature.BasisOfClaimOther)
       val testController =
         new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -111,7 +112,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Disable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.disable(Feature.SkipDocumentType)
+      featureSwitch.disable(Feature.BasisOfClaimOther)
       val testController =
         new TestController(featureSwitch)(instanceOf[ErrorHandler], instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -140,7 +141,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       }
 
     def test(): Action[AnyContent] =
-      hideIfNotEnabled(Feature.SkipDocumentType) async {
+      hideIfNotEnabled(Feature.BasisOfClaimOther) async {
         Future.successful(Ok("ok"))
       }
   }

@@ -191,7 +191,7 @@ class EnterMovementReferenceNumberControllerSpec
                 features = Some(
                   OverpaymentsSingleJourney
                     .Features(
-                      shouldSkipDocumentTypeSelection = false
+                      shouldAllowOtherBasisOfClaim = true
                     )
                 )
               )

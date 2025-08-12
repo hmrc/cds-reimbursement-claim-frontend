@@ -21,7 +21,7 @@ import org.apache.pekko.pattern.after
 import play.api.Configuration
 import play.api.Logger
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.http.logging.Mdc
+import uk.gov.hmrc.mdc.Mdc
 
 import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext

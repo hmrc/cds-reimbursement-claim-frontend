@@ -43,9 +43,6 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
       case None =>
         Redirect(uploadFilesRoute)
 
-      case Some(_) if !journey.needsDocumentType =>
-        Redirect(uploadFilesRoute)
-
       case Some(availableDocumentTypes) =>
         val form: Form[Option[UploadDocumentType]] =
           Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
