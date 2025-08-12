@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import cats.syntax.eq.*
 import play.api.i18n.Messages
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -46,7 +45,6 @@ trait UploadFilesMixin extends JourneyBaseController {
   def documentUploadRequired(journey: Journey): Boolean = true
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
-  def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate: Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable
 
   def modifyJourney(
     journey: Journey,
@@ -231,64 +229,4 @@ trait UploadFilesMixin extends JourneyBaseController {
   def documentTypeDescription(dt: UploadDocumentType)(implicit messages: Messages): String =
     messages(s"choose-file-type.file-type.${UploadDocumentType.keyOf(dt)}")
 
-  def uploadDocumentsSessionConfigIfSkipDocumentType(
-    documentTypes: Seq[UploadDocumentType],
-    nextPageInJourneyUrl: String,
-    nonce: Nonce
-  )(implicit messages: Messages): UploadDocumentsSessionConfig =
-    UploadDocumentsSessionConfig(
-      nonce = nonce,
-      continueUrl = selfUrl + nextPageInJourneyUrl,
-      continueAfterYesAnswerUrl = None,
-      continueWhenFullUrl = selfUrl + nextPageInJourneyUrl,
-      callbackUrl = uploadDocumentsConfig.callbackUrlPrefix + callbackAction.url,
-      minimumNumberOfFiles = 1,
-      maximumNumberOfFiles = fileUploadConfig.readMaxUploadsValue("supporting-evidence"),
-      initialNumberOfEmptyRows = 1,
-      maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("supporting-evidence"),
-      allowedContentTypes =
-        "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
-      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
-      cargo = None,
-      newFileDescription = None,
-      content = uploadDocumentsContentIfSkipDocumentType(documentTypes),
-      features = UploadDocumentsSessionConfig.Features(
-        showUploadMultiple = true,
-        showLanguageSelection = viewConfig.enableLanguageSwitching,
-        showAddAnotherDocumentButton = false,
-        showYesNoQuestionBeforeContinue = false,
-        enableMultipleFilesPicker = true
-      )
-    )
-
-  def uploadDocumentsContentIfSkipDocumentType(
-    documentTypes: Seq[UploadDocumentType]
-  )(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
-    val descriptionHtml = chooseFilesPageDescriptionIfSkipDocumentTypeTemplate(
-      documentTypes.filterNot(_ === UploadDocumentType.Other)
-    )(messages).body
-
-    UploadDocumentsSessionConfig.Content(
-      serviceName = messages("service.title"),
-      title = messages("choose-files.if-skip.title"),
-      descriptionHtml = descriptionHtml,
-      serviceUrl = viewConfig.homePageUrl,
-      accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
-      phaseBanner = "beta",
-      phaseBannerUrl = viewConfig.betaFeedbackUrl,
-      signOutUrl = viewConfig.ggSignOut,
-      timedOutUrl = viewConfig.ggTimedOutUrl,
-      keepAliveUrl = viewConfig.ggKeepAliveUrl,
-      timeoutSeconds = viewConfig.ggTimeoutSeconds,
-      countdownSeconds = viewConfig.ggCountdownSeconds,
-      pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
-      fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
-      chooseFirstFileLabel = "",
-      chooseNextFileLabel = None,
-      addAnotherDocumentButtonText = None,
-      yesNoQuestionText = None,
-      yesNoQuestionRequiredError = None
-    )
-  }
 }

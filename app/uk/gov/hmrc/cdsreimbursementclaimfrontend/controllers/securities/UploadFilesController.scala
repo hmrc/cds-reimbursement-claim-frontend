@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.upload_files_description
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.upload_files_if_skip_document_type_description
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,7 +45,6 @@ class UploadFilesController @Inject() (
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
   upload_files_description: upload_files_description,
-  upload_files_if_skip_document_type_description: upload_files_if_skip_document_type_description,
   val featureSwitchService: FeatureSwitchService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesJourneyBaseController
@@ -67,10 +65,6 @@ class UploadFilesController @Inject() (
 
   final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
     documentType => messages => upload_files_description(documentType)(messages)
-
-  final override def chooseFilesPageDescriptionIfSkipDocumentTypeTemplate
-    : Seq[UploadDocumentType] => Messages => HtmlFormat.Appendable =
-    documentTypes => messages => upload_files_if_skip_document_type_description(documentTypes)(messages)
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
