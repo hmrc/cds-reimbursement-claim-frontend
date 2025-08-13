@@ -87,30 +87,28 @@ class UploadBillOfDischarge4Controller @Inject() (
       }
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourney(
-    implicit request =>
-      journey =>
-        request
-          .asInstanceOf[Request[AnyContent]]
-          .body
-          .asJson
-          .flatMap(_.asOpt[UploadDocumentsCallback]) match {
-          case None =>
-            logger.warn("missing or invalid callback payload")
-            (journey, BadRequest("missing or invalid callback payload"))
+  final val submit: Action[AnyContent] = simpleActionReadWriteJourneyWhenCallback(implicit request =>
+    journey =>
+      request
+        .asInstanceOf[Request[AnyContent]]
+        .body
+        .asJson
+        .flatMap(_.asOpt[UploadDocumentsCallback]) match {
+        case None =>
+          logger.warn("missing or invalid callback payload")
+          (journey, BadRequest("missing or invalid callback payload"))
 
-          case Some(callback) =>
-            journey
-              .receiveBillOfDischargeDocuments(
-                callback.nonce,
-                callback.uploadedFiles.map(_.copy(cargo = callback.cargo))
-              )
-              .fold(
-                error => (journey, BadRequest(error)),
-                modifiedJourney => (modifiedJourney, NoContent)
-              )
-        },
-    isCallback = true
+        case Some(callback) =>
+          journey
+            .receiveBillOfDischargeDocuments(
+              callback.nonce,
+              callback.uploadedFiles.map(_.copy(cargo = callback.cargo))
+            )
+            .fold(
+              error => (journey, BadRequest(error)),
+              modifiedJourney => (modifiedJourney, NoContent)
+            )
+      }
   )
 
   def uploadDocumentsSessionConfig(
