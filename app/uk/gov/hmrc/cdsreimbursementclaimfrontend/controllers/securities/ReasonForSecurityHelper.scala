@@ -23,23 +23,18 @@ class ReasonForSecurityHelper(
   configuration: Configuration
 ) {
 
-  private lazy val nidacMdpVisibility: String =
-    configuration.getOptional[String]("features.security-reasons.nidac-only-mdp").getOrElse("all")
+  private lazy val nidacMdpVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac-only-mdp").getOrElse(false)
 
   def avalaibleReasonsForSecurity(): Set[ReasonForSecurity] = getNtasOptions() ++ getNiruOptions() ++ getNidacOptions()
 
   private def getNtasOptions() = ReasonForSecurity.ntas
 
   private def getNidacOptions() =
-    if isEnabled(nidacMdpVisibility) then Set(ReasonForSecurity.MissingPreferenceCertificate)
+    if nidacMdpVisibility
+    then Set(ReasonForSecurity.MissingPreferenceCertificate)
     else ReasonForSecurity.nidac
 
   private def getNiruOptions() = ReasonForSecurity.niru
-
-  private def isEnabled(visibility: String): Boolean = visibility match
-    case "public"  => true
-    case "private" => true
-    case "on"      => true
-    case _         => false
 
 }
