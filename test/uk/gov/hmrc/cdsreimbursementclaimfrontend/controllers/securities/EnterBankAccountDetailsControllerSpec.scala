@@ -74,7 +74,7 @@ class EnterBankAccountDetailsControllerSpec
     error: Boolean = false
   ): Assertion = {
     val title         = doc.select("title").first().text()
-    val heading       = doc.select(".govuk-heading-xl").eachText().asScala.toList
+    val heading       = doc.select(".govuk-heading-l").eachText().asScala.toList
     val accountName   =
       doc.select("input[name='enter-bank-account-details.account-name']").first().attr("value")
     val sortCode      =

@@ -28,8 +28,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    warningText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.warning_text
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form: Form[BankAccountDetails], isCMA: Boolean, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
@@ -44,9 +43,7 @@
 
     @errorSummary(updatedSummaryErrors)
 
-    @heading(Html(title))
-
-    @warningText(Html(messages(s"enter-bank-account-details.warning-text")))
+    @heading(Html(title), classes = "govuk-heading-l")
 
     @if(isCMA) {
         @paragraph(Html(messages(s"enter-bank-account-details.cma-text")), Some("govuk-inset-text govuk-!-margin-bottom-5"))
