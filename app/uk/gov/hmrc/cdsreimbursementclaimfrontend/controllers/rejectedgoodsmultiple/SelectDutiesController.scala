@@ -69,7 +69,7 @@ class SelectDutiesController @Inject() (
           )
         }
       }
-      .asFuture
+
   }
 
   def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney(
@@ -115,8 +115,7 @@ class SelectDutiesController @Inject() (
                     )
                 )
             }
-          }
-          .asFuture,
+          },
     fastForwardToCYAEnabled = false
   )
 }

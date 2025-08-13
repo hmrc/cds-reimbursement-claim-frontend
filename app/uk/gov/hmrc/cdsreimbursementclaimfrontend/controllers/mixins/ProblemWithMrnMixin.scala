@@ -29,6 +29,6 @@ trait ProblemWithMrnMixin extends JourneyBaseController {
 
   final def show(mrn: MRN): Action[AnyContent] =
     actionReadWriteJourney { implicit request => implicit journey =>
-      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall))).asFuture
+      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall)))
     }
 }

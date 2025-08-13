@@ -115,6 +115,16 @@ class CheckClaimDetailsControllerSpec
       )
     )
 
+  val incompleteJourneyGen: Gen[OverpaymentsScheduledJourney] =
+    buildJourneyFromAnswersGen(
+      buildAnswersGen(
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        submitEvidence = false,
+        checkYourAnswersChangeMode = false
+      ).map(answers => answers.copy(correctedAmounts = answers.correctedAmounts.map(_.clearFirstOption)))
+    )
+
   "Check Claim Details Controller" when {
 
     "Show check claim details page" must {
@@ -147,6 +157,19 @@ class CheckClaimDetailsControllerSpec
             performAction(),
             messageFromMessageKey("check-claim.scheduled.title"),
             assertPageContent(_, journey)
+          )
+        }
+
+      "redirect when reimbursements not completed yet" in
+        forAll(incompleteJourneyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectDutyTypesController.show
           )
         }
     }

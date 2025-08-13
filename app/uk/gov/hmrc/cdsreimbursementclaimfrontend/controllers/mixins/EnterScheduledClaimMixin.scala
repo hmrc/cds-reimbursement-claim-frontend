@@ -62,16 +62,16 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
   final val showFirst: Action[AnyContent] = actionReadJourney { _ => journey =>
     journey.findNextDutyToSelectDuties match {
       case None =>
-        (journey.getFirstDutyToClaim match {
+        journey.getFirstDutyToClaim match {
           case Some((dutyType, taxCode)) =>
             Redirect(routesPack.showAction(dutyType, taxCode))
 
           case None =>
             Redirect(routesPack.showSelectDutyTypes)
-        }).asFuture
+        }
 
       case Some(emptyDuty) =>
-        Redirect(routesPack.showSelectDuties(emptyDuty)).asFuture
+        Redirect(routesPack.showSelectDuties(emptyDuty))
     }
   }
 
@@ -82,7 +82,7 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
 
       Ok(
         enterClaimPage(dutyType, taxCode, form, routesPack.postAction(dutyType, taxCode))
-      ).asFuture
+      )
   }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(

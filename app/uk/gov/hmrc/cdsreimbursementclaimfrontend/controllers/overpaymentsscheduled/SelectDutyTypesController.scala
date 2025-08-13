@@ -46,7 +46,7 @@ class SelectDutyTypesController @Inject() (
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     val form = selectDutyTypesForm.withDefault(journey.getSelectedDutyTypes.map(_.toList))
-    (journey, Ok(selectDutyTypesPage(form, postAction))).asFuture
+    (journey, Ok(selectDutyTypesPage(form, postAction)))
 
   }
 
@@ -84,7 +84,7 @@ class SelectDutyTypesController @Inject() (
                 )
             )
       )
-      .asFuture
+
   }
 
 }

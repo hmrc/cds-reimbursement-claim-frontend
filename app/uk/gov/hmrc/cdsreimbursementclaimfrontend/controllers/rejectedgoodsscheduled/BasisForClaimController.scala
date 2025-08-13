@@ -55,7 +55,7 @@ class BasisForClaimController @Inject() (
         BasisOfRejectedGoodsClaim.values,
         routes.BasisForClaimController.submit
       )
-    ).asFuture
+    )
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -72,7 +72,7 @@ class BasisForClaimController @Inject() (
                 routes.BasisForClaimController.submit
               )
             )
-          ).asFuture,
+          ),
         basisOfClaim =>
           (
             journey.submitBasisOfClaim(basisOfClaim),
@@ -82,7 +82,7 @@ class BasisForClaimController @Inject() (
               case _                    =>
                 routes.DisposalMethodController.show
             })
-          ).asFuture
+          )
       )
   }
 }

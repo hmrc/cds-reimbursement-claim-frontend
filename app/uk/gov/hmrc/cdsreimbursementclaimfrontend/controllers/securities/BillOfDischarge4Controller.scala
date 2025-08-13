@@ -46,6 +46,6 @@ class BillOfDischarge4Controller @Inject() (
     )
 
   val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(invalidBillOfDischarge(BOD4)).asFuture
+    Ok(invalidBillOfDischarge(BOD4))
   }
 }

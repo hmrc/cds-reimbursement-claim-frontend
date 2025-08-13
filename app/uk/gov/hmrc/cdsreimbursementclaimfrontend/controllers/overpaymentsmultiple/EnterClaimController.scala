@@ -101,7 +101,7 @@ class EnterClaimController @Inject() (
               )
           }
         }
-        .asFuture
+
     }
 
   final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
@@ -149,8 +149,7 @@ class EnterClaimController @Inject() (
                     )
 
               }
-            }
-            .asFuture,
+            },
       fastForwardToCYAEnabled = false
     )
 

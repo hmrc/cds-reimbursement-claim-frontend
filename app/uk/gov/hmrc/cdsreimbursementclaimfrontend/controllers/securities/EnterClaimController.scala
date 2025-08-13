@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_cla
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterClaimController @Inject() (
@@ -69,26 +68,24 @@ class EnterClaimController @Inject() (
 
   final def show(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
-      validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
-        _.fold(
-          identity,
-          { case (correctAmountOpt, paidAmount) =>
-            val form = Forms
-              .claimAmountForm(key, paidAmount)
-              .withDefault(correctAmountOpt.map(a => paidAmount - a))
+      validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).fold(
+        identity,
+        { case (correctAmountOpt, paidAmount) =>
+          val form = Forms
+            .claimAmountForm(key, paidAmount)
+            .withDefault(correctAmountOpt.map(a => paidAmount - a))
 
-            Ok(
-              enterClaimPage(
-                form,
-                securityDepositId,
-                journey.isSingleSecurity,
-                taxCode,
-                paidAmount,
-                routes.EnterClaimController.submit(securityDepositId, taxCode)
-              )
+          Ok(
+            enterClaimPage(
+              form,
+              securityDepositId,
+              journey.isSingleSecurity,
+              taxCode,
+              paidAmount,
+              routes.EnterClaimController.submit(securityDepositId, taxCode)
             )
-          }
-        )
+          )
+        }
       )
     }
 
@@ -96,65 +93,63 @@ class EnterClaimController @Inject() (
     actionReadWriteJourney(
       implicit request =>
         journey =>
-          validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).map(
-            _.fold(
-              result => (journey, result),
-              { case (_, totalAmount) =>
-                val form = Forms.claimAmountForm(key, totalAmount)
-                form
-                  .bindFromRequest()
-                  .fold(
-                    formWithErrors =>
-                      (
-                        journey,
-                        BadRequest(
-                          enterClaimPage(
-                            formWithErrors,
-                            securityDepositId,
-                            journey.isSingleSecurity,
-                            taxCode,
-                            totalAmount,
-                            routes.EnterClaimController.submit(securityDepositId, taxCode)
-                          )
+          validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).fold(
+            result => (journey, result),
+            { case (_, totalAmount) =>
+              val form = Forms.claimAmountForm(key, totalAmount)
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
+                    (
+                      journey,
+                      BadRequest(
+                        enterClaimPage(
+                          formWithErrors,
+                          securityDepositId,
+                          journey.isSingleSecurity,
+                          taxCode,
+                          totalAmount,
+                          routes.EnterClaimController.submit(securityDepositId, taxCode)
                         )
-                      ),
-                    claimAmount => {
-                      val amountHasChanged: Boolean =
-                        !journey
-                          .getClaimAmountFor(securityDepositId, taxCode)
-                          .exists(_ === claimAmount)
-                      if amountHasChanged then
-                        journey
-                          .submitClaimAmount(securityDepositId, taxCode, claimAmount)
-                          .fold(
-                            error =>
-                              (
-                                journey,
-                                Redirect(routeForValidationError(error))
-                              ),
-                            updatedJourney =>
-                              (
-                                updatedJourney,
-                                Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
-                              )
-                          )
-                      else (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                      )
+                    ),
+                  claimAmount => {
+                    val amountHasChanged: Boolean =
+                      !journey
+                        .getClaimAmountFor(securityDepositId, taxCode)
+                        .exists(_ === claimAmount)
+                    if amountHasChanged then
+                      journey
+                        .submitClaimAmount(securityDepositId, taxCode, claimAmount)
+                        .fold(
+                          error =>
+                            (
+                              journey,
+                              Redirect(routeForValidationError(error))
+                            ),
+                          updatedJourney =>
+                            (
+                              updatedJourney,
+                              Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                            )
+                        )
+                    else (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
 
-                    }
-                  )
-              }
-            )
+                  }
+                )
+            }
           ),
       fastForwardToCYAEnabled = false
     )
 
   private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
     implicit request: Request[?]
-  ): Future[Either[Result, (Option[BigDecimal], BigDecimal)]] = {
+  ): Either[Result, (Option[BigDecimal], BigDecimal)] = {
     val correctAmountsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
       journey.answers.correctedAmounts.flatMap(_.get(securityDepositId))
 
-    (correctAmountsForDepositId match {
+    correctAmountsForDepositId match {
       case None =>
         if journey.getSecurityDepositIds.contains(securityDepositId) then
           Left(Redirect(routes.ConfirmFullRepaymentController.show(securityDepositId)))
@@ -189,7 +184,7 @@ class EnterClaimController @Inject() (
             }
 
         }
-    }).asFuture
+    }
   }
 
   private def nextPage(

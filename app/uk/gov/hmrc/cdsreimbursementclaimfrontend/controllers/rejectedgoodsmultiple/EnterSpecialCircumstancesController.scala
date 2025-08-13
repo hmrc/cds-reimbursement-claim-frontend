@@ -49,7 +49,7 @@ class EnterSpecialCircumstancesController @Inject() (
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val form = enterSpecialCircumstancesForm.withDefault(journey.answers.basisOfClaimSpecialCircumstances)
 
-    Ok(enterSpecialCircumstancesPage(form, postAction)).asFuture
+    Ok(enterSpecialCircumstancesPage(form, postAction))
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -65,16 +65,16 @@ class EnterSpecialCircumstancesController @Inject() (
                 postAction
               )
             )
-          ).asFuture,
+          ),
         specialCircumstances =>
           journey
             .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
             .fold(
               errors => {
                 logger.error(s"unable to match basis of claim - $errors")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+                (journey, Redirect(baseRoutes.IneligibleController.ineligible))
               },
-              updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show)).asFuture
+              updatedJourney => (updatedJourney, Redirect(routes.DisposalMethodController.show))
             )
       )
   }

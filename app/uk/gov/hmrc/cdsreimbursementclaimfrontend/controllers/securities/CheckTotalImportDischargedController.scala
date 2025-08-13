@@ -62,7 +62,7 @@ class CheckTotalImportDischargedController @Inject() (
     Redirect(routes.UploadBillOfDischarge4Controller.show)
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit)).asFuture
+    Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit))
   }
 
   def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -72,20 +72,18 @@ class CheckTotalImportDischargedController @Inject() (
         formWithErrors =>
           BadRequest(
             checkTotalImportDischargedPage(formWithErrors, routes.CheckTotalImportDischargedController.submit)
-          ).asFuture,
+          ),
         {
           case Yes =>
-            {
-              if journey.reasonForSecurityIsIPR then successResultBOD3
-              else if journey.reasonForSecurityIsENU then successResultBOD4
-              else {
-                logAndDisplayError(
-                  "Invalid journey routing",
-                  s"Reason for security [${journey.getReasonForSecurity}] must be one of [InwardProcessingRelief, EndUseRelief]"
-                )
-              }
-            }.asFuture
-          case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show).asFuture
+            if journey.reasonForSecurityIsIPR then successResultBOD3
+            else if journey.reasonForSecurityIsENU then successResultBOD4
+            else {
+              logAndDisplayError(
+                "Invalid journey routing",
+                s"Reason for security [${journey.getReasonForSecurity}] must be one of [InwardProcessingRelief, EndUseRelief]"
+              )
+            }
+          case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show)
         }
       )
 

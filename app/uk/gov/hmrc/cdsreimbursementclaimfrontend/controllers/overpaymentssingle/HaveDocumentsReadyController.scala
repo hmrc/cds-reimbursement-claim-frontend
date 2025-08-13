@@ -35,7 +35,7 @@ class HaveDocumentsReadyController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => _ =>
-      Ok(haveDocumentsReadyPage()).asFuture
+      Ok(haveDocumentsReadyPage())
     }
 
   final val start: Action[AnyContent] =

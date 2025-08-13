@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_exp
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckExportMovementReferenceNumbersController @Inject() (
@@ -71,8 +70,8 @@ class CheckExportMovementReferenceNumbersController @Inject() (
 
   val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
     whenTemporaryAdmissionExported(journey) { exportMRNs =>
-      if exportMRNs.isEmpty then
-        (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
+      if exportMRNs.isEmpty
+      then (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
       else
         (
           journey,
@@ -85,7 +84,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
               routes.CheckExportMovementReferenceNumbersController.delete
             )
           )
-        ).asFuture
+        )
     }
   }
 
@@ -124,7 +123,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                     else (journey, Redirect(nextStepInJourney(journey)))
                 }
             )
-            .asFuture
+
         },
     fastForwardToCYAEnabled = false
   )
@@ -139,7 +138,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
               .fold(
                 error => {
                   logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+                  (journey, Redirect(baseRoutes.IneligibleController.ineligible))
                 },
                 updatedJourney =>
                   (
@@ -150,9 +149,9 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                       case _                                       =>
                         Redirect(routes.ChooseExportMethodController.show)
                     }
-                  ).asFuture
+                  )
               )
-          else (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show)).asFuture
+          else (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
         },
     fastForwardToCYAEnabled = false
   )
@@ -160,21 +159,21 @@ class CheckExportMovementReferenceNumbersController @Inject() (
   private def whenTemporaryAdmissionExported(
     journey: SecuritiesJourney
   )(
-    body: Seq[MRN] => Future[(SecuritiesJourney, Result)]
-  )(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
+    body: Seq[MRN] => (SecuritiesJourney, Result)
+  )(implicit request: Request[?]): (SecuritiesJourney, Result) =
     (journey.getReasonForSecurity, journey.getMethodOfDisposal, journey.answers.exportMovementReferenceNumbers) match {
       case (None, _, _)                                                                                 =>
-        (journey, errorHandler.errorResult()).asFuture
+        (journey, errorHandler.errorResult())
       case (Some(rfs), Some(mods), Some(exportMRNs)) if ntas.contains(rfs) && containsExportedMod(mods) =>
         body(exportMRNs)
       case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && containsExportedMod(mod)               =>
-        (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst)).asFuture
+        (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
       case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !containsExportedMod(mod)                 =>
-        (journey, Redirect(nextStepInJourney(journey))).asFuture
+        (journey, Redirect(nextStepInJourney(journey)))
       case (Some(rfs), None, _) if ntas.contains(rfs)                                                   =>
-        (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
+        (journey, Redirect(routes.ChooseExportMethodController.show))
       case (Some(_), _, _)                                                                              =>
-        (journey, Redirect(nextStepInJourney(journey))).asFuture
+        (journey, Redirect(nextStepInJourney(journey)))
     }
 
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =

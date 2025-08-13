@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details_single_security
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckClaimDetailsSingleSecurityController @Inject() (
@@ -83,22 +82,20 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
 
   private def checkIfAllReclaimsProvided(
     journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result)): Future[(SecuritiesJourney, Result)] =
-    (
-      if journey.answers.correctedAmounts.noneIfEmpty.isEmpty then
-        (journey, Redirect(routes.CheckDeclarationDetailsController.show))
-      else
-        journey.getNextDepositIdAndTaxCodeToClaim match {
-          case Some(Left(depositId)) =>
-            (journey, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
+  )(body: => (SecuritiesJourney, Result)): (SecuritiesJourney, Result) =
+    if journey.answers.correctedAmounts.noneIfEmpty.isEmpty then
+      (journey, Redirect(routes.CheckDeclarationDetailsController.show))
+    else
+      journey.getNextDepositIdAndTaxCodeToClaim match {
+        case Some(Left(depositId)) =>
+          (journey, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
 
-          case Some(Right((depositId, taxCode))) =>
-            (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
+        case Some(Right((depositId, taxCode))) =>
+          (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
 
-          case None =>
-            body
-        }
-    ).asFuture
+        case None =>
+          body
+      }
 
   private def decideNextPage(journey: SecuritiesJourney): Result =
     if journey.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)

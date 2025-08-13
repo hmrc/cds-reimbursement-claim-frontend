@@ -92,7 +92,7 @@ class SelectSecuritiesController @Inject() (
           )
         )
       }
-      .asFuture
+
   }
 
   final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteJourney {
@@ -110,9 +110,9 @@ class SelectSecuritiesController @Inject() (
                   BadRequest(selectSecuritiesPage(formWithErrors, declaration, securityDepositId, postAction))
                 )
                 .getOrElse(errorHandler.errorResult())
-            ).asFuture,
+            ),
           yesno =>
-            (yesno match {
+            yesno match {
               case YesNo.Yes =>
                 journey
                   .selectSecurityDepositId(securityDepositId)
@@ -134,7 +134,7 @@ class SelectSecuritiesController @Inject() (
                     },
                     updatedJourney => (updatedJourney, Redirect(nextPage(journey, securityDepositId)))
                   )
-            }).asFuture
+            }
         )
   }
 

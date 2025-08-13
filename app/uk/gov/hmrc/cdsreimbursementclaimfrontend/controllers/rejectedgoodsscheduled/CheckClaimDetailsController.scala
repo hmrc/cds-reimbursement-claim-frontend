@@ -59,8 +59,8 @@ class CheckClaimDetailsController @Inject() (
     val reimbursementTotal = journey.getTotalReimbursementAmount
     (
       journey.withDutiesChangeMode(false),
-      if !journey.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
-      else {
+      if journey.hasCompleteReimbursementClaims
+      then
         Ok(
           checkClaimDetailsPage(
             answers,
@@ -75,21 +75,20 @@ class CheckClaimDetailsController @Inject() (
             selectExciseDutiesAction
           )
         )
-      }
-    ).asFuture
+      else Redirect(selectDutiesAction)
+    )
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
     journey =>
-      if !journey.hasCompleteReimbursementClaims then (journey, Redirect(selectDutiesAction)).asFuture
-      else {
+      if journey.hasCompleteReimbursementClaims
+      then {
         (
           journey.withDutiesChangeMode(false),
-          Redirect(
-            if journey.hasCompleteAnswers then checkYourAnswers
-            else routes.EnterInspectionDateController.show
-          )
-        ).asFuture
+          Redirect(routes.EnterInspectionDateController.show)
+        )
+      } else {
+        (journey, Redirect(selectDutiesAction))
       }
   )
 }

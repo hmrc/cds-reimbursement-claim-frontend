@@ -41,7 +41,7 @@ class EnterInspectionDateController @Inject() (
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Ok(
       enterInspectionDatePage(enterInspectionDateForm.withDefault(journey.answers.inspectionDate), postAction)
-    ).asFuture
+    )
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -59,6 +59,6 @@ class EnterInspectionDateController @Inject() (
           )
         }
       )
-      .asFuture
+
   }
 }

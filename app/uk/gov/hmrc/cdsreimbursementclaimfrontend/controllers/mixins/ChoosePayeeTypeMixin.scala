@@ -36,7 +36,7 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
   val postAction: Call
   def nextPage(journey: Journey): Call
 
-  final def submitPayeeType(payeeType: PayeeType)(implicit journey: Journey): Future[(Journey, Result)] =
+  final def submitPayeeType(payeeType: PayeeType)(implicit journey: Journey): (Journey, Result) =
     modifyJourney(journey, payeeType)
       .fold(
         e => {
@@ -45,20 +45,17 @@ trait ChoosePayeeTypeMixin extends JourneyBaseController {
         },
         (_, Redirect(nextPage(journey)))
       )
-      .asFuture
 
   final val show: Action[AnyContent] =
     actionReadWriteJourney { implicit request => implicit journey =>
-      {
-        if journey.needsPayeeTypeSelection
-        then {
-          val form: Form[PayeeType] =
-            payeeTypeForm.withDefault(journey.answers.payeeType)
-          (journey, Ok(choosePayeeTypePage(form, postAction)))
-        } else {
-          (journey, Redirect(nextPage(journey)))
-        }
-      }.asFuture
+      if journey.needsPayeeTypeSelection
+      then {
+        val form: Form[PayeeType] =
+          payeeTypeForm.withDefault(journey.answers.payeeType)
+        (journey, Ok(choosePayeeTypePage(form, postAction)))
+      } else {
+        (journey, Redirect(nextPage(journey)))
+      }
     }
 
   final val submit: Action[AnyContent] =

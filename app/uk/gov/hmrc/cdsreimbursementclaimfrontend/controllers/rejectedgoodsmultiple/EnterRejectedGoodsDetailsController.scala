@@ -43,7 +43,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
 
   val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)
-    Ok(enterRejectedGoodsDetailsPage(form, routes.EnterRejectedGoodsDetailsController.submit)).asFuture
+    Ok(enterRejectedGoodsDetailsPage(form, routes.EnterRejectedGoodsDetailsController.submit))
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -63,6 +63,6 @@ class EnterRejectedGoodsDetailsController @Inject() (
             Redirect(routes.SelectDutiesController.showFirst)
           )
       )
-      .asFuture
+
   }
 }

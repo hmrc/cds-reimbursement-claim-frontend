@@ -42,7 +42,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
         isCMA(journey),
         postAction
       )
-    ).asFuture
+    )
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -55,7 +55,7 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
               (
                 journey,
                 BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(journey), postAction))
-              ).asFuture,
+              ),
             bankAccountType =>
               modifyJourney(journey, bankAccountType)
                 .fold(
@@ -65,7 +65,6 @@ trait ChooseBankAccountTypeMixin extends JourneyBaseController {
                   },
                   updatedJourney => (updatedJourney, Redirect(enterBankAccountDetailsRoute))
                 )
-                .asFuture
           ),
     fastForwardToCYAEnabled = false
   )

@@ -85,7 +85,6 @@ class CheckYourAnswersController @Inject() (
               )
             )
         )
-        .asFuture
     }
 
   final val submit: Action[AnyContent] =

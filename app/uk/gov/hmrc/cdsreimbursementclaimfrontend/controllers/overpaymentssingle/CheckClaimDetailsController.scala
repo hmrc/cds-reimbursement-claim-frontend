@@ -66,7 +66,7 @@ class CheckClaimDetailsController @Inject() (
           case _ =>
             Redirect(routes.EnterClaimController.showFirst)
         }
-      ).asFuture
+      )
     }
 
   final val redirectToSelectDuties: Action[AnyContent] =
@@ -74,7 +74,7 @@ class CheckClaimDetailsController @Inject() (
       (
         journey.withDutiesChangeMode(true),
         Redirect(routes.SelectDutiesController.show)
-      ).asFuture
+      )
     }
 
   final val continue: Action[AnyContent] =
@@ -85,7 +85,7 @@ class CheckClaimDetailsController @Inject() (
           if journey.userHasSeenCYAPage then checkYourAnswers
           else routes.ChoosePayeeTypeController.show
         )
-      ).asFuture
+      )
     }
 
 }

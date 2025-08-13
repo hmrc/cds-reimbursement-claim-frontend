@@ -43,7 +43,7 @@ trait WorkInProgressMixin {
         Ok(
           s"Submitted form data:\n\n${request.asInstanceOf[Request[AnyContent]].body.asFormUrlEncoded.map(_.mkString("\n")).getOrElse("<empty>")}"
         )
-      ).asFuture
+      )
     }
 
   def submit(a: Any): Action[AnyContent]         = submit

@@ -72,7 +72,7 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
             )
           )
         }
-        .asFuture
+
     }
 
   final val submitWarning: Action[AnyContent] =

@@ -39,7 +39,7 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
   def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey]
 
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (journey.getDocumentTypesIfRequired match {
+    journey.getDocumentTypesIfRequired match {
       case None =>
         Redirect(uploadFilesRoute)
 
@@ -54,13 +54,13 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
             journey.answers.supportingEvidences.nonEmpty
           )(request)
         )
-    }).asFuture
+    }
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
     implicit request =>
       journey =>
-        (journey.getDocumentTypesIfRequired match {
+        journey.getDocumentTypesIfRequired match {
           case None =>
             (journey, Redirect(uploadFilesRoute))
 
@@ -94,7 +94,7 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
                       )
                 }
               )
-        }).asFuture,
+        },
     fastForwardToCYAEnabled = false
   )
 
