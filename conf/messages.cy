@@ -1020,7 +1020,7 @@ enter-bank-account-details.account-name.label.hidden=manylion banc
 enter-bank-account-details.account-number.error.invalid=Nodwch rif cyfrif dilys, megis 00733445
 enter-bank-account-details.account-number.error.length=Mae’n rhaid i rif y cyfrif fod rhwng 6 ac 8 digid
 enter-bank-account-details.account-number.error.required=Nodwch rif cyfrif
-enter-bank-account-details.account-number.help-text=Mae’n rhaid i hwn fod rhwng 6 ac 8 digid.
+enter-bank-account-details.account-number.help-text=Mae’n rhaid i hwn fod rhwng 6 ac 8 digid
 enter-bank-account-details.account-number.label=Rhif y cyfrif
 enter-bank-account-details.cma-text=Caiff y taliad ond ei wneud i’r cyfrif banc hwn os yw’r dyddiad olaf i ohirio eisoes wedi mynd heibio erbyn i’r hawliad gael ei brosesu. Gwiriwch <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">y dyddiad olaf ar gyfer gwneud addasiadau i gyfnod gohirio</a>.
 enter-bank-account-details.error.INVALID_ACCOUNT_NUMBER=Rhif cyfrif annilys
@@ -1030,11 +1030,10 @@ enter-bank-account-details.error.account-exists-error=Nid oedd y gwasanaeth ar g
 enter-bank-account-details.error.moc-check-failed=Nid oeddem yn gallu gwirio’ch cod didoli na rhif eich cyfrif. Rhowch gynnig arall arni gan ddefnyddio manylion gwahanol
 enter-bank-account-details.error.moc-check-no=Nodwch gyfuniad dilys o rif cyfrif banc a chod didoli
 enter-bank-account-details.sort-code.error.required=Nodwch god didoli
-enter-bank-account-details.sort-code.help-text=Mae’n rhaid i hwn fod yn 6 digid.
+enter-bank-account-details.sort-code.help-text=Mae’n rhaid i hwn fod yn 6 digid
 enter-bank-account-details.sort-code.invalid=Nodwch god didoli dilys, megis 309430
 enter-bank-account-details.sort-code.label=Cod didoli
 enter-bank-account-details.title=Nodwch fanylion cyfrif banc yn y DU
-enter-bank-account-details.warning-text=Tystiolaeth o awdurdod: Mae’n rhaid i’r hawliwr ddarparu llythyr sy’n rhoi awdurdod i CThEF wneud taliad i gyfrif banc yr hawliwr yn lle cyfrif banc y parti a dalodd y tollau a’r TAW ar y mewnforion gwreiddiol.
 
 enter-claim.actual-amount=Faint a ddylai fod wedi’i dalu, mewn punnoedd?
 enter-claim.actual-amount.error.invalid=Mae’n rhaid i’r swm a ddylid fod wedi’i dalu fod yn rhif, megis 30 neu 60.55
