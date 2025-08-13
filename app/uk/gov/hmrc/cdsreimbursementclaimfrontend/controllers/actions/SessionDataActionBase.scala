@@ -37,7 +37,7 @@ trait SessionDataActionBase[R[_] <: Request[?], P[_] <: Request[?]] extends Acti
 
   val errorHandler: ErrorHandler
 
-  val headersFromRequestOnly: Boolean
+  protected val headersFromRequestOnly: Boolean
 
   implicit val executionContext: ExecutionContext
 

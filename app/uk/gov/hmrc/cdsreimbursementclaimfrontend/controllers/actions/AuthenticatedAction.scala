@@ -67,7 +67,7 @@ class AuthenticatedAction @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequest] {
 
-  val headersFromRequestOnly: Boolean = false
+  protected val headersFromRequestOnly: Boolean = false
 
   override def authorisedFunction[A](
     auth: AuthorisedFunctions,
@@ -165,9 +165,9 @@ class AuthenticatedAction @Inject() (
         )
     }
 
-  final def readHeadersFromRequestOnly(b: Boolean): AuthenticatedAction =
-    if b == headersFromRequestOnly then this
-    else
+  def readHeadersFromRequestOnly(isCallback: Boolean): AuthenticatedAction =
+    if isCallback
+    then
       new AuthenticatedAction(
         authConnector,
         config,
@@ -175,6 +175,8 @@ class AuthenticatedAction @Inject() (
         sessionStore,
         featureSwitchService
       ) {
-        override val headersFromRequestOnly: Boolean = b
+        protected override val headersFromRequestOnly: Boolean = true
       }
+    else this
+
 }

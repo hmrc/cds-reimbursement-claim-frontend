@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -77,9 +76,6 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** [Config] Defines where to redirect when journey has been already finalized. */
   val claimSubmissionConfirmation: Call
-
-  /** [Config] Required feature flag or none. */
-  val requiredFeature: Option[Feature] = None
 
   /** [Config] Provides navigation after journey validation failure. */
   def routeForValidationErrors(errors: Seq[String]): Call
@@ -156,8 +152,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Simple GET action to show page based on the current journey state. */
   final def simpleActionReadJourney(body: Journey => Result): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         Future.successful(
           request.sessionData
@@ -181,8 +176,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   final def actionReadJourney(
     body: Request[?] => Journey => Result | Future[Result]
   ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)
@@ -200,15 +194,45 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
   /** Simple POST action to submit form and update the current journey state. */
   final def simpleActionReadWriteJourney(
     body: Request[?] => Journey => (Journey, Result),
-    isCallback: Boolean = false,
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature, isCallback)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
-        implicit val hc: HeaderCarrier =
-          if isCallback then HeaderCarrierConverter.fromRequest(request)
-          else HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+        request.sessionData
+          .flatMap(sessionData =>
+            getJourney(sessionData)
+              .map((journey: Journey) =>
+                if journey.isFinalized then (journey, Redirect(claimSubmissionConfirmation))
+                else
+                  checkIfMaybeActionPreconditionFails(journey) match {
+                    case None         => body(request)(journey)
+                    case Some(errors) =>
+                      logger.info(s"${errors.headOption}, ${routeForValidationErrors(errors)}")
+                      (journey, Redirect(routeForValidationErrors(errors)))
+                  }
+              )
+              .map { case (modifiedJourney, result) =>
+                storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
+                  .flatMap(
+                    _.fold(
+                      error => Future.failed(error.toException),
+                      _ => resultOrShortcut(result, modifiedJourney, fastForwardToCYAEnabled)
+                    )
+                  )
+              }
+          )
+          .getOrElse(redirectToTheStartOfTheJourney)
+      }
+
+  /** Simple POST action to submit form and update the current journey state. */
+  final def simpleActionReadWriteJourneyWhenCallback(
+    body: Request[?] => Journey => (Journey, Result),
+    fastForwardToCYAEnabled: Boolean = true
+  ): Action[AnyContent] =
+    jcc.authenticatedActionWithSessionDataWhenCallback
+      .async { implicit request =>
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
         request.sessionData
           .flatMap(sessionData =>
             getJourney(sessionData)
@@ -240,8 +264,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     body: Request[?] => Journey => (Journey, Result) | Future[(Journey, Result)],
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
           .flatMap(sessionData =>

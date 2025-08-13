@@ -127,8 +127,7 @@ class CheckYourAnswersController @Inject() (
     }
 
   val showConfirmation: Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)
@@ -155,8 +154,7 @@ class CheckYourAnswersController @Inject() (
       }
 
   final val showPrintView: Action[AnyContent] =
-    jcc
-      .authenticatedActionWithSessionData(requiredFeature)
+    jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
           .flatMap(getJourney)

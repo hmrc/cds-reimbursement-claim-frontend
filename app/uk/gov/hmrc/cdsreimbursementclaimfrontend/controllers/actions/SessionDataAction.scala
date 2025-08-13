@@ -46,7 +46,7 @@ class SessionDataAction @Inject() (
       RequestWithSessionData
     ] {
 
-  override val headersFromRequestOnly: Boolean = false
+  protected override val headersFromRequestOnly: Boolean = false
 
   def sessionDataAction[A](
     sessionData: Option[SessionData],
@@ -54,11 +54,12 @@ class SessionDataAction @Inject() (
   ): RequestWithSessionData[A] =
     RequestWithSessionData(sessionData, request)
 
-  def readHeadersFromRequestOnly(b: Boolean): SessionDataAction =
-    if b == this.headersFromRequestOnly then this
-    else
+  def readHeadersFromRequestOnly(isCallback: Boolean): SessionDataAction =
+    if isCallback
+    then
       new SessionDataAction(sessionStore, errorHandler) {
-        override val headersFromRequestOnly: Boolean = b
+        override val headersFromRequestOnly: Boolean = true
       }
+    else this
 
 }
