@@ -51,6 +51,6 @@ class HaveDocumentsReadyController @Inject() (
         else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
         else routes.ConfirmFullRepaymentController.showFirst.url
 
-      Ok(haveDocumentsReadyPage(continueUrl, journey.getReasonForSecurity.get)).asFuture
+      Ok(haveDocumentsReadyPage(continueUrl, journey.getReasonForSecurity.get))
     }
 }

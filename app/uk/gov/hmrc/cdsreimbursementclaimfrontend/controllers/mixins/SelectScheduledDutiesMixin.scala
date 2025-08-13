@@ -64,15 +64,15 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
         val postAction: Call                                   = routesPack.submitExciseCategories
         val maybeExciseCategories: Option[Seq[ExciseCategory]] = journey.getSelectedExciseCategories
         val form: Form[Seq[ExciseCategory]]                    = selectExciseCategoriesForm.withDefault(maybeExciseCategories)
-        Ok(selectExciseCategoriesPage(form, postAction)).asFuture
+        Ok(selectExciseCategoriesPage(form, postAction))
       } else {
         val postAction: Call                     = routesPack.submitDutyType(dutyType)
         val maybeTaxCodes: Option[List[TaxCode]] = Option(journey.getSelectedDuties(dutyType).toList)
         val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
-        Ok(selectDutyCodesPage(dutyType, form, postAction)).asFuture
+        Ok(selectDutyCodesPage(dutyType, form, postAction))
       }
     } else {
-      Redirect(routesPack.showSelectDutyTypes).asFuture
+      Redirect(routesPack.showSelectDutyTypes)
     }
   }
 
@@ -117,7 +117,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
           )
       )
     } else {
-      (journey, Redirect(routesPack.showSelectDutyTypes)).asFuture
+      (journey, Redirect(routesPack.showSelectDutyTypes))
     }
 
   }
@@ -159,7 +159,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
           )
       )
     } else {
-      (journey, Redirect(routesPack.showSelectDutyTypes)).asFuture
+      (journey, Redirect(routesPack.showSelectDutyTypes))
     }
   }
 
@@ -174,9 +174,9 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
             .toList
         )
         val form: Form[List[TaxCode]]            = selectDutyCodesForm.withDefault(maybeTaxCodes)
-        Ok(selectExciseDutyCodesPage(exciseCategory, form, postAction)).asFuture
+        Ok(selectExciseDutyCodesPage(exciseCategory, form, postAction))
       } else {
-        Redirect(routesPack.showSelectDutyTypes).asFuture
+        Redirect(routesPack.showSelectDutyTypes)
       }
   }
 
@@ -218,7 +218,7 @@ trait SelectScheduledDutiesMixin extends JourneyBaseController {
             )
         )
       } else {
-        (journey, Redirect(routesPack.showSelectDutyTypes)).asFuture
+        (journey, Redirect(routesPack.showSelectDutyTypes))
       }
 
   }

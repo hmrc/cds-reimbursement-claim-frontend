@@ -53,7 +53,7 @@ class SelectDutiesController @Inject() (
 
     if availableDuties.isEmpty then {
       logger.warn("No available duties")
-      Redirect(baseRoutes.IneligibleController.ineligible).asFuture
+      Redirect(baseRoutes.IneligibleController.ineligible)
     } else {
       val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
       Ok(
@@ -65,7 +65,7 @@ class SelectDutiesController @Inject() (
           subKey = Some("single"),
           postAction = postAction
         )
-      ).asFuture
+      )
     }
   }
 
@@ -73,38 +73,38 @@ class SelectDutiesController @Inject() (
     implicit request =>
       journey => {
         val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
-        (if availableDuties.isEmpty then {
-           logger.warn("No available duties")
-           (journey, Redirect(baseRoutes.IneligibleController.ineligible))
-         } else {
-           val form = selectDutiesForm(availableDuties.map(_._1))
-           form
-             .bindFromRequest()
-             .fold(
-               formWithErrors =>
-                 (
-                   journey,
-                   BadRequest(
-                     selectDutiesPage(
-                       form = formWithErrors,
-                       availableTaxCodes = availableDuties,
-                       indexAndMrnOpt = None,
-                       showCmaNotEligibleHint = true,
-                       subKey = Some("single"),
-                       postAction = postAction
-                     )
-                   )
-                 ),
-               taxCodesSelected =>
-                 (
-                   journey
-                     .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                     .getOrElse(journey),
-                   Redirect(routes.EnterClaimController.showFirst)
-                 )
-             )
-         })
-        .asFuture
+        if availableDuties.isEmpty then {
+          logger.warn("No available duties")
+          (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+        } else {
+          val form = selectDutiesForm(availableDuties.map(_._1))
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  journey,
+                  BadRequest(
+                    selectDutiesPage(
+                      form = formWithErrors,
+                      availableTaxCodes = availableDuties,
+                      indexAndMrnOpt = None,
+                      showCmaNotEligibleHint = true,
+                      subKey = Some("single"),
+                      postAction = postAction
+                    )
+                  )
+                ),
+              taxCodesSelected =>
+                (
+                  journey
+                    .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
+                    .getOrElse(journey),
+                  Redirect(routes.EnterClaimController.showFirst)
+                )
+            )
+        }
+
       },
     fastForwardToCYAEnabled = false
   )

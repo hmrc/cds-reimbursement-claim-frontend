@@ -61,7 +61,7 @@ class PartialClaimsController @Inject() (
         postAction,
         journey.getReasonForSecurity.get
       )
-    ).asFuture
+    )
   }
 
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -73,9 +73,9 @@ class PartialClaimsController @Inject() (
           (
             journey,
             BadRequest(partialClaimsPage(formWithErrors, postAction, journey.getReasonForSecurity.get))
-          ).asFuture,
+          ),
         yesNo =>
-          (yesNo match {
+          yesNo match {
             case YesNo.Yes =>
               (journey, Redirect(routes.SelectDutiesController.showFirst))
             case YesNo.No  =>
@@ -83,7 +83,7 @@ class PartialClaimsController @Inject() (
                 journey,
                 Redirect(routes.ClaimDeletedController.show)
               )
-          }).asFuture
+          }
       )
   }
 }

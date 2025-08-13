@@ -37,6 +37,6 @@ class ProblemWithAddressController @Inject() (
   val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Ok(problemWithAddressPage(startAddressLookup)).asFuture
+    Ok(problemWithAddressPage(startAddressLookup))
   }
 }

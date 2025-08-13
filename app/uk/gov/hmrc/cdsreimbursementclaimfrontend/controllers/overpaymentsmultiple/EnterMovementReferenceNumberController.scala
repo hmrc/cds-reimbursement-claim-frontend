@@ -54,20 +54,20 @@ class EnterMovementReferenceNumberController @Inject() (
   final val showFirst: Action[AnyContent] = show(1)
 
   final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    (if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
-       Redirect(routes.CheckMovementReferenceNumbersController.show)
-     else {
-       val mrnIndex: Int = pageIndex - 1
+    if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
+      Redirect(routes.CheckMovementReferenceNumbersController.show)
+    else {
+      val mrnIndex: Int = pageIndex - 1
 
-       Ok(
-         enterMovementReferenceNumberPage(
-           movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
-           "multiple",
-           Some(pageIndex),
-           routes.EnterMovementReferenceNumberController.submit(pageIndex)
-         )
-       )
-     }).asFuture
+      Ok(
+        enterMovementReferenceNumberPage(
+          movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
+          "multiple",
+          Some(pageIndex),
+          routes.EnterMovementReferenceNumberController.submit(pageIndex)
+        )
+      )
+    }
   }
 
   final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -75,7 +75,7 @@ class EnterMovementReferenceNumberController @Inject() (
       (
         journey,
         Redirect(routes.CheckMovementReferenceNumbersController.show)
-      ).asFuture
+      )
     else {
       val mrnIndex: Int = pageIndex - 1
       val filledForm    = movementReferenceNumberForm.bindFromRequest()
@@ -92,7 +92,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   routes.EnterMovementReferenceNumberController.submit(pageIndex)
                 )
               )
-            ).asFuture,
+            ),
           mrn =>
             {
               for

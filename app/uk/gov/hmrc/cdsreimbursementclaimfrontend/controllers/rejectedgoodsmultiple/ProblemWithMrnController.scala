@@ -39,6 +39,6 @@ class ProblemWithMrnController @Inject() (
 
   final def show(pageIndex: Int, mrn: MRN): Action[AnyContent] =
     actionReadWriteJourney { implicit request => implicit journey =>
-      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall(pageIndex)))).asFuture
+      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall(pageIndex))))
     }
 }

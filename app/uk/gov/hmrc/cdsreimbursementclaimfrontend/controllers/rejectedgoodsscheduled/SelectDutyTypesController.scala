@@ -47,7 +47,7 @@ class SelectDutyTypesController @Inject() (
   val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
     val form = selectDutyTypesForm
 
-    Ok(selectDutyTypesPage(form, postAction)).asFuture
+    Ok(selectDutyTypesPage(form, postAction))
 
   }
 
@@ -86,8 +86,7 @@ class SelectDutyTypesController @Inject() (
                       )
                     )
                 )
-          )
-          .asFuture,
+          ),
     fastForwardToCYAEnabled = false
   )
 }

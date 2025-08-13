@@ -58,7 +58,7 @@ trait UploadFilesMixin extends JourneyBaseController {
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.answers.selectedDocumentType match {
       case None =>
-        Redirect(selectDocumentTypePageAction).asFuture
+        Redirect(selectDocumentTypePageAction)
 
       case Some(documentType) =>
         val continueAfterYesAnswerUrl =
@@ -123,11 +123,11 @@ trait UploadFilesMixin extends JourneyBaseController {
 
   final val summary: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     if journey.answers.supportingEvidences.isEmpty
-    then Redirect(selectDocumentTypePageAction).asFuture
+    then Redirect(selectDocumentTypePageAction)
     else
       journey.answers.selectedDocumentType match {
         case None =>
-          Redirect(selectDocumentTypePageAction).asFuture
+          Redirect(selectDocumentTypePageAction)
 
         case Some(documentType) =>
           val continueAfterYesAnswerUrl =

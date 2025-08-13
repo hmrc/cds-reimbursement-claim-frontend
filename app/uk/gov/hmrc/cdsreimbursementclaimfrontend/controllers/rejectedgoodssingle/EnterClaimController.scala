@@ -73,12 +73,12 @@ class EnterClaimController @Inject() (
     actionReadJourney { implicit request => journey =>
       journey.getSelectedDuties match {
         case None =>
-          Redirect(routes.SelectDutiesController.show).asFuture
+          Redirect(routes.SelectDutiesController.show)
 
         case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
           journey.getNdrcDetailsFor(taxCode) match {
             case None =>
-              redirectWhenInvalidTaxCode(journey).asFuture
+              redirectWhenInvalidTaxCode(journey)
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
@@ -96,11 +96,11 @@ class EnterClaimController @Inject() (
                   amountPaid,
                   postAction(taxCode)
                 )
-              ).asFuture
+              )
           }
 
         case _ =>
-          redirectWhenInvalidTaxCode(journey).asFuture
+          redirectWhenInvalidTaxCode(journey)
       }
     }
 
@@ -110,7 +110,7 @@ class EnterClaimController @Inject() (
         journey =>
           journey.getSelectedDuties match {
             case None =>
-              (journey, Redirect(routes.SelectDutiesController.show)).asFuture
+              (journey, Redirect(routes.SelectDutiesController.show))
 
             case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
               val maybeMRN =
@@ -151,7 +151,7 @@ class EnterClaimController @Inject() (
                                   (
                                     updatedJourney,
                                     redirectToNextPage(updatedJourney, taxCode)
-                                  ).asFuture
+                                  )
                               )
                         }
                     )
@@ -162,7 +162,7 @@ class EnterClaimController @Inject() (
               }
 
             case _ =>
-              (journey, redirectWhenInvalidTaxCode(journey)).asFuture
+              (journey, redirectWhenInvalidTaxCode(journey))
           },
       fastForwardToCYAEnabled = false
     )

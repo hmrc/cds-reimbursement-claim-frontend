@@ -70,7 +70,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
           )
         )
       }
-      .asFuture
+
   }
 
   def submit: Action[AnyContent] = actionReadWriteJourney(
@@ -93,13 +93,13 @@ class ConfirmSingleDepositRepaymentController @Inject() (
                     )
                   }
                   .getOrElse(errorHandler.errorResult())
-              ).asFuture,
+              ),
             answer =>
               journey.getSecurityDetails.headOption
                 .map { case securityDetail =>
                   if journey.getClaimFullAmountStatus(securityDetail.securityDepositId).contains(answer) &&
                     journey.userHasSeenCYAPage
-                  then (journey, Redirect(checkYourAnswers)).asFuture
+                  then (journey, Redirect(checkYourAnswers))
                   else
                     answer match {
                       case Yes =>
@@ -116,7 +116,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
 
   def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[?]
-  ): Future[(SecuritiesJourney, Result)] =
+  ): (SecuritiesJourney, Result) =
     journey
       .submitFullCorrectedAmounts(securityId)
       .fold(
@@ -134,11 +134,10 @@ class ConfirmSingleDepositRepaymentController @Inject() (
             }
           )
       )
-      .asFuture
 
   def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
     request: Request[?]
-  ): Future[(SecuritiesJourney, Result)] =
+  ): (SecuritiesJourney, Result) =
     journey
       .clearCorrectedAmounts(securityId)
       .fold(
@@ -148,5 +147,5 @@ class ConfirmSingleDepositRepaymentController @Inject() (
         },
         updatedJourney => (updatedJourney, Redirect(routes.PartialClaimsController.show))
       )
-      .asFuture
+
 }

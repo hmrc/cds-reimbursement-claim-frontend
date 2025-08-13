@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class ChooseExportMethodController @Inject() (
@@ -108,11 +107,11 @@ class ChooseExportMethodController @Inject() (
 
   def whenTemporaryAdmission(
     journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result))(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
+  )(body: => (SecuritiesJourney, Result))(implicit request: Request[?]): (SecuritiesJourney, Result) =
     journey.getReasonForSecurity
       .fold((journey, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.ntas.contains(rfs) => body
         case _                                           => (journey, Redirect(routes.CheckClaimantDetailsController.show))
       }
-      .asFuture
+
 }

@@ -64,6 +64,6 @@ class CheckClaimDetailsController @Inject() (
           )
         )
       }
-    ).asFuture
+    )
   }
 }

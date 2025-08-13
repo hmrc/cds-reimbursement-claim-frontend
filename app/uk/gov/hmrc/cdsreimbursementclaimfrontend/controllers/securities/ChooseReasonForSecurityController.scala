@@ -92,7 +92,7 @@ class ChooseReasonForSecurityController @Inject() (
 
     Ok(
       chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity(journey), postAction)
-    ).asFuture
+    )
   }
 
   val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -103,7 +103,7 @@ class ChooseReasonForSecurityController @Inject() (
           (
             journey,
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(journey), postAction))
-          ).asFuture,
+          ),
         reasonForSecurity =>
           if journey.getReasonForSecurity.contains(reasonForSecurity) then
             (
@@ -113,7 +113,7 @@ class ChooseReasonForSecurityController @Inject() (
               else if journey.reasonForSecurityIsIPROrENU
               then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
               else successResultSelectSecurities
-            ).asFuture
+            )
           else
             (for
               mrn                          <- getMovementReferenceNumber(journey)

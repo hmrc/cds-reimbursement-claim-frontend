@@ -179,7 +179,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async GET action to show page based on the request and the current journey state. */
   final def actionReadJourney(
-    body: Request[?] => Journey => Future[Result]
+    body: Request[?] => Journey => Result | Future[Result]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
@@ -190,7 +190,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
             if journey.isFinalized then Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(journey) match {
-                case None         => body(request)(journey)
+                case None         => body(request)(journey).toFuture
                 case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
               }
           )
@@ -237,7 +237,7 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   /** Async POST action to submit form and update journey. */
   final def actionReadWriteJourney(
-    body: Request[?] => Journey => Future[(Journey, Result)],
+    body: Request[?] => Journey => (Journey, Result) | Future[(Journey, Result)],
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc
@@ -287,7 +287,6 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
 
   implicit class Ops[A](val value: A) {
     def asFuture: Future[A] = Future.successful(value)
-    def |>[B](f: A => B): B = f(value)
   }
 
   final def prettyPrint(journey: Journey)(implicit format: Format[Journey]): String =
@@ -300,6 +299,22 @@ trait JourneyBaseController extends FrontendBaseController with Logging with Seq
     import errorHandler._
     logger.error(s"$description${if errors.nonEmpty then errors.mkString(": ", ", ", "") else ""}")
     errorResult()
+  }
+
+  extension (result: (Journey, Result) | Future[(Journey, Result)]) {
+    inline def flatMap[S](f: ((Journey, Result)) => Future[S]): Future[S] =
+      result match {
+        case future: Future[(Journey, Result)] => future.flatMap(f)
+        case value: (Journey, Result)          => f(value)
+      }
+  }
+
+  extension (result: Result | Future[Result]) {
+    inline def toFuture: Future[Result] =
+      result match {
+        case future: Future[?] => future.asInstanceOf[Future[Result]]
+        case value: Result     => Future.successful(value)
+      }
   }
 
 }

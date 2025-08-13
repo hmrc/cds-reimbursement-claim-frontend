@@ -54,7 +54,7 @@ class EnterSpecialCircumstancesController @Inject() (
         enterSpecialCircumstancesForm.withDefault(journey.answers.basisOfClaimSpecialCircumstances),
         postAction
       )
-    ).asFuture
+    )
   }
 
   def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
@@ -82,6 +82,6 @@ class EnterSpecialCircumstancesController @Inject() (
               updatedJourney => (updatedJourney, Redirect("choose-disposal-method")) // TODO: Fix with actual route
             )
       )
-      .asFuture
+
   }
 }

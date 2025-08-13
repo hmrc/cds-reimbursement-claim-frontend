@@ -66,7 +66,7 @@ class CheckMovementReferenceNumbersController @Inject() (
           else Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
         }
         .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
-        .asFuture
+
     }
 
   final val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
@@ -118,8 +118,7 @@ class CheckMovementReferenceNumbersController @Inject() (
                 (journey, Redirect(baseRoutes.IneligibleController.ineligible))
               },
               updatedJourney => nextPageOnDelete(updatedJourney)
-            )
-            .asFuture,
+            ),
       fastForwardToCYAEnabled = false
     )
 

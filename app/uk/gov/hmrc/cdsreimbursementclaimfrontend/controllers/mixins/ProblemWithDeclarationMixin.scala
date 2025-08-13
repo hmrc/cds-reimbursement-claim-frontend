@@ -50,7 +50,7 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      (journey.getLeadDisplayDeclaration match {
+      journey.getLeadDisplayDeclaration match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
@@ -72,7 +72,7 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
           Redirect(checkDeclarationDetailsAction)
         case None                                                             =>
           throw new IllegalStateException("Expected the journey to have DisplayDeclaration already")
-      }).asFuture
+      }
     }
 
   final val submit: Action[AnyContent] =
@@ -95,13 +95,13 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
                   )
                 }
                 .getOrElse(InternalServerError)
-            ).asFuture,
+            ),
           answer =>
             answer match {
               case YesNo.No  =>
-                (journey, Redirect(enterAnotherMrnAction)).asFuture
+                (journey, Redirect(enterAnotherMrnAction))
               case YesNo.Yes =>
-                (removeUnsupportedTaxCodesFromJourney(journey), Redirect(checkDeclarationDetailsAction)).asFuture
+                (removeUnsupportedTaxCodesFromJourney(journey), Redirect(checkDeclarationDetailsAction))
             }
         )
     }

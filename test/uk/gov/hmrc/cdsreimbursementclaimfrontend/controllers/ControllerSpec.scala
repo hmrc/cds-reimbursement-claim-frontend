@@ -56,6 +56,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
+import scala.collection.immutable.SortedMap
 
 @Singleton
 class TestMessagesApi(
@@ -247,6 +248,11 @@ trait ControllerSpec
   }
 
   final def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
+
+  extension [A, B, C](m: SortedMap[A, SortedMap[B, Option[C]]]) {
+    def clearFirstOption =
+      m.updated(m.head._1, m.head._2.updated(m.head._2.head._1, None))
+  }
 
 }
 

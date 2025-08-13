@@ -44,16 +44,14 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
 
   final val show: Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
-      (
-        if journey.isAllSelectedDutiesAreCMAEligible then {
-          Ok(
-            chooseRepaymentMethodPage(
-              form.withDefault(journey.answers.reimbursementMethod),
-              postAction
-            )
+      if journey.isAllSelectedDutiesAreCMAEligible then {
+        Ok(
+          chooseRepaymentMethodPage(
+            form.withDefault(journey.answers.reimbursementMethod),
+            postAction
           )
-        } else Redirect(enterBankDetailsRoute)
-      ).asFuture
+        )
+      } else Redirect(enterBankDetailsRoute)
     }
 
   final val submit: Action[AnyContent] =
@@ -72,20 +70,20 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
                       postAction
                     )
                   )
-                ).asFuture,
+                ),
               method =>
                 modifyJourney(journey, method) match {
                   case Right(modifiedJourney) =>
                     (
                       modifiedJourney,
                       Redirect(enterBankDetailsRoute)
-                    ).asFuture
+                    )
 
                   case Left("submitReimbursementMethod.notCMAEligible") =>
                     (
                       journey,
                       Redirect(enterBankDetailsRoute)
-                    ).asFuture
+                    )
 
                   case Left(error) =>
                     Future.failed(new Exception(error))
@@ -99,6 +97,6 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
       val updatedJourney =
         if !journey.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(journey)
         else journey
-      (updatedJourney, Redirect(checkYourAnswers)).asFuture
+      (updatedJourney, Redirect(checkYourAnswers))
     }
 }

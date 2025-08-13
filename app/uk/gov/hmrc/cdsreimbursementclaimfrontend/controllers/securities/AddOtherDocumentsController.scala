@@ -52,7 +52,7 @@ class AddOtherDocumentsController @Inject() (
     )
 
   def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit)).asFuture
+    Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit))
   }
 
   def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -62,15 +62,15 @@ class AddOtherDocumentsController @Inject() (
         formWithErrors =>
           BadRequest(
             addOtherDocumentsPage(formWithErrors, routes.AddOtherDocumentsController.submit)
-          ).asFuture,
+          ),
         {
-          case Yes => Redirect(routes.ChooseFileTypeController.show).asFuture
+          case Yes => Redirect(routes.ChooseFileTypeController.show)
           case No  =>
             Redirect(
               if journey.reasonForSecurityIsNidac
               then routes.EnterAdditionalDetailsController.show
               else routes.ChoosePayeeTypeController.show
-            ).asFuture
+            )
         }
       )
 

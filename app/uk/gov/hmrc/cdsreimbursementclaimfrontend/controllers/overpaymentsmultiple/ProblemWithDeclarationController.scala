@@ -65,7 +65,7 @@ class ProblemWithDeclarationController @Inject() (
   final def showNth(pageIndex: Int): Action[AnyContent] =
     actionReadJourney { implicit request => implicit journey =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      (journey.getNthDisplayDeclaration(pageIndex - 1) match {
+      journey.getNthDisplayDeclaration(pageIndex - 1) match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
@@ -87,7 +87,7 @@ class ProblemWithDeclarationController @Inject() (
           Redirect(routes.CheckMovementReferenceNumbersController.show)
         case None                                                             =>
           throw new IllegalStateException(s"Expected the journey to have $pageIndex DisplayDeclaration already")
-      }).asFuture
+      }
     }
 
   final def submitNth(pageIndex: Int): Action[AnyContent] =
@@ -111,16 +111,16 @@ class ProblemWithDeclarationController @Inject() (
                   )
                 }
                 .getOrElse(InternalServerError)
-            ).asFuture,
+            ),
           answer =>
             answer match {
               case YesNo.No  =>
-                (journey, Redirect(routes.EnterMovementReferenceNumberController.show(pageIndex))).asFuture
+                (journey, Redirect(routes.EnterMovementReferenceNumberController.show(pageIndex)))
               case YesNo.Yes =>
                 (
                   removeUnsupportedTaxCodesFromJourney(journey),
                   Redirect(routes.CheckMovementReferenceNumbersController.show)
-                ).asFuture
+                )
             }
         )
     }

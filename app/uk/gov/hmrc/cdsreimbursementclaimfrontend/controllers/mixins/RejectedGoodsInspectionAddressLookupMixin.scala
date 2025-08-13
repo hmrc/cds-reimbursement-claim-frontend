@@ -46,7 +46,7 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
   final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
     journey.getPotentialInspectionAddresses match {
       case Nil =>
-        Redirect(startAddressLookup).asFuture
+        Redirect(startAddressLookup)
       case xs  =>
         Ok(
           inspectionAddressPage(
@@ -54,7 +54,7 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
             inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
             postAction
           )
-        ).asFuture
+        )
     }
   }
 
@@ -68,24 +68,24 @@ trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController wi
               (
                 journey,
                 BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, postAction))
-              ).asFuture,
+              ),
             {
               case Other     =>
-                (journey, Redirect(startAddressLookup)).asFuture
+                (journey, Redirect(startAddressLookup))
               case Declarant =>
                 journey.getDeclarantContactDetailsFromACC14
                   .map { address =>
                     redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Declarant).mapFrom(address)))
                   }
                   .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
-                  .asFuture
-              case Importer  =>
+
+              case Importer =>
                 journey.getConsigneeContactDetailsFromACC14
                   .map { address =>
                     redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Importer).mapFrom(address)))
                   }
                   .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
-                  .asFuture
+
             }
           ),
     fastForwardToCYAEnabled = false

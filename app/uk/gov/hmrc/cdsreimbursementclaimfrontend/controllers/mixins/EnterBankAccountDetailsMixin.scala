@@ -65,7 +65,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
         isCMA(journey),
         routesPack.submitPath
       )
-    ).asFuture
+    )
   }
 
   final val submit: Action[AnyContent] = actionReadWriteJourney(
@@ -84,7 +84,7 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                     routesPack.submitPath
                   )
                 )
-              ).asFuture,
+              ),
             validateBankAccountDetails(journey, _, None)
           ),
     fastForwardToCYAEnabled = false

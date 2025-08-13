@@ -50,7 +50,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
         enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods),
         postAction
       )
-    ).asFuture
+    )
   }
 
   def submit: Action[AnyContent] = actionReadWriteJourney {
@@ -73,6 +73,6 @@ class EnterRejectedGoodsDetailsController @Inject() (
             (updatedJourney, Redirect(routes.SelectDutyTypesController.show))
           }
         )
-        .asFuture
+
   }
 }

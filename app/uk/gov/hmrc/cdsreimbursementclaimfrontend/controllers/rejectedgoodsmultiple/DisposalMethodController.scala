@@ -53,7 +53,7 @@ class DisposalMethodController @Inject() (
         Forms.methodOfDisposalForm.withDefault(journey.answers.methodOfDisposal),
         postAction
       )
-    ).asFuture
+    )
   }
 
   val submit: Action[AnyContent] =

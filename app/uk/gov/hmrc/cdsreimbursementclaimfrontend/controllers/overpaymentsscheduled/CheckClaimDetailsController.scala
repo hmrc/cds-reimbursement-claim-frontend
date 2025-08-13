@@ -22,7 +22,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -63,44 +62,32 @@ class CheckClaimDetailsController @Inject() (
       val reimbursementTotal: BigDecimal = journey.getTotalReimbursementAmount
       (
         journey.withDutiesChangeMode(false),
-        journey.answers.movementReferenceNumber match {
-          case None                                              =>
-            Redirect(routes.EnterMovementReferenceNumberController.show)
-          case Some(_) if journey.hasCompleteReimbursementClaims =>
-            Ok {
-              checkClaimDetails(
-                answers,
-                journey.getSelectedDutyTypes.get,
-                journey.getNonExciseDutyClaims,
-                journey.getSelectedExciseCategoryClaims,
-                reimbursementTotal,
-                postAction,
-                enterClaimAction,
-                selectDutyTypesAction,
-                selectDutiesByTypeAction,
-                selectExciseDutiesAction
-              )
-            }
-          case _                                                 =>
-            Redirect(selectDutiesAction)
-        }
-      ).asFuture
+        if journey.hasCompleteReimbursementClaims
+        then
+          Ok {
+            checkClaimDetails(
+              answers,
+              journey.getSelectedDutyTypes.get,
+              journey.getNonExciseDutyClaims,
+              journey.getSelectedExciseCategoryClaims,
+              reimbursementTotal,
+              postAction,
+              enterClaimAction,
+              selectDutyTypesAction,
+              selectDutiesByTypeAction,
+              selectExciseDutiesAction
+            )
+          }
+        else Redirect(selectDutiesAction)
+      )
     }
 
   val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
     journey =>
-      journey.answers.movementReferenceNumber match {
-        case Some(_) =>
-          (
-            journey.withDutiesChangeMode(false),
-            Redirect(
-              if journey.hasCompleteAnswers then checkYourAnswers
-              else routes.ChoosePayeeTypeController.show
-            )
-          ).asFuture
-        case None    =>
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
-      }
+      (
+        journey.withDutiesChangeMode(false),
+        Redirect(routes.ChoosePayeeTypeController.show)
+      )
   )
 
 }

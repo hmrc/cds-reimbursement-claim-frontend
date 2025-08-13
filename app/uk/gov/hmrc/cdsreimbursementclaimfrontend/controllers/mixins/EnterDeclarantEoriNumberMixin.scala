@@ -64,7 +64,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
 
   final val submit: Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      if !needsEoriSubmission(journey) then (journey, Redirect(whenEoriInputNotRequiredAction)).asFuture
+      if !needsEoriSubmission(journey) then (journey, Redirect(whenEoriInputNotRequiredAction))
       else {
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
