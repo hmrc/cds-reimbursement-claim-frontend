@@ -43,10 +43,6 @@ object Country {
     finally source.close()
   }
 
-  implicit class CountryOps(private val c: Country) {
-    def isUk: Boolean = c === Country.uk
-  }
-
   implicit val countryFormat: OFormat[Country] = Json.format[Country]
 
   implicit val eq: Eq[Country] = Eq.fromUniversalEquals

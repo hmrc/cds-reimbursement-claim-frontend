@@ -242,5 +242,11 @@ class AddressLookupServiceSpec
         addressJson.validate[ContactAddress] shouldBe JsError(List((path, List(err))))
       }
     }
+
+    "serialize and deserialize request" in {
+      val json    = Json.stringify(Json.toJson(addressLookupRequest))
+      val request = Json.parse(json).as[AddressLookupRequest]
+      request shouldBe addressLookupRequest
+    }
   }
 }
