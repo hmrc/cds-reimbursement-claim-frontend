@@ -157,7 +157,7 @@ class UploadProofOfOriginController @Inject() (
       timeoutSeconds = viewConfig.ggTimeoutSeconds,
       countdownSeconds = viewConfig.ggCountdownSeconds,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("upload-proof-of-origin.allowed-file-types"),
+      allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
       chooseFirstFileLabel = messages("upload-proof-of-origin.choose.description"),
       fileUploadRequiredError = Some(messages("upload-proof-of-origin.error.file-upload.required"))

@@ -157,7 +157,7 @@ class UploadBillOfDischarge3Controller @Inject() (
       timeoutSeconds = viewConfig.ggTimeoutSeconds,
       countdownSeconds = viewConfig.ggCountdownSeconds,
       pageTitleClasses = "govuk-heading-xl",
-      allowedFilesTypesHint = messages("upload-bill-of-discharge-3.allowed-file-types"),
+      allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
       chooseFirstFileLabel = messages("upload-bill-of-discharge-3.choose.description"),
       fileUploadRequiredError = Some(messages("upload-bill-of-discharge-3.error.file-upload.required"))
