@@ -39,6 +39,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 
 import scala.concurrent.Future
 
@@ -155,6 +157,19 @@ class EnterClaimControllerSpec
           )
         }
 
+      "redirect to claims summary when claims are complete and not in change mode" in {
+        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.CheckClaimDetailsController.show
+        )
+      }
     }
 
     "Show enter claim page by tax code" must {
@@ -221,6 +236,24 @@ class EnterClaimControllerSpec
             )
           }
         }
+
+      "redirect to select duties page when no duties selected" in {
+        val journey = RejectedGoodsSingleJourney
+          .tryBuildFrom(
+            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(TaxCode("A00")),
+          routes.SelectDutiesController.show
+        )
+      }
 
       "when wrong code, redirect to select duties page" in
         forAll(journeyGen) { journey =>
@@ -300,6 +333,77 @@ class EnterClaimControllerSpec
             }
         }
 
+      "redirect to check claim details when submitting a valid claim and not in change mode with complete reimbursements" in {
+        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+
+        val selected = journey.getSelectedDuties.get
+        val taxCode  = selected.headOption.get
+
+        val paidAmount: BigDecimal = BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+
+        val actualAmount = paidAmount - BigDecimal("0.01")
+        val claimAmount  = paidAmount - actualAmount
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(
+              journey
+                .submitClaimAmount(taxCode, claimAmount)
+                .getOrFail
+            )
+          )(
+            Right(())
+          )
+        }
+
+        checkIsRedirect(
+          performAction(taxCode, Seq("enter-claim-amount" -> formatAmount(claimAmount))),
+          routes.CheckClaimDetailsController.show
+        )
+      }
+
+      "redirect to check claim details when submitting a valid claim and this is the only remaining claim to enter" in {
+        val correctedAmounts = Map(TaxCode("A00") -> Some(BigDecimal(100)), TaxCode("B00") -> None)
+        val ndrcDetails      = List(
+          NdrcDetails("A00", "200", "payment-method", "payment-reference", None),
+          NdrcDetails("B00", "200", "payment-method", "payment-reference", None)
+        )
+
+        val journey = journeyGen.sample.get.submitCheckYourAnswersChangeMode(false).withDutiesChangeMode(true)
+
+        val displayResponseDetail: DisplayResponseDetail =
+          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+        val displayDeclaration                           =
+          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+
+        val updatedJourney = RejectedGoodsSingleJourney
+          .tryBuildFrom(
+            journey.answers
+              .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+          mockStoreSession(
+            SessionData(
+              updatedJourney
+                .submitClaimAmount(TaxCode("B00"), 100)
+                .getOrFail
+            )
+          )(
+            Right(())
+          )
+        }
+
+        checkIsRedirect(
+          performAction(TaxCode("B00"), Seq("enter-claim-amount" -> formatAmount(100))),
+          routes.CheckClaimDetailsController.show
+        )
+      }
+
       "reject invalid amount and display error" in
         forAll(journeyGen) { journey =>
           journey.getSelectedDuties.get
@@ -375,6 +479,76 @@ class EnterClaimControllerSpec
             expectedStatus = BAD_REQUEST
           )
         }
+
+      "redirect to select duties page when no duties selected" in {
+        val journey = RejectedGoodsSingleJourney
+          .tryBuildFrom(
+            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(TaxCode("A00")),
+          routes.SelectDutiesController.show
+        )
+      }
+
+      "redirect to select duties page when tax code has not been selected" in {
+        val correctedAmounts = Map(
+          TaxCode("A00") -> None
+        )
+
+        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+
+        val displayResponseDetail: DisplayResponseDetail =
+          journey.answers.displayDeclaration.get.displayResponseDetail
+        val displayDeclaration                           =
+          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+
+        val updatedJourney = RejectedGoodsSingleJourney.unsafeModifyAnswers(
+          journey,
+          _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(performAction(TaxCode("B00")), routes.SelectDutiesController.show)
+      }
+
+      "redirect to enter mrn page when ndrc details are missing for tax code" in {
+        val correctedAmounts = Map(
+          TaxCode("A00") -> None,
+          TaxCode("B00") -> Some(BigDecimal(200))
+        )
+        val ndrcDetails      = NdrcDetails("B00", "100", "payment-method", "payment-reference", None)
+
+        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+
+        val displayResponseDetail: DisplayResponseDetail =
+          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+        val displayDeclaration                           =
+          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+
+        val updatedJourney = RejectedGoodsSingleJourney.unsafeModifyAnswers(
+          journey,
+          _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(performAction(TaxCode("A00")), routes.EnterMovementReferenceNumberController.show)
+      }
     }
   }
 }

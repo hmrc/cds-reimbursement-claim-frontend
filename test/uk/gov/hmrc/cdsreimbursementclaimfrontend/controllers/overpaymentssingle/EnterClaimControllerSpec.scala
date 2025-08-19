@@ -238,12 +238,11 @@ class EnterClaimControllerSpec
         }
 
       "redirect to select duties page when no duties selected" in {
-        val journey = buildJourneyFromAnswersGen(
-          buildAnswersGen(
-            checkYourAnswersChangeMode = false,
-            submitReimbursementMethod = false
-          ).map(answers => answers.copy(correctedAmounts = None))
-        ).sample.get
+        val journey = OverpaymentsSingleJourney
+          .tryBuildFrom(
+            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+          )
+          .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -378,9 +377,12 @@ class EnterClaimControllerSpec
         val displayDeclaration                           =
           journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney.tryBuildFrom(
-          journey.answers.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
-        ).getOrFail
+        val updatedJourney = OverpaymentsSingleJourney
+          .tryBuildFrom(
+            journey.answers
+              .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+          )
+          .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -479,12 +481,11 @@ class EnterClaimControllerSpec
         }
 
       "redirect to select duties page when no duties selected" in {
-        val journey = buildJourneyFromAnswersGen(
-          buildAnswersGen(
-            checkYourAnswersChangeMode = false,
-            submitReimbursementMethod = false
-          ).map(answers => answers.copy(correctedAmounts = None))
-        ).sample.get
+        val journey = OverpaymentsSingleJourney
+          .tryBuildFrom(
+            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+          )
+          .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
