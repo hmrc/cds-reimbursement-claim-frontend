@@ -520,7 +520,7 @@ have-documents-ready.billOfLanding=a bill of lading
 have-documents-ready.correspondenceTraderAndAgent=correspondence between trader and agent
 have-documents-ready.importOrExportDeclaration=an import or export declaration
 have-documents-ready.packingList=a packing list
-have-documents-ready.proofOfAuthority=proof of authority, if the bank details are different from the ones provided by the importer
+have-documents-ready.proofOfAuthority=proof of authority, if HMRC has to pay a person acting on behalf of the importer
 have-documents-ready.substituteOrDiversionEntry=a substitute or diversion entry, if the customs status has changed
 have-documents-ready.commercialInvoice=a commercial invoice
 have-documents-ready.exportDeclaration=an export declaration
@@ -528,6 +528,7 @@ have-documents-ready.importOrExportPackingList=an import or export packing list
 have-documents-ready.calculationWorksheet=a calculation worksheet
 have-documents-ready.proofOfExportOrDestruction=proof of export or destruction
 have-documents-ready.proofOfFaultyGoods=proof that the goods are faulty or not what you ordered
+have-documents-ready.scheduled.p2=The evidence you need to upload will depend on your claim. For large claims, you’ll usually only need to provide documents for the first MRN. If caseworkers need more evidence, they’ll get in touch by email.
 
 choose-export-method.error.required=Select what you did with the goods
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Declared to a customs warehouse
