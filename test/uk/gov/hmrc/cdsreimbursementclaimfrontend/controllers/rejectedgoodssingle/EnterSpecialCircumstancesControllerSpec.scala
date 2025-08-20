@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.EitherValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -38,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import scala.concurrent.Future
 
@@ -162,6 +164,27 @@ class EnterSpecialCircumstancesControllerSpec
         checkIsRedirect(
           submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
           routes.CheckYourAnswersController.show
+        )
+      }
+    }
+
+    "redirect to ineligible page" when {
+      "basis of claim is not special circumstances" in {
+        val journey: RejectedGoodsSingleJourney =
+          RejectedGoodsSingleJourney
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .map(_.submitBasisOfClaim(Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances).sample.get))
+            .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          submitSpecialCircumstances(controller.formKey -> exampleSpecialCircumstancesDetails),
+          baseRoutes.IneligibleController.ineligible
         )
       }
     }
