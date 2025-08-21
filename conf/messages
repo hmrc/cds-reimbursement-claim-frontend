@@ -529,6 +529,7 @@ have-documents-ready.calculationWorksheet=a calculation worksheet
 have-documents-ready.proofOfExportOrDestruction=proof of export or destruction
 have-documents-ready.proofOfFaultyGoods=proof that the goods are faulty or not what you ordered
 have-documents-ready.scheduled.p2=The evidence you need to upload will depend on your claim. For large claims, you’ll usually only need to provide documents for the first MRN. If caseworkers need more evidence, they’ll get in touch by email.
+have-documents-ready.securities.proofOfAuthority=proof of authority, if the bank details are different from the ones provided by the importer
 
 choose-export-method.error.required=Select what you did with the goods
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Declared to a customs warehouse

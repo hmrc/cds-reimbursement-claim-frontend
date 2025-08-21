@@ -499,6 +499,7 @@ have-documents-ready.calculationWorksheet=taflen waith cyfrifo
 have-documents-ready.proofOfExportOrDestruction=tystiolaeth o allforio neu ddinistrio
 have-documents-ready.proofOfFaultyGoods=tystiolaeth bod y nwyddau’n ddiffygiol neu nid beth y gwnaethoch ei archebu
 have-documents-ready.scheduled.p2=Bydd y dystiolaeth sydd angen i chi ei huwchlwytho yn dibynnu ar eich hawliad. Fel arfer, ar gyfer hawliadau mawr, fydd angen i chi ddarparu dogfennau ar gyfer yr MRN cyntaf yn unig. Bydd y gweithwyr achos yn cysylltu â chi drwy e-bost os oes angen rhagor o dystiolaeth arnynt.
+have-documents-ready.securities.proofOfAuthority=tystiolaeth o awdurdod, os yw’r manylion banc yn wahanol i’r rhai a ddarperir gan y mewnforiwr
 
 choose-export-method.error.required=Dewiswch beth a wnaethoch gyda’r nwyddau
 choose-export-method.export-method-description.DeclaredToACustomsWarehouse=Wedi’u datgan i warws tollau
