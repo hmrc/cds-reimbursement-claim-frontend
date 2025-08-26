@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import scala.concurrent.Future
 
@@ -126,103 +127,164 @@ class SelectDutiesControllerSpec
           )
         }
       }
-    }
 
-    "Submit Select Tax Codes page" must {
-      def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
-        controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-      "reject an empty tax code selection" in {
+      "redirect to ineligible when no duties are available" in {
+        val displayResponseDetailWithoutDuties      =
+          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
 
         val journey = RejectedGoodsSingleJourney
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .tryBuildFrom(
+            RejectedGoodsSingleJourney.Answers(
+              userEoriNumber = exampleEori,
+              movementReferenceNumber = Some(exampleMrn),
+              displayDeclaration = Some(
+                displayResponseDeclarationWithoutDuties
+                  .withDeclarationId(exampleMrn.value)
+                  .withDeclarantEori(exampleEori)
+              )
+            )
+          )
           .getOrFail
-
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
-        checkPageIsDisplayed(
-          performAction(Seq("select-duties" -> "")),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
-          expectedStatus = BAD_REQUEST
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.IneligibleController.ineligible.url
         )
       }
+    }
+  }
 
-      "select valid tax codes when none have been selected before" in {
-        forAll(displayDeclarationGen) { displayDeclaration =>
-          val initialJourney = RejectedGoodsSingleJourney
-            .empty(displayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
-            .getOrFail
+  "Submit Select Tax Codes page" must {
+    def performAction(data: Seq[(String, String)] = Seq.empty): Future[Result] =
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-          val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
-          val selectedTaxCodes  =
-            if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
-            else availableTaxCodes
+    "reject an empty tax code selection" in {
 
-          val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+      val journey = RejectedGoodsSingleJourney
+        .empty(exampleDisplayDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .getOrFail
 
-          val updatedJourney = initialJourney.selectAndReplaceTaxCodeSetForReimbursement(selectedTaxCodes)
-          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(initialSession)
-            mockStoreSession(updatedSession)(Right(()))
-          }
-
-          checkIsRedirect(
-            performAction(selectedTaxCodes.map(taxCode => "select-duties[]" -> taxCode.value)),
-            routes.EnterClaimController.showFirst
-          )
-        }
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(updatedSession)
       }
 
+      checkPageIsDisplayed(
+        performAction(Seq("select-duties" -> "")),
+        messageFromMessageKey(s"$messagesKey.title"),
+        doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
+        expectedStatus = BAD_REQUEST
+      )
     }
 
-    "have CMA Eligible flag/Duties hint text" should {
-      def performAction(): Future[Result] = controller.show(FakeRequest())
+    "redirect to ineligible when no duties are available on submit" in {
 
-      "Acc14 excise code where the CMA eligible flag is true" in {
+      val displayResponseDetailWithoutDuties      =
+        exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+      val displayResponseDeclarationWithoutDuties =
+        exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
 
-        val displayDeclaration = buildDisplayDeclaration(
-          dutyDetails = Seq(
-            (TaxCode.A80, BigDecimal("200.00"), true),
-            (TaxCode.A95, BigDecimal("171.05"), false)
+      val journey = RejectedGoodsSingleJourney
+        .tryBuildFrom(
+          RejectedGoodsSingleJourney.Answers(
+            userEoriNumber = exampleEori,
+            movementReferenceNumber = Some(exampleMrn),
+            displayDeclaration = Some(
+              displayResponseDeclarationWithoutDuties
+                .withDeclarationId(exampleMrn.value)
+                .withDeclarantEori(exampleEori)
+            )
           )
         )
+        .getOrFail
 
-        val journey = RejectedGoodsSingleJourney
-          .empty(exampleEori)
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(SessionData(journey))
+      }
+
+      checkIsRedirect(
+        performAction(),
+        baseRoutes.IneligibleController.ineligible.url
+      )
+    }
+
+    "select valid tax codes when none have been selected before" in {
+      forAll(displayDeclarationGen) { displayDeclaration =>
+        val initialJourney = RejectedGoodsSingleJourney
+          .empty(displayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
+        val selectedTaxCodes  =
+          if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
+          else availableTaxCodes
+
+        val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+
+        val updatedJourney = initialJourney.selectAndReplaceTaxCodeSetForReimbursement(selectedTaxCodes)
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(initialSession)
+          mockStoreSession(updatedSession)(Right(()))
         }
 
-        val hintText =
-          Some("This duty is not eligible for Current Month Adjustment (CMA) repayment.")
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
-          doc => {
-            getHintText(doc, "select-duties-item-hint")   shouldBe None
-            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
-          }
+        checkIsRedirect(
+          performAction(selectedTaxCodes.map(taxCode => "select-duties[]" -> taxCode.value)),
+          routes.EnterClaimController.showFirst
         )
       }
+    }
 
+  }
+
+  "have CMA Eligible flag/Duties hint text" should {
+    def performAction(): Future[Result] = controller.show(FakeRequest())
+
+    "Acc14 excise code where the CMA eligible flag is true" in {
+
+      val displayDeclaration = buildDisplayDeclaration(
+        dutyDetails = Seq(
+          (TaxCode.A80, BigDecimal("200.00"), true),
+          (TaxCode.A95, BigDecimal("171.05"), false)
+        )
+      )
+
+      val journey = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .getOrFail
+
+      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(updatedSession)
+      }
+
+      val hintText =
+        Some("This duty is not eligible for Current Month Adjustment (CMA) repayment.")
+
+      checkPageIsDisplayed(
+        performAction(),
+        messageFromMessageKey(s"$messagesKey.title"),
+        doc => {
+          getHintText(doc, "select-duties-item-hint")   shouldBe None
+          getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
+        }
+      )
     }
   }
 }
