@@ -35,9 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.buildCompleteJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
@@ -217,6 +216,30 @@ class CheckDeclarationDetailsControllerSpec
         checkIsRedirect(
           performAction(),
           routes.EnterMovementReferenceNumberController.show(1)
+        )
+      }
+
+      "redirect to check movement reference numbers page when number of mrns is greater than 1" in {
+        val initialJourney = journeyWithMrnAndDeclaration
+
+        val journey = initialJourney
+          .submitMovementReferenceNumberAndDeclaration(
+            1,
+            anotherExampleMrn,
+            buildDisplayDeclaration()
+              .withDeclarationId(anotherExampleMrn.value)
+              .withDeclarantEori(initialJourney.getLeadDisplayDeclaration.get.getDeclarantEori)
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.CheckMovementReferenceNumbersController.show
         )
       }
     }
