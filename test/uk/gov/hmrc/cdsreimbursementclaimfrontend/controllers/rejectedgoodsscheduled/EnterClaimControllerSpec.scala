@@ -254,7 +254,7 @@ class EnterClaimControllerSpec
 
         "claims are completed for the current duty type and more duties are selected in another duty type" in {
           val currentDutyType = UkDuty
-          val taxCode = TaxCode("A00")
+          val taxCode         = TaxCode("A00")
 
           val initialJourney = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType, EuDuty))
@@ -262,7 +262,7 @@ class EnterClaimControllerSpec
             .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(EuDuty, Seq(TaxCode("A50"))))
             .getOrFail
 
-          val paidAmount = 24
+          val paidAmount  = 24
           val claimAmount = 12
 
           val updatedJourney = initialJourney
@@ -285,7 +285,7 @@ class EnterClaimControllerSpec
               currentDutyType,
               taxCode,
               Seq(
-                "enter-claim.scheduled.paid-amount" -> paidAmount.toString,
+                "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
                 "enter-claim.scheduled.claim-amount" -> claimAmount.toString
               )
             ),
@@ -295,14 +295,14 @@ class EnterClaimControllerSpec
 
         "claims are completed for the current duty type and no more duties are selected in another duty type" in {
           val currentDutyType = UkDuty
-          val taxCode = TaxCode("A00")
+          val taxCode         = TaxCode("A00")
 
           val initialJourney = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType, EuDuty))
             .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(currentDutyType, Seq(taxCode)))
             .getOrFail
 
-          val paidAmount = 24
+          val paidAmount  = 24
           val claimAmount = 12
 
           val updatedJourney = initialJourney
@@ -325,7 +325,7 @@ class EnterClaimControllerSpec
               currentDutyType,
               taxCode,
               Seq(
-                "enter-claim.scheduled.paid-amount" -> paidAmount.toString,
+                "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
                 "enter-claim.scheduled.claim-amount" -> claimAmount.toString
               )
             ),
@@ -337,10 +337,10 @@ class EnterClaimControllerSpec
       "save user defined amounts and redirect to select excise duties" when {
 
         "the current duty is excise and there are more excise categories selected" in {
-          val currentDutyType = Excise
+          val currentDutyType       = Excise
           val currentExciseCategory = Beer
-          val nextExciseCategory = Wine
-          val currentTaxCode = TaxCode("311")
+          val nextExciseCategory    = Wine
+          val currentTaxCode        = TaxCode("311")
 
           val initialJourney = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType))
@@ -348,7 +348,7 @@ class EnterClaimControllerSpec
             .flatMap(_.selectAndReplaceTaxCodeSetForExciseCategory(currentExciseCategory, Seq(currentTaxCode)))
             .getOrFail
 
-          val paidAmount = 24
+          val paidAmount  = 24
           val claimAmount = 12
 
           val updatedJourney = initialJourney
@@ -371,7 +371,7 @@ class EnterClaimControllerSpec
               currentDutyType,
               currentTaxCode,
               Seq(
-                "enter-claim.scheduled.paid-amount" -> paidAmount.toString,
+                "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
                 "enter-claim.scheduled.claim-amount" -> claimAmount.toString
               )
             ),
@@ -383,11 +383,11 @@ class EnterClaimControllerSpec
       "save user defined amounts and redirect to check claim details" when {
 
         "the current duty is excise and there are no more incomplete claims" in {
-          val currentDutyType = Excise
+          val currentDutyType       = Excise
           val currentExciseCategory = Beer
-          val currentTaxCode = TaxCode("311")
-          val paidAmount = 24
-          val claimAmount = 12
+          val currentTaxCode        = TaxCode("311")
+          val paidAmount            = 24
+          val claimAmount           = 12
 
           val initialJourney = journeyWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType))
@@ -415,7 +415,7 @@ class EnterClaimControllerSpec
               currentDutyType,
               currentTaxCode,
               Seq(
-                "enter-claim.scheduled.paid-amount" -> paidAmount.toString,
+                "enter-claim.scheduled.paid-amount"  -> paidAmount.toString,
                 "enter-claim.scheduled.claim-amount" -> claimAmount.toString
               )
             ),
