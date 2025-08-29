@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
@@ -53,6 +54,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -100,6 +102,11 @@ class ChooseHowManyMrnsControllerSpec
   "ChooseHowManyMrnsController" must {
 
     def performAction(): Future[Result] = controller.show(FakeRequest())
+
+    "redirect to the page when start" in {
+      val result = controller.start(FakeRequest())
+      checkIsRedirect(result, routes.ChooseHowManyMrnsController.show)
+    }
 
     "display the page" in {
       inSequence {
@@ -158,6 +165,87 @@ class ChooseHowManyMrnsControllerSpec
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
+
+      "Redirect to (single route) HaveDocumentsReady page when user chooses individual and the journey is already finalized" in {
+
+        val initialSession = SessionData(
+          rejectedGoodsSingleJourney = Some(
+            RejectedGoodsSingleJourney
+              .empty(eoriExample, Nonce.Any)
+              .finalizeJourneyWith("FOO-1234567890")
+              .getOrElse(
+                RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any)
+              )
+          )
+        )
+
+        val updatedSession =
+          SessionData(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any)))
+
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
+          mockGetSession(initialSession)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        val result = performAction(Seq(controller.dataKey -> Individual.toString))
+        checkIsRedirect(result, rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show)
+      }
+
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and journey is already finalized" in {
+
+        val initialSession = SessionData(
+          rejectedGoodsMultipleJourney = Some(
+            RejectedGoodsMultipleJourney
+              .empty(eoriExample, Nonce.Any)
+              .finalizeJourneyWith("FOO-1234567890")
+              .getOrElse(
+                RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any)
+              )
+          )
+        )
+
+        val updatedSession =
+          SessionData(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any)))
+
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
+          mockGetSession(initialSession)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        val result = performAction(Seq(controller.dataKey -> Multiple.toString))
+        checkIsRedirect(result, rejectedGoodsMultipleRoutes.HaveDocumentsReadyController.show)
+      }
+
+      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and journey is already finalized" in {
+
+        val initialSession = SessionData(
+          rejectedGoodsScheduledJourney = Some(
+            RejectedGoodsScheduledJourney
+              .empty(eoriExample, Nonce.Any)
+              .finalizeJourneyWith("FOO-1234567890")
+              .getOrElse(
+                RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any)
+              )
+          )
+        )
+
+        val updatedSession =
+          SessionData(rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any)))
+
+        inSequence {
+          mockAuthWithEoriEnrolmentRetrievals(exampleEori)
+          mockGetEoriDetails(exampleEori)
+          mockGetSession(initialSession)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        val result = performAction(Seq(controller.dataKey -> Scheduled.toString))
+        checkIsRedirect(result, rejectedGoodsScheduledRoutes.HaveDocumentsReadyController.show)
+      }
 
       "Redirect to (single route) HaveDocumentsReady page when user chooses Individual" in {
 
