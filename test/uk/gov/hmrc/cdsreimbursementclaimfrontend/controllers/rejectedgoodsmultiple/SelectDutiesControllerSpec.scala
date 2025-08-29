@@ -26,14 +26,17 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import scala.concurrent.Future
 
@@ -217,6 +220,55 @@ class SelectDutiesControllerSpec
           }
         }
       }
+
+      "redirect to MRN not found page when page index is out of bounds" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+            checkPageIsDisplayed(
+              performAction(100),
+              "This Movement Reference Number (MRN) does not exist",
+              expectedStatus = BAD_REQUEST
+            )
+          }
+        }
+      }
+
+      "redirect to ineligible when no duties are available" in {
+        val displayResponseDetailWithoutDuties      =
+          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+        val journey                                 = RejectedGoodsMultipleJourney
+          .tryBuildFrom(
+            RejectedGoodsMultipleJourney.Answers(
+              userEoriNumber = exampleEori,
+              movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
+              displayDeclarations = Some(
+                Seq(
+                  exampleDisplayDeclaration
+                    .withDeclarationId(exampleMrn.value)
+                    .withDeclarantEori(exampleEori),
+                  displayResponseDeclarationWithoutDuties
+                    .withDeclarationId(anotherExampleMrn.value)
+                    .withDeclarantEori(exampleEori)
+                )
+              )
+            )
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+        checkIsRedirect(
+          performAction(2),
+          baseRoutes.IneligibleController.ineligible.url
+        )
+      }
     }
 
     "Submit duties selection" must {
@@ -301,7 +353,66 @@ class SelectDutiesControllerSpec
         }
       }
 
+      "redirect to MRN not found page when page index is out of bounds" in {
+        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+          mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+            }
+            checkPageIsDisplayed(
+              performAction(100, Seq.empty),
+              "This Movement Reference Number (MRN) does not exist",
+              expectedStatus = BAD_REQUEST
+            )
+          }
+        }
+      }
+
+      "show form errors on invalid data" in {
+        forAll(incompleteJourneyWithMrnsGen(1)) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+          val result = performAction(1, Seq.empty)
+          status(result) shouldBe BAD_REQUEST
+        }
+      }
+
+      "redirect to ineligible when no duties are available" in {
+        val displayResponseDetailWithoutDuties      =
+          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+        val journey                                 = RejectedGoodsMultipleJourney
+          .tryBuildFrom(
+            RejectedGoodsMultipleJourney.Answers(
+              userEoriNumber = exampleEori,
+              movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
+              displayDeclarations = Some(
+                Seq(
+                  exampleDisplayDeclaration
+                    .withDeclarationId(exampleMrn.value)
+                    .withDeclarantEori(exampleEori),
+                  displayResponseDeclarationWithoutDuties
+                    .withDeclarationId(anotherExampleMrn.value)
+                    .withDeclarantEori(exampleEori)
+                )
+              )
+            )
+          )
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(2, Seq.empty),
+          baseRoutes.IneligibleController.ineligible.url
+        )
+      }
     }
   }
-
 }
