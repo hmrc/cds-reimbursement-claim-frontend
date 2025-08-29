@@ -90,12 +90,9 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     journey.needsUserXiEoriSubmissionForDuplicateDeclaration
 
   override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
-    if journey.containsUnsupportedTaxCode then {
-      Redirect(routes.ProblemWithDeclarationController.show)
-    } else if journey.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then {
+    if journey.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then {
       Redirect(routes.EnterImporterEoriNumberOfDuplicateDeclaration.show)
     } else {
       Redirect(routes.CheckDuplicateDeclarationDetailsController.show)
     }
-
 }
