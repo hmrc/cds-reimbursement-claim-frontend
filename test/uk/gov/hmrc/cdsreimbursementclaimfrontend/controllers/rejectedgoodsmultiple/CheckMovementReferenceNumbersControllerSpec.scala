@@ -47,6 +47,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbi
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.displayDeclarationGen
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
@@ -219,6 +221,36 @@ class CheckMovementReferenceNumbersControllerSpec
           )
         }
       }
+
+      "redirect to enter importer EORI if required and missing" in forAll {
+        (acc14Declarations: List[DisplayDeclaration]) =>
+          whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
+            val firstMrnJourney =
+              addAcc14(
+                journey = session.rejectedGoodsMultipleJourney.get,
+                acc14Declaration = acc14Declarations.head,
+                submitEORIs = false
+              ).getOrFail
+
+            val journey = acc14Declarations.tail.foldLeft(firstMrnJourney) { case (journey, declaration) =>
+              addAcc14(journey, declaration, submitEORIs = false).getOrFail
+            }
+
+            journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+
+            val sessionToAmend = SessionData(journey)
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(sessionToAmend)
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.EnterImporterEoriNumberController.show
+            )
+          }
+      }
     }
 
     "Submit Check Movement Reference Numbers page" should {
@@ -301,6 +333,21 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
+      "submit when user selects No and CYA mode" in forAll(completeJourneyGen) {
+        (journey: RejectedGoodsMultipleJourney) =>
+          val session = SessionData(journey)
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(formKey -> "false"),
+            routes.CheckYourAnswersController.show
+          )
+      }
+
       "redirect to enter mrn page if no MRNs contained in journey" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -361,6 +408,27 @@ class CheckMovementReferenceNumbersControllerSpec
             performAction(mrn),
             baseRoutes.IneligibleController.ineligible
           )
+      }
+
+      "redirect back to the CYA page " in forAll(completeJourneyGen) { (journey: RejectedGoodsMultipleJourney) =>
+        whenever(journey.getMovementReferenceNumbers.map(_.size).get >= 3) {
+          val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
+
+          val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
+
+          println(updatedJourney.hasCompleteAnswers)
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(mrn),
+            routes.CheckClaimDetailsController.show
+          )
+        }
       }
     }
   }
