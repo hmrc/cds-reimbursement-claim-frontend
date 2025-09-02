@@ -250,8 +250,13 @@ trait ControllerSpec
   final def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
   extension [A, B, C](m: SortedMap[A, SortedMap[B, Option[C]]]) {
-    def clearFirstOption =
+    def clearFirstOption: SortedMap[A, SortedMap[B, Option[C]]] =
       m.updated(m.head._1, m.head._2.updated(m.head._2.head._1, None))
+  }
+
+  extension [A, B](m: Map[A, Option[B]]) {
+    def clearFirstOption: Map[A, Option[B]] =
+      m.updated(m.head._1, None)
   }
 
 }

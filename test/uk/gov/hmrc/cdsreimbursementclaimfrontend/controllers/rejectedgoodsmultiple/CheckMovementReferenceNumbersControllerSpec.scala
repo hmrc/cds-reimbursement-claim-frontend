@@ -48,7 +48,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbi
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.displayDeclarationGen
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
