@@ -469,7 +469,7 @@ class SelectSecuritiesControllerSpec
         val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
 
         whenever(depositIds.size >= 2) {
-          val firstDepositId  = depositIds.head
+          val firstDepositId = depositIds.head
 
           inSequence {
             mockAuthWithDefaultRetrievals()
