@@ -98,6 +98,23 @@ class CheckClaimDetailsControllerSpec
       )
     )
 
+  val journeyWithNoClaimsGen: Gen[OverpaymentsSingleJourney] =
+    journeyGen.map(journey =>
+      OverpaymentsSingleJourney
+        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+    )
+
+  val journeyWithIncompleteClaimsGen: Gen[OverpaymentsSingleJourney] =
+    journeyGen.map(journey =>
+      OverpaymentsSingleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+
   "Check Claim Details Controller" when {
 
     "Show check claim details page" must {
@@ -130,6 +147,32 @@ class CheckClaimDetailsControllerSpec
             performAction(),
             messageFromMessageKey("check-claim.title"),
             assertPageContent(_, journey)
+          )
+        }
+
+      "redirect to enter claim page if no claims" in
+        forAll(journeyWithNoClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterClaimController.showFirst
+          )
+        }
+
+      "redirect to enter claim page if claims are incomplete" in
+        forAll(journeyWithIncompleteClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterClaimController.showFirst
           )
         }
     }
