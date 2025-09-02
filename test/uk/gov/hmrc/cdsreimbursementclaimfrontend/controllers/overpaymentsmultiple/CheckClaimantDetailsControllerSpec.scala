@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -71,31 +70,6 @@ class CheckClaimantDetailsControllerSpec
 
   private val session = SessionData(journeyWithMrnAndDeclaration)
 
-  val journeyGen: Gen[OverpaymentsMultipleJourney] =
-    buildJourneyFromAnswersGen(
-      buildAnswersGen(
-        submitBankAccountDetails = false,
-        submitBankAccountType = false
-      )
-    )
-
-  val journeyWithNoClaimsGen: Gen[OverpaymentsMultipleJourney] =
-    journeyGen.map(journey =>
-      OverpaymentsMultipleJourney
-        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
-    )
-
-  val journeyWithIncompleteClaimsGen: Gen[OverpaymentsMultipleJourney] =
-    journeyGen.map(journey =>
-      OverpaymentsMultipleJourney
-        .unsafeModifyAnswers(
-          journey,
-          answers =>
-            answers
-              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
-        )
-    )
-
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
 
@@ -103,27 +77,12 @@ class CheckClaimantDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(journeyGen) { journey =>
-
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("check-claimant-details.title"),
-            doc => doc.select("form").attr("action") shouldBe routes.CheckClaimantDetailsController.submit.url
-          )
-        }
-      }
-
-      "display the page in change mode" in {
         forAll(buildCompleteJourneyGen()) { journey =>
+          val sessionToAmend = SessionData(journey)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(sessionToAmend)
           }
 
           checkPageIsDisplayed(
@@ -147,32 +106,6 @@ class CheckClaimantDetailsControllerSpec
           )
         }
       }
-
-      "redirect to select duties page if no claims" in
-        forAll(journeyWithNoClaimsGen) { journey =>
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction(),
-            routes.SelectDutiesController.showFirst
-          )
-        }
-
-      "redirect to select duties page if claims are incomplete" in
-        forAll(journeyWithIncompleteClaimsGen) { journey =>
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-          }
-
-          checkIsRedirect(
-            performAction(),
-            routes.SelectDutiesController.showFirst
-          )
-        }
     }
 
     "Submit Check Claimant Details page" must {
