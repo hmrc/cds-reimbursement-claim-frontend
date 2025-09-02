@@ -81,6 +81,34 @@ class CheckClaimDetailsControllerSpec
   val journeyGen: Gen[(OverpaymentsMultipleJourney, Seq[MRN])] =
     incompleteJourneyWithCompleteClaimsGen(5)
 
+  val journeyWithNoClaimsGen: Gen[OverpaymentsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      OverpaymentsMultipleJourney
+        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+    )
+
+  val journeyWithIncompleteClaimsGen: Gen[OverpaymentsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      OverpaymentsMultipleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+
+  val journeyWithIncompleteMrnsGen: Gen[OverpaymentsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      OverpaymentsMultipleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(movementReferenceNumbers = journey.answers.movementReferenceNumbers.map(_.take(1)))
+        )
+    )
+
   "CheckClaimDetailsController" when {
 
     "Show" must {
@@ -103,6 +131,62 @@ class CheckClaimDetailsControllerSpec
           )
         }
       }
+
+      "display the page in change mode" in {
+        forAll(completeJourneyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(
+              s"$messagesKey.title"
+            ),
+            doc => assertPageContent(doc, journey)
+          )
+        }
+      }
+
+      "redirect to enter mrn page if incomplete MRNs" in
+        forAll(journeyWithIncompleteMrnsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterMovementReferenceNumberController.showFirst
+          )
+        }
+
+      "redirect to select duties page if no claims" in
+        forAll(journeyWithNoClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectDutiesController.showFirst
+          )
+        }
+
+      "redirect to select duties page if claims are incomplete" in
+        forAll(journeyWithIncompleteClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectDutiesController.showFirst
+          )
+        }
     }
   }
 }

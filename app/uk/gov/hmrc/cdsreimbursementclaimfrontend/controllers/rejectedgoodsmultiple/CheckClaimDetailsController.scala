@@ -57,7 +57,6 @@ class CheckClaimDetailsController @Inject() (
         Ok(
           checkClaimDetails(
             journey.getReimbursementsWithCorrectAmounts,
-            journey.hasAllClaimsSelectedForIndex,
             enterClaimAction,
             continueAction,
             selectDutiesActionForIndex

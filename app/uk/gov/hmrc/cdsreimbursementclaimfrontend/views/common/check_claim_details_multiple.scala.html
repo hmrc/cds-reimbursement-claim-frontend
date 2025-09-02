@@ -34,7 +34,7 @@
     govukTable: GovukTable
 )
 
-@(answers: Seq[(MRN,Int,List[ReimbursementWithCorrectAmount])], hasAllClaimsSelectedForIndex: Int => Boolean, enterClaimAction: (Int,TaxCode) => Call, continueAction: Call, selectDutiesAction: Int => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(answers: Seq[(MRN,Int,List[ReimbursementWithCorrectAmount])], enterClaimAction: (Int,TaxCode) => Call, continueAction: Call, selectDutiesAction: Int => Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"check-claim.multiple.title")}
 

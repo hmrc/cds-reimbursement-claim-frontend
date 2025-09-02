@@ -57,6 +57,7 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 @Singleton
 class TestMessagesApi(
@@ -257,6 +258,11 @@ trait ControllerSpec
   extension [A, B](m: Map[A, Option[B]]) {
     def clearFirstOption: Map[A, Option[B]] =
       m.updated(m.head._1, None)
+  }
+
+  extension [A, B, C](m: OrderedMap[A, OrderedMap[B, Option[C]]]) {
+    def clearFirstOption: OrderedMap[A, OrderedMap[B, Option[C]]] =
+      m.updated(m.head._1, m.head._2.updated(m.head._2.head._1, None))
   }
 
 }

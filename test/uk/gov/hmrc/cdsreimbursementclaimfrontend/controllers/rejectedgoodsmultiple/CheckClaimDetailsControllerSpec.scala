@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
+import org.scalacheck.Gen
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Lang
@@ -37,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -75,6 +77,37 @@ class CheckClaimDetailsControllerSpec
     )
   }
 
+  val journeyGen: Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] =
+    incompleteJourneyWithCompleteClaimsGen(5)
+
+  val journeyWithNoClaimsGen: Gen[RejectedGoodsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      RejectedGoodsMultipleJourney
+        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+    )
+
+  val journeyWithIncompleteClaimsGen: Gen[RejectedGoodsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      RejectedGoodsMultipleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+
+  val journeyWithIncompleteMrnsGen: Gen[RejectedGoodsMultipleJourney] =
+    journeyGen.map((journey, _) =>
+      RejectedGoodsMultipleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(movementReferenceNumbers = journey.answers.movementReferenceNumbers.map(_.take(1)))
+        )
+    )
+
   "CheckClaimDetailsController" when {
 
     "Show claim summary" must {
@@ -97,6 +130,60 @@ class CheckClaimDetailsControllerSpec
           )
         }
       }
+
+      "display the page in change mode" in {
+        forAll(completeJourneyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.multiple.title"),
+            doc => assertPageContent(doc, journey)
+          )
+        }
+      }
+
+      "redirect to enter mrn page if incomplete MRNs" in
+        forAll(journeyWithIncompleteMrnsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterMovementReferenceNumberController.showFirst()
+          )
+        }
+
+      "redirect to select duties page if no claims" in
+        forAll(journeyWithNoClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectDutiesController.showFirst
+          )
+        }
+
+      "redirect to select duties page if claims are incomplete" in
+        forAll(journeyWithIncompleteClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SelectDutiesController.showFirst
+          )
+        }
     }
   }
 }

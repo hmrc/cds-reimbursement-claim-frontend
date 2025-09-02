@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import org.scalacheck.Gen
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -93,13 +94,39 @@ class CheckClaimDetailsControllerSpec
 
   private val sessionWithMRN = SessionData(journeyWithMrnAndDeclaration)
 
+  val journeyGen: Gen[RejectedGoodsSingleJourney] =
+    buildJourneyFromAnswersGen(
+      buildAnswersGen(
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        reimbursementMethod = None
+      )
+    )
+
+  val journeyWithNoClaimsGen: Gen[RejectedGoodsSingleJourney] =
+    journeyGen.map(journey =>
+      RejectedGoodsSingleJourney
+        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+    )
+
+  val journeyWithIncompleteClaimsGen: Gen[RejectedGoodsSingleJourney] =
+    journeyGen.map(journey =>
+      RejectedGoodsSingleJourney
+        .unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers
+              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+
   "Check Claim Details Controller" when {
     "Show Check Claim Details page" must {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
+        forAll(journeyGen) { journey =>
           val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
 
           inSequence {
@@ -114,6 +141,46 @@ class CheckClaimDetailsControllerSpec
           )
         }
       }
+
+      "display the page in the change mode" in
+        forAll(completeJourneyGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("check-claim.title"),
+            assertPageContent(_, journey)
+          )
+        }
+
+      "redirect to enter claim page if no claims" in
+        forAll(journeyWithNoClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterClaimController.showFirst
+          )
+        }
+
+      "redirect to enter claim page if claims are incomplete" in
+        forAll(journeyWithIncompleteClaimsGen) { journey =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.EnterClaimController.showFirst
+          )
+        }
     }
 
     "redirectToSelectDuties" must {
