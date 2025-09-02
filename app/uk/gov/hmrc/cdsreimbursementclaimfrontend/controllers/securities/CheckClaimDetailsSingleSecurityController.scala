@@ -84,7 +84,7 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
     journey: SecuritiesJourney
   )(body: => (SecuritiesJourney, Result)): (SecuritiesJourney, Result) =
     if journey.answers.correctedAmounts.noneIfEmpty.isEmpty then
-      (journey, Redirect(routes.CheckDeclarationDetailsController.show))
+      (journey, Redirect(routes.CheckDeclarationDetailsSingleSecurityController.show))
     else
       journey.getNextDepositIdAndTaxCodeToClaim match {
         case Some(Left(depositId)) =>
