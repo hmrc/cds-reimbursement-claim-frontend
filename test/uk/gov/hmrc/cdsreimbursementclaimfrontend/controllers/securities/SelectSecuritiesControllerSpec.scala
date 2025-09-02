@@ -151,6 +151,27 @@ class SelectSecuritiesControllerSpec
         }
       }
 
+      "redirect to show by deposit ID if a valid first security deposit ID" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+        for depositId <- depositIds do {
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(
+            performActionShowFirst(),
+            routes.SelectSecuritiesController.show(depositIds.head)
+          )
+        }
+      }
+
       "select security deposit and redirect to check declaration details if a single security deposit ID" in {
         forAllWith(
           JourneyGenerator(
@@ -170,6 +191,54 @@ class SelectSecuritiesControllerSpec
             routes.CheckDeclarationDetailsSingleSecurityController.show
           )
         }
+      }
+
+      "redirect to choose reason for security when there are no security deposits" in {
+        val gen = mrnWithRfsWithDisplayDeclarationGen.sample
+          .map { case (mrn, reasonForSecurity, displayDeclaration) =>
+            val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails = None)
+            val updatedDisplayDeclaration    =
+              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+            (mrn, reasonForSecurity, updatedDisplayDeclaration)
+          }
+          .getOrElse(fail("Failed to generate journey data"))
+
+        val journey = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities(gen)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performActionShowFirst(),
+          routes.ChooseReasonForSecurityController.show
+        )
+      }
+
+      "display error page when there is a problem selecting a security deposit for single security" in {
+        val gen = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationGen.sample
+          .map { case (mrn, reasonForSecurity, displayDeclaration) =>
+            val securityDetails              =
+              displayDeclaration.displayResponseDetail.securityDetails.get.map(_.copy(securityDepositId = ""))
+            val updatedDisplayResponseDetail =
+              displayDeclaration.displayResponseDetail.copy(securityDetails = Some(securityDetails))
+            val updatedDisplayDeclaration    =
+              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+            (mrn, reasonForSecurity, updatedDisplayDeclaration)
+          }
+          .getOrElse(fail("Failed to generate journey data"))
+
+        val journey = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities(gen)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsTechnicalErrorPage(
+          performActionShowFirst()
+        )
       }
     }
 
@@ -391,8 +460,29 @@ class SelectSecuritiesControllerSpec
         }
       }
 
+      "reject empty selection and display error message" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = SecuritiesJourneyGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          journeyBuilder = SecuritiesJourneyGenerators.buildSecuritiesJourneyReadyForSelectingSecurities
+        )
+      ) { case (initialJourney, (_, _, decl)) =>
+        val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+
+        whenever(depositIds.size >= 2) {
+          val firstDepositId  = depositIds.head
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkPageWithErrorIsDisplayed(
+            performAction(firstDepositId, "select-securities" -> ""),
+            messageFromMessageKey("select-securities.title"),
+            messageFromMessageKey("select-securities.error.required")
+          )
+        }
+      }
     }
-
   }
-
 }
