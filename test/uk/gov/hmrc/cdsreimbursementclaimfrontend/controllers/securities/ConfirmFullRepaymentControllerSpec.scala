@@ -31,6 +31,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGenSingleDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
@@ -45,9 +46,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import java.text.NumberFormat
 import java.util.Locale
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -117,9 +120,10 @@ class ConfirmFullRepaymentControllerSpec
   "Confirm Full Repayment Controller" when {
     "show page is called" must {
       def performAction(securityId: String): Future[Result] = controller.show(securityId)(FakeRequest())
+      def performActionShowFirst: Future[Result]            = controller.showFirst()(FakeRequest())
 
-      "AC1: Arrive on page; display the page on a complete journey" in
-        forAll(completeJourneyWithoutIPROrENUGen) { journey =>
+      "display the page on a complete journey" in
+        forAll(completeJourneyGen) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
           val securityId     = securityIdWithTaxCodes(journey).value
           inSequence {
@@ -133,6 +137,29 @@ class ConfirmFullRepaymentControllerSpec
             doc => validateConfirmFullRepaymentPage(securityId, doc, journey)
           )
         }
+
+      "redirect to show when first selected security deposit ID is found" in
+        forAll(completeJourneyGen) { journey =>
+          val securityId = journey.getSelectedDepositIds.head
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(performActionShowFirst, routes.ConfirmFullRepaymentController.show(securityId))
+        }
+
+      "redirect to check declaration details when correctedAmounts is None" in {
+        val journey        = completeJourneyGen.sample.getOrElse(fail("Failed to create journey"))
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(journey, _.copy(correctedAmounts = None))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(performActionShowFirst, routes.CheckDeclarationDetailsController.show)
+      }
     }
 
     "submit page is called" must {
@@ -206,99 +233,41 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC2 move on to /choose-file-type page when yes is selected and continue is clicked (if RfS = CEP, CSD, OPR, RED or MOD)" ignore {
-        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          whenever(
-            Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
-              .contains(rfs)
-          ) {
-            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
-            val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
-            val journey: SecuritiesJourney                                             =
-              emptyJourney
-                .submitMovementReferenceNumber(mrn)
-                .submitReasonForSecurityAndDeclaration(rfs, decl)
-                .flatMap(a => a.submitDeclarantEoriNumber(decl.getDeclarantEori))
-                .flatMap(a => a.submitConsigneeEoriNumber(decl.getConsigneeEori.value))
-                .flatMap(_.submitClaimDuplicateCheckStatus(false))
-                .flatMap(_.selectSecurityDepositIds(depositIds))
-                .flatMapEach(
-                  reclaimsBySecurityDepositId,
-                  (journey: SecuritiesJourney) =>
-                    (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                      journey
-                        .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
+      "move on to confirm full repayment for the next security ID when yes is selected and there are other security IDs to confirm" in
+        forAll(
+          completeJourneyGen.map(journey =>
+            SecuritiesJourney.unsafeModifyAnswers(
+              journey,
+              answers =>
+                answers.copy(
+                  modes = answers.modes.copy(checkClaimDetailsChangeMode = false),
+                  correctedAmounts = answers.correctedAmounts.map(
+                    _.map((id, _) => (id, SortedMap.empty[TaxCode, Option[BigDecimal]]))
+                  )
                 )
-                .getOrFail
-            val securityId                                                             = journey.getSecurityDepositIds.head
-            val sessionData                                                            = SessionData(journey)
+            )
+          )
+        ) { journey =>
+          whenever(journey.getSelectedDepositIds.size > 1) {
+
+            val firstSecurityId       = journey.getSelectedDepositIds.head
+            val nextSelectedDepositId = journey.getSelectedDepositIds.nextAfter(firstSecurityId).get
+            val updatedJourney        = journey.submitFullCorrectedAmounts(firstSecurityId).getOrFail
+
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(sessionData)
-              mockStoreSession(Right(()))
+              mockGetSession(SessionData(journey))
+              mockStoreSession(SessionData(updatedJourney))(Right(()))
             }
 
             checkIsRedirect(
-              performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
-              routes.ChooseFileTypeController.show
+              performAction(firstSecurityId, Seq(confirmFullRepaymentKey -> "true")),
+              routes.ConfirmFullRepaymentController.show(nextSelectedDepositId)
             )
           }
         }
-      }
 
-      "AC3 move on to /upload-file page when yes is selected and continue is clicked (if RFS = MDP, MDL, ACS, IPR, ENU, TA or MDC)" ignore {
-        forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          whenever(
-            Set[ReasonForSecurity](
-              MissingPreferenceCertificate,
-              MissingLicenseQuota,
-              AccountSales,
-              InwardProcessingRelief,
-              EndUseRelief,
-              TemporaryAdmission2Y,
-              TemporaryAdmission6M,
-              TemporaryAdmission3M,
-              TemporaryAdmission2M,
-              CommunitySystemsOfDutyRelief
-            ).contains(rfs)
-          ) {
-            val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
-            val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-              reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
-            val journey: SecuritiesJourney                                             =
-              emptyJourney
-                .submitMovementReferenceNumber(mrn)
-                .submitReasonForSecurityAndDeclaration(rfs, decl)
-                .flatMap(a => a.submitDeclarantEoriNumber(decl.getDeclarantEori))
-                .flatMap(a => a.submitConsigneeEoriNumber(decl.getConsigneeEori.value))
-                .flatMap(_.submitClaimDuplicateCheckStatus(false))
-                .flatMap(_.selectSecurityDepositIds(depositIds))
-                .flatMapEach(
-                  reclaimsBySecurityDepositId,
-                  (journey: SecuritiesJourney) =>
-                    (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                      journey
-                        .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-                )
-                .getOrFail
-            val securityId                                                             = journey.getSecurityDepositIds.head
-            val sessionData                                                            = SessionData(journey)
-            inSequence {
-              mockAuthWithDefaultRetrievals()
-              mockGetSession(sessionData)
-              mockStoreSession(Right(()))
-            }
-
-            checkIsRedirect(
-              performAction(securityId, Seq(confirmFullRepaymentKey -> "true")),
-              routes.UploadFilesController.show
-            )
-          }
-        }
-      }
-
-      "AC4 move on to /select-duties/:securityID page when no is selected and continue is clicked" in {
+      "move on to /select-duties/:securityID page when no is selected and continue is clicked" in {
         forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
@@ -328,11 +297,10 @@ class ConfirmFullRepaymentControllerSpec
 
       }
 
-      "AC5 - Complete journey - clicking continue with no option selected should display error" in {
+      "Complete journey - clicking continue with no option selected should display error" in {
         forAll(
           buildCompleteJourneyGen(
-            submitFullAmount = true,
-            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+            submitFullAmount = true
           )
         ) { journey =>
           val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
@@ -351,49 +319,10 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC5 clicking continue with no option selected should display error" in {
-        forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
-          val depositIds: Seq[String]                                                = reclaims.map(_._1).distinct
-          val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
-            reclaims.groupBy(_._1).view.mapValues(_.map { case (_, tc, _, amount) => (tc, amount) }).toSeq
-
-          val journey: SecuritiesJourney =
-            emptyJourney
-              .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(rfs, decl)
-              .flatMap(a => a.submitDeclarantEoriNumber(decl.getDeclarantEori))
-              .flatMap(a => a.submitConsigneeEoriNumber(decl.getConsigneeEori.value))
-              .flatMap(_.submitClaimDuplicateCheckStatus(false))
-              .flatMap(_.selectSecurityDepositIds(depositIds))
-              .flatMapEach(
-                reclaimsBySecurityDepositId,
-                (journey: SecuritiesJourney) =>
-                  (args: (String, Seq[(TaxCode, BigDecimal)])) =>
-                    journey
-                      .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(args._1, args._2.map(_._1))
-              )
-              .getOrFail
-          val securityId                 = journey.getSecurityDepositIds.head
-          val sessionData                = SessionData(journey)
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionData)
-          }
-
-          checkPageIsDisplayed(
-            performAction(securityId, Seq()),
-            messageFromMessageKey(s"$confirmFullRepaymentKey.title", securityId),
-            doc => validateConfirmFullRepaymentPage(securityId, doc, journey, isError = true),
-            400
-          )
-        }
-      }
-
-      "AC6 From CYA page, change from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
+      "From CYA page, change from 'Yes' to 'No', clicking continue should go to the select duties controller" in {
         forAll(
           buildCompleteJourneyGen(
-            submitFullAmount = true,
-            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+            submitFullAmount = true
           )
         ) { journey =>
           val securityId = journey.getSelectedDepositIds.head
@@ -410,11 +339,10 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC9 selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
+      "selecting NO, going back from CYA, changing to YES and clicking continue should redirect back to CYA" in {
         forAll(
           buildCompleteJourneyGen(
-            submitFullAmount = false,
-            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+            submitFullAmount = false
           )
         ) { journey =>
           for securityId <- journey.getSelectedDepositIds do {
@@ -434,11 +362,10 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC9 selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
+      "selecting NO, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(
           buildCompleteJourneyGen(
-            submitFullAmount = false,
-            reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
+            submitFullAmount = false
           )
         ) { journey =>
           for securityId <- journey.getSelectedDepositIds do {
@@ -457,7 +384,7 @@ class ConfirmFullRepaymentControllerSpec
         }
       }
 
-      "AC9 selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
+      "selecting YES, going back from CYA, changing nothing and clicking continue should redirect back to CYA" in {
         forAll(
           buildCompleteJourneyGen(
             submitFullAmount = true,
@@ -478,6 +405,104 @@ class ConfirmFullRepaymentControllerSpec
             )
           }
         }
+      }
+
+      "redirect to check claim details when duties are selected for the current deposit ID and no is selected" in
+        forAll(
+          completeJourneyGen.map(journey =>
+            SecuritiesJourney.unsafeModifyAnswers(
+              journey,
+              answers =>
+                answers.copy(
+                  modes = answers.modes.copy(checkClaimDetailsChangeMode = false, checkYourAnswersChangeMode = false)
+                )
+            )
+          )
+        ) { journey =>
+          whenever(journey.getSelectedDepositIds.size > 1) {
+
+            val firstSecurityId = journey.getSelectedDepositIds.head
+            val updatedJourney  = journey.submitFullCorrectedAmounts(firstSecurityId).getOrFail
+
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(journey))
+              mockStoreSession(SessionData(updatedJourney))(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(firstSecurityId, Seq(confirmFullRepaymentKey -> "false")),
+              routes.CheckClaimDetailsController.show
+            )
+          }
+        }
+
+      "redirect to enter claim and select a single tax code when only one exists for the security deposit ID and no is selected" in
+        forAll(
+          partialGenSingleDuty.map(journey =>
+            SecuritiesJourney.unsafeModifyAnswers(
+              journey,
+              answers =>
+                answers.copy(
+                  modes = answers.modes.copy(
+                    checkClaimDetailsChangeMode = false,
+                    checkYourAnswersChangeMode = false,
+                    claimFullAmountMode = false
+                  ),
+                  correctedAmounts = answers.correctedAmounts.map(
+                    _.map((id, _) => (id, SortedMap.empty[TaxCode, Option[BigDecimal]]))
+                  )
+                )
+            )
+          )
+        ) { journey =>
+
+          val firstSecurityId = journey.getSelectedDepositIds.head
+          val updatedJourney  = journey
+            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
+              firstSecurityId,
+              journey.getSecurityTaxCodesFor(firstSecurityId)
+            )
+            .getOrFail
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockStoreSession(SessionData(updatedJourney))(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(firstSecurityId, Seq(confirmFullRepaymentKey -> "false")),
+            routes.EnterClaimController.showFirst(firstSecurityId)
+          )
+        }
+
+      "redirect to ineligible page when selecting a single duty fails and no is selected" in {
+        val initialJourney  = partialGenSingleDuty.sample.getOrElse(fail("Failed to create journey"))
+        val firstSecurityId = initialJourney.getSelectedDepositIds.head
+
+        val journey = SecuritiesJourney.unsafeModifyAnswers(
+          initialJourney,
+          answers =>
+            answers.copy(
+              modes = answers.modes.copy(
+                checkClaimDetailsChangeMode = false,
+                checkYourAnswersChangeMode = false,
+                claimFullAmountMode = false
+              ),
+              correctedAmounts = None
+            )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(firstSecurityId, Seq(confirmFullRepaymentKey -> "false")),
+          baseRoutes.IneligibleController.ineligible
+        )
       }
     }
   }
