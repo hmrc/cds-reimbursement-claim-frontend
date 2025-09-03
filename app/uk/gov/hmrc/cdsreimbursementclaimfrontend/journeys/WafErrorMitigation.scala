@@ -18,8 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 trait WafErrorMitigation[A] {
 
-  val additionalDetailsReplacementText    = " "
-  val specialCircumstancesReplacementText = " "
+  val additionalDetailsReplacementText =
+    "The content of this field has been attached as a separate additional_details.txt file."
+
+  val specialCircumstancesReplacementText =
+    "The content of this field has been attached as a separate special_circumstances.txt file."
 
   def excludeFreeTextInputs(): (Seq[(String, String)], A)
 
