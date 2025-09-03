@@ -88,7 +88,7 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
     else
       journey.getNextDepositIdAndTaxCodeToClaim match {
         case Some(Left(depositId)) =>
-          (journey, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
+          (journey, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
 
         case Some(Right((depositId, taxCode))) =>
           (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))

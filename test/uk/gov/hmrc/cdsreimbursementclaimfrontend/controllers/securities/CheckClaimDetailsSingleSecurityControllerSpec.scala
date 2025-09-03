@@ -188,11 +188,11 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.ConfirmFullRepaymentController.show(journey.getSecurityDepositIds.head)
+          routes.ConfirmSingleDepositRepaymentController.show
         )
       }
 
-      "redirect to enter claim when reclaims value is empty a tax code" in {
+      "redirect to enter claim when reclaims value is empty for the next tax code" in {
         val nextTaxCode    = TaxCode("A00")
         val gen            =
           mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
