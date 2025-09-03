@@ -48,23 +48,18 @@ class CheckClaimDetailsController @Inject() (
     actionReadWriteJourney { implicit request => journey =>
       (
         journey.withDutiesChangeMode(false),
-        journey.answers.movementReferenceNumber match {
-          case None                                                =>
-            Redirect(routes.EnterMovementReferenceNumberController.show)
-          case Some(mrn) if journey.hasCompleteReimbursementClaims =>
-            Ok(
-              checkClaimDetails(
-                getReimbursementWithCorrectAmount(journey.getReimbursements),
-                journey.getSelectedDuties,
-                enterClaimAction,
-                routes.CheckClaimDetailsController.redirectToSelectDuties,
-                routes.CheckClaimDetailsController.continue
-              )
+        if journey.hasCompleteReimbursementClaims
+        then
+          Ok(
+            checkClaimDetails(
+              getReimbursementWithCorrectAmount(journey.getReimbursements),
+              journey.getSelectedDuties,
+              enterClaimAction,
+              routes.CheckClaimDetailsController.redirectToSelectDuties,
+              routes.CheckClaimDetailsController.continue
             )
-
-          case _ =>
-            Redirect(routes.EnterClaimController.showFirst)
-        }
+          )
+        else Redirect(routes.EnterClaimController.showFirst)
       )
     }
 
