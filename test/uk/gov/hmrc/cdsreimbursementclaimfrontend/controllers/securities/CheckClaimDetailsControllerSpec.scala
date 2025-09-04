@@ -40,6 +40,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.List
 import scala.concurrent.Future
@@ -124,7 +126,72 @@ class CheckClaimDetailsControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => validateCheckClaimDetailsPage(doc, initialJourney)
         )
+      }
 
+      "redirect to check declaration details when correctedAmounts is empty" in {
+        val gen            =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
+        val journey        = buildSecuritiesJourneyWithClaimsEntered(gen)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(journey, _.copy(correctedAmounts = None))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.CheckDeclarationDetailsController.show
+        )
+      }
+
+      "redirect to confirm full repayment (controller) when deposit needs full repayment confirmation" in {
+        val gen            =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
+        val initialJourney = buildSecuritiesJourneyWithClaimsEntered(gen)
+
+        val depositId = initialJourney.getSecurityDepositIds.head
+
+        val modifiedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          initialJourney,
+          answers =>
+            answers.copy(
+              correctedAmounts = Some(SortedMap(depositId -> SortedMap.empty[TaxCode, Option[BigDecimal]]))
+            )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(modifiedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ConfirmFullRepaymentController.show(depositId)
+        )
+      }
+
+      "redirect to enter claim when reclaims value is empty for the next tax code" in {
+        val nextTaxCode    = TaxCode("A00")
+        val gen            =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
+        val journey        = buildSecuritiesJourneyWithClaimsEntered(gen)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          journey,
+          _.copy(correctedAmounts =
+            Some(SortedMap(journey.getSecurityDepositIds.head -> SortedMap(nextTaxCode -> None)))
+          )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterClaimController.show(journey.getSecurityDepositIds.head, nextTaxCode)
+        )
       }
     }
 
