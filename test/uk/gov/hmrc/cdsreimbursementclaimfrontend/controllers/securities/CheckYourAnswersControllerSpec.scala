@@ -96,7 +96,8 @@ class CheckYourAnswersControllerSpec
   def validateCheckYourAnswersPage(
     doc: Document,
     journey: SecuritiesJourney,
-    claim: SecuritiesJourney.Output
+    claim: SecuritiesJourney.Output,
+    isPrintView: Boolean = false
   ) = {
 
     val numberOfSecurities: Int = journey.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
@@ -122,7 +123,7 @@ class CheckYourAnswersControllerSpec
         "Bank details".expectedWhen(claim.bankAccountDetails),
         "Supporting documents".expectedAlways,
         "Additional details".expectedAlways,
-        "Now send your claim".expectedAlways
+        "Now send your claim".expectedWhen(!isPrintView)
       )
       val claimsHeaders =
         claim.securitiesReclaims.keys.map(sid =>
@@ -242,6 +243,7 @@ class CheckYourAnswersControllerSpec
       val cardTitles = doc.select("h2.govuk-summary-card__title").eachText().asScala
       cardTitles       should not be empty
       cardTitles.toSeq should containOnlyDefinedElementsOf(
+        "Submission details".expectedWhen(isPrintView),
         "Claim details".expectedAlways,
         "Claim amount".expectedWhen(journey.answers.correctedAmounts.isDefined),
         "Repayment details".expectedAlways,
@@ -283,11 +285,11 @@ class CheckYourAnswersControllerSpec
 
       "display the page if journey has complete answers" in {
         forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val claim = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
@@ -300,11 +302,11 @@ class CheckYourAnswersControllerSpec
 
       "display the page if journey has a single security and complete answers" in {
         forAll(SecuritiesSingleJourneyGenerators.completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val claim = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkPageIsDisplayed(
@@ -328,28 +330,26 @@ class CheckYourAnswersControllerSpec
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
 
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
 
       "redirect to the submission confirmation page if journey already finalized" in {
-        forAll(completeJourneyGen) { journey =>
-          val updatedSession =
-            SessionData.empty.copy(securitiesJourney = journey.finalizeJourneyWith("dummy case reference").toOption)
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("Failed to finalize journey"))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.showConfirmation)
         }
-
       }
     }
 
@@ -358,34 +358,31 @@ class CheckYourAnswersControllerSpec
       def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "redirect to the confirmation page if success" in {
-        forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+          val claim = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
             mockSubmitClaim(SecuritiesClaimConnector.Request(claim))(
-              Future.successful(SecuritiesClaimConnector.Response("foo-123-abc"))
+              Future.successful(SecuritiesClaimConnector.Response(caseNumber))
             )
             mockWipeOutCall()
             mockStoreSession(
-              updatedSession.copy(securitiesJourney =
-                journey.finalizeJourneyWith("foo-123-abc").toOption.orElse(Some(journey))
-              )
+              SessionData(journey.finalizeJourneyWith(caseNumber).getOrElse(fail("Failed to finalize journey")))
             )(Right(()))
           }
-          val result         = performAction()
+          val result = performAction()
           checkIsRedirect(result, routes.CheckYourAnswersController.showConfirmation)
         }
       }
 
       "show failure page if submission fails" in {
         forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+          val claim = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
             mockSubmitClaim(SecuritiesClaimConnector.Request(claim))(
               Future.failed(new Exception("blah"))
             )
@@ -396,6 +393,27 @@ class CheckYourAnswersControllerSpec
           )
         }
       }
+
+      "redirect to the proper page if any answer is missing" in {
+        val journey =
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(
+              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesDisplayDeclaration
+            )
+            .getOrFail
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
+      }
     }
 
     "Show confirmation page" must {
@@ -404,11 +422,11 @@ class CheckYourAnswersControllerSpec
 
       "display the page if journey has been finalized" in {
         forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
-          val updatedSession =
-            SessionData.empty.copy(securitiesJourney = journey.finalizeJourneyWith(caseNumber).toOption)
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("Failed to finalize journey"))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(updatedJourney))
           }
 
           checkPageIsDisplayed(
@@ -421,17 +439,88 @@ class CheckYourAnswersControllerSpec
 
       "redirect to the check your answers page if journey not yet finalized" in {
         forAll(completeJourneyGen) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(updatedSession)
+            mockGetSession(SessionData(journey))
           }
 
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)
         }
+      }
+    }
 
+    "Show print page" must {
+
+      def performAction(): Future[Result] = controller.showPrintView(FakeRequest())
+
+      "display the page if journey has complete answers" in {
+        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.print-view.title"),
+            doc => validateCheckYourAnswersPage(doc, journey, claim, true)
+          )
+        }
+      }
+
+      "display the page if journey has a single security and complete answers" in {
+        forAll(SecuritiesSingleJourneyGenerators.completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
+          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$messagesKey.print-view.title"),
+            doc => validateCheckYourAnswersPage(doc, journey, claim, true)
+          )
+        }
+      }
+
+      "display error page when journey is not finalized with a case number" in {
+        val journey = completeJourneyGen.sample.getOrElse(fail("Failed to create journey"))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsTechnicalErrorPage(performAction())
+      }
+
+      "redirect to the proper page if any answer is missing" in {
+        val journey =
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(
+              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesDisplayDeclaration
+            )
+            .getOrFail
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
     }
   }
-
 }
