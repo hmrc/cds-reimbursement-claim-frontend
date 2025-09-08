@@ -81,14 +81,10 @@ class CheckClaimDetailsController @Inject() (
 
   val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
     journey =>
-      if journey.hasCompleteReimbursementClaims
-      then {
-        (
-          journey.withDutiesChangeMode(false),
-          Redirect(routes.EnterInspectionDateController.show)
-        )
-      } else {
-        (journey, Redirect(selectDutiesAction))
-      }
+      (
+        journey.withDutiesChangeMode(false),
+        Redirect(routes.EnterInspectionDateController.show)
+      )
   )
+
 }
