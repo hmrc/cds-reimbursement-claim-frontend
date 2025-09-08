@@ -210,7 +210,8 @@ class SelectDutiesController @Inject() (
                 then
                   journey.getNextDepositIdAndTaxCodeToClaim match {
                     case Some(Left(depositId)) =>
-                      routes.ConfirmFullRepaymentController.show(depositId)
+                      if journey.isSingleSecurity then routes.ConfirmSingleDepositRepaymentController.show
+                      else routes.ConfirmFullRepaymentController.show(depositId)
 
                     case Some(Right((depositId, taxCode))) =>
                       routes.EnterClaimController.show(depositId, taxCode)
