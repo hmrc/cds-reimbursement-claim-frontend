@@ -153,7 +153,7 @@ class EnterClaimController @Inject() (
       fastForwardToCYAEnabled = false
     )
 
-  private def decideNextRoute(journey: OverpaymentsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
+  def decideNextRoute(journey: OverpaymentsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
     if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then claimsSummaryAction
     else {
       val selectedTaxCodes = journey.getSelectedDuties(mrn).getOrElse(Seq.empty)

@@ -471,5 +471,80 @@ class EnterClaimControllerSpec
         }
       }
     }
+
+    "decide next route" must {
+      "redirect to select duties when no duties selected" in {
+        val (journey, mrns) = incompleteJourneyWithMrnsGen(2).sample.get
+        mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+          val invalidTaxCodes = TaxCodes.all
+          for (invalidTaxCode <- invalidTaxCodes)
+            controller.decideNextRoute(
+              journey,
+              mrnIndex + 1,
+              mrn,
+              invalidTaxCode
+            ) shouldBe routes.SelectDutiesController
+              .show(mrnIndex + 1)
+        }
+      }
+
+      "redirect to select duties when invalid tax code" in {
+        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+          val invalidTaxCodes: Set[TaxCode] = TaxCodes.all.toSet -- journey.getSelectedDuties(mrn).get.toSet
+          for (invalidTaxCode <- invalidTaxCodes)
+            controller.decideNextRoute(
+              journey,
+              mrnIndex + 1,
+              mrn,
+              invalidTaxCode
+            ) shouldBe routes.SelectDutiesController
+              .show(mrnIndex + 1)
+        }
+      }
+
+      "redirect to enter claim when valid tax code" in {
+        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+          val validTaxCodes: Seq[TaxCode] = journey.getSelectedDuties(mrn).get
+          for (n <- 0 to validTaxCodes.size - 2)
+            controller.decideNextRoute(
+              journey,
+              mrnIndex + 1,
+              mrn,
+              validTaxCodes(n)
+            ) shouldBe routes.EnterClaimController
+              .show(mrnIndex + 1, validTaxCodes(n + 1))
+        }
+      }
+
+      "redirect to select duties for the next MRN when no more duties for the current MRN" in {
+        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        mrns.dropRight(1).zipWithIndex.foreach { case (mrn, mrnIndex) =>
+          val lastTaxCode: TaxCode = journey.getSelectedDuties(mrn).get.last
+          controller.decideNextRoute(
+            journey,
+            mrnIndex + 1,
+            mrn,
+            lastTaxCode
+          ) shouldBe routes.SelectDutiesController
+            .show(mrnIndex + 2)
+        }
+      }
+
+      "redirect to claims summary when claims are complete and not in change mode" in {
+        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        mrns.zipWithIndex.last match {
+          case (mrn, mrnIndex) =>
+            val lastTaxCode: TaxCode = journey.getSelectedDuties(mrn).get.last
+            controller.decideNextRoute(
+              journey,
+              mrnIndex + 1,
+              mrn,
+              lastTaxCode
+            ) shouldBe routes.CheckClaimDetailsController.show
+        }
+      }
+    }
   }
 }
