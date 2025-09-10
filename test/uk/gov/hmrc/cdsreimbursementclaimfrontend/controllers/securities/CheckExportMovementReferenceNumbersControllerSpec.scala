@@ -36,7 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
@@ -123,6 +126,81 @@ class CheckExportMovementReferenceNumbersControllerSpec
           doc => validateCheckExportMovementReferenceNumbersPage(doc)
         )
       }
+
+      "redirect to enter export MRN when export MRNs are empty" in {
+        val gen     = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterExportMovementReferenceNumberController.showFirst
+        )
+      }
+
+      "redirect to next page when method of disposal is not exported in multiple or single shipments" in {
+        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          journey,
+          answers =>
+            answers.copy(temporaryAdmissionMethodsOfDisposal =
+              Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone))
+            )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ConfirmFullRepaymentController.showFirst
+        )
+      }
+
+      "redirect to next page when reason for security is not temporary admission" in {
+        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          journey,
+          answers => answers.copy(reasonForSecurity = Some(MissingPreferenceCertificate))
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ConfirmFullRepaymentController.showFirst
+        )
+      }
+
+      "redirect to choose export method page when method of disposal is not found" in {
+        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          journey,
+          answers => answers.copy(temporaryAdmissionMethodsOfDisposal = None)
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(updatedJourney))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.ChooseExportMethodController.show
+        )
+      }
     }
 
     "submit page" must {
@@ -194,6 +272,26 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       }
 
+      "redirect to check your answers page when no is selected and has complete journey" in {
+        val journey = buildCompleteJourneyGen(reasonsForSecurity = Set(ReasonForSecurity.ntas.head)).sample
+          .getOrElse(fail("Failed to create journey"))
+          .submitTemporaryAdmissionMethodsOfDisposal(
+            TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.toList
+          )
+          .flatMap(_.submitExportMovementReferenceNumber(1, MRN("19GB03I52858027001")))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(Some(false)),
+          routes.CheckYourAnswersController.show
+        )
+      }
+
       "stay on the same page and display error message when no option selected" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
@@ -212,6 +310,76 @@ class CheckExportMovementReferenceNumbersControllerSpec
           "Export Movement Reference Numbers (MRNs) added",
           doc => validateCheckExportMovementReferenceNumbersPage(doc, isError = true),
           BAD_REQUEST
+        )
+      }
+    }
+
+    "delete" must {
+      def performAction(mrn: MRN): Future[Result] =
+        controller.delete(mrn)(
+          FakeRequest()
+        )
+
+      "delete and redirect to check export MRNs when remaining export MRNs is not empty" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+            Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
+          )
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(journey.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(MRN("19GB03I52858027001")),
+          routes.CheckExportMovementReferenceNumbersController.show
+        )
+      }
+
+      "delete and redirect to choose export method when there are no remaining export MRNs set" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+            Seq(MRN("19GB03I52858027001"))
+          )
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(journey.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(MRN("19GB03I52858027001")),
+          routes.ChooseExportMethodController.show
+        )
+      }
+
+      "redirect to check export MRNs page when the export MRN to be deleted isn't in the export MRN list" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+            Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
+          )
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(MRN("19GB03I52858027003")),
+          routes.CheckExportMovementReferenceNumbersController.show
         )
       }
     }

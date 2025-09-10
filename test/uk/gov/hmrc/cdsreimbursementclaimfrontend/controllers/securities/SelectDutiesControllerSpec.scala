@@ -217,7 +217,7 @@ class SelectDutiesControllerSpec
 
       "select duty and redirect to enter claim page on a journey with a single duty type" in
         forAll(partialGenSingleDuty) { journey =>
-          val securityId     = securityIdWithTaxCodes(journey).get
+          val securityId = securityIdWithTaxCodes(journey).get
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
@@ -232,7 +232,7 @@ class SelectDutiesControllerSpec
 
       "display the select duties page when there are multiple available duties" in
         forAll(completeJourneyWithoutIPROrENUGen) { journey =>
-          val securityId     = securityIdWithTaxCodes(journey).get
+          val securityId = securityIdWithTaxCodes(journey).get
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(journey))
