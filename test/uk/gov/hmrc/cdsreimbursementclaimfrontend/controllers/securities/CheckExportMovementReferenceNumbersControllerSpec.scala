@@ -278,7 +278,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
           .submitTemporaryAdmissionMethodsOfDisposal(
             TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.toList
           )
-          .flatMap(_.submitExportMovementReferenceNumber(1, MRN("19GB03I52858027001")))
+          .flatMap(_.submitExportMovementReferenceNumber(0, MRN("19GB03I52858027001")))
           .getOrFail
 
         inSequence {
