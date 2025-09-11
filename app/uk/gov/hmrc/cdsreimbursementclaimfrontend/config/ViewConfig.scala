@@ -155,6 +155,13 @@ class ViewConfig @Inject() (
   val legacyC285FormUrl: String = getString("external-url.c285-form")
   val ce1179FormUrl: String     = getString("external-url.ce1179-form")
 
+  val overpaymentsOverpaidVatGuidanceUrl: String  = getString(
+    "external-url.overpayments-overpaid-vat-guidance"
+  )
+  val rejectedGoodsOverpaidVatGuidanceUrl: String = getString(
+    "external-url.rejected-goods-overpaid-vat-guidance"
+  )
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))

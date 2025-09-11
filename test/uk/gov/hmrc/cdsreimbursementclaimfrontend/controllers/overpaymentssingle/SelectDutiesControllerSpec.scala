@@ -109,7 +109,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
+          messageFromMessageKey(s"$messagesKey.single.title"),
           assertPageContent(_, journey, Seq.empty)
         )
       }
@@ -124,7 +124,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
+          messageFromMessageKey(s"$messagesKey.single.title"),
           assertPageContent(_, journey, Seq.empty)
         )
       }
@@ -141,7 +141,7 @@ class SelectDutiesControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey(s"$messagesKey.title"),
+            messageFromMessageKey(s"$messagesKey.single.title"),
             assertPageContent(_, journey, selectedDuties)
           )
         }
@@ -198,7 +198,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(Seq("select-duties" -> "")),
-          messageFromMessageKey(s"$messagesKey.title"),
+          messageFromMessageKey(s"$messagesKey.single.title"),
           doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messagesKey.error.required"),
           expectedStatus = BAD_REQUEST
         )
@@ -294,7 +294,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messagesKey.title"),
+          messageFromMessageKey(s"$messagesKey.single.title"),
           doc => {
             getHintText(doc, "select-duties-item-hint")   shouldBe None
             getHintText(doc, "select-duties-2-item-hint") shouldBe hintText

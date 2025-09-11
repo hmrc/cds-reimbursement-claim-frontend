@@ -1721,7 +1721,7 @@ select-duties.error.required=Dewiswch un math neu’n fwy o dollau rydych am haw
 select-duties.multiple.paragraph=Dewiswch bob math o dollau rydych am ei hawlio ar gyfer Cyfeirnod Symud (MRN): <span id="MRN" class="govuk-!-font-weight-bold">{0}</span
 select-duties.multiple.subsidies.title=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau
 select-duties.multiple.title=Dewiswch y tollau rydych am eu hawlio o dan {0} MRN
-select-duties.paragraph=Dewiswch yr holl dollau rydych am hawlio ar eu cyfer.
+select-duties.hint=Dewiswch yr holl dollau rydych am hawlio ar eu cyfer.
 select-duties.securities.title=Beth hoffech chi ei hawlio?
 select-duties.subsidies.title=Mae’r tollau sy’n cael eu dangos i gyd wedi’u cwmpasu gan gymorthdaliadau
 select-duties.title=Beth hoffech chi ei hawlio?
@@ -1732,6 +1732,9 @@ select-duties.details.p2=Yn lle hynny, bydd angen i chi wneud addasiad drwy’ch
 select-duties.details.p3=Er mwyn hawlio ad-daliad, bydd angen i chi wneud y canlynol:
 select-duties.details.p3.li1=gostwng swm y dreth allbwn sy’n ddyledus ym Mlwch 1 o’r Ffurflen TAW
 select-duties.details.p3.li2=cadw llwybr archwilio er mwyn ategu’ch hawliad
+select-duties.single.details=Os ydych yn cynnwys TAW yn yr hawliad hwn ac mae’r mewnforiwr wedi’i gofrestru ar gyfer TAW, byddwn yn dileu swm y TAW o’ch ad-daliad.
+select-duties.details.single.p1=Os yw’r mewnforiwr wedi’i gofrestru ar gyfer TAW, peidiwch â defnyddio’r gwasanaeth hwn ar gyfer hawlio TAW sydd wedi’i gordalu. Yn hytrach, mae’n rhaid i’r mewnforiwr addasu ei Ffurflen TAW, gan <a href="https://www.gov.uk/guidance/how-to-apply-for-a-repayment-of-import-duty-and-vat-if-youve-overpaid-c285#claim-overpaid-import-vat-in-your-vat-return-if-youre-vat-registered" target="_blank" rel="noopener noreferrer">ddilyn y rheolau TAW arferol (yn agor tab newydd)</a>.
+select-duties.single.h2=Beth hoffech chi ei hawlio?
 
 select-duty-codes.details.heading=Rhagor o wybodaeth am dollau
 select-duty-codes.error.invalid=Ni chafodd y cod toll ei adnabod. Gwiriwch fod y manylion a nodwyd gennych yn gywir

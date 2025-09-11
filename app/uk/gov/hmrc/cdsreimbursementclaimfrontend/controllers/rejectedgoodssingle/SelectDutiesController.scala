@@ -63,7 +63,8 @@ class SelectDutiesController @Inject() (
             indexAndMrnOpt = None,
             showCmaNotEligibleHint = true,
             subKey = Some("single"),
-            postAction = postAction
+            postAction = postAction,
+            guidanceUrl = Some(viewConfig.rejectedGoodsOverpaidVatGuidanceUrl)
           )
         )
       }
