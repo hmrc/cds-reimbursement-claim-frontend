@@ -93,7 +93,8 @@ class SelectDutiesController @Inject() (
                       None,
                       true,
                       Some("single"),
-                      postAction
+                      postAction,
+                      Some(viewConfig.rejectedGoodsOverpaidVatGuidanceUrl)
                     )
                   )
                 ),
