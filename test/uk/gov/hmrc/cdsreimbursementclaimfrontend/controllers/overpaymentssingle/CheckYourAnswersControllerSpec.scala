@@ -245,17 +245,15 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val journey =
           OverpaymentsSingleJourney
-            .empty(exampleEori)
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
 
-        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
-
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
@@ -325,17 +323,15 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val journey =
           OverpaymentsSingleJourney
-            .empty(exampleEori)
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
         val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
 
-        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
-
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(updatedSession)
+          mockGetSession(SessionData(journey))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
@@ -384,6 +380,23 @@ class CheckYourAnswersControllerSpec
             messageFromMessageKey("submit-claim-error.title")
           )
         }
+      }
+
+      "redirect to the proper page if any answer is missing" in {
+        val journey =
+          OverpaymentsSingleJourney
+            .empty(exampleDisplayDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .getOrFail
+
+        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
     }
 
