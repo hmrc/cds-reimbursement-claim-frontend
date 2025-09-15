@@ -486,7 +486,7 @@ final class SecuritiesJourney private (
             val existingMrn = exportMRNs(index)
             if exportMrn === existingMrn then Right(this)
             else {
-              if exportMRNs.indexOf(exportMrn) === index then Left("submitExportMovementReferenceNumber.duplicated")
+              if exportMRNs.contains(exportMrn) then Left("submitExportMovementReferenceNumber.duplicated")
               else
                 Right(
                   this.copy(

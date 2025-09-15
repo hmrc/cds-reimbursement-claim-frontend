@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
@@ -34,15 +35,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
+import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -63,6 +70,9 @@ class EnterExportMovementReferenceNumberControllerSpec
   val enterExportMovementReferenceNumberMultipleKeyAndSubKey: String =
     s"$enterExportMovementReferenceNumberMultipleKey.securities"
 
+  val enterExportMovementReferenceNumberYesNoKey: String =
+    s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no"
+
   val mockClaimsService: ClaimService = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
@@ -78,17 +88,26 @@ class EnterExportMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journey: SecuritiesJourney = SecuritiesJourney.empty(exampleEori)
-  val session: SessionData       = SessionData(journey)
+  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimsService
+      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(expectedMrn, *)
+      .returning(EitherT.fromEither[Future](response))
 
   def validateChooseExportMethodFirstPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-label--xl").html()
     val input          = doc.select(s"#$enterExportMovementReferenceNumberSingleKey")
     val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
+    val h2             = doc.select(".govuk-fieldset__legend--m").eachText().asScala
+    val radioLabels    = doc.select(".govuk-radios__item label").eachText().asScala
+    val radioItems     = doc.select(".govuk-radios__item input").eachAttr("value").asScala
 
     headerHtml          should ===(messages(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"))
     input.attr("value") should ===("")
     continueButton      should contain(messages("button.continue"))
+    h2                  should ===(List(messageFromMessageKey(enterExportMovementReferenceNumberYesNoKey)))
+    radioLabels.length  should ===(2)
+    radioItems.length   should ===(2)
   }
 
   def validateChooseExportMethodNextPage(doc: Document): Assertion = {
@@ -99,310 +118,632 @@ class EnterExportMovementReferenceNumberControllerSpec
     continueButton      should contain(messages("button.continue"))
   }
 
+  def validateChooseExportMethodNextPageWithYesNoOptions(doc: Document): Assertion = {
+    val input          = doc.select(s"#$enterExportMovementReferenceNumberMultipleKey")
+    val continueButton = doc.select("button.govuk-button").eachText().asScala.toList
+    val h2             = doc.select(".govuk-fieldset__legend--m").eachText().asScala
+    val radioLabels    = doc.select(".govuk-radios__item label").eachText().asScala
+    val radioItems     = doc.select(".govuk-radios__item input").eachAttr("value").asScala
+
+    input.attr("value") should ===("")
+    continueButton      should contain(messages("button.continue"))
+    h2                  should ===(List(messageFromMessageKey(enterExportMovementReferenceNumberYesNoKey)))
+    radioLabels.length  should ===(2)
+    radioItems.length   should ===(2)
+  }
+
   "Movement Reference Number Controller" when {
-    "Enter MRN page" must {
+
+    "Enter export MRN page" must {
 
       def performAction(mrnIndex: Int): Future[Result] =
         if mrnIndex === 0 then controller.showFirst(FakeRequest())
         else controller.showNext(mrnIndex + 1)(FakeRequest())
 
-      "display the page if acc14 is present (first mrn)" in forAllWith(
-        JourneyGenerator(
-          mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-          buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-        )
-      ) { case (journey, _) =>
-        val session = SessionData(journey)
+      "show first enter export MRN page" must {
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
+        "display the page if acc14 is present" in forAllWith(
+          JourneyGenerator(
+            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(0),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+            validateChooseExportMethodFirstPage
+          )
         }
 
-        checkPageIsDisplayed(
-          performAction(0),
-          messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-          validateChooseExportMethodFirstPage
-        )
+        "display the page with export MRN populated" in forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
+              )
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(0),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+            doc =>
+              doc.select(s"#$enterExportMovementReferenceNumberSingleKey").attr("value") shouldBe "19GB03I52858027001"
+          )
+        }
+
+        "redirect to next page when method of disposal is not exported in single or multiple shipments" in {
+          val gen     = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+            fail("Failed to generate journey data")
+          )
+          val journey = buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(performAction(0), routes.ConfirmFullRepaymentController.showFirst)
+        }
+
+        "redirect to next page when method of disposal is not exported in single or multiple shipments for single security deposit" in {
+          val gen     =
+            SecuritiesSingleJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+              fail("Failed to generate journey data")
+            )
+          val journey =
+            SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkIsRedirect(performAction(0), routes.ChoosePayeeTypeController.show)
+        }
+
+        "redirect to next page when reason for security is not temporary admission" in {
+          val gen            = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+            fail("Failed to generate journey data")
+          )
+          val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
+          val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+            journey,
+            answers => answers.copy(reasonForSecurity = Some(MissingPreferenceCertificate))
+          )
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkIsRedirect(performAction(0), routes.ConfirmFullRepaymentController.showFirst)
+        }
+
+        "redirect to choose export method page when method of disposal is not found" in {
+          val gen            = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+            fail("Failed to generate journey data")
+          )
+          val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
+          val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+            journey,
+            answers => answers.copy(temporaryAdmissionMethodsOfDisposal = None)
+          )
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+          }
+
+          checkIsRedirect(performAction(0), routes.ChooseExportMethodController.show)
+        }
       }
 
-      "display the page if acc14 is present (next mrn)" in forAllWith(
+      "show enter next export MRN page" must {
+
+        "display the page" in forAllWith(
+          JourneyGenerator(
+            testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 1
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageIsDisplayed(
+            performAction(mrnIndex),
+            EnterExportMovementReferenceNumberHelper.title(mrnIndex + 1),
+            validateChooseExportMethodNextPage
+          )
+        }
+      }
+
+      "display the page with yes no options on when user has seen check your answers page and page index is equal to export MRNs size" in forAllWith(
         JourneyGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
           journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
-            Seq(MRN("19GB03I52858027001"))
+            Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
           )
         )
       ) { case (journey, _) =>
-        val session = SessionData(journey)
+        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+          journey,
+          answers => answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = true))
+        )
+        val mrnIndex       = 1
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
+          mockGetSession(SessionData(updatedJourney))
         }
 
         checkPageIsDisplayed(
-          performAction(1),
-          EnterExportMovementReferenceNumberHelper.title(2),
-          validateChooseExportMethodNextPage
+          performAction(mrnIndex),
+          EnterExportMovementReferenceNumberHelper.title(mrnIndex + 1),
+          validateChooseExportMethodNextPageWithYesNoOptions
+        )
+      }
+
+      "redirect to show first when the page index is out of bounds and there are no export MRNs set" in {
+        val gen                 = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey             = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val outOfBoundsMrnIndex = 1
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(outOfBoundsMrnIndex),
+          routes.EnterExportMovementReferenceNumberController.showFirst
+        )
+      }
+
+      "redirect to show next when the page index is out of bounds and there are other export MRNs set" in {
+        val gen                 = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+        val journey             = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          Seq(MRN("19GB03I52858027001"))
+        )(gen)
+        val outOfBoundsMrnIndex = 2
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+        }
+
+        checkIsRedirect(
+          performAction(outOfBoundsMrnIndex),
+          routes.EnterExportMovementReferenceNumberController.showNext(2)
         )
       }
     }
 
-    "Submit MRN page" must {
+    "Submit export MRN page" must {
 
-      // "save an export MRN if valid and continue to the check claimant details page (first mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, (_, _, _, _)) =>
-      //   val session = SessionData(journey)
+      def performAction(mrnIndex: Int, data: Seq[(String, String)]): Future[Result] =
+        if mrnIndex === 0 then controller.submitFirst()(FakeRequest().withFormUrlEncodedBody(data*))
+        else controller.submitNext(mrnIndex + 1)(FakeRequest().withFormUrlEncodedBody(data*))
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Left(Error("")))
-      //     mockStoreSession(
-      //       SessionData(
-      //         journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
-      //       )
-      //     )(Right(()))
-      //   }
+      "submit first export MRN" must {
 
-      //   checkIsRedirect(
-      //     performAction(0, enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
-      //     routes.EnterContactDetailsController.show
-      //   )
-      // }
+        "save an export MRN if valid and continue to next page when no selected" in forAllWith(
+          JourneyGenerator(
+            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockStoreSession(
+              SessionData(
+                journey.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
+              )
+            )(Right(()))
+          }
 
-      // "save an export MRN if valid and continue to the check claimant details page (next mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, (_, _, _, _)) =>
-      //   val session = SessionData(journey)
+          checkIsRedirect(
+            performAction(
+              0,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString,
+                enterExportMovementReferenceNumberYesNoKey  -> "false"
+              )
+            ),
+            routes.ConfirmFullRepaymentController.showFirst
+          )
+        }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Left(Error("")))
-      //     mockStoreSession(
-      //       SessionData(
-      //         journey.withEnterContactDetailsMode(true).submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
-      //       )
-      //     )(Right(()))
-      //   }
+        "save an export MRN if valid and continue to check export MRNs page when no selected and more than 1 export MRNs entered" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
+              )
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockStoreSession(
+              SessionData(
+                journey.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
+              )
+            )(Right(()))
+          }
 
-      //   checkIsRedirect(
-      //     performAction(1, enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
-      //     routes.EnterContactDetailsController.show
-      //   )
-      // }
+          checkIsRedirect(
+            performAction(
+              0,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString,
+                enterExportMovementReferenceNumberYesNoKey  -> "false"
+              )
+            ),
+            routes.CheckExportMovementReferenceNumbersController.show
+          )
+        }
 
-      // "reject an export MRN if duplicate of import MRN (first mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, _) =>
-      //   val session = SessionData(journey)
+        "save an export MRN if valid and continue to enter next export MRN page when yes selected" in forAllWith(
+          JourneyGenerator(
+            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockStoreSession(
+              SessionData(
+                journey.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
+              )
+            )(Right(()))
+          }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Left(Error("")))
-      //   }
+          checkIsRedirect(
+            performAction(
+              0,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString,
+                enterExportMovementReferenceNumberYesNoKey  -> "true"
+              )
+            ),
+            routes.EnterExportMovementReferenceNumberController.showNext(2)
+          )
+        }
 
-      //   checkPageIsDisplayed(
-      //     performAction(
-      //       0,
-      //       enterExportMovementReferenceNumberSingleKey -> journey.answers.movementReferenceNumber.get.value
-      //     ),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberSingleKey.securities.error.import"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+        "reject an export MRN if declaration exists for it" in forAllWith(
+          JourneyGenerator(
+            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+          )
+        ) { case (journey, _) =>
+          val exportMrnAndDecl = mrnWithDisplayDeclarationGen.sample.get
 
-      // "reject an export MRN if duplicate of import MRN (next mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, _) =>
-      //   val session = SessionData(journey)
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
+          }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Left(Error("")))
-      //   }
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              0,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> exportMrnAndDecl._1.value,
+                enterExportMovementReferenceNumberYesNoKey  -> "false"
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKey.securities.error.import")
+          )
+        }
 
-      //   checkPageIsDisplayed(
-      //     performAction(
-      //       1,
-      //       enterExportMovementReferenceNumberMultipleKey -> journey.answers.movementReferenceNumber.get.value
-      //     ),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberMultipleKey.securities.error.import"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+        "reject an empty export MRN" in forAllWith(
+          JourneyGenerator(
+            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
+          )
+        ) { case (journey, _) =>
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
 
-      // "display error if acc14 returns a successful response (first mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, (_, _, acc14, _)) =>
-      //   val session = SessionData(journey)
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              0,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> "",
+                enterExportMovementReferenceNumberYesNoKey  -> "false"
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKey.error.required")
+          )
+        }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Right(Some(acc14)))
-      //   }
+        "reject a duplicate export MRN" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 0
 
-      //   checkPageIsDisplayed(
-      //     performAction(0, enterExportMovementReferenceNumberSingleKey -> exampleMrnAsString),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.error.import"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+          }
 
-      // "display error if acc14 returns a successful response (next mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, (_, _, acc14, _)) =>
-      //   val session = SessionData(journey)
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberSingleKey -> "19GB03I52858027002",
+                enterExportMovementReferenceNumberYesNoKey  -> "true"
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKey.securities.error.duplicate-number")
+          )
+        }
+      }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(Right(Some(acc14)))
-      //   }
+      "submit next export MRN" must {
 
-      //   checkPageIsDisplayed(
-      //     performAction(1, enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.error.import"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+        "save an export MRN if valid and continue to check export MRNs page" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 1
 
-      // "reject an invalid MRN (first mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, _) =>
-      //   val session    = SessionData(journey)
-      //   val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockStoreSession(
+              SessionData(
+                journey.submitExportMovementReferenceNumber(mrnIndex, exampleMrn).getOrFail
+              )
+            )(Right(()))
+          }
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //   }
+          checkIsRedirect(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString
+              )
+            ),
+            routes.CheckExportMovementReferenceNumbersController.show
+          )
+        }
 
-      //   checkPageIsDisplayed(
-      //     performAction(0, enterExportMovementReferenceNumberSingleKey -> invalidMRN.value),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.invalid.number"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+        "save an export MRN if valid and continue to enter next export MRN when user has seen CYA page and selects yes" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+            journey,
+            answers => answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = true))
+          )
 
-      // "reject an invalid MRN (next mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, _) =>
-      //   val session    = SessionData(journey)
-      //   val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+          val mrnIndex = 1
 
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //   }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockStoreSession(
+              SessionData(
+                updatedJourney.submitExportMovementReferenceNumber(mrnIndex, exampleMrn).getOrFail
+              )
+            )(Right(()))
+          }
 
-      //   checkPageIsDisplayed(
-      //     performAction(1, enterExportMovementReferenceNumberMultipleKey -> invalidMRN.value),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.invalid.number"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+          checkIsRedirect(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> exampleMrnAsString,
+                enterExportMovementReferenceNumberYesNoKey    -> "true"
+              )
+            ),
+            routes.EnterExportMovementReferenceNumberController.showNext(mrnIndex + 2)
+          )
+        }
 
-      // "reject an empty MRN (first mrn)" in forAllWith(
-      //   JourneyGenerator(
-      //     mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
-      //     buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //   )
-      // ) { case (journey, _) =>
-      //   val session = SessionData(journey)
-      //   inSequence {
-      //     mockAuthWithNoRetrievals()
-      //     mockGetSession(session)
-      //   }
+        "save the same export MRN if valid and continue to check your answers page when user has seen CYA page and selects no" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
+              )
+          )
+        ) { case (journey, _) =>
+          val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
+            journey,
+            answers => answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = true))
+          )
 
-      //   checkPageIsDisplayed(
-      //     performAction(0, enterExportMovementReferenceNumberSingleKey -> ""),
-      //     messageFromMessageKey(s"$enterExportMovementReferenceNumberSingleKeyAndSubKey.title"),
-      //     doc =>
-      //       getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //         s"$enterExportMovementReferenceNumberSingleKey.error.required"
-      //       ),
-      //     expectedStatus = BAD_REQUEST
-      //   )
-      // }
+          val mrnIndex = 1
 
-      //   "reject an empty MRN (next mrn)" in forAllWith(
-      //     JourneyGenerator(
-      //       mrnWithRfsTempAdmissionWithDisplayDeclarationWithMultipleShipmentMfdGen,
-      //       buildSecuritiesJourneyWithSomeSecuritiesSelectedWithMehodOfDisposal
-      //     )
-      //   ) { case (journey, _) =>
-      //     val session = SessionData(journey)
-      //     inSequence {
-      //       mockAuthWithNoRetrievals()
-      //       mockGetSession(session)
-      //     }
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(updatedJourney))
+            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+            mockStoreSession(
+              SessionData(
+                updatedJourney.submitExportMovementReferenceNumber(mrnIndex, MRN("19GB03I52858027002")).getOrFail
+              )
+            )(Right(()))
+          }
 
-      //     checkPageIsDisplayed(
-      //       performAction(1, enterExportMovementReferenceNumberMultipleKey -> ""),
-      //       messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title"),
-      //       doc =>
-      //         getErrorSummary(doc) shouldBe messageFromMessageKey(
-      //           s"$enterExportMovementReferenceNumberSingleKey.error.required"
-      //         ),
-      //       expectedStatus = BAD_REQUEST
-      //     )
-      //   }
+          checkIsRedirect(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> "19GB03I52858027002",
+                enterExportMovementReferenceNumberYesNoKey    -> "false"
+              )
+            ),
+            routes.CheckYourAnswersController.show
+          )
+        }
 
+        "reject an export MRN if declaration exists for it" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 1
+
+          val exportMrnAndDecl = mrnWithDisplayDeclarationGen.sample.get
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
+          }
+
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> exportMrnAndDecl._1.value
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "second"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.securities.error.import")
+          )
+        }
+
+        "reject an empty export MRN" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 1
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+          }
+
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> ""
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "second"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.error.required")
+          )
+        }
+
+        "reject a duplicate export MRN" in forAllWith(
+          JourneyGenerator(
+            mrnWithTaRfsWithDisplayDeclarationGen,
+            journeyBuilder =
+              buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+                Seq(MRN("19GB03I52858027001"))
+              )
+          )
+        ) { case (journey, _) =>
+          val mrnIndex = 1
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(MRN("19GB03I52858027001"), Right(None))
+          }
+
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> "19GB03I52858027001"
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "second"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.securities.error.duplicate-number")
+          )
+        }
+
+        "reject an export MRN at out of bounds index" in {
+          val journeyGen =
+            mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
+          val journey    = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+            Seq(MRN("19GB03I52858027001"))
+          )(journeyGen)
+
+          val mrnIndex = 2
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(journey))
+            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+          }
+
+          checkPageWithErrorIsDisplayed(
+            performAction(
+              mrnIndex,
+              Seq(
+                enterExportMovementReferenceNumberMultipleKey -> "19GB03I52858027002"
+              )
+            ),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "third"),
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.securities.error.import")
+          )
+        }
+      }
     }
   }
 }
