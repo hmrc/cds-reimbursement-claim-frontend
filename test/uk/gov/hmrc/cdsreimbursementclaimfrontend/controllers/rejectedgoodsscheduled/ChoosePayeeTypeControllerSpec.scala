@@ -23,6 +23,9 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Result
+import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
@@ -30,6 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
+
+import scala.concurrent.Future
 
 class ChoosePayeeTypeControllerSpec
     extends PropertyBasedControllerSpec
@@ -55,70 +62,70 @@ class ChoosePayeeTypeControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
-  // "Choose Payee Type Controller" should {
+  "Choose Payee Type Controller" should {
 
-  //   def showPage(): Future[Result] =
-  //     controller.show(FakeRequest())
+    def showPage(): Future[Result] =
+      controller.show(FakeRequest())
 
-  //   def submitPayeeType(data: (String, String)*): Future[Result] =
-  //     controller.submit(FakeRequest().withFormUrlEncodedBody(data: _*))
+    def submitPayeeType(data: (String, String)*): Future[Result] =
+      controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-  //   "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
-  //     inSequence {
-  //       mockAuthWithDefaultRetrievals()
-  //       mockGetSession(
-  //         maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
-  //           session.copy(rejectedGoodsScheduledJourney =
-  //             journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
-  //           )
-  //         )
-  //       )
-  //     }
+    "display page" in forAll { (maybePayeeType: Option[PayeeType]) =>
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(
+          maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
+            session.copy(rejectedGoodsScheduledJourney =
+              journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+            )
+          )
+        )
+      }
 
-  //     checkPageIsDisplayed(
-  //       showPage(),
-  //       messageFromMessageKey(s"$formKey.title")
-  //     )
-  //   }
+      checkPageIsDisplayed(
+        showPage(),
+        messageFromMessageKey(s"$formKey.title")
+      )
+    }
 
-  //   "fail to submit payee type" when {
-  //     "nothing is selected" in {
-  //       inSequence {
-  //         mockAuthWithDefaultRetrievals()
-  //         mockGetSession(session)
-  //       }
+    "fail to submit payee type" when {
+      "nothing is selected" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
 
-  //       checkPageIsDisplayed(
-  //         submitPayeeType(),
-  //         messageFromMessageKey(s"$formKey.title"),
-  //         doc =>
-  //           doc
-  //             .select(".govuk-error-summary__list > li > a")
-  //             .text() shouldBe messageFromMessageKey(
-  //             s"$formKey.error.required"
-  //           ),
-  //         BAD_REQUEST
-  //       )
-  //     }
-  //   }
+        checkPageIsDisplayed(
+          submitPayeeType(),
+          messageFromMessageKey(s"$formKey.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$formKey.error.required"
+            ),
+          BAD_REQUEST
+        )
+      }
+    }
 
-  //   "successfully submit bank account type" when {
-  //     "one of the options selected" in forAll { (payeeType: PayeeType) =>
-  //       inSequence {
-  //         mockAuthWithDefaultRetrievals()
-  //         mockGetSession(session)
-  //         mockStoreSession(
-  //           session.copy(
-  //             rejectedGoodsScheduledJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
-  //           )
-  //         )(Right(()))
-  //       }
+    "successfully submit bank account type" when {
+      "one of the options selected" in forAll { (payeeType: PayeeType) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockStoreSession(
+            session.copy(
+              rejectedGoodsScheduledJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+            )
+          )(Right(()))
+        }
 
-  //       checkIsRedirect(
-  //         submitPayeeType(formKey -> payeeType.toString),
-  //         routes.EnterBankAccountDetailsController.show
-  //       )
-  //     }
-  //   }
-  // }
+        checkIsRedirect(
+          submitPayeeType(formKey -> payeeType.toString),
+          routes.EnterBankAccountDetailsController.show
+        )
+      }
+    }
+  }
 }
