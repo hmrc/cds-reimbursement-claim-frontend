@@ -400,15 +400,13 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if needsBanksAccountDetailsSubmission then
-        Right(
-          this.copy(
-            answers.copy(bankAccountDetails =
-              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
-            )
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
           )
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def removeBankAccountDetails(): RejectedGoodsScheduledJourney =
@@ -420,13 +418,11 @@ final class RejectedGoodsScheduledJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsScheduledJourney] =
     whileClaimIsAmendable {
-      if needsBanksAccountDetailsSubmission then
-        Right(
-          this.copy(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def receiveScheduledDocument(

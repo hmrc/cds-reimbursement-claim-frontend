@@ -70,8 +70,7 @@ class ChooseInspectionAddressTypeController @Inject() (
       (
         journey,
         Redirect(
-          if journey.needsBanksAccountDetailsSubmission then checkYourAnswers
-          else routes.ChoosePayeeTypeController.show
+          checkYourAnswers
         )
       )
     else (journey, Redirect(routes.ChoosePayeeTypeController.show))

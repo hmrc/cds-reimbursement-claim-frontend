@@ -103,9 +103,6 @@ final class OverpaymentsMultipleJourney private (
   def hasCompleteMovementReferenceNumbers: Boolean =
     countOfMovementReferenceNumbers >= 2
 
-  def needsBanksAccountDetailsSubmission: Boolean =
-    true
-
   def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
     if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
 

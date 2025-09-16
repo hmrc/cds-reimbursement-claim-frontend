@@ -62,8 +62,6 @@ trait ScheduledVariantProperties extends CommonJourneyProperties {
   def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
     answers.displayDeclaration
 
-  def needsBanksAccountDetailsSubmission: Boolean = true
-
   def getSelectedDocumentType: Option[UploadDocumentType] =
     answers.selectedDocumentType
 
