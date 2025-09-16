@@ -133,7 +133,29 @@ class SelectDutyTypesControllerSpec
         )
       }
 
-    }
+      "redirect to check claim details when user has completed claims" in {
+        val journey = completeJourneyGen.sample
+          .getOrElse(fail("Failed to create journey"))
+          .submitCheckYourAnswersChangeMode(false)
 
+        val completedDutyTypes = journey.getSelectedDutyTypes.getOrElse(fail("Failed to get selected duty types"))
+
+        val updatedJourney =
+          journey
+            .selectAndReplaceDutyTypeSetForReimbursement(completedDutyTypes)
+            .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(SessionData(updatedJourney))(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(completedDutyTypes.map(dutyType => s"$messagesKey[]" -> dutyType.repr)),
+          routes.CheckClaimDetailsController.show
+        )
+      }
+    }
   }
 }
