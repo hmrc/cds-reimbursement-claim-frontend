@@ -53,8 +53,8 @@ trait CommonJourneyProperties {
 
   def getLeadMovementReferenceNumber: Option[MRN]
   def getLeadDisplayDeclaration: Option[DisplayDeclaration]
-  def needsPayeeTypeSelection: Boolean = true
-  def needsBanksAccountDetailsSubmission: Boolean
+  def needsPayeeTypeSelection: Boolean            = true
+  def needsBanksAccountDetailsSubmission: Boolean = true
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]]
 
   def getDisplayDeclarations: Seq[DisplayDeclaration] =

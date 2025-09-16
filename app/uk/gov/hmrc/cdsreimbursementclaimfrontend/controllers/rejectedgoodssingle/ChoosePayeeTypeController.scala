@@ -48,7 +48,6 @@ class ChoosePayeeTypeController @Inject() (
 
   final def nextPage(journey: Journey): Call =
     if journey.isAllSelectedDutiesAreCMAEligible then routes.ChooseRepaymentMethodController.show
-    else if journey.needsBanksAccountDetailsSubmission then routes.EnterBankAccountDetailsController.show
-    else routes.UploadFilesController.show
+    else routes.EnterBankAccountDetailsController.show
 
 }

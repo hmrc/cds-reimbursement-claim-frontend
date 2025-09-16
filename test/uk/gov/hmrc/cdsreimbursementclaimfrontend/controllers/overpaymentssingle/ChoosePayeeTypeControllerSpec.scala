@@ -125,5 +125,26 @@ class ChoosePayeeTypeControllerSpec
         )
       }
     }
+
+    "successfully submit bank account type and redirect to choose repayment method page" when {
+      "one of the options selected and all available duties are CMA eligible" in forAll { (payeeType: PayeeType) =>
+        val journey   = completeJourneyCMAEligibleGen.sample
+          .getOrElse(fail("Failed to generate journey"))
+          .submitCheckYourAnswersChangeMode(false)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(
+            SessionData(journey.submitPayeeType(payeeType).getOrFail)
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          submitPayeeType(formKey -> payeeType.toString),
+          routes.ChooseRepaymentMethodController.show
+        )
+      }
+    }
   }
 }

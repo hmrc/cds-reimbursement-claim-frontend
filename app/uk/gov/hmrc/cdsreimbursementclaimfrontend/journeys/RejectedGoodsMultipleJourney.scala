@@ -160,8 +160,6 @@ final class RejectedGoodsMultipleJourney private (
 
   def hasAllClaimsSelectedForIndex(index: Int): Boolean = true
 
-  def needsBanksAccountDetailsSubmission: Boolean = true
-
   def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
     if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
 
@@ -611,15 +609,13 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if needsBanksAccountDetailsSubmission then
-        Right(
-          this.copy(
-            answers.copy(bankAccountDetails =
-              Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
-            )
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
           )
         )
-      else Left("submitBankAccountDetails.unexpected")
+      )
     }
 
   def removeBankAccountDetails(): RejectedGoodsMultipleJourney =
@@ -631,13 +627,11 @@ final class RejectedGoodsMultipleJourney private (
 
   def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsMultipleJourney] =
     whileClaimIsAmendable {
-      if needsBanksAccountDetailsSubmission then
-        Right(
-          this.copy(
-            answers.copy(bankAccountType = Some(bankAccountType))
-          )
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
         )
-      else Left("submitBankAccountType.unexpected")
+      )
     }
 
   def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsMultipleJourney =
