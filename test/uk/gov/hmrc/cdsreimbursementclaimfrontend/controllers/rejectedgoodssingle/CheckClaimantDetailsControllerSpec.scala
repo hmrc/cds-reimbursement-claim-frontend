@@ -107,6 +107,36 @@ class CheckClaimantDetailsControllerSpec
           )
         }
       }
+
+      "redirect to startAddressLookup when no address is set" in {
+        forAll(completeJourneyGen) { journey =>
+          val initialJourney = RejectedGoodsSingleJourney
+            .unsafeModifyAnswers(journey, _.copy(contactAddress = None))
+            .submitCheckYourAnswersChangeMode(false)
+
+          inSequence {
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(performAction(), routes.CheckClaimantDetailsController.redirectToALF())
+        }
+      }
+
+      "redirect to enter MRN when no contact details or address is set" in {
+        forAll(completeJourneyGen) { journey =>
+          val initialJourney = RejectedGoodsSingleJourney
+            .unsafeModifyAnswers(journey, _.copy(contactAddress = None, contactDetails = None))
+            .submitCheckYourAnswersChangeMode(false)
+
+          inSequence {
+            mockAuthWithOrgWithEoriEnrolmentRetrievals()
+            mockGetSession(SessionData(initialJourney))
+          }
+
+          checkIsRedirect(performAction(), routes.EnterMovementReferenceNumberController.show)
+        }
+      }
     }
 
     "Submit Check Claimant Details page" must {
@@ -163,6 +193,26 @@ class CheckClaimantDetailsControllerSpec
           )
         }
       }
+
+      "redirect to the check your answers page if user has seen CYA page" in {
+        forAll(completeJourneyGen, displayDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (journey, displayDeclaration, contactDetails, address) =>
+            val updatedJourney = journey
+              .submitContactDetails(Some(contactDetails))
+              .submitContactAddress(address)
+
+            inSequence {
+              mockAuthWithOrgWithEoriEnrolmentRetrievals()
+              mockGetSession(SessionData(journey))
+              mockStoreSession(SessionData(updatedJourney))(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.CheckYourAnswersController.show
+            )
+        }
+      }
     }
   }
 
@@ -197,6 +247,23 @@ class CheckClaimantDetailsControllerSpec
       checkIsRedirect(
         retrieveAddress(Some(UUID.randomUUID())),
         routes.CheckClaimantDetailsController.show
+      )
+    }
+
+    "update an address once complete and redirect to CYA when user has seen CYA page" in forAll(
+      completeJourneyGen,
+      genContactAddress
+    ) { (journey, address) =>
+      inSequence {
+        mockAuthWithOrgWithEoriEnrolmentRetrievals()
+        mockGetSession(SessionData(journey))
+        mockAddressRetrieve(Right(address))
+        mockStoreSession(Right(()))
+      }
+
+      checkIsRedirect(
+        retrieveAddress(Some(UUID.randomUUID())),
+        routes.CheckYourAnswersController.show
       )
     }
 

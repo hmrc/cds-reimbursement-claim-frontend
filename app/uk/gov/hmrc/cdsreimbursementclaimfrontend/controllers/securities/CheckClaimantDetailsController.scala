@@ -73,9 +73,6 @@ class CheckClaimantDetailsController @Inject() (
   override val nextPageInTheJourney: Call =
     routes.CheckYourAnswersController.show
 
-  override def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey =
-    journey.submitContactDetails(Some(contactDetails))
-
   override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
     journey.submitContactAddress(contactAddress)
 

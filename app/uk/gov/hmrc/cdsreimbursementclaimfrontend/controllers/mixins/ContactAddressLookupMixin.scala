@@ -29,8 +29,6 @@ trait ContactAddressLookupMixin extends JourneyBaseController with AddressLookup
   val nextPageInTheJourney: Call
   val startAddressLookup: Call
 
-  def modifyJourney(journey: Journey, contactDetails: MrnContactDetails): Journey
-
   def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>

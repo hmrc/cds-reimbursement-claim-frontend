@@ -128,7 +128,7 @@ class ChoosePayeeTypeControllerSpec
 
     "successfully submit bank account type and redirect to choose repayment method page" when {
       "one of the options selected and all available duties are CMA eligible" in forAll { (payeeType: PayeeType) =>
-        val journey   = completeJourneyCMAEligibleGen.sample
+        val journey = completeJourneyCMAEligibleGen.sample
           .getOrElse(fail("Failed to generate journey"))
           .submitCheckYourAnswersChangeMode(false)
 
