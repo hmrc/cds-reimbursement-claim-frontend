@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
+import cats.data.EitherT
 import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -24,6 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -32,10 +34,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGener
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EnterDeclarantEoriNumberControllerSpec
     extends PropertyBasedControllerSpec
@@ -45,10 +53,13 @@ class EnterDeclarantEoriNumberControllerSpec
 
   val enterDeclarantEoriNumberKey: String = "enter-declarant-eori-number"
 
+  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[DeclarationConnector].toInstance(mockDeclarationConnector)
     )
 
   val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
@@ -257,6 +268,108 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
+      "redirect to select securities and submit a valid EORI" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            id = exampleMrnAsString,
+            securityReason = ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = Some(yetAnotherExampleEori)
+          )
+
+        val journey = SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+          .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
+          mockStoreSession(
+            SessionData(
+              journey
+                .submitDeclarantEoriNumber(anotherExampleEori)
+                .flatMap(_.submitClaimDuplicateCheckStatus(false))
+                .getOrFail
+            )
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(controller.formKey -> anotherExampleEori.value),
+          routes.SelectSecuritiesController.showFirst()
+        )
+      }
+
+      "redirect to ineligible page when claim already exists" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            id = exampleMrnAsString,
+            securityReason = ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = Some(yetAnotherExampleEori)
+          )
+
+        val journey = SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+          .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
+          mockStoreSession(
+            SessionData(
+              journey
+                .submitDeclarantEoriNumber(anotherExampleEori)
+                .flatMap(_.submitClaimDuplicateCheckStatus(true))
+                .getOrFail
+            )
+          )(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(controller.formKey -> anotherExampleEori.value),
+          baseRoutes.IneligibleController.ineligible
+        )
+      }
+
+      "display error page when isDuplicateClaim returns left" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            id = exampleMrnAsString,
+            securityReason = ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = Some(yetAnotherExampleEori)
+          )
+
+        val journey = SecuritiesJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+          .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetIsDuplicateClaim(Left(Error("foo")))
+        }
+
+        checkIsTechnicalErrorPage(
+          performAction(controller.formKey -> anotherExampleEori.value)
+        )
+      }
+
       "on submit redirect to the bill of discharge page when rfs is InwardProcessingRelief" in {
         val declaration: DisplayDeclaration =
           buildSecuritiesDisplayDeclaration(
@@ -314,6 +427,41 @@ class EnterDeclarantEoriNumberControllerSpec
           routes.CheckTotalImportDischargedController.show
         )
       }
+
+      "redirect to the enter importer EORI page when required but missing" in {
+        val declaration: DisplayDeclaration =
+          buildSecuritiesDisplayDeclaration(
+            exampleMrnAsString,
+            ReasonForSecurity.AccountSales.acc14Code,
+            declarantEORI = anotherExampleEori,
+            consigneeEORI = Some(yetAnotherExampleEori)
+          )
+
+        lazy val session = SessionData(
+          SecuritiesJourney
+            .empty(exampleEori)
+            .submitMovementReferenceNumber(exampleMrn)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(enterDeclarantEoriNumberKey -> exampleEori.value),
+          routes.EnterImporterEoriNumberController.show
+        )
+      }
     }
   }
+
+  private def mockGetIsDuplicateClaim(response: Either[Error, ExistingClaim]) =
+    (mockDeclarationConnector
+      .getIsDuplicate(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .expects(*, *, *)
+      .returning(EitherT.fromEither[Future](response))
 }
