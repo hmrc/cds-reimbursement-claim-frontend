@@ -72,7 +72,7 @@ object CheckYourAnswersSupportingDocumentsCardSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages("check-your-answers.attached-documents.uploaded-files"))
+                  visuallyHiddenText = Some(messages("check-your-answers.attached-documents.uploaded-files.hidden"))
                 )
               )
             )
@@ -127,7 +127,8 @@ object CheckYourAnswersSupportingDocumentsCardSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages("check-your-answers.attached-documents.add-other-documents.label"))
+                  visuallyHiddenText =
+                    Some(messages("check-your-answers.attached-documents.add-other-documents.hidden"))
                 )
               )
             )
@@ -168,7 +169,8 @@ object CheckYourAnswersSupportingDocumentsCardSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages("check-your-answers.attached-documents.uploaded-files"))
+                  visuallyHiddenText =
+                    Some(messages("check-your-answers.attached-documents.other-uploaded-files.hidden"))
                 )
               )
             )
@@ -218,8 +220,9 @@ object CheckYourAnswersSupportingDocumentsCardSummary {
             ActionItem(
               href = changeCall(documentType).url,
               content = Text(messages("cya.change")),
-              visuallyHiddenText =
-                Some(messages(s"check-your-answers.attached-documents.${UploadDocumentType.keyOf(documentType)}.label"))
+              visuallyHiddenText = Some(
+                messages(s"check-your-answers.attached-documents.${UploadDocumentType.keyOf(documentType)}.hidden")
+              )
             )
           )
         )

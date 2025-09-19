@@ -64,7 +64,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages("check-your-answers.payee-type.label"))
+                  visuallyHiddenText = Some(messages("check-your-answers.payee-type.hidden"))
                 )
               )
             )
@@ -115,7 +115,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
                     ActionItem(
                       href = changeCall.url,
                       content = Text(messages("cya.change")),
-                      visuallyHiddenText = Some(messages("check-your-answers.bank-details.label"))
+                      visuallyHiddenText = Some(messages("check-your-answers.bank-details.hidden"))
                     )
                   )
                 )

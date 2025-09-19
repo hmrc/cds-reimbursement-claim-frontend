@@ -529,7 +529,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"check-your-answers.securities.mrn-label-plaintext"))
+                    visuallyHiddenText = Some(messages(s"check-your-answers.securities.mrn-label-plaintext.hidden"))
                   )
                 )
               )
@@ -552,7 +552,8 @@ object CheckYourAnswersClaimDetailsCardSummary {
                   ActionItem(
                     href = changeCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"check-your-answers.securities.reason-for-security-label"))
+                    visuallyHiddenText =
+                      Some(messages(s"check-your-answers.securities.reason-for-security-label.hidden"))
                   )
                 )
               )
@@ -583,7 +584,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
                         ActionItem(
                           href = changeCall.url,
                           content = Text(messages("cya.change")),
-                          visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-full-amount.label"))
+                          visuallyHiddenText = Some(messages(s"check-your-answers.securities.claim-full-amount.hidden"))
                         )
                       )
                     )
