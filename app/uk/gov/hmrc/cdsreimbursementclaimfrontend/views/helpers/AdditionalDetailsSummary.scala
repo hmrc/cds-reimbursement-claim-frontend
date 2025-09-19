@@ -29,13 +29,11 @@ object AdditionalDetailsSummary {
     changeCallOpt: Option[Call]
   )(implicit
     messages: Messages
-  ): SummaryList = {
-    val label = messages(s"$key.label")
-
+  ): SummaryList =
     SummaryList(
       List(
         SummaryListRow(
-          key = Key(Text(label)),
+          key = Key(Text(messages(s"$key.label"))),
           value = Value(Text(answer)),
           actions = changeCallOpt.map(changeCall =>
             Actions(
@@ -43,7 +41,7 @@ object AdditionalDetailsSummary {
                 ActionItem(
                   href = changeCall.url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(label)
+                  visuallyHiddenText = Some(messages(s"$key.hidden"))
                 )
               )
             )
@@ -51,5 +49,4 @@ object AdditionalDetailsSummary {
         )
       )
     )
-  }
 }

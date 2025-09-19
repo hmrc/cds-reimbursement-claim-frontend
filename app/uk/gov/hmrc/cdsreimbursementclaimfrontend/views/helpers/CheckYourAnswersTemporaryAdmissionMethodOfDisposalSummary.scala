@@ -52,7 +52,7 @@ object CheckYourAnswersTemporaryAdmissionMethodOfDisposalSummary {
                       href = routes.ChooseExportMethodController.show.url,
                       content = Text(messages("cya.change")),
                       visuallyHiddenText =
-                        Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal"))
+                        Some(messages(s"check-your-answers.securities.claim-details.method-of-disposal.hidden"))
                     )
                   )
                 )

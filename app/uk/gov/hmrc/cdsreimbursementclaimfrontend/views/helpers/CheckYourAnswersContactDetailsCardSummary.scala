@@ -56,7 +56,7 @@ object CheckYourAnswersContactDetailsCardSummary {
           ActionItem(
             href = s"${contactDetailsCall.url}",
             content = Text(messages("cya.change")),
-            visuallyHiddenText = Some(messages("check-your-answers.contact-information.personal-details"))
+            visuallyHiddenText = Some(messages("check-your-answers.contact-information.personal-details.hidden"))
           )
         )
       )
@@ -70,7 +70,7 @@ object CheckYourAnswersContactDetailsCardSummary {
           ActionItem(
             href = s"${addressCall.url}",
             content = Text(messages("cya.change")),
-            visuallyHiddenText = Some(messages("check-your-answers.contact-information.address"))
+            visuallyHiddenText = Some(messages("check-your-answers.contact-information.address.hidden"))
           )
         )
       )
