@@ -1706,11 +1706,17 @@ select-duties.error.required=Select one or more duty types you want to claim for
 select-duties.multiple.paragraph=Select all that apply for Movement Reference Number (MRN): <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>
 select-duties.multiple.subsidies.title=Duties shown are all covered by subsidy
 select-duties.multiple.title=Select the duties you want to claim for under {0} Movement Reference Number (MRN)
-select-duties.paragraph=Select all that apply
+select-duties.hint=Select all that apply
 select-duties.securities.title=What do you want to claim?
 select-duties.subsidies.title=Duties shown are all covered by subsidy
 select-duties.title=What do you want to claim?
+select-duties.details.single.p1=If the importer is VAT registered, you must not use this service to claim back overpaid VAT. The importer must adjust their VAT return instead, following <a href="{0}" target="_blank" rel="noopener noreferrer" class="govuk-link">normal VAT rules (opens in new tab)</a>.
 select-duties.title.caption=Claim details
+select-duties.single.title=Overpaid duties and VAT
+select-duties.single.details=If you include VAT in this claim and the importer is VAT registered, we'll remove the VAT amount from your repayment.
+select-duties.single.h2=What do you want to claim?
+
+
 select-duties.details.title=If you''re a VAT registered business
 select-duties.details.p1=If you''re a VAT registered business, you must not use this service to claim a repayment of overpaid VAT.
 select-duties.details.p2=You''ll need to make an adjustment through your VAT return instead, following normal VAT rules. Overpaid import VAT is not due to HMRC so you cannot recover it as input tax.

@@ -37,19 +37,21 @@
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
  dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
  bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
- checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
+ insetText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_text
 )
 
 @(
-    form : Form[Seq[TaxCode]], 
-    availableTaxCodes : Seq[(TaxCode,Boolean)], 
-    indexAndMrnOpt: Option[(Int,MRN)], 
+    form : Form[Seq[TaxCode]],
+    availableTaxCodes : Seq[(TaxCode,Boolean)],
+    indexAndMrnOpt: Option[(Int,MRN)],
     showCmaNotEligibleHint: Boolean,
     subKey: Option[String],
-    postAction: Call
+    postAction: Call,
+    guidanceUrl: Option[String] = None
 )(implicit  request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
-    @title = @{messages(s"select-duties.title")}
+    @title = @{if(subKey.getOrElse("") == "single") messages("select-duties.single.title") else messages("select-duties.title")}
     @caption = @{messages(s"select-duties.title.caption")}
 
     @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
@@ -68,8 +70,16 @@
 
         @errorSummary(form.errors)
 
-        @heading(Html(title), caption = caption)
+        @if(subKey.getOrElse("") == "single"){
+            @heading(Html(title), classes = "govuk-heading-l")
+        } else {
+            @heading(Html(title), caption = caption)
+        }
 
+        @if(subKey.getOrElse("") == "single"){
+            @paragraph(Html(messages("select-duties.details.single.p1", guidanceUrl.getOrElse(""))), Some("govuk-body"))
+            @insetText(content = HtmlContent(messages(s"select-duties.single.details")))
+        } else {
         @dropdownDetails(
             summary = "select-duties.details.title",
             html(
@@ -84,29 +94,26 @@
                 )
             )
         )
-
-
+}
 
         @if(subKey.getOrElse("") == "multiple"){
             @indexAndMrnOpt.map{ case(_, mrn) =>
                 @paragraph(Html(messages(s"select-duties.multiple.paragraph", mrn.value)))
             }.getOrElse("")
-        } else {
-            @paragraph(Html(messages(s"select-duties.paragraph")),Some("govuk-body"))
         }
 
         @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
-            @checkboxes(
-                field = form(s"select-duties"),
-                legendAsHeading = false,
-                legendClasses = Some("govuk-visually-hidden"),
-                legend = HtmlContent(title),    
-                items = options.toList,
-                hint = None
-            )
+        @checkboxes(
+            field = form(s"select-duties"),
+            legendAsHeading = false,
+            legendClasses = if (subKey.getOrElse("") == "single") Some("govuk-fieldset__legend--m") else Some("govuk-visually-hidden"),
+            legend = if (subKey.getOrElse("") == "single") HtmlContent(messages("select-duties.single.h2")) else HtmlContent(title),
+            items = options.toList,
+            hint = if (subKey.getOrElse("") == "single") Some(Html(messages("select-duties.hint"))) else None,
+        )
 
-            @submitButton("button.continue")
+@submitButton("button.continue")
 
         }
 
