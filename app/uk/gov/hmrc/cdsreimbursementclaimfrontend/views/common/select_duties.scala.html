@@ -51,35 +51,35 @@
     guidanceUrl: Option[String] = None
 )(implicit  request: Request[?], messages:Messages, viewConfig: ViewConfig)
 
-    @title = @{if(subKey.getOrElse("") == "single") messages("select-duties.single.title") else messages("select-duties.title")}
-    @caption = @{messages(s"select-duties.title.caption")}
+@title = @{if(subKey.getOrElse("") == "single") messages("select-duties.single.title") else messages("select-duties.title")}
+@caption = @{messages(s"select-duties.title.caption")}
 
-    @options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
-        CheckboxItem(
-            name = Some(s"select-duties[]"),
-            value = taxCode.value,
-            content = Text(taxCode.value + " - " + messages(s"select-duties.duty.$taxCode")),
-            hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"select-duties.duty.hint")))),
-            checked = form.data.exists(_._2 == taxCode.value)
-        )
-    }}
+@options = @{availableTaxCodes.map { case (taxCode: TaxCode, isCmaEligible: Boolean) =>
+    CheckboxItem(
+        name = Some(s"select-duties[]"),
+        value = taxCode.value,
+        content = Text(taxCode.value + " - " + messages(s"select-duties.duty.$taxCode")),
+        hint = if(isCmaEligible || !showCmaNotEligibleHint) None else Some(Hint(content = HtmlContent(messages(s"select-duties.duty.hint")))),
+        checked = form.data.exists(_._2 == taxCode.value)
+    )
+}}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
-        @errorSummary(form.errors)
+    @errorSummary(form.errors)
 
-        @if(subKey.getOrElse("") == "single"){
-            @heading(Html(title), classes = "govuk-heading-l")
-        } else {
-            @heading(Html(title), caption = caption)
-        }
+    @if(subKey.getOrElse("") == "single"){
+        @heading(Html(title), classes = "govuk-heading-l")
+    } else {
+        @heading(Html(title), caption = caption)
+    }
 
-        @if(subKey.getOrElse("") == "single"){
-            @paragraph(Html(messages("select-duties.details.single.p1", guidanceUrl.getOrElse(""))), Some("govuk-body"))
-            @insetText(content = HtmlContent(messages(s"select-duties.single.details")))
-        } else {
+    @if(subKey.getOrElse("") == "single"){
+        @paragraph(Html(messages("select-duties.details.single.p1", guidanceUrl.getOrElse(""))), Some("govuk-body"))
+        @insetText(content = HtmlContent(messages(s"select-duties.single.details")))
+    } else {
         @dropdownDetails(
             summary = "select-duties.details.title",
             html(
@@ -94,15 +94,15 @@
                 )
             )
         )
-}
+    }
 
-        @if(subKey.getOrElse("") == "multiple"){
-            @indexAndMrnOpt.map{ case(_, mrn) =>
-                @paragraph(Html(messages(s"select-duties.multiple.paragraph", mrn.value)))
-            }.getOrElse("")
-        }
+    @if(subKey.getOrElse("") == "multiple"){
+        @indexAndMrnOpt.map{ case(_, mrn) =>
+            @paragraph(Html(messages(s"select-duties.multiple.paragraph", mrn.value)))
+        }.getOrElse("")
+    }
 
-        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @checkboxes(
             field = form(s"select-duties"),
@@ -110,11 +110,9 @@
             legendClasses = if (subKey.getOrElse("") == "single") Some("govuk-fieldset__legend--m") else Some("govuk-visually-hidden"),
             legend = if (subKey.getOrElse("") == "single") HtmlContent(messages("select-duties.single.h2")) else HtmlContent(title),
             items = options.toList,
-            hint = if (subKey.getOrElse("") == "single") Some(Html(messages("select-duties.hint"))) else None,
+            hint = if (subKey.getOrElse("") == "single") Some(Html(messages("select-duties.hint"))) else None
         )
 
-@submitButton("button.continue")
-
-        }
-
+        @submitButton("button.continue")
     }
+}

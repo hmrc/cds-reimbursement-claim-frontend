@@ -32,10 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelected
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.mrnWithRfsWithDisplayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
@@ -192,6 +190,44 @@ class ChooseExportMethodControllerSpec
         checkIsRedirect(
           performAction(Some(List(methodOfDisposal))),
           routes.ConfirmFullRepaymentController.showFirst
+        )
+      }
+
+      "redirect to choose payee type if any option other than exported methods of disposal and has single security" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator =
+            SecuritiesSingleJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
+          journeyBuilder =
+            SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
+        )
+      ) { case (journey, (_, _, _, methodOfDisposal)) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Some(List(methodOfDisposal))),
+          routes.ChoosePayeeTypeController.show
+        )
+      }
+
+      "redirect to check claimant details if reason for security is not ntas" in forAllWith(
+        JourneyGenerator(
+          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values -- ReasonForSecurity.ntas),
+          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+        )
+      ) { case (journey, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(journey))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone))),
+          routes.CheckClaimantDetailsController.show
         )
       }
     }
