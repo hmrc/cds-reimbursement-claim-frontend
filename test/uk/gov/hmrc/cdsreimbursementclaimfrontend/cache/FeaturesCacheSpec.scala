@@ -24,8 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.TestEnvironment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.config
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCacheSpec.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
@@ -34,6 +33,10 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import uk.gov.hmrc.mongo.cache.CacheItem
+import uk.gov.hmrc.mongo.cache.DataKey
+import play.api.libs.json.Writes
 
 class FeaturesCacheSpec
     extends AnyWordSpec
@@ -44,6 +47,33 @@ class FeaturesCacheSpec
 
   val sessionStore =
     new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config)
+
+  val errorSessionStore =
+    new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def get()(implicit hc: HeaderCarrier): Future[Either[Error, FeatureSet]] =
+        Future.successful(Left(Error("test")))
+
+      override def store(featureSet: FeatureSet)(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
+        Future.successful(Left(Error("test")))
+    }
+
+  val failingSessionStore =
+    new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def findById(cacheId: HeaderCarrier): Future[Option[CacheItem]] =
+        Future.failed(new Exception("test"))
+
+      override def put[A : Writes](cacheId: HeaderCarrier)(dataKey: DataKey[A], data: A): Future[CacheItem] =
+        Future.failed(new Exception("test"))
+    }
+
+  val fatalSessionStore =
+    new DefaultFeaturesCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def findById(cacheId: HeaderCarrier): Future[Option[CacheItem]] =
+        throw new Exception("test")
+
+      override def put[A : Writes](cacheId: HeaderCarrier)(dataKey: DataKey[A], data: A): Future[CacheItem] =
+        throw new Exception("test")
+    }
 
   val featureSetGen: Gen[FeatureSet] =
     for
@@ -78,6 +108,30 @@ class FeaturesCacheSpec
       await(sessionStore.get())               should be(Right(FeatureSet.empty))
     }
 
+    "return error if cache get returns an error" in new TestEnvironment {
+      await(errorSessionStore.get()) should be(Left(Error("test")))
+    }
+
+    "return error if cache store returns an error" in new TestEnvironment {
+      await(errorSessionStore.store(FeatureSet.empty)) should be(Left(Error("test")))
+    }
+
+    "return error if cache fails to get session data" in new TestEnvironment {
+      await(failingSessionStore.get()).isLeft should be(true)
+    }
+
+    "return error if cache fails to store session data" in new TestEnvironment {
+      await(failingSessionStore.store(FeatureSet.empty)) should be(Right(()))
+    }
+
+    "return error if cache get access raises an exception" in new TestEnvironment {
+      await(fatalSessionStore.get()).isLeft should be(true)
+    }
+
+    "return error if cache store access raises an exception" in new TestEnvironment {
+      await(fatalSessionStore.store(FeatureSet.empty)) should be(Right(()))
+    }
+
     "be able to update the FeatureSet" in new TestEnvironment {
 
       val result = sessionStore.store(FeatureSet.empty)
@@ -108,7 +162,32 @@ class FeaturesCacheSpec
         val getResult = sessionStore.get()
         await(getResult) should be(Right(FeatureSet.empty))
       }
+    }
 
+    "be able to update the FeatureSet if identical returned" in new TestEnvironment {
+
+      val result = sessionStore.store(FeatureSet.empty)
+
+      await(result) should be(Right(()))
+
+      await(sessionStore.update(identity)) should be(Right(()))
+
+      eventually {
+        val getResult = sessionStore.get()
+        await(getResult) should be(Right(FeatureSet.empty))
+      }
+    }
+
+    "be able to update the FeatureSet if session not found" in new TestEnvironment {
+      await(sessionStore.update(identity)) should be(Right(()))
+    }
+
+    "return an error if cache fails" in new NoSessionTestEnvironment {
+      await(failingSessionStore.update(_ => FeatureSet(enabled = Set(Feature.NewEoriFormat)))).isLeft should be(true)
+    }
+
+    "return an error if cache fails fatally" in new NoSessionTestEnvironment {
+      await(fatalSessionStore.update(_ => FeatureSet(enabled = Set(Feature.NewEoriFormat)))).isLeft should be(true)
     }
 
   }
@@ -130,6 +209,12 @@ object FeaturesCacheSpec {
     val sessionId = SessionId(UUID.randomUUID().toString)
 
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(sessionId))
+
+  }
+
+  class NoSessionTestEnvironment {
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = None)
 
   }
 

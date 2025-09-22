@@ -23,9 +23,9 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.TestEnvironment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.config
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.mongo.CurrentTimestampSupport
@@ -34,7 +34,10 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
+import uk.gov.hmrc.mongo.cache.DataKey
+import play.api.libs.json.Reads
+import uk.gov.hmrc.mongo.cache.CacheItem
+import play.api.libs.json.Writes
 
 class SessionCacheSpec
     extends AnyWordSpec
@@ -45,6 +48,34 @@ class SessionCacheSpec
 
   val sessionStore =
     new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config)
+
+  val errorSessionStore =
+    new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def get()(implicit hc: HeaderCarrier): Future[Either[Error, Option[SessionData]]] =
+        Future.successful(Left(Error("test")))
+
+      override def store(sessionData: SessionData)(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
+        Future.successful(Left(Error("test")))
+    }
+
+  val failingSessionStore =
+    new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def findById(cacheId: HeaderCarrier): Future[Option[CacheItem]] =
+        Future.failed(new Exception("test"))
+
+      override def put[A : Writes](cacheId: HeaderCarrier)(dataKey: DataKey[A], data: A): Future[CacheItem] =
+        Future.failed(new Exception("test"))
+    }
+
+  val fatalSessionStore =
+    new DefaultSessionCache(mongoComponent, new CurrentTimestampSupport(), config) {
+      override def get[A : Reads](cacheId: HeaderCarrier)(dataKey: DataKey[A]): Future[Option[A]] =
+        throw new Exception("test")
+
+      override def put[A : Writes](cacheId: HeaderCarrier)(dataKey: DataKey[A], data: A): Future[CacheItem] =
+        throw new Exception("test")
+
+    }
 
   "SessionCache" must {
 
@@ -63,6 +94,30 @@ class SessionCacheSpec
 
     "return no SessionData if there is no data in mongo" in new TestEnvironment {
       await(sessionStore.get()) should be(Right(None))
+    }
+
+    "return error if cache get returns an error" in new TestEnvironment {
+      await(errorSessionStore.get()) should be(Left(Error("test")))
+    }
+
+    "return error if cache store returns an error" in new TestEnvironment {
+      await(errorSessionStore.store(SessionData.empty)) should be(Left(Error("test")))
+    }
+
+    "return error if cache fails to get session data" in new TestEnvironment {
+      await(failingSessionStore.get()).isLeft should be(true)
+    }
+
+    "return error if cache fails to store session data" in new TestEnvironment {
+      await(failingSessionStore.store(SessionData.empty)) should be(Right(()))
+    }
+
+    "return error if cache get access raises an exception" in new TestEnvironment {
+      await(fatalSessionStore.get()) should be(Right(None))
+    }
+
+    "return error if cache store access raises an exception" in new TestEnvironment {
+      await(fatalSessionStore.store(SessionData.empty)) should be(Right(()))
     }
 
     "return an error there is no session id in the header carrier" in {
@@ -92,6 +147,20 @@ class SessionCacheSpec
       await(sessionStore.get()) should be(Right(Some(expectedSessionData)))
     }
 
+    "update the session data when identical session data returned" in new TestEnvironment {
+      val sessionData = SessionData.empty.copy(verifiedEmail =
+        Some(CdsVerifiedEmail(address = "test@test.com", timestamp = "2021-01-01"))
+      )
+
+      await(sessionStore.store(sessionData))
+
+      await(
+        sessionStore.updateF(false)(session => Future.successful(Right(session)))
+      ) should be(Right(sessionData))
+
+      await(sessionStore.get()) should be(Right(Some(sessionData)))
+    }
+
     "update the session data with a forced session creation" in new TestEnvironment {
 
       val expectedSessionData =
@@ -108,6 +177,18 @@ class SessionCacheSpec
       ) should be(Right(expectedSessionData))
 
       await(sessionStore.get()) should be(Right(Some(expectedSessionData)))
+    }
+
+    "do not update the session data if session does not exist" in new NoSessionTestEnvironment {
+      val result = await(
+        sessionStore.updateF(false)(session =>
+          Future.successful(
+            Right(SessionData.empty)
+          )
+        )
+      )
+
+      result.swap.map(_.message) should be(Right("Could not find sessionId"))
     }
 
     "do not update the session data if the update function returns an error" in new TestEnvironment {
@@ -160,6 +241,52 @@ class SessionCacheSpec
       await(sessionStore.get()) should be(Right(Some(sessionData)))
     }
 
+    "do not update the session data if the update function returns an error (no session found)" in new TestEnvironment {
+      await(
+        sessionStore.updateF(false)(session =>
+          Future.successful(
+            Right(SessionData.empty)
+          )
+        )
+      ) should be(Left(Error("no session found in mongo")))
+
+      await(sessionStore.get()) should be(Right(None))
+    }
+
+    "do not update the session data if the update function returns an error (forced session creation)" in new TestEnvironment {
+      await(
+        sessionStore.updateF(true)(session =>
+          Future.successful(
+            Left(Error("test"))
+          )
+        )
+      ) should be(Left(Error("test")))
+
+      await(sessionStore.get()) should be(Right(None))
+    }
+
+    "do not update the session data if the update function returns failed future (forced session creation)" in new TestEnvironment {
+
+      val exception = new Exception("test")
+
+      await(
+        sessionStore.updateF(true)(session => Future.failed(exception))
+      ) should be(Left(Error(exception)))
+
+      await(sessionStore.get()) should be(Right(None))
+    }
+
+    "do not update the session data if the update function throws an exception (forced session creation)" in new TestEnvironment {
+
+      val exception = new Exception("test")
+
+      await(
+        sessionStore.updateF(true)(_ => throw exception)
+      ) should be(Left(Error(exception)))
+
+      await(sessionStore.get()) should be(Right(None))
+    }
+
   }
 
 }
@@ -179,6 +306,12 @@ object SessionCacheSpec {
     val sessionId = SessionId(UUID.randomUUID().toString)
 
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(sessionId))
+
+  }
+
+  class NoSessionTestEnvironment {
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = None)
 
   }
 
