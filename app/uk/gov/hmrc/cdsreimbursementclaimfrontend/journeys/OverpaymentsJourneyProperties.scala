@@ -30,7 +30,10 @@ trait OverpaymentsJourneyProperties extends CommonJourneyProperties {
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if declaration.hasSomeSubsidyPayment
-    then Some("error.subsidy-payment-found")
+    // If only subsidy logic needs to be added here
+    if declaration.hasOnlySubsidyPayments
+    then Some("error.has-only-subsidy-items")
+    else if declaration.hasSomeSubsidyPayment
+    then Some("error.has-some-subsidy-items")
     else None
 }

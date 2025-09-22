@@ -235,6 +235,15 @@ final case class DisplayDeclaration(
   def hasOnlySubsidyPayments: Boolean =
     displayResponseDetail.ndrcDetails.exists(_.forall(_.hasSubsidyPaymentMethod))
 
+  def removeSubsidyItems: DisplayDeclaration =
+    copy(displayResponseDetail =
+      displayResponseDetail.copy(ndrcDetails =
+        displayResponseDetail.ndrcDetails.map(ndrcDetailsList =>
+          ndrcDetailsList.filter((ndrcDetails: NdrcDetails) => !ndrcDetails.hasSubsidyPaymentMethod)
+        )
+      )
+    )
+
   def withDeclarantContactDetails(contactDetails: ContactDetails): DisplayDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(declarantDetails =

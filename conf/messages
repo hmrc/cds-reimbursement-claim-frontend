@@ -1431,6 +1431,15 @@ choose-how-many-mrns.p1.li2=have the same reason for overpayment
 choose-how-many-mrns.p1.li3=have the same method of payment
 choose-how-many-mrns.question=How many MRNs do you want to submit?
 
+subsidy-waiver-error.title=You cannot use this service to claim for duties covered by the Customs Duty Waiver Scheme
+subsidy-waiver-error.p1=This Movement Reference Number (MRN) includes duties or VAT covered by a waiver. To claim for these, you must use a  <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">{1} form (opens in new tab)</a>.
+subsidy-waiver-error.full.single.p2=You can:
+subsidy-waiver-error.full.single.point.1=<a href="{0}" class="govuk-link" rel="noreferrer noopener">continue with a different MRN</a>
+subsidy-waiver-error.full.single.point.2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">start a new claim</a>
+subsidy-waiver-error.full.multiple.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Enter a different MRN</a> if you want to continue with more than one MRN for this claim, or <a href="{1}" class="govuk-link" rel="noreferrer noopener">start a new claim</a>.
+subsidy-waiver-error.full.scheduled.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Enter a different MRN</a>
+subsidy-waiver-error.part.p2=You can continue to claim for other duties or VAT in this MRN.
+
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta
 

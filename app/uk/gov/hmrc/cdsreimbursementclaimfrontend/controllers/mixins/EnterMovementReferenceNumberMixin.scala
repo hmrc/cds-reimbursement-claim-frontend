@@ -47,6 +47,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
+  def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable
   def afterSuccessfullSubmit(journey: Journey): Result
   val problemWithMrnCall: MRN => Call
 
@@ -74,7 +75,7 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
             )
           )
         ),
-      mrn =>
+      (mrn: MRN) =>
         {
           for
             maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
@@ -85,7 +86,21 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
           yield updatedJourney2
         }.fold(
           error =>
-            if error.message.startsWith("error.") then {
+            if error.message == "error.has-only-subsidy-items" then {
+              (
+                journey,
+                Ok(
+                  subsidyWaiverErrorPage(mrn, true)(request)
+                )
+              )
+            } else if error.message == "error.has-some-subsidy-items" then {
+              (
+                journey,
+                Ok(
+                  subsidyWaiverErrorPage(mrn, false)(request)
+                )
+              )
+            } else if error.message.startsWith("error.") then {
               (
                 journey,
                 BadRequest(
@@ -97,6 +112,33 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
             } else {
               (journey, Redirect(problemWithMrnCall(mrn)))
             },
+          updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
+        )
+    )
+  }
+
+  final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    val filledForm = form(journey).bindFromRequest()
+    filledForm.fold(
+      formWithErrors =>
+        Future.successful(
+          (
+            journey,
+            BadRequest(
+              viewTemplate(formWithErrors)(request)
+            )
+          )
+        ),
+      (mrn: MRN) =>
+        {
+          for
+            maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
+            -               <- EnterMovementReferenceNumberUtil.validateEoriFormats(journey, maybeAcc14, featureSwitchService)
+            updatedJourney  <- updateJourney(journey, mrn, maybeAcc14.map(_.removeSubsidyItems))
+            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
+          yield updatedJourney2
+        }.fold(
+          _ => (journey, Redirect(problemWithMrnCall(mrn))),
           updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
         )
     )

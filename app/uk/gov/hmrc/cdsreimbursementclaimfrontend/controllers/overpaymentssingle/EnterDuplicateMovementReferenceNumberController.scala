@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_duplicate_movement_reference_number
 
 import javax.inject.Inject
@@ -47,7 +48,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   val featureSwitchService: FeatureSwitchService,
-  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number
+  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number,
+  subsidyWaiverPage: subsidy_waiver_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
     extends OverpaymentsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
@@ -79,6 +81,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
           Some("overpayments.single"),
           routes.EnterDuplicateMovementReferenceNumberController.submit
         )
+
+  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable = ???
 
   override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
     journey.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
