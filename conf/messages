@@ -1728,7 +1728,7 @@ select-duties.title=What do you want to claim?
 select-duties.details.single.p1=If the importer is VAT registered, you must not use this service to claim back overpaid VAT. The importer must adjust their VAT return instead, following <a href="{0}" target="_blank" rel="noopener noreferrer" class="govuk-link">normal VAT rules (opens in new tab)</a>.
 select-duties.title.caption=Claim details
 select-duties.single.title=Overpaid duties and VAT
-select-duties.single.details=If you include VAT in this claim and the importer is VAT registered, we'll remove the VAT amount from your repayment.
+select-duties.single.details=If you include VAT in this claim and the importer is VAT registered, we’ll remove the VAT amount from your repayment.
 select-duties.single.h2=What do you want to claim?
 
 
