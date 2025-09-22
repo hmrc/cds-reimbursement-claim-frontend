@@ -78,6 +78,39 @@ class FeaturesCacheSpec
       await(sessionStore.get())               should be(Right(FeatureSet.empty))
     }
 
+    "be able to update the FeatureSet" in new TestEnvironment {
+
+      val result = sessionStore.store(FeatureSet.empty)
+
+      await(result) should be(Right(()))
+
+      eventually {
+        val updateResult = sessionStore.update(featureSet => featureSet.enable(Feature.NewEoriFormat))
+        await(updateResult) should be(Right(()))
+
+        eventually {
+          val getResult = sessionStore.get()
+          await(getResult) should be(Right(FeatureSet(enabled = Set(Feature.NewEoriFormat), disabled = Set.empty)))
+        }
+      }
+    }
+
+    "be able to update the FeatureSet and handle exception" in new TestEnvironment {
+
+      val result    = sessionStore.store(FeatureSet.empty)
+      val exception = new Exception("test")
+
+      await(result) should be(Right(()))
+
+      await(sessionStore.update(_ => throw exception)) should be(Left(Error(exception)))
+
+      eventually {
+        val getResult = sessionStore.get()
+        await(getResult) should be(Right(FeatureSet.empty))
+      }
+
+    }
+
   }
 
 }

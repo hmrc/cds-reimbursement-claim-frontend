@@ -33,6 +33,8 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 class SessionCacheSpec
     extends AnyWordSpec
@@ -69,6 +71,93 @@ class SessionCacheSpec
 
       await(sessionStore.store(sessionData)).isLeft shouldBe true
       await(sessionStore.get()).isLeft              shouldBe true
+    }
+
+    "update the session data" in new TestEnvironment {
+      val sessionData         = SessionData.empty.copy(verifiedEmail =
+        Some(CdsVerifiedEmail(address = "test@test.com", timestamp = "2021-01-01"))
+      )
+      val expectedSessionData =
+        sessionData.copy(verifiedEmail = Some(CdsVerifiedEmail(address = "test2@test.com", timestamp = "2022-02-22")))
+      await(sessionStore.store(sessionData))
+      await(
+        sessionStore.updateF(false)(session =>
+          Future.successful(
+            Right(
+              session.copy(verifiedEmail = Some(CdsVerifiedEmail(address = "test2@test.com", timestamp = "2022-02-22")))
+            )
+          )
+        )
+      )                         should be(Right(expectedSessionData))
+      await(sessionStore.get()) should be(Right(Some(expectedSessionData)))
+    }
+
+    "update the session data with a forced session creation" in new TestEnvironment {
+
+      val expectedSessionData =
+        SessionData(verifiedEmail = Some(CdsVerifiedEmail(address = "test3@test.com", timestamp = "2022-02-22")))
+
+      await(
+        sessionStore.updateF(true)(session =>
+          Future.successful(
+            Right(
+              session.copy(verifiedEmail = Some(CdsVerifiedEmail(address = "test3@test.com", timestamp = "2022-02-22")))
+            )
+          )
+        )
+      ) should be(Right(expectedSessionData))
+
+      await(sessionStore.get()) should be(Right(Some(expectedSessionData)))
+    }
+
+    "do not update the session data if the update function returns an error" in new TestEnvironment {
+      val sessionData = SessionData.empty.copy(verifiedEmail =
+        Some(CdsVerifiedEmail(address = "test@test.com", timestamp = "2021-01-01"))
+      )
+
+      await(sessionStore.store(sessionData))
+
+      await(
+        sessionStore.updateF(false)(session =>
+          Future.successful(
+            Left(Error("test"))
+          )
+        )
+      ) should be(Left(Error("test")))
+
+      await(sessionStore.get()) should be(Right(Some(sessionData)))
+    }
+
+    "do not update the session data if the update function returns failed future" in new TestEnvironment {
+      val sessionData = SessionData.empty.copy(verifiedEmail =
+        Some(CdsVerifiedEmail(address = "test@test.com", timestamp = "2021-01-01"))
+      )
+
+      val exception = new Exception("test")
+
+      await(sessionStore.store(sessionData))
+
+      await(
+        sessionStore.updateF(false)(session => Future.failed(exception))
+      ) should be(Left(Error(exception)))
+
+      await(sessionStore.get()) should be(Right(Some(sessionData)))
+    }
+
+    "do not update the session data if the update function throws an exception" in new TestEnvironment {
+      val sessionData = SessionData.empty.copy(verifiedEmail =
+        Some(CdsVerifiedEmail(address = "test@test.com", timestamp = "2021-01-01"))
+      )
+
+      val exception = new Exception("test")
+
+      await(sessionStore.store(sessionData))
+
+      await(
+        sessionStore.updateF(false)(_ => throw exception)
+      ) should be(Left(Error(exception)))
+
+      await(sessionStore.get()) should be(Right(Some(sessionData)))
     }
 
   }

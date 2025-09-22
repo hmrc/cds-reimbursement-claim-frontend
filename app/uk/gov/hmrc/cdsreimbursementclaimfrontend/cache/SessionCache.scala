@@ -52,37 +52,41 @@ trait SessionCache {
     ec: ExecutionContext
   ): Future[Either[Error, SessionData]] =
     try
-      get().flatMap {
-        case Right(Some(sessionData)) =>
-          update(sessionData).flatMap {
-            case Right(updatedSessionData) =>
-              if sessionData === updatedSessionData then Future.successful(Right(sessionData))
-              else
-                store(updatedSessionData)
-                  .map(_.map(_ => updatedSessionData))
-
-            case Left(error) =>
-              Future.successful(Left(error))
-          }
-
-        case Right(None) =>
-          if forceSessionCreation then
-            update(SessionData.empty).flatMap {
+      get()
+        .flatMap {
+          case Right(Some(sessionData)) =>
+            update(sessionData).flatMap {
               case Right(updatedSessionData) =>
-                store(updatedSessionData)
-                  .map(_.map(_ => updatedSessionData))
+                if sessionData === updatedSessionData then Future.successful(Right(sessionData))
+                else
+                  store(updatedSessionData)
+                    .map(_.map(_ => updatedSessionData))
 
               case Left(error) =>
                 Future.successful(Left(error))
             }
-          else
-            Future.successful(
-              Left(Error("no session found in mongo"))
-            )
 
-        case Left(error) =>
-          Future.successful(Left(error))
-      }
+          case Right(None) =>
+            if forceSessionCreation then
+              update(SessionData.empty).flatMap {
+                case Right(updatedSessionData) =>
+                  store(updatedSessionData)
+                    .map(_.map(_ => updatedSessionData))
+
+                case Left(error) =>
+                  Future.successful(Left(error))
+              }
+            else
+              Future.successful(
+                Left(Error("no session found in mongo"))
+              )
+
+          case Left(error) =>
+            Future.successful(Left(error))
+        }
+        .recoverWith { case e: Exception =>
+          Future.successful(Left(Error(e)))
+        }
     catch {
       case e: Exception => Future.successful(Left(Error(e)))
     }

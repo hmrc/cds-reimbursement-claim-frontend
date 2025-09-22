@@ -48,8 +48,8 @@ trait FeaturesCache {
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[Error, Unit]] =
-    try
-      get().flatMap {
+    get()
+      .flatMap {
         case Right(value) =>
           val newFeatureSet = modify(value)
           if newFeatureSet =!= value then store(newFeatureSet)
@@ -58,9 +58,9 @@ trait FeaturesCache {
         case Left(error) =>
           Future.successful(Left(error))
       }
-    catch {
-      case e: Exception => Future.successful(Left(Error(e)))
-    }
+      .recoverWith { case e: Exception =>
+        Future.successful(Left(Error(e)))
+      }
 
 }
 
