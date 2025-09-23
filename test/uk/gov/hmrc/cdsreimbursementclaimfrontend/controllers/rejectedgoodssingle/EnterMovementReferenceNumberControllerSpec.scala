@@ -389,12 +389,8 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
-          messageFromMessageKey("enter-movement-reference-number.single.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.has-only-subsidy-items"
-            ),
-          expectedStatus = BAD_REQUEST
+          messageFromMessageKey("subsidy-waiver-error.title"),
+          expectedStatus = OK
         )
       }
 
