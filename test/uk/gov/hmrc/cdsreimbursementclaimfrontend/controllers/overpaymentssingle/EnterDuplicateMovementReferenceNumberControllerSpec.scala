@@ -279,36 +279,6 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             )
           }
       }
-
-      "reject an MRN with subsidies payment method" in forAll(
-        genMRN,
-        journeyWithFeaturesGen(
-          OverpaymentsSingleJourney.Features(
-            shouldAllowOtherBasisOfClaim = true
-          )
-        )
-      ) { (mrn: MRN, journey) =>
-        val displayDeclaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
-            .withDeclarationId(mrn.value)
-            .withSomeSubsidiesPaymentMethod()
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(enterDuplicateMovementReferenceNumberKey -> mrn.value),
-          messageFromMessageKey("enter-duplicate-movement-reference-number.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-duplicate-movement-reference-number.error.subsidy-payment-found"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
-      }
     }
   }
 }

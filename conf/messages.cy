@@ -1139,7 +1139,6 @@ enter-declarant-eori-number.eori-should-match-declarant=Nid yw’r rhif EORI a g
 enter-declarant-eori-number.title=Beth yw rhif EORI y datganydd?
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-duplicate-movement-reference-number.help=Er enghraifft, 24GB03152858027001
 enter-duplicate-movement-reference-number.help-text=Gallwch ddod o hyd i’r cyfeirnod 18 digid hwn yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-duplicate-movement-reference-number.input-title=Nodwch yr MRN dyblyg
@@ -1224,7 +1223,8 @@ enter-movement-reference-number.multiple.error.existingMRN=Mae’r Cyfeirnod Sym
 enter-movement-reference-number.error.needsNonSubsidy=Nodwch MRN nad yw’n gymhorthdal
 enter-movement-reference-number.error.needsSubsidy=Nodwch MRN cymhorthdal
 enter-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN)
-enter-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
+enter-movement-reference-number.error.has-only-subsidy-items=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
+enter-movement-reference-number.error.has-some-subsidy-items=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-movement-reference-number.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.multiple.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.help=Er enghraifft, 24GB03I52858027001
