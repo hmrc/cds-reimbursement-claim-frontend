@@ -278,6 +278,12 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
       }
 
     }
+
+    "serialize and deserialize GetDeclarationError" in {
+      val error = GetDeclarationError.unexpectedError
+      val json  = Json.toJson(error)
+      json.as[GetDeclarationError] shouldBe error
+    }
   }
 
 }
