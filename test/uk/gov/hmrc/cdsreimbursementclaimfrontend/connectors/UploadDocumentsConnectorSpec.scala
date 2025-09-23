@@ -30,12 +30,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
+import java.time.ZonedDateTime
+import java.time.ZoneOffset
 
 class UploadDocumentsConnectorSpec
     extends AnyWordSpec
@@ -81,6 +84,7 @@ class UploadDocumentsConnectorSpec
 
   val expectedInitializationUrl = "http://host3:124/internal/initialize"
   val expectedWipeOutUrl        = "http://host3:124/internal/wipe-out"
+  val expectedUploadFileUrl     = "http://host3:124/internal/upload"
 
   val uploadDocumentsParameters: UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
@@ -150,6 +154,14 @@ class UploadDocumentsConnectorSpec
       ""
     )(_)
 
+  def givenUploadFileCallReturns(
+    fileToUpload: UploadDocumentsConnector.FileToUpload
+  ): HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpPostSuccess(
+      expectedUploadFileUrl,
+      Json.toJson(fileToUpload)
+    )(_)
+
   val responseHeaders: Map[String, Seq[String]] =
     Map("Location" -> Seq("http://foo.bar/zoo"))
 
@@ -217,6 +229,66 @@ class UploadDocumentsConnectorSpec
       givenWipeOutCallReturns(HttpResponse(501, "", responseHeaders)).once()
       givenWipeOutCallReturns(HttpResponse(501, "", responseHeaders)).once()
       await(connector.wipeOut) shouldBe (())
+    }
+
+    "successfully upload file" in {
+      val fileToUpload = UploadDocumentsConnector.FileToUpload(
+        uploadId = "123",
+        name = "test.txt",
+        contentType = "text/plain",
+        content = "test".getBytes
+      )
+      val uploadedFile = UploadedFile(
+        upscanReference = "123",
+        downloadUrl = "http://foo.bar/zoo",
+        uploadTimestamp = ZonedDateTime.now(ZoneOffset.UTC),
+        checksum = "123",
+        fileName = "test.txt",
+        fileMimeType = "text/plain",
+        fileSize = Some(100),
+        cargo = None,
+        description = Some("test"),
+        previewUrl = Some("http://foo.bar/zoo")
+      )
+      givenUploadFileCallReturns(fileToUpload)(HttpResponse(201, Json.toJson(uploadedFile), responseHeaders)).once()
+      await(connector.uploadFile(fileToUpload)) shouldBe Some(uploadedFile)
+    }
+
+    "return None when upload file call returns something other than 201" in {
+      val fileToUpload = UploadDocumentsConnector.FileToUpload(
+        uploadId = "123",
+        name = "test.txt",
+        contentType = "text/plain",
+        content = "test".getBytes
+      )
+      givenUploadFileCallReturns(fileToUpload)(HttpResponse(444, "", responseHeaders)).once()
+      await(connector.uploadFile(fileToUpload)) shouldBe None
+    }
+
+    "serialize and deserialize file to upload" in {
+      val fileToUpload = UploadDocumentsConnector.FileToUpload(
+        uploadId = "123",
+        name = "test.txt",
+        contentType = "text/plain",
+        content = "test".getBytes
+      )
+      val serialized   = Json.toJson(fileToUpload)
+      val deserialized = serialized.as[UploadDocumentsConnector.FileToUpload]
+      deserialized.uploadId    shouldBe fileToUpload.uploadId
+      deserialized.name        shouldBe fileToUpload.name
+      deserialized.contentType shouldBe fileToUpload.contentType
+      deserialized.content     shouldBe fileToUpload.content
+    }
+
+    "serialize and deserialize upload request" in {
+      val uploadRequest = UploadDocumentsConnector.Request(
+        uploadDocumentsParameters,
+        Seq.empty
+      )
+      val serialized    = Json.toJson(uploadRequest)
+      val deserialized  = serialized.as[UploadDocumentsConnector.Request]
+      deserialized.config        shouldBe uploadRequest.config
+      deserialized.existingFiles shouldBe uploadRequest.existingFiles
     }
 
   }
