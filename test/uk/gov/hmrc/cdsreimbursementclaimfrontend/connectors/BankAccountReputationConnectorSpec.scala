@@ -33,10 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.Conne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.TechnicalServiceError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -45,9 +44,9 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration.*
 
 class BankAccountReputationConnectorSpec
     extends AnyWordSpec
@@ -68,16 +67,19 @@ class BankAccountReputationConnectorSpec
 
   val connector = new BankAccountReputationConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
 
-  val businessRequest: BarsBusinessAssessRequest     = sample[BarsBusinessAssessRequest]
-  val personalRequest: BarsPersonalAssessRequest     = sample[BarsPersonalAssessRequest]
+  val businessRequest: BarsBusinessAssessRequest = sample[BarsBusinessAssessRequest]
+  val personalRequest: BarsPersonalAssessRequest = sample[BarsPersonalAssessRequest]
+
   val businessResponseBody: BusinessCompleteResponse = sample(
     BankAccountReputationGen.arbitraryBusinessCompleteResponse.arbitrary
   )
+
   val personalResponseBody: PersonalCompleteResponse = sample(
     BankAccountReputationGen.arbitraryPersonalCompleteResponse.arbitrary
   )
-  val businessUrl                                    = "http://localhost:7502/verify/business"
-  val personalUrl                                    = "http://localhost:7502/verify/personal"
+
+  val businessUrl = "http://localhost:7502/verify/business"
+  val personalUrl = "http://localhost:7502/verify/personal"
 
   def givenServiceReturns(expectedUrl: String, request: JsValue)(
     response: HttpResponse
@@ -290,6 +292,91 @@ class BankAccountReputationConnectorSpec
         HttpResponse(200, Json.toJson(personalResponseBody).toString())
       ).once()
       await(connector.getPersonalReputation(personalRequest).value) shouldBe a[Right[?, BankAccountReputation]]
+    }
+
+    "serialise and deserialise business request and response" in {
+      val request = BarsBusinessAssessRequest(
+        BarsAccount("123456", "12345678"),
+        Some(
+          BarsBusiness(
+            "Foo Bar Ltd.",
+            Some(BarsAddress(lines = List("1 Foo", "Bar"), town = Some("Daisy"), postcode = Some("AA1 1AA")))
+          )
+        )
+      )
+
+      val response =
+        BusinessCompleteResponse(
+          accountName = Some("Foo Bar Ltd."),
+          accountNumberIsWellFormatted = Yes,
+          accountExists = Some(Yes),
+          nameMatches = Some(Yes)
+        )
+
+      val commonResponse = response.toCommonResponse()
+      commonResponse             shouldBe BankAccountReputation(
+        accountNumberWithSortCodeIsValid = Yes,
+        accountExists = Some(Yes),
+        nameMatches = Some(Yes),
+        accountName = Some("Foo Bar Ltd.")
+      )
+      commonResponse.isConfirmed shouldBe true
+
+      val serializedRequest  = Json.toJson(request)
+      val serializedResponse = Json.toJson(response)
+
+      val deserializedRequest  = serializedRequest.as[BarsBusinessAssessRequest]
+      val deserializedResponse = serializedResponse.as[BusinessCompleteResponse]
+
+      deserializedRequest  shouldBe request
+      deserializedResponse shouldBe response
+    }
+
+    "serialise and deserialise personal request and response" in {
+      val request = BarsPersonalAssessRequest(
+        BarsAccount("123456", "12345678"),
+        BarsSubject(
+          title = Some("Mr"),
+          name = Some("Foo Bar"),
+          firstName = Some("Foo"),
+          lastName = Some("Bar"),
+          dob = Some("1990-01-01"),
+          address = Some(BarsAddress(lines = List("1 Foo", "Bar"), town = Some("Daisy"), postcode = Some("AA1 1AA")))
+        )
+      )
+
+      val response =
+        PersonalCompleteResponse(
+          accountName = Some("Foo Bar"),
+          accountNumberIsWellFormatted = Yes,
+          accountExists = Some(Yes),
+          nameMatches = Some(Yes)
+        )
+
+      val commonResponse = response.toCommonResponse()
+      commonResponse             shouldBe BankAccountReputation(
+        accountNumberWithSortCodeIsValid = Yes,
+        accountExists = Some(Yes),
+        nameMatches = Some(Yes),
+        accountName = Some("Foo Bar")
+      )
+      commonResponse.isConfirmed shouldBe true
+
+      val serializedRequest  = Json.toJson(request)
+      val serializedResponse = Json.toJson(response)
+
+      val deserializedRequest  = serializedRequest.as[BarsPersonalAssessRequest]
+      val deserializedResponse = serializedResponse.as[PersonalCompleteResponse]
+
+      deserializedRequest  shouldBe request
+      deserializedResponse shouldBe response
+    }
+
+    "serialise and deserialise ReputationErrorResponse" in {
+      val errorResponse             = ReputationErrorResponse(code = "MALFORMED_JSON", desc = "foo: bar")
+      val serializedErrorResponse   = Json.toJson(errorResponse)
+      val deserializedErrorResponse = serializedErrorResponse.as[ReputationErrorResponse]
+      deserializedErrorResponse shouldBe errorResponse
     }
   }
 }

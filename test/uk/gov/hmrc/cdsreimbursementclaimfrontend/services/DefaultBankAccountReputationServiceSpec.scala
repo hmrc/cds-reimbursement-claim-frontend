@@ -55,9 +55,11 @@ class DefaultBankAccountReputationServiceSpec
     accountNumber = AccountNumber("testAccountNumber")
   )
   val testBankAccountReputation                          = BankAccountReputation(accountNumberWithSortCodeIsValid = Yes)
-  val confirmedBankAccountReputation                     =
+
+  val confirmedBankAccountReputation =
     BankAccountReputation(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), nameMatches = Some(Yes))
-  val testConnectorFailure                               = ConnectorFailure("testError")
+
+  val testConnectorFailure = ConnectorFailure("testError")
 
   override def beforeEach(): Unit =
     super.beforeEach()
@@ -79,6 +81,8 @@ class DefaultBankAccountReputationServiceSpec
         val expectedResult = Right(testBankAccountReputation)
 
         result shouldBe expectedResult
+
+        testBankAccountReputation.isConfirmed shouldBe false
       }
     }
 
@@ -137,6 +141,8 @@ class DefaultBankAccountReputationServiceSpec
         val expectedResult = Right(confirmedBankAccountReputation)
 
         result shouldBe expectedResult
+
+        confirmedBankAccountReputation.isConfirmed shouldBe true
       }
 
       "fallback to personal reputation check when business account check is not confirmed and personal is confirmed" in {

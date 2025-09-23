@@ -26,8 +26,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[ConfiguredFeatureSwitchService])
 trait FeatureSwitchService {
@@ -59,7 +59,8 @@ trait FeatureSwitchService {
 class ConfiguredFeatureSwitchService @Inject() (
   val configuration: Configuration,
   featuresCache: FeaturesCache
-) extends FeatureSwitchService {
+)(implicit ec: ExecutionContext)
+    extends FeatureSwitchService {
 
   private val timeout = Duration("5s")
 
