@@ -31,8 +31,10 @@ trait RejectedGoodsJourneyProperties extends CommonJourneyProperties {
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
   final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
-    if declaration.hasSomeSubsidyPayment
-    then Some("error.subsidy-payment-found")
+    if declaration.hasOnlySubsidyPayments
+    then Some("error.has-only-subsidy-items")
+    else if declaration.hasSomeSubsidyPayment
+    then Some("error.has-some-subsidy-items")
     else None
 
 }

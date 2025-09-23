@@ -406,12 +406,8 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction("enter-movement-reference-number" -> mrn.value),
-          messageFromMessageKey("enter-movement-reference-number.scheduled.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.subsidy-payment-found"
-            ),
-          expectedStatus = BAD_REQUEST
+          messageFromMessageKey("subsidy-waiver-error.title"),
+          expectedStatus = OK
         )
       }
 

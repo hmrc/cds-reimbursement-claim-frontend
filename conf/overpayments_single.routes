@@ -3,6 +3,7 @@ GET         /overpayments/single/have-your-documents-ready                      
 
 GET         /overpayments/single/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.show
 POST        /overpayments/single/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.submit
+POST        /overpayments/single/enter-movement-reference-number/without-subsidies        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterMovementReferenceNumberController.submitWithoutSubsidies
 
 GET         /overpayments/single/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterImporterEoriNumberController.show
 POST        /overpayments/single/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterImporterEoriNumberController.submit

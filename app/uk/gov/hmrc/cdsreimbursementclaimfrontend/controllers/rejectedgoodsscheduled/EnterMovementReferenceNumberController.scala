@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
 
 import scala.concurrent.ExecutionContext
 
@@ -44,7 +45,8 @@ class EnterMovementReferenceNumberController @Inject() (
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   val featureSwitchService: FeatureSwitchService,
-  enterMovementReferenceNumberPage: enter_movement_reference_number
+  enterMovementReferenceNumberPage: enter_movement_reference_number,
+  subsidyWaiverPage: subsidy_waiver_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsScheduledJourneyBaseController
     with EnterMovementReferenceNumberMixin {
@@ -66,6 +68,19 @@ class EnterMovementReferenceNumberController @Inject() (
           "scheduled",
           None,
           routes.EnterMovementReferenceNumberController.submit
+        )
+
+  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable =
+    (mrn, isOnlySubsidies) =>
+      implicit request =>
+        subsidyWaiverPage(
+          "C&E1179",
+          "scheduled",
+          if isOnlySubsidies then "full" else "part",
+          mrn,
+          routes.EnterMovementReferenceNumberController.submitWithoutSubsidies,
+          viewConfig.ce1179FormUrl,
+          routes.EnterMovementReferenceNumberController.show
         )
 
   override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =

@@ -1192,7 +1192,6 @@ enter-declarant-eori-number.eori-should-match-declarant=The EORI number you ente
 enter-declarant-eori-number.title=What is the declarant’s EORI number?
 
 enter-duplicate-movement-reference-number.error.required=Movement Reference Number (MRN) must be 18 characters long, and only use numbers and letters. For example, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
 enter-duplicate-movement-reference-number.help=For example, 24GB03152858027001
 enter-duplicate-movement-reference-number.help-text=You can find this 18-digit reference in your initial import acceptance notification, commercial software or in documents from a shipping company, freight forwarder or agency.
 enter-duplicate-movement-reference-number.input-title=Enter the duplicate MRN
@@ -1272,7 +1271,8 @@ enter-movement-reference-number.multiple.error.existingMRN=This MRN has already 
 enter-movement-reference-number.error.needsNonSubsidy=Enter a non-subsidy MRN
 enter-movement-reference-number.error.needsSubsidy=Enter a subsidy MRN
 enter-movement-reference-number.error.required=Enter a Movement Reference Number (MRN)
-enter-movement-reference-number.error.subsidy-payment-found=Subsidy MRNs cannot be added to online claims at this time
+enter-movement-reference-number.error.has-only-subsidy-items=Subsidy MRNs cannot be added to online claims at this time
+enter-movement-reference-number.error.has-some-subsidy-items=Subsidy MRNs cannot be added to online claims at this time
 enter-movement-reference-number.error.wrongMRN=This MRN has not been recognised
 enter-movement-reference-number.multiple.error.wrongMRN=This MRN has not been recognised
 enter-movement-reference-number.help=For example, 24GB03I52858027001
@@ -1445,6 +1445,15 @@ choose-how-many-mrns.p1.li1=be from the same importer
 choose-how-many-mrns.p1.li2=have the same reason for overpayment
 choose-how-many-mrns.p1.li3=have the same method of payment
 choose-how-many-mrns.question=How many MRNs do you want to submit?
+
+subsidy-waiver-error.title=You cannot use this service to claim for duties covered by the Customs Duty Waiver Scheme
+subsidy-waiver-error.p1=This Movement Reference Number (MRN) includes duties or VAT covered by a waiver. To claim for these, you must use a  <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">{1} form (opens in new tab)</a>.
+subsidy-waiver-error.full.single.p2=You can:
+subsidy-waiver-error.full.single.point.1=<a href="{0}" class="govuk-link" rel="noreferrer noopener">continue with a different MRN</a>
+subsidy-waiver-error.full.single.point.2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">start a new claim</a>
+subsidy-waiver-error.full.multiple.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Enter a different MRN</a> if you want to continue with more than one MRN for this claim, or <a href="{1}" class="govuk-link" rel="noreferrer noopener">start a new claim</a>.
+subsidy-waiver-error.full.scheduled.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Enter a different MRN</a>
+subsidy-waiver-error.part.p2=You can continue to claim for other duties or VAT in this MRN.
 
 phasebanner.feedback.text=This is a new service - your <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">feedback (opens in a new tab)</a> will help us to improve it.
 phasebanner.phase=Beta

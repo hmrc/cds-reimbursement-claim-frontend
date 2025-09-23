@@ -433,7 +433,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.subsidy-payment-found"
+              "enter-movement-reference-number.error.has-only-subsidy-items"
             ),
           expectedStatus = BAD_REQUEST
         )
@@ -463,7 +463,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-movement-reference-number.error.subsidy-payment-found"
+              "enter-movement-reference-number.error.has-only-subsidy-items"
             ),
           expectedStatus = BAD_REQUEST
         )

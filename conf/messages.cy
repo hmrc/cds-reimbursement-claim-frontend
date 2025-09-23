@@ -1155,7 +1155,6 @@ enter-declarant-eori-number.eori-should-match-declarant=Nid yw’r rhif EORI a g
 enter-declarant-eori-number.title=Beth yw rhif EORI y datganydd?
 
 enter-duplicate-movement-reference-number.error.required=Mae’n rhaid i’r Cyfeirnod Symud (MRN) fod yn 18 o gymeriadau, a gallwch ddefnyddio rhifau a llythrennau yn unig. Er enghraifft, 21GBJD4DCMAM33DOI4
-enter-duplicate-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-duplicate-movement-reference-number.help=Er enghraifft, 24GB03152858027001
 enter-duplicate-movement-reference-number.help-text=Gallwch ddod o hyd i’r cyfeirnod 18 digid hwn yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
 enter-duplicate-movement-reference-number.input-title=Nodwch yr MRN dyblyg
@@ -1240,7 +1239,8 @@ enter-movement-reference-number.multiple.error.existingMRN=Mae’r Cyfeirnod Sym
 enter-movement-reference-number.error.needsNonSubsidy=Nodwch MRN nad yw’n gymhorthdal
 enter-movement-reference-number.error.needsSubsidy=Nodwch MRN cymhorthdal
 enter-movement-reference-number.error.required=Nodwch Gyfeirnod Symud (MRN)
-enter-movement-reference-number.error.subsidy-payment-found=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
+enter-movement-reference-number.error.has-only-subsidy-items=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
+enter-movement-reference-number.error.has-some-subsidy-items=Ni all MRNau cymorthdaliadau gael eu hychwanegu at hawliadau ar-lein ar hyn o bryd
 enter-movement-reference-number.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.multiple.error.wrongMRN=Nid yw’r Cyfeirnod Symud (MRN) hwn wedi ei adnabod
 enter-movement-reference-number.help=Er enghraifft, 24GB03I52858027001
@@ -1509,6 +1509,9 @@ choose-how-many-mrns.p1.li1=bod o’r un mewnforiwr
 choose-how-many-mrns.p1.li2=bod â’r un rheswm dros ordalu
 choose-how-many-mrns.p1.li3=bod â’r un dull talu
 choose-how-many-mrns.question=Faint o MRNau yr ydych am eu cyflwyno?
+
+subsidy-waiver-error.title=Ni allwch ddefnyddio’r gwasanaeth hwn i hawlio ar gyfer tollau sy’n dod o dan y Cynllun Ildio Toll Dramor
+subsidy-waiver-error.p1=Mae'r Cyfeirnod Symud (MRN) yn cynnwys tollau neu TAW sy'n dod o dan ildiad. I hawlio ar gyfer y rhain, mae'n rhaid i chi ddefnyddio <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">ffurflen {1} (yn agor tab newydd)</a>.
 
 phasebanner.feedback.text=Gwasanaeth newydd yw hwn - bydd eich <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">adborth (yn agor tab newydd)</a> yn ein helpu i’w wella.
 phasebanner.phase=Y Cyfnod Beta

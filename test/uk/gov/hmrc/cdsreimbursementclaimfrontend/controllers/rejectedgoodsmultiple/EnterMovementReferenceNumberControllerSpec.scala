@@ -463,7 +463,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "First"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$messageKey.error.subsidy-payment-found"
+              s"$messageKey.error.has-only-subsidy-items"
             ),
           expectedStatus = BAD_REQUEST
         )
@@ -494,7 +494,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey("enter-movement-reference-number.multiple.title", "Second"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$messageKey.error.subsidy-payment-found"
+              s"$messageKey.error.has-only-subsidy-items"
             ),
           expectedStatus = BAD_REQUEST
         )
