@@ -2,7 +2,7 @@ GET         /overpayments/scheduled/have-your-documents-ready                   
 
 GET         /overpayments/scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.show
 POST        /overpayments/scheduled/enter-movement-reference-number                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.submit
-POST        /overpayments/scheduled/enter-movement-reference-number/without-subsidies           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.submitWithoutSubsidies
+POST        /overpayments/scheduled/enter-movement-reference-number/without-subsidies        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterMovementReferenceNumberController.submitWithoutSubsidies
 
 GET         /overpayments/scheduled/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterImporterEoriNumberController.show
 POST        /overpayments/scheduled/enter-importer-eori                                      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.EnterImporterEoriNumberController.submit

@@ -54,6 +54,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     extends OverpaymentsSingleJourneyBaseController
     with EnterMovementReferenceNumberMixin {
 
+  override val shouldValidateDeclaration: Boolean = false
+
   override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
 
   override val formKey = "enter-duplicate-movement-reference-number"

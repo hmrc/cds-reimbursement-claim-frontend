@@ -1494,6 +1494,9 @@ choose-how-many-mrns.p1.li2=bod â’r un rheswm dros ordalu
 choose-how-many-mrns.p1.li3=bod â’r un dull talu
 choose-how-many-mrns.question=Faint o MRNau yr ydych am eu cyflwyno?
 
+subsidy-waiver-error.title=Ni allwch ddefnyddio’r gwasanaeth hwn i hawlio ar gyfer tollau sy’n dod o dan y Cynllun Ildio Toll Dramor
+subsidy-waiver-error.p1=Mae'r Cyfeirnod Symud (MRN) yn cynnwys tollau neu TAW sy'n dod o dan ildiad. I hawlio ar gyfer y rhain, mae'n rhaid i chi ddefnyddio <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">ffurflen {1} (yn agor tab newydd)</a>.
+
 phasebanner.feedback.text=Gwasanaeth newydd yw hwn - bydd eich <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">adborth (yn agor tab newydd)</a> yn ein helpu i’w wella.
 phasebanner.phase=Y Cyfnod Beta
 

@@ -44,6 +44,8 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
   def claimService: ClaimService
   def featureSwitchService: FeatureSwitchService
 
+  val shouldValidateDeclaration: Boolean = true
+
   def form(journey: Journey): Form[MRN]
   def getMovementReferenceNumber(journey: Journey): Option[MRN]
   def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
@@ -80,7 +82,9 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
           for
             maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
             -               <- EnterMovementReferenceNumberUtil.validateEoriFormats(journey, maybeAcc14, featureSwitchService)
-            _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
+            _               <- if shouldValidateDeclaration
+                               then EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
+                               else EitherT.fromEither[Future](Right(()))
             updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
             updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
           yield updatedJourney2
