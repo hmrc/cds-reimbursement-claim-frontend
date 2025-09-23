@@ -45,10 +45,7 @@ final case class RequestWithSessionDataAndRetrievedData[A](
       case AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(_) =>
         Future.successful(resultIfUnsupportedUser)
 
-      case AuthenticatedUser.Organisation(_, eori, name) =>
-        f(eori, name)
-
-      case AuthenticatedUser.Individual(_, eori, name) =>
+      case AuthenticatedUser.GovernmentGatewayAuthenticatedUser(_, eori, name) =>
         f(eori, name)
     }
 

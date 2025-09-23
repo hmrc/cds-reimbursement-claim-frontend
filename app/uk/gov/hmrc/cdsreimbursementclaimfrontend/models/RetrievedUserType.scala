@@ -22,15 +22,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 
 sealed trait AuthenticatedUser {
   def name: Option[String]
-  def email: Option[Email] // fixme email can go
+  def email: Option[Email]
   def eoriOpt: Option[Eori] = None
 }
 
 object AuthenticatedUser {
 
-  // fixme no need to have Individual and Organisation (we treat them the same way)
-
-  final case class Individual(
+  final case class GovernmentGatewayAuthenticatedUser(
     email: Option[Email],
     eori: Eori,
     name: Option[String]
@@ -38,20 +36,8 @@ object AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
 
-  object Individual {
-    implicit val format: OFormat[Individual] = Json.format[Individual]
-  }
-
-  final case class Organisation(
-    email: Option[Email],
-    eori: Eori,
-    name: Option[String]
-  ) extends AuthenticatedUser {
-    override def eoriOpt: Option[Eori] = Some(eori)
-  }
-
-  object Organisation {
-    implicit val format: OFormat[Organisation] = Json.format[Organisation]
+  object GovernmentGatewayAuthenticatedUser {
+    implicit val format: OFormat[GovernmentGatewayAuthenticatedUser] = Json.format[GovernmentGatewayAuthenticatedUser]
   }
 
   final case class NonGovernmentGatewayAuthenticatedUser(authProvider: String) extends AuthenticatedUser {
@@ -67,19 +53,16 @@ object AuthenticatedUser {
   implicit val format: Format[AuthenticatedUser] =
     Format(
       Reads.apply[AuthenticatedUser](json =>
-        Individual.format
+        GovernmentGatewayAuthenticatedUser.format
           .reads(json)
           .map(_.asInstanceOf[AuthenticatedUser])
-          .recoverWith(_ => Organisation.format.reads(json).map(_.asInstanceOf[AuthenticatedUser]))
           .recoverWith(_ =>
             NonGovernmentGatewayAuthenticatedUser.format.reads(json).map(_.asInstanceOf[AuthenticatedUser])
           )
       ),
       Writes.apply {
-        case value: Individual                            =>
-          Individual.format.writes(value)
-        case value: Organisation                          =>
-          Organisation.format.writes(value)
+        case value: GovernmentGatewayAuthenticatedUser    =>
+          GovernmentGatewayAuthenticatedUser.format.writes(value)
         case value: NonGovernmentGatewayAuthenticatedUser =>
           NonGovernmentGatewayAuthenticatedUser.format.writes(value)
       }

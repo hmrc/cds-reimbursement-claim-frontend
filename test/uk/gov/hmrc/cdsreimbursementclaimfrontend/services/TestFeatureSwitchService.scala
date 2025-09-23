@@ -39,7 +39,4 @@ class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchS
   override def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     disable(feature)
 
-  override def isEnabledForApplication(feature: Feature): Boolean =
-    isEnabled(feature)(HeaderCarrier())
-
 }

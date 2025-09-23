@@ -179,9 +179,9 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Individual](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.GovernmentGatewayAuthenticatedUser](
             AuthenticatedUser
-              .Individual(
+              .GovernmentGatewayAuthenticatedUser(
                 None,
                 eori,
                 Some("John Smith")
@@ -203,9 +203,9 @@ class AuthenticatedActionWithRetrievedDataSpec
           val result = performAction(FakeRequest())
 
           status(result)        shouldBe OK
-          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.Organisation](
+          contentAsJson(result) shouldBe Json.toJson[AuthenticatedUser.GovernmentGatewayAuthenticatedUser](
             AuthenticatedUser
-              .Organisation(
+              .GovernmentGatewayAuthenticatedUser(
                 None,
                 eori,
                 Some("John Smith")

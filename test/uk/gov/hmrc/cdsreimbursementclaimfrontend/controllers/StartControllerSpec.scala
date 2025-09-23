@@ -86,7 +86,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           val eori                      = Eori("AB12345678901234Z")
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              AuthenticatedUser.Individual(
+              AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
                 None,
                 eori,
                 Some("John Smith")
@@ -118,7 +118,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           val eori                      = Eori("AB12345678901234Z")
           lazy val authenticatedRequest =
             AuthenticatedRequestWithRetrievedData(
-              AuthenticatedUser.Organisation(
+              AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
                 Some(Email("email")),
                 eori,
                 Some("John Smith")
