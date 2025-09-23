@@ -207,6 +207,17 @@ class ChooseRepaymentMethodControllerSpec
           )
         }
     }
+    "Reset Repayment Method" must {
 
+      "remove the repayment method" in {
+        val journey        =
+          journeyCMAEligibleGen.sample.get
+            .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
+            .getOrFail
+        val updatedJourney = controller.resetReimbursementMethod(journey)
+
+        updatedJourney.answers.reimbursementMethod shouldBe None
+      }
+    }
   }
 }
