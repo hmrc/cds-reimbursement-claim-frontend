@@ -40,10 +40,6 @@ import scala.concurrent.Future
 trait ClaimService {
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
 
-  def getDisplayDeclaration(mrn: MRN, rfs: ReasonForSecurity)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, Option[DisplayDeclaration]]
-
   def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, GetDeclarationError, DisplayDeclaration]
@@ -67,23 +63,6 @@ class DefaultClaimService @Inject() (
             .map(Some(_))
             .leftMap(Error(_))
         } else if response.status === NO_CONTENT then {
-          Right(None)
-        } else Left(Error(s"call to get declaration details ${response.status}"))
-      }
-
-  def getDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, Option[DisplayDeclaration]] =
-    DeclarationConnector
-      .getDeclaration(mrn, reasonForSecurity)
-      .subflatMap { response =>
-        if response.status === OK then {
-          response
-            .parseJSON[DisplayDeclaration]()
-            .map(Some(_))
-            .leftMap(Error(_))
-        } else if response.status === NO_CONTENT then {
-          logger.error(s"Unable to find declaration for $mrn")
           Right(None)
         } else Left(Error(s"call to get declaration details ${response.status}"))
       }

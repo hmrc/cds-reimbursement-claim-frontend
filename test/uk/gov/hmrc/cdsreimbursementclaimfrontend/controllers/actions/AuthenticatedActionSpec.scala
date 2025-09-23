@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import org.scalamock.scalatest.MockFactory
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.MessagesRequest
 import play.api.mvc.Result
@@ -36,6 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AuthenticatedUser
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.TestFeatureSwitchService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -133,6 +136,21 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
             }
           }
         }
+      }
+
+      "serialize and deserialize AuthenticatedUser.GovernmentGatewayAuthenticatedUser" in {
+        val authenticatedUser =
+          AuthenticatedUser.GovernmentGatewayAuthenticatedUser(None, Eori("GB0000000001"), Some("John Doe"))
+        val serialized        = Json.toJson(authenticatedUser)
+        val deserialized      = serialized.as[AuthenticatedUser]
+        deserialized shouldBe authenticatedUser
+      }
+
+      "serialize and deserialize AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser" in {
+        val authenticatedUser = AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser("GovernmentGateway")
+        val serialized        = Json.toJson(authenticatedUser)
+        val deserialized      = serialized.as[AuthenticatedUser]
+        deserialized shouldBe authenticatedUser
       }
     }
 

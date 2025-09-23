@@ -163,25 +163,15 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
 
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
-      if userType === UserType.Individual then {
-        AuthenticatedRequestWithRetrievedData(
-          AuthenticatedUser.Individual(
-            None,
-            eori,
-            name
-          ),
-          Some(userType),
-          request
-        )
-
-      } else {
-        AuthenticatedRequestWithRetrievedData(
-          AuthenticatedUser
-            .Organisation(None, eori, name),
-          Some(userType),
-          request
-        )
-      }
+      AuthenticatedRequestWithRetrievedData(
+        AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
+          None,
+          eori,
+          name
+        ),
+        Some(userType),
+        request
+      )
 
     affinityGroup match {
       case Right(AffinityGroup.Individual) =>

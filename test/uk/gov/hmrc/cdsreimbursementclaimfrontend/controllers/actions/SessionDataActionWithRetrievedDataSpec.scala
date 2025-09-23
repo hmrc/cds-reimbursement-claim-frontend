@@ -49,7 +49,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
 
     lazy val authenticatedRequest =
       AuthenticatedRequestWithRetrievedData(
-        AuthenticatedUser.Individual(
+        AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
           Some(Email("email")),
           Eori("Some eori"),
           Some("John Smith")

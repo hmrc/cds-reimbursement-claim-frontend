@@ -37,8 +37,6 @@ trait FeatureSwitchService {
   final def isDisabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean =
     !isEnabled(feature)
 
-  def isEnabledForApplication(feature: Feature): Boolean
-
   final def optionally[A](feature: Feature, value: A)(implicit hc: HeaderCarrier): Option[A] =
     if isEnabled(feature) then Some(value) else None
 
@@ -99,13 +97,6 @@ class ConfiguredFeatureSwitchService @Inject() (
         .map(_ => ()),
       timeout
     )
-
-  def isEnabledForApplication(feature: Feature): Boolean =
-    sys.props
-      .get(s"features.${feature.name}")
-      .map(_.toBoolean)
-      .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
-      .getOrElse(false)
 
   private def isEnabledInCache(feature: Feature)(implicit hc: HeaderCarrier): Option[Boolean] =
     Await.result(

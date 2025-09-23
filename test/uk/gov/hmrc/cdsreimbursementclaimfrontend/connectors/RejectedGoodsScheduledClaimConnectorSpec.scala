@@ -216,5 +216,21 @@ class RejectedGoodsScheduledClaimConnectorSpec
       )
     }
 
+    import RejectedGoodsScheduledClaimConnector.*
+
+    "serialize and deserialize request" in {
+      val request      = sampleRequest
+      val serialized   = Json.toJson(request)
+      val deserialized = serialized.as[Request]
+      deserialized shouldBe request
+    }
+
+    "serialize and deserialize response" in {
+      val response     = Response("ABC123")
+      val serialized   = Json.toJson(response)
+      val deserialized = serialized.as[Response]
+      deserialized shouldBe response
+    }
+
   }
 }

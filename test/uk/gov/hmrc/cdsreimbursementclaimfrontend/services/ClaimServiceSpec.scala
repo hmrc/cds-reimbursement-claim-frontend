@@ -120,6 +120,14 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory with S
       .expects(mrn, *)
       .returning(EitherT.fromEither[Future](response))
 
+  def mockGetDisplayDeclarationForSecurity(mrn: MRN, reasonForSecurity: ReasonForSecurity)(
+    response: Either[Error, HttpResponse]
+  ): CallHandler3[MRN, ReasonForSecurity, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
+    (mockDeclarationConnector
+      .getDeclaration(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .expects(mrn, reasonForSecurity, *)
+      .returning(EitherT.fromEither[Future](response))
+
   def mockGetDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(
     response: Either[Error, HttpResponse]
   ): CallHandler3[MRN, ReasonForSecurity, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =

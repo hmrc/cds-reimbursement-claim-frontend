@@ -68,7 +68,7 @@ class ClaimDeletedControllerSpec
 
   lazy val authenticatedRequest =
     AuthenticatedRequestWithRetrievedData(
-      AuthenticatedUser.Individual(
+      AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
         None,
         eori,
         Some("John Smith")
