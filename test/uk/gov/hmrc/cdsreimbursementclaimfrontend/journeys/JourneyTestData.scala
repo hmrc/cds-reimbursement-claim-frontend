@@ -303,7 +303,17 @@ trait JourneyTestData {
           contactDetails = declarantContact
         ),
         consigneeDetails = consigneeDetails,
-        accountDetails = None,
+        accountDetails = Some(
+          List(
+            AccountDetails(
+              accountType = "account-type",
+              accountNumber = "account-number",
+              eori = declarantEORI.value,
+              legalName = s"declarant-legal-name-$id",
+              contactDetails = declarantContact
+            )
+          )
+        ),
         bankDetails = bankDetails,
         maskedBankDetails = None,
         ndrcDetails = if ndrcDetails.isEmpty then None else Some(ndrcDetails)
@@ -369,7 +379,17 @@ trait JourneyTestData {
           contactDetails = declarantContact
         ),
         consigneeDetails = consigneeDetails,
-        accountDetails = None,
+        accountDetails = Some(
+          List(
+            AccountDetails(
+              accountType = "account-type",
+              accountNumber = "account-number",
+              eori = declarantEORI.value,
+              legalName = s"declarant-legal-name-$id",
+              contactDetails = declarantContact
+            )
+          )
+        ),
         bankDetails = None,
         maskedBankDetails = None,
         ndrcDetails = None,

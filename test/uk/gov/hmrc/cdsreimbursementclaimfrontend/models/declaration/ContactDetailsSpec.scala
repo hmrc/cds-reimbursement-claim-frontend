@@ -22,6 +22,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genContactDetails
+import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 
 class ContactDetailsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
 
@@ -49,6 +51,20 @@ class ContactDetailsSpec extends AnyWordSpec with Matchers with ScalaCheckProper
     "not to display an address" when {
       "post code is missing" in forAll(genContactDetails, MinSuccessful(1)) { contactDetails =>
         contactDetails.copy(postalCode = None).showAddress shouldBe None
+      }
+    }
+
+    "serialize and deserialize" in {
+      forAll(genContactDetails) { contactDetails =>
+        val json = Json.toJson(contactDetails)
+        json.as[ContactDetails] shouldBe contactDetails
+      }
+
+      import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
+
+      forAll(IdGen.arbitraryName.arbitrary) { (name: Name) =>
+        val json = Json.toJson(name)
+        json.as[Name] shouldBe name
       }
     }
   }

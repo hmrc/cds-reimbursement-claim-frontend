@@ -26,10 +26,5 @@ final case class Name(name: Option[String], lastName: Option[String]) {
 
 object Name {
 
-  def fromGGName(maybeName: Option[uk.gov.hmrc.auth.core.retrieve.Name]): Option[Name] =
-    maybeName.map { name =>
-      Name(name.name, name.lastName)
-    }
-
   implicit val format: OFormat[Name] = Json.format[Name]
 }

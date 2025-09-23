@@ -100,6 +100,15 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
     }
 
+    "check optionally" in {
+      val featureSwitch: FeatureSwitchService =
+        new ConfiguredFeatureSwitchService(configuration, featuresCache)
+      featureSwitch.enable(Feature.BasisOfClaimOther)
+      featureSwitch.optionally(Feature.BasisOfClaimOther, "test") shouldBe Some("test")
+      featureSwitch.disable(Feature.BasisOfClaimOther)
+      featureSwitch.optionally(Feature.BasisOfClaimOther, "test") shouldBe None
+    }
+
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
       featureSwitch.enable(Feature.BasisOfClaimOther)
