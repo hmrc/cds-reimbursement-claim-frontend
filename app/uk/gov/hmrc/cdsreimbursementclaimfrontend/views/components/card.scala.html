@@ -19,10 +19,11 @@
 
 @this(govukSummaryList: GovukSummaryList)
 
-@(title: String, summaryList : SummaryList)
+@(title: String, summaryList : SummaryList, headingLevel: Option[Int] = None)
 
 @govukSummaryList(summaryList.copy(card = Some(Card(
       title = Some(CardTitle(
-        content = Text(title)
+        content = Text(title),
+        headingLevel = headingLevel
       ))
     ))))

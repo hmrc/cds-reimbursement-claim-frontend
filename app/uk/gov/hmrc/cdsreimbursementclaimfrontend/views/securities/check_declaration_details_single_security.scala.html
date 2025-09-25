@@ -56,27 +56,35 @@
         DisplayDeclarationCardImportDetails(
             displayDeclaration,
             "check-import-declaration-details"
-    ))
+        ),
+        headingLevel = Some(3)
+    )
 
     @card(messages("check-declaration-details.card.security-deposit-or-guarantee"),
         SecuritiesDisplayDeclarationCardSingleSecurityDepositDetails(
             displayDeclaration,
             "check-declaration-details"
-    ))
+        ),
+        headingLevel = Some(3)
+    )
 
     @if(displayDeclaration.getConsigneeDetails.isDefined){
         @card(messages("check-import-declaration-details.card.importer-details"), 
             DisplayDeclarationCardImporterDetails(
                 displayDeclaration,
                 "check-import-declaration-details"
-        ))
+            ),
+            headingLevel = Some(3)
+        )
     }
 
     @card(messages("check-import-declaration-details.card.declarant-details"), 
         DisplayDeclarationCardDeclarantDetails(
             displayDeclaration,
             "check-import-declaration-details"
-    ))
+        ),
+        headingLevel = Some(3)
+    )
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton("button.continue")
