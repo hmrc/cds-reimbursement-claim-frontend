@@ -51,13 +51,16 @@
         DisplayDeclarationCardImportDetails(
             declaration,
             "check-import-declaration-details"
-    ))
+        ),
+        headingLevel = Some(3)
+    )
 
     @card(messages("check-import-declaration-details.customs-duties-and-vat"),
         DisplayDeclarationCardDutiesAndVATDetails(
             declaration,
             "check-import-declaration-details"
-        )
+        ),
+        headingLevel = Some(3)
     )
 
     @if(declaration.getConsigneeDetails.isDefined){
@@ -65,14 +68,18 @@
             DisplayDeclarationCardImporterDetails(
                 declaration,
                 "check-import-declaration-details"
-        ))
+            ),
+            headingLevel = Some(3)
+        )
     }
 
     @card(messages("check-import-declaration-details.card.declarant-details"),
         DisplayDeclarationCardDeclarantDetails(
             declaration,
             "check-import-declaration-details"
-    ))
+        ),
+        headingLevel = Some(3)
+    )
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
         @submitButton("button.continue")
