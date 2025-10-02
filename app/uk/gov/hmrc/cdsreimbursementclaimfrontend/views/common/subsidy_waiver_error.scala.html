@@ -38,7 +38,7 @@
 @title = @{messages(s"$key.title")}
 
 @layout(pageTitle = Some(s"$title")) {
-    @heading(Html(title))
+    @heading(Html(title), classes="govuk-heading-l")
     @paragraph(Html(messages(s"$key.p1", gFormUrl, formType)))
 
     @if(subsidyType == "full") {
