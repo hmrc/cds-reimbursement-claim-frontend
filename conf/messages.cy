@@ -1299,14 +1299,13 @@ enter-movement-reference-number.securities.title=Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch yr MRN ar gyfer yr hawliad hwn
 enter-movement-reference-number.single.title=Cyfeirnod Symud (MRN)
 
-enter-new-dan.title=Rhowch y rhif cyfrif gohirio newydd
+enter-new-dan.title=Beth yw rhif y cyfrif gohirio cywir
 enter-new-dan.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r cyfrif gohirio hwn.
-enter-new-dan.hint=Mae rhif cyfrif gohirio yn cynnwys hyd at 7 digid (er enghraifft, ’1234567’).
-
+enter-new-dan.hint=Mae’n rhaid i rif y cyfrif fod yn 7 rhif
 enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
 enter-new-dan.error.required=Nodwch rif cyfrif gohirio
 enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
-
+enter-new-dan.label=Nodwch rif y cyfrif gohirio cywir
 
 enter-new-eori-number.title=Beth yw’r rhif EORI cywir?
 enter-new-eori-number.questionText=Nodwch y rhif EORI newydd
