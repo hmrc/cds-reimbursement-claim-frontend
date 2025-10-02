@@ -22,26 +22,38 @@
 @this(
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
     fileUploadConfig: FileUploadConfig,
     viewConfig: ViewConfig
 )
 
-@(key: String)(implicit messages: Messages)
+@(key: String, journey: String)(implicit messages: Messages)
 
 @paragraph(Html(messages(s"$key.help-text.para1")))
 
-@paragraph(Html(messages(s"$key.things-to-show.p1")))
+<!--@paragraph(Html(messages(s"$key.things-to-show.p1")))-->
 
 @bulletList(
     Seq(
         Html(messages(s"$key.things-to-show.l1")),
         Html(messages(s"$key.things-to-show.l2")),
-        Html(messages(s"$key.things-to-show.l3"))
+        Html(messages(s"$key.things-to-show.l3")),
+        Html(messages(s"$key.things-to-show.l4")),
+        Html(messages(s"$key.things-to-show.l5"))
     )
 )
 
-@paragraph(Html(messages(s"$key.help-text.para2", viewConfig.scheduledUploadTemplateUrl)))
+@subHeading(Html(messages(s"$key.header.file-upload")), classes="govuk-heading-m")
+@if(journey=="c285"){ @paragraph(Html(messages(s"$key.help-text.paraN")))
+}
 
+
+<div id="eoriNumber-hint" class="govuk-hint">
+    @paragraph(Html(messages(s"$key.choose.description")))
+</div>
+
+
+<!--
 @paragraph(Html(messages(s"$key.help-text.para3")))
 
-@paragraph(Html(messages(s"$key.help-text.para4", fileUploadConfig.readMaxFileSizeHumanReadable("schedule-of-mrn"))))
+@paragraph(Html(messages(s"$key.help-text.para4", fileUploadConfig.readMaxFileSizeHumanReadable("schedule-of-mrn"))))-->

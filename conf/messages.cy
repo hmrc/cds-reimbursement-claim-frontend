@@ -1573,20 +1573,24 @@ rejected-goods.choose-how-many-mrns.title=Un Cyfeirnod Symud (MRN) neu fwy nag u
 
 schedule-document.file-type.ScheduleOfMRNs=Dogfen restredig
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
-schedule-document.upload.choose.description=Dewiswch ddogfen i’w huwchlwytho
+schedule-document.upload.choose.description=Gall y ffeil a ddewisir fod hyd at 9MB ac mae’n rhaid iddi fod yn Excel neu’n CSV.
 schedule-document.upload.error.required=Mae problem gyda’r ffeil y gwnaethoch geisio ei huwchlwytho
-schedule-document.upload.help-text.para1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl MRNau i’w cynnwys yn yr hawliad hwn. Gallwch nodi MRNau sy’n gysylltiedig â rhif EORI sy’n dechrau gyda GB neu â rhif EORI sy’n dechrau gydag XI.
+schedule-document.upload.help-text.para1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl Gyfeirnodau Symud (MRNs) yr ydych am eu cynnwys yn yr hawliad hwn, ynghyd â’r canlynol:
 schedule-document.upload.help-text.para2=Lawrlwythwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">templed hawlio hwn (yn agor tab newydd)</a>. Gallwch ddefnyddio hwn i lenwi’r wybodaeth sydd ei hangen arnom i brosesu’ch hawliad.
+schedule-document.upload.help-text.paraN=Mae angen manylion penodol i’ch hawliad arnom hefyd. Er enghraifft, os gwnaethoch ordalu oherwydd cod nwyddau anghywir, cofiwch gynnwys y cod a ddefnyddiwyd adeg y mewnforio a’r un y dylid bod wedi’i ddefnyddio.
 schedule-document.upload.help-text.para3=Bydd eich hawliad yn cael ei ohirio os na fydd yr wybodaeth hon yn cael ei darparu.
 schedule-document.upload.help-text.para4=Gall y ddogfen hon fod hyd at 9MB a rhaid iddi fod yn Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
 schedule-document.upload.input-title=Dewiswch ddogfen i’w huwchlwytho
-schedule-document.upload.things-to-show.l1=i gyd o’r un mewnforiwr
-schedule-document.upload.things-to-show.l2=â’r un rheswm dros ordalu
-schedule-document.upload.things-to-show.l3=â’r un dull talu
+schedule-document.upload.things-to-show.l1=y dyddiad mewnforio
+schedule-document.upload.things-to-show.l2=disgrifiad o’r nwyddau a’r maint
+schedule-document.upload.things-to-show.l3=y math o ddyletswydd (DU, UE neu ecséis) neu dreth (TAW)
+schedule-document.upload.things-to-show.l4=y cyfanswm a dalwyd
+schedule-document.upload.things-to-show.l5=y swm rydych am ei hawlio
 schedule-document.upload.things-to-show.p1=Mae’n rhaid i’r MRNau yn y ddogfen fod:
-schedule-document.upload.title=Ychwanegu dogfen sy’n dangos pob MRN yn yr hawliad hwn
+schedule-document.upload.title=Ychwanegwch fanylion eich hawliad
 schedule-document.upload.title.subsidy=Ychwanegu dogfen sy’n dangos pob MRN cymhorthdal yn yr hawliad hwn
 schedule-document.upload.error.file-upload.required=Uwchlwythwch ffeil sy’n nodi’r holl MRNau sy’n gysylltiedig â’r hawliad hwn
+schedule-document.upload.header.file-upload=Uwchlwythwch eich ffeil
 
 select-bank-account-type.business-bank-account=Cyfrif banc busnes
 select-bank-account-type.error.required=Dewiswch ai cyfrif banc busnes yw hwn neu’n gyfrif banc personol
