@@ -1510,7 +1510,13 @@ choose-how-many-mrns.p1.li3=bod â’r un dull talu
 choose-how-many-mrns.question=Faint o MRNau yr ydych am eu cyflwyno?
 
 subsidy-waiver-error.title=Ni allwch ddefnyddio’r gwasanaeth hwn i hawlio ar gyfer tollau sy’n dod o dan y Cynllun Ildio Toll Dramor
-subsidy-waiver-error.p1=Mae'r Cyfeirnod Symud (MRN) yn cynnwys tollau neu TAW sy'n dod o dan ildiad. I hawlio ar gyfer y rhain, mae'n rhaid i chi ddefnyddio <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">ffurflen {1} (yn agor tab newydd)</a>.
+subsidy-waiver-error.p1=Mae’r Cyfeirnod Symud (MRN) yn cynnwys tollau neu TAW sy’n dod o dan ildiad. I hawlio ar gyfer y rhain, mae’n rhaid i chi ddefnyddio <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">ffurflen {1} (yn agor tab newydd)</a>.
+subsidy-waiver-error.full.single.p2=Gallwch:
+subsidy-waiver-error.full.single.point.1=<a href="{0}" class="govuk-link" rel="noreferrer noopener">barhau gyda MRN gwahanol</a>
+subsidy-waiver-error.full.single.point.2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ddechrau hawliad newydd</a>
+subsidy-waiver-error.full.multiple.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Nodwch MRN gwahanol</a> os ydych am barhau gyda mwy nag un MRN ar gyfer yr hawliad hwn, neu <a href="{1}" class="govuk-link" rel="noreferrer noopener">ddechrau hawliad newydd</a>.
+subsidy-waiver-error.full.scheduled.p2=<a href="{0}" class="govuk-link" rel="noreferrer noopener">Nodwch MRN gwahanol</a>
+subsidy-waiver-error.part.p2=Gallwch barhau i hawlio ar gyfer tollau eraill neu TAW arall yn yr MRN hwn.
 
 phasebanner.feedback.text=Gwasanaeth newydd yw hwn - bydd eich <a class="govuk-link" href="{0}" rel="noreferrer noopener" target="_blank">adborth (yn agor tab newydd)</a> yn ein helpu i’w wella.
 phasebanner.phase=Y Cyfnod Beta
