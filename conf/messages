@@ -1509,20 +1509,24 @@ rejected-goods.choose-how-many-mrns.title=Single or multiple Movement Reference 
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
 schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
-schedule-document.upload.choose.description=Select a document to upload
+schedule-document.upload.choose.description=The selected file can be up to 9MB and must be Excel or CSV.
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
-schedule-document.upload.help-text.para1=You will need to create and upload a list of all the MRNs to include in this claim. You can enter MRNs associated with an EORI number starting GB or an EORI number starting XI.
+schedule-document.upload.help-text.para1=You need to create and upload a list of all the Movement Reference Numbers (MRNs) you want to include in this claim, along with:
 schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template (opens in a new tab)</a>. You can use this to fill in the information we need to process you claim.
+schedule-document.upload.help-text.paraN=We also need details specific to your claim. For example, if you overpaid because of an incorrect commodity code, include the code used at the time of import and the one that should have been used.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
 schedule-document.upload.help-text.para4=This document can be up to {0} and must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
 schedule-document.upload.input-title=Select a document to upload
-schedule-document.upload.things-to-show.l1=all be from the same importer
-schedule-document.upload.things-to-show.l2=all have the same reason for overpayment
-schedule-document.upload.things-to-show.l3=have the same method of payment
+schedule-document.upload.things-to-show.l1=the import date
+schedule-document.upload.things-to-show.l2=a description of the goods and the quantity
+schedule-document.upload.things-to-show.l3=the type of duty (UK, EU or excise) or tax (VAT)
+schedule-document.upload.things-to-show.l4=the total amount paid
+schedule-document.upload.things-to-show.l5=the amount you want to claim
 schedule-document.upload.things-to-show.p1=The MRNs in the document must:
-schedule-document.upload.title=Add a document showing all Movement Reference Numbers (MRNs) in this claim
+schedule-document.upload.title=Add your claim details
 schedule-document.upload.title.subsidy=Add a document which shows all the subsidy Movement Reference Numbers (MRNs) in this claim
 schedule-document.upload.error.file-upload.required=Upload a file listing all the MRNs in this claim
+schedule-document.upload.header.file-upload=Upload your file
 
 select-bank-account-type.business-bank-account=Business bank account
 select-bank-account-type.cma-text=Payment will be made to this bank account only if the deferment cut-off date has already passed when the claim is processed. Check <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/publications/chief-last-dates-for-adjustments-to-deferment-periods">last dates for deferment period adjustments (opens in new tab)</a>.
