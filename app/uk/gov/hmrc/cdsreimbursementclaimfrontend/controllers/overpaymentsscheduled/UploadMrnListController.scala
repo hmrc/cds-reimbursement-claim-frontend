@@ -137,7 +137,8 @@ class UploadMrnListController @Inject() (
 
   def uploadDocumentsContent()(implicit messages: Messages): UploadDocumentsSessionConfig.Content = {
     val descriptionHtml = upload_mrn_list_description(
-      "schedule-document.upload"
+      "schedule-document.upload",
+      "c285"
     )(messages).body
     UploadDocumentsSessionConfig.Content(
       serviceName = messages("service.title"),
@@ -155,7 +156,7 @@ class UploadMrnListController @Inject() (
       pageTitleClasses = "govuk-heading-xl",
       allowedFilesTypesHint = messages("schedule-document.upload.allowed-file-types"),
       fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
-      chooseFirstFileLabel = messages("schedule-document.upload.choose.description"),
+      chooseFirstFileLabel = messages(""),
       fileUploadRequiredError = Some(messages("schedule-document.upload.error.file-upload.required"))
     )
   }
