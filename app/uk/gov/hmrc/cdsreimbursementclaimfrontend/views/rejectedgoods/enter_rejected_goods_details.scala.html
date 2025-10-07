@@ -58,7 +58,6 @@
   )
  )
 
-
  @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
   @textArea(
@@ -67,8 +66,7 @@
    name = "enter-rejected-goods-details.rejected-goods",
    isPageHeading = false,
    label = s"enter-rejected-goods-details.rejected-goods.label",
-   labelClasses = Some("govuk-visually-hidden"),
-   hint = Some("enter-rejected-goods-details.rejected-goods.hint"),
+   labelClasses = Some("govuk-label govuk-label--m"),
    value = form("enter-rejected-goods-details.rejected-goods").value,
    maxLength = Some(500)
   )
