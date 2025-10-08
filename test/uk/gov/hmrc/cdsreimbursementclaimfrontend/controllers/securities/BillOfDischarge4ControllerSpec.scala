@@ -31,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 
@@ -45,7 +45,7 @@ class BillOfDischarge4ControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -76,12 +76,12 @@ class BillOfDischarge4ControllerSpec
       val errorBodMessagesKey: String = s"$confirmBodMessagesKey-error"
 
       "display the page if securities feature is enabled (BOD4)" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyENUGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForENU
+          claimBuilder = buildSecuritiesClaimReadyForENU
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      ) { case (claim, _) =>
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()

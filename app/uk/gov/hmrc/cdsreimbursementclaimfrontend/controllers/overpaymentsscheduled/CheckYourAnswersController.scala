@@ -26,10 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsScheduledClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimLog
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
@@ -41,7 +41,7 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckYourAnswersController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   overpaymentsScheduledClaimConnector: OverpaymentsScheduledClaimConnector,
   uploadDocumentsConnector: UploadDocumentsConnector,
   checkYourAnswersPage: check_your_answers_scheduled,
@@ -50,31 +50,31 @@ class CheckYourAnswersController @Inject() (
   submitClaimFailedPage: submit_claim_error,
   auditService: AuditService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends OverpaymentsScheduledJourneyBaseController {
+    extends OverpaymentsScheduledClaimBaseController {
 
   private val postAction: Call             = routes.CheckYourAnswersController.submit
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      journey
+    actionReadWriteClaim { implicit request => claim =>
+      claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
         .fold(
           errors => {
             logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
             (
-              journey.submitCheckYourAnswersChangeMode(false),
+              claim.submitCheckYourAnswersChangeMode(false),
               Redirect(routeForValidationErrors(errors))
             )
           },
           output =>
             (
-              journey.submitCheckYourAnswersChangeMode(true),
+              claim.submitCheckYourAnswersChangeMode(true),
               Ok(
                 checkYourAnswersPage(
                   output,
@@ -86,14 +86,14 @@ class CheckYourAnswersController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      journey
+    actionReadWriteClaim { implicit request => claim =>
+      claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
         .fold(
           errors => {
             logger.warn(s"Claim not ready to submit because of ${errors.mkString(",")}")
-            (journey, Redirect(routeForValidationErrors(errors))).asFuture
+            (claim, Redirect(routeForValidationErrors(errors))).asFuture
           },
           output =>
             overpaymentsScheduledClaimConnector
@@ -103,22 +103,22 @@ class CheckYourAnswersController @Inject() (
                   s"Successful submit of claim for ${output.movementReferenceNumber} with case number ${response.caseNumber}."
                 )
                 val summary =
-                  JourneyLog(output, journey.answers.userEoriNumber.value, Some(response.caseNumber), journey)
+                  ClaimLog(output, claim.answers.userEoriNumber.value, Some(response.caseNumber), claim)
                     .logInfo()
-                auditService.sendSuccessfulClaimEvent(journey, output, summary)
+                auditService.sendSuccessfulClaimEvent(claim, output, summary)
                 uploadDocumentsConnector.wipeOut
                   .map(_ =>
                     (
-                      journey.finalizeJourneyWith(response.caseNumber).getOrElse(journey),
+                      claim.finalizeClaimWith(response.caseNumber).getOrElse(claim),
                       Redirect(showConfirmationAction)
                     )
                   )
               }
               .recover { case e =>
                 logger.error(s"Failed to submit claim for ${output.movementReferenceNumber} because of $e.")
-                val summary = JourneyLog(output, journey.answers.userEoriNumber.value, None, journey).logError(e)
-                auditService.sendFailedClaimEvent(journey, output, summary)
-                (journey, Ok(submitClaimFailedPage()))
+                val summary = ClaimLog(output, claim.answers.userEoriNumber.value, None, claim).logError(e)
+                auditService.sendFailedClaimEvent(claim, output, summary)
+                (claim, Ok(submitClaimFailedPage()))
               }
         )
     }
@@ -127,42 +127,42 @@ class CheckYourAnswersController @Inject() (
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
-          .flatMap(getJourney)
-          .map { journey =>
-            val maybeMrn   = journey.getLeadMovementReferenceNumber.map(_.value)
-            val maybeEmail = journey.answers.contactDetails.flatMap(_.emailAddress).map(_.value)
-            (journey.caseNumber match {
+          .flatMap(getClaim)
+          .map { claim =>
+            val maybeMrn   = claim.getLeadMovementReferenceNumber.map(_.value)
+            val maybeEmail = claim.answers.contactDetails.flatMap(_.emailAddress).map(_.value)
+            (claim.caseNumber match {
 
               case Some(caseNumber) =>
                 Ok(
                   confirmationOfSubmissionPage(
-                    journey.getTotalReimbursementAmount,
+                    claim.getTotalReimbursementAmount,
                     caseNumber,
                     maybeMrn = maybeMrn,
                     maybeEmail = maybeEmail,
                     subKey = Some("scheduled"),
-                    printViewUrl = getPrintViewUrl(journey)
+                    printViewUrl = getPrintViewUrl(claim)
                   )
                 )
               case None             => Redirect(checkYourAnswers)
             }).asFuture
           }
-          .getOrElse(redirectToTheStartOfTheJourney)
+          .getOrElse(redirectToTheStartOfTheClaim)
       }
 
   final val showPrintView: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
         request.sessionData
-          .flatMap(getJourney)
-          .map(journey =>
-            journey.toOutput.fold(
+          .flatMap(getClaim)
+          .map(claim =>
+            claim.toOutput.fold(
               errors => {
                 logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
                 Redirect(routeForValidationErrors(errors)).asFuture
               },
               output =>
-                (journey.caseNumber, journey.submissionDateTime) match {
+                (claim.caseNumber, claim.submissionDateTime) match {
                   case (Some(caseNumber), Some(submissionDate)) =>
                     Ok(
                       checkYourAnswersPagePrintView(
@@ -172,11 +172,11 @@ class CheckYourAnswersController @Inject() (
                       )
                     ).asFuture
                   case _                                        =>
-                    logger.warn("Error fetching journey for print view")
+                    logger.warn("Error fetching claim for print view")
                     errorHandler.errorResult().asFuture
                 }
             )
           )
-          .getOrElse(redirectToTheStartOfTheJourney)
+          .getOrElse(redirectToTheStartOfTheClaim)
       }
 }

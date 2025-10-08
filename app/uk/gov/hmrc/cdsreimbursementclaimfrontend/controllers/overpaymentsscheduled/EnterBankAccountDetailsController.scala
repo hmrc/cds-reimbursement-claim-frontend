@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
@@ -27,29 +27,29 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
   val enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends OverpaymentsScheduledJourneyBaseController
+    extends OverpaymentsScheduledClaimBaseController
     with EnterBankAccountDetailsMixin {
 
-  final override def modifyJourney(
-    journey: Journey,
+  final override def modifyClaim(
+    claim: Claim,
     bankAccountDetails: BankAccountDetails
-  ): Either[String, Journey] =
-    journey.submitBankAccountDetails(bankAccountDetails)
+  ): Either[String, Claim] =
+    claim.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack = EnterBankAccountDetailsController.routesPack
 
 }
 
 object EnterBankAccountDetailsController {
-  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[OverpaymentsScheduledJourney](
+  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[OverpaymentsScheduledClaim](
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
     successPath = _ => routes.ChooseFileTypeController.show,

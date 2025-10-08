@@ -24,9 +24,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
@@ -37,20 +37,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithDeclarationController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   override val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue,
   override val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsMultipleJourneyBaseController
+    extends OverpaymentsMultipleClaimBaseController
     with ProblemWithDeclarationMixin {
 
-  override def removeUnsupportedTaxCodesFromJourney(
-    journey: OverpaymentsMultipleJourney
-  ): OverpaymentsMultipleJourney =
-    journey.removeUnsupportedTaxCodes()
+  override def removeUnsupportedTaxCodesFromClaim(
+    claim: OverpaymentsMultipleClaim
+  ): OverpaymentsMultipleClaim =
+    claim.removeUnsupportedTaxCodes()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration)
 
   final override val postAction: Call =
@@ -63,15 +63,15 @@ class ProblemWithDeclarationController @Inject() (
     routes.CheckDeclarationDetailsController.show
 
   final def showNth(pageIndex: Int): Action[AnyContent] =
-    actionReadJourney { implicit request => implicit journey =>
+    actionReadClaim { implicit request => implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      journey.getNthDisplayDeclaration(pageIndex - 1) match {
+      claim.getNthDisplayDeclaration(pageIndex - 1) match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
               declaration.getMRN,
               routes.EnterMovementReferenceNumberController.show(pageIndex),
-              getFormMessageKeyAndUrl(journey)
+              getFormMessageKeyAndUrl(claim)
             )
           )
         case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>
@@ -80,25 +80,25 @@ class ProblemWithDeclarationController @Inject() (
               form,
               declaration.getMRN,
               routes.ProblemWithDeclarationController.submitNth(pageIndex),
-              getFormMessageKeyAndUrl(journey)
+              getFormMessageKeyAndUrl(claim)
             )
           )
         case Some(_)                                                          =>
           Redirect(routes.CheckMovementReferenceNumbersController.show)
         case None                                                             =>
-          throw new IllegalStateException(s"Expected the journey to have $pageIndex DisplayDeclaration already")
+          throw new IllegalStateException(s"Expected the claim to have $pageIndex DisplayDeclaration already")
       }
     }
 
   final def submitNth(pageIndex: Int): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
+    actionReadWriteClaim { implicit request => implicit claim =>
       Forms.problemWithDeclarationForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
-              journey
+              claim,
+              claim
                 .getNthDisplayDeclaration(pageIndex - 1)
                 .map { declaration =>
                   BadRequest(
@@ -106,7 +106,7 @@ class ProblemWithDeclarationController @Inject() (
                       formWithErrors,
                       declaration.getMRN,
                       routes.ProblemWithDeclarationController.submitNth(pageIndex),
-                      getFormMessageKeyAndUrl(journey)
+                      getFormMessageKeyAndUrl(claim)
                     )
                   )
                 }
@@ -115,10 +115,10 @@ class ProblemWithDeclarationController @Inject() (
           answer =>
             answer match {
               case YesNo.No  =>
-                (journey, Redirect(routes.EnterMovementReferenceNumberController.show(pageIndex)))
+                (claim, Redirect(routes.EnterMovementReferenceNumberController.show(pageIndex)))
               case YesNo.Yes =>
                 (
-                  removeUnsupportedTaxCodesFromJourney(journey),
+                  removeUnsupportedTaxCodesFromClaim(claim),
                   Redirect(routes.CheckMovementReferenceNumbersController.show)
                 )
             }

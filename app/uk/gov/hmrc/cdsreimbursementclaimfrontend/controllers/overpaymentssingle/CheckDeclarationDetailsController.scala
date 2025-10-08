@@ -23,10 +23,10 @@ import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
@@ -34,20 +34,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkDeclarationDetailsPage: check_declaration_details
 )(implicit val viewConfig: ViewConfig, val errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends OverpaymentsSingleJourneyBaseController
+    extends OverpaymentsSingleClaimBaseController
     with CheckDeclarationDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final override def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration] =
-    journey.getLeadDisplayDeclaration
+  final override def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration] =
+    claim.getLeadDisplayDeclaration
 
-  final override def continueRoute(journey: Journey): Call =
+  final override def continueRoute(claim: Claim): Call =
     routes.BasisForClaimController.show
 
   final override val enterMovementReferenceNumberRoute: Call =
@@ -56,8 +56,8 @@ class CheckDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDeclarationDetailsController.submit
 
-  override def viewTemplate: (DisplayDeclaration, Journey) => Request[?] => HtmlFormat.Appendable = {
-    case (decl, journey) =>
+  override def viewTemplate: (DisplayDeclaration, Claim) => Request[?] => HtmlFormat.Appendable = {
+    case (decl, claim) =>
       implicit request =>
         checkDeclarationDetailsPage(
           declaration = decl,

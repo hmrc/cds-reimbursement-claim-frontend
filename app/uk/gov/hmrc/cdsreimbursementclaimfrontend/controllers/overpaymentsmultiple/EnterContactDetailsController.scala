@@ -21,10 +21,10 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterContactDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
@@ -32,14 +32,14 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterContactDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends OverpaymentsMultipleJourneyBaseController
+    extends OverpaymentsMultipleClaimBaseController
     with EnterContactDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override val postAction: Call =
@@ -48,7 +48,7 @@ class EnterContactDetailsController @Inject() (
   final override val continueRoute: Call =
     routes.CheckClaimantDetailsController.show // change to redirectToALF when CheckClaimantDetails page is removed
 
-  final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
-    journey.submitContactDetails(contactDetails)
+  final override def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim =
+    claim.submitContactDetails(contactDetails)
 
 }

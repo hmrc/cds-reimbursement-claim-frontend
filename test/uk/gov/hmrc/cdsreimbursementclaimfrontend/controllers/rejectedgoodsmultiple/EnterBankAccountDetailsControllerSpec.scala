@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
@@ -77,7 +77,7 @@ class EnterBankAccountDetailsControllerSpec
 
   private val messagesKey: String = "enter-bank-account-details"
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Bank Account Details Controller" must {
 
@@ -102,8 +102,8 @@ class EnterBankAccountDetailsControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(completeJourneyNotCMAEligibleGen) { journey =>
-        val updatedSession = SessionData(journey)
+      "the user has answered this question before" in forAll(completeClaimNotCMAEligibleGen) { claim =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -114,14 +114,14 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe claim.answers.bankAccountDetails
               .map(_.accountName.value)
-            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe claim.answers.bankAccountDetails
               .map(_.sortCode.value)
             selectedInputBox(
               doc,
               "enter-bank-account-details.account-number"
-            )                                                                shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
+            )                                                                shouldBe claim.answers.bankAccountDetails.map(_.accountNumber.value)
           }
         )
 
@@ -132,7 +132,7 @@ class EnterBankAccountDetailsControllerSpec
     "validate bank account details" when {
 
       "personal account" must {
-        val journey = RejectedGoodsMultipleJourney
+        val claim = RejectedGoodsMultipleClaim
           .empty(exampleEori)
           .submitBankAccountType(BankAccountType.Personal)
           .getOrFail
@@ -154,7 +154,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankDetails, postCode).map(_._2),
             routes.ChooseFileTypeController.show
           )
         }
@@ -174,7 +174,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -194,7 +194,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -215,7 +215,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -235,7 +235,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -256,7 +256,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -278,7 +278,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -300,7 +300,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -308,7 +308,7 @@ class EnterBankAccountDetailsControllerSpec
       }
 
       "business account" must {
-        val journey = RejectedGoodsMultipleJourney
+        val claim = RejectedGoodsMultipleClaim
           .empty(exampleEori)
           .submitBankAccountType(BankAccountType.Business)
           .getOrFail
@@ -330,7 +330,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankDetails, postCode).map(_._2),
             routes.ChooseFileTypeController.show
           )
         }
@@ -350,7 +350,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -370,7 +370,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -391,7 +391,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -412,7 +412,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -433,7 +433,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -455,7 +455,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -477,7 +477,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -498,7 +498,7 @@ class EnterBankAccountDetailsControllerSpec
           )
 
           checkIsRedirect(
-            controller.validateBankAccountDetails(journey, bankAccountDetails, postCode).map(_._2),
+            controller.validateBankAccountDetails(claim, bankAccountDetails, postCode).map(_._2),
             routes.CheckBankDetailsController.showWarning
           )
         }
@@ -511,8 +511,8 @@ class EnterBankAccountDetailsControllerSpec
 
       "the user enters details for the first time" in forAll(genBankAccountDetails, Gen.oneOf(Yes, Indeterminate)) {
         (bankDetails, accountExists) =>
-          val initialJourney =
-            RejectedGoodsMultipleJourney
+          val initialClaim =
+            RejectedGoodsMultipleClaim
               .empty(exampleDisplayDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 exampleMrn,
@@ -528,11 +528,11 @@ class EnterBankAccountDetailsControllerSpec
               .flatMap(_.submitBankAccountType(BankAccountType.Personal))
               .getOrFail
 
-          val requiredSession = SessionData(initialJourney)
+          val requiredSession = SessionData(initialClaim)
 
-          val updatedJourney             =
-            initialJourney.submitBankAccountDetails(bankDetails.withExistenceVerified(Some(accountExists)))
-          val updatedSession             = session.copy(rejectedGoodsMultipleJourney = updatedJourney.toOption)
+          val updatedClaim               =
+            initialClaim.submitBankAccountDetails(bankDetails.withExistenceVerified(Some(accountExists)))
+          val updatedSession             = session.copy(rejectedGoodsMultipleClaim = updatedClaim.toOption)
           val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
             accountNumberWithSortCodeIsValid = Yes,
             accountExists = Some(accountExists),
@@ -560,8 +560,8 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney  = journeyWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
-        val requiredSession = SessionData(initialJourney)
+        val initialClaim    = claimWithMrnAndDeclaration.submitBankAccountType(BankAccountType.Personal).getOrFail
+        val requiredSession = SessionData(initialClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

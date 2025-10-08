@@ -25,9 +25,9 @@ import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details_single_security
 
@@ -35,32 +35,32 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimDetailsSingleSecurityController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkClaimDetailsPage: check_claim_details_single_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val postAction: Call = routes.CheckClaimDetailsSingleSecurityController.submit
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      checkIfAllReclaimsProvided(journey) {
-        journey.getLeadDisplayDeclaration
-          .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
-            journey.getReclaimWithAmounts.headOption
-              .fold((journey, errorHandler.errorResult())) { reclaims =>
-                journey.getSecurityDepositIds.headOption.fold(
+    actionReadWriteClaim { implicit request => claim =>
+      checkIfAllReclaimsProvided(claim) {
+        claim.getLeadDisplayDeclaration
+          .fold((claim, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
+            claim.getReclaimWithAmounts.headOption
+              .fold((claim, errorHandler.errorResult())) { reclaims =>
+                claim.getSecurityDepositIds.headOption.fold(
                   throw new Exception("Security deposit ID expected, but none found")
                 ) { firstDepositId =>
-                  val availableDuties = journey.getSecurityTaxCodesWithAmounts(firstDepositId)
+                  val availableDuties = claim.getSecurityTaxCodesWithAmounts(firstDepositId)
                   (
-                    journey
+                    claim
                       .submitCheckClaimDetailsChangeMode(true)
                       .resetClaimFullAmountMode(),
                     Ok(
@@ -74,31 +74,31 @@ class CheckClaimDetailsSingleSecurityController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { _ => journey =>
-      checkIfAllReclaimsProvided(journey) {
-        (journey, decideNextPage(journey))
+    actionReadWriteClaim { _ => claim =>
+      checkIfAllReclaimsProvided(claim) {
+        (claim, decideNextPage(claim))
       }
     }
 
   private def checkIfAllReclaimsProvided(
-    journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result)): (SecuritiesJourney, Result) =
-    if journey.answers.correctedAmounts.noneIfEmpty.isEmpty then
-      (journey, Redirect(routes.CheckDeclarationDetailsSingleSecurityController.show))
+    claim: SecuritiesClaim
+  )(body: => (SecuritiesClaim, Result)): (SecuritiesClaim, Result) =
+    if claim.answers.correctedAmounts.noneIfEmpty.isEmpty then
+      (claim, Redirect(routes.CheckDeclarationDetailsSingleSecurityController.show))
     else
-      journey.getNextDepositIdAndTaxCodeToClaim match {
+      claim.getNextDepositIdAndTaxCodeToClaim match {
         case Some(Left(depositId)) =>
-          (journey, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
+          (claim, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
 
         case Some(Right((depositId, taxCode))) =>
-          (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
+          (claim, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
 
         case None =>
           body
       }
 
-  private def decideNextPage(journey: SecuritiesJourney): Result =
-    if journey.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
-    else if journey.getReasonForSecurity.exists(ntas.contains) then Redirect(routes.ChooseExportMethodController.show)
+  private def decideNextPage(claim: SecuritiesClaim): Result =
+    if claim.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
+    else if claim.getReasonForSecurity.exists(ntas.contains) then Redirect(routes.ChooseExportMethodController.show)
     else Redirect(routes.ChoosePayeeTypeController.show)
 }

@@ -52,7 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessagesApiProvider
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -221,7 +221,7 @@ class ChooseClaimTypeControllerSpec
           mockStoreSession(
             SessionData(
               verifiedEmail = None,
-              securitiesJourney = Some(SecuritiesJourney.empty(exampleEori, Nonce.Any))
+              securitiesClaim = Some(SecuritiesClaim.empty(exampleEori, Nonce.Any))
             )
           )(
             Right(())

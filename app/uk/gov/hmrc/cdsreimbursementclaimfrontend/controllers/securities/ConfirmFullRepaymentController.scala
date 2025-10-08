@@ -27,11 +27,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
@@ -43,22 +43,22 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ConfirmFullRepaymentController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   confirmFullRepaymentPage: confirm_full_repayment
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val form: Form[YesNo] = confirmFullRepaymentForm
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val showFirst: Action[AnyContent]                                                                       = actionReadJourney { _ => journey =>
-    journey.getSelectedDepositIds.headOption
+  val showFirst: Action[AnyContent]                                                                       = actionReadClaim { _ => claim =>
+    claim.getSelectedDepositIds.headOption
       .fold(
         Redirect(routes.CheckDeclarationDetailsController.show)
       )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
@@ -70,16 +70,16 @@ class ConfirmFullRepaymentController @Inject() (
       depositValue = displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
     )
 
-  def show(id: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    journey
+  def show(id: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    claim
       .getDisplayDeclarationIfValidSecurityDepositId(id)
       .map(getPageModel(_, id))
-      .fold((journey, errorHandler.errorResult())) { case model =>
+      .fold((claim, errorHandler.errorResult())) { case model =>
         (
-          journey.resetClaimFullAmountMode(),
+          claim.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPage(
-              form.withDefault(journey.getClaimFullAmountStatus(id)),
+              form.withDefault(claim.getClaimFullAmountStatus(id)),
               model,
               routes.ConfirmFullRepaymentController.submit(id)
             )
@@ -89,16 +89,16 @@ class ConfirmFullRepaymentController @Inject() (
 
   }
 
-  def submit(id: String): Action[AnyContent] = actionReadWriteJourney(
+  def submit(id: String): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         form
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
-                journey
+                claim,
+                claim
                   .getDisplayDeclarationIfValidSecurityDepositId(id)
                   .map(getPageModel(_, id))
                   .map { case model =>
@@ -113,71 +113,71 @@ class ConfirmFullRepaymentController @Inject() (
                   .getOrElse(errorHandler.errorResult())
               ),
             answer =>
-              if journey.getClaimFullAmountStatus(id).contains(answer) &&
-                journey.userHasSeenCYAPage
-              then (journey, Redirect(checkYourAnswers))
+              if claim.getClaimFullAmountStatus(id).contains(answer) &&
+                claim.userHasSeenCYAPage
+              then (claim, Redirect(checkYourAnswers))
               else
                 answer match {
                   case Yes =>
-                    submitYes(id, journey)
+                    submitYes(id, claim)
                   case No  =>
-                    submitNo(id, journey)
+                    submitNo(id, claim)
                 }
           ),
     fastForwardToCYAEnabled = false
   )
 
-  def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
+  def submitYes(securityId: String, claim: SecuritiesClaim)(implicit
     request: Request[?]
-  ): (SecuritiesJourney, Result) =
-    journey
+  ): (SecuritiesClaim, Result) =
+    claim
       .submitFullCorrectedAmounts(securityId)
       .fold(
         { error =>
           logger.warn(error)
-          (journey, errorHandler.errorResult())
+          (claim, errorHandler.errorResult())
         },
-        { updatedJourney =>
+        { updatedClaim =>
           val nextRoute =
-            if journey.answers.modes.checkClaimDetailsChangeMode then routes.CheckClaimDetailsController.show
+            if claim.answers.modes.checkClaimDetailsChangeMode then routes.CheckClaimDetailsController.show
             else
-              journey.getSelectedDepositIds
+              claim.getSelectedDepositIds
                 .nextAfter(securityId)
                 .fold(routes.CheckClaimDetailsController.show) { nextSecurityId =>
                   routes.ConfirmFullRepaymentController.show(nextSecurityId)
                 }
-          (updatedJourney, Redirect(nextRoute))
+          (updatedClaim, Redirect(nextRoute))
         }
       )
 
-  def submitNo(securityId: String, journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    if journey.getSelectedDutiesFor(securityId).isEmpty || journey.isFullSecurityAmountClaimed(securityId) then {
-      if journey.getSecurityTaxCodesFor(securityId).size == 1 then
-        journey
+  def submitNo(securityId: String, claim: SecuritiesClaim): (SecuritiesClaim, Result) =
+    if claim.getSelectedDutiesFor(securityId).isEmpty || claim.isFullSecurityAmountClaimed(securityId) then {
+      if claim.getSecurityTaxCodesFor(securityId).size == 1 then
+        claim
           .submitClaimFullAmountMode(false)
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(
             securityId,
-            journey.getSecurityTaxCodesFor(securityId)
+            claim.getSecurityTaxCodesFor(securityId)
           )
           .fold(
             error => {
               logger.warn(error)
-              (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+              (claim, Redirect(baseRoutes.IneligibleController.ineligible))
             },
-            updatedJourney =>
+            updatedClaim =>
               (
-                updatedJourney,
+                updatedClaim,
                 Redirect(routes.EnterClaimController.showFirst(securityId))
               )
           )
       else
         (
-          journey.submitClaimFullAmountMode(false),
+          claim.submitClaimFullAmountMode(false),
           Redirect(routes.SelectDutiesController.show(securityId))
         )
     } else
       (
-        journey,
+        claim,
         Redirect(routes.CheckClaimDetailsController.show)
       )
 }

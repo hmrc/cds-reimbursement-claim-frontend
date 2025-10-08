@@ -31,9 +31,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.completeJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.journeyWithMrnAndDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.completeClaimGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.claimWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
@@ -61,11 +61,11 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: RejectedGoodsScheduledJourney
+    claim: RejectedGoodsScheduledClaim
   ): Unit = {
-    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements)
-    val nonExciseDutyClaims          = journey.getNonExciseDutyClaims
-    val selectedExciseCategoryClaims = journey.getSelectedExciseCategoryClaims
+    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(claim.getReimbursements)
+    val nonExciseDutyClaims          = claim.getNonExciseDutyClaims
+    val selectedExciseCategoryClaims = claim.getSelectedExciseCategoryClaims
     val selectedExciseCategories     = selectedExciseCategoryClaims.keys.map(_.repr).toList
 
     validateClaimsTablesForScheduled(
@@ -80,7 +80,7 @@ class CheckClaimDetailsControllerSpec
         m("check-claim.duty-types-summary.key") -> claims.keys
           .map(dutyType => m(s"select-duty-types.${dutyType.repr}"))
           .mkString(" "),
-        m("check-claim.table.total")            -> journey.getTotalReimbursementAmount.toPoundSterlingString
+        m("check-claim.table.total")            -> claim.getTotalReimbursementAmount.toPoundSterlingString
       ) ++
         nonExciseDutyClaims.map { case (dutyType, claims) =>
           m(s"select-duty-codes.title.${dutyType.repr}") -> claims
@@ -103,7 +103,7 @@ class CheckClaimDetailsControllerSpec
     )
   }
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Check Claim Details Controller" should {
     def performActionShow(): Future[Result] =
@@ -128,16 +128,16 @@ class CheckClaimDetailsControllerSpec
     "show the page" when {
 
       "duties, tax codes and amounts have been filled" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performActionShow(),
             messageFromMessageKey("check-claim.scheduled.title"),
-            assertPageContent(_, journey)
+            assertPageContent(_, claim)
           )
         }
       }
@@ -146,24 +146,24 @@ class CheckClaimDetailsControllerSpec
     "submit" must {
 
       "redirect to the next page if not all of the questions have been answered" in
-        forAll(completeJourneyGen) { completeJourney =>
-          val incompleteJourney = completeJourney.submitContactDetails(None)
+        forAll(completeClaimGen) { completeClaim =>
+          val incompleteClaim = completeClaim.submitContactDetails(None)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(incompleteJourney))
+            mockGetSession(SessionData(incompleteClaim))
           }
 
           checkIsRedirect(performActionSubmit(), routes.EnterInspectionDateController.show)
         }
 
       "redirect to the check your answers page if all of the questions have been answered" in {
-        forAll(completeJourneyGen) { journey =>
-          assert(journey.hasCompleteReimbursementClaims)
+        forAll(completeClaimGen) { claim =>
+          assert(claim.hasCompleteReimbursementClaims)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(performActionSubmit(), routes.CheckYourAnswersController.show)

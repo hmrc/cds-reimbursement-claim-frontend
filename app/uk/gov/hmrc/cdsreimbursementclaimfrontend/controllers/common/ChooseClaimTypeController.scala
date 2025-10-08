@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.routes as rejectGoodsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ReasonForSecurityHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -92,16 +92,16 @@ class ChooseClaimTypeController @Inject() (
               val reasonForSecurityHelper = new ReasonForSecurityHelper(
                 configuration = viewConfig.config
               )
-              request.authenticatedRequest.journeyUserType.eoriOpt
+              request.authenticatedRequest.claimUserType.eoriOpt
                 .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
                   sessionStore
                     .store(
                       SessionData(
-                        SecuritiesJourney.empty(
+                        SecuritiesClaim.empty(
                           eori,
                           Nonce.random,
                           features = Some(
-                            SecuritiesJourney.Features(availableReasonsForSecurity =
+                            SecuritiesClaim.Features(availableReasonsForSecurity =
                               reasonForSecurityHelper.avalaibleReasonsForSecurity()
                             )
                           )

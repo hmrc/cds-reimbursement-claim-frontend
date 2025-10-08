@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -59,7 +59,7 @@ class BasisForClaimControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session = SessionData(journeyWithMrnAndDeclaration)
+  val session = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Basis for claim Controller" when {
     "Show Basis for claim page" must {
@@ -67,7 +67,7 @@ class BasisForClaimControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -80,10 +80,10 @@ class BasisForClaimControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in forAll(buildCompleteJourneyGen()) { journey =>
-        whenever(journey.answers.basisOfClaim.isDefined) {
-          val basisOfClaims = journey.answers.basisOfClaim.map(_.toString)
-          val session       = SessionData(journey)
+      "display the page on a pre-existing claim" in forAll(buildCompleteClaimGen()) { claim =>
+        whenever(claim.answers.basisOfClaim.isDefined) {
+          val basisOfClaims = claim.answers.basisOfClaim.map(_.toString)
+          val session       = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -139,9 +139,9 @@ class BasisForClaimControllerSpec
       }
 
       "submit a valid basis for claim" in forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.values)) { basisOfClaim =>
-        val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitBasisOfClaim(basisOfClaim)
-        val updatedSession = SessionData(updatedJourney)
+        val claim          = session.rejectedGoodsSingleClaim.getOrElse(fail("No rejected goods claim"))
+        val updatedClaim   = claim.submitBasisOfClaim(basisOfClaim)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

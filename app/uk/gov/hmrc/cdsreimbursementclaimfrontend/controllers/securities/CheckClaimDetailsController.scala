@@ -24,39 +24,39 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkClaimDetailsPage: check_claim_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val postAction: Call = routes.CheckClaimDetailsController.submit
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      checkIfAllReclaimsProvided(journey) {
-        journey.getLeadDisplayDeclaration
-          .fold((journey, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
+    actionReadWriteClaim { implicit request => claim =>
+      checkIfAllReclaimsProvided(claim) {
+        claim.getLeadDisplayDeclaration
+          .fold((claim, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
             (
-              journey
+              claim
                 .submitCheckClaimDetailsChangeMode(true)
                 .resetClaimFullAmountMode(),
               Ok(
-                checkClaimDetailsPage(displayDeclaration, journey.getReclaimWithAmounts, postAction)
+                checkClaimDetailsPage(displayDeclaration, claim.getReclaimWithAmounts, postAction)
               )
             )
           }
@@ -64,30 +64,30 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { _ => journey =>
-      checkIfAllReclaimsProvided(journey) {
-        (journey, decideNextPage(journey))
+    actionReadWriteClaim { _ => claim =>
+      checkIfAllReclaimsProvided(claim) {
+        (claim, decideNextPage(claim))
       }
     }
 
   private def checkIfAllReclaimsProvided(
-    journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result)): (SecuritiesJourney, Result) =
-    if journey.answers.correctedAmounts.noneIfEmpty.isEmpty then
-      (journey, Redirect(routes.CheckDeclarationDetailsController.show))
+    claim: SecuritiesClaim
+  )(body: => (SecuritiesClaim, Result)): (SecuritiesClaim, Result) =
+    if claim.answers.correctedAmounts.noneIfEmpty.isEmpty then
+      (claim, Redirect(routes.CheckDeclarationDetailsController.show))
     else
-      journey.getNextDepositIdAndTaxCodeToClaim match {
+      claim.getNextDepositIdAndTaxCodeToClaim match {
         case Some(Left(depositId)) =>
-          (journey, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
+          (claim, Redirect(routes.ConfirmFullRepaymentController.show(depositId)))
 
         case Some(Right((depositId, taxCode))) =>
-          (journey, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
+          (claim, Redirect(routes.EnterClaimController.show(depositId, taxCode)))
 
         case None =>
           body
       }
 
-  private def decideNextPage(journey: SecuritiesJourney): Result =
-    if journey.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
+  private def decideNextPage(claim: SecuritiesClaim): Result =
+    if claim.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
     else Redirect(routes.ChoosePayeeTypeController.show)
 }

@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 
 object CheckYourAnswersRepaymentDetailsCardSummary {
 
@@ -136,7 +136,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
   }
 
   def renderForSingle(
-    claim: OverpaymentsSingleJourney.Output,
+    claim: OverpaymentsSingleClaim.Output,
     showMethodOfPaymentChangeCall: Boolean,
     isPrintView: Boolean
   )(implicit
@@ -156,7 +156,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForSingle(
-    claim: RejectedGoodsSingleJourney.Output,
+    claim: RejectedGoodsSingleClaim.Output,
     showMethodOfPaymentChangeCall: Boolean,
     isPrintView: Boolean
   )(implicit
@@ -176,7 +176,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForMultiple(
-    claim: OverpaymentsMultipleJourney.Output,
+    claim: OverpaymentsMultipleClaim.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages
@@ -193,7 +193,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForMultiple(
-    claim: RejectedGoodsMultipleJourney.Output,
+    claim: RejectedGoodsMultipleClaim.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages
@@ -210,7 +210,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForScheduled(
-    claim: OverpaymentsScheduledJourney.Output,
+    claim: OverpaymentsScheduledClaim.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages
@@ -227,7 +227,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForScheduled(
-    claim: RejectedGoodsScheduledJourney.Output,
+    claim: RejectedGoodsScheduledClaim.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages
@@ -244,7 +244,7 @@ object CheckYourAnswersRepaymentDetailsCardSummary {
     )
 
   def renderForSecurities(
-    claim: SecuritiesJourney.Output,
+    claim: SecuritiesClaim.Output,
     isPrintView: Boolean
   )(implicit
     messages: Messages

@@ -21,11 +21,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterContactDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
@@ -33,13 +33,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterContactDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with EnterContactDetailsMixin {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -51,6 +51,6 @@ class EnterContactDetailsController @Inject() (
   final override val continueRoute: Call =
     routes.CheckClaimantDetailsController.show // change to redirectToALF when CheckClaimantDetails page is removed
 
-  final override def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey =
-    journey.submitContactDetails(contactDetails)
+  final override def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim =
+    claim.submitContactDetails(contactDetails)
 }

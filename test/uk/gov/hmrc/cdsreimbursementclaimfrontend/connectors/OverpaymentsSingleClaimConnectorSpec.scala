@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
@@ -89,9 +89,9 @@ class OverpaymentsSingleClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-single"
 
   val requestGen =
-    for journey <- OverpaymentsSingleJourneyGenerators.completeJourneyGen
+    for claim <- OverpaymentsSingleClaimGenerators.completeClaimGen
     yield OverpaymentsSingleClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: OverpaymentsSingleClaimConnector.Request = sample(requestGen)

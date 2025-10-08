@@ -21,7 +21,7 @@ import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.error_claim_invalid_tpi04
 
 import scala.concurrent.ExecutionContext
@@ -29,13 +29,13 @@ import scala.concurrent.Future
 
 @Singleton
 class ClaimInvalidTPI04Controller @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   errorClaimInvalidTPI04Page: error_claim_invalid_tpi04
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      Future.successful(Ok(errorClaimInvalidTPI04Page(journey.getReasonForSecurity)))
+    actionReadClaim { implicit request => claim =>
+      Future.successful(Ok(errorClaimInvalidTPI04Page(claim.getReasonForSecurity)))
     }
 }

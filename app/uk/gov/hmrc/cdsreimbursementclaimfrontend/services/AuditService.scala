@@ -32,13 +32,13 @@ import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[AuditServiceImpl])
 trait AuditService {
-  def sendSuccessfulClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
+  def sendSuccessfulClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
     request: Request[?],
     ec: ExecutionContext
   ): Unit
 
-  def sendFailedClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
+  def sendFailedClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
     request: Request[?],
     ec: ExecutionContext
@@ -47,21 +47,20 @@ trait AuditService {
 
 class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditService {
 
-  final def sendSuccessfulClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
+  final def sendSuccessfulClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
     request: Request[?],
     ec: ExecutionContext
-  ): Unit = sendClaimEvent(true, journey, output, summary)
+  ): Unit = sendClaimEvent(true, claim, output, summary)
 
-  final def sendFailedClaimEvent[J : Writes, O : Writes](journey: J, output: O, summary: JsObject)(implicit
+  final def sendFailedClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
     request: Request[?],
     ec: ExecutionContext
-  ): Unit = sendClaimEvent(false, journey, output, summary)
+  ): Unit = sendClaimEvent(false, claim, output, summary)
 
   // audit event are sent in the fire-and-forget manner
-  private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, journey: J, output: O, summary: JsObject)(
-    implicit
+  private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
     request: Request[?],
     ec: ExecutionContext
@@ -74,7 +73,7 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
           "success" -> JsBoolean(success),
           "summary" -> summary,
           "claim"   -> implicitly[Writes[O]].writes(output),
-          "input"   -> implicitly[Writes[J]].writes(journey)
+          "input"   -> implicitly[Writes[J]].writes(claim)
         ),
         tags = hc.toAuditTags("customs-reimbursement-claim", request.uri)
       )

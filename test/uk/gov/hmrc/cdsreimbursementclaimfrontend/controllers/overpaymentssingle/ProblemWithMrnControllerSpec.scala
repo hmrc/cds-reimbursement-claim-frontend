@@ -30,9 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -42,7 +42,7 @@ class ProblemWithMrnControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with JourneyTestData {
+    with ClaimTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -55,7 +55,7 @@ class ProblemWithMrnControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private val session = SessionData(OverpaymentsSingleJourney.empty(exampleEori))
+  private val session = SessionData(OverpaymentsSingleClaim.empty(exampleEori))
 
   "Problem with MRN Controller" when {
     "Show Problem with MRN page" must {

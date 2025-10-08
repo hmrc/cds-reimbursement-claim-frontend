@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
@@ -79,7 +79,7 @@ class CheckClaimantDetailsControllerSpec
           case ((mrn, rfs, decl), contactDeatils, address) =>
             val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
             whenever(depositIds.nonEmpty) {
-              val journey = SecuritiesJourney
+              val claim = SecuritiesClaim
                 .empty(exampleEori)
                 .submitMovementReferenceNumber(mrn)
                 .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -89,7 +89,7 @@ class CheckClaimantDetailsControllerSpec
                 .map(_.submitContactAddress(address))
                 .getOrFail
 
-              val session = SessionData(journey)
+              val session = SessionData(claim)
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
@@ -108,7 +108,7 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the Mrn Entry page if no Acc14 response obtained yet" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(SecuritiesJourney.empty(exampleEori)))
+          mockGetSession(SessionData(SecuritiesClaim.empty(exampleEori)))
         }
 
         checkIsRedirect(
@@ -133,7 +133,7 @@ class CheckClaimantDetailsControllerSpec
         ) { case ((mrn, rfs, decl), contactDeatils, address) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
-            val journey = SecuritiesJourney
+            val claim = SecuritiesClaim
               .empty(exampleEori)
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -143,7 +143,7 @@ class CheckClaimantDetailsControllerSpec
               .map(_.submitContactAddress(address))
               .getOrFail
 
-            val session = SessionData(journey)
+            val session = SessionData(claim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -158,7 +158,7 @@ class CheckClaimantDetailsControllerSpec
         }
       }
 
-      "redirect to the CYA page and update the contact/address details if the journey does not already contain them." in {
+      "redirect to the CYA page and update the contact/address details if the claim does not already contain them." in {
         forAll(
           mrnWithtRfsWithDisplayDeclarationGen,
           genConsigneeDetails,
@@ -172,7 +172,7 @@ class CheckClaimantDetailsControllerSpec
           )
           val displayDeclaration = decl.copy(displayResponseDetail = drd)
           val depositIds         = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-          val journey            = SecuritiesJourney
+          val claim              = SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, displayDeclaration)
@@ -180,12 +180,12 @@ class CheckClaimantDetailsControllerSpec
             .flatMap(_.selectSecurityDepositId(depositIds.head))
             .getOrFail
 
-          val session = SessionData(journey)
+          val session = SessionData(claim)
 
-          val expectedContactDetails = journey.answers.contactDetails
-          val expectedJourney        =
-            journey.submitContactDetails(expectedContactDetails).submitContactAddress(address)
-          val updatedSession         = SessionData(expectedJourney)
+          val expectedContactDetails = claim.answers.contactDetails
+          val expectedClaim          =
+            claim.submitContactDetails(expectedContactDetails).submitContactAddress(address)
+          val updatedSession         = SessionData(expectedClaim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -210,7 +210,7 @@ class CheckClaimantDetailsControllerSpec
               )
             )
 
-          val journey = SecuritiesJourney
+          val claim = SecuritiesClaim
             .empty(userEori)
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, declarationWithoutContactDetails)
@@ -218,7 +218,7 @@ class CheckClaimantDetailsControllerSpec
             .flatMap(_.submitDeclarantEoriNumber(declarationWithoutContactDetails.getDeclarantEori))
             .getOrFail
 
-          val session = SessionData(journey)
+          val session = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -256,12 +256,12 @@ class CheckClaimantDetailsControllerSpec
     }
 
     "update an address once complete" in forAll(genContactAddress, genReasonForSecurity) { (address, rfs) =>
-      val initialJourney =
-        securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
+      val initialClaim =
+        securitiesClaimWithMrnAndRfsAndDeclaration(rfs)
 
       inSequence {
         mockAuthWithDefaultRetrievals()
-        mockGetSession(SessionData(initialJourney))
+        mockGetSession(SessionData(initialClaim))
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
       }
@@ -275,14 +275,14 @@ class CheckClaimantDetailsControllerSpec
     }
 
     "fail to update address once bad address lookup ID provided" in {
-      val initialJourney =
-        securitiesJourneyWithMrnAndRfsAndDeclaration(ReasonForSecurity.ManualOverrideDeposit)
+      val initialClaim =
+        securitiesClaimWithMrnAndRfsAndDeclaration(ReasonForSecurity.ManualOverrideDeposit)
 
       val addressId = UUID.randomUUID()
 
       inSequence {
         mockAuthWithDefaultRetrievals()
-        mockGetSession(SessionData(initialJourney))
+        mockGetSession(SessionData(initialClaim))
         mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
       }
 

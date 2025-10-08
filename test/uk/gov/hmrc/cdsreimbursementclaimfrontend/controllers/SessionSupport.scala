@@ -116,13 +116,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.overpaymentsSingleJourney
-            journey2 <- session2.overpaymentsSingleJourney
+            claim1 <- session1.overpaymentsSingleClaim
+            claim2 <- session2.overpaymentsSingleClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -131,13 +131,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.overpaymentsMultipleJourney
-            journey2 <- session2.overpaymentsMultipleJourney
+            claim1 <- session1.overpaymentsMultipleClaim
+            claim2 <- session2.overpaymentsMultipleClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -146,13 +146,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.overpaymentsScheduledJourney
-            journey2 <- session2.overpaymentsScheduledJourney
+            claim1 <- session1.overpaymentsScheduledClaim
+            claim2 <- session2.overpaymentsScheduledClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -161,13 +161,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.rejectedGoodsSingleJourney
-            journey2 <- session2.rejectedGoodsSingleJourney
+            claim1 <- session1.rejectedGoodsSingleClaim
+            claim2 <- session2.rejectedGoodsSingleClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -176,13 +176,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.rejectedGoodsMultipleJourney
-            journey2 <- session2.rejectedGoodsMultipleJourney
+            claim1 <- session1.rejectedGoodsMultipleClaim
+            claim2 <- session2.rejectedGoodsMultipleClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -191,13 +191,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.rejectedGoodsScheduledJourney
-            journey2 <- session2.rejectedGoodsScheduledJourney
+            claim1 <- session1.rejectedGoodsScheduledClaim
+            claim2 <- session2.rejectedGoodsScheduledClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 
@@ -206,13 +206,13 @@ trait SessionSupport { this: MockFactory =>
       session1 == session2
         && (
           for {
-            journey1 <- session1.securitiesJourney
-            journey2 <- session2.securitiesJourney
+            claim1 <- session1.securitiesClaim
+            claim2 <- session2.securitiesClaim
           } yield (for {
-            feature1 <- journey1.features
-            feature2 <- journey2.features
+            feature1 <- claim1.features
+            feature2 <- claim2.features
           } yield feature1 == feature1)
-            .getOrElse(journey1.features.isEmpty == journey2.features.isEmpty)
+            .getOrElse(claim1.features.isEmpty == claim2.features.isEmpty)
         )
           .getOrElse(false)
 }

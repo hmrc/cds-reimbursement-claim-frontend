@@ -18,38 +18,38 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait GetXiEoriMixin extends JourneyBaseController {
+trait GetXiEoriMixin extends ClaimBaseController {
 
-  def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey
+  def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim
 
   def xiEoriConnector: XiEoriConnector
 
-  def needsUserXiEoriSubmission(journey: Journey) =
-    journey.needsUserXiEoriSubmission
+  def needsUserXiEoriSubmission(claim: Claim) =
+    claim.needsUserXiEoriSubmission
 
-  final def getUserXiEoriIfNeeded(journey: Journey, enabled: Boolean)(implicit
+  final def getUserXiEoriIfNeeded(claim: Claim, enabled: Boolean)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, Error, Journey] =
-    if enabled && needsUserXiEoriSubmission(journey) then {
+  ): EitherT[Future, Error, Claim] =
+    if enabled && needsUserXiEoriSubmission(claim) then {
       for
-        userXiEori     <-
+        userXiEori   <-
           EitherT(
             xiEoriConnector.getXiEori
               .map(Right(_))
               .recover((e: Throwable) => Left(Error(e)))
           )
-        updatedJourney <-
+        updatedClaim <-
           EitherT.fromEither[Future](
-            Right(modifyJourney(journey, userXiEori))
+            Right(modifyClaim(claim, userXiEori))
           )
-      yield updatedJourney
-    } else EitherT.fromEither[Future](Right(journey))
+      yield updatedClaim
+    } else EitherT.fromEither[Future](Right(claim))
 
 }

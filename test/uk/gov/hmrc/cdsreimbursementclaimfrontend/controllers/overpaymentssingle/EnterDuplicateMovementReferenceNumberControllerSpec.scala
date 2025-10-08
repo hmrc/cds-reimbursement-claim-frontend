@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
@@ -85,12 +85,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
-  val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
 
-  def journeyWithFeaturesGen(features: OverpaymentsSingleJourney.Features): Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(), features = Some(features))
+  def claimWithFeaturesGen(features: OverpaymentsSingleClaim.Features): Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen(), features = Some(features))
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
 
   "Duplicate Movement Reference Number Controller" when {
@@ -100,12 +100,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         controller.show(FakeRequest())
 
       "display the page if duplicate declaration is required" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -119,8 +119,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "display the page back with MRN populated" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
             .submitDuplicateMovementReferenceNumberAndDeclaration(
               anotherExampleMrn,
               buildDisplayDeclaration(id = anotherExampleMrn.value)
@@ -129,7 +129,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -143,13 +143,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "redirect if duplicate declaration not required" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
             .submitBasisOfClaim(BasisOfOverpaymentClaim.DutySuspension)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -167,12 +167,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "reject an invalid MRN" in {
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -187,12 +187,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "reject an empty MRN" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -207,12 +207,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "reject an unknown mrn or mrn without declaration " in forAll { (mrn: MRN) =>
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockGetDisplayDeclaration(mrn, Right(None))
         }
 
@@ -222,24 +222,24 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         )
       }
 
-      "submit a valid MRN and user is declarant" in forAll(journeyGen, genMRN) { case (journey, mrn) =>
+      "submit a valid MRN and user is declarant" in forAll(claimGen, genMRN) { case (claim, mrn) =>
         val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
         val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
-          declarantEORI = journey.answers.userEoriNumber.value
+          declarantEORI = claim.answers.userEoriNumber.value
         )
         val updatedDisplayResponseDetails =
           displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-        val updatedJourney                =
-          journey
+        val updatedClaim                  =
+          claim
             .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
             .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -248,8 +248,8 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         )
       }
 
-      "submit a valid MRN and user is not declarant nor consignee" in forAll(journeyGen, genMRN, genEori, genEori) {
-        case (journey, mrn, declarant, consignee) =>
+      "submit a valid MRN and user is not declarant nor consignee" in forAll(claimGen, genMRN, genEori, genEori) {
+        case (claim, mrn, declarant, consignee) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
             val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
             val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
@@ -261,16 +261,16 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             )
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-            val updatedJourney                =
-              journey
+            val updatedClaim                  =
+              claim
                 .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
               mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
-              mockStoreSession(SessionData(updatedJourney))(Right(()))
+              mockStoreSession(SessionData(updatedClaim))(Right(()))
             }
 
             checkIsRedirect(

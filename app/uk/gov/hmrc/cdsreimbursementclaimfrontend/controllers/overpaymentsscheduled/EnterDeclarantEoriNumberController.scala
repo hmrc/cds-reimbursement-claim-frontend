@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterDeclarantEoriNumberMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
@@ -32,14 +32,14 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterDeclarantEoriNumber: enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsScheduledJourneyBaseController
+    extends OverpaymentsScheduledClaimBaseController
     with EnterDeclarantEoriNumberMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration)
 
   final override val postAction: Call =
@@ -51,7 +51,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   final override val whenEoriInputNotRequiredAction: Call =
     routes.BasisForClaimController.show
 
-  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
-    journey.submitDeclarantEoriNumber(eori)
+  final override def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim] =
+    claim.submitDeclarantEoriNumber(eori)
 
 }

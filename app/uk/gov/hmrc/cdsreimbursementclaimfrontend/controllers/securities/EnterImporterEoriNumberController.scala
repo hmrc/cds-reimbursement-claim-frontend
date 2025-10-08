@@ -21,9 +21,9 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporterEoriNumberMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
@@ -31,16 +31,16 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterImporterEoriNumber: enter_importer_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with EnterImporterEoriNumberMixin {
 
-  import SecuritiesJourney.Checks._
+  import SecuritiesClaim.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(hasMRNAndDisplayDeclarationAndRfS)
 
   final override val postAction: Call =
@@ -55,7 +55,7 @@ class EnterImporterEoriNumberController @Inject() (
   final override val whenEoriInputNotRequiredAction: Call =
     routes.SelectSecuritiesController.showFirst()
 
-  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
-    journey.submitConsigneeEoriNumber(eori)
+  final override def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim] =
+    claim.submitConsigneeEoriNumber(eori)
 
 }

@@ -31,14 +31,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.buildCompleteJourneyGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.buildCompleteClaimGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.completeClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -49,7 +49,7 @@ class HaveDocumentsReadyControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -74,8 +74,8 @@ class HaveDocumentsReadyControllerSpec
     "show page" must {
       def showHaveDocumentsReadyPage: Future[Result] = controller.show(FakeRequest())
 
-      "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      "display the page if securities feature is enabled" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -83,14 +83,14 @@ class HaveDocumentsReadyControllerSpec
         }
 
         val expectedContinueUrl =
-          if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+          if claim.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
           else routes.ConfirmFullRepaymentController.showFirst.url
 
         checkPageIsDisplayed(
           showHaveDocumentsReadyPage,
           messageFromMessageKey(s"have-documents-ready.title"),
           implicit doc =>
-            if journey.getReasonForSecurity.contains(MissingPreferenceCertificate) then
+            if claim.getReasonForSecurity.contains(MissingPreferenceCertificate) then
               messageFromMessageKey("have-documents-ready.securities.mdp.p1") should include(getContentsOfParagraph(1))
             else messageFromMessageKey("have-documents-ready.p1")             should include(getContentsOfParagraph(1))
             doc
@@ -102,8 +102,8 @@ class HaveDocumentsReadyControllerSpec
       }
 
       "display the page with correct continue url when declaration has only one security deposit" in {
-        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(1)).sample.get
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+        val claim          = buildCompleteClaimGen(numberOfSecurityDetails = Some(1)).sample.get
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -124,8 +124,8 @@ class HaveDocumentsReadyControllerSpec
       }
 
       "display the page with correct continue url when declaration has multiple security deposits" in {
-        val journey        = buildCompleteJourneyGen(numberOfSecurityDetails = Some(3)).sample.get
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+        val claim          = buildCompleteClaimGen(numberOfSecurityDetails = Some(3)).sample.get
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -133,7 +133,7 @@ class HaveDocumentsReadyControllerSpec
         }
 
         val expectedContinueUrl =
-          if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+          if claim.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
           else routes.ConfirmFullRepaymentController.showFirst.url
 
         checkPageIsDisplayed(

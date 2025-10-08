@@ -50,11 +50,11 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
   "Start controller" when {
 
-    "handling requests to start a journey" when {
+    "handling requests to start a claim" when {
 
       def performAction(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.start()(rh)
 
-      "there is a signed in non gg user user and there is no current journey status" must {
+      "there is a signed in non gg user user and there is no current claim status" must {
 
         "redirect the user to the `we only support gg page`" in {
 
@@ -140,7 +140,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         }
       }
 
-      "there is non government way journey status" must {
+      "there is non government way claim status" must {
 
         "redirect the user to the `we only support gg page`" in {
           inSequence {

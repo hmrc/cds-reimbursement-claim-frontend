@@ -24,14 +24,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultip
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedScheduledRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedSingleRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoute
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
@@ -133,14 +133,14 @@ object CheckYourAnswersPrintViewHelper {
       )
     )
 
-  def getPrintViewUrl(journey: JourneyBase): String = journey match {
-    case _: OverpaymentsSingleJourney     => overpaymentsSingleRoute.CheckYourAnswersController.showPrintView.url
-    case _: OverpaymentsMultipleJourney   => overpaymentsMultipleRoute.CheckYourAnswersController.showPrintView.url
-    case _: OverpaymentsScheduledJourney  => overpaymentsScheduledRoute.CheckYourAnswersController.showPrintView.url
-    case _: SecuritiesJourney             => securitiesRoute.CheckYourAnswersController.showPrintView.url
-    case _: RejectedGoodsSingleJourney    => rejectedSingleRoute.CheckYourAnswersController.showPrintView.url
-    case _: RejectedGoodsMultipleJourney  => rejectedMultipleRoute.CheckYourAnswersController.showPrintView.url
-    case _: RejectedGoodsScheduledJourney => rejectedScheduledRoute.CheckYourAnswersController.showPrintView.url
+  def getPrintViewUrl(claim: ClaimBase): String = claim match {
+    case _: OverpaymentsSingleClaim     => overpaymentsSingleRoute.CheckYourAnswersController.showPrintView.url
+    case _: OverpaymentsMultipleClaim   => overpaymentsMultipleRoute.CheckYourAnswersController.showPrintView.url
+    case _: OverpaymentsScheduledClaim  => overpaymentsScheduledRoute.CheckYourAnswersController.showPrintView.url
+    case _: SecuritiesClaim             => securitiesRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsSingleClaim    => rejectedSingleRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsMultipleClaim  => rejectedMultipleRoute.CheckYourAnswersController.showPrintView.url
+    case _: RejectedGoodsScheduledClaim => rejectedScheduledRoute.CheckYourAnswersController.showPrintView.url
   }
 
   private def getFormattedSubmissionDate(submissionDate: LocalDateTime)(implicit messages: Messages): String =

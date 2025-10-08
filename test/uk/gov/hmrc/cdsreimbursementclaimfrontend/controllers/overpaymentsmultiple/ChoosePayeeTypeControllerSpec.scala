@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -50,7 +50,7 @@ class ChoosePayeeTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
@@ -75,7 +75,7 @@ class ChoosePayeeTypeControllerSpec
         mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
-            session.copy(overpaymentsMultipleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
+            session.copy(overpaymentsMultipleClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
           )
         )
       }
@@ -114,7 +114,7 @@ class ChoosePayeeTypeControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              overpaymentsMultipleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+              overpaymentsMultipleClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
             )
           )(Right(()))
         }

@@ -22,21 +22,21 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.declaration_not_found
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class DeclarationNotFoundController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   declarationNotFound: declaration_not_found
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   val enterMRN: Call = routes.EnterMovementReferenceNumberController.show
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(declarationNotFound(enterMRN, journey.getLeadMovementReferenceNumber))
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    Ok(declarationNotFound(enterMRN, claim.getLeadMovementReferenceNumber))
   }
 }

@@ -22,21 +22,21 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_address
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithAddressController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   problemWithAddressPage: problem_with_address
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
     Ok(problemWithAddressPage(startAddressLookup))
   }
 }

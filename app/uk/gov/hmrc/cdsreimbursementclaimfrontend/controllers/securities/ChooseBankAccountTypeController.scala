@@ -20,11 +20,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseBankAccountTypeMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
@@ -32,13 +32,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseBankAccountTypeController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val chooseBankAccountTypePage: choose_bank_account_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with ChooseBankAccountTypeMixin {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -50,10 +50,10 @@ class ChooseBankAccountTypeController @Inject() (
   final override val enterBankAccountDetailsRoute: Call =
     routes.EnterBankAccountDetailsController.show
 
-  final override def modifyJourney(
-    journey: Journey,
+  final override def modifyClaim(
+    claim: Claim,
     bankAccountType: BankAccountType
-  ): Either[String, Journey] =
-    journey.submitBankAccountType(bankAccountType)
+  ): Either[String, Claim] =
+    claim.submitBankAccountType(bankAccountType)
 
 }

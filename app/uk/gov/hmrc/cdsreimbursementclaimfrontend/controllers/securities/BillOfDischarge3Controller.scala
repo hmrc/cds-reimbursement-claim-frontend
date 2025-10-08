@@ -22,9 +22,9 @@ import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BOD3
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.invalid_bill_of_discharge
 
@@ -32,20 +32,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class BillOfDischarge3Controller @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   invalidBillOfDischarge: invalid_bill_of_discharge
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
         & reasonForSecurityIsIPR
     )
 
-  val invalid: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val invalid: Action[AnyContent] = actionReadClaim { implicit request => _ =>
     Ok(invalidBillOfDischarge(BOD3))
   }
 }

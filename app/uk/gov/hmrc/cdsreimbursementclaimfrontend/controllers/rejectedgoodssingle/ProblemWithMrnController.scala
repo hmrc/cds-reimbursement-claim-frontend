@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithMrnMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_mrn
 
@@ -28,10 +28,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithMrnController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val problemWithMRNPage: problem_with_mrn
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with ProblemWithMrnMixin {
 
   final val enterMRNCall: Call = routes.EnterMovementReferenceNumberController.show

@@ -22,51 +22,51 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.payeeTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
 import scala.concurrent.Future
 
-trait ChoosePayeeTypeMixin extends JourneyBaseController {
+trait ChoosePayeeTypeMixin extends ClaimBaseController {
 
-  def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey]
+  def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim]
   val choosePayeeTypePage: choose_payee_type
   val postAction: Call
-  def nextPage(journey: Journey): Call
+  def nextPage(claim: Claim): Call
 
-  final def submitPayeeType(payeeType: PayeeType)(implicit journey: Journey): (Journey, Result) =
-    modifyJourney(journey, payeeType)
+  final def submitPayeeType(payeeType: PayeeType)(implicit claim: Claim): (Claim, Result) =
+    modifyClaim(claim, payeeType)
       .fold(
         e => {
           logger.warn(e)
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+          (claim, Redirect(baseRoutes.IneligibleController.ineligible))
         },
-        (_, Redirect(nextPage(journey)))
+        (_, Redirect(nextPage(claim)))
       )
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
-      if journey.needsPayeeTypeSelection
+    actionReadWriteClaim { implicit request => implicit claim =>
+      if claim.needsPayeeTypeSelection
       then {
         val form: Form[PayeeType] =
-          payeeTypeForm.withDefault(journey.answers.payeeType)
-        (journey, Ok(choosePayeeTypePage(form, postAction)))
+          payeeTypeForm.withDefault(claim.answers.payeeType)
+        (claim, Ok(choosePayeeTypePage(form, postAction)))
       } else {
-        (journey, Redirect(nextPage(journey)))
+        (claim, Redirect(nextPage(claim)))
       }
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
+    actionReadWriteClaim { implicit request => implicit claim =>
       payeeTypeForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   choosePayeeTypePage(formWithErrors, postAction)
                 )

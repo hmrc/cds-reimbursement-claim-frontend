@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
@@ -30,8 +30,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
     "contain Northern Ireland claims" in {
       val draftC285Claim =
-        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+        OverpaymentsSingleClaimGenerators.completeClaimGen.sample
+          .getOrElse(OverpaymentsSingleClaimGenerators.emptyClaim)
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),

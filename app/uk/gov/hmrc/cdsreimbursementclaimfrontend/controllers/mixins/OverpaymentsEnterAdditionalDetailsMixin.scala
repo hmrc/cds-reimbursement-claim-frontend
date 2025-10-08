@@ -21,27 +21,27 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterAdditionalDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_additional_details
 
 import scala.concurrent.Future
 
-trait OverpaymentsEnterAdditionalDetailsMixin extends JourneyBaseController {
+trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
 
   val enterAdditionalDetailsPage: enter_additional_details
   val postAction: Call
   val continueRoute: Call
 
-  def modifyJourney(journey: Journey, additionalDetails: String): Journey
+  def modifyClaim(claim: Claim, additionalDetails: String): Claim
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Future.successful {
         val form: Form[String] =
-          enterAdditionalDetailsForm.withDefault(journey.answers.additionalDetails)
+          enterAdditionalDetailsForm.withDefault(claim.answers.additionalDetails)
         Ok(
           enterAdditionalDetailsPage(
             form,
@@ -52,14 +52,14 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       enterAdditionalDetailsForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   enterAdditionalDetailsPage(
                     formWithErrors,
@@ -71,7 +71,7 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends JourneyBaseController {
           additionalDetails =>
             Future.successful(
               (
-                modifyJourney(journey, additionalDetails),
+                modifyClaim(claim, additionalDetails),
                 Redirect(continueRoute)
               )
             )

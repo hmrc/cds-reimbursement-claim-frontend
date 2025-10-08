@@ -20,9 +20,9 @@ import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -35,11 +35,11 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseInspectionAddressTypeController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val addressLookupService: AddressLookupService,
   val inspectionAddressPage: choose_inspection_address_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends RejectedGoodsMultipleJourneyBaseController
+    extends RejectedGoodsMultipleClaimBaseController
     with RejectedGoodsInspectionAddressLookupMixin {
 
   private val nextPage: Call =
@@ -57,16 +57,16 @@ class ChooseInspectionAddressTypeController @Inject() (
   override val retrieveLookupAddress: Call =
     routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
-  final override def modifyJourney(journey: Journey, inspectionAddress: InspectionAddress): Journey =
-    journey.submitInspectionAddress(inspectionAddress)
+  final override def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim =
+    claim.submitInspectionAddress(inspectionAddress)
 
-  final override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
-    journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
+  final override def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim =
+    claim.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
 
-  override def redirectToTheNextPage(journey: RejectedGoodsMultipleJourney): (RejectedGoodsMultipleJourney, Result) =
+  override def redirectToTheNextPage(claim: RejectedGoodsMultipleClaim): (RejectedGoodsMultipleClaim, Result) =
     (
-      journey,
-      if journey.hasCompleteAnswers then Redirect(checkYourAnswers)
+      claim,
+      if claim.hasCompleteAnswers then Redirect(checkYourAnswers)
       else Redirect(nextPage)
     )
 }

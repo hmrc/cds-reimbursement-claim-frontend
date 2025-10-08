@@ -41,8 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
@@ -98,7 +98,7 @@ class CheckEoriDetailsControllerSpec
 
   "Check Eori Details Controller" must {
 
-    "redirect to the start of the journey" when {
+    "redirect to the start of the claim" when {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "user does not have CDS enrolment" in {
@@ -134,8 +134,8 @@ class CheckEoriDetailsControllerSpec
         )
       }
 
-      "The user is logged in with a C2825 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
-        val session = SessionData(OverpaymentsSingleJourney.empty(eori))
+      "The user is logged in with a C2825 claim" in forAll { (eori: Eori, name: contactdetails.Name) =>
+        val session = SessionData(OverpaymentsSingleClaim.empty(eori))
 
         inSequence {
           mockAuthRequiredRetrievals(eori)
@@ -153,8 +153,8 @@ class CheckEoriDetailsControllerSpec
         )
       }
 
-      "The user is logged in with a C&E1179 journey" in forAll { (eori: Eori, name: contactdetails.Name) =>
-        val session = SessionData(RejectedGoodsSingleJourney.empty(eori))
+      "The user is logged in with a C&E1179 claim" in forAll { (eori: Eori, name: contactdetails.Name) =>
+        val session = SessionData(RejectedGoodsSingleClaim.empty(eori))
 
         inSequence {
           mockAuthRequiredRetrievals(eori)

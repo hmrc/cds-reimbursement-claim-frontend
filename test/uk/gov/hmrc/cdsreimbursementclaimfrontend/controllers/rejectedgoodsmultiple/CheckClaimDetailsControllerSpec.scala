@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
@@ -62,49 +62,49 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: RejectedGoodsMultipleJourney
+    claim: RejectedGoodsMultipleClaim
   ): Unit = {
 
     validateClaimsTablesForMultiple(
       doc,
-      journey.getReimbursementsWithCorrectAmounts,
+      claim.getReimbursementsWithCorrectAmounts,
       routes.EnterClaimController.show
     )
 
     validateCheckClaimTotal(
       doc,
-      journey.getTotalReimbursementAmount.toPoundSterlingString
+      claim.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
 
-  val journeyGen: Gen[(RejectedGoodsMultipleJourney, Seq[MRN])] =
-    incompleteJourneyWithCompleteClaimsGen(5)
+  val claimGen: Gen[(RejectedGoodsMultipleClaim, Seq[MRN])] =
+    incompleteClaimWithCompleteClaimsGen(5)
 
-  val journeyWithNoClaimsGen: Gen[RejectedGoodsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      RejectedGoodsMultipleJourney
-        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+  val claimWithNoClaimsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
     )
 
-  val journeyWithIncompleteClaimsGen: Gen[RejectedGoodsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      RejectedGoodsMultipleJourney
+  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
         .unsafeModifyAnswers(
-          journey,
+          claim,
           answers =>
             answers
-              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
         )
     )
 
-  val journeyWithIncompleteMrnsGen: Gen[RejectedGoodsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      RejectedGoodsMultipleJourney
+  val claimWithIncompleteMrnsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
         .unsafeModifyAnswers(
-          journey,
+          claim,
           answers =>
             answers
-              .copy(movementReferenceNumbers = journey.answers.movementReferenceNumbers.map(_.take(1)))
+              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
         )
     )
 
@@ -116,41 +116,41 @@ class CheckClaimDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page if all selected claims provided" in {
-        forAll(incompleteJourneyWithCompleteClaimsGen(9)) { case (journey, _) =>
-          assert(journey.hasCompleteReimbursementClaims)
+        forAll(incompleteClaimWithCompleteClaimsGen(9)) { case (claim, _) =>
+          assert(claim.hasCompleteReimbursementClaims)
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title"),
-            doc => assertPageContent(doc, journey)
+            doc => assertPageContent(doc, claim)
           )
         }
       }
 
       "display the page in change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.multiple.title"),
-            doc => assertPageContent(doc, journey)
+            doc => assertPageContent(doc, claim)
           )
         }
       }
 
       "redirect to enter mrn page if incomplete MRNs" in
-        forAll(journeyWithIncompleteMrnsGen) { journey =>
+        forAll(claimWithIncompleteMrnsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -160,10 +160,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to select duties page if no claims" in
-        forAll(journeyWithNoClaimsGen) { journey =>
+        forAll(claimWithNoClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -173,10 +173,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to select duties page if claims are incomplete" in
-        forAll(journeyWithIncompleteClaimsGen) { journey =>
+        forAll(claimWithIncompleteClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(

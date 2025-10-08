@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
@@ -63,7 +63,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session = SessionData(emptyJourney)
+  val session = SessionData(emptyClaim)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
@@ -93,7 +93,7 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = None,
               declarantDetails = declarant
             )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
+          val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
               displayDeclaration.getMRN,
@@ -103,7 +103,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -126,7 +126,7 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
             )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
+          val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
               displayDeclaration.getMRN,
@@ -136,7 +136,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -160,7 +160,7 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
             )
-          val journey               = session.rejectedGoodsMultipleJourney.get
+          val claim                 = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
               displayDeclaration.getMRN,
@@ -174,11 +174,11 @@ class ChooseInspectionAddressTypeControllerSpec
             case Declarant | _ =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
-          val updatedJourney        = journey.submitInspectionAddress(address)
+          val updatedClaim          = claim.submitInspectionAddress(address)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -201,7 +201,7 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
             )
-          val updatedJourney        = session.rejectedGoodsMultipleJourney.get
+          val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
               displayDeclaration.getMRN,
@@ -211,7 +211,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -238,7 +238,7 @@ class ChooseInspectionAddressTypeControllerSpec
       }
     }
 
-    "handle submit request on new journey" when {
+    "handle submit request on new claim" when {
 
       "the user submits an empty form" in {
         inSequence {
@@ -265,7 +265,7 @@ class ChooseInspectionAddressTypeControllerSpec
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
             )
-          val journey               = session.rejectedGoodsMultipleJourney.get
+          val claim                 = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
               displayDeclaration.getMRN,
@@ -280,12 +280,12 @@ class ChooseInspectionAddressTypeControllerSpec
             case _        =>
               inspectionAddressFromContactDetails(declarant.contactDetails.get, Declarant)
           }
-          val updatedJourney        = journey.submitInspectionAddress(address)
+          val updatedClaim          = claim.submitInspectionAddress(address)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(claim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -318,25 +318,25 @@ class ChooseInspectionAddressTypeControllerSpec
         addressType = Other
       )
 
-      val expectedJourney = emptyJourney.submitInspectionAddress(inspectionAddress)
+      val expectedClaim = emptyClaim.submitInspectionAddress(inspectionAddress)
 
-      controller.modifyJourney(emptyJourney, address) shouldBe expectedJourney
+      controller.modifyClaim(emptyClaim, address) shouldBe expectedClaim
     }
 
     "redirect to the next page" when {
-      "on a new journey" in {
-        controller.redirectToTheNextPage(emptyJourney) shouldBe (
+      "on a new claim" in {
+        controller.redirectToTheNextPage(emptyClaim) shouldBe (
           (
-            emptyJourney,
+            emptyClaim,
             Redirect(routes.ChoosePayeeTypeController.show)
           )
         )
       }
 
-      "changing the entered details" in forAll(buildCompleteJourneyGen()) { journey =>
-        controller.redirectToTheNextPage(journey) shouldBe (
+      "changing the entered details" in forAll(buildCompleteClaimGen()) { claim =>
+        controller.redirectToTheNextPage(claim) shouldBe (
           (
-            journey,
+            claim,
             Redirect(routes.CheckYourAnswersController.show)
           )
         )

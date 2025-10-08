@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -52,7 +52,7 @@ class EnterRejectedGoodsDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  private val session = SessionData(journeyWithMrnAndDeclaration)
+  private val session = SessionData(claimWithMrnAndDeclaration)
 
   val controller: EnterRejectedGoodsDetailsController = instanceOf[EnterRejectedGoodsDetailsController]
 
@@ -67,7 +67,7 @@ class EnterRejectedGoodsDetailsControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -83,12 +83,12 @@ class EnterRejectedGoodsDetailsControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in forAll(genStringWithMaxSizeOfN(50)) { details =>
-        val journey = session.rejectedGoodsScheduledJourney.get.submitDetailsOfRejectedGoods(details)
+      "display the page on a pre-existing claim" in forAll(genStringWithMaxSizeOfN(50)) { details =>
+        val claim = session.rejectedGoodsScheduledClaim.get.submitDetailsOfRejectedGoods(details)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -135,8 +135,8 @@ class EnterRejectedGoodsDetailsControllerSpec
       }
 
       "accept less than 500 characters text" in forAll(genStringWithMaxSizeOfN(50)) { details =>
-        val updatedJourney = session.rejectedGoodsScheduledJourney.get.submitDetailsOfRejectedGoods(details)
-        val updatedSession = SessionData(updatedJourney)
+        val updatedClaim   = session.rejectedGoodsScheduledClaim.get.submitDetailsOfRejectedGoods(details)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

@@ -22,9 +22,9 @@ import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.have_documents_ready
 
 import scala.concurrent.ExecutionContext
@@ -32,25 +32,25 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 
 @Singleton
 class HaveDocumentsReadyController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val haveDocumentsReadyPage: have_documents_ready
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       val continueUrl =
-        if journey.isSingleSecurity
+        if claim.isSingleSecurity
         then routes.ConfirmSingleDepositRepaymentController.show.url
-        else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
+        else if claim.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show.url
         else routes.ConfirmFullRepaymentController.showFirst.url
 
-      Ok(haveDocumentsReadyPage(continueUrl, journey.getReasonForSecurity.get))
+      Ok(haveDocumentsReadyPage(continueUrl, claim.getReasonForSecurity.get))
     }
 }

@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedul
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
@@ -63,7 +63,7 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(OverpaymentsScheduledJourney.empty(exampleEori))
+  val session: SessionData = SessionData(OverpaymentsScheduledClaim.empty(exampleEori))
 
   "Select Tax Codes Controller" should {
 
@@ -72,13 +72,13 @@ class SelectDutiesControllerSpec
       "show select customs tax codes page" when {
 
         "the user has not answered this question before" in forAll(genCustomsDuty) { (dutyType: DutyType) =>
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -91,13 +91,13 @@ class SelectDutiesControllerSpec
           )
         }
 
-        "user has previously selected duty types" in forAll(completeJourneyGen, genCustomsDuty) {
-          (journey, dutyType: DutyType) =>
-            val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+        "user has previously selected duty types" in forAll(completeClaimGen, genCustomsDuty) {
+          (claim, dutyType: DutyType) =>
+            val updatedClaim = claim.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(updatedJourney))
+              mockGetSession(SessionData(updatedClaim))
             }
 
             checkPageIsDisplayed(
@@ -110,14 +110,14 @@ class SelectDutiesControllerSpec
 
           "select tax code page is shown" in forAll(genCustomsDutyWithRandomlySelectedTaxCode) {
             case (dutyType: DutyType, taxCode: TaxCode) =>
-              val journey = journeyWithMrnAndDeclaration
+              val claim = claimWithMrnAndDeclaration
                 .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
                 .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(dutyType, Seq(taxCode)))
                 .getOrFail
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkPageIsDisplayed(
@@ -132,11 +132,11 @@ class SelectDutiesControllerSpec
         "redirect to select duty types" when {
 
           "no duty types are selected" in {
-            val initialJourney = journeyWithMrnAndDeclaration
+            val initialClaim = claimWithMrnAndDeclaration
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkIsRedirect(controller.show(EuDuty)(FakeRequest()), routes.SelectDutyTypesController.show)
@@ -149,13 +149,13 @@ class SelectDutiesControllerSpec
       "show select excise categories page" when {
 
         "the user has not answered this question before" in {
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -171,18 +171,18 @@ class SelectDutiesControllerSpec
         }
 
         "user has previously selected excise categories" in forAll(
-          completeJourneyGen,
+          completeClaimGen,
           genExciseCategory
-        ) { (journey, exciseCategory: ExciseCategory) =>
-          val updatedJourney =
-            journey
+        ) { (claim, exciseCategory: ExciseCategory) =>
+          val updatedClaim =
+            claim
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
               .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
               .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -197,14 +197,14 @@ class SelectDutiesControllerSpec
       "tick existing excise categories" when {
 
         "select excise categories page is shown" in forAll(genExciseCategory) { (exciseCategory: ExciseCategory) =>
-          val journey = journeyWithMrnAndDeclaration
+          val claim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
             .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -224,17 +224,17 @@ class SelectDutiesControllerSpec
 
         "no other selected duties remaining" in forAll(genCustomsDutyWithRandomlySelectedTaxCode) {
           case (duty, taxCode) =>
-            val initialJourney = journeyWithMrnAndDeclaration
+            val initialClaim = claimWithMrnAndDeclaration
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(duty))
               .getOrFail
 
-            val updatedJourney =
-              initialJourney.selectAndReplaceTaxCodeSetForDutyType(duty, Seq(taxCode)).getOrFail
+            val updatedClaim =
+              initialClaim.selectAndReplaceTaxCodeSetForDutyType(duty, Seq(taxCode)).getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(updatedJourney))(Right(()))
+              mockGetSession(SessionData(initialClaim))
+              mockStoreSession(SessionData(updatedClaim))(Right(()))
             }
 
             checkIsRedirect(
@@ -249,18 +249,18 @@ class SelectDutiesControllerSpec
       "save user selected tax codes and ask user to enter reclaim amount (even if there are other duty types)" in {
 
         forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise)) { (customDuty, exciseDuty) =>
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(customDuty, exciseDuty))
             .getOrFail
 
           val taxCode: TaxCode = customDuty.taxCodes.head
-          val updatedJourney   =
-            initialJourney.selectAndReplaceTaxCodeSetForDutyType(customDuty, Seq(taxCode)).getOrFail
+          val updatedClaim     =
+            initialClaim.selectAndReplaceTaxCodeSetForDutyType(customDuty, Seq(taxCode)).getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -275,13 +275,13 @@ class SelectDutiesControllerSpec
       "show an error summary" when {
 
         "no tax code is selected" in forAll { (dutyType: DutyType) =>
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -301,11 +301,11 @@ class SelectDutiesControllerSpec
       "redirect to select duty type page" when {
 
         "no duty types are selected" in {
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -318,8 +318,8 @@ class SelectDutiesControllerSpec
       "display select duties page and return 400 BAD_REQUEST" when {
 
         "duty submitted is of a duty type not selected" in {
-          val initialJourney = OverpaymentsScheduledJourney.unsafeModifyAnswers(
-            journeyWithMrnAndDeclaration,
+          val initialClaim = OverpaymentsScheduledClaim.unsafeModifyAnswers(
+            claimWithMrnAndDeclaration,
             _.copy(correctedAmounts =
               Some(
                 SortedMap(
@@ -333,7 +333,7 @@ class SelectDutiesControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -350,17 +350,17 @@ class SelectDutiesControllerSpec
       "save user selected excise categories and redirect to the next page" when {
 
         "no other selected duties remaining" in forAll(genExciseCategory) { (exciseCategory: ExciseCategory) =>
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
             .getOrFail
 
-          val updatedJourney =
-            initialJourney.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)).getOrFail
+          val updatedClaim =
+            initialClaim.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)).getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -376,17 +376,17 @@ class SelectDutiesControllerSpec
         genExciseCategory,
         genCustomsDuty
       ) { (exciseCategory: ExciseCategory, customDutyType: DutyType) =>
-        val initialJourney = journeyWithMrnAndDeclaration
+        val initialClaim = claimWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise, customDutyType))
           .getOrFail
 
-        val updatedJourney =
-          initialJourney.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)).getOrFail
+        val updatedClaim =
+          initialClaim.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(initialClaim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -400,13 +400,13 @@ class SelectDutiesControllerSpec
       "show an error summary" when {
 
         "no excise category is selected" in forAll(genExciseCategory) { (exciseCategory: ExciseCategory) =>
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(DutyType.Excise))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -426,11 +426,11 @@ class SelectDutiesControllerSpec
       "redirect to select duty type page" when {
 
         "no duty types are selected" in {
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -445,8 +445,8 @@ class SelectDutiesControllerSpec
       "display select duties page and return 400 BAD_REQUEST" when {
 
         "excise category submitted is of a duty type not selected" in {
-          val initialJourney = OverpaymentsScheduledJourney.unsafeModifyAnswers(
-            journeyWithMrnAndDeclaration,
+          val initialClaim = OverpaymentsScheduledClaim.unsafeModifyAnswers(
+            claimWithMrnAndDeclaration,
             _.copy(correctedAmounts =
               Some(
                 SortedMap(
@@ -460,7 +460,7 @@ class SelectDutiesControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(
@@ -478,18 +478,18 @@ class SelectDutiesControllerSpec
 
         "no other selected duties remaining" in forAll(genExciseCategoryWithRandomlySelectedTaxCode) {
           case (exciseCategory, taxCode) =>
-            val initialJourney = journeyWithMrnAndDeclaration
+            val initialClaim = claimWithMrnAndDeclaration
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(Excise))
               .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
               .getOrFail
 
-            val updatedJourney =
-              initialJourney.selectAndReplaceTaxCodeSetForExciseCategory(exciseCategory, Seq(taxCode)).getOrFail
+            val updatedClaim =
+              initialClaim.selectAndReplaceTaxCodeSetForExciseCategory(exciseCategory, Seq(taxCode)).getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(updatedJourney))(Right(()))
+              mockGetSession(SessionData(initialClaim))
+              mockStoreSession(SessionData(updatedClaim))(Right(()))
             }
 
             checkIsRedirect(
@@ -503,19 +503,19 @@ class SelectDutiesControllerSpec
 
       "save user selected tax codes and ask user to enter reclaim amount (even if there are other excise categories)" in {
         val exciseCategory = Wine
-        val initialJourney = journeyWithMrnAndDeclaration
+        val initialClaim   = claimWithMrnAndDeclaration
           .selectAndReplaceDutyTypeSetForReimbursement(Seq(Excise))
           .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory, Spirits)))
           .getOrFail
 
         val taxCode: TaxCode = exciseCategory.taxCodes.headOption.get
-        val updatedJourney   =
-          initialJourney.selectAndReplaceTaxCodeSetForExciseCategory(exciseCategory, Seq(taxCode)).getOrFail
+        val updatedClaim     =
+          initialClaim.selectAndReplaceTaxCodeSetForExciseCategory(exciseCategory, Seq(taxCode)).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(initialClaim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -530,14 +530,14 @@ class SelectDutiesControllerSpec
 
         "no tax code is selected" in forAll(genExciseCategoryWithRandomlySelectedTaxCode) {
           case (exciseCategory, taxCode) =>
-            val initialJourney = journeyWithMrnAndDeclaration
+            val initialClaim = claimWithMrnAndDeclaration
               .selectAndReplaceDutyTypeSetForReimbursement(Seq(Excise))
               .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(exciseCategory)))
               .getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkPageIsDisplayed(
@@ -562,14 +562,14 @@ class SelectDutiesControllerSpec
       "redirect to select duty type page" when {
 
         "no duty types are selected" in {
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
 
           val exciseCategory = genExciseCategory.sample.get
           val taxCode        = Gen.oneOf(exciseCategory.taxCodes).sample.get
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -584,8 +584,8 @@ class SelectDutiesControllerSpec
       "display select duties page and return 400 BAD_REQUEST" when {
 
         "duty submitted is of a duty type not selected" in {
-          val initialJourney = OverpaymentsScheduledJourney.unsafeModifyAnswers(
-            journeyWithMrnAndDeclaration,
+          val initialClaim = OverpaymentsScheduledClaim.unsafeModifyAnswers(
+            claimWithMrnAndDeclaration,
             _.copy(correctedAmounts =
               Some(
                 SortedMap(
@@ -602,7 +602,7 @@ class SelectDutiesControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageIsDisplayed(

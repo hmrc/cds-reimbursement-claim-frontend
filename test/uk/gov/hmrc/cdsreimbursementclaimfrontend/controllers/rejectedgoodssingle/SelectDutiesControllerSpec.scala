@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -71,12 +71,12 @@ class SelectDutiesControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: RejectedGoodsSingleJourney,
+    claim: RejectedGoodsSingleClaim,
     selectedDuties: Seq[String]
   ): Unit = {
     selectedCheckBox(doc) should contain theSameElementsAs selectedDuties
     checkboxes(doc)       should containOnlyPairsOf(
-      journey.getAvailableDuties.map { case (taxCode, _) =>
+      claim.getAvailableDuties.map { case (taxCode, _) =>
         (taxCode.value + " - " + messages(s"select-duties.duty.$taxCode"), taxCode.value)
       }
     )
@@ -89,12 +89,12 @@ class SelectDutiesControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display the page the first time" in {
-        val journey = RejectedGoodsSingleJourney
+        val claim = RejectedGoodsSingleClaim
           .empty(exampleDisplayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
           .getOrFail
 
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -104,16 +104,16 @@ class SelectDutiesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.single.title"),
-          assertPageContent(_, journey, Seq.empty)
+          assertPageContent(_, claim, Seq.empty)
         )
       }
 
       "display the page when a tax code has already been selected before" in {
-        forAll(completeJourneyGen) { journey =>
-          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        forAll(completeClaimGen) { claim =>
+          val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
 
           val selectedDuties: Seq[String] =
-            journey.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
+            claim.getSelectedDuties.map(_.map(_.value)).getOrElse(Seq.empty)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -123,7 +123,7 @@ class SelectDutiesControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.single.title"),
-            assertPageContent(_, journey, selectedDuties)
+            assertPageContent(_, claim, selectedDuties)
           )
         }
       }
@@ -133,9 +133,9 @@ class SelectDutiesControllerSpec
           exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
         val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
 
-        val journey = RejectedGoodsSingleJourney
+        val claim = RejectedGoodsSingleClaim
           .tryBuildFrom(
-            RejectedGoodsSingleJourney.Answers(
+            RejectedGoodsSingleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumber = Some(exampleMrn),
               displayDeclaration = Some(
@@ -149,7 +149,7 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -166,12 +166,12 @@ class SelectDutiesControllerSpec
 
     "reject an empty tax code selection" in {
 
-      val journey = RejectedGoodsSingleJourney
+      val claim = RejectedGoodsSingleClaim
         .empty(exampleDisplayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
         .getOrFail
 
-      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
 
       inSequence {
         mockAuthWithDefaultRetrievals()
@@ -193,9 +193,9 @@ class SelectDutiesControllerSpec
       val displayResponseDeclarationWithoutDuties =
         exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
 
-      val journey = RejectedGoodsSingleJourney
+      val claim = RejectedGoodsSingleClaim
         .tryBuildFrom(
-          RejectedGoodsSingleJourney.Answers(
+          RejectedGoodsSingleClaim.Answers(
             userEoriNumber = exampleEori,
             movementReferenceNumber = Some(exampleMrn),
             displayDeclaration = Some(
@@ -209,7 +209,7 @@ class SelectDutiesControllerSpec
 
       inSequence {
         mockAuthWithDefaultRetrievals()
-        mockGetSession(SessionData(journey))
+        mockGetSession(SessionData(claim))
       }
 
       checkIsRedirect(
@@ -220,7 +220,7 @@ class SelectDutiesControllerSpec
 
     "select valid tax codes when none have been selected before" in {
       forAll(displayDeclarationGen) { displayDeclaration =>
-        val initialJourney = RejectedGoodsSingleJourney
+        val initialClaim = RejectedGoodsSingleClaim
           .empty(displayDeclaration.getDeclarantEori)
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
           .getOrFail
@@ -230,10 +230,10 @@ class SelectDutiesControllerSpec
           if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
           else availableTaxCodes
 
-        val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
+        val initialSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(initialClaim))
 
-        val updatedJourney = initialJourney.selectAndReplaceTaxCodeSetForReimbursement(selectedTaxCodes)
-        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = updatedJourney.toOption)
+        val updatedClaim   = initialClaim.selectAndReplaceTaxCodeSetForReimbursement(selectedTaxCodes)
+        val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = updatedClaim.toOption)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -262,12 +262,12 @@ class SelectDutiesControllerSpec
         )
       )
 
-      val journey = RejectedGoodsSingleJourney
+      val claim = RejectedGoodsSingleClaim
         .empty(exampleEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
         .getOrFail
 
-      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+      val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
 
       inSequence {
         mockAuthWithDefaultRetrievals()

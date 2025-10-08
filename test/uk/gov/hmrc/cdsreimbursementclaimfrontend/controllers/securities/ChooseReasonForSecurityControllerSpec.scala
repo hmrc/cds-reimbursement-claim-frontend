@@ -37,8 +37,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.CommunitySystemsOfDutyRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
@@ -54,7 +54,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.annotation.nowarn
@@ -65,7 +65,7 @@ class ChooseReasonForSecurityControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
-    with TestWithJourneyGenerator[SecuritiesJourney]
+    with TestWithClaimGenerator[SecuritiesClaim]
     with BeforeAndAfterEach {
 
   val mockClaimsService: ClaimService                = mock[ClaimService]
@@ -116,11 +116,11 @@ class ChooseReasonForSecurityControllerSpec
       ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
     )
 
-  val initialJourney: SecuritiesJourney = SecuritiesJourney
+  val initialClaim: SecuritiesClaim = SecuritiesClaim
     .empty(
       userEoriNumber = exampleEori,
       features = Some(
-        SecuritiesJourney.Features(availableReasonsForSecurity =
+        SecuritiesClaim.Features(availableReasonsForSecurity =
           ReasonForSecurity.ntas ++ ReasonForSecurity.niru.filterNot(option =>
             option == OutwardProcessingRelief || option == CommunitySystemsOfDutyRelief
           )
@@ -164,7 +164,7 @@ class ChooseReasonForSecurityControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkPageIsDisplayed(
@@ -182,7 +182,7 @@ class ChooseReasonForSecurityControllerSpec
       "reject an empty reason selection" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkPageIsDisplayed(
@@ -200,13 +200,13 @@ class ChooseReasonForSecurityControllerSpec
           val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
 
           whenever(!reasonForSecurityIsDischarge) {
-            val initialJourney =
-              SecuritiesJourney
+            val initialClaim =
+              SecuritiesClaim
                 .empty(declaration.getDeclarantEori)
                 .submitMovementReferenceNumber(declaration.getMRN)
 
-            val updatedJourney = SessionData(
-              initialJourney
+            val updatedClaim = SessionData(
+              initialClaim
                 .submitReasonForSecurityAndDeclaration(rfs, declaration)
                 .flatMap(_.submitClaimDuplicateCheckStatus(false))
                 .getOrFail
@@ -214,10 +214,10 @@ class ChooseReasonForSecurityControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
               mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-              mockStoreSession(updatedJourney)(Right(()))
+              mockStoreSession(updatedClaim)(Right(()))
             }
 
             checkIsRedirect(
@@ -244,13 +244,13 @@ class ChooseReasonForSecurityControllerSpec
 //          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
 //
 //          whenever(!reasonForSecurityIsDischarge) {
-//            val initialJourney =
-//              SecuritiesJourney
+//            val initialClaim =
+//              SecuritiesClaim
 //                .empty(eori)
 //                .submitMovementReferenceNumber(declaration.getMRN)
 //
-//            val updatedJourney = SessionData(
-//              initialJourney
+//            val updatedClaim = SessionData(
+//              initialClaim
 //                .submitReasonForSecurityAndDeclaration(rfs, declaration)
 //                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
 //                .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -259,11 +259,11 @@ class ChooseReasonForSecurityControllerSpec
 //
 //            inSequence {
 //              mockAuthWithDefaultRetrievals()
-//              mockGetSession(SessionData(initialJourney))
+//              mockGetSession(SessionData(initialClaim))
 //              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
 //              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
 //              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-//              mockStoreSession(updatedJourney)(Right(()))
+//              mockStoreSession(updatedClaim)(Right(()))
 //            }
 //
 //            checkIsRedirect(
@@ -283,22 +283,22 @@ class ChooseReasonForSecurityControllerSpec
           val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
 
           whenever(!reasonForSecurityIsDischarge) {
-            val initialJourney =
-              SecuritiesJourney
+            val initialClaim =
+              SecuritiesClaim
                 .empty(eori)
                 .submitMovementReferenceNumber(declaration.getMRN)
 
-            val updatedJourney = SessionData(
-              initialJourney
+            val updatedClaim = SessionData(
+              initialClaim
                 .submitReasonForSecurityAndDeclaration(rfs, declaration)
                 .getOrFail
             )
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
               mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-              mockStoreSession(updatedJourney)(Right(()))
+              mockStoreSession(updatedClaim)(Right(()))
             }
 
             checkIsRedirect(
@@ -325,13 +325,13 @@ class ChooseReasonForSecurityControllerSpec
 //          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
 //
 //          whenever(!reasonForSecurityIsDischarge) {
-//            val initialJourney =
-//              SecuritiesJourney
+//            val initialClaim =
+//              SecuritiesClaim
 //                .empty(eori)
 //                .submitMovementReferenceNumber(declaration.getMRN)
 //
-//            val updatedJourney = SessionData(
-//              initialJourney
+//            val updatedClaim = SessionData(
+//              initialClaim
 //                .submitReasonForSecurityAndDeclaration(rfs, declaration)
 //                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
 //                .getOrFail
@@ -339,10 +339,10 @@ class ChooseReasonForSecurityControllerSpec
 //
 //            inSequence {
 //              mockAuthWithDefaultRetrievals()
-//              mockGetSession(SessionData(initialJourney))
+//              mockGetSession(SessionData(initialClaim))
 //              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
 //              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-//              mockStoreSession(updatedJourney)(Right(()))
+//              mockStoreSession(updatedClaim)(Right(()))
 //            }
 //
 //            checkIsRedirect(
@@ -361,8 +361,8 @@ class ChooseReasonForSecurityControllerSpec
         ) { (declaration: DisplayDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumber(declaration.getMRN)
               .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
@@ -370,7 +370,7 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -386,8 +386,8 @@ class ChooseReasonForSecurityControllerSpec
         forAll(securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen) { (declaration: DisplayDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumber(declaration.getMRN)
               .submitReasonForSecurityAndDeclaration(rfs.get, declaration)
@@ -396,7 +396,7 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -418,13 +418,13 @@ class ChooseReasonForSecurityControllerSpec
                 .copy(securityReason = Some(rfs.acc14Code))
             )
 
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(updatedDeclaration.getDeclarantEori)
               .submitMovementReferenceNumber(updatedDeclaration.getMRN)
 
-          val updatedJourney = SessionData(
-            initialJourney
+          val updatedClaim = SessionData(
+            initialClaim
               .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
               .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay = false))
               .getOrFail
@@ -432,10 +432,10 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-            mockStoreSession(updatedJourney)(Right(()))
+            mockStoreSession(updatedClaim)(Right(()))
           }
 
           checkIsRedirect(
@@ -462,13 +462,13 @@ class ChooseReasonForSecurityControllerSpec
                 )
             )
 
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(updatedDeclaration.getDeclarantEori)
               .submitMovementReferenceNumber(updatedDeclaration.getMRN)
 
-          val updatedJourney = SessionData(
-            initialJourney
+          val updatedClaim = SessionData(
+            initialClaim
               .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
               .getOrFail
@@ -476,10 +476,10 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
             mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-            mockStoreSession(updatedJourney)(Right(()))
+            mockStoreSession(updatedClaim)(Right(()))
           }
 
           checkIsRedirect(
@@ -493,22 +493,22 @@ class ChooseReasonForSecurityControllerSpec
 
       "retrieve the ACC14 declaration and redirect to the enter importer EORI page when user's EORI don't match those of ACC14" in {
         forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(exampleEori)
               .submitMovementReferenceNumber(declaration.getMRN)
 
-          val updatedJourney = SessionData(
-            initialJourney
+          val updatedClaim = SessionData(
+            initialClaim
               .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
               .getOrFail
           )
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
             mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
-            mockStoreSession(updatedJourney)(Right(()))
+            mockStoreSession(updatedClaim)(Right(()))
           }
 
           checkIsRedirect(
@@ -523,13 +523,13 @@ class ChooseReasonForSecurityControllerSpec
 
       "retrieve the ACC14 declaration and redirect to inelligible page when TPI04 says that the claim is duplicated" in {
         forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
-          val initialJourney =
-            SecuritiesJourney
+          val initialClaim =
+            SecuritiesClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumber(declaration.getMRN)
 
-          val updatedJourney = SessionData(
-            initialJourney
+          val updatedClaim = SessionData(
+            initialClaim
               .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
               .flatMap(_.submitClaimDuplicateCheckStatus(true))
               .getOrFail
@@ -537,10 +537,10 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
             mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
-            mockStoreSession(updatedJourney)(Right(()))
+            mockStoreSession(updatedClaim)(Right(()))
           }
 
           checkIsRedirect(
@@ -555,8 +555,8 @@ class ChooseReasonForSecurityControllerSpec
       "redirect to wrong RfS page when selected RfS doesn't match the declaration" in forAll(
         securitiesDisplayDeclarationGen
       ) { (declaration: DisplayDeclaration) =>
-        val journey =
-          SecuritiesJourney
+        val claim =
+          SecuritiesClaim
             .empty(declaration.getDeclarantEori)
             .submitMovementReferenceNumber(declaration.getMRN)
 
@@ -564,7 +564,7 @@ class ChooseReasonForSecurityControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockGetDisplayDeclarationWithErrorCodes(Left(GetDeclarationError.invalidReasonForSecurity))
         }
 
@@ -578,8 +578,8 @@ class ChooseReasonForSecurityControllerSpec
 
       "redirect to declaration not found page when no declaration found" in forAll(securitiesDisplayDeclarationGen) {
         (declaration: DisplayDeclaration) =>
-          val journey =
-            SecuritiesJourney
+          val claim =
+            SecuritiesClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumber(declaration.getMRN)
 
@@ -587,7 +587,7 @@ class ChooseReasonForSecurityControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockGetDisplayDeclarationWithErrorCodes(
               Left(GetDeclarationError.declarationNotFound)
             )

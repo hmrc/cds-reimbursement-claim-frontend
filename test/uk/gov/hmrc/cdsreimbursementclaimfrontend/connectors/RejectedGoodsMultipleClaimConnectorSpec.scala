@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -90,9 +90,9 @@ class RejectedGoodsMultipleClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-multiple"
 
   val requestGen =
-    for journey <- RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
+    for claim <- RejectedGoodsMultipleClaimGenerators.completeClaimGen
     yield RejectedGoodsMultipleClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: RejectedGoodsMultipleClaimConnector.Request = sample(requestGen)

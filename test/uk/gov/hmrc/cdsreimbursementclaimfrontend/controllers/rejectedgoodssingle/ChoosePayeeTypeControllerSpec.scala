@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -50,7 +50,7 @@ class ChoosePayeeTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
@@ -75,7 +75,7 @@ class ChoosePayeeTypeControllerSpec
         mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
-            session.copy(rejectedGoodsSingleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
+            session.copy(rejectedGoodsSingleClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
           )
         )
       }
@@ -114,7 +114,7 @@ class ChoosePayeeTypeControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              rejectedGoodsSingleJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+              rejectedGoodsSingleClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
             )
           )(Right(()))
         }
@@ -128,15 +128,15 @@ class ChoosePayeeTypeControllerSpec
 
     "successfully submit bank account type and redirect to choose repayment method page" when {
       "one of the options selected and all available duties are CMA eligible" in forAll { (payeeType: PayeeType) =>
-        val journey = completeJourneyCMAEligibleGen.sample
-          .getOrElse(fail("Failed to generate journey"))
+        val claim = completeClaimCMAEligibleGen.sample
+          .getOrElse(fail("Failed to generate claim"))
           .submitCheckYourAnswersChangeMode(false)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            SessionData(journey.submitPayeeType(payeeType).getOrFail)
+            SessionData(claim.submitPayeeType(payeeType).getOrFail)
           )(Right(()))
         }
 

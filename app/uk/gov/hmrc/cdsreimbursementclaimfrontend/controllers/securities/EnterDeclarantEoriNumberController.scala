@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
@@ -44,11 +44,11 @@ import scala.language.postfixOps
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   DeclarationConnector: DeclarationConnector,
   enterDeclarantEoriNumberPage: enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   val formKey: String  = "enter-declarant-eori-number"
   val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
@@ -69,37 +69,37 @@ class EnterDeclarantEoriNumberController @Inject() (
   private val errorResultClaimExistsAlready: Result =
     Redirect(controllers.routes.IneligibleController.ineligible) // TODO: fix in CDSR-1773
 
-  import SecuritiesJourney.Checks._
+  import SecuritiesClaim.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(hasMRNAndDisplayDeclarationAndRfS)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    if !journey.needsDeclarantAndConsigneeEoriSubmission then nextPage(journey)
-    else if journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    if !claim.needsDeclarantAndConsigneeEoriSubmission then nextPage(claim)
+    else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
       Redirect(routes.EnterImporterEoriNumberController.show)
     else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if !journey.needsDeclarantAndConsigneeEoriSubmission then (journey, nextPage(journey))
-    else if journey.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
-      (journey, Redirect(routes.EnterImporterEoriNumberController.show))
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    if !claim.needsDeclarantAndConsigneeEoriSubmission then (claim, nextPage(claim))
+    else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
+      (claim, Redirect(routes.EnterImporterEoriNumberController.show))
     else
       eoriNumberForm(formKey)
         .bindFromRequest()
         .fold(
-          formWithErrors => journey -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors, postAction)) asFuture,
+          formWithErrors => claim -> BadRequest(enterDeclarantEoriNumberPage(formWithErrors, postAction)) asFuture,
           eori =>
-            journey
+            claim
               .submitDeclarantEoriNumber(eori)
               .fold(
                 e => {
                   logger.error(
-                    s"$eori] does not match EORI associated with MRN [${journey.getDeclarantEoriFromACC14}]: $e"
+                    s"$eori] does not match EORI associated with MRN [${claim.getDeclarantEoriFromACC14}]: $e"
                   )
-                  journey -> BadRequest(
+                  claim -> BadRequest(
                     enterDeclarantEoriNumberPage(
                       eoriNumberForm(formKey)
                         .withError(
@@ -113,31 +113,31 @@ class EnterDeclarantEoriNumberController @Inject() (
                     )
                   ) asFuture
                 },
-                updatedJourney =>
+                updatedClaim =>
                   (for
-                    mrn                              <- getMovementReferenceNumber(journey)
-                    rfs                              <- getReasonForSecurity(journey)
+                    mrn                              <- getMovementReferenceNumber(claim)
+                    rfs                              <- getReasonForSecurity(claim)
                     similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, rfs)
-                    updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
-                                                          updatedJourney,
+                    updatedClaimWithRedirect         <- submitClaimDuplicateCheckStatus(
+                                                          updatedClaim,
                                                           similarClaimExistAlreadyInCDFPay
                                                         )
-                  yield updatedJourneyWithRedirect)
-                    .bimap(result => (journey, result), identity)
+                  yield updatedClaimWithRedirect)
+                    .bimap(result => (claim, result), identity)
                     .merge
               )
         )
   }
 
-  private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
+  private def getMovementReferenceNumber(claim: SecuritiesClaim): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
-      journey.getLeadMovementReferenceNumber,
+      claim.getLeadMovementReferenceNumber,
       Redirect(routes.EnterMovementReferenceNumberController.show)
     )
 
-  private def getReasonForSecurity(journey: SecuritiesJourney): EitherT[Future, Result, ReasonForSecurity] =
+  private def getReasonForSecurity(claim: SecuritiesClaim): EitherT[Future, Result, ReasonForSecurity] =
     EitherT.fromOption[Future](
-      journey.getReasonForSecurity,
+      claim.getReasonForSecurity,
       Redirect(routes.ChooseReasonForSecurityController.show)
     )
 
@@ -151,37 +151,37 @@ class EnterDeclarantEoriNumberController @Inject() (
       .map(_.claimFound)
 
   private def submitClaimDuplicateCheckStatus(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     similarClaimExistAlreadyInCDFPay: Boolean
-  ): EitherT[Future, Result, (SecuritiesJourney, Result)] =
-    EitherT.liftF[Future, Result, (SecuritiesJourney, Result)](
+  ): EitherT[Future, Result, (SecuritiesClaim, Result)] =
+    EitherT.liftF[Future, Result, (SecuritiesClaim, Result)](
       EitherT
         .fromEither[Future](
-          journey
+          claim
             .submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay)
         )
         .leftMap(error =>
           (
-            journey,
+            claim,
             Redirect(routeForValidationError(error))
           )
         )
-        .map(journeyWithUpdatedStatus =>
+        .map(claimWithUpdatedStatus =>
           (
-            journeyWithUpdatedStatus,
+            claimWithUpdatedStatus,
             if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
             } else {
-              nextPage(journeyWithUpdatedStatus)
+              nextPage(claimWithUpdatedStatus)
             }
           )
         )
         .merge
     )
 
-  private def nextPage(journey: SecuritiesJourney) =
-    if journey.reasonForSecurityIsIPR then successResultBOD3
-    else if journey.reasonForSecurityIsENU then successResultBOD4
+  private def nextPage(claim: SecuritiesClaim) =
+    if claim.reasonForSecurityIsIPR then successResultBOD3
+    else if claim.reasonForSecurityIsENU then successResultBOD4
     else successResultSelectSecurities
 }

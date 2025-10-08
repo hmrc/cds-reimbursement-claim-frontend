@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -90,9 +90,9 @@ class OverpaymentsScheduledClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-scheduled"
 
   val requestGen =
-    for journey <- OverpaymentsScheduledJourneyGenerators.completeJourneyGen
+    for claim <- OverpaymentsScheduledClaimGenerators.completeClaimGen
     yield OverpaymentsScheduledClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: OverpaymentsScheduledClaimConnector.Request = sample(requestGen)

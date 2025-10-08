@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -56,8 +56,8 @@ class EnterAdditionalDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journeyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+  val claimGen: Gen[OverpaymentsScheduledClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
       .flatMap(j =>
         Gen
           .oneOf(j.getAvailableClaimTypes)
@@ -82,10 +82,10 @@ class EnterAdditionalDetailsControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page the first time" in {
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -97,10 +97,10 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "display page back with details populated" in {
-        forAll(journeyGen.map(_.submitAdditionalDetails("foo bar 123"))) { journey =>
+        forAll(claimGen.map(_.submitAdditionalDetails("foo bar 123"))) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -112,16 +112,16 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "display page back in the change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("enter-additional-details.title"),
-            assertPageContent(_, journey.answers.additionalDetails)
+            assertPageContent(_, claim.answers.additionalDetails)
           )
         }
       }
@@ -135,12 +135,12 @@ class EnterAdditionalDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "submit additional details" in forAll(journeyGen) { journey =>
+      "submit additional details" in forAll(claimGen) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            SessionData(journey.submitAdditionalDetails(loremIpsum))
+            SessionData(claim.submitAdditionalDetails(loremIpsum))
           )(Right(()))
         }
 

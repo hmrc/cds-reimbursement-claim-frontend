@@ -31,14 +31,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -49,7 +49,7 @@ class ChooseExportMethodControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -92,14 +92,14 @@ class ChooseExportMethodControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "show the page for temporary admissions RfS" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -122,14 +122,14 @@ class ChooseExportMethodControllerSpec
         )
 
       "show an error if no export method is selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageWithErrorIsDisplayed(
@@ -140,14 +140,14 @@ class ChooseExportMethodControllerSpec
       }
 
       "redirect to /enter-export-movement-reference-number when single shipment is selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(Right(()))
         }
 
@@ -158,14 +158,14 @@ class ChooseExportMethodControllerSpec
       }
 
       "redirect to /enter-export-movement-reference-number when multiple shipment is selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(Right(()))
         }
 
@@ -176,14 +176,14 @@ class ChooseExportMethodControllerSpec
       }
 
       "redirect to /confirm-full-repayment if any option other than" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedGeneratedMfd
         )
-      ) { case (journey, (_, _, _, methodOfDisposal)) =>
+      ) { case (claim, (_, _, _, methodOfDisposal)) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(Right(()))
         }
 
@@ -194,16 +194,14 @@ class ChooseExportMethodControllerSpec
       }
 
       "redirect to choose payee type if any option other than exported methods of disposal and has single security" in forAllWith(
-        JourneyGenerator(
-          testParamsGenerator =
-            SecuritiesSingleJourneyGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
-          journeyBuilder =
-            SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithSomeSecuritiesSelectedGeneratedMfd
+        ClaimGenerator(
+          testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
+          claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithSomeSecuritiesSelectedGeneratedMfd
         )
-      ) { case (journey, (_, _, _, methodOfDisposal)) =>
+      ) { case (claim, (_, _, _, methodOfDisposal)) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(Right(()))
         }
 
@@ -214,14 +212,14 @@ class ChooseExportMethodControllerSpec
       }
 
       "redirect to check claimant details if reason for security is not ntas" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values -- ReasonForSecurity.ntas),
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(Right(()))
         }
 

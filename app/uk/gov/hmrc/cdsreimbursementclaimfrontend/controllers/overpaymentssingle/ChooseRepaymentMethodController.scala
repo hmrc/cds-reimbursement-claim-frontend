@@ -21,10 +21,10 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseRepaymentMethodMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
@@ -32,25 +32,25 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseRepaymentMethodController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val chooseRepaymentMethodPage: choose_repayment_method
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController
+    extends OverpaymentsSingleClaimBaseController
     with ChooseRepaymentMethodMixin {
 
   override def enterBankDetailsRoute: Call = routes.EnterBankAccountDetailsController.show
 
-  override def modifyJourney(
-    journey: OverpaymentsSingleJourney,
+  override def modifyClaim(
+    claim: OverpaymentsSingleClaim,
     method: ReimbursementMethod
-  ): Either[String, OverpaymentsSingleJourney] =
-    journey.submitReimbursementMethod(method)
+  ): Either[String, OverpaymentsSingleClaim] =
+    claim.submitReimbursementMethod(method)
 
-  override def resetReimbursementMethod(journey: OverpaymentsSingleJourney): OverpaymentsSingleJourney =
-    journey.resetReimbursementMethod()
+  override def resetReimbursementMethod(claim: OverpaymentsSingleClaim): OverpaymentsSingleClaim =
+    claim.resetReimbursementMethod()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val postAction: Call = routes.ChooseRepaymentMethodController.submit

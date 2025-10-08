@@ -21,9 +21,9 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_multiple
 
@@ -33,10 +33,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkClaimDetails: check_claim_details_multiple
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+    extends RejectedGoodsMultipleClaimBaseController {
 
   val selectDutiesAction: Call                 = routes.SelectDutiesController.showFirst
   val selectDutiesActionForIndex: Int => Call  = routes.SelectDutiesController.show(_)
@@ -45,18 +45,18 @@ class CheckClaimDetailsController @Inject() (
   val continueAction: Call                     = routes.EnterInspectionDateController.show
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     (
-      journey.withDutiesChangeMode(false),
-      if !journey.hasCompleteMovementReferenceNumbers then Redirect(enterMrnAction)
-      else if !journey.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
+      claim.withDutiesChangeMode(false),
+      if !claim.hasCompleteMovementReferenceNumbers then Redirect(enterMrnAction)
+      else if !claim.hasCompleteReimbursementClaims then Redirect(selectDutiesAction)
       else {
         Ok(
           checkClaimDetails(
-            journey.getReimbursementsWithCorrectAmounts,
+            claim.getReimbursementsWithCorrectAmounts,
             enterClaimAction,
             continueAction,
             selectDutiesActionForIndex

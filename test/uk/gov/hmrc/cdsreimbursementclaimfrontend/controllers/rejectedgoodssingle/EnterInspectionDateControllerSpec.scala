@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
@@ -72,7 +72,7 @@ class EnterInspectionDateControllerSpec
   def submitInspectionDate(data: (String, String)*): Future[Result] =
     controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Inspection Date Controller" must {
 
@@ -95,9 +95,9 @@ class EnterInspectionDateControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
-        val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = SessionData(journey)
+      "the user has answered this question before" in forAll(buildCompleteClaimGen()) { claim =>
+        val inspectionDate = claim.answers.inspectionDate
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -135,15 +135,15 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val initialJourney =
-          RejectedGoodsSingleJourney
+        val initialClaim =
+          RejectedGoodsSingleClaim
             .empty(updatedDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
 
-        val initialSession = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(initialJourney))
-        val updatedJourney = initialJourney.submitInspectionDate(date)
-        val updatedSession = SessionData(updatedJourney)
+        val initialSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(initialClaim))
+        val updatedClaim   = initialClaim.submitInspectionDate(date)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -173,15 +173,15 @@ class EnterInspectionDateControllerSpec
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
-        val journey =
-          RejectedGoodsSingleJourney
+        val claim =
+          RejectedGoodsSingleClaim
             .empty(updatedDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
             .getOrFail
 
-        val requiredSession = SessionData(journey)
-        val updatedJourney  = journey.submitInspectionDate(date)
-        val updatedSession  = SessionData(updatedJourney)
+        val requiredSession = SessionData(claim)
+        val updatedClaim    = claim.submitInspectionDate(date)
+        val updatedSession  = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -220,13 +220,13 @@ class EnterInspectionDateControllerSpec
     }
 
     "redirect to CYA page" when {
-      "journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
-        val journeyWithInspectionDate = journey.submitInspectionDate(date)
-        val sessionWithInspectionDate = SessionData(journeyWithInspectionDate)
+      "claim is complete" in forAll(buildCompleteClaimGen(), genDate) { (claim, date) =>
+        val claimWithInspectionDate   = claim.submitInspectionDate(date)
+        val sessionWithInspectionDate = SessionData(claimWithInspectionDate)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(sessionWithInspectionDate)(Right(()))
         }
 

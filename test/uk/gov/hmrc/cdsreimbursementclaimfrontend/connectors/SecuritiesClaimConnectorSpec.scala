@@ -27,7 +27,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -90,9 +90,9 @@ class SecuritiesClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/securities"
 
   val requestGen: Gen[SecuritiesClaimConnector.Request] =
-    for journey <- SecuritiesJourneyGenerators.completeJourneyGen
+    for claim <- SecuritiesClaimGenerators.completeClaimGen
     yield SecuritiesClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: SecuritiesClaimConnector.Request = sample(requestGen)

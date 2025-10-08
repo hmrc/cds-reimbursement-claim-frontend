@@ -18,10 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssched
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.SelectScheduledDutiesMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -35,16 +35,16 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectDutiesController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val selectDutyCodesPage: select_duty_codes,
   val selectExciseCategoriesPage: select_excise_categories,
   val selectExciseDutyCodesPage: select_excise_duty_codes
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController
+    extends RejectedGoodsScheduledClaimBaseController
     with SelectScheduledDutiesMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val routesPack = SelectScheduledDutiesMixin.RoutesPack(
@@ -56,14 +56,13 @@ class SelectDutiesController @Inject() (
     submitExciseDuties = routes.SelectDutiesController.submitExciseDuties
   )
 
-  val selectAndReplaceExciseCodeCategories: Journey => Seq[ExciseCategory] => Either[String, Journey] =
-    (journey: Journey) => journey.selectAndReplaceExciseCodeCategories
+  val selectAndReplaceExciseCodeCategories: Claim => Seq[ExciseCategory] => Either[String, Claim] =
+    (claim: Claim) => claim.selectAndReplaceExciseCodeCategories
 
-  val selectAndReplaceTaxCodeSetForDutyType: Journey => (DutyType, Seq[TaxCode]) => Either[String, Journey] =
-    (journey: Journey) => journey.selectAndReplaceTaxCodeSetForDutyType
+  val selectAndReplaceTaxCodeSetForDutyType: Claim => (DutyType, Seq[TaxCode]) => Either[String, Claim] =
+    (claim: Claim) => claim.selectAndReplaceTaxCodeSetForDutyType
 
-  val selectAndReplaceTaxCodeSetForExciseCategory
-    : Journey => (ExciseCategory, Seq[TaxCode]) => Either[String, Journey] =
-    (journey: Journey) => journey.selectAndReplaceTaxCodeSetForExciseCategory
+  val selectAndReplaceTaxCodeSetForExciseCategory: Claim => (ExciseCategory, Seq[TaxCode]) => Either[String, Claim] =
+    (claim: Claim) => claim.selectAndReplaceTaxCodeSetForExciseCategory
 
 }

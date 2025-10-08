@@ -23,7 +23,7 @@ import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -35,10 +35,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseFileTypeController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   chooseFileTypePage: choose_file_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends OverpaymentsMultipleJourneyBaseController
+    extends OverpaymentsMultipleClaimBaseController
     with ChooseFileTypeMixin {
 
   final override val uploadFilesRoute: Call =
@@ -55,9 +55,9 @@ class ChooseFileTypeController @Inject() (
           routes.ChooseFileTypeController.submit
         )
 
-  final override def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey] =
+  final override def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim] =
     Right(
-      journey
+      claim
         .submitDocumentTypeSelection(documentType)
     )
 

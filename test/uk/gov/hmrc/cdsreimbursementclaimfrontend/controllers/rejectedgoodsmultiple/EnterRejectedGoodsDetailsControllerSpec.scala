@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleRejectedGoodsDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.journeyWithMrnAndDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.exampleRejectedGoodsDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.claimWithMrnAndDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 class EnterRejectedGoodsDetailsControllerSpec
@@ -58,7 +58,7 @@ class EnterRejectedGoodsDetailsControllerSpec
 
   private val messagesKey: String = "enter-rejected-goods-details.rejected-goods"
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Rejected Goods Details Controller" must {
 
@@ -78,9 +78,9 @@ class EnterRejectedGoodsDetailsControllerSpec
 
     "handle submit requests" must {
       "the user has entered some details" in {
-        val journey        = session.rejectedGoodsMultipleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
-        val updatedSession = SessionData(updatedJourney)
+        val claim          = session.rejectedGoodsMultipleClaim.getOrElse(fail("No rejected goods claim"))
+        val updatedClaim   = claim.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

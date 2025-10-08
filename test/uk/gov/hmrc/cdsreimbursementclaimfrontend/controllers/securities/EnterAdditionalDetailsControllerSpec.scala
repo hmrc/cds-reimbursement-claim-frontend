@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -56,12 +56,12 @@ class EnterAdditionalDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori))
+  val session: SessionData = SessionData(SecuritiesClaim.empty(exampleEori))
 
-  private def mockCompleteJourney(journey: SecuritiesJourney) =
+  private def mockCompleteClaim(claim: SecuritiesClaim) =
     inSequence {
       mockAuthWithDefaultRetrievals()
-      mockGetSession(SessionData(journey))
+      mockGetSession(SessionData(claim))
     }
 
   "Enter Additional Details Controller" when {
@@ -70,10 +70,10 @@ class EnterAdditionalDetailsControllerSpec
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "display the page when additional details given" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
-          val modifiedJourney   = journey.submitAdditionalDetails("additional details")
-          mockCompleteJourney(modifiedJourney)
-          val additionalDetails = modifiedJourney.answers.additionalDetails
+        forAll(buildCompleteClaimGen()) { claim =>
+          val modifiedClaim     = claim.submitAdditionalDetails("additional details")
+          mockCompleteClaim(modifiedClaim)
+          val additionalDetails = modifiedClaim.answers.additionalDetails
 
           checkPageIsDisplayed(
             performAction(),
@@ -87,9 +87,9 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "display the page when no additional details" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
-          val modifiedJourney = journey.submitAdditionalDetails("")
-          mockCompleteJourney(modifiedJourney)
+        forAll(buildCompleteClaimGen()) { claim =>
+          val modifiedClaim = claim.submitAdditionalDetails("")
+          mockCompleteClaim(modifiedClaim)
 
           checkPageIsDisplayed(
             performAction(),
@@ -109,22 +109,22 @@ class EnterAdditionalDetailsControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
 
       "submit valid additional details" in forAll(
-        buildJourneyGen(
+        buildClaimGen(
           additionalDetailsVisited = true
         ).map(
-          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity)
+          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesClaim because of $e."), identity)
             .submitCheckYourAnswersChangeMode(false)
         )
-      ) { journey =>
-        val journey2 = journey.submitContactDetails(None)
+      ) { claim =>
+        val claim2 = claim.submitContactDetails(None)
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey2))
+          mockGetSession(SessionData(claim2))
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey2))
+          mockGetSession(SessionData(claim2))
           mockStoreSession(
             SessionData(
-              journey2.submitAdditionalDetails("additional details")
+              claim2.submitAdditionalDetails("additional details")
             )
           )(Right(()))
         }
@@ -143,21 +143,21 @@ class EnterAdditionalDetailsControllerSpec
       }
 
       "submit valid additional details when contact details already provided" in forAll(
-        buildJourneyGen(
+        buildClaimGen(
           additionalDetailsVisited = true
         ).map(
-          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesJourney because of $e."), identity)
+          _.fold(e => throw new Exception(s"Cannot build complete SecuritiesClaim because of $e."), identity)
             .submitCheckYourAnswersChangeMode(false)
         )
-      ) { journey =>
+      ) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey.submitAdditionalDetails("additional details")
+              claim.submitAdditionalDetails("additional details")
             )
           )(Right(()))
         }
@@ -175,16 +175,16 @@ class EnterAdditionalDetailsControllerSpec
         )
       }
 
-      "submit valid additional details when journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
+      "submit valid additional details when claim is complete" in forAll(buildCompleteClaimGen()) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            session.copy(securitiesJourney =
+            session.copy(securitiesClaim =
               Some(
-                journey.submitAdditionalDetails("additional details")
+                claim.submitAdditionalDetails("additional details")
               )
             )
           )(Right(()))

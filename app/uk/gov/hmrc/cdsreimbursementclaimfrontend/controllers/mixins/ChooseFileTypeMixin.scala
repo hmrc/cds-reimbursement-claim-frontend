@@ -24,10 +24,10 @@ import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
-trait ChooseFileTypeMixin extends JourneyBaseController {
+trait ChooseFileTypeMixin extends ClaimBaseController {
 
   implicit val errorHandler: ErrorHandler
 
@@ -36,10 +36,10 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
   def viewTemplate
     : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] => HtmlFormat.Appendable
 
-  def modifyJourney(journey: Journey, documentType: UploadDocumentType): Either[String, Journey]
+  def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getDocumentTypesIfRequired match {
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    claim.getDocumentTypesIfRequired match {
       case None =>
         Redirect(uploadFilesRoute)
 
@@ -51,18 +51,18 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
           viewTemplate(
             form,
             availableDocumentTypes,
-            journey.answers.supportingEvidences.nonEmpty
+            claim.answers.supportingEvidences.nonEmpty
           )(request)
         )
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        journey.getDocumentTypesIfRequired match {
+      claim =>
+        claim.getDocumentTypesIfRequired match {
           case None =>
-            (journey, Redirect(uploadFilesRoute))
+            (claim, Redirect(uploadFilesRoute))
 
           case Some(availableDocumentTypes) =>
             val form: Form[Option[UploadDocumentType]] =
@@ -73,24 +73,24 @@ trait ChooseFileTypeMixin extends JourneyBaseController {
               .fold(
                 formWithErrors =>
                   (
-                    journey,
+                    claim,
                     BadRequest(
                       viewTemplate(
                         formWithErrors,
                         availableDocumentTypes,
-                        journey.answers.supportingEvidences.nonEmpty
+                        claim.answers.supportingEvidences.nonEmpty
                       )(request)
                     )
                   ),
                 {
                   case None =>
-                    (journey, Redirect(checkYourAnswers))
+                    (claim, Redirect(checkYourAnswers))
 
                   case Some(documentType) =>
-                    modifyJourney(journey, documentType)
+                    modifyClaim(claim, documentType)
                       .fold(
-                        error => (journey, logAndDisplayError("Unexpected", error)),
-                        upddatedJourney => (upddatedJourney, Redirect(uploadFilesRoute))
+                        error => (claim, logAndDisplayError("Unexpected", error)),
+                        upddatedClaim => (upddatedClaim, Redirect(uploadFilesRoute))
                       )
                 }
               )

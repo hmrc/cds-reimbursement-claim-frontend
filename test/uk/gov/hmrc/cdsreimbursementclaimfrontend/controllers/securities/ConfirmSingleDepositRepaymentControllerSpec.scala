@@ -35,9 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission3M
@@ -53,7 +53,7 @@ import scala.jdk.CollectionConverters.*
 
 class ConfirmSingleDepositRepaymentControllerSpec
     extends PropertyBasedControllerSpec
-    with SecuritiesJourneyTestData
+    with SecuritiesClaimTestData
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -76,9 +76,9 @@ class ConfirmSingleDepositRepaymentControllerSpec
   implicit val messagesApi: MessagesApi                   = controller.messagesApi
   implicit val messages: Messages                         = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
+  val session: SessionData = SessionData(SecuritiesClaim.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
-  private val incompleteJourney = buildJourneyGen(
+  private val incompleteClaim = buildClaimGen(
     acc14ConsigneeMatchesUserEori = true,
     submitBankAccountDetails = false,
     submitBankAccountType = false,
@@ -88,13 +88,13 @@ class ConfirmSingleDepositRepaymentControllerSpec
     _.fold(
       error =>
         throw new Exception(
-          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
+          s"Cannnot build complete SecuritiesClaim because of $error, fix the test data generator."
         ),
       identity
     )
   )
 
-  private val incompleteJourneyNtas = buildJourneyGen(
+  private val incompleteClaimNtas = buildClaimGen(
     acc14ConsigneeMatchesUserEori = true,
     submitBankAccountDetails = false,
     submitBankAccountType = false,
@@ -105,13 +105,13 @@ class ConfirmSingleDepositRepaymentControllerSpec
     _.fold(
       error =>
         throw new Exception(
-          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
+          s"Cannnot build complete SecuritiesClaim because of $error, fix the test data generator."
         ),
       identity
     )
   )
 
-  private val incompleteJourneyNidac = buildJourneyGen(
+  private val incompleteClaimNidac = buildClaimGen(
     acc14ConsigneeMatchesUserEori = true,
     submitBankAccountDetails = false,
     submitBankAccountType = false,
@@ -122,7 +122,7 @@ class ConfirmSingleDepositRepaymentControllerSpec
     _.fold(
       error =>
         throw new Exception(
-          s"Cannnot build complete SecuritiesJourney because of $error, fix the test data generator."
+          s"Cannnot build complete SecuritiesClaim because of $error, fix the test data generator."
         ),
       identity
     )
@@ -131,7 +131,7 @@ class ConfirmSingleDepositRepaymentControllerSpec
   def validateConfirmSingleDepositRepaymentPage(
     securityId: String,
     doc: Document,
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     isError: Boolean = false
   ) = {
     val title             = doc.select("title").first().text()
@@ -141,12 +141,12 @@ class ConfirmSingleDepositRepaymentControllerSpec
     val summaryValues     = doc.select(".govuk-summary-list__value").eachText().asScala.toList
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
-    val taxDetails = journey.getSecurityDetails.head.taxDetails.map(td =>
+    val taxDetails = claim.getSecurityDetails.head.taxDetails.map(td =>
       messages(s"tax-code.${td.taxType}")
     ) + "Total security deposit or guarantee amount"
-    val taxValues  = journey.getSecurityDetails.head.taxDetails.map(td =>
+    val taxValues  = claim.getSecurityDetails.head.taxDetails.map(td =>
       currencyFormatter.format(td.getAmount)
-    ) + currencyFormatter.format(journey.getSecurityDetails.head.getTotalAmount)
+    ) + currencyFormatter.format(claim.getSecurityDetails.head.getTotalAmount)
 
     title           should ===(
       (if isError then "Error: "
@@ -171,10 +171,10 @@ class ConfirmSingleDepositRepaymentControllerSpec
     "show page is called" must {
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
-      "display the page on a complete journey" in
-        forAll(buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId     = securityIdWithTaxCodes(journey).value
+      "display the page on a complete claim" in
+        forAll(buildCompleteClaimGen(numberOfSecurityDetails = Some(1))) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
+          val securityId     = securityIdWithTaxCodes(claim).value
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -183,7 +183,7 @@ class ConfirmSingleDepositRepaymentControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("confirm-full-repayment.single-deposit-id.title"),
-            doc => validateConfirmSingleDepositRepaymentPage(securityId, doc, journey)
+            doc => validateConfirmSingleDepositRepaymentPage(securityId, doc, claim)
           )
         }
     }
@@ -193,8 +193,8 @@ class ConfirmSingleDepositRepaymentControllerSpec
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
 
       "continue to choose export method page when yes is selected and reason for security is NTAS" in {
-        forAll(incompleteJourneyNtas) { journey =>
-          val sessionData = SessionData(journey)
+        forAll(incompleteClaimNtas) { claim =>
+          val sessionData = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -209,8 +209,8 @@ class ConfirmSingleDepositRepaymentControllerSpec
       }
 
       "continue to choose payee type page when yes is selected and reason for security is NIDAC" in {
-        forAll(incompleteJourneyNidac) { journey =>
-          val sessionData = SessionData(journey)
+        forAll(incompleteClaimNidac) { claim =>
+          val sessionData = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -225,8 +225,8 @@ class ConfirmSingleDepositRepaymentControllerSpec
       }
 
       "continue to partial claims page when no is selected" in {
-        forAll(incompleteJourney) { journey =>
-          val sessionData = SessionData(journey)
+        forAll(incompleteClaim) { claim =>
+          val sessionData = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -241,9 +241,9 @@ class ConfirmSingleDepositRepaymentControllerSpec
       }
 
       "display error when no option selected" in {
-        forAll(incompleteJourney) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          val securityId     = journey.getSecurityDetails.head.securityDepositId
+        forAll(incompleteClaim) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
+          val securityId     = claim.getSecurityDetails.head.securityDepositId
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -252,7 +252,7 @@ class ConfirmSingleDepositRepaymentControllerSpec
           checkPageIsDisplayed(
             performAction(Seq()),
             messageFromMessageKey("confirm-full-repayment.single-deposit-id.title"),
-            doc => validateConfirmSingleDepositRepaymentPage(securityId, doc, journey, isError = true),
+            doc => validateConfirmSingleDepositRepaymentPage(securityId, doc, claim, isError = true),
             400
           )
         }
@@ -260,11 +260,11 @@ class ConfirmSingleDepositRepaymentControllerSpec
 
       "redirect back to CYA when user has come from CYA and yes is selected" in {
         forAll(
-          buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))
-        ) { journey =>
+          buildCompleteClaimGen(numberOfSecurityDetails = Some(1))
+        ) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(Right(()))
           }
 

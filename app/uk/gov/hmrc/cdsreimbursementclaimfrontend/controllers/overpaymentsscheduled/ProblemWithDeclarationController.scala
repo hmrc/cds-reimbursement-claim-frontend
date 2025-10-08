@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
 
@@ -32,20 +32,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithDeclarationController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   override val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue,
   override val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsScheduledJourneyBaseController
+    extends OverpaymentsScheduledClaimBaseController
     with ProblemWithDeclarationMixin {
 
-  override def removeUnsupportedTaxCodesFromJourney(
-    journey: OverpaymentsScheduledJourney
-  ): OverpaymentsScheduledJourney =
-    journey.removeUnsupportedTaxCodes()
+  override def removeUnsupportedTaxCodesFromClaim(
+    claim: OverpaymentsScheduledClaim
+  ): OverpaymentsScheduledClaim =
+    claim.removeUnsupportedTaxCodes()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration)
 
   final override val postAction: Call =

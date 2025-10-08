@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterDeclarantEoriNumberMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
@@ -32,14 +32,14 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDeclarantEoriNumberOfDuplicateDeclarationController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterDeclarantEoriNumber: enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController
+    extends OverpaymentsSingleClaimBaseController
     with EnterDeclarantEoriNumberMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(
       hasMRNAndDisplayDeclaration &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified &
@@ -56,13 +56,13 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationController @Inject() (
   final override val whenEoriInputNotRequiredAction: Call =
     routes.EnterAdditionalDetailsController.show
 
-  final override def needsEoriSubmission(journey: Journey): Boolean =
-    journey.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration
+  final override def needsEoriSubmission(claim: Claim): Boolean =
+    claim.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration
 
-  final override def getEoriNumberAnswer(journey: Journey): Option[Eori] =
+  final override def getEoriNumberAnswer(claim: Claim): Option[Eori] =
     None
 
-  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
-    journey.checkDeclarantEoriNumberWithDuplicateDeclaration(eori)
+  final override def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim] =
+    claim.checkDeclarantEoriNumberWithDuplicateDeclaration(eori)
 
 }

@@ -26,9 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
@@ -41,16 +41,16 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class UploadBillOfDischarge3Controller @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
   val upload_bod3_description: upload_bod3_description
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -61,9 +61,9 @@ class UploadBillOfDischarge3Controller @Inject() (
   final val callbackAction: Call = routes.UploadBillOfDischarge3Controller.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     val continueUrl: Call =
-      if journey.hasCompleteAnswers then checkYourAnswers
+      if claim.hasCompleteAnswers then checkYourAnswers
       else routes.AddOtherDocumentsController.show
 
     uploadDocumentsConnector
@@ -71,10 +71,10 @@ class UploadBillOfDischarge3Controller @Inject() (
         UploadDocumentsConnector
           .Request(
             uploadDocumentsSessionConfig(
-              journey.answers.nonce,
+              claim.answers.nonce,
               continueUrl
             ),
-            journey.answers.billOfDischargeDocuments
+            claim.answers.billOfDischargeDocuments
           )
       )
       .map {
@@ -87,8 +87,8 @@ class UploadBillOfDischarge3Controller @Inject() (
       }
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourneyWhenCallback(implicit request =>
-    journey =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaimWhenCallback(implicit request =>
+    claim =>
       request
         .asInstanceOf[Request[AnyContent]]
         .body
@@ -96,17 +96,17 @@ class UploadBillOfDischarge3Controller @Inject() (
         .flatMap(_.asOpt[UploadDocumentsCallback]) match {
         case None =>
           logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+          (claim, BadRequest("missing or invalid callback payload"))
 
         case Some(callback) =>
-          journey
+          claim
             .receiveBillOfDischargeDocuments(
               callback.nonce,
               callback.uploadedFiles.map(_.copy(cargo = callback.cargo))
             )
             .fold(
-              error => (journey, BadRequest(error)),
-              modifiedJourney => (modifiedJourney, NoContent)
+              error => (claim, BadRequest(error)),
+              modifiedClaim => (modifiedClaim, NoContent)
             )
       }
   )

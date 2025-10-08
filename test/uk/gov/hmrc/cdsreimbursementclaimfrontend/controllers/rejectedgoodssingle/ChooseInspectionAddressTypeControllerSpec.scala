@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSuppor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
@@ -68,7 +68,7 @@ class ChooseInspectionAddressTypeControllerSpec
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val controller: ChooseInspectionAddressTypeController = instanceOf[ChooseInspectionAddressTypeController]
 
@@ -114,8 +114,8 @@ class ChooseInspectionAddressTypeControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(
-              session.copy(rejectedGoodsSingleJourney =
-                RejectedGoodsSingleJourney
+              session.copy(rejectedGoodsSingleClaim =
+                RejectedGoodsSingleClaim
                   .empty(displayDeclaration.getDeclarantEori)
                   .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
                   .toOption
@@ -163,8 +163,8 @@ class ChooseInspectionAddressTypeControllerSpec
 
       "duties are not eligible for CMA" in {
         forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
-          val journey =
-            RejectedGoodsSingleJourney
+          val claim =
+            RejectedGoodsSingleClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
@@ -172,10 +172,10 @@ class ChooseInspectionAddressTypeControllerSpec
               )
               .toOption
 
-          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleClaim = claim)
 
-          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
-            journey.map(
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleClaim =
+            claim.map(
               _.submitInspectionAddress(
                 InspectionAddress.ofType(InspectionAddressType.Declarant).mapFrom(contactDetails)
               )
@@ -203,8 +203,8 @@ class ChooseInspectionAddressTypeControllerSpec
             .withConsigneeEori(Eori("GB000000000000001"))
             .withDeclarantEori(Eori("GB000000000000002"))
 
-          val journey =
-            RejectedGoodsSingleJourney
+          val claim =
+            RejectedGoodsSingleClaim
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 declaration.getMRN,
@@ -212,10 +212,10 @@ class ChooseInspectionAddressTypeControllerSpec
               )
               .toOption
 
-          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleClaim = claim)
 
-          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
-            journey.map(
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleClaim =
+            claim.map(
               _.submitInspectionAddress(
                 InspectionAddress.ofType(InspectionAddressType.Declarant).mapFrom(contactDetails)
               )
@@ -247,17 +247,17 @@ class ChooseInspectionAddressTypeControllerSpec
               )
             )
 
-          val journey =
-            RejectedGoodsSingleJourney
+          val claim =
+            RejectedGoodsSingleClaim
               .empty(updatedDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(updatedDeclaration.getMRN, updatedDeclaration)
               .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode(ndrc.taxType))))
               .toOption
 
-          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleClaim = claim)
 
-          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
-            journey.map(
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleClaim =
+            claim.map(
               _.submitInspectionAddress(
                 consigneeDetails.contactDetails
                   .map(InspectionAddress.ofType(InspectionAddressType.Importer).mapFrom(_))
@@ -280,7 +280,7 @@ class ChooseInspectionAddressTypeControllerSpec
       }
     }
 
-    "update inspection address and redirect to choose file type for subsidies only journey" when {
+    "update inspection address and redirect to choose file type for subsidies only claim" when {
       "duties are eligible for CMA" in {
         forAll { (declaration: DisplayDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
           val updatedDeclaration =
@@ -293,8 +293,8 @@ class ChooseInspectionAddressTypeControllerSpec
               )
               .withAllSubsidiesPaymentMethod()
 
-          val journey =
-            RejectedGoodsSingleJourney
+          val claim =
+            RejectedGoodsSingleClaim
               .empty(
                 updatedDeclaration.getDeclarantEori
               )
@@ -306,10 +306,10 @@ class ChooseInspectionAddressTypeControllerSpec
               .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
               .toOption
 
-          val sessionWithDeclaration = session.copy(rejectedGoodsSingleJourney = journey)
+          val sessionWithDeclaration = session.copy(rejectedGoodsSingleClaim = claim)
 
-          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleJourney =
-            journey.map(
+          val sessionWithInspectionAddress = session.copy(rejectedGoodsSingleClaim =
+            claim.map(
               _.submitInspectionAddress(
                 consigneeDetails.contactDetails
                   .map(InspectionAddress.ofType(InspectionAddressType.Importer).mapFrom(_))
@@ -339,8 +339,8 @@ class ChooseInspectionAddressTypeControllerSpec
         mockGetSession(session)
         mockAddressRetrieve(Right(contactAddress))
         mockStoreSession(
-          session.copy(rejectedGoodsSingleJourney =
-            session.rejectedGoodsSingleJourney.map(
+          session.copy(rejectedGoodsSingleClaim =
+            session.rejectedGoodsSingleClaim.map(
               _.submitInspectionAddress(
                 InspectionAddress.ofType(InspectionAddressType.Other).mapFrom(contactAddress)
               )
@@ -356,27 +356,27 @@ class ChooseInspectionAddressTypeControllerSpec
     }
 
     "redirect to CYA page" when {
-      "journey is complete" in forAll(completeJourneyGen) { journey =>
-        whenever(journey.getDeclarantContactDetailsFromACC14.isDefined) {
-          val sessionWithJourney = SessionData(journey)
+      "claim is complete" in forAll(completeClaimGen) { claim =>
+        whenever(claim.getDeclarantContactDetailsFromACC14.isDefined) {
+          val sessionWithClaim = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionWithJourney)
+            mockGetSession(sessionWithClaim)
             mockStoreSession(
-              sessionWithJourney.copy(rejectedGoodsSingleJourney =
-                sessionWithJourney.rejectedGoodsSingleJourney.map(
+              sessionWithClaim.copy(rejectedGoodsSingleClaim =
+                sessionWithClaim.rejectedGoodsSingleClaim.map(
                   _.submitInspectionAddress(
                     InspectionAddress
                       .ofType(InspectionAddressType.Declarant)
-                      .mapFrom(journey.getDeclarantContactDetailsFromACC14.value)
+                      .mapFrom(claim.getDeclarantContactDetailsFromACC14.value)
                   )
                 )
               )
             )(Right(()))
           }
 
-          if journey.needsBanksAccountDetailsSubmission then
+          if claim.needsBanksAccountDetailsSubmission then
             checkIsRedirect(
               submitAddress("inspection-address.type" -> InspectionAddressType.Declarant.toString),
               routes.CheckYourAnswersController.show

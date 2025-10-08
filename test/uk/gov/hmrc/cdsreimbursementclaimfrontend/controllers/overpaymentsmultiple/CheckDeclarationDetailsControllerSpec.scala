@@ -35,9 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
@@ -53,7 +53,7 @@ class CheckDeclarationDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with JourneyTestData {
+    with ClaimTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -67,7 +67,7 @@ class CheckDeclarationDetailsControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val session =
-    SessionData.empty.copy(overpaymentsMultipleJourney = Some(OverpaymentsMultipleJourney.empty(exampleEori)))
+    SessionData.empty.copy(overpaymentsMultipleClaim = Some(OverpaymentsMultipleClaim.empty(exampleEori)))
 
   val messagesKey: String = "check-import-declaration-details"
 
@@ -87,7 +87,7 @@ class CheckDeclarationDetailsControllerSpec
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
-    journey: OverpaymentsMultipleJourney
+    claim: OverpaymentsMultipleClaim
   ): Assertion = {
 
     val claimDetailsCard     = getSummaryCardByTitle(doc, "Claim details")
@@ -104,28 +104,28 @@ class CheckDeclarationDetailsControllerSpec
 
     getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "MRN" -> journey.getLeadMovementReferenceNumber.map(_.value)
+        "MRN" -> claim.getLeadMovementReferenceNumber.map(_.value)
       )
     )
     getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
       Seq(
-        journey.getLeadDisplayDeclaration.get.getMaybeLRN match {
+        claim.getLeadDisplayDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          journey.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> journey.getLeadDisplayDeclaration.get.getMethodsOfPayment
+        "Method of payment" -> claim.getLeadDisplayDeclaration.get.getMethodsOfPayment
           .map { methods =>
             MethodOfPaymentSummary(methods)
           }
       ) ++
-        journey.getLeadDisplayDeclaration.get.getNdrcDutiesWithAmount
+        claim.getLeadDisplayDeclaration.get.getNdrcDutiesWithAmount
           .map(_.map { case (taxCode, amount) =>
             messageFromMessageKey(s"tax-code.$taxCode") -> Some(
               amount.toPoundSterlingString
@@ -133,14 +133,14 @@ class CheckDeclarationDetailsControllerSpec
           })
           .get ++
         Seq(
-          "Total" -> journey.getLeadDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+          "Total" -> claim.getLeadDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
         )
     )
     getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> journey.getLeadDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getLeadDisplayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -149,9 +149,9 @@ class CheckDeclarationDetailsControllerSpec
     )
     getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.map(_.declarantName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> journey.getLeadDisplayDeclaration.map(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.map(_.declarantName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getLeadDisplayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
@@ -167,12 +167,12 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display the page" in forAll(
-        buildCompleteJourneyGen(
+        buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false
         )
-      ) { journey =>
-        val sessionToAmend = SessionData(journey)
+      ) { claim =>
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -182,7 +182,7 @@ class CheckDeclarationDetailsControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateCheckDeclarationDetailsPage(doc, journey)
+          doc => validateCheckDeclarationDetailsPage(doc, claim)
         )
       }
 
@@ -207,7 +207,7 @@ class CheckDeclarationDetailsControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              overpaymentsMultipleJourney = session.overpaymentsMultipleJourney.map(_.withEnterContactDetailsMode(true))
+              overpaymentsMultipleClaim = session.overpaymentsMultipleClaim.map(_.withEnterContactDetailsMode(true))
             )
           )(Right(()))
         }
@@ -219,21 +219,21 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "redirect to check movement reference numbers page when number of mrns is greater than 1" in {
-        val initialJourney = journeyWithMrnAndDeclaration
+        val initialClaim = claimWithMrnAndDeclaration
 
-        val journey = initialJourney
+        val claim = initialClaim
           .submitMovementReferenceNumberAndDeclaration(
             1,
             anotherExampleMrn,
             buildDisplayDeclaration()
               .withDeclarationId(anotherExampleMrn.value)
-              .withDeclarantEori(initialJourney.getLeadDisplayDeclaration.get.getDeclarantEori)
+              .withDeclarantEori(initialClaim.getLeadDisplayDeclaration.get.getDeclarantEori)
           )
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

@@ -20,50 +20,50 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
 @Singleton
-trait ChooseBankAccountTypeMixin extends JourneyBaseController {
+trait ChooseBankAccountTypeMixin extends ClaimBaseController {
 
   val postAction: Call
   val enterBankAccountDetailsRoute: Call
   val chooseBankAccountTypePage: choose_bank_account_type
-  def isCMA(journey: Journey): Boolean = false
+  def isCMA(claim: Claim): Boolean = false
 
-  def modifyJourney(journey: Journey, bankAccountType: BankAccountType): Either[String, Journey]
+  def modifyClaim(claim: Claim, bankAccountType: BankAccountType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(
       chooseBankAccountTypePage(
-        bankAccountTypeForm.withDefault(journey.answers.bankAccountType),
-        isCMA(journey),
+        bankAccountTypeForm.withDefault(claim.answers.bankAccountType),
+        isCMA(claim),
         postAction
       )
     )
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         bankAccountTypeForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
-                BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(journey), postAction))
+                claim,
+                BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(claim), postAction))
               ),
             bankAccountType =>
-              modifyJourney(journey, bankAccountType)
+              modifyClaim(claim, bankAccountType)
                 .fold(
                   e => {
                     logger.warn(e)
-                    (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                    (claim, Redirect(baseRoutes.IneligibleController.ineligible))
                   },
-                  updatedJourney => (updatedJourney, Redirect(enterBankAccountDetailsRoute))
+                  updatedClaim => (updatedClaim, Redirect(enterBankAccountDetailsRoute))
                 )
           ),
     fastForwardToCYAEnabled = false

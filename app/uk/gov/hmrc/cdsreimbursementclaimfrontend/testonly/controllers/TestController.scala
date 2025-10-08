@@ -20,8 +20,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SecuritiesJourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SecuritiesClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -34,9 +34,9 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class TestController @Inject() (
   connector: DeclarationConnector,
-  val jcc: JourneyControllerComponents
+  val jcc: ClaimControllerComponents
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   def testIsDuplicate(mrn: String, reason: String): Action[AnyContent] = Action.async { implicit request =>
     connector

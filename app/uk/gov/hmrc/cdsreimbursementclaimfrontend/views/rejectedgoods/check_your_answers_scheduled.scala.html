@@ -19,7 +19,7 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
@@ -34,7 +34,7 @@
 )
 
 @(
-    claim: RejectedGoodsScheduledJourney.Output,
+    claim: RejectedGoodsScheduledClaim.Output,
     postAction: Call
 )(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 

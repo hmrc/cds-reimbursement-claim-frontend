@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
 
@@ -32,18 +32,18 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithDeclarationController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   override val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue,
   override val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController
+    extends OverpaymentsSingleClaimBaseController
     with ProblemWithDeclarationMixin {
 
-  override def removeUnsupportedTaxCodesFromJourney(journey: OverpaymentsSingleJourney): OverpaymentsSingleJourney =
-    journey.removeUnsupportedTaxCodes()
+  override def removeUnsupportedTaxCodesFromClaim(claim: OverpaymentsSingleClaim): OverpaymentsSingleClaim =
+    claim.removeUnsupportedTaxCodes()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration)
 
   final override val postAction: Call =

@@ -27,15 +27,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_duplicate_movement_reference_number
 
 import javax.inject.Inject
@@ -44,14 +43,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDuplicateMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   val featureSwitchService: FeatureSwitchService,
-  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number,
-  subsidyWaiverPage: subsidy_waiver_error
+  enterDuplicateMovementReferenceNumberPage: enter_duplicate_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends OverpaymentsSingleJourneyBaseController
+    extends OverpaymentsSingleClaimBaseController
     with EnterMovementReferenceNumberMixin {
 
   override val shouldValidateDeclaration: Boolean = false
@@ -61,19 +59,19 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   override val formKey = "enter-duplicate-movement-reference-number"
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(
       hasMRNAndDisplayDeclaration &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified &
         needsDuplicateMrnAndDeclaration
     )
 
-  override def form(journey: Journey): Form[MRN] =
-    journey.answers.movementReferenceNumber
+  override def form(claim: Claim): Form[MRN] =
+    claim.answers.movementReferenceNumber
       .fold(Forms.enterDuplicateMrnWithNoCheck)(Forms.enterDuplicateMrnCheckingAgainst)
 
-  override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
-    journey.answers.duplicateDeclaration.map(_.movementReferenceNumber)
+  override def getMovementReferenceNumber(claim: Claim): Option[MRN] =
+    claim.answers.duplicateDeclaration.map(_.movementReferenceNumber)
 
   override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
     form =>
@@ -86,17 +84,17 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
   override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable = ???
 
-  override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
-    journey.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
+  override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
+    claim.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
 
-  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
-    journey.submitUserXiEori(userXiEori)
+  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
+    claim.submitUserXiEori(userXiEori)
 
-  override def needsUserXiEoriSubmission(journey: Journey): Boolean =
-    journey.needsUserXiEoriSubmissionForDuplicateDeclaration
+  override def needsUserXiEoriSubmission(claim: Claim): Boolean =
+    claim.needsUserXiEoriSubmissionForDuplicateDeclaration
 
-  override def afterSuccessfullSubmit(journey: OverpaymentsSingleJourney): Result =
-    if journey.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then {
+  override def afterSuccessfullSubmit(claim: OverpaymentsSingleClaim): Result =
+    if claim.needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then {
       Redirect(routes.EnterImporterEoriNumberOfDuplicateDeclaration.show)
     } else {
       Redirect(routes.CheckDuplicateDeclarationDetailsController.show)

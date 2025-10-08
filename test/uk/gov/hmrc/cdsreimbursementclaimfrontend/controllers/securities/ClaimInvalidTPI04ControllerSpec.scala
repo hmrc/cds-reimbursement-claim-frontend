@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 
 import scala.concurrent.Future
@@ -86,8 +86,8 @@ class ClaimInvalidTPI04ControllerSpec
         controller.show(FakeRequest())
 
       "Display the page" in {
-        forAll(completeJourneyGen) { journey =>
-          val session = SessionData(journey)
+        forAll(completeClaimGen) { claim =>
+          val session = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(session)
@@ -95,7 +95,7 @@ class ClaimInvalidTPI04ControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateClaimInvalidPage(doc, journey.getReasonForSecurity)
+            doc => validateClaimInvalidPage(doc, claim.getReasonForSecurity)
           )
         }
       }

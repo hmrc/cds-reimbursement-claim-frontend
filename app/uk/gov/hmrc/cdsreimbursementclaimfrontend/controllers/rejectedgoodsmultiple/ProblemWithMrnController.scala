@@ -20,7 +20,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_mrn
 
@@ -30,15 +30,15 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProblemWithMrnController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val problemWithMRNPage: problem_with_mrn
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+    extends RejectedGoodsMultipleClaimBaseController {
 
   final val enterMRNCall: Int => Call = routes.EnterMovementReferenceNumberController.show
 
   final def show(pageIndex: Int, mrn: MRN): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
-      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall(pageIndex))))
+    actionReadWriteClaim { implicit request => implicit claim =>
+      (claim, Ok(problemWithMRNPage(mrn, enterMRNCall(pageIndex))))
     }
 }

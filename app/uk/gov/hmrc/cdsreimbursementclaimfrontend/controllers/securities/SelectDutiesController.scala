@@ -26,11 +26,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
@@ -43,12 +43,12 @@ import scala.concurrent.Future
 
 @Singleton
 class SelectDutiesController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   selectDutiesPage: select_duties
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -56,30 +56,30 @@ class SelectDutiesController @Inject() (
 
   private def processAvailableDuties[J, T](
     securityId: String,
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     error: CdsError => Future[(J, T)],
     f: Seq[DutyAmount] => Future[(J, T)]
   ): Future[(J, T)] =
-    journey
+    claim
       .getSecurityTaxCodesWithAmounts(securityId)
       .noneIfEmpty
       .fold(error(CdsError("no tax codes available")))(f)
 
-  final val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    journey.getSecurityDepositIds.headOption
+  final val showFirst: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    claim.getSecurityDepositIds.headOption
       .map { securityId =>
-        processAvailableDuties[SecuritiesJourney, Result](
+        processAvailableDuties[SecuritiesClaim, Result](
           securityId: String,
-          journey: SecuritiesJourney,
+          claim: SecuritiesClaim,
           error => {
             logger.warn(s"No Available duties: $error")
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+            (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
           },
           dutiesAvailable =>
             {
               dutiesAvailable.toList match
                 case duty :: Nil =>
-                  journey
+                  claim
                     .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(duty.taxCode))
                     .fold(
                       error => throw new Exception(error),
@@ -90,14 +90,14 @@ class SelectDutiesController @Inject() (
                   val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
 
                   val filledForm =
-                    emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
+                    emptyForm.withDefault(claim.getSelectedDutiesFor(securityId))
 
                   (
-                    journey,
+                    claim,
                     Ok(
                       selectDutiesPage(
                         filledForm,
-                        journey.isSingleSecurity,
+                        claim.isSingleSecurity,
                         securityId,
                         dutiesAvailable,
                         routes.SelectDutiesController.submit(securityId)
@@ -109,31 +109,31 @@ class SelectDutiesController @Inject() (
       }
       .getOrElse {
         logger.warn(s"Cannot find any security deposit")
-        (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+        (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
       }
   }
 
-  final def show(securityId: String): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    processAvailableDuties[SecuritiesJourney, Result](
+  final def show(securityId: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    processAvailableDuties[SecuritiesClaim, Result](
       securityId: String,
-      journey: SecuritiesJourney,
+      claim: SecuritiesClaim,
       error => {
         logger.warn(s"No Available duties: $error")
-        (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+        (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
       },
       dutiesAvailable =>
         {
           val emptyForm: Form[Seq[TaxCode]] = selectDutiesForm(dutiesAvailable.map(_.taxCode))
 
           val filledForm =
-            emptyForm.withDefault(journey.getSelectedDutiesFor(securityId))
+            emptyForm.withDefault(claim.getSelectedDutiesFor(securityId))
 
           (
-            journey,
+            claim,
             Ok(
               selectDutiesPage(
                 filledForm,
-                journey.isSingleSecurity,
+                claim.isSingleSecurity,
                 securityId,
                 dutiesAvailable,
                 routes.SelectDutiesController.submit(securityId)
@@ -144,15 +144,15 @@ class SelectDutiesController @Inject() (
     )
   }
 
-  final def submit(securityId: String): Action[AnyContent] = actionReadWriteJourney(
+  final def submit(securityId: String): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        processAvailableDuties[SecuritiesJourney, Result](
+      claim =>
+        processAvailableDuties[SecuritiesClaim, Result](
           securityId: String,
-          journey: SecuritiesJourney,
+          claim: SecuritiesClaim,
           error => {
             logger.warn(s"No Available duties: $error")
-            (journey, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+            (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
           },
           dutiesAvailable => {
             val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
@@ -165,11 +165,11 @@ class SelectDutiesController @Inject() (
                       s"${errors.errors.mkString("", ",", "")}"
                   )
                   (
-                    journey,
+                    claim,
                     Ok(
                       selectDutiesPage(
                         boundForm,
-                        journey.isSingleSecurity,
+                        claim.isSingleSecurity,
                         securityId,
                         dutiesAvailable,
                         routes.SelectDutiesController.submit(securityId)
@@ -177,7 +177,7 @@ class SelectDutiesController @Inject() (
                     )
                   )
                 },
-                dutiesSelected => updateAndRedirect(journey, securityId, dutiesSelected)
+                dutiesSelected => updateAndRedirect(claim, securityId, dutiesSelected)
               )
               .asFuture
           }
@@ -186,38 +186,38 @@ class SelectDutiesController @Inject() (
   )
 
   private def updateAndRedirect(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     securityId: String,
     dutiesSelected: Seq[TaxCode]
-  )(using HeaderCarrier): (SecuritiesJourney, Result) =
-    if journey
+  )(using HeaderCarrier): (SecuritiesClaim, Result) =
+    if claim
         .getSelectedDutiesFor(securityId)
-        .containsSameElements(dutiesSelected) && journey.userHasSeenCYAPage
-    then (journey, Redirect(checkYourAnswers))
+        .containsSameElements(dutiesSelected) && claim.userHasSeenCYAPage
+    then (claim, Redirect(checkYourAnswers))
     else
-      journey
+      claim
         .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, dutiesSelected)
         .fold(
           error => {
             logger.warn(error)
-            (journey, Redirect(controllers.routes.IneligibleController.ineligible))
+            (claim, Redirect(controllers.routes.IneligibleController.ineligible))
           },
-          updatedJourney =>
+          updatedClaim =>
             (
-              updatedJourney,
+              updatedClaim,
               Redirect(
-                if updatedJourney.answers.modes.checkClaimDetailsChangeMode && updatedJourney.answers.modes.claimFullAmountMode
+                if updatedClaim.answers.modes.checkClaimDetailsChangeMode && updatedClaim.answers.modes.claimFullAmountMode
                 then
-                  journey.getNextDepositIdAndTaxCodeToClaim match {
+                  claim.getNextDepositIdAndTaxCodeToClaim match {
                     case Some(Left(depositId)) =>
-                      if journey.isSingleSecurity then routes.ConfirmSingleDepositRepaymentController.show
+                      if claim.isSingleSecurity then routes.ConfirmSingleDepositRepaymentController.show
                       else routes.ConfirmFullRepaymentController.show(depositId)
 
                     case Some(Right((depositId, taxCode))) =>
                       routes.EnterClaimController.show(depositId, taxCode)
 
                     case None =>
-                      if journey.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
+                      if claim.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
                       else routes.CheckClaimDetailsController.show
                   }
                 else routes.EnterClaimController.showFirst(securityId)

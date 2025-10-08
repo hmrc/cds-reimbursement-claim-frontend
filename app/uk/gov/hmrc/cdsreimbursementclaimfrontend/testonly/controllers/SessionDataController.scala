@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.Reads
 import play.api.mvc.*
 import play.twirl.api.Html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 @Singleton
-class SessionDataController @Inject() (jcc: JourneyControllerComponents)(implicit ec: ExecutionContext)
+class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendBaseController {
 
   override protected def controllerComponents: MessagesControllerComponents =

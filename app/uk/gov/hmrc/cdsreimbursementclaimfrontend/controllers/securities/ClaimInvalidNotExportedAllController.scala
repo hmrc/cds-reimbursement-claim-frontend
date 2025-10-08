@@ -20,19 +20,19 @@ import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.claim_invalid_not_exported_all
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ClaimInvalidNotExportedAllController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   claimInvalidNotExportedAll: claim_invalid_not_exported_all
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
     Ok(claimInvalidNotExportedAll(routes.EnterMovementReferenceNumberController.start.url))
   }
 }

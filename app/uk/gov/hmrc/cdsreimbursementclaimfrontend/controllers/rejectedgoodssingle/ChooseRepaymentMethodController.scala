@@ -19,10 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseRepaymentMethodMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
@@ -32,27 +32,27 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseRepaymentMethodController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val chooseRepaymentMethodPage: choose_repayment_method
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with ChooseRepaymentMethodMixin {
 
   override val postAction: Call = routes.ChooseRepaymentMethodController.submit
 
   override def enterBankDetailsRoute: Call = routes.EnterBankAccountDetailsController.show
 
-  override def modifyJourney(
-    journey: RejectedGoodsSingleJourney,
+  override def modifyClaim(
+    claim: RejectedGoodsSingleClaim,
     method: ReimbursementMethod
-  ): Either[String, RejectedGoodsSingleJourney] =
-    journey.submitReimbursementMethod(method)
+  ): Either[String, RejectedGoodsSingleClaim] =
+    claim.submitReimbursementMethod(method)
 
-  override def resetReimbursementMethod(journey: RejectedGoodsSingleJourney): RejectedGoodsSingleJourney =
-    journey.resetReimbursementMethod()
+  override def resetReimbursementMethod(claim: RejectedGoodsSingleClaim): RejectedGoodsSingleClaim =
+    claim.resetReimbursementMethod()
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
 }

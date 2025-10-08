@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -79,10 +79,10 @@ class UploadMrnListControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "redirect to 'Upload Mrn List' when no file uploaded yet" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockInitializeCall()
         }
 
@@ -93,10 +93,10 @@ class UploadMrnListControllerSpec
       }
 
       "redirect to 'Upload Mrn List' when no file uploaded yet and no redirect location returned" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockInitializeCallNotReturningRedirectLocation()
         }
 
@@ -107,11 +107,11 @@ class UploadMrnListControllerSpec
       }
 
       "redirect to 'Upload Mrn List' when some file uploaded already" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey.receiveScheduledDocument(journey.answers.nonce, exampleUploadedFile).getOrFail)
+            SessionData(claim.receiveScheduledDocument(claim.answers.nonce, exampleUploadedFile).getOrFail)
           )
           mockInitializeCall(Some(exampleUploadedFile))
         }
@@ -122,12 +122,12 @@ class UploadMrnListControllerSpec
         )
       }
 
-      "redirect to 'Upload Mrn List' if journey has complete answers" in {
-        forAll(completeJourneyGen) { journey =>
+      "redirect to 'Upload Mrn List' if claim has complete answers" in {
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockInitializeCall(journey.answers.scheduledDocument)
+            mockGetSession(SessionData(claim))
+            mockInitializeCall(claim.answers.scheduledDocument)
           }
 
           checkIsRedirect(
@@ -151,39 +151,39 @@ class UploadMrnListControllerSpec
         )
 
       "return 204 if callback accepted" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim  = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey
-                .receiveScheduledDocument(journey.answers.nonce, exampleUploadedFile)
+              claim
+                .receiveScheduledDocument(claim.answers.nonce, exampleUploadedFile)
                 .getOrFail
             )
           )(Right(()))
         }
-        val result  = performAction(callbackPayload.copy(nonce = journey.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = claim.answers.nonce))
         status(result) shouldBe 204
       }
 
       "return 204 if callback accepted with empty file list" in {
-        val journey = {
-          val j = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim  = {
+          val j = RejectedGoodsScheduledClaim.empty(exampleEori)
           j.receiveScheduledDocument(j.answers.nonce, exampleUploadedFile).getOrFail
         }
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey.removeScheduledDocument
+              claim.removeScheduledDocument
             )
           )(Right(()))
         }
-        val result  = performAction(
+        val result = performAction(
           UploadMrnListCallback(
-            nonce = journey.answers.nonce,
+            nonce = claim.answers.nonce,
             uploadedFiles = Seq.empty
           )
         )
@@ -191,26 +191,26 @@ class UploadMrnListControllerSpec
       }
 
       "return 400 if callback rejected because of invalid nonce" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim  = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(claim)
           )
         }
-        val result  = performAction(callbackPayload.copy(nonce = Nonce.random))
+        val result = performAction(callbackPayload.copy(nonce = Nonce.random))
         status(result) shouldBe 400
       }
 
       "return 400 if callback rejected because of invalid request" in {
-        val journey = RejectedGoodsScheduledJourney.empty(exampleEori)
+        val claim  = RejectedGoodsScheduledClaim.empty(exampleEori)
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(claim)
           )
         }
-        val result  = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
+        val result = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
         status(result) shouldBe 400
       }
 

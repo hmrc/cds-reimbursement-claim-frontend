@@ -31,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.exampleEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -46,7 +46,7 @@ class HaveDocumentsReadyControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[RejectedGoodsMultipleJourney] {
+    with TestWithClaimGenerator[RejectedGoodsMultipleClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -59,7 +59,7 @@ class HaveDocumentsReadyControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(RejectedGoodsMultipleJourney.empty(exampleEori))
+  val session: SessionData = SessionData(RejectedGoodsMultipleClaim.empty(exampleEori))
 
   "HaveDocumentsReadyController" when {
 

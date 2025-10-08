@@ -7,7 +7,7 @@
 
     <logger name="uk.gov" level="WARN"/>
 
-    <logger name="uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys" level="INFO"/>
+    <logger name="uk.gov.hmrc.cdsreimbursementclaimfrontend.claims" level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>

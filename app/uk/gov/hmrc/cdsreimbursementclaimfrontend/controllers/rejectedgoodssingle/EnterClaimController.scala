@@ -23,8 +23,8 @@ import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
@@ -35,24 +35,24 @@ import scala.concurrent.Future
 
 @Singleton
 class EnterClaimController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterClaim: enter_single_claim
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
+    extends RejectedGoodsSingleClaimBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[Journey]] =
+  final override val actionPrecondition: Option[Validate[Claim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val key: String                 = "enter-claim-amount"
   final val postAction: TaxCode => Call = routes.EnterClaimController.submit
 
   final val showFirst: Action[AnyContent] =
-    simpleActionReadJourney(journey =>
-      journey.answers.correctedAmounts match {
+    simpleActionReadClaim(claim =>
+      claim.answers.correctedAmounts match {
         case None                   => Redirect(routes.SelectDutiesController.show)
         case Some(correctedAmounts) =>
-          val taxCodes: Seq[TaxCode] = journey.getSelectedDuties.getOrElse(Seq.empty)
+          val taxCodes: Seq[TaxCode] = claim.getSelectedDuties.getOrElse(Seq.empty)
           correctedAmounts.find((_, claimOpt) => claimOpt.isEmpty) match {
             case None                      => Redirect(routes.CheckClaimDetailsController.show)
             case Some((taxCode, claimOpt)) =>
@@ -70,24 +70,24 @@ class EnterClaimController @Inject() (
     )
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      journey.getSelectedDuties match {
+    actionReadClaim { implicit request => claim =>
+      claim.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show)
 
         case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
-          journey.getNdrcDetailsFor(taxCode) match {
+          claim.getNdrcDetailsFor(taxCode) match {
             case None =>
-              redirectWhenInvalidTaxCode(journey)
+              redirectWhenInvalidTaxCode(claim)
 
             case Some(ndrcDetails) =>
               val actualAmount: Option[BigDecimal] =
-                journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
+                claim.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
               val amountPaid                       =
                 BigDecimal(ndrcDetails.amount)
               val form                             =
                 Forms.claimAmountForm(key, amountPaid).withDefault(actualAmount.map(a => amountPaid - a))
-              val maybeMRN                         = journey.getLeadMovementReferenceNumber.map(_.value)
+              val maybeMRN                         = claim.getLeadMovementReferenceNumber.map(_.value)
               Ok(
                 enterClaim(
                   form,
@@ -100,22 +100,22 @@ class EnterClaimController @Inject() (
           }
 
         case _ =>
-          redirectWhenInvalidTaxCode(journey)
+          redirectWhenInvalidTaxCode(claim)
       }
     }
 
   final def submit(taxCode: TaxCode): Action[AnyContent] =
-    actionReadWriteJourney(
+    actionReadWriteClaim(
       implicit request =>
-        journey =>
-          journey.getSelectedDuties match {
+        claim =>
+          claim.getSelectedDuties match {
             case None =>
-              (journey, Redirect(routes.SelectDutiesController.show))
+              (claim, Redirect(routes.SelectDutiesController.show))
 
             case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
               val maybeMRN =
-                journey.getLeadMovementReferenceNumber.map(_.value)
-              journey.getNdrcDetailsFor(taxCode) match {
+                claim.getLeadMovementReferenceNumber.map(_.value)
+              claim.getNdrcDetailsFor(taxCode) match {
                 case Some(ndrcDetails) =>
                   Forms
                     .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
@@ -124,7 +124,7 @@ class EnterClaimController @Inject() (
                       formWithErrors =>
                         Future.successful(
                           (
-                            journey,
+                            claim,
                             BadRequest(
                               enterClaim(
                                 formWithErrors,
@@ -137,20 +137,20 @@ class EnterClaimController @Inject() (
                           )
                         ),
                       claimAmount =>
-                        journey
+                        claim
                           .getNdrcDetailsFor(taxCode) match {
                           case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
                           case Some(_) =>
-                            journey
+                            claim
                               .submitClaimAmount(taxCode, claimAmount)
                               .fold(
                                 error =>
                                   Future
                                     .failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
-                                updatedJourney =>
+                                updatedClaim =>
                                   (
-                                    updatedJourney,
-                                    redirectToNextPage(updatedJourney, taxCode)
+                                    updatedClaim,
+                                    redirectToNextPage(updatedClaim, taxCode)
                                   )
                               )
                         }
@@ -158,37 +158,37 @@ class EnterClaimController @Inject() (
 
                 case None =>
                   logger.error("Attempting to claim a reimbursement before selecting an MRN")
-                  Future.successful((journey, Redirect(routes.EnterMovementReferenceNumberController.show)))
+                  Future.successful((claim, Redirect(routes.EnterMovementReferenceNumberController.show)))
               }
 
             case _ =>
-              (journey, redirectWhenInvalidTaxCode(journey))
+              (claim, redirectWhenInvalidTaxCode(claim))
           },
       fastForwardToCYAEnabled = false
     )
 
-  private def redirectWhenInvalidTaxCode(journey: Journey): Result =
+  private def redirectWhenInvalidTaxCode(claim: Claim): Result =
     Redirect {
-      if journey.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+      if claim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
       else routes.SelectDutiesController.show
     }
 
-  private def redirectToNextPage(journey: Journey, taxCode: TaxCode): Result =
-    if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then
+  private def redirectToNextPage(claim: Claim, taxCode: TaxCode): Result =
+    if claim.hasCompleteReimbursementClaims && !claim.answers.dutiesChangeMode then
       Redirect(routes.CheckClaimDetailsController.show)
     else {
-      val selectedTaxCodes = journey.getSelectedDuties.getOrElse(Seq.empty)
+      val selectedTaxCodes = claim.getSelectedDuties.getOrElse(Seq.empty)
       selectedTaxCodes.indexOf(taxCode) match {
         case -1 => // invalid tax code
           Redirect(routes.SelectDutiesController.show)
 
         case n if n < selectedTaxCodes.size - 1 =>
           val nextTaxCode = selectedTaxCodes(n + 1)
-          journey.answers.correctedAmounts.getOrElse(Map.empty).get(nextTaxCode) match
+          claim.answers.correctedAmounts.getOrElse(Map.empty).get(nextTaxCode) match
             case None                                         => Redirect(routes.CheckClaimDetailsController.show)
             case Some(correctAmount) if correctAmount.isEmpty =>
               Redirect(routes.EnterClaimController.show(nextTaxCode))
-            case Some(correctAmount)                          => redirectToNextPage(journey, nextTaxCode)
+            case Some(correctAmount)                          => redirectToNextPage(claim, nextTaxCode)
 
         case _ => Redirect(routes.CheckClaimDetailsController.show)
       }

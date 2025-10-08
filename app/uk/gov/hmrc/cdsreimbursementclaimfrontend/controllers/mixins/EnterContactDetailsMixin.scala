@@ -20,13 +20,13 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
 import scala.concurrent.Future
 
-trait EnterContactDetailsMixin extends JourneyBaseController {
+trait EnterContactDetailsMixin extends ClaimBaseController {
 
   val postAction: Call
 
@@ -34,14 +34,14 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
 
   val enterOrChangeContactDetailsPage: enter_or_change_contact_details
 
-  def modifyJourney(journey: Journey, contactDetails: Option[MrnContactDetails]): Journey
+  def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 
   final def show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(journey.answers.contactDetails),
+            Forms.mrnContactDetailsForm.withDefault(claim.answers.contactDetails),
             postAction
           )
         )
@@ -49,15 +49,15 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
     }
 
   final def submit: Action[AnyContent] =
-    actionReadWriteJourney(implicit request =>
-      journey =>
+    actionReadWriteClaim(implicit request =>
+      claim =>
         Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               Future.successful(
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     enterOrChangeContactDetailsPage(
                       formWithErrors,
@@ -68,15 +68,15 @@ trait EnterContactDetailsMixin extends JourneyBaseController {
               ),
             contactDetails => {
               val previousDetails =
-                journey.answers.contactDetails
-              val updatedJourney  = modifyJourney(
-                journey,
+                claim.answers.contactDetails
+              val updatedClaim    = modifyClaim(
+                claim,
                 Some(
                   contactDetails
                     .computeChanges(previousDetails)
                 )
               )
-              Future.successful((updatedJourney, Redirect(continueRoute)))
+              Future.successful((updatedClaim, Redirect(continueRoute)))
             }
           )
     )

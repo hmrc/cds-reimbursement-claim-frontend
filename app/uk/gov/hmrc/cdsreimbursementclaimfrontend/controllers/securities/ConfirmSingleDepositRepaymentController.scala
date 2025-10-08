@@ -27,10 +27,10 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
@@ -42,28 +42,28 @@ import scala.concurrent.Future
 
 @Singleton
 class ConfirmSingleDepositRepaymentController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   confirmFullRepaymentPageForSingleDepositId: confirm_full_repayment_for_single_depositId
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val form: Form[YesNo] = confirmFullRepaymentForm
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    journey.getSecurityDetails.headOption
-      .fold((journey, errorHandler.errorResult())) { case securityDetail =>
+  def show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    claim.getSecurityDetails.headOption
+      .fold((claim, errorHandler.errorResult())) { case securityDetail =>
         (
-          journey.resetClaimFullAmountMode(),
+          claim.resetClaimFullAmountMode(),
           Ok(
             confirmFullRepaymentPageForSingleDepositId(
-              form.withDefault(journey.getClaimFullAmountStatus(securityDetail.securityDepositId)),
+              form.withDefault(claim.getClaimFullAmountStatus(securityDetail.securityDepositId)),
               securityDetail,
               routes.ConfirmSingleDepositRepaymentController.submit
             )
@@ -73,16 +73,16 @@ class ConfirmSingleDepositRepaymentController @Inject() (
 
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney(
+  def submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         form
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
-                journey.getSecurityDetails.headOption
+                claim,
+                claim.getSecurityDetails.headOption
                   .map { case securityDetail =>
                     BadRequest(
                       confirmFullRepaymentPageForSingleDepositId(
@@ -95,57 +95,57 @@ class ConfirmSingleDepositRepaymentController @Inject() (
                   .getOrElse(errorHandler.errorResult())
               ),
             answer =>
-              journey.getSecurityDetails.headOption
+              claim.getSecurityDetails.headOption
                 .map { case securityDetail =>
-                  if journey.getClaimFullAmountStatus(securityDetail.securityDepositId).contains(answer) &&
-                    journey.userHasSeenCYAPage
-                  then (journey, Redirect(checkYourAnswers))
+                  if claim.getClaimFullAmountStatus(securityDetail.securityDepositId).contains(answer) &&
+                    claim.userHasSeenCYAPage
+                  then (claim, Redirect(checkYourAnswers))
                   else
                     answer match {
                       case Yes =>
-                        submitYes(securityDetail.securityDepositId, journey)
+                        submitYes(securityDetail.securityDepositId, claim)
                       case No  =>
-                        submitNo(securityDetail.securityDepositId, journey)
+                        submitNo(securityDetail.securityDepositId, claim)
                     }
 
                 }
-                .getOrElse(Future.successful((journey, errorHandler.errorResult())))
+                .getOrElse(Future.successful((claim, errorHandler.errorResult())))
           ),
     fastForwardToCYAEnabled = false
   )
 
-  def submitYes(securityId: String, journey: SecuritiesJourney)(implicit
+  def submitYes(securityId: String, claim: SecuritiesClaim)(implicit
     request: Request[?]
-  ): (SecuritiesJourney, Result) =
-    journey
+  ): (SecuritiesClaim, Result) =
+    claim
       .submitFullCorrectedAmounts(securityId)
       .fold(
         { error =>
           logger.warn(error)
-          (journey, errorHandler.errorResult())
+          (claim, errorHandler.errorResult())
         },
-        updatedJourney =>
+        updatedClaim =>
           (
-            updatedJourney,
+            updatedClaim,
             Redirect {
-              if journey.userHasSeenCYAPage then routes.CheckYourAnswersController.show
-              else if journey.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show
+              if claim.userHasSeenCYAPage then routes.CheckYourAnswersController.show
+              else if claim.getReasonForSecurity.exists(ntas.contains) then routes.ChooseExportMethodController.show
               else routes.ChoosePayeeTypeController.show
             }
           )
       )
 
-  def submitNo(securityId: String, journey: SecuritiesJourney)(implicit
+  def submitNo(securityId: String, claim: SecuritiesClaim)(implicit
     request: Request[?]
-  ): (SecuritiesJourney, Result) =
-    journey
+  ): (SecuritiesClaim, Result) =
+    claim
       .clearCorrectedAmounts(securityId)
       .fold(
         { error =>
           logger.warn(error)
-          (journey, errorHandler.errorResult())
+          (claim, errorHandler.errorResult())
         },
-        updatedJourney => (updatedJourney, Redirect(routes.PartialClaimsController.show))
+        updatedClaim => (updatedClaim, Redirect(routes.PartialClaimsController.show))
       )
 
 }

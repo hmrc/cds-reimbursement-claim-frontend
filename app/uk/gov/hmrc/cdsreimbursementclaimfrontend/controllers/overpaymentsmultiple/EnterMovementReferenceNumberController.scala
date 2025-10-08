@@ -27,10 +27,10 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -43,25 +43,25 @@ import scala.concurrent.Future
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends OverpaymentsMultipleJourneyBaseController
+    extends OverpaymentsMultipleClaimBaseController
     with GetXiEoriMixin {
 
   final val showFirst: Action[AnyContent] = show(1)
 
-  final def show(pageIndex: Int): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
+  final def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
       Redirect(routes.CheckMovementReferenceNumbersController.show)
     else {
       val mrnIndex: Int = pageIndex - 1
 
       Ok(
         enterMovementReferenceNumberPage(
-          movementReferenceNumberForm.withDefault(journey.getNthMovementReferenceNumber(mrnIndex)),
+          movementReferenceNumberForm.withDefault(claim.getNthMovementReferenceNumber(mrnIndex)),
           "multiple",
           Some(pageIndex),
           routes.EnterMovementReferenceNumberController.submit(pageIndex)
@@ -70,10 +70,10 @@ class EnterMovementReferenceNumberController @Inject() (
     }
   }
 
-  final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    if pageIndex <= 0 || pageIndex > journey.countOfMovementReferenceNumbers + 1 then
+  final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
       (
-        journey,
+        claim,
         Redirect(routes.CheckMovementReferenceNumbersController.show)
       )
     else {
@@ -83,7 +83,7 @@ class EnterMovementReferenceNumberController @Inject() (
         .fold(
           formWithErrors =>
             (
-              journey,
+              claim,
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
@@ -96,19 +96,19 @@ class EnterMovementReferenceNumberController @Inject() (
           mrn =>
             {
               for
-                maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
-                _               <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
-                                     journey,
-                                     maybeAcc14
-                                   )
-                updatedJourney  <- updateJourney(journey, mrnIndex, mrn, maybeAcc14)
-                updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, mrnIndex === 0)
-              yield updatedJourney2
+                maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+                _             <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
+                                   claim,
+                                   maybeAcc14
+                                 )
+                updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14)
+                updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
+              yield updatedClaim2
             }.fold(
               error =>
                 if error.message.startsWith("error.") then {
                   (
-                    journey,
+                    claim,
                     BadRequest(
                       enterMovementReferenceNumberPage(
                         filledForm.withError("enter-movement-reference-number", error.message),
@@ -119,40 +119,40 @@ class EnterMovementReferenceNumberController @Inject() (
                     )
                   )
                 } else if error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori" then {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
+                  (claim, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
                 } else if error.message === "submitMovementReferenceNumber.needsSubsidy" then {
                   (
-                    journey,
+                    claim,
                     BadRequest(customError(mrn, pageIndex, "error.needsSubsidy"))
                   )
                 } else if error.message === "submitMovementReferenceNumber.needsNonSubsidy" then {
                   (
-                    journey,
+                    claim,
                     BadRequest(
                       customError(mrn, pageIndex, "error.needsNonSubsidy")
                     )
                   )
                 } else if error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists" then {
-                  (journey, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
+                  (claim, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {
-                  (journey, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
+                  (claim, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
                 },
-              updatedJourney => (updatedJourney, redirectLocation(journey, updatedJourney, mrn, pageIndex))
+              updatedClaim => (updatedClaim, redirectLocation(claim, updatedClaim, mrn, pageIndex))
             )
         )
     }
   }
 
-  private def updateJourney(
-    journey: Journey,
+  private def updateClaim(
+    claim: Claim,
     mrnIndex: Int,
     mrn: MRN,
     maybeAcc14: Option[DisplayDeclaration]
-  ): EitherT[Future, Error, Journey] =
+  ): EitherT[Future, Error, Claim] =
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          journey.submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14).left.map(Error.apply(_))
+          claim.submitMovementReferenceNumberAndDeclaration(mrnIndex, mrn, acc14).left.map(Error.apply(_))
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
@@ -169,26 +169,26 @@ class EnterMovementReferenceNumberController @Inject() (
     )
 
   private def redirectLocation(
-    journey: OverpaymentsMultipleJourney,
-    updatedJourney: OverpaymentsMultipleJourney,
+    claim: OverpaymentsMultipleClaim,
+    updatedClaim: OverpaymentsMultipleClaim,
     mrn: MRN,
     pageIndex: Int
   ): Result =
     Redirect(
-      if updatedJourney.containsUnsupportedTaxCodeFor(mrn) then {
+      if updatedClaim.containsUnsupportedTaxCodeFor(mrn) then {
         if pageIndex === 1 then routes.ProblemWithDeclarationController.show
         else routes.ProblemWithDeclarationController.showNth(pageIndex)
-      } else if updatedJourney.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex) then {
+      } else if updatedClaim.needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex) then {
         routes.EnterImporterEoriNumberController.show
       } else {
         if pageIndex === 1 then routes.CheckDeclarationDetailsController.show
-        else if journey.userHasSeenCYAPage && journey.getReimbursementClaimsFor(mrn).isEmpty then
+        else if claim.userHasSeenCYAPage && claim.getReimbursementClaimsFor(mrn).isEmpty then
           routes.SelectDutiesController.show(pageIndex)
         else routes.CheckMovementReferenceNumbersController.show
       }
     )
 
-  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
-    journey.submitUserXiEori(userXiEori)
+  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
+    claim.submitUserXiEori(userXiEori)
 
 }

@@ -32,11 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 
@@ -46,7 +46,7 @@ class ChooseBankAccountTypeControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -54,7 +54,7 @@ class ChooseBankAccountTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(emptyJourney)
+  val session: SessionData = SessionData(emptyClaim)
 
   val controller: ChooseBankAccountTypeController = instanceOf[ChooseBankAccountTypeController]
 
@@ -75,14 +75,14 @@ class ChooseBankAccountTypeControllerSpec
       controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
     "display page" in forAllWith(
-      JourneyGenerator(
+      ClaimGenerator(
         testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
-        journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+        claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
       )
-    ) { case (initialJourney: SecuritiesJourney, _) =>
+    ) { case (initialClaim: SecuritiesClaim, _) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
-        mockGetSession(SessionData(initialJourney))
+        mockGetSession(SessionData(initialClaim))
       }
 
       checkPageIsDisplayed(
@@ -93,14 +93,14 @@ class ChooseBankAccountTypeControllerSpec
 
     "fail to submit bank account type" when {
       "nothing is selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney: SecuritiesJourney, _) =>
+      ) { case (initialClaim: SecuritiesClaim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkPageIsDisplayed(
@@ -119,18 +119,18 @@ class ChooseBankAccountTypeControllerSpec
 
     "successfully submit bank account type" when {
       "one of the options selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney: SecuritiesJourney, _) =>
+      ) { case (initialClaim: SecuritiesClaim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
           mockStoreSession(
             session.copy(
-              securitiesJourney = Some(
-                initialJourney
+              securitiesClaim = Some(
+                initialClaim
                   .submitBankAccountType(BankAccountType.Personal)
                   .getOrFail
               )

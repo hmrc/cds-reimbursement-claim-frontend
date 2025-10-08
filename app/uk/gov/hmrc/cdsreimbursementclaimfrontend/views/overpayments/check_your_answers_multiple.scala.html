@@ -19,7 +19,7 @@
 @import play.api.mvc.Call
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
@@ -33,7 +33,7 @@
     cyaCommon: check_your_answers_multiple_common
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleClaim.Output, postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-your-answers.title")}
 

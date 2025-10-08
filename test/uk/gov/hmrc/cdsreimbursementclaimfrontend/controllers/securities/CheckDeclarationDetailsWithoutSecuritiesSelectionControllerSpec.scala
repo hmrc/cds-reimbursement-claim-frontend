@@ -31,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 
@@ -45,7 +45,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -68,14 +68,14 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -91,12 +91,12 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
           controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
         "redirect to CheckTotalImportDischarged" in forSomeWith(
-          JourneyGenerator(
+          ClaimGenerator(
             testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-            journeyBuilder = buildSecuritiesJourneyReadyForIPR
+            claimBuilder = buildSecuritiesClaimReadyForIPR
           )
-        ) { case (journey, _) =>
-          val updatedSession = SessionData(journey)
+        ) { case (claim, _) =>
+          val updatedSession = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()

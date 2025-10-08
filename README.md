@@ -32,13 +32,13 @@ Internally the service consists of several types of components:
  - http endpoints defined in `conf/*.routes` files
  - action controllers classes
  - services and repositories
- - business domain aggregates (journeys)
+ - business domain aggregates (claims)
  - data model classes
  - forms definitions
  - html templates written in Twirl language
  - third-party http services connectors
 
-Each type of claim is represented by a single business domain aggregate (journey) responsible for maintaining a consistent and valid state of the claim process, and finally generate an output claim object which will be passed to the backend microservice for processing into the TPI05 API request.
+Each type of claim is represented by a single business domain aggregate (claim) responsible for maintaining a consistent and valid state of the claim process, and finally generate an output claim object which will be passed to the backend microservice for processing into the TPI05 API request.
 
 ## External connections
 

@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -53,7 +53,7 @@ class ProblemWithDeclarationControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val messagesKey: String = "problem-with-declaration"
 
@@ -63,13 +63,13 @@ class ProblemWithDeclarationControllerSpec
       def performAction(): Future[Result] = controller.showNth(1)(FakeRequest())
 
       "display the page with no continue option when all tax codes are unsupported" in {
-        val journey = emptyJourney
+        val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithOnlyUnsupportedCodes)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -81,20 +81,20 @@ class ProblemWithDeclarationControllerSpec
               .get(0)
               .text() shouldBe Jsoup
               .parse(
-                messageFromMessageKey(s"$messagesKey.paragraph.1", journey.getLeadMovementReferenceNumber.get.value)
+                messageFromMessageKey(s"$messagesKey.paragraph.1", claim.getLeadMovementReferenceNumber.get.value)
               )
               .text()
         )
       }
 
       "display the page with continue option when some tax codes are unsupported" in {
-        val journey = emptyJourney
+        val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithSomeUnsupportedCode)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -106,7 +106,7 @@ class ProblemWithDeclarationControllerSpec
               .get(0)
               .text() shouldBe Jsoup
               .parse(
-                messageFromMessageKey(s"$messagesKey.paragraph.1", journey.getLeadMovementReferenceNumber.get.value)
+                messageFromMessageKey(s"$messagesKey.paragraph.1", claim.getLeadMovementReferenceNumber.get.value)
               )
               .text()
             doc
@@ -149,16 +149,16 @@ class ProblemWithDeclarationControllerSpec
       }
 
       "submit when user selects Yes" in {
-        val journey = emptyJourney
+        val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithSomeUnsupportedCode)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey.removeUnsupportedTaxCodes()
+              claim.removeUnsupportedTaxCodes()
             )
           )(Right(()))
         }
@@ -182,13 +182,13 @@ class ProblemWithDeclarationControllerSpec
       }
 
       "redirect to CYA page when user has seen CYA page" in {
-        val journey = completeJourneyGen.sample
-          .getOrElse(fail("Journey building has failed."))
+        val claim = completeClaimGen.sample
+          .getOrElse(fail("Claim building has failed."))
           .submitCheckYourAnswersChangeMode(true)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

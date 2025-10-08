@@ -21,42 +21,42 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FormMessageKeyAndUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
 
-trait ProblemWithDeclarationMixin extends JourneyBaseController {
-  def removeUnsupportedTaxCodesFromJourney(journey: Journey): Journey
+trait ProblemWithDeclarationMixin extends ClaimBaseController {
+  def removeUnsupportedTaxCodesFromClaim(claim: Claim): Claim
   val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue
   val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
   val postAction: Call
   val enterAnotherMrnAction: Call
   val checkDeclarationDetailsAction: Call
 
-  def getFormMessageKeyAndUrl(journey: JourneyBase): FormMessageKeyAndUrl =
-    journey match {
-      case j @ (_: OverpaymentsSingleJourney | _: OverpaymentsMultipleJourney | _: OverpaymentsScheduledJourney) =>
+  def getFormMessageKeyAndUrl(claim: ClaimBase): FormMessageKeyAndUrl =
+    claim match {
+      case j @ (_: OverpaymentsSingleClaim | _: OverpaymentsMultipleClaim | _: OverpaymentsScheduledClaim) =>
         FormMessageKeyAndUrl("problem-with-declaration.c285-form", viewConfig.legacyC285FormUrl)
-      case _                                                                                                     =>
+      case _                                                                                               =>
         FormMessageKeyAndUrl("problem-with-declaration.ce1179-form", viewConfig.ce1179FormUrl)
     }
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => implicit journey =>
+    actionReadClaim { implicit request => implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      journey.getLeadDisplayDeclaration match {
+      claim.getLeadDisplayDeclaration match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
               declaration.getMRN,
               enterAnotherMrnAction,
-              getFormMessageKeyAndUrl(journey)
+              getFormMessageKeyAndUrl(claim)
             )
           )
         case Some(declaration) if declaration.containsSomeUnsupportedTaxCode  =>
@@ -65,32 +65,32 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
               form,
               declaration.getMRN,
               postAction,
-              getFormMessageKeyAndUrl(journey)
+              getFormMessageKeyAndUrl(claim)
             )
           )
         case Some(_)                                                          =>
           Redirect(checkDeclarationDetailsAction)
         case None                                                             =>
-          throw new IllegalStateException("Expected the journey to have DisplayDeclaration already")
+          throw new IllegalStateException("Expected the claim to have DisplayDeclaration already")
       }
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
+    actionReadWriteClaim { implicit request => implicit claim =>
       Forms.problemWithDeclarationForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
-              journey.getLeadDisplayDeclaration
+              claim,
+              claim.getLeadDisplayDeclaration
                 .map { declaration =>
                   BadRequest(
                     problemWithDeclarationCanContinuePage(
                       formWithErrors,
                       declaration.getMRN,
                       postAction,
-                      getFormMessageKeyAndUrl(journey)
+                      getFormMessageKeyAndUrl(claim)
                     )
                   )
                 }
@@ -99,9 +99,9 @@ trait ProblemWithDeclarationMixin extends JourneyBaseController {
           answer =>
             answer match {
               case YesNo.No  =>
-                (journey, Redirect(enterAnotherMrnAction))
+                (claim, Redirect(enterAnotherMrnAction))
               case YesNo.Yes =>
-                (removeUnsupportedTaxCodesFromJourney(journey), Redirect(checkDeclarationDetailsAction))
+                (removeUnsupportedTaxCodesFromClaim(claim), Redirect(checkDeclarationDetailsAction))
             }
         )
     }

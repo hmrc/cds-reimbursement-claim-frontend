@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
@@ -63,7 +63,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
   val originalDeclaration  = exampleDisplayDeclaration
   val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value, consigneeEORI = Some(exampleEori))
 
-  val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+  val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
     .empty(originalDeclaration.getConsigneeEori.get)
     .submitMovementReferenceNumberAndDeclaration(originalDeclaration.getMRN, originalDeclaration)
     .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
@@ -81,10 +81,10 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -105,7 +105,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              OverpaymentsSingleJourney
+              OverpaymentsSingleClaim
                 .empty(exampleDisplayDeclaration.getConsigneeEori.get)
                 .submitMovementReferenceNumberAndDeclaration(
                   exampleDisplayDeclaration.getMRN,
@@ -129,8 +129,8 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
         )
       }
 
-      "display the page on a pre-existing journey" in {
-        val journey        = buildCompleteJourneyGen()
+      "display the page on a pre-existing claim" in {
+        val claim          = buildCompleteClaimGen()
           .map(
             _.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry)
               .submitDuplicateMovementReferenceNumberAndDeclaration(
@@ -141,9 +141,9 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
           )
           .sample
           .getOrElse(
-            fail("Unable to generate complete journey")
+            fail("Unable to generate complete claim")
           )
-        val sessionToAmend = SessionData(journey)
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -171,7 +171,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       "reject an empty Eori" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -187,7 +187,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -202,9 +202,9 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration                 =
+        val displayDeclaration             =
           buildDisplayDeclaration(consigneeEORI = Some(anotherExampleEori)).withDeclarationId(mrn.value)
-        val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+        val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
           .empty(anotherExampleEori)
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
@@ -216,12 +216,12 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
           )
           .getOrFail
 
-        val updatedJourney = journey.checkConsigneeEoriNumberWithDuplicateDeclaration(eori).getOrFail
+        val updatedClaim = claim.checkConsigneeEoriNumberWithDuplicateDeclaration(eori).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -233,9 +233,9 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       "submit a valid Eori which is not the consignee" in forAll {
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
-            val displayDeclaration                 =
+            val displayDeclaration             =
               buildDisplayDeclaration(consigneeEORI = Some(exampleEori)).withDeclarationId(mrn.value)
-            val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+            val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
               .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
@@ -249,7 +249,7 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkPageIsDisplayed(

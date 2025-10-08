@@ -32,10 +32,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildAnswersGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.buildJourneyFromAnswersGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.buildAnswersGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.buildClaimFromAnswersGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.completeClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
@@ -63,11 +63,11 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: OverpaymentsScheduledJourney
+    claim: OverpaymentsScheduledClaim
   ): Unit = {
-    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(journey.getReimbursements)
-    val nonExciseDutyClaims          = journey.getNonExciseDutyClaims
-    val selectedExciseCategoryClaims = journey.getSelectedExciseCategoryClaims
+    val claims                       = ClaimsTableHelper.sortReimbursementsByDisplayDuty(claim.getReimbursements)
+    val nonExciseDutyClaims          = claim.getNonExciseDutyClaims
+    val selectedExciseCategoryClaims = claim.getSelectedExciseCategoryClaims
     val selectedExciseCategories     = selectedExciseCategoryClaims.keys.map(_.repr).toList
 
     validateClaimsTablesForScheduled(
@@ -82,7 +82,7 @@ class CheckClaimDetailsControllerSpec
         m("check-claim.duty-types-summary.key") -> claims.keys
           .map(dutyType => m(s"select-duty-types.${dutyType.repr}"))
           .mkString(" "),
-        m("check-claim.table.total")            -> journey.getTotalReimbursementAmount.toPoundSterlingString
+        m("check-claim.table.total")            -> claim.getTotalReimbursementAmount.toPoundSterlingString
       ) ++
         nonExciseDutyClaims.map { case (dutyType, claims) =>
           m(s"select-duty-codes.title.${dutyType.repr}") -> claims
@@ -105,8 +105,8 @@ class CheckClaimDetailsControllerSpec
     )
   }
 
-  val journeyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyFromAnswersGen(
+  val claimGen: Gen[OverpaymentsScheduledClaim] =
+    buildClaimFromAnswersGen(
       buildAnswersGen(
         submitBankAccountDetails = false,
         submitBankAccountType = false,
@@ -115,8 +115,8 @@ class CheckClaimDetailsControllerSpec
       )
     )
 
-  val incompleteJourneyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyFromAnswersGen(
+  val incompleteClaimGen: Gen[OverpaymentsScheduledClaim] =
+    buildClaimFromAnswersGen(
       buildAnswersGen(
         submitBankAccountDetails = false,
         submitBankAccountType = false,
@@ -133,38 +133,38 @@ class CheckClaimDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claim.scheduled.title"),
-            assertPageContent(_, journey)
+            assertPageContent(_, claim)
           )
         }
 
       "display the page in the change mode" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claim.scheduled.title"),
-            assertPageContent(_, journey)
+            assertPageContent(_, claim)
           )
         }
 
       "redirect when reimbursements not completed yet" in
-        forAll(incompleteJourneyGen) { journey =>
+        forAll(incompleteClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -182,10 +182,10 @@ class CheckClaimDetailsControllerSpec
         )
 
       "redirect to the next page" in
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -195,10 +195,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to the CYA page when in change mode" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(

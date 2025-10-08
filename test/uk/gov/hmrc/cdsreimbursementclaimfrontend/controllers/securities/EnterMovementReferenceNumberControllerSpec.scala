@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -60,15 +60,15 @@ class EnterMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journey              = SecuritiesJourney.empty(exampleEori)
-  val session: SessionData = SessionData(journey)
+  val claim                = SecuritiesClaim.empty(exampleEori)
+  val session: SessionData = SessionData(claim)
 
   "Movement Reference Number Controller" when {
     "Enter MRN page" must {
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -84,15 +84,15 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in {
+      "display the page on a pre-existing claim" in {
 
-        val journey = buildCompleteJourneyGen(
+        val claim = buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           submitContactDetails = false
-        ).sample.getOrElse(fail("Unable to generate complete journey"))
+        ).sample.getOrElse(fail("Unable to generate complete claim"))
 
-        val mrn            = journey.answers.movementReferenceNumber.getOrElse(fail("No mrn found in journey"))
-        val sessionToAmend = SessionData(journey)
+        val mrn            = claim.answers.movementReferenceNumber.getOrElse(fail("No mrn found in claim"))
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -117,7 +117,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
           mockStoreSession(
-            SessionData(journey.submitMovementReferenceNumber(exampleMrn))
+            SessionData(claim.submitMovementReferenceNumber(exampleMrn))
           )(Right(()))
         }
 
@@ -128,13 +128,13 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "continue to the check choose reason for security page when MRN didn't change and NOT in a change mode" in {
-        val initialJourney =
-          journey
+        val initialClaim =
+          claim
             .submitMovementReferenceNumber(exampleMrn)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkIsRedirect(
@@ -144,14 +144,14 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "continue to the check declaration details page when MRN didn't change and in a change mode" in {
-        val initialJourney =
-          journey
+        val initialClaim =
+          claim
             .submitMovementReferenceNumber(exampleMrn)
             .submitCheckDeclarationDetailsChangeMode(true)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkIsRedirect(

@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -91,9 +91,9 @@ class RejectedGoodsSingleClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-single"
 
   val requestGen =
-    for journey <- RejectedGoodsSingleJourneyGenerators.completeJourneyGen
+    for claim <- RejectedGoodsSingleClaimGenerators.completeClaimGen
     yield RejectedGoodsSingleClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: RejectedGoodsSingleClaimConnector.Request = sample(requestGen)

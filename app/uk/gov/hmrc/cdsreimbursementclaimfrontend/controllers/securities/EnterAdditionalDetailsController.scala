@@ -23,10 +23,10 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_additional_details
 
 import javax.inject.Inject
@@ -36,31 +36,31 @@ import scala.concurrent.Future
 
 @Singleton
 class EnterAdditionalDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterAdditionalDetailsPage: enter_additional_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val postAction: Call = routes.EnterAdditionalDetailsController.submit
 
-  final def continueRoute(journey: Journey): Call =
-    if journey.answers.contactDetails.isDefined
-      && journey.answers.contactAddress.isDefined
+  final def continueRoute(claim: Claim): Call =
+    if claim.answers.contactDetails.isDefined
+      && claim.answers.contactAddress.isDefined
     then routes.CheckYourAnswersController.show
     else routes.EnterContactDetailsController.show
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       val form: Form[String] =
-        Forms.enterAdditionalDetailsSecuritiesForm.withDefault(journey.answers.additionalDetails)
+        Forms.enterAdditionalDetailsSecuritiesForm.withDefault(claim.answers.additionalDetails)
 
       Future.successful {
         (
-          journey.submitAdditionalDetailsPageVisited(true),
+          claim.submitAdditionalDetailsPageVisited(true),
           Ok(
             enterAdditionalDetailsPage(
               form,
@@ -72,14 +72,14 @@ class EnterAdditionalDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       Forms.enterAdditionalDetailsSecuritiesForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   enterAdditionalDetailsPage(
                     formWithErrors,
@@ -91,8 +91,8 @@ class EnterAdditionalDetailsController @Inject() (
           additionalDetails =>
             Future.successful(
               (
-                journey.submitAdditionalDetails(additionalDetails),
-                Redirect(continueRoute(journey))
+                claim.submitAdditionalDetails(additionalDetails),
+                Redirect(continueRoute(claim))
               )
             )
         )

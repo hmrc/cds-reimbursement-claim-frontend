@@ -32,11 +32,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 
 import scala.concurrent.Future
 
@@ -85,14 +85,14 @@ class SelectDutiesControllerSpec
       def performAction(): Future[Result] = controller.showFirst()(FakeRequest())
 
       "display the page with no duty selected" in {
-        forAll(incompleteJourneyWithMrnsGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(2)) { case (claim, mrns) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           val displayedTaxCodes: Seq[TaxCode] =
-            journey.getAvailableDuties(mrns.head).map(_._1)
+            claim.getAvailableDuties(mrns.head).map(_._1)
 
           checkPageIsDisplayed(
             performAction(),
@@ -103,19 +103,19 @@ class SelectDutiesControllerSpec
       }
 
       "display the page with some duties selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, _) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
-          val mrn: MRN = journey.getLeadMovementReferenceNumber.get
+          val mrn: MRN = claim.getLeadMovementReferenceNumber.get
 
           val displayedTaxCodes: Seq[TaxCode] =
-            journey.getAvailableDuties(mrn).map(_._1)
+            claim.getAvailableDuties(mrn).map(_._1)
 
           val selectedTaxCodes: Seq[TaxCode] =
-            journey.getSelectedDuties(mrn).get
+            claim.getSelectedDuties(mrn).get
 
           checkPageIsDisplayed(
             performAction(),
@@ -126,19 +126,19 @@ class SelectDutiesControllerSpec
       }
 
       "display the page with some duties selected when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
-          val mrn: MRN = journey.getLeadMovementReferenceNumber.get
+          val mrn: MRN = claim.getLeadMovementReferenceNumber.get
 
           val displayedTaxCodes: Seq[TaxCode] =
-            journey.getAvailableDuties(mrn).map(_._1)
+            claim.getAvailableDuties(mrn).map(_._1)
 
           val selectedTaxCodes: Seq[TaxCode] =
-            journey.getSelectedDuties(mrn).get
+            claim.getSelectedDuties(mrn).get
 
           checkPageIsDisplayed(
             performAction(),
@@ -155,15 +155,15 @@ class SelectDutiesControllerSpec
         controller.show(pageIndex)(FakeRequest())
 
       "display the page with no duty selected" in {
-        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val displayedTaxCodes: Seq[TaxCode] =
-              journey.getAvailableDuties(mrn).map(_._1)
+              claim.getAvailableDuties(mrn).map(_._1)
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
@@ -175,18 +175,18 @@ class SelectDutiesControllerSpec
       }
 
       "display the page with some duties selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val displayedTaxCodes: Seq[TaxCode] =
-              journey.getAvailableDuties(mrn).map(_._1)
+              claim.getAvailableDuties(mrn).map(_._1)
 
             val selectedTaxCodes: Seq[TaxCode] =
-              journey.getSelectedDuties(mrn).get
+              claim.getSelectedDuties(mrn).get
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
@@ -198,18 +198,18 @@ class SelectDutiesControllerSpec
       }
 
       "display the page with some duties selected when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
-          journey.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, mrnIndex) =>
+        forAll(completeClaimGen) { claim =>
+          claim.answers.movementReferenceNumbers.get.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val displayedTaxCodes: Seq[TaxCode] =
-              journey.getAvailableDuties(mrn).map(_._1)
+              claim.getAvailableDuties(mrn).map(_._1)
 
             val selectedTaxCodes: Seq[TaxCode] =
-              journey.getSelectedDuties(mrn).get
+              claim.getSelectedDuties(mrn).get
 
             checkPageIsDisplayed(
               performAction(mrnIndex + 1),
@@ -221,11 +221,11 @@ class SelectDutiesControllerSpec
       }
 
       "redirect to MRN not found page when page index is out of bounds" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
             checkPageIsDisplayed(
               performAction(100),
@@ -240,9 +240,9 @@ class SelectDutiesControllerSpec
         val displayResponseDetailWithoutDuties      =
           exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
         val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
-        val journey                                 = OverpaymentsMultipleJourney
+        val claim                                   = OverpaymentsMultipleClaim
           .tryBuildFrom(
-            OverpaymentsMultipleJourney.Answers(
+            OverpaymentsMultipleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
               displayDeclarations = Some(
@@ -261,7 +261,7 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
         checkIsRedirect(
           performAction(2),
@@ -280,20 +280,20 @@ class SelectDutiesControllerSpec
         )
 
       "redirect to enter first claim for the MRN when no duty selected before" in {
-        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val displayedTaxCodes: Seq[TaxCode] =
-              journey.getAvailableDuties(mrn).map(_._1)
+              claim.getAvailableDuties(mrn).map(_._1)
 
             val selectedTaxCodes: Seq[TaxCode] =
               displayedTaxCodes.take(Math.max(1, displayedTaxCodes.size / 2))
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
               mockStoreSession(
                 SessionData(
-                  journey
+                  claim
                     .selectAndReplaceTaxCodeSetForReimbursement(mrn, selectedTaxCodes.sorted)
                     .getOrFail
                 )
@@ -309,14 +309,14 @@ class SelectDutiesControllerSpec
       }
 
       "redirect to enter first claim for the MRN when the same duties already selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
-            val selectedTaxCodes: Seq[TaxCode] = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes: Seq[TaxCode] = claim.getSelectedDuties(mrn).get
 
             checkIsRedirect(
               performAction(mrnIndex + 1, selectedTaxCodes),
@@ -327,17 +327,17 @@ class SelectDutiesControllerSpec
       }
 
       "redirect to enter first claim for the MRN when some duties already selected" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-            val selectedTaxCodes                  = journey.getSelectedDuties(mrn).get
+            val selectedTaxCodes                  = claim.getSelectedDuties(mrn).get
             val newSelectedTaxCodes: Seq[TaxCode] = selectedTaxCodes.drop(1)
             if newSelectedTaxCodes.nonEmpty then {
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
                 mockStoreSession(
                   SessionData(
-                    journey
+                    claim
                       .selectAndReplaceTaxCodeSetForReimbursement(mrn, newSelectedTaxCodes)
                       .getOrFail
                   )
@@ -353,11 +353,11 @@ class SelectDutiesControllerSpec
         }
       }
       "redirect to MRN not found page when page index is out of bounds" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
             checkPageIsDisplayed(
               performAction(100, Seq.empty),
@@ -369,10 +369,10 @@ class SelectDutiesControllerSpec
       }
 
       "show form errors on invalid data" in {
-        forAll(incompleteJourneyWithMrnsGen(1)) { case (journey, _) =>
+        forAll(incompleteClaimWithMrnsGen(1)) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
           val result = performAction(1, Seq.empty)
           status(result) shouldBe BAD_REQUEST
@@ -383,9 +383,9 @@ class SelectDutiesControllerSpec
         val displayResponseDetailWithoutDuties      =
           exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
         val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
-        val journey                                 = OverpaymentsMultipleJourney
+        val claim                                   = OverpaymentsMultipleClaim
           .tryBuildFrom(
-            OverpaymentsMultipleJourney.Answers(
+            OverpaymentsMultipleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
               displayDeclarations = Some(
@@ -404,7 +404,7 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

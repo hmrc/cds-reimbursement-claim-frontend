@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
@@ -64,48 +64,48 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: OverpaymentsMultipleJourney
+    claim: OverpaymentsMultipleClaim
   ): Unit = {
     validateClaimsTablesForMultiple(
       doc,
-      journey.getReimbursementsWithCorrectAmounts,
+      claim.getReimbursementsWithCorrectAmounts,
       routes.EnterClaimController.show
     )
 
     validateCheckClaimTotal(
       doc,
-      journey.getTotalReimbursementAmount.toPoundSterlingString
+      claim.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
 
-  val journeyGen: Gen[(OverpaymentsMultipleJourney, Seq[MRN])] =
-    incompleteJourneyWithCompleteClaimsGen(5)
+  val claimGen: Gen[(OverpaymentsMultipleClaim, Seq[MRN])] =
+    incompleteClaimWithCompleteClaimsGen(5)
 
-  val journeyWithNoClaimsGen: Gen[OverpaymentsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      OverpaymentsMultipleJourney
-        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+  val claimWithNoClaimsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
     )
 
-  val journeyWithIncompleteClaimsGen: Gen[OverpaymentsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      OverpaymentsMultipleJourney
+  val claimWithIncompleteClaimsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
         .unsafeModifyAnswers(
-          journey,
+          claim,
           answers =>
             answers
-              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
         )
     )
 
-  val journeyWithIncompleteMrnsGen: Gen[OverpaymentsMultipleJourney] =
-    journeyGen.map((journey, _) =>
-      OverpaymentsMultipleJourney
+  val claimWithIncompleteMrnsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
         .unsafeModifyAnswers(
-          journey,
+          claim,
           answers =>
             answers
-              .copy(movementReferenceNumbers = journey.answers.movementReferenceNumbers.map(_.take(1)))
+              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
         )
     )
 
@@ -116,10 +116,10 @@ class CheckClaimDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(journeyGen) { case (journey, _) =>
+        forAll(claimGen) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -127,16 +127,16 @@ class CheckClaimDetailsControllerSpec
             messageFromMessageKey(
               s"$messagesKey.title"
             ),
-            doc => assertPageContent(doc, journey)
+            doc => assertPageContent(doc, claim)
           )
         }
       }
 
       "display the page in change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -144,16 +144,16 @@ class CheckClaimDetailsControllerSpec
             messageFromMessageKey(
               s"$messagesKey.title"
             ),
-            doc => assertPageContent(doc, journey)
+            doc => assertPageContent(doc, claim)
           )
         }
       }
 
       "redirect to enter mrn page if incomplete MRNs" in
-        forAll(journeyWithIncompleteMrnsGen) { journey =>
+        forAll(claimWithIncompleteMrnsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -163,10 +163,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to select duties page if no claims" in
-        forAll(journeyWithNoClaimsGen) { journey =>
+        forAll(claimWithNoClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -176,10 +176,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to select duties page if claims are incomplete" in
-        forAll(journeyWithIncompleteClaimsGen) { journey =>
+        forAll(claimWithIncompleteClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(

@@ -28,9 +28,9 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_claim
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,13 +39,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterClaimController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterClaimPage: enter_claim
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -53,8 +53,8 @@ class EnterClaimController @Inject() (
 
   private val key: String = "enter-claim-amount"
 
-  final def showFirst(securityDepositId: String): Action[AnyContent] = simpleActionReadJourney(journey =>
-    journey
+  final def showFirst(securityDepositId: String): Action[AnyContent] = simpleActionReadClaim(claim =>
+    claim
       .getSelectedDutiesFor(securityDepositId)
       .flatMap(_.headOption) match {
 
@@ -67,8 +67,8 @@ class EnterClaimController @Inject() (
   )
 
   final def show(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).fold(
+    actionReadClaim { implicit request => claim =>
+      validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
         identity,
         { case (correctAmountOpt, paidAmount) =>
           val form = Forms
@@ -79,7 +79,7 @@ class EnterClaimController @Inject() (
             enterClaimPage(
               form,
               securityDepositId,
-              journey.isSingleSecurity,
+              claim.isSingleSecurity,
               taxCode,
               paidAmount,
               routes.EnterClaimController.submit(securityDepositId, taxCode)
@@ -90,11 +90,11 @@ class EnterClaimController @Inject() (
     }
 
   final def submit(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
-    actionReadWriteJourney(
+    actionReadWriteClaim(
       implicit request =>
-        journey =>
-          validateDepositIdAndTaxCode(journey, securityDepositId, taxCode).fold(
-            result => (journey, result),
+        claim =>
+          validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
+            result => (claim, result),
             { case (_, totalAmount) =>
               val form = Forms.claimAmountForm(key, totalAmount)
               form
@@ -102,12 +102,12 @@ class EnterClaimController @Inject() (
                 .fold(
                   formWithErrors =>
                     (
-                      journey,
+                      claim,
                       BadRequest(
                         enterClaimPage(
                           formWithErrors,
                           securityDepositId,
-                          journey.isSingleSecurity,
+                          claim.isSingleSecurity,
                           taxCode,
                           totalAmount,
                           routes.EnterClaimController.submit(securityDepositId, taxCode)
@@ -116,25 +116,25 @@ class EnterClaimController @Inject() (
                     ),
                   claimAmount => {
                     val amountHasChanged: Boolean =
-                      !journey
+                      !claim
                         .getClaimAmountFor(securityDepositId, taxCode)
                         .exists(_ === claimAmount)
                     if amountHasChanged then
-                      journey
+                      claim
                         .submitClaimAmount(securityDepositId, taxCode, claimAmount)
                         .fold(
                           error =>
                             (
-                              journey,
+                              claim,
                               Redirect(routeForValidationError(error))
                             ),
-                          updatedJourney =>
+                          updatedClaim =>
                             (
-                              updatedJourney,
-                              Redirect(nextPage(updatedJourney, securityDepositId, taxCode, amountHasChanged = true))
+                              updatedClaim,
+                              Redirect(nextPage(updatedClaim, securityDepositId, taxCode, amountHasChanged = true))
                             )
                         )
-                    else (journey, Redirect(nextPage(journey, securityDepositId, taxCode, amountHasChanged = false)))
+                    else (claim, Redirect(nextPage(claim, securityDepositId, taxCode, amountHasChanged = false)))
 
                   }
                 )
@@ -143,21 +143,21 @@ class EnterClaimController @Inject() (
       fastForwardToCYAEnabled = false
     )
 
-  private def validateDepositIdAndTaxCode(journey: SecuritiesJourney, securityDepositId: String, taxCode: TaxCode)(
-    implicit request: Request[?]
+  private def validateDepositIdAndTaxCode(claim: SecuritiesClaim, securityDepositId: String, taxCode: TaxCode)(implicit
+    request: Request[?]
   ): Either[Result, (Option[BigDecimal], BigDecimal)] = {
-    val correctAmountsForDepositId: Option[SecuritiesJourney.CorrectedAmounts] =
-      journey.answers.correctedAmounts.flatMap(_.get(securityDepositId))
+    val correctAmountsForDepositId: Option[SecuritiesClaim.CorrectedAmounts] =
+      claim.answers.correctedAmounts.flatMap(_.get(securityDepositId))
 
     correctAmountsForDepositId match {
       case None =>
-        if journey.getSecurityDepositIds.contains(securityDepositId) then
+        if claim.getSecurityDepositIds.contains(securityDepositId) then
           Left(Redirect(routes.ConfirmFullRepaymentController.show(securityDepositId)))
         else
           Left(
             logAndDisplayError(
               s"Invalid depositId=$securityDepositId. Available deposit IDs",
-              journey.getSecurityDepositIds.mkString(",")
+              claim.getSecurityDepositIds.mkString(",")
             )
           )
 
@@ -168,14 +168,14 @@ class EnterClaimController @Inject() (
 
           case Some(correctAmountOpt) =>
             val paidAmountOnDeclaration =
-              journey.getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
+              claim.getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
 
             paidAmountOnDeclaration match {
               case None =>
                 Left(
                   logAndDisplayError(
                     s"Cannot find the amount of a taxType=$taxCode paid for a depositId=$securityDepositId. Available tax codes",
-                    journey.getSecurityTaxCodesFor(securityDepositId).mkString(",")
+                    claim.getSecurityTaxCodesFor(securityDepositId).mkString(",")
                   )
                 )
 
@@ -188,15 +188,15 @@ class EnterClaimController @Inject() (
   }
 
   private def nextPage(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     securityDepositId: String,
     taxCode: TaxCode,
     amountHasChanged: Boolean
   )(using HeaderCarrier): Call =
-    if journey.answers.modes.checkClaimDetailsChangeMode && journey.answers.modes.claimFullAmountMode then {
-      if journey.userHasSeenCYAPage && !amountHasChanged then routes.CheckYourAnswersController.show
+    if claim.answers.modes.checkClaimDetailsChangeMode && claim.answers.modes.claimFullAmountMode then {
+      if claim.userHasSeenCYAPage && !amountHasChanged then routes.CheckYourAnswersController.show
       else
-        journey.getNextDepositIdAndTaxCodeToClaim match {
+        claim.getNextDepositIdAndTaxCodeToClaim match {
           case Some(Left(depositId)) =>
             routes.ConfirmFullRepaymentController.show(depositId)
 
@@ -204,11 +204,11 @@ class EnterClaimController @Inject() (
             routes.EnterClaimController.show(depositId, tc)
 
           case None =>
-            if journey.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
+            if claim.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
             else routes.CheckClaimDetailsController.show
         }
     } else
-      journey
+      claim
         .getSelectedDutiesFor(securityDepositId)
         .flatMap(_.nextAfter(taxCode)) match {
 
@@ -216,14 +216,14 @@ class EnterClaimController @Inject() (
           routes.EnterClaimController.show(securityDepositId, nextTaxCode)
 
         case None =>
-          journey.getSelectedDepositIds.nextAfter(securityDepositId) match {
+          claim.getSelectedDepositIds.nextAfter(securityDepositId) match {
             case Some(nextSecurityDepositId) =>
-              if journey.answers.modes.checkClaimDetailsChangeMode && !journey.answers.modes.claimFullAmountMode then
+              if claim.answers.modes.checkClaimDetailsChangeMode && !claim.answers.modes.claimFullAmountMode then
                 routes.CheckClaimDetailsController.show
               else routes.ConfirmFullRepaymentController.show(nextSecurityDepositId)
 
             case None =>
-              if journey.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
+              if claim.isSingleSecurity then routes.CheckClaimDetailsSingleSecurityController.show
               else routes.CheckClaimDetailsController.show
           }
       }

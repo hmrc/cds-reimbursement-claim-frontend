@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
@@ -87,7 +87,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
-    journey: OverpaymentsSingleJourney
+    claim: OverpaymentsSingleClaim
   ): Assertion = {
 
     val claimDetailsCard     = getSummaryCardByTitle(doc, "Claim details")
@@ -104,28 +104,28 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
     getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "MRN" -> journey.getDuplicateDisplayDeclaration.map(_.getMRN.value)
+        "MRN" -> claim.getDuplicateDisplayDeclaration.map(_.getMRN.value)
       )
     )
     getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
       Seq(
-        journey.getDuplicateDisplayDeclaration.get.getMaybeLRN match {
+        claim.getDuplicateDisplayDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          journey.getDuplicateDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getDuplicateDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> journey.getDuplicateDisplayDeclaration.get.getMethodsOfPayment
+        "Method of payment" -> claim.getDuplicateDisplayDeclaration.get.getMethodsOfPayment
           .map { methods =>
             MethodOfPaymentSummary(methods)
           }
       ) ++
-        journey.getDuplicateDisplayDeclaration.get.getNdrcDutiesWithAmount
+        claim.getDuplicateDisplayDeclaration.get.getNdrcDutiesWithAmount
           .map(_.map { case (taxCode, amount) =>
             messageFromMessageKey(s"tax-code.$taxCode") -> Some(
               amount.toPoundSterlingString
@@ -133,14 +133,14 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           })
           .get ++
         Seq(
-          "Total" -> journey.getDuplicateDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+          "Total" -> claim.getDuplicateDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
         )
     )
     getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getDuplicateDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> journey.getDuplicateDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> journey.getDuplicateDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getDuplicateDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getDuplicateDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getDuplicateDisplayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -149,18 +149,18 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     )
     getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getDuplicateDisplayDeclaration.map(_.declarantName),
-        "Email"   -> journey.getDuplicateDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> journey.getDuplicateDisplayDeclaration.map(d =>
+        "Name"    -> claim.getDuplicateDisplayDeclaration.map(_.declarantName),
+        "Email"   -> claim.getDuplicateDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getDuplicateDisplayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
     )
   }
 
-  val journeyGen: Gen[OverpaymentsSingleJourney] =
+  val claimGen: Gen[OverpaymentsSingleClaim] =
     for
-      j1            <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+      j1            <- buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
                          .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
       mrn           <- genMRN
       consigneeEori <- genEori
@@ -183,31 +183,31 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display the page if duplicate declaration exists" in {
-        val journey =
-          journeyGen.sample.getOrElse(fail("Journey building has failed."))
+        val claim =
+          claimGen.sample.getOrElse(fail("Claim building has failed."))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.duplicate.title"),
-          doc => validateCheckDeclarationDetailsPage(doc, journey)
+          doc => validateCheckDeclarationDetailsPage(doc, claim)
         )
       }
 
       "redirect if duplicate declaration not expected" in {
-        val journey =
-          buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+        val claim =
+          buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
             .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DutySuspension))
             .sample
             .get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -217,15 +217,15 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       }
 
       "redirect if duplicate declaration expected but not provided" in {
-        val journey =
-          buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+        val claim =
+          buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
             .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             .sample
             .get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -235,9 +235,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       }
 
       "redirect if duplicate declaration not verified" in {
-        val journey =
+        val claim =
           (for
-            j1   <- buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+            j1   <- buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
                       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             mrn  <- genMRN
             eori <- genEori
@@ -251,7 +251,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -267,15 +267,15 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "submit" in {
-        val journey: OverpaymentsSingleJourney =
-          journeyGen.sample.get
+        val claim: OverpaymentsSingleClaim =
+          claimGen.sample.get
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey.withEnterContactDetailsMode(true)
+              claim.withEnterContactDetailsMode(true)
             )
           )(Right(()))
         }

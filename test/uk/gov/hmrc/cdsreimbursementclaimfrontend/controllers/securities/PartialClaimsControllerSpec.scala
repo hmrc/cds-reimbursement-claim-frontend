@@ -34,9 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
@@ -45,7 +45,7 @@ import scala.jdk.CollectionConverters.*
 
 class PartialClaimsControllerSpec
     extends PropertyBasedControllerSpec
-    with SecuritiesJourneyTestData
+    with SecuritiesClaimTestData
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -66,9 +66,9 @@ class PartialClaimsControllerSpec
   implicit val messagesApi: MessagesApi   = controller.messagesApi
   implicit val messages: Messages         = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
+  val session: SessionData = SessionData(SecuritiesClaim.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
-  private val incompleteJourney = buildJourneyGen(
+  private val incompleteClaim = buildClaimGen(
     acc14ConsigneeMatchesUserEori = true,
     submitBankAccountDetails = false,
     submitBankAccountType = false,
@@ -77,7 +77,7 @@ class PartialClaimsControllerSpec
     _.fold(
       error =>
         throw new Exception(
-          s"Cannot build complete SecuritiesJourney because of $error, fix the test data generator."
+          s"Cannot build complete SecuritiesClaim because of $error, fix the test data generator."
         ),
       identity
     )
@@ -85,7 +85,7 @@ class PartialClaimsControllerSpec
 
   def validatePartialClaimsPage(
     doc: Document,
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     isError: Boolean = false
   ) = {
     val title   = doc.select("title").first().text()
@@ -112,9 +112,9 @@ class PartialClaimsControllerSpec
     "show page is called" must {
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "display the page on a complete journey" in
-        forAll(buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      "display the page on a complete claim" in
+        forAll(buildCompleteClaimGen(numberOfSecurityDetails = Some(1))) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -123,7 +123,7 @@ class PartialClaimsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("partial-claims.title"),
-            doc => validatePartialClaimsPage(doc, journey)
+            doc => validatePartialClaimsPage(doc, claim)
           )
         }
     }
@@ -133,8 +133,8 @@ class PartialClaimsControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "continue to select duties page when yes is selected" in {
-        forAll(incompleteJourney) { journey =>
-          val sessionData = SessionData(journey)
+        forAll(incompleteClaim) { claim =>
+          val sessionData = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -149,8 +149,8 @@ class PartialClaimsControllerSpec
       }
 
       "continue to claim deleted page when no is selected" in {
-        forAll(incompleteJourney) { journey =>
-          val sessionData = SessionData(journey)
+        forAll(incompleteClaim) { claim =>
+          val sessionData = SessionData(claim)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionData)
@@ -165,8 +165,8 @@ class PartialClaimsControllerSpec
       }
 
       "display error when no option selected" in {
-        forAll(incompleteJourney) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+        forAll(incompleteClaim) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)

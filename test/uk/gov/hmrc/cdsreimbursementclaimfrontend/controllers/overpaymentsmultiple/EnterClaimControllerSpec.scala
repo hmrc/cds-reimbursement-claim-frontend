@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -82,17 +82,17 @@ class EnterClaimControllerSpec
         controller.show(pageIndex, taxCode)(FakeRequest())
 
       "display the page" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               val pageIndex = mrnIndex + 1
@@ -121,17 +121,17 @@ class EnterClaimControllerSpec
       }
 
       "display the page in the change mode" in {
-        forAll(incompleteJourneyWithCompleteClaimsGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithCompleteClaimsGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               val pageIndex = mrnIndex + 1
@@ -154,8 +154,8 @@ class EnterClaimControllerSpec
                 ,
                 doc => {
                   val amount = for
-                    amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
-                    correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
+                    amountPaid    <- claim.getAmountPaidFor(mrn, taxCode)
+                    correctAmount <- claim.getCorrectedAmountFor(mrn, taxCode)
                   yield amountPaid - correctAmount
                   validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
                 }
@@ -166,18 +166,18 @@ class EnterClaimControllerSpec
       }
 
       "display the page back when in the change mode from CYA" in {
-        forAll(completeJourneyGen) { journey =>
-          journey.getMovementReferenceNumbers.get.zipWithIndex
+        forAll(completeClaimGen) { claim =>
+          claim.getMovementReferenceNumbers.get.zipWithIndex
             .foreach { case (mrn, mrnIndex) =>
               val selectedTaxCodes: Seq[TaxCode] =
-                journey
+                claim
                   .getSelectedDuties(mrn)
-                  .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                  .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
               selectedTaxCodes.foreach { taxCode =>
                 inSequence {
                   mockAuthWithDefaultRetrievals()
-                  mockGetSession(SessionData(journey))
+                  mockGetSession(SessionData(claim))
                 }
 
                 val pageIndex = mrnIndex + 1
@@ -200,8 +200,8 @@ class EnterClaimControllerSpec
                   ,
                   doc => {
                     val amount = for
-                      amountPaid    <- journey.getAmountPaidFor(mrn, taxCode)
-                      correctAmount <- journey.getCorrectedAmountFor(mrn, taxCode)
+                      amountPaid    <- claim.getAmountPaidFor(mrn, taxCode)
+                      correctAmount <- claim.getCorrectedAmountFor(mrn, taxCode)
                     yield amountPaid - correctAmount
                     validateEnterClaimPage(doc, pageIndex, mrn, taxCode, amount)
                   }
@@ -212,11 +212,11 @@ class EnterClaimControllerSpec
       }
 
       "redirect to select duties when no duties selected" in {
-        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val pageIndex = mrnIndex + 1
@@ -229,16 +229,16 @@ class EnterClaimControllerSpec
       }
 
       "redirect to MRN not found when page index is out of bounds" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkPageIsDisplayed(
@@ -257,17 +257,17 @@ class EnterClaimControllerSpec
         controller.showFirstByIndex(pageIndex)(FakeRequest())
 
       "redirect to enter claim" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             selectedTaxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               val pageIndex = mrnIndex + 1
@@ -281,11 +281,11 @@ class EnterClaimControllerSpec
       }
 
       "redirect to select duties when no duties selected" in {
-        forAll(incompleteJourneyWithMrnsGen(5)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(5)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val pageIndex = mrnIndex + 1
@@ -301,12 +301,12 @@ class EnterClaimControllerSpec
         controller.submit(pageIndex, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "accept valid amount and redirect to the next page" in
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             selectedTaxCodes.zipWithIndex.foreach { case (taxCode, dutyIndex) =>
               val pageIndex   = mrnIndex + 1
@@ -322,10 +322,10 @@ class EnterClaimControllerSpec
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
                 mockStoreSession(
                   SessionData(
-                    journey
+                    claim
                       .submitClaimAmount(mrn, taxCode, claimAmount)
                       .getOrFail
                   )
@@ -347,20 +347,20 @@ class EnterClaimControllerSpec
         }
 
       "reject invalid amount and display error message" in
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             selectedTaxCodes.foreach { taxCode =>
               val pageIndex  = mrnIndex + 1
-              val paidAmount = journey.getAmountPaidFor(mrn, taxCode).get
+              val paidAmount = claim.getAmountPaidFor(mrn, taxCode).get
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkPageIsDisplayed(
@@ -393,11 +393,11 @@ class EnterClaimControllerSpec
           }
         }
       "redirect to select duties when no duties selected" in {
-        forAll(incompleteJourneyWithMrnsGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithMrnsGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val pageIndex = mrnIndex + 1
@@ -410,16 +410,16 @@ class EnterClaimControllerSpec
       }
 
       "redirect to MRN not found when page index is out of bounds" in {
-        forAll(incompleteJourneyWithSelectedDutiesGen(2)) { case (journey, mrns) =>
+        forAll(incompleteClaimWithSelectedDutiesGen(2)) { case (claim, mrns) =>
           mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
             val selectedTaxCodes: Seq[TaxCode] =
-              journey
+              claim
                 .getSelectedDuties(mrn)
-                .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkPageIsDisplayed(
@@ -432,15 +432,15 @@ class EnterClaimControllerSpec
       }
 
       "redirect to claims summary when claims are complete and not in change mode" in {
-        forAll(completeJourneyGen) { journey =>
-          journey.getMovementReferenceNumbers.get.zipWithIndex
+        forAll(completeClaimGen) { claim =>
+          claim.getMovementReferenceNumbers.get.zipWithIndex
             .foreach { case (mrn, mrnIndex) =>
               val selectedTaxCodes: Seq[TaxCode] =
-                journey
+                claim
                   .getSelectedDuties(mrn)
-                  .getOrElse(fail("Expected non empty selection of duties, check journey generator."))
+                  .getOrElse(fail("Expected non empty selection of duties, check claim generator."))
 
-              val updatedJourney = journey.submitCheckYourAnswersChangeMode(false)
+              val updatedClaim = claim.submitCheckYourAnswersChangeMode(false)
 
               selectedTaxCodes.foreach { taxCode =>
 
@@ -450,10 +450,10 @@ class EnterClaimControllerSpec
 
                 inSequence {
                   mockAuthWithDefaultRetrievals()
-                  mockGetSession(SessionData(updatedJourney))
+                  mockGetSession(SessionData(updatedClaim))
                   mockStoreSession(
                     SessionData(
-                      updatedJourney
+                      updatedClaim
                         .submitClaimAmount(mrn, taxCode, claimAmount)
                         .getOrFail
                     )
@@ -474,12 +474,12 @@ class EnterClaimControllerSpec
 
     "decide next route" must {
       "redirect to select duties when no duties selected" in {
-        val (journey, mrns) = incompleteJourneyWithMrnsGen(2).sample.get
+        val (claim, mrns) = incompleteClaimWithMrnsGen(2).sample.get
         mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
           val invalidTaxCodes = TaxCodes.all
           for (invalidTaxCode <- invalidTaxCodes)
             controller.decideNextRoute(
-              journey,
+              claim,
               mrnIndex + 1,
               mrn,
               invalidTaxCode
@@ -489,12 +489,12 @@ class EnterClaimControllerSpec
       }
 
       "redirect to select duties when invalid tax code" in {
-        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        val (claim, mrns) = incompleteClaimWithSelectedDutiesGen(2).sample.get
         mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-          val invalidTaxCodes: Set[TaxCode] = TaxCodes.all.toSet -- journey.getSelectedDuties(mrn).get.toSet
+          val invalidTaxCodes: Set[TaxCode] = TaxCodes.all.toSet -- claim.getSelectedDuties(mrn).get.toSet
           for (invalidTaxCode <- invalidTaxCodes)
             controller.decideNextRoute(
-              journey,
+              claim,
               mrnIndex + 1,
               mrn,
               invalidTaxCode
@@ -504,12 +504,12 @@ class EnterClaimControllerSpec
       }
 
       "redirect to enter claim when valid tax code" in {
-        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        val (claim, mrns) = incompleteClaimWithSelectedDutiesGen(2).sample.get
         mrns.zipWithIndex.foreach { case (mrn, mrnIndex) =>
-          val validTaxCodes: Seq[TaxCode] = journey.getSelectedDuties(mrn).get
+          val validTaxCodes: Seq[TaxCode] = claim.getSelectedDuties(mrn).get
           for (n <- 0 to validTaxCodes.size - 2)
             controller.decideNextRoute(
-              journey,
+              claim,
               mrnIndex + 1,
               mrn,
               validTaxCodes(n)
@@ -519,11 +519,11 @@ class EnterClaimControllerSpec
       }
 
       "redirect to select duties for the next MRN when no more duties for the current MRN" in {
-        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        val (claim, mrns) = incompleteClaimWithSelectedDutiesGen(2).sample.get
         mrns.dropRight(1).zipWithIndex.foreach { case (mrn, mrnIndex) =>
-          val lastTaxCode: TaxCode = journey.getSelectedDuties(mrn).get.last
+          val lastTaxCode: TaxCode = claim.getSelectedDuties(mrn).get.last
           controller.decideNextRoute(
-            journey,
+            claim,
             mrnIndex + 1,
             mrn,
             lastTaxCode
@@ -533,12 +533,12 @@ class EnterClaimControllerSpec
       }
 
       "redirect to claims summary when claims are complete and not in change mode" in {
-        val (journey, mrns) = incompleteJourneyWithSelectedDutiesGen(2).sample.get
+        val (claim, mrns) = incompleteClaimWithSelectedDutiesGen(2).sample.get
         mrns.zipWithIndex.last match {
           case (mrn, mrnIndex) =>
-            val lastTaxCode: TaxCode = journey.getSelectedDuties(mrn).get.last
+            val lastTaxCode: TaxCode = claim.getSelectedDuties(mrn).get.last
             controller.decideNextRoute(
-              journey,
+              claim,
               mrnIndex + 1,
               mrn,
               lastTaxCode

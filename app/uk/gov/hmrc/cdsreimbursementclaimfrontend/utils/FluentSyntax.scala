@@ -19,109 +19,109 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import scala.Iterable
 
 /** Fluent syntax helper methods. */
-trait FluentSyntax[Journey] {
+trait FluentSyntax[Claim] {
 
-  val journeyEither: Either[String, Journey]
+  val claimEither: Either[String, Claim]
 
-  /** Modify journey with function applied for each element of the collection. */
+  /** Modify claim with function applied for each element of the collection. */
   final def mapEach[A](
     collection: Iterable[A],
-    modifyFx: Journey => A => Journey
-  ): Either[String, Journey] =
-    collection.foldLeft(journeyEither) { (result, item) =>
-      result.map(journey => modifyFx(journey)(item))
+    modifyFx: Claim => A => Claim
+  ): Either[String, Claim] =
+    collection.foldLeft(claimEither) { (result, item) =>
+      result.map(claim => modifyFx(claim)(item))
     }
 
-  /** Try to modify journey with function applied for each element of the collection. */
+  /** Try to modify claim with function applied for each element of the collection. */
   final def flatMapEach[A](
     collection: Iterable[A],
-    modifyFx: Journey => A => Either[String, Journey]
-  ): Either[String, Journey] =
-    collection.foldLeft(journeyEither) { (result, item) =>
-      result.flatMap(journey => modifyFx(journey)(item))
+    modifyFx: Claim => A => Either[String, Claim]
+  ): Either[String, Claim] =
+    collection.foldLeft(claimEither) { (result, item) =>
+      result.flatMap(claim => modifyFx(claim)(item))
     }
 
   final def flatMapEachWhenDefined[A](option: Option[Iterable[A]])(
-    modifyFx: Journey => A => Either[String, Journey]
-  ): Either[String, Journey] =
+    modifyFx: Claim => A => Either[String, Claim]
+  ): Either[String, Claim] =
     option match {
-      case None             => journeyEither
+      case None             => claimEither
       case Some(collection) =>
-        collection.foldLeft(journeyEither) { (result, item) =>
-          result.flatMap(journey => modifyFx(journey)(item))
+        collection.foldLeft(claimEither) { (result, item) =>
+          result.flatMap(claim => modifyFx(claim)(item))
         }
     }
 
   final def flatMapEachWhenDefinedAndMappingDefined[K, V](option: Option[Map[K, Option[V]]])(
-    modifyFx: Journey => (K, V) => Either[String, Journey]
-  ): Either[String, Journey] =
+    modifyFx: Claim => (K, V) => Either[String, Claim]
+  ): Either[String, Claim] =
     option match {
-      case None           => journeyEither
+      case None           => claimEither
       case Some(mappings) =>
-        mappings.foldLeft(journeyEither) {
+        mappings.foldLeft(claimEither) {
           case (result, (key, Some(value))) =>
-            result.flatMap(journey => modifyFx(journey)(key, value))
+            result.flatMap(claim => modifyFx(claim)(key, value))
 
           case (result, _) => result
         }
     }
 
   final def flatMapEachWhenMappingDefined[K, V](mappings: Map[K, Option[V]])(
-    modifyFx: Journey => (K, V) => Either[String, Journey]
-  ): Either[String, Journey] =
-    mappings.foldLeft(journeyEither) {
+    modifyFx: Claim => (K, V) => Either[String, Claim]
+  ): Either[String, Claim] =
+    mappings.foldLeft(claimEither) {
       case (result, (key, Some(value))) =>
-        result.flatMap(journey => modifyFx(journey)(key, value))
+        result.flatMap(claim => modifyFx(claim)(key, value))
 
       case (result, _) => result
     }
 
-  /** Try to modify the journey if the condition holds, otherwise return as is. */
+  /** Try to modify the claim if the condition holds, otherwise return as is. */
   final def flatMapWhen(condition: Boolean)(
-    modifyFx: Journey => Either[String, Journey]
-  ): Either[String, Journey] =
-    if condition then journeyEither.flatMap(modifyFx) else journeyEither
+    modifyFx: Claim => Either[String, Claim]
+  ): Either[String, Claim] =
+    if condition then claimEither.flatMap(modifyFx) else claimEither
 
-  /** Try to modify the journey if the condition holds, otherwise return as is. */
-  final def flatMapWhen(condition: Journey => Boolean)(
-    modifyFx: Journey => Either[String, Journey]
-  ): Either[String, Journey] =
-    journeyEither
+  /** Try to modify the claim if the condition holds, otherwise return as is. */
+  final def flatMapWhen(condition: Claim => Boolean)(
+    modifyFx: Claim => Either[String, Claim]
+  ): Either[String, Claim] =
+    claimEither
       .map(condition)
-      .flatMap(flag => if flag then journeyEither.flatMap(modifyFx) else journeyEither)
+      .flatMap(flag => if flag then claimEither.flatMap(modifyFx) else claimEither)
 
-  /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+  /** Try to modify the claim if the optional value is defined, otherwise return as is. */
   final def mapWhenDefined[A](option: Option[A])(
-    modifyFx: Journey => A => Journey
-  ): Either[String, Journey] =
+    modifyFx: Claim => A => Claim
+  ): Either[String, Claim] =
     option match {
-      case None        => journeyEither
-      case Some(value) => journeyEither.map(modifyFx(_)(value))
+      case None        => claimEither
+      case Some(value) => claimEither.map(modifyFx(_)(value))
     }
 
-  /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+  /** Try to modify the claim if the optional value is defined, otherwise return as is. */
   final def flatMapWhenDefined[A](option: Option[A])(
-    modifyFx: Journey => A => Either[String, Journey]
-  ): Either[String, Journey] =
+    modifyFx: Claim => A => Either[String, Claim]
+  ): Either[String, Claim] =
     option match {
-      case None        => journeyEither
-      case Some(value) => journeyEither.flatMap(modifyFx(_)(value))
+      case None        => claimEither
+      case Some(value) => claimEither.flatMap(modifyFx(_)(value))
     }
 
 }
 
-trait DirectFluentSyntax[Journey] extends FluentSyntax[Journey] {
-  self: Journey =>
+trait DirectFluentSyntax[Claim] extends FluentSyntax[Claim] {
+  self: Claim =>
 
-  val journeyEither: Either[String, Journey] =
+  val claimEither: Either[String, Claim] =
     Right(this)
 
 }
 
-/** Extension methods for Either[String, Journey].
+/** Extension methods for Either[String, Claim].
   */
-trait ImplicitFluentSyntax[Journey] {
+trait ImplicitFluentSyntax[Claim] {
 
-  implicit class EitherJourneyOps(val journeyEither: Either[String, Journey]) extends FluentSyntax[Journey]
+  implicit class EitherClaimOps(val claimEither: Either[String, Claim]) extends FluentSyntax[Claim]
 
 }

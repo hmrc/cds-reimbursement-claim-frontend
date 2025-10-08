@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
@@ -128,7 +128,7 @@ object CheckYourAnswersInspectionDetailsCardSummary {
           getAddressData(inspectionAddress)
     }
 
-  def renderForSingle(claim: RejectedGoodsSingleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForSingle(claim: RejectedGoodsSingleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
@@ -144,7 +144,7 @@ object CheckYourAnswersInspectionDetailsCardSummary {
         else None
     )
 
-  def renderForMultiple(claim: RejectedGoodsMultipleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForMultiple(claim: RejectedGoodsMultipleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
@@ -160,7 +160,7 @@ object CheckYourAnswersInspectionDetailsCardSummary {
         else None
     )
 
-  def renderForScheduled(claim: RejectedGoodsScheduledJourney.Output, isPrintView: Boolean)(implicit
+  def renderForScheduled(claim: RejectedGoodsScheduledClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(

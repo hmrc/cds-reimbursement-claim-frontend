@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -63,12 +63,12 @@ class EnterClaimControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: OverpaymentsSingleJourney,
+    claim: OverpaymentsSingleClaim,
     taxCode: TaxCode,
     actualAmountOpt: Option[BigDecimal]
   ): Unit = {
     val paidAmount: BigDecimal =
-      journey
+      claim
         .getNdrcDetailsFor(taxCode)
         .map(_.amount)
         .map(BigDecimal.apply)
@@ -103,8 +103,8 @@ class EnterClaimControllerSpec
     )
   }
 
-  val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" when {
 
@@ -113,14 +113,14 @@ class EnterClaimControllerSpec
       def performAction(): Future[Result] =
         controller.showFirst()(FakeRequest())
 
-      "display the page" in forAll(journeyGen) { journey =>
+      "display the page" in forAll(claimGen) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         val expectedTaxCode: TaxCode =
-          journey.getSelectedDuties.get.head
+          claim.getSelectedDuties.get.head
 
         checkIsRedirect(
           performAction(),
@@ -129,14 +129,14 @@ class EnterClaimControllerSpec
       }
 
       "display the page back in the change mode" in
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           val expectedTaxCode: TaxCode =
-            journey.getSelectedDuties.get.head
+            claim.getSelectedDuties.get.head
 
           checkIsRedirect(
             performAction(),
@@ -145,10 +145,10 @@ class EnterClaimControllerSpec
         }
 
       "redirect to select duties page if no claims selected" in
-        forAll(buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())) { journey =>
+        forAll(buildClaimFromAnswersGen(answersUpToBasisForClaimGen())) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -158,11 +158,11 @@ class EnterClaimControllerSpec
         }
 
       "redirect to claims summary when claims are complete and not in change mode" in {
-        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -177,11 +177,11 @@ class EnterClaimControllerSpec
       def performAction(taxCode: TaxCode): Future[Result] =
         controller.show(taxCode)(FakeRequest())
 
-      "display the page" in forAll(journeyGen) { journey =>
-        journey.getSelectedDuties.get.foreach { taxCode =>
+      "display the page" in forAll(claimGen) { claim =>
+        claim.getSelectedDuties.get.foreach { taxCode =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -200,21 +200,21 @@ class EnterClaimControllerSpec
                 messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
               )
             ,
-            assertPageContent(_, journey, taxCode, None)
+            assertPageContent(_, claim, taxCode, None)
           )
         }
       }
 
       "display the page back in the change mode" in
-        forAll(completeJourneyGen) { journey =>
-          journey.getSelectedDuties.get.foreach { taxCode =>
+        forAll(completeClaimGen) { claim =>
+          claim.getSelectedDuties.get.foreach { taxCode =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             val actualAmountOpt: Option[BigDecimal] =
-              journey.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
+              claim.answers.correctedAmounts.flatMap(_.get(taxCode).flatten)
 
             checkPageIsDisplayed(
               performAction(taxCode),
@@ -232,21 +232,21 @@ class EnterClaimControllerSpec
                   messages(s"excise-category.${taxCode.exciseCategory.map(_.repr).getOrElse("none")}")
                 )
               ,
-              assertPageContent(_, journey, taxCode, actualAmountOpt)
+              assertPageContent(_, claim, taxCode, actualAmountOpt)
             )
           }
         }
 
       "redirect to select duties page when no duties selected" in {
-        val journey = OverpaymentsSingleJourney
+        val claim = OverpaymentsSingleClaim
           .tryBuildFrom(
-            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+            claimGen.sample.getOrElse(fail("Failed to create claim")).answers.copy(correctedAmounts = None)
           )
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -256,12 +256,12 @@ class EnterClaimControllerSpec
       }
 
       "when wrong code, redirect to select duties page" in
-        forAll(journeyGen) { journey =>
-          val selected = journey.getSelectedDuties.get
+        forAll(claimGen) { claim =>
+          val selected = claim.getSelectedDuties.get
           val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -271,12 +271,12 @@ class EnterClaimControllerSpec
         }
 
       "when wrong code, redirect to check claims if all amounts provided already" in
-        forAll(buildJourneyFromAnswersGen(answersWithAllAmountsProvidedGen())) { journey =>
-          val selected = journey.getSelectedDuties.get
+        forAll(buildClaimFromAnswersGen(answersWithAllAmountsProvidedGen())) { claim =>
+          val selected = claim.getSelectedDuties.get
           val stranger = TaxCodes.all.find(tc => !selected.contains(tc)).get
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -291,22 +291,22 @@ class EnterClaimControllerSpec
           NdrcDetails("A00", "200", "payment-method", "payment-reference", None)
         )
 
-        val journey = journeyGen.sample.getOrElse(fail("Failed to create journey"))
+        val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney
+        val updatedClaim = OverpaymentsSingleClaim
           .unsafeModifyAnswers(
-            journey,
+            claim,
             _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
           )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -321,9 +321,9 @@ class EnterClaimControllerSpec
         controller.submit(taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "accept valid amount and redirect to the next claim" in
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           val selected =
-            journey.getSelectedDuties.get
+            claim.getSelectedDuties.get
 
           val selectedTaxCodesWithNext: Seq[(TaxCode, TaxCode)] =
             selected.dropRight(1).zip(selected.drop(1))
@@ -331,7 +331,7 @@ class EnterClaimControllerSpec
           selectedTaxCodesWithNext
             .foreach { case (taxCode, nextTaxCode) =>
               val paidAmount: BigDecimal =
-                BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+                BigDecimal(claim.getNdrcDetailsFor(taxCode).get.amount)
 
               for (
                 actualAmount <-
@@ -340,10 +340,10 @@ class EnterClaimControllerSpec
                 val claimAmount = paidAmount - actualAmount
                 inSequence {
                   mockAuthWithDefaultRetrievals()
-                  mockGetSession(SessionData(journey))
+                  mockGetSession(SessionData(claim))
                   mockStoreSession(
                     SessionData(
-                      journey
+                      claim
                         .submitClaimAmount(taxCode, claimAmount)
                         .getOrFail
                     )
@@ -363,21 +363,21 @@ class EnterClaimControllerSpec
         }
 
       "redirect to check claim details when submitting a valid claim and not in change mode with complete reimbursements" in {
-        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
-        val selected = journey.getSelectedDuties.get
+        val selected = claim.getSelectedDuties.get
         val taxCode  = selected.headOption.get
 
-        val paidAmount: BigDecimal = BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+        val paidAmount: BigDecimal = BigDecimal(claim.getNdrcDetailsFor(taxCode).get.amount)
 
         val actualAmount = paidAmount - BigDecimal("0.01")
         val claimAmount  = paidAmount - actualAmount
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey
+              claim
                 .submitClaimAmount(taxCode, claimAmount)
                 .getOrFail
             )
@@ -399,26 +399,26 @@ class EnterClaimControllerSpec
           NdrcDetails("B00", "200", "payment-method", "payment-reference", None)
         )
 
-        val journey = journeyGen.sample.getOrElse(fail("Failed to create journey"))
+        val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney
+        val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
-            journey.answers
+            claim.answers
               .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
           mockStoreSession(
             SessionData(
-              updatedJourney
+              updatedClaim
                 .submitClaimAmount(TaxCode("B00"), 100)
                 .getOrFail
             )
@@ -440,16 +440,16 @@ class EnterClaimControllerSpec
           NdrcDetails("B00", "200", "payment-method", "payment-reference", None)
         )
 
-        val journey = journeyGen.sample.getOrElse(fail("Failed to create journey"))
+        val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney
+        val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
-            journey.answers
+            claim.answers
               .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
@@ -457,10 +457,10 @@ class EnterClaimControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
           mockStoreSession(
             SessionData(
-              updatedJourney
+              updatedClaim
                 .submitClaimAmount(TaxCode("B00"), 100)
                 .getOrFail
             )
@@ -484,26 +484,26 @@ class EnterClaimControllerSpec
           NdrcDetails("A20", "200", "payment-method", "payment-reference", None)
         )
 
-        val journey = journeyGen.sample.getOrElse(fail("Failed to create journey"))
+        val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney
+        val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
-            journey.answers
+            claim.answers
               .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
           mockStoreSession(
             SessionData(
-              updatedJourney
+              updatedClaim
                 .submitClaimAmount(TaxCode("A00"), 100)
                 .getOrFail
             )
@@ -519,17 +519,17 @@ class EnterClaimControllerSpec
       }
 
       "reject invalid amount and display error" in
-        forAll(journeyGen) { journey =>
-          journey.getSelectedDuties.get
+        forAll(claimGen) { claim =>
+          claim.getSelectedDuties.get
             .foreach { taxCode =>
               val paidAmount: BigDecimal =
-                BigDecimal(journey.getNdrcDetailsFor(taxCode).get.amount)
+                BigDecimal(claim.getNdrcDetailsFor(taxCode).get.amount)
 
               for claimAmount <- Seq(ZERO, paidAmount + BigDecimal("0.01")) do {
                 val actualAmount = paidAmount - claimAmount
                 inSequence {
                   mockAuthWithDefaultRetrievals()
-                  mockGetSession(SessionData(journey))
+                  mockGetSession(SessionData(claim))
                 }
 
                 withClue(s"taxCode=$taxCode paid=$paidAmount claim=$claimAmount") {
@@ -550,7 +550,7 @@ class EnterClaimControllerSpec
                       )
                     ,
                     doc => {
-                      assertPageContent(doc, journey, taxCode, Some(actualAmount))
+                      assertPageContent(doc, claim, taxCode, Some(actualAmount))
                       assertShowsInputError(doc, Some(m("enter-claim-amount.error.amount")))
                     },
                     expectedStatus = BAD_REQUEST
@@ -561,14 +561,14 @@ class EnterClaimControllerSpec
         }
 
       "reject empty amount and display error" in
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           val taxCode: TaxCode =
-            journey.getSelectedDuties.get.head
+            claim.getSelectedDuties.get.head
 
           checkPageIsDisplayed(
             performAction(taxCode, Seq("enter-claim-amount" -> "")),
@@ -587,7 +587,7 @@ class EnterClaimControllerSpec
               )
             ,
             doc => {
-              assertPageContent(doc, journey, taxCode, None)
+              assertPageContent(doc, claim, taxCode, None)
               assertShowsInputError(doc, Some(m("enter-claim-amount.error.required")))
             },
             expectedStatus = BAD_REQUEST
@@ -595,15 +595,15 @@ class EnterClaimControllerSpec
         }
 
       "redirect to select duties page when no duties selected" in {
-        val journey = OverpaymentsSingleJourney
+        val claim = OverpaymentsSingleClaim
           .tryBuildFrom(
-            journeyGen.sample.getOrElse(fail("Failed to create journey")).answers.copy(correctedAmounts = None)
+            claimGen.sample.getOrElse(fail("Failed to create claim")).answers.copy(correctedAmounts = None)
           )
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -617,21 +617,21 @@ class EnterClaimControllerSpec
           TaxCode("A00") -> None
         )
 
-        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail
+          claim.answers.displayDeclaration.get.displayResponseDetail
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney.unsafeModifyAnswers(
-          journey,
+        val updatedClaim = OverpaymentsSingleClaim.unsafeModifyAnswers(
+          claim,
           _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(performAction(TaxCode("B00")), routes.SelectDutiesController.show)
@@ -644,21 +644,21 @@ class EnterClaimControllerSpec
         )
         val ndrcDetails      = NdrcDetails("B00", "100", "payment-method", "payment-reference", None)
 
-        val journey = completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false)
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
         val displayResponseDetail: DisplayResponseDetail =
-          journey.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
         val displayDeclaration                           =
-          journey.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
-        val updatedJourney = OverpaymentsSingleJourney.unsafeModifyAnswers(
-          journey,
+        val updatedClaim = OverpaymentsSingleClaim.unsafeModifyAnswers(
+          claim,
           _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(performAction(TaxCode("A00")), routes.EnterMovementReferenceNumberController.show)

@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -58,14 +58,14 @@ class EnterNewDanControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val session: SessionData = SessionData(
-    OverpaymentsMultipleJourney
+    OverpaymentsMultipleClaim
       .empty(anotherExampleEori)
       .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
       .getOrFail
   )
 
-  val journeyGen: Gen[OverpaymentsMultipleJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+  val claimGen: Gen[OverpaymentsMultipleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
 
   "New Dan Controller" when {
     "Enter New Dan page" must {
@@ -73,7 +73,7 @@ class EnterNewDanControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -154,13 +154,13 @@ class EnterNewDanControllerSpec
       }
 
       "submit a valid Dan" in forAll(
-        journeyGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
-      ) { journey =>
+        claimGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
+      ) { claim =>
         val dan = Dan("1234567")
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.submitNewDan(dan)))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(claim.submitNewDan(dan)))(Right(()))
         }
 
         checkIsRedirect(

@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -65,14 +65,14 @@ class EnterNewEoriNumberControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val session: SessionData = SessionData(
-    OverpaymentsMultipleJourney
+    OverpaymentsMultipleClaim
       .empty(anotherExampleEori)
       .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
       .getOrFail
   )
 
-  val journeyGen: Gen[OverpaymentsMultipleJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+  val claimGen: Gen[OverpaymentsMultipleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
 
   def mockGetEoriDetails(eori: Eori)(
     response: Future[Option[connectors.EoriDetailsConnector.Response]]
@@ -88,7 +88,7 @@ class EnterNewEoriNumberControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -150,12 +150,12 @@ class EnterNewEoriNumberControllerSpec
       }
 
       "submit a valid Eori format but new eori does not start with GB" in forAll(
-        journeyGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
-      ) { journey =>
+        claimGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
+      ) { claim =>
         val eori = Eori("FR123456123456")
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -171,14 +171,14 @@ class EnterNewEoriNumberControllerSpec
       }
 
       "submit a valid Eori format, importer has XI eori but new eori starts with GB" in forAll(
-        buildJourneyFromAnswersGen(answersUpToBasisForClaimGen(currentUserEoriNumber = IdGen.genXiEori)).flatMap(j =>
+        buildClaimFromAnswersGen(answersUpToBasisForClaimGen(currentUserEoriNumber = IdGen.genXiEori)).flatMap(j =>
           j.submitBasisOfClaim(IncorrectEoriAndDan)
         )
-      ) { journey =>
+      ) { claim =>
         val eori = Eori("GB123456123456")
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -194,12 +194,12 @@ class EnterNewEoriNumberControllerSpec
       }
 
       "submit a valid Eori format but eori does not exist" in forAll(
-        journeyGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
-      ) { journey =>
+        claimGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
+      ) { claim =>
         val eori = Eori("GB123456123456")
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockGetEoriDetails(eori)(Future.successful(None))
         }
 
@@ -216,12 +216,12 @@ class EnterNewEoriNumberControllerSpec
       }
 
       "submit a valid Eori - eori exists" in forAll(
-        journeyGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
-      ) { journey =>
+        claimGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
+      ) { claim =>
         val eori = Eori("GB123456123456")
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockGetEoriDetails(eori)(
             Future.successful(
               Some(
@@ -235,7 +235,7 @@ class EnterNewEoriNumberControllerSpec
               )
             )
           )
-          mockStoreSession(SessionData(journey.submitNewEori(eori)))(Right(()))
+          mockStoreSession(SessionData(claim.submitNewEori(eori)))(Right(()))
         }
 
         checkIsRedirect(

@@ -19,16 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_mrn
 
-trait ProblemWithMrnMixin extends JourneyBaseController {
+trait ProblemWithMrnMixin extends ClaimBaseController {
   val problemWithMRNPage: problem_with_mrn
   val enterMRNCall: Call
 
   final def show(mrn: MRN): Action[AnyContent] =
-    actionReadWriteJourney { implicit request => implicit journey =>
-      (journey, Ok(problemWithMRNPage(mrn, enterMRNCall)))
+    actionReadWriteClaim { implicit request => implicit claim =>
+      (claim, Ok(problemWithMRNPage(mrn, enterMRNCall)))
     }
 }

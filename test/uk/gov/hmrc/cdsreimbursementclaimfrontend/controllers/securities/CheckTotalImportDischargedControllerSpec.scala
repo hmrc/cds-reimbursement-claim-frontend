@@ -32,12 +32,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import scala.concurrent.Future
@@ -48,7 +48,7 @@ class CheckTotalImportDischargedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney]
+    with TestWithClaimGenerator[SecuritiesClaim]
     with SummaryMatchers
     with Logging {
   val mockClaimsService: ClaimService = mock[ClaimService]
@@ -102,14 +102,14 @@ class CheckTotalImportDischargedControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -128,14 +128,14 @@ class CheckTotalImportDischargedControllerSpec
         )
 
       "redirect to BOD3 form when yes is selected and RFS is InwardProcessingRelief" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithIPRRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -145,14 +145,14 @@ class CheckTotalImportDischargedControllerSpec
       }
 
       "redirect to BOD4 form when yes is selected and RFS is EndUseRelief" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithENURfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -162,14 +162,14 @@ class CheckTotalImportDischargedControllerSpec
       }
 
       "redirect to correct error page when no is selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -179,14 +179,14 @@ class CheckTotalImportDischargedControllerSpec
       }
 
       "stay on the same page and display error message when no option selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(

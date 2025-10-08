@@ -20,32 +20,32 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.newDanForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 import scala.concurrent.Future
 
-trait EnterNewDanMixin extends JourneyBaseController {
+trait EnterNewDanMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
 
   val newDanPage: enter_new_dan
   val postAction: Call
   val continueAction: Call
   val formKey: String = "enter-new-dan"
 
-  def modifyJourney(journey: Journey, dan: Dan): Journey
+  def modifyClaim(claim: Claim, dan: Dan): Claim
 
-  def getNewDanAnswer(journey: Journey): Option[Dan] =
-    journey.answers.newDan
+  def getNewDanAnswer(claim: Claim): Option[Dan] =
+    claim.answers.newDan
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful {
       Ok(
         newDanPage(
-          newDanForm(formKey).withDefault(getNewDanAnswer(journey)),
+          newDanForm(formKey).withDefault(getNewDanAnswer(claim)),
           postAction
         )
       )
@@ -53,14 +53,14 @@ trait EnterNewDanMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       newDanForm(formKey)
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   newDanPage(
                     formWithErrors,
@@ -72,7 +72,7 @@ trait EnterNewDanMixin extends JourneyBaseController {
           dan =>
             Future.successful(
               (
-                modifyJourney(journey, dan),
+                modifyClaim(claim, dan),
                 Redirect(continueAction)
               )
             )

@@ -21,7 +21,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
 import javax.inject.Inject
@@ -30,30 +30,30 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterInspectionDateController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterInspectionDatePage: enter_inspection_date
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController {
+    extends RejectedGoodsMultipleClaimBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"
   private val postAction: Call = routes.EnterInspectionDateController.submit
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(
-      enterInspectionDatePage(enterInspectionDateForm.withDefault(journey.answers.inspectionDate), postAction)
+      enterInspectionDatePage(enterInspectionDateForm.withDefault(claim.answers.inspectionDate), postAction)
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     enterInspectionDateForm
       .bindFromRequest()
       .fold(
-        formWithErrors => (journey, BadRequest(enterInspectionDatePage(formWithErrors, postAction))),
+        formWithErrors => (claim, BadRequest(enterInspectionDatePage(formWithErrors, postAction))),
         date => {
-          val updatedJourney = journey.submitInspectionDate(date)
+          val updatedClaim = claim.submitInspectionDate(date)
           (
-            updatedJourney,
-            if updatedJourney.needsDeclarantAndConsigneePostCode then
+            updatedClaim,
+            if updatedClaim.needsDeclarantAndConsigneePostCode then
               Redirect(routes.ChooseInspectionAddressTypeController.show)
             else Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
           )

@@ -19,15 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 
 import java.util.UUID
 
 trait WorkInProgressMixin {
-  self: JourneyBaseController =>
+  self: ClaimBaseController =>
 
   val show: Action[AnyContent] =
-    simpleActionReadJourney { _ =>
+    simpleActionReadClaim { _ =>
       Ok("Work in progress ...")
     }
 
@@ -37,9 +37,9 @@ trait WorkInProgressMixin {
   val showFirst: Action[AnyContent] = show
 
   val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       (
-        journey,
+        claim,
         Ok(
           s"Submitted form data:\n\n${request.asInstanceOf[Request[AnyContent]].body.asFormUrlEncoded.map(_.mkString("\n")).getOrElse("<empty>")}"
         )

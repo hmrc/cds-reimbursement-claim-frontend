@@ -19,13 +19,13 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 
 @this(
     card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: OverpaymentsMultipleJourney.Output, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(claim: OverpaymentsMultipleClaim.Output, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForMultiple(claim, isPrintView))
 
