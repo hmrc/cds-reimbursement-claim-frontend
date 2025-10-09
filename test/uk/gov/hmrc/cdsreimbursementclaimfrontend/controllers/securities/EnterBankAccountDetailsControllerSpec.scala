@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genBankAccountDetails
@@ -75,7 +75,7 @@ class EnterBankAccountDetailsControllerSpec
 
   private val messagesKey: String = "enter-bank-account-details"
 
-  val session: SessionData = SessionData(securitiesJourneyWithMrnAndRfsAndDeclaration(genReasonForSecurity.sample.get))
+  val session: SessionData = SessionData(securitiesClaimWithMrnAndRfsAndDeclaration(genReasonForSecurity.sample.get))
 
   "Enter Bank Account Details Controller" must {
 
@@ -100,8 +100,8 @@ class EnterBankAccountDetailsControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData(journey)
+      "the user has answered this question before" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -112,14 +112,14 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe claim.answers.bankAccountDetails
               .map(_.accountName.value)
-            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe claim.answers.bankAccountDetails
               .map(_.sortCode.value)
             selectedInputBox(
               doc,
               "enter-bank-account-details.account-number"
-            )                                                                shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
+            )                                                                shouldBe claim.answers.bankAccountDetails.map(_.accountNumber.value)
           }
         )
 
@@ -128,8 +128,8 @@ class EnterBankAccountDetailsControllerSpec
     }
 
     "validate bank account details" when {
-      val journey: SecuritiesJourney =
-        completeJourneyGen.sample.get
+      val claim: SecuritiesClaim =
+        completeClaimGen.sample.get
 
       def validatedResult(
         bankAccountDetails: BankAccountDetails,
@@ -139,8 +139,8 @@ class EnterBankAccountDetailsControllerSpec
         controller
           .validateBankAccountDetails(
             bankAccountType
-              .map(ba => journey.submitBankAccountType(ba).getOrFail)
-              .getOrElse(journey),
+              .map(ba => claim.submitBankAccountType(ba).getOrFail)
+              .getOrElse(claim),
             bankAccountDetails,
             postCode
           )
@@ -436,15 +436,15 @@ class EnterBankAccountDetailsControllerSpec
         genBankAccountDetails,
         Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.niru -- ReasonForSecurity.nidac)
       ) { (bankDetails, reasonForSecurity) =>
-        val initialJourney  = SecuritiesJourney
+        val initialClaim    = SecuritiesClaim
           .unsafeModifyAnswers(
-            completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false),
+            completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false),
             answers => answers.copy(bankAccountDetails = None, reasonForSecurity = Some(reasonForSecurity))
           )
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
 
-        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession             = session.copy(securitiesJourney = updatedJourney.toOption)
+        val updatedClaim               = initialClaim.submitBankAccountDetails(bankDetails)
+        val updatedSession             = session.copy(securitiesClaim = updatedClaim.toOption)
         val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
@@ -472,15 +472,15 @@ class EnterBankAccountDetailsControllerSpec
         genBankAccountDetails,
         Gen.oneOf(ReasonForSecurity.niru)
       ) { (bankDetails, reasonForSecurity) =>
-        val initialJourney  = SecuritiesJourney
+        val initialClaim    = SecuritiesClaim
           .unsafeModifyAnswers(
-            completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false),
+            completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false),
             answers => answers.copy(bankAccountDetails = None, reasonForSecurity = Some(reasonForSecurity))
           )
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
 
-        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession             = session.copy(securitiesJourney = updatedJourney.toOption)
+        val updatedClaim               = initialClaim.submitBankAccountDetails(bankDetails)
+        val updatedSession             = session.copy(securitiesClaim = updatedClaim.toOption)
         val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
@@ -508,15 +508,15 @@ class EnterBankAccountDetailsControllerSpec
         genBankAccountDetails,
         Gen.oneOf(ReasonForSecurity.nidac)
       ) { (bankDetails, reasonForSecurity) =>
-        val initialJourney  = SecuritiesJourney
+        val initialClaim    = SecuritiesClaim
           .unsafeModifyAnswers(
-            completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false),
+            completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false),
             answers => answers.copy(bankAccountDetails = None, reasonForSecurity = Some(reasonForSecurity))
           )
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
 
-        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession             = session.copy(securitiesJourney = updatedJourney.toOption)
+        val updatedClaim               = initialClaim.submitBankAccountDetails(bankDetails)
+        val updatedSession             = session.copy(securitiesClaim = updatedClaim.toOption)
         val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
@@ -543,13 +543,13 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney = SecuritiesJourney
+        val initialClaim = SecuritiesClaim
           .unsafeModifyAnswers(
-            completeJourneyGen.sample.get.submitCheckYourAnswersChangeMode(false),
+            completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false),
             answers => answers.copy(bankAccountDetails = None, reasonForSecurity = Some(TemporaryAdmission2M))
           )
 
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
         val boom            = new BadRequestException("Boom!")
 
         inSequence {

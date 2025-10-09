@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
@@ -66,21 +66,21 @@ class CheckClaimDetailsControllerSpec
 
   def assertPageContent(
     doc: Document,
-    journey: RejectedGoodsSingleJourney
+    claim: RejectedGoodsSingleClaim
   ): Unit = {
 
     validateClaimsTableForSingle(
       doc,
-      toReimbursementWithCorrectAmount(journey.getReimbursements),
+      toReimbursementWithCorrectAmount(claim.getReimbursements),
       routes.EnterClaimController.show
     )
     summaryKeyValueList(doc) should containOnlyPairsOf(
       Seq(
-        m("check-claim.selected-duties.question") -> journey.getSelectedDuties
+        m("check-claim.selected-duties.question") -> claim.getSelectedDuties
           .getOrElse(Seq.empty)
           .map(taxCode => s"${taxCode.value} - ${messages(s"select-duties.duty.$taxCode")}")
           .mkString(" "),
-        m("check-claim.table.total")              -> journey.getTotalReimbursementAmount.toPoundSterlingString
+        m("check-claim.table.total")              -> claim.getTotalReimbursementAmount.toPoundSterlingString
       )
     )
 
@@ -92,10 +92,10 @@ class CheckClaimDetailsControllerSpec
     doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
   }
 
-  private val sessionWithMRN = SessionData(journeyWithMrnAndDeclaration)
+  private val sessionWithMRN = SessionData(claimWithMrnAndDeclaration)
 
-  val journeyGen: Gen[RejectedGoodsSingleJourney] =
-    buildJourneyFromAnswersGen(
+  val claimGen: Gen[RejectedGoodsSingleClaim] =
+    buildClaimFromAnswersGen(
       buildAnswersGen(
         submitBankAccountDetails = false,
         submitBankAccountType = false,
@@ -103,20 +103,20 @@ class CheckClaimDetailsControllerSpec
       )
     )
 
-  val journeyWithNoClaimsGen: Gen[RejectedGoodsSingleJourney] =
-    journeyGen.map(journey =>
-      RejectedGoodsSingleJourney
-        .unsafeModifyAnswers(journey, answers => answers.copy(correctedAmounts = None))
+  val claimWithNoClaimsGen: Gen[RejectedGoodsSingleClaim] =
+    claimGen.map(claim =>
+      RejectedGoodsSingleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
     )
 
-  val journeyWithIncompleteClaimsGen: Gen[RejectedGoodsSingleJourney] =
-    journeyGen.map(journey =>
-      RejectedGoodsSingleJourney
+  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsSingleClaim] =
+    claimGen.map(claim =>
+      RejectedGoodsSingleClaim
         .unsafeModifyAnswers(
-          journey,
+          claim,
           answers =>
             answers
-              .copy(correctedAmounts = journey.answers.correctedAmounts.map(_.clearFirstOption))
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
         )
     )
 
@@ -126,8 +126,8 @@ class CheckClaimDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(journeyGen) { journey =>
-          val session = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
+        forAll(claimGen) { claim =>
+          val session = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -137,30 +137,30 @@ class CheckClaimDetailsControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claim.title"),
-            assertPageContent(_, journey)
+            assertPageContent(_, claim)
           )
         }
       }
 
       "display the page in the change mode" in
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("check-claim.title"),
-            assertPageContent(_, journey)
+            assertPageContent(_, claim)
           )
         }
 
       "redirect to enter claim page if no claims" in
-        forAll(journeyWithNoClaimsGen) { journey =>
+        forAll(claimWithNoClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -170,10 +170,10 @@ class CheckClaimDetailsControllerSpec
         }
 
       "redirect to enter claim page if claims are incomplete" in
-        forAll(journeyWithIncompleteClaimsGen) { journey =>
+        forAll(claimWithIncompleteClaimsGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -192,7 +192,7 @@ class CheckClaimDetailsControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
-          mockStoreSession(SessionData(journeyWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
+          mockStoreSession(SessionData(claimWithMrnAndDeclaration.withDutiesChangeMode(true)))(Right(()))
         }
 
         checkIsRedirect(performAction(), routes.SelectDutiesController.show)
@@ -204,7 +204,7 @@ class CheckClaimDetailsControllerSpec
       def performAction(): Future[Result] =
         controller.continue(FakeRequest())
 
-      "redirect to enter inspection date page for incomplete journey" in {
+      "redirect to enter inspection date page for incomplete claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(sessionWithMRN)
@@ -213,11 +213,11 @@ class CheckClaimDetailsControllerSpec
         checkIsRedirect(performAction(), routes.EnterInspectionDateController.show)
       }
 
-      "continue to cya page for complete journey" in
-        forAll(completeJourneyGen) { journey =>
+      "continue to cya page for complete claim" in
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(performAction(), routes.CheckYourAnswersController.show)

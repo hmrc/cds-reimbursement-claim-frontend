@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
@@ -28,33 +28,33 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val bankAccountReputationService: BankAccountReputationService,
   val enterBankAccountDetailsPage: enter_bank_account_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with EnterBankAccountDetailsMixin {
 
-  final override def modifyJourney(
-    journey: Journey,
+  final override def modifyClaim(
+    claim: Claim,
     bankAccountDetails: BankAccountDetails
-  ): Either[String, Journey] =
-    journey.submitBankAccountDetails(bankAccountDetails)
+  ): Either[String, Claim] =
+    claim.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack = EnterBankAccountDetailsController.routesPack
 
-  final override def isCMA(journey: Journey): Boolean =
-    journey.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
+  final override def isCMA(claim: Claim): Boolean =
+    claim.answers.reimbursementMethod.contains(ReimbursementMethod.CurrentMonthAdjustment)
 
 }
 
 object EnterBankAccountDetailsController {
 
-  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[RejectedGoodsSingleJourney](
+  val routesPack = EnterBankAccountDetailsMixin.RoutesPack[RejectedGoodsSingleClaim](
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
     successPath = _ => routes.ChooseFileTypeController.show,

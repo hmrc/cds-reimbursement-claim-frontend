@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialC
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
@@ -65,8 +65,8 @@ class EnterSpecialCircumstancesControllerSpec
   private val messagesKey: String = "enter-special-circumstances.rejected-goods"
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(
-      RejectedGoodsSingleJourney
+    rejectedGoodsSingleClaim = Some(
+      RejectedGoodsSingleClaim
         .empty(exampleDisplayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
         .getOrFail
@@ -94,10 +94,10 @@ class EnterSpecialCircumstancesControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
-        whenever(journey.answers.basisOfClaimSpecialCircumstances.isDefined) {
-          val basisOFClaimSpecialCircumstances = journey.answers.basisOfClaimSpecialCircumstances
-          val updatedSession                   = SessionData(journey)
+      "display the page on a pre-existing claim" in forAll(completeClaimGenWithSpecialCircumstances) { claim =>
+        whenever(claim.answers.basisOfClaimSpecialCircumstances.isDefined) {
+          val basisOFClaimSpecialCircumstances = claim.answers.basisOfClaimSpecialCircumstances
+          val updatedSession                   = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -116,18 +116,18 @@ class EnterSpecialCircumstancesControllerSpec
 
     "handle submit requests" when {
       "the user enters details for the first time" in {
-        val journey: RejectedGoodsSingleJourney =
-          RejectedGoodsSingleJourney
+        val claim: RejectedGoodsSingleClaim =
+          RejectedGoodsSingleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .map(_.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
             .getOrFail
 
-        val session        = SessionData.empty.copy(rejectedGoodsSingleJourney = Some(journey))
-        val updatedJourney = journey
+        val session        = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
+        val updatedClaim   = claim
           .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
           .getOrElse(fail("unable to get special circumstances"))
-        val updatedSession = SessionData(updatedJourney)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -144,17 +144,17 @@ class EnterSpecialCircumstancesControllerSpec
     }
 
     "redirect to CYA page" when {
-      "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
-        val sessionWitJourney = session.copy(rejectedGoodsSingleJourney =
-          Some(journey.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
+      "claim is complete" in forAll(buildCompleteClaimGen()) { claim =>
+        val sessionWitClaim = session.copy(rejectedGoodsSingleClaim =
+          Some(claim.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(sessionWitJourney)
+          mockGetSession(sessionWitClaim)
           mockStoreSession(
-            sessionWitJourney.copy(rejectedGoodsSingleJourney =
-              sessionWitJourney.rejectedGoodsSingleJourney.map(
+            sessionWitClaim.copy(rejectedGoodsSingleClaim =
+              sessionWitClaim.rejectedGoodsSingleClaim.map(
                 _.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails).value
               )
             )
@@ -170,8 +170,8 @@ class EnterSpecialCircumstancesControllerSpec
 
     "redirect to ineligible page" when {
       "basis of claim is not special circumstances" in {
-        val journey: RejectedGoodsSingleJourney =
-          RejectedGoodsSingleJourney
+        val claim: RejectedGoodsSingleClaim =
+          RejectedGoodsSingleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .map(_.submitBasisOfClaim(Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances).sample.get))
@@ -179,7 +179,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

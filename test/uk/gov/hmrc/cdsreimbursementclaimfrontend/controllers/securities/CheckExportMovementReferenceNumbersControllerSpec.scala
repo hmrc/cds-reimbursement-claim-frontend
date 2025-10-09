@@ -32,9 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import scala.concurrent.Future
@@ -53,7 +53,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney]
+    with TestWithClaimGenerator[SecuritiesClaim]
     with SummaryMatchers
     with Logging {
   val mockClaimsService: ClaimService = mock[ClaimService]
@@ -108,16 +108,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -128,12 +128,12 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to enter export MRN when export MRNs are empty" in {
-        val gen     = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
-        val journey = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val gen   = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val claim = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -143,10 +143,10 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to next page when method of disposal is not exported in multiple or single shipments" in {
-        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
-        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers =>
             answers.copy(temporaryAdmissionMethodsOfDisposal =
               Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone))
@@ -155,7 +155,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -165,16 +165,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to next page when reason for security is not temporary admission" in {
-        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
-        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers => answers.copy(reasonForSecurity = Some(MissingPreferenceCertificate))
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -184,16 +184,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to choose export method page when method of disposal is not found" in {
-        val gen            = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate journey data"))
-        val journey        = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers => answers.copy(temporaryAdmissionMethodsOfDisposal = None)
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -213,16 +213,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
 
       "redirect to enter next export MRN form when yes" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -233,17 +233,17 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "redirect to choose payee type page when no is selected and has single security" in {
         forAllWith(
-          JourneyGenerator(
-            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
-            journeyBuilder = SecuritiesSingleJourneyGenerators
-              .buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          ClaimGenerator(
+            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
+            claimBuilder = SecuritiesSingleClaimGenerators
+              .buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
                 Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
               )
           )
-        ) { case (journey, _) =>
+        ) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -254,16 +254,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to confirm full repayment page when no is selected and has multiple securities" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -272,9 +272,9 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
       }
 
-      "redirect to check your answers page when no is selected and has complete journey" in {
-        val journey = buildCompleteJourneyGen(reasonsForSecurity = Set(ReasonForSecurity.ntas.head)).sample
-          .getOrElse(fail("Failed to create journey"))
+      "redirect to check your answers page when no is selected and has complete claim" in {
+        val claim = buildCompleteClaimGen(reasonsForSecurity = Set(ReasonForSecurity.ntas.head)).sample
+          .getOrElse(fail("Failed to create claim"))
           .submitTemporaryAdmissionMethodsOfDisposal(
             TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.toList
           )
@@ -283,7 +283,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -293,16 +293,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "stay on the same page and display error message when no option selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -321,18 +321,18 @@ class CheckExportMovementReferenceNumbersControllerSpec
         )
 
       "delete and redirect to check export MRNs when remaining export MRNs is not empty" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            SessionData(journey.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
+            SessionData(claim.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
           )(Right(()))
         }
 
@@ -343,18 +343,18 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "delete and redirect to choose export method when there are no remaining export MRNs set" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            SessionData(journey.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
+            SessionData(claim.removeExportMovementReferenceNumber(MRN("19GB03I52858027001")).getOrFail)
           )(Right(()))
         }
 
@@ -365,16 +365,16 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to check export MRNs page when the export MRN to be deleted isn't in the export MRN list" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
           )
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

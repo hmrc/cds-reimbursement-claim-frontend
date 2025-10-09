@@ -27,10 +27,10 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseExportMethodForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
@@ -39,26 +39,26 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseExportMethodController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   chooseExportMethodPage: choose_export_method
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val form: Form[List[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
 
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmission(journey) {
+  def show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    whenTemporaryAdmission(claim) {
       (
-        journey,
+        claim,
         Ok(
           chooseExportMethodPage(
-            chooseExportMethodForm.withDefault(journey.answers.temporaryAdmissionMethodsOfDisposal),
+            chooseExportMethodForm.withDefault(claim.answers.temporaryAdmissionMethodsOfDisposal),
             routes.ChooseExportMethodController.submit
           )
         )
@@ -66,14 +66,14 @@ class ChooseExportMethodController @Inject() (
     }
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmission(journey) {
+  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    whenTemporaryAdmission(claim) {
       form
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
+              claim,
               BadRequest(
                 chooseExportMethodPage(
                   formWithErrors,
@@ -82,20 +82,20 @@ class ChooseExportMethodController @Inject() (
               )
             ),
           methodsOfDisposal =>
-            journey
+            claim
               .submitTemporaryAdmissionMethodsOfDisposal(methodsOfDisposal)
               .fold(
                 error => {
                   logger.warn(error)
-                  (journey, errorHandler.errorResult())
+                  (claim, errorHandler.errorResult())
                 },
-                updatedJourney =>
+                updatedClaim =>
                   if TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal(methodsOfDisposal) then {
-                    (updatedJourney, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
+                    (updatedClaim, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
                   } else {
                     (
-                      updatedJourney,
-                      if journey.isSingleSecurity
+                      updatedClaim,
+                      if claim.isSingleSecurity
                       then Redirect(routes.ChoosePayeeTypeController.show)
                       else Redirect(routes.ConfirmFullRepaymentController.showFirst)
                     )
@@ -106,12 +106,12 @@ class ChooseExportMethodController @Inject() (
   }
 
   def whenTemporaryAdmission(
-    journey: SecuritiesJourney
-  )(body: => (SecuritiesJourney, Result))(implicit request: Request[?]): (SecuritiesJourney, Result) =
-    journey.getReasonForSecurity
-      .fold((journey, errorHandler.errorResult())) {
+    claim: SecuritiesClaim
+  )(body: => (SecuritiesClaim, Result))(implicit request: Request[?]): (SecuritiesClaim, Result) =
+    claim.getReasonForSecurity
+      .fold((claim, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.ntas.contains(rfs) => body
-        case _                                           => (journey, Redirect(routes.CheckClaimantDetailsController.show))
+        case _                                           => (claim, Redirect(routes.CheckClaimantDetailsController.show))
       }
 
 }

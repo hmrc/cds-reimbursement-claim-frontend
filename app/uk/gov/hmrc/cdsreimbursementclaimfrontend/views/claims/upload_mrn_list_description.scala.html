@@ -27,7 +27,7 @@
     viewConfig: ViewConfig
 )
 
-@(key: String, journey: String)(implicit messages: Messages)
+@(key: String, claim: String)(implicit messages: Messages)
 
 @paragraph(Html(messages(s"$key.help-text.para1")))
 
@@ -42,7 +42,7 @@
 )
 
 
-@if(journey=="c285"){ @paragraph(Html(messages(s"$key.help-text.paraN")))
+@if(claim=="c285"){ @paragraph(Html(messages(s"$key.help-text.paraN")))
 }
 
 @subHeading(Html(messages(s"$key.header.file-upload")), classes="govuk-heading-m")

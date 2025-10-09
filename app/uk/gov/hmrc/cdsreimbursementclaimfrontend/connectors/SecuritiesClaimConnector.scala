@@ -23,7 +23,7 @@ import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
@@ -103,7 +103,7 @@ class SecuritiesClaimConnectorImpl @Inject() (
 
 object SecuritiesClaimConnector {
 
-  final case class Request(claim: SecuritiesJourney.Output)
+  final case class Request(claim: SecuritiesClaim.Output)
   final case class Response(caseNumber: String)
   final case class Exception(msg: String) extends scala.RuntimeException(msg)
 

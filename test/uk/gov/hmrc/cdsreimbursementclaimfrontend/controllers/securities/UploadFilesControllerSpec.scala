@@ -30,10 +30,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -43,7 +43,7 @@ class UploadFilesControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
 
@@ -73,14 +73,14 @@ class UploadFilesControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
-          journeyBuilder = buildSecuritiesJourneyWithDocumentTypeSelected
+          claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockInitializeCall()
         }
 
@@ -105,36 +105,36 @@ class UploadFilesControllerSpec
       )
 
     "return 204 if callback accepted" in forAllWith(
-      JourneyGenerator(
+      ClaimGenerator(
         testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
-        journeyBuilder = buildSecuritiesJourneyWithDocumentTypeSelected
+        claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
-    ) { case (journey, (_, _, _, documentType)) =>
+    ) { case (claim, (_, _, _, documentType)) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
-        mockGetSession(SessionData(journey))
+        mockGetSession(SessionData(claim))
         mockStoreSession(
           SessionData(
-            journey
-              .receiveUploadedFiles(Some(documentType), journey.answers.nonce, Seq(exampleUploadedFile))
+            claim
+              .receiveUploadedFiles(Some(documentType), claim.answers.nonce, Seq(exampleUploadedFile))
               .getOrFail
           )
         )(Right(()))
       }
-      val result = performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = Some(documentType)))
+      val result = performAction(callbackPayload.copy(nonce = claim.answers.nonce, cargo = Some(documentType)))
       status(result) shouldBe 204
     }
 
     "return 400 if callback rejected because of invalid nonce" in forSomeWith(
-      JourneyGenerator(
+      ClaimGenerator(
         testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
-        journeyBuilder = buildSecuritiesJourneyWithDocumentTypeSelected
+        claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
-    ) { case (journey, (_, _, _, documentType)) =>
+    ) { case (claim, (_, _, _, documentType)) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
-          SessionData(journey)
+          SessionData(claim)
         )
       }
       val result = performAction(callbackPayload.copy(nonce = Nonce.random, cargo = Some(documentType)))
@@ -142,32 +142,32 @@ class UploadFilesControllerSpec
     }
 
     "return 400 if callback rejected because of invalid document type" in forSomeWith(
-      JourneyGenerator(
+      ClaimGenerator(
         testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
-        journeyBuilder = buildSecuritiesJourneyWithDocumentTypeSelected
+        claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
-    ) { case (journey, _) =>
+    ) { case (claim, _) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
-          SessionData(journey)
+          SessionData(claim)
         )
       }
       val result =
-        performAction(callbackPayload.copy(nonce = journey.answers.nonce, cargo = Some(UploadDocumentType.AirWayBill)))
+        performAction(callbackPayload.copy(nonce = claim.answers.nonce, cargo = Some(UploadDocumentType.AirWayBill)))
       status(result) shouldBe 400
     }
 
     "return 400 if callback rejected because of invalid request" in forSomeWith(
-      JourneyGenerator(
+      ClaimGenerator(
         testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
-        journeyBuilder = buildSecuritiesJourneyWithDocumentTypeSelected
+        claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
-    ) { case (journey, _) =>
+    ) { case (claim, _) =>
       inSequence {
         mockAuthWithDefaultRetrievals()
         mockGetSession(
-          SessionData(journey)
+          SessionData(claim)
         )
       }
       val result = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))

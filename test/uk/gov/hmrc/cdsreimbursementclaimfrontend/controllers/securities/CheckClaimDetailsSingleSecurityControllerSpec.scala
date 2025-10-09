@@ -32,9 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.List
 import scala.collection.immutable.SortedMap
@@ -53,7 +53,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney]
+    with TestWithClaimGenerator[SecuritiesClaim]
     with SummaryMatchers
     with ClaimsTableValidator {
 
@@ -75,15 +75,15 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
   def validateCheckClaimDetailsPage(
     doc: Document,
-    journey: SecuritiesJourney
+    claim: SecuritiesClaim
   ) = {
 
-    val claims = journey.getReclaimWithAmounts
+    val claims = claim.getReclaimWithAmounts
 
     val reclaimsWithAmountsAndSecurityId = claims.head
     val securityDepositId                = reclaimsWithAmountsAndSecurityId._1
     val reclaimsWithAmounts              = reclaimsWithAmountsAndSecurityId._2
-    val availableDuties                  = journey.getSecurityTaxCodesWithAmounts(securityDepositId)
+    val availableDuties                  = claim.getSecurityTaxCodesWithAmounts(securityDepositId)
 
     // verify claiming full amounts summary
     val claimFullAmountDutiesElement = doc.getElementById("claim-full-amount-selected-duties")
@@ -94,7 +94,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
     claimFullAmountDutiesElement
       .getElementsByClass("govuk-summary-list__value")
       .eachText()
-      .get(0) shouldBe (if journey.isFullSecurityAmountClaimed(securityDepositId) then "Yes" else "No")
+      .get(0) shouldBe (if claim.isFullSecurityAmountClaimed(securityDepositId) then "Yes" else "No")
     val fullAmountChangeLink = claimFullAmountDutiesElement.getElementById(s"change-claim-full-amount")
     fullAmountChangeLink.text()       shouldBe s"Change whether you want to claim the full amount"
     fullAmountChangeLink.attr("href") shouldBe routes.ConfirmSingleDepositRepaymentController.show.url
@@ -127,7 +127,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
     repaymentTotalElement.getElementsByClass("govuk-summary-list__key").text() shouldBe "Total claim amount"
     repaymentTotalElement
       .getElementsByClass("govuk-summary-list__value")
-      .text()                                                                  shouldBe journey.getReclaimWithAmounts.values.flatten.map(_.claimAmount).sum.toPoundSterlingString
+      .text()                                                                  shouldBe claim.getReclaimWithAmounts.values.flatten.map(_.claimAmount).sum.toPoundSterlingString
   }
 
   "CheckClaimDetailsController" when {
@@ -135,33 +135,33 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+          claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
-          mockStoreSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))(Right(()))
+          mockGetSession(SessionData(initialClaim))
+          mockStoreSession(SessionData(initialClaim.submitCheckClaimDetailsChangeMode(true)))(Right(()))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateCheckClaimDetailsPage(doc, initialJourney)
+          doc => validateCheckClaimDetailsPage(doc, initialClaim)
         )
       }
 
       "redirect to check declaration details when correctedAmounts is empty" in {
-        val gen            =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
-        val journey        = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithClaimsEntered(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(journey, _.copy(correctedAmounts = None))
+        val gen          =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+        val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(claim, _.copy(correctedAmounts = None))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -171,19 +171,19 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       }
 
       "redirect to confirm full repayment when reclaims is empty for the deposit ID" in {
-        val gen            =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
-        val journey        = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithClaimsEntered(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val gen          =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+        val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           _.copy(correctedAmounts =
-            Some(SortedMap(journey.getSecurityDepositIds.head -> SortedMap.empty[TaxCode, Option[BigDecimal]]))
+            Some(SortedMap(claim.getSecurityDepositIds.head -> SortedMap.empty[TaxCode, Option[BigDecimal]]))
           )
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
@@ -193,25 +193,23 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       }
 
       "redirect to enter claim when reclaims value is empty for the next tax code" in {
-        val nextTaxCode    = TaxCode("A00")
-        val gen            =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create journey data"))
-        val journey        = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyWithClaimsEntered(gen)
-        val updatedJourney = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
-          _.copy(correctedAmounts =
-            Some(SortedMap(journey.getSecurityDepositIds.head -> SortedMap(nextTaxCode -> None)))
-          )
+        val nextTaxCode  = TaxCode("A00")
+        val gen          =
+          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+        val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
+        val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
+          _.copy(correctedAmounts = Some(SortedMap(claim.getSecurityDepositIds.head -> SortedMap(nextTaxCode -> None))))
         )
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(
           performAction(),
-          routes.EnterClaimController.show(journey.getSecurityDepositIds.head, nextTaxCode)
+          routes.EnterClaimController.show(claim.getSecurityDepositIds.head, nextTaxCode)
         )
       }
     }
@@ -220,16 +218,16 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "redirect to choose payee type page if RFS is not NTAS" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
             ReasonForSecurity.MissingPreferenceCertificate
           ),
-          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+          claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+          mockGetSession(SessionData(initialClaim.submitCheckClaimDetailsChangeMode(true)))
         }
 
         checkIsRedirect(
@@ -239,16 +237,16 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       }
 
       "redirect to choose export method page if RFS is NTAS" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
             ReasonForSecurity.TemporaryAdmission2M
           ),
-          journeyBuilder = buildSecuritiesJourneyWithClaimsEntered
+          claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+          mockGetSession(SessionData(initialClaim.submitCheckClaimDetailsChangeMode(true)))
         }
 
         checkIsRedirect(
@@ -257,10 +255,10 @@ class CheckClaimDetailsSingleSecurityControllerSpec
         )
       }
 
-      "redirect to the CYA page when in change your answers mode" in forAll(completeJourneyGen) { initialJourney =>
+      "redirect to the CYA page when in change your answers mode" in forAll(completeClaimGen) { initialClaim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkIsRedirect(

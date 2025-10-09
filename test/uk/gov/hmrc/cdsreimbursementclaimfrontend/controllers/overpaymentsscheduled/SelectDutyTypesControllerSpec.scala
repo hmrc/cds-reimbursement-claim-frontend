@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -66,7 +66,7 @@ class SelectDutyTypesControllerSpec
       "display the page for the first time" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -82,12 +82,12 @@ class SelectDutyTypesControllerSpec
       }
 
       "display the page when a duty has already been selected before" in {
-        forAll(completeJourneyGen, genDuty) { (journey, dutyType: DutyType) =>
-          val updatedJourney = journey.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+        forAll(completeClaimGen, genDuty) { (claim, dutyType: DutyType) =>
+          val updatedClaim = claim.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
@@ -106,7 +106,7 @@ class SelectDutyTypesControllerSpec
       "reject an empty duty type selection" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
@@ -118,13 +118,13 @@ class SelectDutyTypesControllerSpec
       }
 
       "select valid duty types when none have been selected before" in forAll { (dutyType: DutyType) =>
-        val updatedJourney =
-          journeyWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
+        val updatedClaim =
+          claimWithMrnAndDeclaration.selectAndReplaceDutyTypeSetForReimbursement(Seq(dutyType)).getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -134,21 +134,21 @@ class SelectDutyTypesControllerSpec
       }
 
       "redirect to check claim details when user has completed claims" in {
-        val journey = completeJourneyGen.sample
-          .getOrElse(fail("Failed to create journey"))
+        val claim = completeClaimGen.sample
+          .getOrElse(fail("Failed to create claim"))
           .submitCheckYourAnswersChangeMode(false)
 
-        val completedDutyTypes = journey.getSelectedDutyTypes.getOrElse(fail("Failed to get selected duty types"))
+        val completedDutyTypes = claim.getSelectedDutyTypes.getOrElse(fail("Failed to get selected duty types"))
 
-        val updatedJourney =
-          journey
+        val updatedClaim =
+          claim
             .selectAndReplaceDutyTypeSetForReimbursement(completedDutyTypes)
             .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(

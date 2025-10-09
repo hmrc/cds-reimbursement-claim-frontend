@@ -33,13 +33,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRet
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
@@ -67,21 +67,21 @@ class ChooseHowManyMrnsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  val dataKey: String                      = "rejected-goods.choose-how-many-mrns"
-  val form: Form[RejectedGoodsJourneyType] = chooseHowManyMrnsForm
-  private val postAction: Call             = routes.ChooseHowManyMrnsController.submit
+  val dataKey: String                    = "rejected-goods.choose-how-many-mrns"
+  val form: Form[RejectedGoodsClaimType] = chooseHowManyMrnsForm
+  private val postAction: Call           = routes.ChooseHowManyMrnsController.submit
 
-  private def rejectedGoodsSingleJourneyFeatures(implicit
+  private def rejectedGoodsSingleClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsSingleJourney.Features] = None
+  ): Option[RejectedGoodsSingleClaim.Features] = None
 
-  private def rejectedGoodsMultipleJourneyFeatures(implicit
+  private def rejectedGoodsMultipleClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsMultipleJourney.Features] = None
+  ): Option[RejectedGoodsMultipleClaim.Features] = None
 
-  private def rejectedGoodsScheduledJourneyFeatures(implicit
+  private def rejectedGoodsScheduledClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[RejectedGoodsScheduledJourney.Features] = None
+  ): Option[RejectedGoodsScheduledClaim.Features] = None
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show))
@@ -93,7 +93,7 @@ class ChooseHowManyMrnsController @Inject() (
 
   final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      request.authenticatedRequest.journeyUserType.eoriOpt
+      request.authenticatedRequest.claimUserType.eoriOpt
         .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
           form
             .bindFromRequest()
@@ -105,36 +105,36 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if request.sessionData.rejectedGoodsSingleJourney.isEmpty
-                     || request.sessionData.rejectedGoodsSingleJourney.exists(_.isFinalized)
+                  (if request.sessionData.rejectedGoodsSingleClaim.isEmpty
+                     || request.sessionData.rejectedGoodsSingleClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         RejectedGoodsSingleJourney.empty(eori, features = rejectedGoodsSingleJourneyFeatures)
+                         RejectedGoodsSingleClaim.empty(eori, features = rejectedGoodsSingleClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show))
 
                 case Multiple =>
-                  (if request.sessionData.rejectedGoodsMultipleJourney.isEmpty
-                     || request.sessionData.rejectedGoodsMultipleJourney.exists(_.isFinalized)
+                  (if request.sessionData.rejectedGoodsMultipleClaim.isEmpty
+                     || request.sessionData.rejectedGoodsMultipleClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         RejectedGoodsMultipleJourney.empty(eori, features = rejectedGoodsMultipleJourneyFeatures)
+                         RejectedGoodsMultipleClaim.empty(eori, features = rejectedGoodsMultipleClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
                     .map(_ => Redirect(rejectedGoodsMultipleRoutes.HaveDocumentsReadyController.show))
 
                 case Scheduled =>
-                  (if request.sessionData.rejectedGoodsScheduledJourney.isEmpty
-                     || request.sessionData.rejectedGoodsScheduledJourney.exists(_.isFinalized)
+                  (if request.sessionData.rejectedGoodsScheduledClaim.isEmpty
+                     || request.sessionData.rejectedGoodsScheduledClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         RejectedGoodsScheduledJourney.empty(eori, features = rejectedGoodsScheduledJourneyFeatures)
+                         RejectedGoodsScheduledClaim.empty(eori, features = rejectedGoodsScheduledClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))

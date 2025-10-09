@@ -25,7 +25,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
@@ -34,29 +34,29 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 
 import java.util.Locale
 
-trait UploadFilesMixin extends JourneyBaseController {
+trait UploadFilesMixin extends ClaimBaseController {
 
   val uploadDocumentsConnector: UploadDocumentsConnector
   val uploadDocumentsConfig: UploadDocumentsConfig
   val fileUploadConfig: FileUploadConfig
   val selectDocumentTypePageAction: Call
   val callbackAction: Call
-  def nextPageInJourney(journey: Journey): Call
-  def documentUploadRequired(journey: Journey): Boolean = true
+  def nextPageInClaim(claim: Claim): Call
+  def documentUploadRequired(claim: Claim): Boolean = true
 
   def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
 
-  def modifyJourney(
-    journey: Journey,
+  def modifyClaim(
+    claim: Claim,
     documentType: Option[UploadDocumentType],
     requestNonce: Nonce,
     uploadedFiles: Seq[UploadedFile]
-  ): Either[String, Journey]
+  ): Either[String, Claim]
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.answers.selectedDocumentType match {
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    claim.answers.selectedDocumentType match {
       case None =>
         Redirect(selectDocumentTypePageAction)
 
@@ -65,20 +65,20 @@ trait UploadFilesMixin extends JourneyBaseController {
           selfUrl + selectDocumentTypePageAction.url
 
         val continueAfterNoAnswerUrl =
-          selfUrl + nextPageInJourney(journey).url
+          selfUrl + nextPageInClaim(claim).url
 
         uploadDocumentsConnector
           .initialize(
             UploadDocumentsConnector
               .Request(
                 uploadDocumentsSessionConfig(
-                  nonce = journey.answers.nonce,
+                  nonce = claim.answers.nonce,
                   documentType = documentType,
                   continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
                   continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
-                  minimumNumberOfFiles = if (documentUploadRequired(journey)) 1 else 0
+                  minimumNumberOfFiles = if (documentUploadRequired(claim)) 1 else 0
                 ),
-                journey.answers.supportingEvidences
+                claim.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
               )
           )
@@ -94,8 +94,8 @@ trait UploadFilesMixin extends JourneyBaseController {
     }
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourneyWhenCallback(implicit request =>
-    journey =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaimWhenCallback(implicit request =>
+    claim =>
       request
         .asInstanceOf[Request[AnyContent]]
         .body
@@ -103,27 +103,27 @@ trait UploadFilesMixin extends JourneyBaseController {
         .flatMap(_.asOpt[UploadDocumentsCallback]) match {
         case None =>
           logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+          (claim, BadRequest("missing or invalid callback payload"))
 
         case Some(callback) =>
-          modifyJourney(
-            journey,
+          modifyClaim(
+            claim,
             callback.documentType,
             callback.nonce,
             callback.uploadedFiles.map(_.copy(description = None))
           )
             .fold(
-              error => (journey, BadRequest(error)),
-              modifiedJourney => (modifiedJourney, NoContent)
+              error => (claim, BadRequest(error)),
+              modifiedClaim => (modifiedClaim, NoContent)
             )
       }
   )
 
-  final val summary: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    if journey.answers.supportingEvidences.isEmpty
+  final val summary: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    if claim.answers.supportingEvidences.isEmpty
     then Redirect(selectDocumentTypePageAction)
     else
-      journey.answers.selectedDocumentType match {
+      claim.answers.selectedDocumentType match {
         case None =>
           Redirect(selectDocumentTypePageAction)
 
@@ -132,21 +132,21 @@ trait UploadFilesMixin extends JourneyBaseController {
             selfUrl + selectDocumentTypePageAction.url
 
           val continueAfterNoAnswerUrl =
-            if journey.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
-            else selfUrl + nextPageInJourney(journey).url
+            if claim.userHasSeenCYAPage then selfUrl + checkYourAnswers.url
+            else selfUrl + nextPageInClaim(claim).url
 
           uploadDocumentsConnector
             .initialize(
               UploadDocumentsConnector
                 .Request(
                   config = uploadDocumentsSessionConfig(
-                    nonce = journey.answers.nonce,
+                    nonce = claim.answers.nonce,
                     documentType = documentType,
                     continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
                     continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
-                    minimumNumberOfFiles = if (documentUploadRequired(journey)) 1 else 0
+                    minimumNumberOfFiles = if (documentUploadRequired(claim)) 1 else 0
                   ),
-                  existingFiles = journey.answers.supportingEvidences
+                  existingFiles = claim.answers.supportingEvidences
                     .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
                 )
             )

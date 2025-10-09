@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
@@ -63,8 +63,8 @@ class EnterClaimControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journeyGen: Gen[OverpaymentsScheduledJourney] =
-    buildJourneyFromAnswersGen(answersWithDutiesSelectedGen())
+  val claimGen: Gen[OverpaymentsScheduledClaim] =
+    buildClaimFromAnswersGen(answersWithDutiesSelectedGen())
 
   "Enter Claim Controller" should {
 
@@ -72,11 +72,11 @@ class EnterClaimControllerSpec
 
       "display the enter claim page" when {
 
-        "the user has selected duty and tax codes for the first time" in forAll(journeyGen) { journey =>
-          journey.getFirstDutyToClaim.map { case (dutyType: DutyType, taxCode: TaxCode) =>
+        "the user has selected duty and tax codes for the first time" in forAll(claimGen) { claim =>
+          claim.getFirstDutyToClaim.map { case (dutyType: DutyType, taxCode: TaxCode) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkIsRedirect(
@@ -86,16 +86,16 @@ class EnterClaimControllerSpec
           }
         }
 
-        "the user revisits enter claim page again" in forAll(completeJourneyGen) { journey =>
-          val dutyType: DutyType      = journey.getReimbursementClaims.head._1
-          val taxCode: TaxCode        = journey.getReimbursementClaimsFor(dutyType).get.head._1
-          val reimbursement           = journey.getReimbursementClaimsFor(dutyType).get.head._2.get
+        "the user revisits enter claim page again" in forAll(completeClaimGen) { claim =>
+          val dutyType: DutyType      = claim.getReimbursementClaims.head._1
+          val taxCode: TaxCode        = claim.getReimbursementClaimsFor(dutyType).get.head._1
+          val reimbursement           = claim.getReimbursementClaimsFor(dutyType).get.head._2.get
           val paidAmount: BigDecimal  = reimbursement.paidAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
           val claimAmount: BigDecimal = reimbursement.claimAmount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -125,8 +125,8 @@ class EnterClaimControllerSpec
       "redirect to the select duty type page" when {
 
         "the user has not chosen duty type or tax code" in {
-          val journey = buildJourneyFromAnswersGen(answersUpToBasisForClaimGen()).sample.get
-          val session = SessionData(journey)
+          val claim   = buildClaimFromAnswersGen(answersUpToBasisForClaimGen()).sample.get
+          val session = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -143,13 +143,13 @@ class EnterClaimControllerSpec
       "redirect to select duties page" when {
 
         "the user has empty selected duties" in {
-          val journey = journeyWithMrnAndDeclaration
+          val claim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(UkDuty))
             .getOrFail
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -166,10 +166,10 @@ class EnterClaimControllerSpec
         controller.submit(dutyType, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
-        forAll(journeyGen, amountPaidWithClaimGen) { case (initialJourney, (paidAmount, claimAmount)) =>
-          initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
+        forAll(claimGen, amountPaidWithClaimGen) { case (initialClaim, (paidAmount, claimAmount)) =>
+          initialClaim.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
             taxCodes.take(taxCodes.length - 1).foreach { taxCode =>
-              val updatedJourney = initialJourney
+              val updatedClaim = initialClaim
                 .submitClaimAmount(
                   dutyType,
                   taxCode,
@@ -180,16 +180,16 @@ class EnterClaimControllerSpec
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(initialJourney))
-                mockStoreSession(SessionData(updatedJourney))(Right(()))
+                mockGetSession(SessionData(initialClaim))
+                mockStoreSession(SessionData(updatedClaim))(Right(()))
               }
 
               val expectedRoute: Call =
-                updatedJourney.findNextSelectedTaxCodeAfter(dutyType, taxCode) match {
+                updatedClaim.findNextSelectedTaxCodeAfter(dutyType, taxCode) match {
                   case Some((nextDutyType, nextTaxCode: TaxCode)) =>
                     routes.EnterClaimController.show(nextDutyType, nextTaxCode)
                   case _                                          =>
-                    updatedJourney.findNextSelectedDutyAfter(dutyType) match {
+                    updatedClaim.findNextSelectedDutyAfter(dutyType) match {
                       case Some(nextDutyType) => routes.SelectDutiesController.show(nextDutyType)
                       case None               => routes.CheckClaimDetailsController.show
                     }
@@ -213,10 +213,10 @@ class EnterClaimControllerSpec
       }
 
       "save user defined amounts and redirect to the check claim details page" in {
-        forAll(completeJourneyGen, amountPaidWithClaimGen) { case (initialJourney, (paidAmount, claimAmount)) =>
-          initialJourney.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
+        forAll(completeClaimGen, amountPaidWithClaimGen) { case (initialClaim, (paidAmount, claimAmount)) =>
+          initialClaim.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
             taxCodes.foreach { taxCode =>
-              val updatedJourney = initialJourney
+              val updatedClaim = initialClaim
                 .submitClaimAmount(
                   dutyType,
                   taxCode,
@@ -227,8 +227,8 @@ class EnterClaimControllerSpec
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(initialJourney))
-                mockStoreSession(SessionData(updatedJourney))(Right(()))
+                mockGetSession(SessionData(initialClaim))
+                mockStoreSession(SessionData(updatedClaim))(Right(()))
               }
 
               val expectedRoute: Call =
@@ -256,7 +256,7 @@ class EnterClaimControllerSpec
           val currentDutyType = UkDuty
           val taxCode         = TaxCode("A00")
 
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType, EuDuty))
             .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(currentDutyType, Seq(taxCode)))
             .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(EuDuty, Seq(TaxCode("A50"))))
@@ -265,7 +265,7 @@ class EnterClaimControllerSpec
           val paidAmount  = 24
           val claimAmount = 12
 
-          val updatedJourney = initialJourney
+          val updatedClaim = initialClaim
             .submitClaimAmount(
               currentDutyType,
               taxCode,
@@ -276,8 +276,8 @@ class EnterClaimControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -297,7 +297,7 @@ class EnterClaimControllerSpec
           val currentDutyType = UkDuty
           val taxCode         = TaxCode("A00")
 
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType, EuDuty))
             .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(currentDutyType, Seq(taxCode)))
             .getOrFail
@@ -305,7 +305,7 @@ class EnterClaimControllerSpec
           val paidAmount  = 24
           val claimAmount = 12
 
-          val updatedJourney = initialJourney
+          val updatedClaim = initialClaim
             .submitClaimAmount(
               currentDutyType,
               taxCode,
@@ -316,8 +316,8 @@ class EnterClaimControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -342,7 +342,7 @@ class EnterClaimControllerSpec
           val nextExciseCategory    = Wine
           val currentTaxCode        = TaxCode("311")
 
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType))
             .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(currentExciseCategory, nextExciseCategory)))
             .flatMap(_.selectAndReplaceTaxCodeSetForExciseCategory(currentExciseCategory, Seq(currentTaxCode)))
@@ -351,7 +351,7 @@ class EnterClaimControllerSpec
           val paidAmount  = 24
           val claimAmount = 12
 
-          val updatedJourney = initialJourney
+          val updatedClaim = initialClaim
             .submitClaimAmount(
               currentDutyType,
               currentTaxCode,
@@ -362,8 +362,8 @@ class EnterClaimControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -389,13 +389,13 @@ class EnterClaimControllerSpec
           val paidAmount            = 24
           val claimAmount           = 12
 
-          val initialJourney = journeyWithMrnAndDeclaration
+          val initialClaim = claimWithMrnAndDeclaration
             .selectAndReplaceDutyTypeSetForReimbursement(Seq(currentDutyType))
             .flatMap(_.selectAndReplaceExciseCodeCategories(Seq(currentExciseCategory)))
             .flatMap(_.selectAndReplaceTaxCodeSetForExciseCategory(currentExciseCategory, Seq(currentTaxCode)))
             .getOrFail
 
-          val updatedJourney = initialJourney
+          val updatedClaim = initialClaim
             .submitClaimAmount(
               currentDutyType,
               currentTaxCode,
@@ -406,8 +406,8 @@ class EnterClaimControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(
@@ -425,12 +425,12 @@ class EnterClaimControllerSpec
       }
 
       "show an error summary" when {
-        "duty amounts are missing or invalid" in forAll(journeyGen) { journey =>
-          journey.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
+        "duty amounts are missing or invalid" in forAll(claimGen) { claim =>
+          claim.getSelectedDuties.foreachEntry { case (dutyType, taxCodes) =>
             taxCodes.foreach { taxCode =>
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkPageIsDisplayed(
@@ -468,7 +468,7 @@ class EnterClaimControllerSpec
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkPageIsDisplayed(
@@ -502,7 +502,7 @@ class EnterClaimControllerSpec
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkPageIsDisplayed(

@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
@@ -69,8 +69,8 @@ class ChooseRepaymentMethodControllerSpec
     hasContinueButton(doc)
   }
 
-  val journeyCMAEligibleGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(
+  val claimCMAEligibleGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(
       buildAnswersGen(
         allDutiesCmaEligible = true,
         submitBankAccountDetails = false,
@@ -82,8 +82,8 @@ class ChooseRepaymentMethodControllerSpec
       )
     )
 
-  val journeyNotCMAEligibleGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(
+  val claimNotCMAEligibleGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(
       buildAnswersGen(
         allDutiesCmaEligible = false,
         submitBankAccountDetails = false,
@@ -103,10 +103,10 @@ class ChooseRepaymentMethodControllerSpec
         controller.show(FakeRequest())
 
       "display the page if all duties are are CMA eligible" in
-        forAll(journeyCMAEligibleGen) { journey =>
+        forAll(claimCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -117,10 +117,10 @@ class ChooseRepaymentMethodControllerSpec
         }
 
       "redirect to check bank details page if not all duties are CMA eligible" in
-        forAll(journeyNotCMAEligibleGen) { journey =>
+        forAll(claimNotCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -138,13 +138,13 @@ class ChooseRepaymentMethodControllerSpec
         )
 
       "accept selection of Current Method Adjustment" in
-        forAll(journeyCMAEligibleGen) { journey =>
+        forAll(claimCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(
               SessionData(
-                journey
+                claim
                   .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
                   .getOrFail
               )
@@ -158,13 +158,13 @@ class ChooseRepaymentMethodControllerSpec
         }
 
       "accept selection of Bank Account Transfer" in
-        forAll(journeyCMAEligibleGen) { journey =>
+        forAll(claimCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(
               SessionData(
-                journey
+                claim
                   .submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer)
                   .getOrFail
               )
@@ -178,10 +178,10 @@ class ChooseRepaymentMethodControllerSpec
         }
 
       "reject invalid selection" in
-        forAll(journeyCMAEligibleGen) { journey =>
+        forAll(claimCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -196,10 +196,10 @@ class ChooseRepaymentMethodControllerSpec
         }
 
       "reject empty selection" in
-        forAll(journeyCMAEligibleGen) { journey =>
+        forAll(claimCMAEligibleGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
@@ -217,13 +217,13 @@ class ChooseRepaymentMethodControllerSpec
     "Reset Repayment Method" must {
 
       "remove the repayment method" in {
-        val journey        =
-          journeyCMAEligibleGen.sample.get
+        val claim        =
+          claimCMAEligibleGen.sample.get
             .submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment)
             .getOrFail
-        val updatedJourney = controller.resetReimbursementMethod(journey)
+        val updatedClaim = controller.resetReimbursementMethod(claim)
 
-        updatedJourney.answers.reimbursementMethod shouldBe None
+        updatedClaim.answers.reimbursementMethod shouldBe None
       }
     }
   }

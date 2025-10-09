@@ -21,37 +21,37 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyValidationErrors
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
 import scala.concurrent.Future
 
-trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
+trait EnterDeclarantEoriNumberMixin extends ClaimBaseController {
 
   val postAction: Call
   val continueAction: Call
   val whenEoriInputNotRequiredAction: Call
   val enterDeclarantEoriNumber: enter_declarant_eori_number
 
-  def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey]
+  def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim]
 
-  def needsEoriSubmission(journey: Journey): Boolean =
-    journey.needsDeclarantAndConsigneeEoriSubmission
+  def needsEoriSubmission(claim: Claim): Boolean =
+    claim.needsDeclarantAndConsigneeEoriSubmission
 
-  def getEoriNumberAnswer(journey: Journey): Option[Eori] =
-    journey.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber)
+  def getEoriNumberAnswer(claim: Claim): Option[Eori] =
+    claim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber)
 
   val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Future.successful {
-        if !needsEoriSubmission(journey) then Redirect(whenEoriInputNotRequiredAction)
+        if !needsEoriSubmission(claim) then Redirect(whenEoriInputNotRequiredAction)
         else {
-          val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(journey))
+          val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(claim))
           Ok(
             enterDeclarantEoriNumber(
               form,
@@ -63,8 +63,8 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      if !needsEoriSubmission(journey) then (journey, Redirect(whenEoriInputNotRequiredAction))
+    actionReadWriteClaim { implicit request => claim =>
+      if !needsEoriSubmission(claim) then (claim, Redirect(whenEoriInputNotRequiredAction))
       else {
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
@@ -72,7 +72,7 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
             formWithErrors =>
               Future.successful(
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     enterDeclarantEoriNumber(
                       formWithErrors,
@@ -83,13 +83,13 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
               ),
             eori =>
               Future.successful(
-                modifyJourney(journey, eori)
+                modifyClaim(claim, eori)
                   .fold(
                     {
-                      case JourneyValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI |
-                          JourneyValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI =>
+                      case ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI |
+                          ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI =>
                         (
-                          journey,
+                          claim,
                           BadRequest(
                             enterDeclarantEoriNumber(
                               eoriNumberForm(eoriNumberFormKey)
@@ -105,9 +105,9 @@ trait EnterDeclarantEoriNumberMixin extends JourneyBaseController {
                           )
                         )
                       case errors =>
-                        (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                        (claim, Redirect(baseRoutes.IneligibleController.ineligible))
                     },
-                    updatedJourney => (updatedJourney, Redirect(continueAction))
+                    updatedClaim => (updatedClaim, Redirect(continueAction))
                   )
               )
           )

@@ -21,10 +21,10 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
@@ -32,21 +32,21 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckBankDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController
+    extends RejectedGoodsMultipleClaimBaseController
     with CheckBankDetailsMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override val postAction: Call =
     routes.CheckBankDetailsController.submitWarning
 
-  final override def continueRoute(journey: Journey): Call =
-    if journey.userHasSeenCYAPage then checkYourAnswers
+  final override def continueRoute(claim: Claim): Call =
+    if claim.userHasSeenCYAPage then checkYourAnswers
     else routes.ChooseFileTypeController.show
 
   final override val enterBankAccountDetailsRoute: Call =
@@ -55,9 +55,9 @@ class CheckBankDetailsController @Inject() (
   final override val changeBankAccountDetailsRoute: Call =
     enterBankAccountDetailsRoute
 
-  final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
-    journey.submitBankAccountDetails(bankAccountDetails)
+  final override def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim] =
+    claim.submitBankAccountDetails(bankAccountDetails)
 
-  final override def modifyJourneyRemoveBankDetails(journey: Journey): Journey =
-    journey.removeBankAccountDetails()
+  final override def modifyClaimRemoveBankDetails(claim: Claim): Claim =
+    claim.removeBankAccountDetails()
 }

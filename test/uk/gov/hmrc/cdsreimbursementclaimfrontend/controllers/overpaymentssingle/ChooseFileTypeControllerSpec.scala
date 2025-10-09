@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -59,7 +59,7 @@ class ChooseFileTypeControllerSpec
 
   private val messagesKey: String = "choose-file-type"
 
-  def validateChooseFileTypePage(doc: Document, journey: OverpaymentsSingleJourney) = {
+  def validateChooseFileTypePage(doc: Document, claim: OverpaymentsSingleClaim) = {
     radioItems(doc) should containOnlyPairsOf(
       Seq(
         ("Air waybill", "AirWayBill"),
@@ -85,28 +85,28 @@ class ChooseFileTypeControllerSpec
       "display the page" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration)
+          doc => validateChooseFileTypePage(doc, claimWithMrnAndDeclaration)
         )
 
       }
 
       "display the page when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateChooseFileTypePage(doc, journey)
+            doc => validateChooseFileTypePage(doc, claim)
           )
         }
       }
@@ -120,10 +120,10 @@ class ChooseFileTypeControllerSpec
       "redirect to choose files when valid document type selection" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
           mockStoreSession(
             SessionData(
-              journeyWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.SubstituteEntry)
+              claimWithMrnAndDeclaration.submitDocumentTypeSelection(UploadDocumentType.SubstituteEntry)
             )
           )(Right(()))
         }
@@ -136,12 +136,12 @@ class ChooseFileTypeControllerSpec
       "re-display the page when invalid document type selection" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(
           performAction("choose-file-type" -> "Foo"),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
+          doc => validateChooseFileTypePage(doc, claimWithMrnAndDeclaration),
           expectedStatus = 400
         )
       }
@@ -149,12 +149,12 @@ class ChooseFileTypeControllerSpec
       "re-display the page when nothing has been selected" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journeyWithMrnAndDeclaration))
+          mockGetSession(SessionData(claimWithMrnAndDeclaration))
         }
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateChooseFileTypePage(doc, journeyWithMrnAndDeclaration),
+          doc => validateChooseFileTypePage(doc, claimWithMrnAndDeclaration),
           expectedStatus = 400
         )
       }

@@ -23,8 +23,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
@@ -33,46 +33,45 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val checkDeclarationDetailsPage: check_declaration_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val postAction: Call = routes.CheckDeclarationDetailsController.submit
 
-  import SecuritiesJourney.Checks._
+  import SecuritiesClaim.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
   final val show: Action[AnyContent] =
-    simpleActionReadWriteJourney { implicit request => journey =>
-      val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(true)
+    simpleActionReadWriteClaim { implicit request => claim =>
+      val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(true)
       (
-        updatedJourney,
-        journey.getLeadDisplayDeclaration
+        updatedClaim,
+        claim.getLeadDisplayDeclaration
           .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
-            Ok(checkDeclarationDetailsPage(declaration, journey.getSecuritiesReclaims, postAction))
+            Ok(checkDeclarationDetailsPage(declaration, claim.getSecuritiesReclaims, postAction))
           )
       )
     }
 
   final val submit: Action[AnyContent] =
-    simpleActionReadWriteJourney { implicit request => journey =>
-      val updatedJourney = journey.submitCheckDeclarationDetailsChangeMode(false)
-      if journey.getSelectedDepositIds.isEmpty then
-        (updatedJourney, Redirect(routes.CheckDeclarationDetailsController.show))
-      else if journey.userHasSeenCYAPage then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
-      else if journey.getReasonForSecurity.exists(ntas.contains) || journey.getReasonForSecurity.contains(
+    simpleActionReadWriteClaim { implicit request => claim =>
+      val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(false)
+      if claim.getSelectedDepositIds.isEmpty then
+        (updatedClaim, Redirect(routes.CheckDeclarationDetailsController.show))
+      else if claim.userHasSeenCYAPage then (updatedClaim, Redirect(routes.CheckYourAnswersController.show))
+      else if claim.getReasonForSecurity.exists(ntas.contains) || claim.getReasonForSecurity.contains(
           MissingPreferenceCertificate
         )
-      then (updatedJourney, Redirect(routes.HaveDocumentsReadyController.show))
-      else if journey.isSingleSecurity then
-        (updatedJourney, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
-      else (updatedJourney, Redirect(routes.ConfirmFullRepaymentController.showFirst))
+      then (updatedClaim, Redirect(routes.HaveDocumentsReadyController.show))
+      else if claim.isSingleSecurity then (updatedClaim, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
+      else (updatedClaim, Redirect(routes.ConfirmFullRepaymentController.showFirst))
     }
 }

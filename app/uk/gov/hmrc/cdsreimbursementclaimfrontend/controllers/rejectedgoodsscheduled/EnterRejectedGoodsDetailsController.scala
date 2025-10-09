@@ -22,9 +22,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_rejected_goods_details
 
 import javax.inject.Inject
@@ -33,46 +33,45 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterRejectedGoodsDetailsPage: enter_rejected_goods_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController {
+    extends RejectedGoodsScheduledClaimBaseController {
 
   private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(
       enterRejectedGoodsDetailsPage(
-        enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods),
+        enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods),
         postAction
       )
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney {
-    implicit request => (journey: RejectedGoodsScheduledJourney) =>
-      enterRejectedGoodsDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              journey,
-              BadRequest(
-                enterRejectedGoodsDetailsPage(
-                  formWithErrors,
-                  postAction
-                )
+  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => (claim: RejectedGoodsScheduledClaim) =>
+    enterRejectedGoodsDetailsForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            claim,
+            BadRequest(
+              enterRejectedGoodsDetailsPage(
+                formWithErrors,
+                postAction
               )
-            ),
-          details => {
-            val updatedJourney = journey.submitDetailsOfRejectedGoods(details)
-            (updatedJourney, Redirect(routes.SelectDutyTypesController.show))
-          }
-        )
+            )
+          ),
+        details => {
+          val updatedClaim = claim.submitDetailsOfRejectedGoods(details)
+          (updatedClaim, Redirect(routes.SelectDutyTypesController.show))
+        }
+      )
 
   }
 }

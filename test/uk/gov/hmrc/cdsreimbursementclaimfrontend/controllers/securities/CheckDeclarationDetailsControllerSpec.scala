@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -74,10 +74,10 @@ class CheckDeclarationDetailsControllerSpec
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
-    journey: SecuritiesJourney
+    claim: SecuritiesClaim
   ): Assertion = {
 
-    val numberOfSecurities: Int = journey.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
+    val numberOfSecurities: Int = claim.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
 
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -88,54 +88,54 @@ class CheckDeclarationDetailsControllerSpec
     summaryKeys   should not be empty
     summaryValues should not be empty
 
-    val correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = journey.getSecuritiesReclaims
+    val correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]] = claim.getSecuritiesReclaims
 
     headers.toSeq should contain theSameElementsAs Seq("Contact details", "Claim details")
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "Import Movement Reference Number (MRN)" -> journey.getLeadMovementReferenceNumber.map(_.value),
-        "Importer name"                          -> journey.answers.displayDeclaration.flatMap(_.consigneeName),
-        "Importer email"                         -> journey.answers.displayDeclaration.flatMap(_.consigneeEmail),
-        "Importer address"                       -> journey.answers.displayDeclaration.flatMap(d =>
+        "Import Movement Reference Number (MRN)" -> claim.getLeadMovementReferenceNumber.map(_.value),
+        "Importer name"                          -> claim.answers.displayDeclaration.flatMap(_.consigneeName),
+        "Importer email"                         -> claim.answers.displayDeclaration.flatMap(_.consigneeEmail),
+        "Importer address"                       -> claim.answers.displayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
         ),
-        "Importer telephone"                     -> journey.answers.displayDeclaration.flatMap(_.consigneeTelephone),
-        "Declarant name"                         -> journey.answers.displayDeclaration.map(_.declarantName),
-        "Declarant address"                      -> journey.answers.displayDeclaration.map(d =>
+        "Importer telephone"                     -> claim.answers.displayDeclaration.flatMap(_.consigneeTelephone),
+        "Declarant name"                         -> claim.answers.displayDeclaration.map(_.declarantName),
+        "Declarant address"                      -> claim.answers.displayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         ),
-        "Reason for security deposit"            -> journey.answers.reasonForSecurity.map(rfs =>
+        "Reason for security deposit"            -> claim.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         ),
-        "Date security deposit made"             -> journey.answers.displayDeclaration
+        "Date security deposit made"             -> claim.answers.displayDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat),
-        "Total security deposit value"           -> (if journey.getSecuritiesReclaims.isEmpty
+        "Total security deposit value"           -> (if claim.getSecuritiesReclaims.isEmpty
                                            then None
                                            else
-                                             journey.answers.displayDeclaration
+                                             claim.answers.displayDeclaration
                                                .map(
                                                  _.getTotalSecuritiesAmountFor(
-                                                   journey.getSecuritiesReclaims.keySet
+                                                   claim.getSecuritiesReclaims.keySet
                                                  ).toPoundSterlingString
                                                )
         ),
-        "Total security deposit paid"            -> (if journey.getSecuritiesReclaims.isEmpty
+        "Total security deposit paid"            -> (if claim.getSecuritiesReclaims.isEmpty
                                           then None
                                           else
-                                            journey.answers.displayDeclaration
+                                            claim.answers.displayDeclaration
                                               .map(
                                                 _.getTotalSecuritiesPaidAmountFor(
-                                                  journey.getSecuritiesReclaims.keySet
+                                                  claim.getSecuritiesReclaims.keySet
                                                 ).toPoundSterlingString
                                               )
         ),
         "Method of payment"                      -> (if correctedAmounts.isEmpty then Some("Unavailable")
                                 else
-                                  journey.answers.displayDeclaration
+                                  claim.answers.displayDeclaration
                                     .map(
                                       _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
                                         correctedAmounts.keySet
@@ -147,10 +147,10 @@ class CheckDeclarationDetailsControllerSpec
                                     }
         )
       ) ++
-        (if journey.getSecuritiesReclaims.isEmpty
+        (if claim.getSecuritiesReclaims.isEmpty
          then Seq.empty
          else
-           journey.answers.displayDeclaration
+           claim.answers.displayDeclaration
              .flatMap(_.getSecurityDepositIds)
              .getOrElse(Seq.empty)
              .zipWithIndex
@@ -175,12 +175,12 @@ class CheckDeclarationDetailsControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "redirect to the enter movement reference number if empty journey" in {
-        val initialJourney = emptyJourney
+      "redirect to the enter movement reference number if empty claim" in {
+        val initialClaim = emptyClaim
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkIsRedirect(
@@ -194,7 +194,7 @@ class CheckDeclarationDetailsControllerSpec
           val declarationWithNonMatchingEori = decl.withConsigneeEori(Eori("foo")).withDeclarantEori(Eori("bar"))
           val depositIds                     = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, declarationWithNonMatchingEori)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -202,7 +202,7 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkIsRedirect(
@@ -217,7 +217,7 @@ class CheckDeclarationDetailsControllerSpec
         forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -226,14 +226,14 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
+              mockGetSession(SessionData(initialClaim))
+              mockStoreSession(SessionData(initialClaim.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
             }
 
             checkPageIsDisplayed(
               performAction(),
               messageFromMessageKey(s"$messagesKey.title"),
-              doc => validateCheckDeclarationDetailsPage(doc, initialJourney)
+              doc => validateCheckDeclarationDetailsPage(doc, initialClaim)
             )
           }
         }
@@ -241,7 +241,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "display the page if none security has been selected" in {
         forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
-          val initialJourney = emptyJourney
+          val initialClaim = emptyClaim
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
             .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -249,14 +249,14 @@ class CheckDeclarationDetailsControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
-            mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
+            mockGetSession(SessionData(initialClaim))
+            mockStoreSession(SessionData(initialClaim.submitCheckDeclarationDetailsChangeMode(true)))(Right(()))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckDeclarationDetailsPage(doc, initialJourney)
+            doc => validateCheckDeclarationDetailsPage(doc, initialClaim)
           )
 
         }
@@ -278,7 +278,7 @@ class CheckDeclarationDetailsControllerSpec
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
 
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -288,10 +288,10 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
               mockStoreSession(
                 SessionData(
-                  initialJourney.submitCheckDeclarationDetailsChangeMode(false)
+                  initialClaim.submitCheckDeclarationDetailsChangeMode(false)
                 )
               )(Right(()))
             }
@@ -313,7 +313,7 @@ class CheckDeclarationDetailsControllerSpec
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
 
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -323,8 +323,8 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
+              mockGetSession(SessionData(initialClaim))
+              mockStoreSession(SessionData(initialClaim.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
             }
 
             checkIsRedirect(
@@ -344,7 +344,7 @@ class CheckDeclarationDetailsControllerSpec
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty && !shouldShowCheckDischargedPage(rfs)) {
 
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -354,10 +354,10 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
               mockStoreSession(
                 SessionData(
-                  initialJourney.submitCheckDeclarationDetailsChangeMode(false)
+                  initialClaim.submitCheckDeclarationDetailsChangeMode(false)
                 )
               )(Right(()))
             }
@@ -375,7 +375,7 @@ class CheckDeclarationDetailsControllerSpec
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
 
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -384,8 +384,8 @@ class CheckDeclarationDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
-              mockStoreSession(SessionData(initialJourney.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
+              mockGetSession(SessionData(initialClaim))
+              mockStoreSession(SessionData(initialClaim.submitCheckDeclarationDetailsChangeMode(false)))(Right(()))
             }
 
             checkIsRedirect(
@@ -396,10 +396,10 @@ class CheckDeclarationDetailsControllerSpec
         }
       }
 
-      "redirect to the CYA page when in change your answers mode" in forAll(completeJourneyGen) { initialJourney =>
+      "redirect to the CYA page when in change your answers mode" in forAll(completeClaimGen) { initialClaim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialJourney))
+          mockGetSession(SessionData(initialClaim))
         }
 
         checkIsRedirect(

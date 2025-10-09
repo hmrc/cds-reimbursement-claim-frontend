@@ -31,10 +31,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.EitherOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.securitiesDisplayDeclarationGuaranteeEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.securitiesDisplayDeclarationNotGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.EitherOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesDisplayDeclarationGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesDisplayDeclarationNotGuaranteeEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.BankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
@@ -56,9 +56,9 @@ class ChoosePayeeTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  private def initialJourney(
+  private def initialClaim(
     guarantee: Boolean
-  ): SecuritiesJourney = {
+  ): SecuritiesClaim = {
     val displayDeclaration =
       (
         if guarantee then securitiesDisplayDeclarationGuaranteeEligibleGen
@@ -67,7 +67,7 @@ class ChoosePayeeTypeControllerSpec
         .withBankDetails(Some(BankDetails(None, None)))
         .withReasonForSecurity(ReasonForSecurity.TemporaryAdmission2Y)
 
-    SecuritiesJourney
+    SecuritiesClaim
       .empty(displayDeclaration.getDeclarantEori, Nonce.random)
       .submitMovementReferenceNumber(displayDeclaration.getMRN)
       .submitReasonForSecurityAndDeclaration(ReasonForSecurity.TemporaryAdmission2Y, displayDeclaration)
@@ -76,11 +76,11 @@ class ChoosePayeeTypeControllerSpec
       .getOrFail
   }
 
-  val initialJourneyNonGuarantee: SecuritiesJourney = initialJourney(false)
-  val sessionNonGuarantee: SessionData              = SessionData(initialJourneyNonGuarantee)
+  val initialClaimNonGuarantee: SecuritiesClaim = initialClaim(false)
+  val sessionNonGuarantee: SessionData          = SessionData(initialClaimNonGuarantee)
 
-  val initialJourneyGuarantee: SecuritiesJourney = initialJourney(true)
-  val sessionGuarantee: SessionData              = SessionData(initialJourneyGuarantee)
+  val initialClaimGuarantee: SecuritiesClaim = initialClaim(true)
+  val sessionGuarantee: SessionData          = SessionData(initialClaimGuarantee)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
@@ -105,7 +105,7 @@ class ChoosePayeeTypeControllerSpec
         mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(sessionNonGuarantee)((session, payeeType) =>
-            session.copy(securitiesJourney = initialJourneyNonGuarantee.submitPayeeType(payeeType).toOption)
+            session.copy(securitiesClaim = initialClaimNonGuarantee.submitPayeeType(payeeType).toOption)
           )
         )
       }
@@ -156,7 +156,7 @@ class ChoosePayeeTypeControllerSpec
           mockGetSession(sessionNonGuarantee)
           mockStoreSession(
             sessionNonGuarantee.copy(
-              securitiesJourney = initialJourneyNonGuarantee.submitPayeeType(payeeType).toOption
+              securitiesClaim = initialClaimNonGuarantee.submitPayeeType(payeeType).toOption
             )
           )(Right(()))
         }

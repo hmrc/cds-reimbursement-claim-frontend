@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
@@ -73,7 +73,7 @@ class EnterImporterEoriNumberControllerSpec
     )
 
   val initialSession = SessionData(
-    SecuritiesJourney
+    SecuritiesClaim
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
       .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -87,7 +87,7 @@ class EnterImporterEoriNumberControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
@@ -106,7 +106,7 @@ class EnterImporterEoriNumberControllerSpec
         )
       }
 
-      "display the page on a new journey if consignee details are missing on declaration" in {
+      "display the page on a new claim if consignee details are missing on declaration" in {
         val declaration: DisplayDeclaration =
           buildSecuritiesDisplayDeclaration(
             exampleMrnAsString,
@@ -116,7 +116,7 @@ class EnterImporterEoriNumberControllerSpec
           )
 
         val initialSession = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -142,19 +142,19 @@ class EnterImporterEoriNumberControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in {
-        val journey        = buildCompleteJourneyGen(
+      "display the page on a pre-existing claim" in {
+        val claim          = buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false,
           hasConsigneeDetailsInACC14 = true
         ).sample.getOrElse(
-          fail("Unable to generate complete journey")
+          fail("Unable to generate complete claim")
         )
         val eori           =
-          journey.answers.eoriNumbersVerification
+          claim.answers.eoriNumbersVerification
             .flatMap(_.consigneeEoriNumber)
             .getOrElse(fail("No consignee eori found"))
-        val sessionToAmend = initialSession.copy(securitiesJourney = Some(journey))
+        val sessionToAmend = initialSession.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -220,22 +220,22 @@ class EnterImporterEoriNumberControllerSpec
           initialDisplayDeclaration: DisplayDeclaration,
           initialConsigneeDetails: ConsigneeDetails
         ) =>
-          val initialJourney                = initialSession.securitiesJourney.getOrElse(fail("No rejected goods journey"))
+          val initialClaim                  = initialSession.securitiesClaim.getOrElse(fail("No rejected goods claim"))
           val displayDeclaration            =
             initialDisplayDeclaration.withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
           val consigneeDetails              = initialConsigneeDetails.copy(consigneeEORI = eori.value)
           val updatedDisplayResponseDetails =
             displayDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
           val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-          val journey                       =
-            initialJourney
+          val claim                         =
+            initialClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedDisplayDeclaration)
               .getOrFail
 
-          val requiredSession = initialSession.copy(securitiesJourney = Some(journey))
-          val updatedJourney  = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-          val updatedSession  = initialSession.copy(securitiesJourney = Some(updatedJourney))
+          val requiredSession = initialSession.copy(securitiesClaim = Some(claim))
+          val updatedClaim    = claim.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
+          val updatedSession  = initialSession.copy(securitiesClaim = Some(updatedClaim))
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -265,7 +265,7 @@ class EnterImporterEoriNumberControllerSpec
               consigneeEORI = Some(declarationEori)
             )
 
-          val journey = SecuritiesJourney
+          val claim = SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
@@ -273,7 +273,7 @@ class EnterImporterEoriNumberControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(

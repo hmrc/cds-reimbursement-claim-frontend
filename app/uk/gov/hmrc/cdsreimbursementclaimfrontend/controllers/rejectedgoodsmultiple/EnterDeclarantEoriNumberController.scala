@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterDeclarantEoriNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
@@ -29,10 +29,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDeclarantEoriNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterDeclarantEoriNumber: enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsMultipleJourneyBaseController
+    extends RejectedGoodsMultipleClaimBaseController
     with EnterDeclarantEoriNumberMixin {
 
   final override val postAction: Call =
@@ -44,6 +44,6 @@ class EnterDeclarantEoriNumberController @Inject() (
   final override val whenEoriInputNotRequiredAction: Call =
     routes.BasisForClaimController.show
 
-  final override def modifyJourney(journey: Journey, eori: Eori): Either[String, Journey] =
-    journey.submitDeclarantEoriNumber(eori)
+  final override def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim] =
+    claim.submitDeclarantEoriNumber(eori)
 }

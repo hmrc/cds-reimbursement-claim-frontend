@@ -22,9 +22,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
 import javax.inject.Inject
@@ -34,33 +34,33 @@ import scala.concurrent.Future
 
 @Singleton
 class EnterInspectionDateController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterInspectionDatePage: enter_inspection_date
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
+    extends RejectedGoodsSingleClaimBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"
   private val postAction: Call = routes.EnterInspectionDateController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful {
-      val form = enterInspectionDateForm.withDefault(journey.answers.inspectionDate)
+      val form = enterInspectionDateForm.withDefault(claim.answers.inspectionDate)
       Ok(enterInspectionDatePage(form, postAction))
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     Future.successful(
       enterInspectionDateForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
+              claim,
               BadRequest(
                 enterInspectionDatePage(
                   formWithErrors,
@@ -70,8 +70,8 @@ class EnterInspectionDateController @Inject() (
             ),
           date =>
             (
-              journey.submitInspectionDate(date),
-              if journey.needsDeclarantAndConsigneePostCode then
+              claim.submitInspectionDate(date),
+              if claim.needsDeclarantAndConsigneePostCode then
                 Redirect(routes.ChooseInspectionAddressTypeController.show)
               else {
                 Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())

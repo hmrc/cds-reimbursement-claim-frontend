@@ -36,8 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -47,7 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbi
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.completeClaimGen
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
@@ -56,7 +56,7 @@ class CheckMovementReferenceNumbersControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with JourneyTestData {
+    with ClaimTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -74,23 +74,23 @@ class CheckMovementReferenceNumbersControllerSpec
   def areMrnsUnique(acc14Declarations: List[DisplayDeclaration]): Boolean =
     acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
 
-  private val session = SessionData(RejectedGoodsMultipleJourney.empty(exampleEori))
+  private val session = SessionData(RejectedGoodsMultipleClaim.empty(exampleEori))
 
   def addAcc14(
-    journey: RejectedGoodsMultipleJourney,
+    claim: RejectedGoodsMultipleClaim,
     acc14Declaration: DisplayDeclaration,
     submitEORIs: Boolean = false
-  ): Either[String, RejectedGoodsMultipleJourney] = {
-    val nextIndex           = journey.getMovementReferenceNumbers.map(_.size).getOrElse(0)
-    val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, journey)
-    val journey2            = journey
+  ): Either[String, RejectedGoodsMultipleClaim] = {
+    val nextIndex           = claim.getMovementReferenceNumbers.map(_.size).getOrElse(0)
+    val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, claim)
+    val claim2              = claim
       .submitMovementReferenceNumberAndDeclaration(nextIndex, adjustedDeclaration.getMRN, adjustedDeclaration)
 
     if submitEORIs then
-      journey2
+      claim2
         .flatMapWhenDefined(adjustedDeclaration.getConsigneeEori)(j => j.submitConsigneeEoriNumber(_))
         .flatMap(_.submitDeclarantEoriNumber(adjustedDeclaration.getDeclarantEori))
-    else journey2
+    else claim2
   }
 
   "Check Movement Reference Numbers Controller" when {
@@ -117,7 +117,7 @@ class CheckMovementReferenceNumbersControllerSpec
         true
       }
 
-      "redirect to enter mrn page if no MRNs contained in journey" in {
+      "redirect to enter mrn page if no MRNs contained in claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -129,10 +129,10 @@ class CheckMovementReferenceNumbersControllerSpec
         )
       }
 
-      "redirect to enter second mrn page if only one MRN in the journey" in forAll { (firstMrn: DisplayDeclaration) =>
+      "redirect to enter second mrn page if only one MRN in the claim" in forAll { (firstMrn: DisplayDeclaration) =>
         val session =
           SessionData(
-            RejectedGoodsMultipleJourney
+            RejectedGoodsMultipleClaim
               .empty(exampleEori)
               .submitMovementReferenceNumberAndDeclaration(firstMrn.getMRN, firstMrn)
               .getOrFail
@@ -151,18 +151,18 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
-          val journey = (for
+          val claim = (for
             j1 <- addAcc14(
-                    journey = session.rejectedGoodsMultipleJourney.get,
+                    claim = session.rejectedGoodsMultipleClaim.get,
                     acc14Declaration = firstMrn,
                     submitEORIs = true
                   )
             j2 <- addAcc14(j1, secondMrn)
           yield j2).getOrFail
-          journey.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
-          val mrns    = List(firstMrn.getMRN, secondMrn.getMRN)
+          claim.getMovementReferenceNumbers.get shouldBe Seq(firstMrn.getMRN, secondMrn.getMRN)
+          val mrns  = List(firstMrn.getMRN, secondMrn.getMRN)
 
-          val sessionToAmend = SessionData(journey)
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -186,20 +186,20 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "show page with more than 2 MRNs" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val firstMrnJourney =
+          val firstMrnClaim =
             addAcc14(
-              journey = session.rejectedGoodsMultipleJourney.get,
+              claim = session.rejectedGoodsMultipleClaim.get,
               acc14Declaration = acc14Declarations.head,
               submitEORIs = true
             ).getOrFail
-          val journey         = acc14Declarations.tail.foldLeft(firstMrnJourney) { case (journey, declaration) =>
-            addAcc14(journey, declaration).getOrFail
+          val claim         = acc14Declarations.tail.foldLeft(firstMrnClaim) { case (claim, declaration) =>
+            addAcc14(claim, declaration).getOrFail
           }
 
-          journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+          claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
           val mrns = acc14Declarations.map(_.getMRN)
 
-          val sessionToAmend = SessionData(journey)
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -224,20 +224,20 @@ class CheckMovementReferenceNumbersControllerSpec
       "redirect to enter importer EORI if required and missing" in forAll {
         (acc14Declarations: List[DisplayDeclaration]) =>
           whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-            val firstMrnJourney =
+            val firstMrnClaim =
               addAcc14(
-                journey = session.rejectedGoodsMultipleJourney.get,
+                claim = session.rejectedGoodsMultipleClaim.get,
                 acc14Declaration = acc14Declarations.head,
                 submitEORIs = false
               ).getOrFail
 
-            val journey = acc14Declarations.tail.foldLeft(firstMrnJourney) { case (journey, declaration) =>
-              addAcc14(journey, declaration, submitEORIs = false).getOrFail
+            val claim = acc14Declarations.tail.foldLeft(firstMrnClaim) { case (claim, declaration) =>
+              addAcc14(claim, declaration, submitEORIs = false).getOrFail
             }
 
-            journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+            claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-            val sessionToAmend = SessionData(journey)
+            val sessionToAmend = SessionData(claim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -261,13 +261,13 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
-            case (journey, declaration) => addAcc14(journey, declaration).getOrFail
+          val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
+            addAcc14(claim, declaration).getOrFail
           }
 
-          journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+          claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = SessionData(journey)
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -285,13 +285,13 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "submit when user selects Yes" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
-            case (journey, declaration) => addAcc14(journey, declaration).getOrFail
+          val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
+            addAcc14(claim, declaration).getOrFail
           }
 
-          journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+          claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = SessionData(journey)
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -307,20 +307,20 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "submit when user selects No" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
-          val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
-            case (journey, declaration) => addAcc14(journey, declaration).getOrFail
+          val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
+            addAcc14(claim, declaration).getOrFail
           }
 
-          journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+          claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-          val sessionToAmend = SessionData(journey)
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(sessionToAmend)
             mockStoreSession(
               session.copy(
-                rejectedGoodsMultipleJourney = Some(journey.withEnterContactDetailsMode(true))
+                rejectedGoodsMultipleClaim = Some(claim.withEnterContactDetailsMode(true))
               )
             )(Right(()))
           }
@@ -332,22 +332,21 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects No and CYA mode" in forAll(completeJourneyGen) {
-        (journey: RejectedGoodsMultipleJourney) =>
-          val session = SessionData(journey)
+      "submit when user selects No and CYA mode" in forAll(completeClaimGen) { (claim: RejectedGoodsMultipleClaim) =>
+        val session = SessionData(claim)
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(session)
-          }
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
 
-          checkIsRedirect(
-            performAction(formKey -> "false"),
-            routes.CheckYourAnswersController.show
-          )
+        checkIsRedirect(
+          performAction(formKey -> "false"),
+          routes.CheckYourAnswersController.show
+        )
       }
 
-      "redirect to enter mrn page if no MRNs contained in journey" in {
+      "redirect to enter mrn page if no MRNs contained in claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -370,18 +369,18 @@ class CheckMovementReferenceNumbersControllerSpec
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
         (acc14Declarations: List[DisplayDeclaration]) =>
           whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
-            val journey = acc14Declarations.foldLeft(session.rejectedGoodsMultipleJourney.get) {
-              case (journey, declaration) => addAcc14(journey, declaration).getOrFail
+            val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) {
+              case (claim, declaration) => addAcc14(claim, declaration).getOrFail
             }
 
-            journey.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
+            claim.getMovementReferenceNumbers.map(_.size) shouldBe Some(acc14Declarations.size)
 
-            val sessionToAmend = SessionData(journey)
+            val sessionToAmend = SessionData(claim)
 
-            val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
+            val mrn = Gen.oneOf(claim.getMovementReferenceNumbers.get.tail).sample.get
 
-            val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
-            val updatedSession = SessionData(updatedJourney)
+            val updatedClaim   = claim.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
+            val updatedSession = SessionData(updatedClaim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -409,18 +408,18 @@ class CheckMovementReferenceNumbersControllerSpec
           )
       }
 
-      "redirect back to the CYA page " in forAll(completeJourneyGen) { (journey: RejectedGoodsMultipleJourney) =>
-        whenever(journey.getMovementReferenceNumbers.map(_.size).get >= 3) {
-          val mrn = Gen.oneOf(journey.getMovementReferenceNumbers.get.tail).sample.get
+      "redirect back to the CYA page " in forAll(completeClaimGen) { (claim: RejectedGoodsMultipleClaim) =>
+        whenever(claim.getMovementReferenceNumbers.map(_.size).get >= 3) {
+          val mrn = Gen.oneOf(claim.getMovementReferenceNumbers.get.tail).sample.get
 
-          val updatedJourney = journey.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
+          val updatedClaim = claim.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
 
-          println(updatedJourney.hasCompleteAnswers)
+          println(updatedClaim.hasCompleteAnswers)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockStoreSession(SessionData(updatedJourney))(Right(()))
+            mockGetSession(SessionData(claim))
+            mockStoreSession(SessionData(updatedClaim))(Right(()))
           }
 
           checkIsRedirect(

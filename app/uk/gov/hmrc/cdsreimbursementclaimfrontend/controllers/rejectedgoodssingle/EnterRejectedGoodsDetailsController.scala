@@ -22,9 +22,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejectedGoodsDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_rejected_goods_details
 
 import javax.inject.Inject
@@ -34,33 +34,33 @@ import scala.concurrent.Future
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterRejectedGoodsDetailsPage: enter_rejected_goods_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
+    extends RejectedGoodsSingleClaimBaseController {
 
   private val postAction: Call = routes.EnterRejectedGoodsDetailsController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful {
-      val form = enterRejectedGoodsDetailsForm.withDefault(journey.answers.detailsOfRejectedGoods)
+      val form = enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods)
 
       Ok(enterRejectedGoodsDetailsPage(form, postAction))
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     Future.successful(
       enterRejectedGoodsDetailsForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
+              claim,
               BadRequest(
                 enterRejectedGoodsDetailsPage(
                   formWithErrors,
@@ -70,7 +70,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
             ),
           rejectedGoodsDetails =>
             (
-              journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
+              claim.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
               Redirect(routes.SelectDutiesController.show)
             )
         )

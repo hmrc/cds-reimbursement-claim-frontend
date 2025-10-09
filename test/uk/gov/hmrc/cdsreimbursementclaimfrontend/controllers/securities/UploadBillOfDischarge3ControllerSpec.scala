@@ -30,10 +30,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -43,7 +43,7 @@ class UploadBillOfDischarge3ControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
 
@@ -73,14 +73,14 @@ class UploadBillOfDischarge3ControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "redirect to 'Bill of discharge (BOD) form' when no file uploaded yet" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockInitializeCall()
         }
 
@@ -91,15 +91,15 @@ class UploadBillOfDischarge3ControllerSpec
       }
 
       "redirect to 'Bill of discharge (BOD) form' when some file uploaded already" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey.receiveBillOfDischargeDocuments(journey.answers.nonce, exampleUploadedFiles).getOrFail)
+            SessionData(claim.receiveBillOfDischargeDocuments(claim.answers.nonce, exampleUploadedFiles).getOrFail)
           )
           mockInitializeCall(exampleUploadedFiles)
         }
@@ -110,12 +110,12 @@ class UploadBillOfDischarge3ControllerSpec
         )
       }
 
-      "redirect to 'Bill of discharge (BOD) form' if journey has complete answers" in {
-        forAll(completeJourneyOnlyIPRGen) { journey =>
+      "redirect to 'Bill of discharge (BOD) form' if claim has complete answers" in {
+        forAll(completeClaimOnlyIPRGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
-            mockInitializeCall(journey.answers.billOfDischargeDocuments)
+            mockGetSession(SessionData(claim))
+            mockInitializeCall(claim.answers.billOfDischargeDocuments)
           }
 
           checkIsRedirect(
@@ -139,36 +139,36 @@ class UploadBillOfDischarge3ControllerSpec
         )
 
       "return 204 if callback accepted" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey
-                .receiveBillOfDischargeDocuments(journey.answers.nonce, exampleUploadedFiles)
+              claim
+                .receiveBillOfDischargeDocuments(claim.answers.nonce, exampleUploadedFiles)
                 .getOrFail
             )
           )(Right(()))
         }
-        val result = performAction(callbackPayload.copy(nonce = journey.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = claim.answers.nonce))
         status(result) shouldBe 204
       }
 
       "return 400 if callback rejected because of invalid nonce" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(claim)
           )
         }
         val result = performAction(callbackPayload.copy(nonce = Nonce.random))
@@ -176,15 +176,15 @@ class UploadBillOfDischarge3ControllerSpec
       }
 
       "return 400 if callback rejected because of invalid request" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journey)
+            SessionData(claim)
           )
         }
         val result = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))

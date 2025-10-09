@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterRejected
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -62,8 +62,8 @@ class EnterRejectedGoodsDetailsControllerSpec
   private val messagesKey: String = "enter-rejected-goods-details.rejected-goods"
 
   val session: SessionData = SessionData.empty.copy(
-    rejectedGoodsSingleJourney = Some(
-      RejectedGoodsSingleJourney
+    rejectedGoodsSingleClaim = Some(
+      RejectedGoodsSingleClaim
         .empty(exampleDisplayDeclaration.getDeclarantEori)
         .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
         .getOrFail
@@ -95,9 +95,9 @@ class EnterRejectedGoodsDetailsControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "the user has entered some details" in {
-        val journey        = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
-        val updatedSession = SessionData(updatedJourney)
+        val claim          = session.rejectedGoodsSingleClaim.getOrElse(fail("No rejected goods claim"))
+        val updatedClaim   = claim.submitDetailsOfRejectedGoods(exampleRejectedGoodsDetails)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

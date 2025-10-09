@@ -22,10 +22,10 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.select_duties
 
@@ -36,26 +36,26 @@ import scala.concurrent.Future
 
 @Singleton
 class SelectDutiesController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   selectDutiesPage: select_duties
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController {
+    extends RejectedGoodsSingleClaimBaseController {
 
   val postAction: Call = routes.SelectDutiesController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future {
-      val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+      val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
 
       if availableDuties.isEmpty then {
         logger.warn("No available duties")
         Redirect(baseRoutes.IneligibleController.ineligible)
       } else {
-        val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(journey.getSelectedDuties)
+        val form = selectDutiesForm(availableDuties.map(_._1)).withDefault(claim.getSelectedDuties)
         Ok(
           selectDutiesPage(
             form = form,
@@ -71,13 +71,13 @@ class SelectDutiesController @Inject() (
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey => {
-        val availableDuties: Seq[(TaxCode, Boolean)] = journey.getAvailableDuties
+      claim => {
+        val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
         Future.successful(if availableDuties.isEmpty then {
           logger.warn("No available duties")
-          (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+          (claim, Redirect(baseRoutes.IneligibleController.ineligible))
         } else {
           val form = selectDutiesForm(availableDuties.map(_._1))
           form
@@ -85,7 +85,7 @@ class SelectDutiesController @Inject() (
             .fold(
               formWithErrors =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     selectDutiesPage(
                       formWithErrors,
@@ -100,9 +100,9 @@ class SelectDutiesController @Inject() (
                 ),
               taxCodesSelected =>
                 (
-                  journey
+                  claim
                     .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                    .getOrElse(journey),
+                    .getOrElse(claim),
                   Redirect(routes.EnterClaimController.showFirst)
                 )
             )

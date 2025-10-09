@@ -42,14 +42,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -166,21 +166,21 @@ class ChooseHowManyMrnsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "Redirect to (single route) HaveDocumentsReady page when user chooses individual and the journey is already finalized" in {
+      "Redirect to (single route) HaveDocumentsReady page when user chooses individual and the claim is already finalized" in {
 
         val initialSession = SessionData(
-          rejectedGoodsSingleJourney = Some(
-            RejectedGoodsSingleJourney
+          rejectedGoodsSingleClaim = Some(
+            RejectedGoodsSingleClaim
               .empty(eoriExample, Nonce.Any)
-              .finalizeJourneyWith("FOO-1234567890")
+              .finalizeClaimWith("FOO-1234567890")
               .getOrElse(
-                RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any)
+                RejectedGoodsSingleClaim.empty(eoriExample, Nonce.Any)
               )
           )
         )
 
         val updatedSession =
-          SessionData(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any)))
+          SessionData(rejectedGoodsSingleClaim = Some(RejectedGoodsSingleClaim.empty(eoriExample, Nonce.Any)))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -193,21 +193,21 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and journey is already finalized" in {
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and claim is already finalized" in {
 
         val initialSession = SessionData(
-          rejectedGoodsMultipleJourney = Some(
-            RejectedGoodsMultipleJourney
+          rejectedGoodsMultipleClaim = Some(
+            RejectedGoodsMultipleClaim
               .empty(eoriExample, Nonce.Any)
-              .finalizeJourneyWith("FOO-1234567890")
+              .finalizeClaimWith("FOO-1234567890")
               .getOrElse(
-                RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any)
+                RejectedGoodsMultipleClaim.empty(eoriExample, Nonce.Any)
               )
           )
         )
 
         val updatedSession =
-          SessionData(rejectedGoodsMultipleJourney = Some(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any)))
+          SessionData(rejectedGoodsMultipleClaim = Some(RejectedGoodsMultipleClaim.empty(eoriExample, Nonce.Any)))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -220,21 +220,21 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, rejectedGoodsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and journey is already finalized" in {
+      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and claim is already finalized" in {
 
         val initialSession = SessionData(
-          rejectedGoodsScheduledJourney = Some(
-            RejectedGoodsScheduledJourney
+          rejectedGoodsScheduledClaim = Some(
+            RejectedGoodsScheduledClaim
               .empty(eoriExample, Nonce.Any)
-              .finalizeJourneyWith("FOO-1234567890")
+              .finalizeClaimWith("FOO-1234567890")
               .getOrElse(
-                RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any)
+                RejectedGoodsScheduledClaim.empty(eoriExample, Nonce.Any)
               )
           )
         )
 
         val updatedSession =
-          SessionData(rejectedGoodsScheduledJourney = Some(RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any)))
+          SessionData(rejectedGoodsScheduledClaim = Some(RejectedGoodsScheduledClaim.empty(eoriExample, Nonce.Any)))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -249,7 +249,7 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (single route) HaveDocumentsReady page when user chooses Individual" in {
 
-        val updatedSession = SessionData(RejectedGoodsSingleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(RejectedGoodsSingleClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -264,7 +264,7 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple" in {
 
-        val updatedSession = SessionData(RejectedGoodsMultipleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(RejectedGoodsMultipleClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -278,7 +278,7 @@ class ChooseHowManyMrnsControllerSpec
       }
 
       "Redirect to (scheduled route) EnterMovementReferenceNumber page when user chooses Scheduled" in {
-        val updatedSession = SessionData(RejectedGoodsScheduledJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(RejectedGoodsScheduledClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)

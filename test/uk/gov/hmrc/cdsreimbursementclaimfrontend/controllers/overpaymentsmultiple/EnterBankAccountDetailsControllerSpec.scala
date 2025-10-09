@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.MockBankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.arbitraryBankAccountReputation
@@ -77,7 +77,7 @@ class EnterBankAccountDetailsControllerSpec
 
   private val messagesKey: String = "enter-bank-account-details"
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Bank Account Details Controller" must {
 
@@ -102,8 +102,8 @@ class EnterBankAccountDetailsControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData(journey)
+      "the user has answered this question before" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -114,21 +114,21 @@ class EnterBankAccountDetailsControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
-            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.account-name") shouldBe claim.answers.bankAccountDetails
               .map(_.accountName.value)
-            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe journey.answers.bankAccountDetails
+            selectedInputBox(doc, "enter-bank-account-details.sort-code")    shouldBe claim.answers.bankAccountDetails
               .map(_.sortCode.value)
             selectedInputBox(
               doc,
               "enter-bank-account-details.account-number"
-            )                                                                shouldBe journey.answers.bankAccountDetails.map(_.accountNumber.value)
+            )                                                                shouldBe claim.answers.bankAccountDetails.map(_.accountNumber.value)
           }
         )
       }
     }
 
     "validate bank account details" when {
-      val journey: OverpaymentsMultipleJourney = completeJourneyGen.sample.get.resetBankTypeAndDetails()
+      val claim: OverpaymentsMultipleClaim = completeClaimGen.sample.get.resetBankTypeAndDetails()
 
       def validatedResult(
         bankAccountDetails: BankAccountDetails,
@@ -138,8 +138,8 @@ class EnterBankAccountDetailsControllerSpec
         controller
           .validateBankAccountDetails(
             bankAccountType
-              .map(ba => journey.submitBankAccountType(ba).getOrFail)
-              .getOrElse(journey),
+              .map(ba => claim.submitBankAccountType(ba).getOrFail)
+              .getOrElse(claim),
             bankAccountDetails,
             postCode
           )
@@ -458,17 +458,17 @@ class EnterBankAccountDetailsControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
-        val initialJourney =
-          OverpaymentsMultipleJourney
+        val initialClaim =
+          OverpaymentsMultipleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
 
-        val updatedJourney             = initialJourney.submitBankAccountDetails(bankDetails)
-        val updatedSession             = session.copy(overpaymentsMultipleJourney = updatedJourney.toOption)
+        val updatedClaim               = initialClaim.submitBankAccountDetails(bankDetails)
+        val updatedSession             = session.copy(overpaymentsMultipleClaim = updatedClaim.toOption)
         val expectedSuccessfulResponse = bankaccountreputation.BankAccountReputation(
           accountNumberWithSortCodeIsValid = Yes,
           accountExists = Some(Yes),
@@ -496,14 +496,14 @@ class EnterBankAccountDetailsControllerSpec
       "redirects to the service unavailable page when the BARS service returns a 400 BAD REQUEST" in forAll(
         genBankAccountDetails
       ) { bankDetails =>
-        val initialJourney =
-          OverpaymentsMultipleJourney
+        val initialClaim =
+          OverpaymentsMultipleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
-        val requiredSession = SessionData(initialJourney)
+        val requiredSession = SessionData(initialClaim)
         val boom            = new BadRequestException("Boom!")
 
         inSequence {

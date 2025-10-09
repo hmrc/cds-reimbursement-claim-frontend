@@ -23,7 +23,7 @@ import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
@@ -104,7 +104,7 @@ class OverpaymentsMultipleClaimConnectorImpl @Inject() (
 
 object OverpaymentsMultipleClaimConnector {
 
-  final case class Request(claim: OverpaymentsMultipleJourney.Output)
+  final case class Request(claim: OverpaymentsMultipleClaim.Output)
   final case class Response(caseNumber: String)
   final case class Exception(msg: String) extends scala.RuntimeException(msg)
 

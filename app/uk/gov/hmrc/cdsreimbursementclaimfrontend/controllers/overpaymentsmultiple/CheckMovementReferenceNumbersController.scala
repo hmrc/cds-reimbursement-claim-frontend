@@ -22,10 +22,10 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -37,20 +37,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckMovementReferenceNumbersController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkMovementReferenceNumbers: check_movement_reference_numbers
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends OverpaymentsMultipleJourneyBaseController {
+    extends OverpaymentsMultipleClaimBaseController {
 
   private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers"
   private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
   private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getMovementReferenceNumbers
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    claim.getMovementReferenceNumbers
       .map { mrns =>
-        if journey.hasCompleteMovementReferenceNumbers then {
-          if journey.needsDeclarantAndConsigneeEoriSubmission && !journey.hasSubmittedDeclarantAndConsigneeEori then {
+        if claim.hasCompleteMovementReferenceNumbers then {
+          if claim.needsDeclarantAndConsigneeEoriSubmission && !claim.hasSubmittedDeclarantAndConsigneeEori then {
             Redirect(routes.EnterImporterEoriNumberController.show)
           } else
             Ok(
@@ -62,21 +62,21 @@ class CheckMovementReferenceNumbersController @Inject() (
                 routes.CheckMovementReferenceNumbersController.delete
               )
             )
-        } else Redirect(routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1))
+        } else Redirect(routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1))
       }
       .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
 
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
-    journey.getMovementReferenceNumbers
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
+    claim.getMovementReferenceNumbers
       .map { mrns =>
         checkMovementReferenceNumbersForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
+                claim,
                 BadRequest(
                   checkMovementReferenceNumbers(
                     mrns,
@@ -91,38 +91,38 @@ class CheckMovementReferenceNumbersController @Inject() (
               answer match {
                 case Yes =>
                   (
-                    journey,
+                    claim,
                     Redirect(
-                      routes.EnterMovementReferenceNumberController.show(journey.countOfMovementReferenceNumbers + 1)
+                      routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1)
                     )
                   )
                 case No  =>
-                  if shouldForwardToCYA(journey) then (journey, Redirect(checkYourAnswers))
-                  else (journey.withEnterContactDetailsMode(true), Redirect(routes.BasisForClaimController.show))
+                  if shouldForwardToCYA(claim) then (claim, Redirect(checkYourAnswers))
+                  else (claim.withEnterContactDetailsMode(true), Redirect(routes.BasisForClaimController.show))
               }
           )
       }
-      .getOrElse((journey, Redirect(routes.EnterMovementReferenceNumberController.show(0))))
+      .getOrElse((claim, Redirect(routes.EnterMovementReferenceNumberController.show(0))))
   }
 
-  final def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
+  final def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
     _ =>
-      journey =>
-        journey
+      claim =>
+        claim
           .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
           .fold(
             error => {
               logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-              (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+              (claim, Redirect(baseRoutes.IneligibleController.ineligible))
             },
-            updatedJourney => nextPageOnDelete(updatedJourney)
+            updatedClaim => nextPageOnDelete(updatedClaim)
           ),
     fastForwardToCYAEnabled = false
   )
 
-  private def nextPageOnDelete(journey: OverpaymentsMultipleJourney): (OverpaymentsMultipleJourney, Result) = (
-    journey,
-    if journey.hasCompleteAnswers then Redirect(routes.CheckClaimDetailsController.show)
+  private def nextPageOnDelete(claim: OverpaymentsMultipleClaim): (OverpaymentsMultipleClaim, Result) = (
+    claim,
+    if claim.hasCompleteAnswers then Redirect(routes.CheckClaimDetailsController.show)
     else Redirect(routes.CheckMovementReferenceNumbersController.show)
   )
 }

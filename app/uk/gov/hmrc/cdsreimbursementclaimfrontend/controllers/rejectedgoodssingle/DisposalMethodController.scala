@@ -24,9 +24,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_or_change_method_of_disposal
 
@@ -35,23 +35,23 @@ import scala.concurrent.Future
 
 @Singleton
 class DisposalMethodController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterOrChangeMethodOfDisposal: enter_or_change_method_of_disposal
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with Logging {
 
   private def postAction: Call = routes.DisposalMethodController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful(
       Ok(
         enterOrChangeMethodOfDisposal(
-          Forms.methodOfDisposalForm.withDefault(journey.answers.methodOfDisposal),
+          Forms.methodOfDisposalForm.withDefault(claim.answers.methodOfDisposal),
           postAction
         )
       )
@@ -59,22 +59,22 @@ class DisposalMethodController @Inject() (
   }
 
   val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       Forms.methodOfDisposalForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(enterOrChangeMethodOfDisposal(formWithErrors, postAction))
               )
             ),
           methodOfDisposal => {
-            val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
+            val updatedClaim = claim.submitMethodOfDisposal(methodOfDisposal)
             Future.successful(
               (
-                updatedJourney,
+                updatedClaim,
                 Redirect(routes.EnterRejectedGoodsDetailsController.show)
               )
             )

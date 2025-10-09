@@ -135,7 +135,7 @@ class AuthenticatedActionWithRetrievedDataSpec
           request,
           { (a: AuthenticatedRequestWithRetrievedData[A]) =>
             a.request.messagesApi shouldBe request.messagesApi
-            Future.successful(Ok(Json.toJson(a.journeyUserType)))
+            Future.successful(Ok(Json.toJson(a.claimUserType)))
           }
         )
       }

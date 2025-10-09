@@ -23,8 +23,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details_without_securities_selection
 
 import scala.concurrent.ExecutionContext
@@ -32,17 +32,17 @@ import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val checkDeclarationDetailsPage: check_declaration_details_without_securities_selection
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   private val postAction: Call = routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.submit
 
-  import SecuritiesJourney.Checks._
+  import SecuritiesClaim.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -50,9 +50,9 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Future.successful(
-        journey.getLeadDisplayDeclaration
+        claim.getLeadDisplayDeclaration
           .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
             Ok(checkDeclarationDetailsPage(declaration, postAction))
           )
@@ -60,7 +60,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    simpleActionReadJourney { journey =>
+    simpleActionReadClaim { claim =>
       Redirect(routes.CheckTotalImportDischargedController.show)
     }
 }

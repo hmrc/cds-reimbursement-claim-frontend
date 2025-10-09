@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genName
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -60,12 +60,12 @@ class EnterContactDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
+  val session: SessionData = SessionData(RejectedGoodsScheduledClaim.empty(exampleEori))
 
-  private def mockCompleteJourney(journey: RejectedGoodsScheduledJourney) =
+  private def mockCompleteClaim(claim: RejectedGoodsScheduledClaim) =
     inSequence {
       mockAuthWithDefaultRetrievals()
-      mockGetSession(SessionData(journey))
+      mockGetSession(SessionData(claim))
     }
 
   "Enter Contact Details Controller" when {
@@ -74,9 +74,9 @@ class EnterContactDetailsControllerSpec
       def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
-          mockCompleteJourney(journey)
-          val contactDetails = journey.answers.contactDetails
+        forAll(buildCompleteClaimGen()) { claim =>
+          mockCompleteClaim(claim)
+          val contactDetails = claim.answers.contactDetails
 
           checkPageIsDisplayed(
             performAction(),
@@ -99,12 +99,12 @@ class EnterContactDetailsControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "reject an empty contact details form" in forAll(buildCompleteJourneyGen()) { journey =>
+      "reject an empty contact details form" in forAll(buildCompleteClaimGen()) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey.submitContactDetails(None)))
+          mockGetSession(SessionData(claim.submitContactDetails(None)))
         }
 
         checkPageIsDisplayed(
@@ -128,22 +128,22 @@ class EnterContactDetailsControllerSpec
       }
 
       "submit a valid contact details" in forAll(
-        buildCompleteJourneyGen(submitContactAddress = false),
+        buildCompleteClaimGen(submitContactAddress = false),
         genEmail,
         genName
-      ) { (journey, email, name) =>
+      ) { (claim, email, name) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            session.copy(rejectedGoodsScheduledJourney =
+            session.copy(rejectedGoodsScheduledClaim =
               Some(
-                journey.submitContactDetails(
+                claim.submitContactDetails(
                   Some(
                     MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
-                      journey.answers.contactDetails
+                      claim.answers.contactDetails
                     )
                   )
                 )
@@ -166,20 +166,20 @@ class EnterContactDetailsControllerSpec
         )
       }
 
-      "fast forward to CYA page when claim is complete" in forAll(buildCompleteJourneyGen(), genEmail, genName) {
-        (journey, email, name) =>
+      "fast forward to CYA page when claim is complete" in forAll(buildCompleteClaimGen(), genEmail, genName) {
+        (claim, email, name) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(
-              session.copy(rejectedGoodsScheduledJourney =
+              session.copy(rejectedGoodsScheduledClaim =
                 Some(
-                  journey.submitContactDetails(
+                  claim.submitContactDetails(
                     Some(
                       MrnContactDetails(name.toFullName, Some(email), None).computeChanges(
-                        journey.answers.contactDetails
+                        claim.answers.contactDetails
                       )
                     )
                   )

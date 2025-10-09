@@ -33,15 +33,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -51,7 +51,7 @@ class EnterClaimControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
 
@@ -103,19 +103,19 @@ class EnterClaimControllerSpec
         controller.showFirst(id)(FakeRequest())
 
       "redirect to the first enter claim page if a valid security deposit ID with selected duties" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
-        for depositId <- initialJourney.getSelectedDepositIds do {
+      ) { case (initialClaim, _) =>
+        for depositId <- initialClaim.getSelectedDepositIds do {
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           val firstDutySelected =
-            initialJourney.getSelectedDutiesFor(depositId).flatMap(_.headOption).get
+            initialClaim.getSelectedDutiesFor(depositId).flatMap(_.headOption).get
 
           checkIsRedirect(
             performAction(depositId),
@@ -125,20 +125,20 @@ class EnterClaimControllerSpec
       }
 
       "redirect to the select duties page if a valid security deposit ID but no duties selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyWithDutiesPartiallySelected
+          claimBuilder = buildSecuritiesClaimWithDutiesPartiallySelected
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         val depositIdsWithNoneDutiesSelected: Set[String] =
-          initialJourney.answers.correctedAmounts.map(_.filter(_._2.isEmpty)).get.keySet
+          initialClaim.answers.correctedAmounts.map(_.filter(_._2.isEmpty)).get.keySet
 
         depositIdsWithNoneDutiesSelected.nonEmpty shouldBe true
 
         for depositId <- depositIdsWithNoneDutiesSelected do {
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -154,19 +154,19 @@ class EnterClaimControllerSpec
       def performAction(id: String, taxCode: TaxCode): Future[Result] = controller.show(id, taxCode)(FakeRequest())
 
       "display the page if a valid security deposit ID" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (depositId, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           val depositAmount =
-            initialJourney.getSecurityTaxDetailsFor(depositId, taxCode).map(_.getAmount).get
+            initialClaim.getSecurityTaxDetailsFor(depositId, taxCode).map(_.getAmount).get
 
           checkPageIsDisplayed(
             performAction(depositId, taxCode),
@@ -175,7 +175,7 @@ class EnterClaimControllerSpec
               validateEnterClaimPage(
                 doc,
                 depositId,
-                initialJourney.isSingleSecurity,
+                initialClaim.isSingleSecurity,
                 taxCode,
                 depositAmount
               )
@@ -184,15 +184,15 @@ class EnterClaimControllerSpec
       }
 
       "display error page if an invalid security deposit ID" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (_, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsTechnicalErrorPage(
@@ -202,22 +202,22 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (depositId, _, _, _) <- reclaims do {
 
-          val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
-          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
+          val selectedDuties  = initialClaim.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialClaim.getSecurityTaxCodesFor(depositId)
 
           availableDuties
             .filterNot(selectedDuties.contains)
             .foreach { unselectedDuty =>
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(initialJourney))
+                mockGetSession(SessionData(initialClaim))
               }
 
               checkIsRedirect(
@@ -229,19 +229,19 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (depositId, _, _, _) <- reclaims do {
 
-          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
+          val availableDuties = initialClaim.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -258,15 +258,15 @@ class EnterClaimControllerSpec
         controller.submit(id, taxCode)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "display error page if an invalid security deposit ID" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (_, taxCode, _, _) <- reclaims do {
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsTechnicalErrorPage(
@@ -276,21 +276,21 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (depositId, _, _, _) <- reclaims do {
 
-          val selectedDuties  = initialJourney.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
-          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
+          val selectedDuties  = initialClaim.getSelectedDutiesFor(depositId).getOrElse(Seq.empty)
+          val availableDuties = initialClaim.getSecurityTaxCodesFor(depositId)
 
           val unselectedDuty = availableDuties.filterNot(selectedDuties.contains).head
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -301,19 +301,19 @@ class EnterClaimControllerSpec
       }
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, (_, _, _, reclaims)) =>
+      ) { case (initialClaim, (_, _, _, reclaims)) =>
         for (depositId, _, _, _) <- reclaims do {
 
-          val availableDuties = initialJourney.getSecurityTaxCodesFor(depositId)
+          val availableDuties = initialClaim.getSecurityTaxCodesFor(depositId)
           val wrongDuty       = TaxCodes.allExcept(availableDuties.toSet).head
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(
@@ -324,13 +324,13 @@ class EnterClaimControllerSpec
       }
 
       "save claim amount and progress to the next page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         val allSelectedDuties: Seq[(String, TaxCode)] =
-          initialJourney.getAllSelectedDuties
+          initialClaim.getAllSelectedDuties
 
         for (depositId, taxCode) <- allSelectedDuties do {
 
@@ -338,10 +338,10 @@ class EnterClaimControllerSpec
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
             mockStoreSession(
               SessionData(
-                initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                initialClaim.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
               )
             )(Right(()))
 
@@ -366,13 +366,13 @@ class EnterClaimControllerSpec
 
       "save claim amount and progress to the next page when single security" in {
         forAllWith(
-          JourneyGenerator(
-            testParamsGenerator = SecuritiesSingleJourneyGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-            journeyBuilder = SecuritiesSingleJourneyGenerators.buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          ClaimGenerator(
+            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+            claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimReadyForEnteringClaimAmounts
           )
-        ) { case (initialJourney, _) =>
+        ) { case (initialClaim, _) =>
           val allSelectedDuties: Seq[(String, TaxCode)] =
-            initialJourney.getAllSelectedDuties
+            initialClaim.getAllSelectedDuties
 
           for (depositId, taxCode) <- allSelectedDuties do {
 
@@ -380,10 +380,10 @@ class EnterClaimControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
               mockStoreSession(
                 SessionData(
-                  initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                  initialClaim.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
                 )
               )(Right(()))
 
@@ -406,29 +406,29 @@ class EnterClaimControllerSpec
       }
 
       "save claim amount in change mode and progress to the next page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
+      ) { case (initialClaim, _) =>
         val allSelectedDuties: Seq[(String, TaxCode)] =
-          initialJourney.getAllSelectedDuties
+          initialClaim.getAllSelectedDuties
 
         for (depositId, taxCode) <- allSelectedDuties do {
 
-          val updatedJourney = initialJourney
+          val updatedClaim = initialClaim
             .submitCheckClaimDetailsChangeMode(true)
             .submitClaimAmount(depositId, taxCode, BigDecimal("0.01"))
             .getOrFail
 
-          val next: Option[Either[String, (String, TaxCode)]] = updatedJourney.getNextDepositIdAndTaxCodeToClaim
+          val next: Option[Either[String, (String, TaxCode)]] = updatedClaim.getNextDepositIdAndTaxCodeToClaim
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney.submitCheckClaimDetailsChangeMode(true)))
+            mockGetSession(SessionData(initialClaim.submitCheckClaimDetailsChangeMode(true)))
             mockStoreSession(
               SessionData(
-                updatedJourney
+                updatedClaim
               )
             )(Right(()))
 
@@ -454,19 +454,19 @@ class EnterClaimControllerSpec
       }
 
       "re-display the page with error message if claimed amount is greater then the deposit amount" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
-        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
+      ) { case (initialClaim, _) =>
+        for (depositId, taxCode) <- initialClaim.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
-          val amount = initialJourney.getSecurityDepositAmountFor(depositId, taxCode)
+          val amount = initialClaim.getSecurityDepositAmountFor(depositId, taxCode)
 
           checkPageWithErrorIsDisplayed(
             performAction(
@@ -481,16 +481,16 @@ class EnterClaimControllerSpec
       }
 
       "re-display the page with error message if claimed amount is empty" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
-        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
+      ) { case (initialClaim, _) =>
+        for (depositId, taxCode) <- initialClaim.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -502,16 +502,16 @@ class EnterClaimControllerSpec
       }
 
       "re-display the page with error message if claimed amount is zero" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
-        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
+      ) { case (initialClaim, _) =>
+        for (depositId, taxCode) <- initialClaim.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -527,16 +527,16 @@ class EnterClaimControllerSpec
       }
 
       "re-display the page with error message if claimed amount is not a number" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForEnteringClaimAmounts
+          claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
-      ) { case (initialJourney, _) =>
-        for (depositId, taxCode) <- initialJourney.getAllSelectedDuties do {
+      ) { case (initialClaim, _) =>
+        for (depositId, taxCode) <- initialClaim.getAllSelectedDuties do {
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -551,12 +551,12 @@ class EnterClaimControllerSpec
         }
       }
 
-      "redirect back to the CYA page when amount has not changed" in forAll(completeJourneyGen) { initialJourney =>
-        initialJourney.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
+      "redirect back to the CYA page when amount has not changed" in forAll(completeClaimGen) { initialClaim =>
+        initialClaim.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
           reclaims.foreachEntry { case (taxCode, claimAmount) =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkIsRedirect(
@@ -571,16 +571,16 @@ class EnterClaimControllerSpec
         }
       }
 
-      "redirect back to the check claim page when amount has changed" in forAll(completeJourneyGen) { initialJourney =>
-        initialJourney.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
+      "redirect back to the check claim page when amount has changed" in forAll(completeClaimGen) { initialClaim =>
+        initialClaim.getSecuritiesReclaims.foreachEntry { case (depositId, reclaims) =>
           reclaims.foreachEntry { case (taxCode, claimAmount) =>
             whenever(claimAmount > BigDecimal("0.01")) {
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(initialJourney))
+                mockGetSession(SessionData(initialClaim))
                 mockStoreSession(
                   SessionData(
-                    initialJourney.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
+                    initialClaim.submitClaimAmount(depositId, taxCode, BigDecimal("0.01")).getOrFail
                   )
                 )(Right(()))
               }

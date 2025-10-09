@@ -31,11 +31,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
@@ -54,28 +54,28 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class EnterExportMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   enterFirstExportMovementReferenceNumberPage: enter_export_movement_reference_number_first,
   enterNextExportMovementReferenceNumberPage: enter_export_movement_reference_number_next
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
-    if journey.isSingleSecurity
+  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
+    if claim.isSingleSecurity
     then routes.ChoosePayeeTypeController.show
     else routes.ConfirmFullRepaymentController.showFirst
 
-  val showFirst: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExported(journey) {
+  val showFirst: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    whenTemporaryAdmissionExported(claim) {
       val form =
-        journey.answers.exportMovementReferenceNumbers.flatMap(
+        claim.answers.exportMovementReferenceNumbers.flatMap(
           _.headOption
         ) match {
           case Some(exportMrn) =>
@@ -87,11 +87,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
             firstExportMovementReferenceNumberForm
         }
 
-      journey.getMethodOfDisposal match {
+      claim.getMethodOfDisposal match {
         case Some(mods) =>
           (if containsExportedMethodsOfDisposal(mods) then {
              (
-               journey,
+               claim,
                Ok(
                  enterFirstExportMovementReferenceNumberPage(
                    form,
@@ -103,34 +103,34 @@ class EnterExportMovementReferenceNumberController @Inject() (
              logger.error(
                "Should not reach this page as Method of disposal must be one of [ExportedInSingleShipment, ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
              )
-             (journey, errorHandler.errorResult())
+             (claim, errorHandler.errorResult())
 
            }).asFuture
         case None       =>
           logger.error("Should not reach this page as method of disposal has not been selected yet.")
-          (journey, errorHandler.errorResult()).asFuture
+          (claim, errorHandler.errorResult()).asFuture
       }
     }
   }
 
-  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExported(journey) {
+  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    whenTemporaryAdmissionExported(claim) {
       val form = nextExportMovementReferenceNumberForm
         .withDefault(
-          journey.answers.exportMovementReferenceNumbers.flatMap(_.drop(pageIndex - 1).headOption.map(x => (x, None)))
+          claim.answers.exportMovementReferenceNumbers.flatMap(_.drop(pageIndex - 1).headOption.map(x => (x, None)))
         )
 
-      journey.getMethodOfDisposal match {
+      claim.getMethodOfDisposal match {
         case Some(mods) =>
           (if containsMultipleExportedMethodsOfDisposal(mods) then {
-             if journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
+             if claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
                (
-                 journey,
+                 claim,
                  Ok(
                    enterNextExportMovementReferenceNumberPage(
                      pageIndex,
-                     journey.userHasSeenCYAPage
-                       && journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
+                     claim.userHasSeenCYAPage
+                       && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
                      form,
                      routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                    )
@@ -139,9 +139,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
              else
                // if pageIndex is outside the bounds
                (
-                 journey,
+                 claim,
                  Redirect(
-                   journey.answers.exportMovementReferenceNumbers match {
+                   claim.answers.exportMovementReferenceNumbers match {
                      case None       => routes.EnterExportMovementReferenceNumberController.showFirst
                      case Some(mrns) => routes.EnterExportMovementReferenceNumberController.showNext(mrns.size + 1)
                    }
@@ -151,26 +151,26 @@ class EnterExportMovementReferenceNumberController @Inject() (
              logger.error(
                "Should not reach this page as Method of disposal must be one of [ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
              )
-             (journey, errorHandler.errorResult())
+             (claim, errorHandler.errorResult())
            }).asFuture
         case None       =>
           logger.error("Should not reach this page as method of disposal has not been selected yet.")
-          (journey, errorHandler.errorResult()).asFuture
+          (claim, errorHandler.errorResult()).asFuture
       }
     }
   }
 
-  val submitFirst: Action[AnyContent] = actionReadWriteJourney(
+  val submitFirst: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        whenTemporaryAdmissionExported(journey) {
+      claim =>
+        whenTemporaryAdmissionExported(claim) {
           val form = firstExportMovementReferenceNumberForm
           form
             .bindFromRequest()
             .fold(
               (formWithErrors: Form[(MRN, YesNo)]) =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     enterFirstExportMovementReferenceNumberPage(
                       formWithErrors,
@@ -185,12 +185,12 @@ class EnterExportMovementReferenceNumberController @Inject() (
                   .map {
                     case None              =>
                       // when import declaration does not exist with the given exportMRN
-                      journey
+                      claim
                         .submitExportMovementReferenceNumber(0, exportMrn)
                         .fold(
                           {
                             case "submitExportMovementReferenceNumber.unexpected" =>
-                              (journey, Redirect(nextStepInJourney(journey)))
+                              (claim, Redirect(nextStepInClaim(claim)))
 
                             case "submitExportMovementReferenceNumber.duplicated" =>
                               val updatedForm = form
@@ -199,7 +199,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                   "securities.error.duplicate-number"
                                 )
                               (
-                                journey,
+                                claim,
                                 BadRequest(
                                   enterFirstExportMovementReferenceNumberPage(
                                     updatedForm,
@@ -211,7 +211,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                               val updatedForm =
                                 form.withError(enterFirstExportMovementReferenceNumberKey, "securities.error.import")
                               (
-                                journey,
+                                claim,
                                 BadRequest(
                                   enterFirstExportMovementReferenceNumberPage(
                                     updatedForm,
@@ -220,25 +220,25 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                 )
                               )
                           },
-                          updatedJourney =>
+                          updatedClaim =>
                             decision match {
                               case Yes =>
                                 (
-                                  updatedJourney,
+                                  updatedClaim,
                                   Redirect(routes.EnterExportMovementReferenceNumberController.showNext(2))
                                 )
 
                               case No =>
                                 // when there are already more export MRNs we must be in change mode and should display summary page
-                                if journey.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
+                                if claim.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
                                   (
-                                    updatedJourney,
+                                    updatedClaim,
                                     Redirect(routes.CheckExportMovementReferenceNumbersController.show)
                                   )
                                 else
                                   (
-                                    updatedJourney,
-                                    Redirect(nextStepInJourney(journey))
+                                    updatedClaim,
+                                    Redirect(nextStepInClaim(claim))
                                   )
                             }
                         )
@@ -248,7 +248,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
                       val updatedForm  =
                         form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
                       (
-                        journey,
+                        claim,
                         BadRequest(
                           enterFirstExportMovementReferenceNumberPage(
                             updatedForm,
@@ -263,22 +263,22 @@ class EnterExportMovementReferenceNumberController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def submitNext(pageIndex: Int): Action[AnyContent] = actionReadWriteJourney(
+  def submitNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        whenTemporaryAdmissionExported(journey) {
+      claim =>
+        whenTemporaryAdmissionExported(claim) {
           val form = nextExportMovementReferenceNumberForm
           form
             .bindFromRequest()
             .fold(
               (formWithErrors: Form[(MRN, Option[YesNo])]) =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     enterNextExportMovementReferenceNumberPage(
                       pageIndex,
-                      journey.userHasSeenCYAPage
-                        && journey.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
+                      claim.userHasSeenCYAPage
+                        && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
                       formWithErrors,
                       routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                     )
@@ -290,12 +290,12 @@ class EnterExportMovementReferenceNumberController @Inject() (
                   .fold(_ => None, identity)
                   .map {
                     case None              =>
-                      journey
+                      claim
                         .submitExportMovementReferenceNumber(pageIndex - 1, exportMrn)
                         .fold(
                           {
                             case "submitExportMovementReferenceNumber.unexpected" =>
-                              (journey, Redirect(nextStepInJourney(journey)))
+                              (claim, Redirect(nextStepInClaim(claim)))
 
                             case "submitExportMovementReferenceNumber.duplicated" =>
                               val updatedForm = form
@@ -304,11 +304,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                   "securities.error.duplicate-number"
                                 )
                               (
-                                journey,
+                                claim,
                                 BadRequest(
                                   enterNextExportMovementReferenceNumberPage(
                                     pageIndex,
-                                    journey.answers.exportMovementReferenceNumbers
+                                    claim.answers.exportMovementReferenceNumbers
                                       .map(_.size)
                                       .exists(size => pageIndex == size),
                                     updatedForm,
@@ -320,11 +320,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
                               val updatedForm =
                                 form.withError(enterNextExportMovementReferenceNumberKey, "securities.error.import")
                               (
-                                journey,
+                                claim,
                                 BadRequest(
                                   enterNextExportMovementReferenceNumberPage(
                                     pageIndex,
-                                    journey.answers.exportMovementReferenceNumbers
+                                    claim.answers.exportMovementReferenceNumbers
                                       .map(_.size)
                                       .exists(size => pageIndex == size),
                                     updatedForm,
@@ -333,21 +333,20 @@ class EnterExportMovementReferenceNumberController @Inject() (
                                 )
                               )
                           },
-                          updatedJourney =>
+                          updatedClaim =>
                             decision match {
                               case Some(Yes) =>
                                 (
-                                  updatedJourney,
+                                  updatedClaim,
                                   Redirect(routes.EnterExportMovementReferenceNumberController.showNext(pageIndex + 1))
                                 )
 
                               case _ =>
-                                if journey.answers.exportMovementReferenceNumbers
+                                if claim.answers.exportMovementReferenceNumbers
                                     .flatMap(_.drop(pageIndex - 1).headOption)
-                                    .contains(exportMrn) && journey.userHasSeenCYAPage
-                                then (updatedJourney, Redirect(routes.CheckYourAnswersController.show))
-                                else
-                                  (updatedJourney, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
+                                    .contains(exportMrn) && claim.userHasSeenCYAPage
+                                then (updatedClaim, Redirect(routes.CheckYourAnswersController.show))
+                                else (updatedClaim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
                             }
                         )
                     // when import declaration exists with the given exportMRN
@@ -356,11 +355,11 @@ class EnterExportMovementReferenceNumberController @Inject() (
                       val updatedForm  =
                         form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
                       (
-                        journey,
+                        claim,
                         BadRequest(
                           enterNextExportMovementReferenceNumberPage(
                             pageIndex,
-                            journey.answers.exportMovementReferenceNumbers
+                            claim.answers.exportMovementReferenceNumbers
                               .map(_.size)
                               .exists(size => pageIndex == size),
                             updatedForm,
@@ -375,19 +374,19 @@ class EnterExportMovementReferenceNumberController @Inject() (
   )
 
   private def whenTemporaryAdmissionExported(
-    journey: SecuritiesJourney
-  )(body: => Future[(SecuritiesJourney, Result)])(implicit request: Request[?]): Future[(SecuritiesJourney, Result)] =
-    (journey.getReasonForSecurity, journey.answers.temporaryAdmissionMethodsOfDisposal) match {
+    claim: SecuritiesClaim
+  )(body: => Future[(SecuritiesClaim, Result)])(implicit request: Request[?]): Future[(SecuritiesClaim, Result)] =
+    (claim.getReasonForSecurity, claim.answers.temporaryAdmissionMethodsOfDisposal) match {
       case (None, _)                                                                                 =>
-        (journey, errorHandler.errorResult()).asFuture
+        (claim, errorHandler.errorResult()).asFuture
       case (Some(rfs), Some(mods)) if ntas.contains(rfs) && containsExportedMethodsOfDisposal(mods)  =>
         body
       case (Some(rfs), Some(mods)) if ntas.contains(rfs) && !containsExportedMethodsOfDisposal(mods) =>
-        (journey, Redirect(nextStepInJourney(journey))).asFuture
+        (claim, Redirect(nextStepInClaim(claim))).asFuture
       case (Some(rfs), None) if ntas.contains(rfs)                                                   =>
-        (journey, Redirect(routes.ChooseExportMethodController.show)).asFuture
+        (claim, Redirect(routes.ChooseExportMethodController.show)).asFuture
       case (Some(_), _)                                                                              =>
-        (journey, Redirect(nextStepInJourney(journey))).asFuture
+        (claim, Redirect(nextStepInClaim(claim))).asFuture
     }
 
 }

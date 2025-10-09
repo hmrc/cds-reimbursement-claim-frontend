@@ -20,42 +20,42 @@ import play.api.data.Form
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
-trait CheckBankDetailsMixin extends JourneyBaseController {
+trait CheckBankDetailsMixin extends ClaimBaseController {
 
   val postAction: Call
-  def continueRoute(journey: Journey): Call
+  def continueRoute(claim: Claim): Call
   val changeBankAccountDetailsRoute: Call
   val enterBankAccountDetailsRoute: Call
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
-  def isCMA(journey: Journey): Boolean = false
+  def isCMA(claim: Claim): Boolean = false
 
-  def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
-  def modifyJourneyRemoveBankDetails(journey: Journey): Journey
+  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
+  def modifyClaimRemoveBankDetails(claim: Claim): Claim
 
   final val bankDetailsAreYouSureForm: Form[YesNo] =
     YesOrNoQuestionForm("bank-details")
 
   final val showWarning: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
-      journey.answers.bankAccountDetails
+    actionReadWriteClaim { implicit request => claim =>
+      claim.answers.bankAccountDetails
         .map { (bankAccountDetails: BankAccountDetails) =>
-          modifyJourney(journey, bankAccountDetails)
+          modifyClaim(claim, bankAccountDetails)
             .fold(
-              _ => (journey, Redirect(continueRoute(journey))),
-              journeyWithBankDetails =>
+              _ => (claim, Redirect(continueRoute(claim))),
+              claimWithBankDetails =>
                 (
-                  journeyWithBankDetails,
+                  claimWithBankDetails,
                   Ok(
                     checkBankDetailsAreCorrectPage(
                       bankDetailsAreYouSureForm,
                       bankAccountDetails,
-                      isCMA(journey),
+                      isCMA(claim),
                       postAction,
                       changeBankAccountDetailsRoute
                     )
@@ -65,10 +65,10 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
         }
         .getOrElse {
           (
-            journey,
+            claim,
             Redirect(
-              if journey.needsBanksAccountDetailsSubmission then enterBankAccountDetailsRoute
-              else continueRoute(journey)
+              if claim.needsBanksAccountDetailsSubmission then enterBankAccountDetailsRoute
+              else continueRoute(claim)
             )
           )
         }
@@ -76,20 +76,20 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
     }
 
   final val submitWarning: Action[AnyContent] =
-    simpleActionReadWriteJourney { implicit request => journey =>
+    simpleActionReadWriteClaim { implicit request => claim =>
       bankDetailsAreYouSureForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
-              journey.answers.bankAccountDetails
+              claim,
+              claim.answers.bankAccountDetails
                 .map { bankAccountDetails =>
                   BadRequest(
                     checkBankDetailsAreCorrectPage(
                       formWithErrors,
                       bankAccountDetails.masked,
-                      isCMA(journey),
+                      isCMA(claim),
                       postAction,
                       changeBankAccountDetailsRoute
                     )
@@ -99,8 +99,8 @@ trait CheckBankDetailsMixin extends JourneyBaseController {
             ),
           answer =>
             answer match {
-              case YesNo.Yes => (journey, Redirect(continueRoute(journey)))
-              case YesNo.No  => (modifyJourneyRemoveBankDetails(journey), Redirect(changeBankAccountDetailsRoute))
+              case YesNo.Yes => (claim, Redirect(continueRoute(claim)))
+              case YesNo.No  => (modifyClaimRemoveBankDetails(claim), Redirect(changeBankAccountDetailsRoute))
             }
         )
     }

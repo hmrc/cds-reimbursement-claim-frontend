@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -89,9 +89,9 @@ class OverpaymentsMultipleClaimConnectorSpec
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-multiple"
 
   val requestGen =
-    for journey <- OverpaymentsMultipleJourneyGenerators.completeJourneyGen
+    for claim <- OverpaymentsMultipleClaimGenerators.completeClaimGen
     yield OverpaymentsMultipleClaimConnector.Request(
-      journey.toOutput.getOrElse(fail("Could not generate journey output!"))
+      claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
 
   val sampleRequest: OverpaymentsMultipleClaimConnector.Request = sample(requestGen)

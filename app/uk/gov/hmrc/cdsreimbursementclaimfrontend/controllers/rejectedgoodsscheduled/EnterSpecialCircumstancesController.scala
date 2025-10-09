@@ -22,10 +22,10 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterSpecialCircumstancesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_special_circumstances
 
@@ -35,35 +35,35 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterSpecialCircumstancesController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterSpecialCircumstancesPage: enter_special_circumstances
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController
+    extends RejectedGoodsScheduledClaimBaseController
     with Logging {
 
   val formKey: String          = "enter-special-circumstances.rejected-goods"
   private val postAction: Call = routes.EnterSpecialCircumstancesController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(
       enterSpecialCircumstancesPage(
-        enterSpecialCircumstancesForm.withDefault(journey.answers.basisOfClaimSpecialCircumstances),
+        enterSpecialCircumstancesForm.withDefault(claim.answers.basisOfClaimSpecialCircumstances),
         postAction
       )
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     enterSpecialCircumstancesForm
       .bindFromRequest()
       .fold(
         formWithErrors =>
           (
-            journey,
+            claim,
             BadRequest(
               enterSpecialCircumstancesPage(
                 formWithErrors,
@@ -72,14 +72,14 @@ class EnterSpecialCircumstancesController @Inject() (
             )
           ),
         specialCircumstances =>
-          journey
+          claim
             .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
             .fold(
               errors => {
-                logger.error(s"unable to match basis of claim - $errors : ${journey.answers.basisOfClaim}")
-                (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                logger.error(s"unable to match basis of claim - $errors : ${claim.answers.basisOfClaim}")
+                (claim, Redirect(baseRoutes.IneligibleController.ineligible))
               },
-              updatedJourney => (updatedJourney, Redirect("choose-disposal-method")) // TODO: Fix with actual route
+              updatedClaim => (updatedClaim, Redirect("choose-disposal-method")) // TODO: Fix with actual route
             )
       )
 

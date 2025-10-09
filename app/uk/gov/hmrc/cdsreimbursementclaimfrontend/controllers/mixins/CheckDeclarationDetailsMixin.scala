@@ -18,39 +18,39 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 import scala.concurrent.Future
 
-trait CheckDeclarationDetailsMixin extends JourneyBaseController {
+trait CheckDeclarationDetailsMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & JourneyBase & CommonJourneyProperties
+  type Claim <: claims.Claim & ClaimBase & CommonClaimProperties
 
-  def getDisplayDeclaration(journey: Journey): Option[DisplayDeclaration]
-  def continueRoute(journey: Journey): Call
+  def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration]
+  def continueRoute(claim: Claim): Call
   val enterMovementReferenceNumberRoute: Call
 
-  def viewTemplate: (DisplayDeclaration, Journey) => Request[?] => HtmlFormat.Appendable
+  def viewTemplate: (DisplayDeclaration, Claim) => Request[?] => HtmlFormat.Appendable
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful(
-      getDisplayDeclaration(journey).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
+      getDisplayDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
         Ok(
           viewTemplate(
             declaration,
-            journey
+            claim
           )(request)
         )
       )
     )
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadJourney { journey =>
-    Redirect(continueRoute(journey))
+  final val submit: Action[AnyContent] = simpleActionReadClaim { claim =>
+    Redirect(continueRoute(claim))
   }
 }

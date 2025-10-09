@@ -24,11 +24,11 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.addOtherDocumentsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.needsAddOtherDocuments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.needsAddOtherDocuments
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
@@ -38,24 +38,24 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class AddOtherDocumentsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   addOtherDocumentsPage: add_other_documents_page
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
   private val form: Form[YesNo] = addOtherDocumentsForm
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
         & needsAddOtherDocuments
     )
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit))
   }
 
-  def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     form
       .bindFromRequest()
       .fold(
@@ -67,7 +67,7 @@ class AddOtherDocumentsController @Inject() (
           case Yes => Redirect(routes.ChooseFileTypeController.show)
           case No  =>
             Redirect(
-              if journey.reasonForSecurityIsNidac
+              if claim.reasonForSecurityIsNidac
               then routes.EnterAdditionalDetailsController.show
               else routes.ChoosePayeeTypeController.show
             )

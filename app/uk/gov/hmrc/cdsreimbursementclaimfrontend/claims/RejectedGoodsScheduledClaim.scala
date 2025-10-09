@@ -1,0 +1,747 @@
+/*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+
+import cats.Eq
+import cats.syntax.eq.*
+import play.api.libs.json.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
+
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import scala.collection.immutable.SortedMap
+
+/** An encapsulated C&E1179 scheduled MRN claim logic. The constructor of this class MUST stay PRIVATE to protected
+  * integrity of the claim.
+  *
+  * The claim uses two nested case classes:
+  *
+  *   - [[RejectedGoodsScheduledClaim.Answers]] - keeps record of user answers and acquired documents
+  *   - [[RejectedGoodsScheduledClaim.Output]] - final output of the claim to be sent to backend processing
+  */
+final class RejectedGoodsScheduledClaim private (
+  val answers: RejectedGoodsScheduledClaim.Answers,
+  val startTimeSeconds: Long,
+  val caseNumber: Option[String] = None,
+  val submissionDateTime: Option[LocalDateTime] = None,
+  val features: Option[RejectedGoodsScheduledClaim.Features]
+) extends ClaimBase
+    with DirectFluentSyntax[RejectedGoodsScheduledClaim]
+    with RejectedGoodsClaimProperties
+    with ScheduledVariantProperties
+    with HaveInspectionDetails
+    with ClaimAnalytics {
+
+  type Type = RejectedGoodsScheduledClaim
+
+  val self: RejectedGoodsScheduledClaim = this
+
+  val validate: Validator.Validate[RejectedGoodsScheduledClaim] =
+    RejectedGoodsScheduledClaim.validator
+
+  private def copy(
+    newAnswers: RejectedGoodsScheduledClaim.Answers
+  ): RejectedGoodsScheduledClaim =
+    new RejectedGoodsScheduledClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
+
+  def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledClaim =
+    this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
+
+  def withEnterContactDetailsMode(enabled: Boolean): RejectedGoodsScheduledClaim =
+    this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
+
+  override def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
+
+  def removeUnsupportedTaxCodes(): RejectedGoodsScheduledClaim =
+    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+
+  /** Resets the claim with the new MRN or keep existing claim if submitted the same MRN and declaration as before.
+    */
+  def submitMovementReferenceNumberAndDeclaration(
+    mrn: MRN,
+    displayDeclaration: DisplayDeclaration
+  ) =
+    whileClaimIsAmendable {
+      getLeadMovementReferenceNumber match {
+        case Some(existingMrn)
+            if existingMrn === mrn &&
+              getLeadDisplayDeclaration.contains(displayDeclaration) =>
+          Right(this)
+        case _ =>
+          if mrn =!= displayDeclaration.getMRN then
+            Left(
+              "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+            )
+          else
+            Right(
+              new RejectedGoodsScheduledClaim(
+                RejectedGoodsScheduledClaim
+                  .Answers(
+                    userEoriNumber = answers.userEoriNumber,
+                    movementReferenceNumber = Some(mrn),
+                    displayDeclaration = Some(displayDeclaration),
+                    eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
+                    nonce = answers.nonce
+                  ),
+                startTimeSeconds = this.startTimeSeconds,
+                features = features
+              )
+            )
+      }
+    }
+
+  def submitUserXiEori(userXiEori: UserXiEori): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(eoriNumbersVerification =
+          answers.eoriNumbersVerification
+            .orElse(Some(EoriNumbersVerification()))
+            .map(_.copy(userXiEori = Some(userXiEori)))
+        )
+      )
+    }
+
+  def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getConsigneeEoriFromACC14 match {
+            case Some(eori) => eori === consigneeEoriNumber
+            case None       => getDeclarantEoriFromACC14.contains(consigneeEoriNumber)
+          }
+        then
+          Right(
+            this.copy(
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(consigneeEoriNumber = Some(consigneeEoriNumber)))
+              )
+            )
+          )
+        else Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
+      else Left("submitConsigneeEoriNumber.unexpected")
+    }
+
+  def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if needsDeclarantAndConsigneeEoriSubmission then
+        if getDeclarantEoriFromACC14.contains(declarantEoriNumber) then
+          Right(
+            this.copy(
+              answers.copy(eoriNumbersVerification =
+                answers.eoriNumbersVerification
+                  .orElse(Some(EoriNumbersVerification()))
+                  .map(_.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+              )
+            )
+          )
+        else Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
+      else Left("submitDeclarantEoriNumber.unexpected")
+    }
+
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(contactDetails = contactDetails)
+      )
+    }
+
+  def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(contactAddress = Some(contactAddress.computeChanges(getInitialAddressDetailsFromDeclaration)))
+      )
+    }
+
+  def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      basisOfClaim match {
+        case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
+          this.copy(answers.copy(basisOfClaim = Some(basisOfClaim)))
+
+        case _ =>
+          this.copy(
+            answers.copy(
+              basisOfClaim = Some(basisOfClaim),
+              basisOfClaimSpecialCircumstances = None
+            )
+          )
+      }
+    }
+
+  def submitBasisOfClaimSpecialCircumstancesDetails(
+    basisOfClaimSpecialCircumstancesDetails: String
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      answers.basisOfClaim match {
+        case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
+          Right(
+            this.copy(
+              answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
+            )
+          )
+        case _                                                    =>
+          Left("basisOfClaim.not_matching")
+      }
+    }
+
+  def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(methodOfDisposal = Some(methodOfDisposal))
+      )
+    }
+
+  def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
+      )
+    }
+
+  def submitPayeeType(payeeType: PayeeType): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if answers.payeeType.contains(payeeType) then Right(copy(newAnswers = answers.copy(payeeType = Some(payeeType))))
+      else
+        Right(
+          copy(newAnswers =
+            answers.copy(
+              payeeType = Some(payeeType),
+              bankAccountDetails = None
+            )
+          )
+        )
+    }
+
+  def selectAndReplaceDutyTypeSetForReimbursement(
+    dutyTypes: Seq[DutyType]
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if dutyTypes.isEmpty then Left("selectAndReplaceDutyTypeSetForReimbursement.emptySelection")
+      else {
+        val newReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
+          SortedMap(
+            dutyTypes
+              .map(dutyType =>
+                dutyType -> getReimbursementClaimsFor(dutyType)
+                  .getOrElse(SortedMap.empty[TaxCode, Option[AmountPaidWithCorrect]])
+              )*
+          )
+        Right(this.copy(answers.copy(correctedAmounts = Some(newReimbursementClaims))))
+      }
+    }
+
+  def selectAndReplaceTaxCodeSetForDutyType(
+    dutyType: DutyType,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(dutyType)) then
+        Left("selectTaxCodeSetForReimbursement.dutyTypeNotSelectedBefore")
+      else if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
+      else {
+        val allTaxCodesMatchDutyType = taxCodes.forall(tc => dutyType.taxCodes.contains(tc))
+        if allTaxCodesMatchDutyType then {
+          val newReimbursementClaims =
+            answers.correctedAmounts
+              .map { rc =>
+                SortedMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt.repr === dutyType.repr =>
+                    dt -> SortedMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }*)
+                  case other                                                  => other
+                }*)
+              }
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
+        } else Left("selectTaxCodeSetForReimbursement.someTaxCodesDoesNotMatchDutyType")
+      }
+    }
+
+  def selectAndReplaceExciseCodeCategories(
+    exciseCategories: Seq[ExciseCategory]
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise))
+      then Left("selectAndReplaceExciseCodeCategories.exciseDutyTypeNotSelected")
+      else if exciseCategories.isEmpty
+      then Left("selectAndReplaceExciseCodeCategories.emptySelection")
+      else
+        val exciseCategoriesSet = exciseCategories.toSet
+        Right(
+          this.copy(
+            answers.copy(
+              exciseCategories = Some(exciseCategories),
+              // remove eventually tax codes belonging to the unchecked excise category
+              correctedAmounts = answers.correctedAmounts.map(_.map {
+                case (DutyType.Excise, claims) =>
+                  (
+                    DutyType.Excise,
+                    claims.filter((tc, _) => exciseCategoriesSet.contains(ExciseCategory.categoryOf(tc)))
+                  )
+                case other                     => other
+              })
+            )
+          )
+        )
+    }
+
+  def selectAndReplaceTaxCodeSetForExciseCategory(
+    exciseCategory: ExciseCategory,
+    taxCodes: Seq[TaxCode]
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if !getSelectedDutyTypes.exists(_.contains(DutyType.Excise)) then
+        Left("selectAndReplaceTaxCodeSetForExciseCategory.dutyTypeNotSelectedBefore")
+      else if taxCodes.isEmpty then Left("selectAndReplaceTaxCodeSetForExciseCategory.emptySelection")
+      else {
+        val allTaxCodesMatchDutyType = taxCodes.forall(tc =>
+          DutyType.Excise.taxCodes.contains(tc)
+            && ExciseCategory.categoryOf(tc) === exciseCategory
+        )
+        if allTaxCodesMatchDutyType then {
+          val newReimbursementClaims =
+            answers.correctedAmounts
+              .map { rc =>
+                SortedMap(rc.toSeq.map {
+                  case (dt, reimbursementClaims) if dt === DutyType.Excise =>
+                    dt -> (reimbursementClaims.filterNot((tc, _) =>
+                      ExciseCategory.categoryOf(tc) == exciseCategory
+                    ) ++ SortedMap(taxCodes.map { tc =>
+                      tc -> reimbursementClaims.get(tc).flatten
+                    }*))
+                  case other                                               => other
+                }*)
+              }
+          Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
+        } else Left("selectAndReplaceTaxCodeSetForExciseCategory.someTaxCodesDoesNotMatchDutyType")
+      }
+    }
+
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
+    answers.correctedAmounts
+      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+
+  def submitCorrectAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    correctAmount: BigDecimal
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if dutyType.taxCodes.contains(taxCode) then {
+        if isDutySelected(dutyType, taxCode) then {
+          val amounts = AmountPaidWithCorrect(paidAmount, correctAmount)
+          if amounts.isValid then {
+            val newReimbursementClaims =
+              answers.correctedAmounts
+                .map(rc =>
+                  SortedMap(rc.toSeq.map {
+                    case (dt, reimbursementClaims) if dt === dutyType =>
+                      dt -> SortedMap(reimbursementClaims.toSeq.map {
+                        case (tc, _) if tc === taxCode =>
+                          tc -> Some(amounts)
+                        case other                     => other
+                      }*)
+                    case other                                        => other
+                  }*)
+                )
+            Right(this.copy(answers.copy(correctedAmounts = newReimbursementClaims)))
+          } else Left("submitAmountForReimbursement.invalidReimbursementAmount")
+        } else Left("submitAmountForReimbursement.taxCodeNotSelected")
+      } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
+    }
+
+  def submitClaimAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    claimAmount: BigDecimal
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
+
+  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
+
+  def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(inspectionDate = Some(inspectionDate))
+      )
+    }
+
+  def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(inspectionAddress = Some(inspectionAddress))
+      )
+    }
+
+  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      Right(
+        this.copy(
+          answers.copy(bankAccountDetails =
+            Some(bankAccountDetails.computeChanges(getInitialBankAccountDetailsFromDeclaration))
+          )
+        )
+      )
+    }
+
+  def removeBankAccountDetails(): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(
+        answers.copy(bankAccountDetails = None)
+      )
+    }
+
+  def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      Right(
+        this.copy(
+          answers.copy(bankAccountType = Some(bankAccountType))
+        )
+      )
+    }
+
+  def receiveScheduledDocument(
+    requestNonce: Nonce,
+    uploadedFile: UploadedFile
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if answers.nonce.equals(requestNonce) then {
+        Right(
+          this.copy(answers.copy(scheduledDocument = Some(uploadedFile)))
+        )
+      } else Left("receiveScheduledDocument.invalidNonce")
+    }
+
+  def removeScheduledDocument: RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(answers.copy(scheduledDocument = None))
+    }
+
+  def submitDocumentTypeSelection(documentType: UploadDocumentType): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      this.copy(answers.copy(selectedDocumentType = Some(documentType)))
+    }
+
+  def receiveUploadedFiles(
+    documentType: Option[UploadDocumentType],
+    requestNonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      if answers.nonce.equals(requestNonce) then {
+        val uploadedFilesWithDocumentTypeAdded = uploadedFiles.map {
+          case uf if uf.documentType.isEmpty => uf.copy(cargo = documentType)
+          case uf                            => uf
+        }
+        Right(
+          this.copy(answers.copy(supportingEvidences = uploadedFilesWithDocumentTypeAdded))
+        )
+      } else Left("receiveUploadedFiles.invalidNonce")
+    }
+
+  def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsScheduledClaim =
+    whileClaimIsAmendable {
+      validate(this)
+        .fold(
+          _ => this,
+          _ => this.copy(answers.copy(modes = answers.modes.copy(checkYourAnswersChangeMode = enabled)))
+        )
+    }
+
+  def finalizeClaimWith(caseNumber: String): Either[String, RejectedGoodsScheduledClaim] =
+    whileClaimIsAmendable {
+      validate(this)
+        .fold(
+          errors => Left(errors.headMessage),
+          _ =>
+            Right(
+              new RejectedGoodsScheduledClaim(
+                answers = this.answers,
+                startTimeSeconds = this.startTimeSeconds,
+                caseNumber = Some(caseNumber),
+                submissionDateTime = Some(LocalDateTime.now()),
+                features = features
+              )
+            )
+        )
+    }
+
+  override def equals(obj: Any): Boolean =
+    if obj.isInstanceOf[RejectedGoodsScheduledClaim] then {
+      val that = obj.asInstanceOf[RejectedGoodsScheduledClaim]
+      that.answers === this.answers && that.caseNumber === this.caseNumber
+    } else false
+
+  override def hashCode(): Int    = answers.hashCode
+  override def toString(): String = s"RejectedGoodsScheduledClaim${Json.prettyPrint(Json.toJson(this))}"
+
+  /** Validates the claim and retrieves the output. */
+
+  def toOutput: Either[Seq[String], RejectedGoodsScheduledClaim.Output] =
+    validate(this).left
+      .map(_.messages)
+      .flatMap(_ =>
+        (for
+          mrn                    <- getLeadMovementReferenceNumber
+          basisOfClaim           <- answers.basisOfClaim
+          methodOfDisposal       <- answers.methodOfDisposal
+          detailsOfRejectedGoods <- answers.detailsOfRejectedGoods
+          inspectionDate         <- answers.inspectionDate
+          inspectionAddress      <- answers.inspectionAddress
+          scheduledDocument      <- answers.scheduledDocument
+          claimantInformation    <- getClaimantInformation
+          payeeType              <- getPayeeTypeForOutput(answers.payeeType)
+          displayPayeeType       <- answers.payeeType
+        yield RejectedGoodsScheduledClaim.Output(
+          movementReferenceNumber = mrn,
+          claimantType = getClaimantType,
+          payeeType = payeeType,
+          displayPayeeType = displayPayeeType,
+          claimantInformation = claimantInformation,
+          basisOfClaim = basisOfClaim,
+          methodOfDisposal = methodOfDisposal,
+          detailsOfRejectedGoods = detailsOfRejectedGoods,
+          inspectionDate = inspectionDate,
+          inspectionAddress = inspectionAddress,
+          reimbursementClaims = getReimbursementClaims,
+          scheduledDocument = EvidenceDocument.from(scheduledDocument),
+          supportingEvidences = answers.supportingEvidences.map(EvidenceDocument.from),
+          basisOfClaimSpecialCircumstances = answers.basisOfClaimSpecialCircumstances,
+          reimbursementMethod = ReimbursementMethod.BankAccountTransfer,
+          bankAccountDetails = answers.bankAccountDetails
+        )).toRight(
+          List("Unfortunately could not produce the output, please check if all answers are complete.")
+        )
+      )
+
+}
+
+object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduledClaim] {
+
+  /** A starting point to build new instance of the claim. */
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): RejectedGoodsScheduledClaim =
+    new RejectedGoodsScheduledClaim(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
+
+  type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
+
+  final case class Features()
+
+  // All user answers captured during C&E1179 scheduled MRN claim
+  final case class Answers(
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumber: Option[MRN] = None,
+    displayDeclaration: Option[DisplayDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
+    basisOfClaimSpecialCircumstances: Option[String] = None,
+    methodOfDisposal: Option[MethodOfDisposal] = None,
+    detailsOfRejectedGoods: Option[String] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
+    inspectionDate: Option[InspectionDate] = None,
+    inspectionAddress: Option[InspectionAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    scheduledDocument: Option[UploadedFile] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    modes: ClaimModes = ClaimModes()
+  ) extends RejectedGoodsAnswers
+      with ScheduledVariantAnswers
+
+  // Final minimal output of the claim we want to pass to the backend.
+  final case class Output(
+    movementReferenceNumber: MRN,
+    claimantType: ClaimantType,
+    payeeType: PayeeType,
+    displayPayeeType: PayeeType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfRejectedGoodsClaim,
+    basisOfClaimSpecialCircumstances: Option[String],
+    methodOfDisposal: MethodOfDisposal,
+    detailsOfRejectedGoods: String,
+    inspectionDate: InspectionDate,
+    inspectionAddress: InspectionAddress,
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    scheduledDocument: EvidenceDocument,
+    supportingEvidences: Seq[EvidenceDocument]
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", detailsOfRejectedGoods))
+          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
+        this.copy(
+          detailsOfRejectedGoods = additionalDetailsReplacementText,
+          basisOfClaimSpecialCircumstances =
+            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
+        )
+      )
+  }
+
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
+  import ClaimValidationErrors._
+
+  object Checks extends RejectedGoodsClaimChecks[RejectedGoodsScheduledClaim] {
+
+    val scheduledDocumentHasBeenDefined: Validate[RejectedGoodsScheduledClaim] =
+      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
+
+  }
+
+  import Checks._
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[RejectedGoodsScheduledClaim] =
+    all(
+      hasMRNAndDisplayDeclaration,
+      containsOnlySupportedTaxCodes,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      scheduledDocumentHasBeenDefined,
+      basisOfClaimHasBeenProvided,
+      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
+      detailsOfRejectedGoodsHasBeenProvided,
+      inspectionDateHasBeenProvided,
+      inspectionAddressHasBeenProvided,
+      methodOfDisposalHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
+    )
+
+  import ClaimFormats._
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
+
+  object Answers {
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
+
+  import play.api.libs.functional.syntax._
+
+  implicit val format: Format[RejectedGoodsScheduledClaim] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledClaim(_, _, _, _, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(claim =>
+        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
+      )
+    )
+
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    empty(answers.userEoriNumber, answers.nonce, features)
+      .flatMapWhenDefined(
+        answers.movementReferenceNumber.zip(answers.displayDeclaration)
+      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
+      .flatMapWhenDefined(answers.scheduledDocument)(j => d => j.receiveScheduledDocument(j.answers.nonce, d))
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(answers.basisOfClaimSpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails
+      )
+      .mapWhenDefined(answers.methodOfDisposal)(_.submitMethodOfDisposal)
+      .mapWhenDefined(answers.detailsOfRejectedGoods)(_.submitDetailsOfRejectedGoods)
+      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
+        _.selectAndReplaceDutyTypeSetForReimbursement
+      )
+      .flatMapWhenDefined(answers.exciseCategories)(_.selectAndReplaceExciseCodeCategories)
+      .flatMapEachWhenDefined(answers.correctedAmounts)(j => { case (dutyType, reimbursements) =>
+        j.selectAndReplaceTaxCodeSetForDutyType(dutyType, reimbursements.keySet.toSeq)
+          .flatMapEachWhenMappingDefined(reimbursements)(j => {
+            case (taxCode, AmountPaidWithCorrect(paidAmount, correctAmount)) =>
+              j.submitClaimAmount(dutyType, taxCode, paidAmount, paidAmount - correctAmount)
+          })
+      })
+      .map(_.withDutiesChangeMode(answers.dutiesChangeMode))
+      .mapWhenDefined(answers.inspectionDate)(_.submitInspectionDate)
+      .mapWhenDefined(answers.inspectionAddress)(_.submitInspectionAddress)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
+
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    claim: RejectedGoodsScheduledClaim,
+    f: RejectedGoodsScheduledClaim.Answers => RejectedGoodsScheduledClaim.Answers
+  ): RejectedGoodsScheduledClaim =
+    RejectedGoodsScheduledClaim(
+      answers = f(claim.answers),
+      startTimeSeconds = claim.startTimeSeconds,
+      features = claim.features
+    )
+
+}

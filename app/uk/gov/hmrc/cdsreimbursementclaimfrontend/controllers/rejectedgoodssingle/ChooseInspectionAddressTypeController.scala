@@ -23,10 +23,10 @@ import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -37,15 +37,15 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChooseInspectionAddressTypeController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val addressLookupService: AddressLookupService,
   val inspectionAddressPage: choose_inspection_address_type
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext, val errorHandler: ErrorHandler)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with RejectedGoodsInspectionAddressLookupMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   override val postAction: Call =
@@ -59,19 +59,19 @@ class ChooseInspectionAddressTypeController @Inject() (
   override val retrieveLookupAddress: Call =
     routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
 
-  final override def modifyJourney(journey: Journey, inspectionAddress: InspectionAddress): Journey =
-    journey.submitInspectionAddress(inspectionAddress)
+  final override def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim =
+    claim.submitInspectionAddress(inspectionAddress)
 
-  final override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
-    journey.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
+  final override def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim =
+    claim.submitInspectionAddress(InspectionAddress.ofType(Other).mapFrom(contactAddress))
 
-  override def redirectToTheNextPage(journey: RejectedGoodsSingleJourney): (RejectedGoodsSingleJourney, Result) =
-    if journey.hasCompleteAnswers then
+  override def redirectToTheNextPage(claim: RejectedGoodsSingleClaim): (RejectedGoodsSingleClaim, Result) =
+    if claim.hasCompleteAnswers then
       (
-        journey,
+        claim,
         Redirect(
           checkYourAnswers
         )
       )
-    else (journey, Redirect(routes.ChoosePayeeTypeController.show))
+    else (claim, Redirect(routes.ChoosePayeeTypeController.show))
 }

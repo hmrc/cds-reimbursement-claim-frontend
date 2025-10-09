@@ -22,9 +22,9 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfRejectedGoodsClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim.SpecialCircumstances
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select_basis_for_claim
@@ -35,20 +35,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class BasisForClaimController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   basisForClaimPage: select_basis_for_claim
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController {
+    extends RejectedGoodsScheduledClaimBaseController {
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     val form: Form[BasisOfRejectedGoodsClaim] =
-      basisOfRejectedGoodsClaimForm.withDefault(journey.answers.basisOfClaim)
+      basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
     Ok(
       basisForClaimPage(
         form,
@@ -58,13 +58,13 @@ class BasisForClaimController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(
         formWithErrors =>
           (
-            journey,
+            claim,
             BadRequest(
               basisForClaimPage(
                 formWithErrors,
@@ -75,7 +75,7 @@ class BasisForClaimController @Inject() (
           ),
         basisOfClaim =>
           (
-            journey.submitBasisOfClaim(basisOfClaim),
+            claim.submitBasisOfClaim(basisOfClaim),
             Redirect(basisOfClaim match {
               case SpecialCircumstances =>
                 routes.EnterSpecialCircumstancesController.show

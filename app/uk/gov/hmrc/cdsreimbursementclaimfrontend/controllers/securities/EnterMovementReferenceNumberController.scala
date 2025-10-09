@@ -26,7 +26,7 @@ import play.api.data.validation.Constraints
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_movement_reference_number
@@ -35,32 +35,32 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterMovementReferenceNumberPage: enter_movement_reference_number
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   final val start: Action[AnyContent] =
     Action(Redirect(routes.EnterMovementReferenceNumberController.show))
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Ok(
         enterMovementReferenceNumberPage(
-          movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
+          movementReferenceNumberForm.withDefault(claim.answers.movementReferenceNumber),
           routes.EnterMovementReferenceNumberController.submit
         )
       ).asFuture
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       movementReferenceNumberForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             (
-              journey,
+              claim,
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors,
@@ -70,10 +70,10 @@ class EnterMovementReferenceNumberController @Inject() (
             ).asFuture,
           mrn =>
             (
-              journey.submitMovementReferenceNumber(mrn),
+              claim.submitMovementReferenceNumber(mrn),
               Redirect(
-                if journey.getLeadMovementReferenceNumber.contains(mrn) &&
-                  journey.answers.modes.checkDeclarationDetailsChangeMode
+                if claim.getLeadMovementReferenceNumber.contains(mrn) &&
+                  claim.answers.modes.checkDeclarationDetailsChangeMode
                 then routes.CheckDeclarationDetailsController.show
                 else routes.ChooseReasonForSecurityController.show
               )

@@ -25,8 +25,8 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
@@ -39,78 +39,78 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_ac
 import scala.concurrent.Future
 
 object EnterBankAccountDetailsMixin {
-  final case class RoutesPack[Journey](
+  final case class RoutesPack[Claim](
     validationErrorPath: Call,
     retryPath: Call,
-    successPath: Journey => Call,
+    successPath: Claim => Call,
     submitPath: Call
   )
 }
 
-trait EnterBankAccountDetailsMixin extends JourneyBaseController {
+trait EnterBankAccountDetailsMixin extends ClaimBaseController {
 
   val enterBankAccountDetailsPage: enter_bank_account_details
   val bankAccountReputationService: BankAccountReputationService
-  val routesPack: EnterBankAccountDetailsMixin.RoutesPack[Journey]
-  def isCMA(journey: Journey): Boolean = false
+  val routesPack: EnterBankAccountDetailsMixin.RoutesPack[Claim]
+  def isCMA(claim: Claim): Boolean = false
 
   implicit val errorHandler: ErrorHandler
 
-  def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey]
+  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Ok(
       enterBankAccountDetailsPage(
-        enterBankDetailsForm.withDefault(journey.answers.bankAccountDetails),
-        isCMA(journey),
+        enterBankDetailsForm.withDefault(claim.answers.bankAccountDetails),
+        isCMA(claim),
         routesPack.submitPath
       )
     )
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      implicit journey =>
+      implicit claim =>
         enterBankDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
+                claim,
                 BadRequest(
                   enterBankAccountDetailsPage(
                     formWithErrors,
-                    isCMA(journey),
+                    isCMA(claim),
                     routesPack.submitPath
                   )
                 )
               ),
-            validateBankAccountDetails(journey, _, None)
+            validateBankAccountDetails(claim, _, None)
           ),
     fastForwardToCYAEnabled = false
   )
 
   def validateBankAccountDetails(
-    journey: Journey,
+    claim: Claim,
     bankAccountDetails: BankAccountDetails,
     postCode: Option[String]
-  )(implicit request: Request[?]): Future[(Journey, Result)] =
+  )(implicit request: Request[?]): Future[(Claim, Result)] =
     bankAccountReputationService
       .checkBankAccountReputationV2(bankAccountDetails, postCode)
       .fold(
-        e => (journey, processCdsError(e, routesPack.validationErrorPath)),
+        e => (claim, processCdsError(e, routesPack.validationErrorPath)),
         bankAccountReputation =>
-          processBankAccountReputation(journey, bankAccountReputation, bankAccountDetails, routesPack)
+          processBankAccountReputation(claim, bankAccountReputation, bankAccountDetails, routesPack)
       )
 
   private def processBankAccountReputation(
-    journey: Journey,
+    claim: Claim,
     bankAccountReputation: BankAccountReputation,
     bankAccountDetails: BankAccountDetails,
-    nextPage: EnterBankAccountDetailsMixin.RoutesPack[Journey]
-  ): (Journey, Result) =
-    modifyJourney(
-      journey,
+    nextPage: EnterBankAccountDetailsMixin.RoutesPack[Claim]
+  ): (Claim, Result) =
+    modifyClaim(
+      claim,
       bankAccountDetails
         .withMaybeAccountName(bankAccountReputation.nameMatches, bankAccountReputation.accountName.map(_.take(40)))
         .withExistenceVerified(bankAccountReputation.accountExists)
@@ -119,13 +119,13 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
         error => {
           logger.warn(s"cannot submit bank account details because of $error")
           (
-            journey,
+            claim,
             Redirect(nextPage.retryPath)
           )
         },
-        modifiedJourney =>
+        modifiedClaim =>
           (
-            modifiedJourney,
+            modifiedClaim,
             bankAccountReputation match {
               case BankAccountReputation(
                     Yes | Indeterminate,
@@ -133,11 +133,11 @@ trait EnterBankAccountDetailsMixin extends JourneyBaseController {
                     _,
                     _,
                     (Some(Yes) | Some(Partial) | None)
-                  ) if !journey.isInstanceOf[SecuritiesJourney] || accountExists.contains(Yes) =>
+                  ) if !claim.isInstanceOf[SecuritiesClaim] || accountExists.contains(Yes) =>
                 Redirect(
-                  if journey.userHasSeenCYAPage
+                  if claim.userHasSeenCYAPage
                   then checkYourAnswers
-                  else nextPage.successPath(journey)
+                  else nextPage.successPath(claim)
                 )
 
               case _ =>

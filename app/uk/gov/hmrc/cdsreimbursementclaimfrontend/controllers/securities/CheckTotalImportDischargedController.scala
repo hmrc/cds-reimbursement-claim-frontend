@@ -26,27 +26,27 @@ import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.reasonForSecurityIsIPROrENU
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.reasonForSecurityIsIPROrENU
 
 @Singleton
 class CheckTotalImportDischargedController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkTotalImportDischargedPage: check_total_import_discharged_page
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
   private val form: Form[YesNo] = checkTotalImportDischargedForm
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -61,11 +61,11 @@ class CheckTotalImportDischargedController @Inject() (
   private val successResultBOD4: Result =
     Redirect(routes.UploadBillOfDischarge4Controller.show)
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit))
   }
 
-  def submit: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     form
       .bindFromRequest()
       .fold(
@@ -75,12 +75,12 @@ class CheckTotalImportDischargedController @Inject() (
           ),
         {
           case Yes =>
-            if journey.reasonForSecurityIsIPR then successResultBOD3
-            else if journey.reasonForSecurityIsENU then successResultBOD4
+            if claim.reasonForSecurityIsIPR then successResultBOD3
+            else if claim.reasonForSecurityIsENU then successResultBOD4
             else {
               logAndDisplayError(
-                "Invalid journey routing",
-                s"Reason for security [${journey.getReasonForSecurity}] must be one of [InwardProcessingRelief, EndUseRelief]"
+                "Invalid claim routing",
+                s"Reason for security [${claim.getReasonForSecurity}] must be one of [InwardProcessingRelief, EndUseRelief]"
               )
             }
           case No  => Redirect(routes.ClaimInvalidNotExportedAllController.show)

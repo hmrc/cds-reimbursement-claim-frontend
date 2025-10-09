@@ -19,24 +19,24 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import play.api.libs.json.Format
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 final case class SessionData(
   verifiedEmail: Option[CdsVerifiedEmail] = None,
-  overpaymentsSingleJourney: Option[OverpaymentsSingleJourney] = None,
-  overpaymentsMultipleJourney: Option[OverpaymentsMultipleJourney] = None,
-  overpaymentsScheduledJourney: Option[OverpaymentsScheduledJourney] = None,
-  rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None,
-  rejectedGoodsMultipleJourney: Option[RejectedGoodsMultipleJourney] = None,
-  rejectedGoodsScheduledJourney: Option[RejectedGoodsScheduledJourney] = None,
-  securitiesJourney: Option[SecuritiesJourney] = None
+  overpaymentsSingleClaim: Option[OverpaymentsSingleClaim] = None,
+  overpaymentsMultipleClaim: Option[OverpaymentsMultipleClaim] = None,
+  overpaymentsScheduledClaim: Option[OverpaymentsScheduledClaim] = None,
+  rejectedGoodsSingleClaim: Option[RejectedGoodsSingleClaim] = None,
+  rejectedGoodsMultipleClaim: Option[RejectedGoodsMultipleClaim] = None,
+  rejectedGoodsScheduledClaim: Option[RejectedGoodsScheduledClaim] = None,
+  securitiesClaim: Option[SecuritiesClaim] = None
 ) {
 
   def withExistingUserData(sessionData: SessionData): SessionData =
@@ -47,26 +47,26 @@ final case class SessionData(
 
 object SessionData {
 
-  def apply(overpaymentsSingleJourney: OverpaymentsSingleJourney): SessionData =
-    SessionData(overpaymentsSingleJourney = Some(overpaymentsSingleJourney))
+  def apply(overpaymentsSingleClaim: OverpaymentsSingleClaim): SessionData =
+    SessionData(overpaymentsSingleClaim = Some(overpaymentsSingleClaim))
 
-  def apply(overpaymentsMultipleJourney: OverpaymentsMultipleJourney): SessionData =
-    SessionData(overpaymentsMultipleJourney = Some(overpaymentsMultipleJourney))
+  def apply(overpaymentsMultipleClaim: OverpaymentsMultipleClaim): SessionData =
+    SessionData(overpaymentsMultipleClaim = Some(overpaymentsMultipleClaim))
 
-  def apply(overpaymentsScheduledJourney: OverpaymentsScheduledJourney): SessionData =
-    SessionData(overpaymentsScheduledJourney = Some(overpaymentsScheduledJourney))
+  def apply(overpaymentsScheduledClaim: OverpaymentsScheduledClaim): SessionData =
+    SessionData(overpaymentsScheduledClaim = Some(overpaymentsScheduledClaim))
 
-  def apply(rejectedGoodsSingleJourney: RejectedGoodsSingleJourney): SessionData =
-    SessionData(rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney))
+  def apply(rejectedGoodsSingleClaim: RejectedGoodsSingleClaim): SessionData =
+    SessionData(rejectedGoodsSingleClaim = Some(rejectedGoodsSingleClaim))
 
-  def apply(rejectedGoodsMultipleJourney: RejectedGoodsMultipleJourney): SessionData =
-    SessionData(rejectedGoodsMultipleJourney = Some(rejectedGoodsMultipleJourney))
+  def apply(rejectedGoodsMultipleClaim: RejectedGoodsMultipleClaim): SessionData =
+    SessionData(rejectedGoodsMultipleClaim = Some(rejectedGoodsMultipleClaim))
 
-  def apply(rejectedGoodsScheduledJourney: RejectedGoodsScheduledJourney): SessionData =
-    SessionData(rejectedGoodsScheduledJourney = Some(rejectedGoodsScheduledJourney))
+  def apply(rejectedGoodsScheduledClaim: RejectedGoodsScheduledClaim): SessionData =
+    SessionData(rejectedGoodsScheduledClaim = Some(rejectedGoodsScheduledClaim))
 
-  def apply(securitiesJourney: SecuritiesJourney): SessionData =
-    SessionData(securitiesJourney = Some(securitiesJourney))
+  def apply(securitiesClaim: SecuritiesClaim): SessionData =
+    SessionData(securitiesClaim = Some(securitiesClaim))
 
   implicit val format: Format[SessionData] = Json.format
 

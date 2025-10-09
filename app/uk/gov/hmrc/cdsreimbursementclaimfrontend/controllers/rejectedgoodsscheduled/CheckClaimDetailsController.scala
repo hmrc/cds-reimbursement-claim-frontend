@@ -21,9 +21,9 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -36,10 +36,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkClaimDetailsPage: check_claim_details_scheduled
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController {
+    extends RejectedGoodsScheduledClaimBaseController {
 
   implicit val subKey: Option[String] = Some("scheduled")
 
@@ -51,22 +51,22 @@ class CheckClaimDetailsController @Inject() (
   private val selectExciseDutiesAction: ExciseCategory => Call = routes.SelectDutiesController.showExciseDuties
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val answers            = sortReimbursementsByDisplayDuty(journey.getReimbursements)
-    val reimbursementTotal = journey.getTotalReimbursementAmount
+  val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    val answers            = sortReimbursementsByDisplayDuty(claim.getReimbursements)
+    val reimbursementTotal = claim.getTotalReimbursementAmount
     (
-      journey.withDutiesChangeMode(false),
-      if journey.hasCompleteReimbursementClaims
+      claim.withDutiesChangeMode(false),
+      if claim.hasCompleteReimbursementClaims
       then
         Ok(
           checkClaimDetailsPage(
             answers,
-            journey.getSelectedDutyTypes.get,
-            journey.getNonExciseDutyClaims,
-            journey.getSelectedExciseCategoryClaims,
+            claim.getSelectedDutyTypes.get,
+            claim.getNonExciseDutyClaims,
+            claim.getSelectedExciseCategoryClaims,
             reimbursementTotal,
             postAction,
             enterClaimAction,
@@ -79,10 +79,10 @@ class CheckClaimDetailsController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(implicit request =>
-    journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim(implicit request =>
+    claim =>
       (
-        journey.withDutiesChangeMode(false),
+        claim.withDutiesChangeMode(false),
         Redirect(routes.EnterInspectionDateController.show)
       )
   )

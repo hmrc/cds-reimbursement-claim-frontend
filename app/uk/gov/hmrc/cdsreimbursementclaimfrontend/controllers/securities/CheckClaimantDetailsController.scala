@@ -21,10 +21,10 @@ import play.api.mvc.*
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ContactAddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -36,15 +36,15 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val addressLookupService: AddressLookupService,
   claimantDetailsPage: check_claimant_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with ContactAddressLookupMixin {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -70,16 +70,16 @@ class CheckClaimantDetailsController @Inject() (
   override val confirmEmailRoute: Call =
     routes.EnterContactDetailsController.show
 
-  override val nextPageInTheJourney: Call =
+  override val nextPageInTheClaim: Call =
     routes.CheckYourAnswersController.show
 
-  override def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey =
-    journey.submitContactAddress(contactAddress)
+  override def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim =
+    claim.submitContactAddress(contactAddress)
 
-  override def redirectToTheNextPage(journey: SecuritiesJourney): (SecuritiesJourney, Result) =
-    if journey.userHasSeenCYAPage
-    then (journey, Redirect(routes.CheckYourAnswersController.show))
-    else (journey, Redirect(routes.CheckClaimantDetailsController.show))
+  override def redirectToTheNextPage(claim: SecuritiesClaim): (SecuritiesClaim, Result) =
+    if claim.userHasSeenCYAPage
+    then (claim, Redirect(routes.CheckYourAnswersController.show))
+    else (claim, Redirect(routes.CheckClaimantDetailsController.show))
 
 }
 

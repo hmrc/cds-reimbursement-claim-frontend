@@ -21,10 +21,10 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.hasMRNAndDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_single
 
@@ -34,27 +34,27 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckClaimDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkClaimDetails: check_claim_details_single
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsSingleJourneyBaseController {
+    extends OverpaymentsSingleClaimBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsSingleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 
   final val show: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       (
-        journey.withDutiesChangeMode(false),
-        if journey.hasCompleteReimbursementClaims
+        claim.withDutiesChangeMode(false),
+        if claim.hasCompleteReimbursementClaims
         then
           Ok(
             checkClaimDetails(
-              getReimbursementWithCorrectAmount(journey.getReimbursements),
-              journey.getSelectedDuties,
+              getReimbursementWithCorrectAmount(claim.getReimbursements),
+              claim.getSelectedDuties,
               enterClaimAction,
               routes.CheckClaimDetailsController.redirectToSelectDuties,
               routes.CheckClaimDetailsController.continue
@@ -65,19 +65,19 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val redirectToSelectDuties: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       (
-        journey.withDutiesChangeMode(true),
+        claim.withDutiesChangeMode(true),
         Redirect(routes.SelectDutiesController.show)
       )
     }
 
   final val continue: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       (
-        journey.withDutiesChangeMode(false),
+        claim.withDutiesChangeMode(false),
         Redirect(
-          if journey.userHasSeenCYAPage then checkYourAnswers
+          if claim.userHasSeenCYAPage then checkYourAnswers
           else routes.ChoosePayeeTypeController.show
         )
       )

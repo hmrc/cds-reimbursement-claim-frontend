@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChoosePayeeTypeMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
@@ -31,23 +31,23 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChoosePayeeTypeController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val choosePayeeTypePage: choose_payee_type
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with ChoosePayeeTypeMixin {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[Journey]] =
+  final override val actionPrecondition: Option[Validate[Claim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final override def modifyJourney(journey: Journey, payeeType: PayeeType): Either[String, Journey] =
-    journey.submitPayeeType(payeeType)
+  final override def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim] =
+    claim.submitPayeeType(payeeType)
 
   final val postAction: Call = routes.ChoosePayeeTypeController.submit
 
-  final def nextPage(journey: Journey): Call =
-    if journey.isAllSelectedDutiesAreCMAEligible then routes.ChooseRepaymentMethodController.show
+  final def nextPage(claim: Claim): Call =
+    if claim.isAllSelectedDutiesAreCMAEligible then routes.ChooseRepaymentMethodController.show
     else routes.EnterBankAccountDetailsController.show
 
 }

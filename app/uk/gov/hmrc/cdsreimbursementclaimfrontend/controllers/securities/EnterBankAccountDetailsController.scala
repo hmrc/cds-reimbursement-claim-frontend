@@ -21,11 +21,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
@@ -34,24 +34,24 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val enterBankAccountDetailsPage: enter_bank_account_details,
   val bankAccountReputationService: BankAccountReputationService
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, val errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with EnterBankAccountDetailsMixin {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  final override def modifyJourney(
-    journey: SecuritiesJourney,
+  final override def modifyClaim(
+    claim: SecuritiesClaim,
     bankAccountDetails: BankAccountDetails
-  ): Either[String, SecuritiesJourney] =
-    journey.submitBankAccountDetails(bankAccountDetails)
+  ): Either[String, SecuritiesClaim] =
+    claim.submitBankAccountDetails(bankAccountDetails)
 
   override val routesPack = EnterBankAccountDetailsController.routesPack
 
@@ -63,10 +63,10 @@ object EnterBankAccountDetailsController {
     validationErrorPath = routes.CheckBankDetailsController.showWarning,
     retryPath = routes.EnterBankAccountDetailsController.show,
     submitPath = routes.EnterBankAccountDetailsController.submit,
-    successPath = (journey: SecuritiesJourney) =>
-      if journey.reasonForSecurityIsIPROrENU
+    successPath = (claim: SecuritiesClaim) =>
+      if claim.reasonForSecurityIsIPROrENU
       then routes.EnterAdditionalDetailsController.show
-      else if journey.reasonForSecurityIsNidac
+      else if claim.reasonForSecurityIsNidac
       then routes.UploadProofOfOriginController.show
       else routes.ChooseFileTypeController.show
   )

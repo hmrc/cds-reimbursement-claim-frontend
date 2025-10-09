@@ -27,12 +27,12 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
@@ -45,19 +45,19 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckExportMovementReferenceNumbersController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   checkExportMovementReferenceNumbersPage: check_export_movement_reference_numbers
 )(implicit val ec: ExecutionContext, errorHandler: ErrorHandler, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def nextStepInJourney(journey: SecuritiesJourney)(using HeaderCarrier) =
-    if journey.isSingleSecurity
+  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
+    if claim.isSingleSecurity
     then routes.ChoosePayeeTypeController.show
     else routes.ConfirmFullRepaymentController.showFirst
 
@@ -68,13 +68,13 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       checkExportMovementReferenceNumbersKey
     )
 
-  val show: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    whenTemporaryAdmissionExported(journey) { exportMRNs =>
+  val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    whenTemporaryAdmissionExported(claim) { exportMRNs =>
       if exportMRNs.isEmpty
-      then (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
+      then (claim, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
       else
         (
-          journey,
+          claim,
           Ok(
             checkExportMovementReferenceNumbersPage(
               exportMRNs,
@@ -88,16 +88,16 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
+  val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        whenTemporaryAdmissionExported(journey) { exportMRNs =>
+      claim =>
+        whenTemporaryAdmissionExported(claim) { exportMRNs =>
           checkExportMovementReferenceNumbersForm
             .bindFromRequest()
             .fold(
               formWithErrors =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     checkExportMovementReferenceNumbersPage(
                       exportMRNs,
@@ -112,15 +112,15 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                 decision match {
                   case Yes =>
                     (
-                      journey,
+                      claim,
                       Redirect(
                         routes.EnterExportMovementReferenceNumberController.showNext(exportMRNs.size + 1)
                       )
                     )
                   case No  =>
-                    if journey.userHasSeenCYAPage
-                    then (journey, Redirect(routes.CheckYourAnswersController.show))
-                    else (journey, Redirect(nextStepInJourney(journey)))
+                    if claim.userHasSeenCYAPage
+                    then (claim, Redirect(routes.CheckYourAnswersController.show))
+                    else (claim, Redirect(nextStepInClaim(claim)))
                 }
             )
 
@@ -128,22 +128,22 @@ class CheckExportMovementReferenceNumbersController @Inject() (
     fastForwardToCYAEnabled = false
   )
 
-  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteJourney(
+  def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
-        whenTemporaryAdmissionExported(journey) { exportMRNs =>
+      claim =>
+        whenTemporaryAdmissionExported(claim) { exportMRNs =>
           if exportMRNs.contains(mrn) then
-            journey
+            claim
               .removeExportMovementReferenceNumber(mrn)
               .fold(
                 error => {
                   logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible))
+                  (claim, Redirect(baseRoutes.IneligibleController.ineligible))
                 },
-                updatedJourney =>
+                updatedClaim =>
                   (
-                    updatedJourney,
-                    updatedJourney.answers.exportMovementReferenceNumbers match {
+                    updatedClaim,
+                    updatedClaim.answers.exportMovementReferenceNumbers match {
                       case Some(exportMRNs) if exportMRNs.nonEmpty =>
                         Redirect(routes.CheckExportMovementReferenceNumbersController.show)
                       case _                                       =>
@@ -151,29 +151,29 @@ class CheckExportMovementReferenceNumbersController @Inject() (
                     }
                   )
               )
-          else (journey, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
+          else (claim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
         },
     fastForwardToCYAEnabled = false
   )
 
   private def whenTemporaryAdmissionExported(
-    journey: SecuritiesJourney
+    claim: SecuritiesClaim
   )(
-    body: Seq[MRN] => (SecuritiesJourney, Result)
-  )(implicit request: Request[?]): (SecuritiesJourney, Result) =
-    (journey.getReasonForSecurity, journey.getMethodOfDisposal, journey.answers.exportMovementReferenceNumbers) match {
+    body: Seq[MRN] => (SecuritiesClaim, Result)
+  )(implicit request: Request[?]): (SecuritiesClaim, Result) =
+    (claim.getReasonForSecurity, claim.getMethodOfDisposal, claim.answers.exportMovementReferenceNumbers) match {
       case (None, _, _)                                                                                 =>
-        (journey, errorHandler.errorResult())
+        (claim, errorHandler.errorResult())
       case (Some(rfs), Some(mods), Some(exportMRNs)) if ntas.contains(rfs) && containsExportedMod(mods) =>
         body(exportMRNs)
       case (Some(rfs), Some(mod), None) if ntas.contains(rfs) && containsExportedMod(mod)               =>
-        (journey, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
+        (claim, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
       case (Some(rfs), Some(mod), _) if ntas.contains(rfs) && !containsExportedMod(mod)                 =>
-        (journey, Redirect(nextStepInJourney(journey)))
+        (claim, Redirect(nextStepInClaim(claim)))
       case (Some(rfs), None, _) if ntas.contains(rfs)                                                   =>
-        (journey, Redirect(routes.ChooseExportMethodController.show))
+        (claim, Redirect(routes.ChooseExportMethodController.show))
       case (Some(_), _, _)                                                                              =>
-        (journey, Redirect(nextStepInJourney(journey)))
+        (claim, Redirect(nextStepInClaim(claim)))
     }
 
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =

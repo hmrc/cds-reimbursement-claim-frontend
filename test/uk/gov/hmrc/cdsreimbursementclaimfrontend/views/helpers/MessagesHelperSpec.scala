@@ -29,7 +29,7 @@ class MessagesHelperSpec extends AnyWordSpec with Matchers {
   implicit val messagesImpl: MessagesImpl = MessagesImpl(Lang.defaultLang, messagesApi)
 
   "MessagesHelper" should {
-    "work when there are no journey keys / subKeys / level2 keys" in {
+    "work when there are no claim keys / subKeys / level2 keys" in {
       combine("a", None, "b") shouldBe List("a.b")
     }
 

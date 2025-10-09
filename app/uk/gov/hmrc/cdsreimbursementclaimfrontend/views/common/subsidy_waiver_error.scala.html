@@ -31,7 +31,7 @@
  bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@(formType: String, journeyType: String, subsidyType: String, mrn: MRN, postAction: Call, gFormUrl: String, enterMrnUrl: Call)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
+@(formType: String, claimType: String, subsidyType: String, mrn: MRN, postAction: Call, gFormUrl: String, enterMrnUrl: Call)(implicit request : Request[?], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"subsidy-waiver-error"}
 
@@ -42,13 +42,13 @@
     @paragraph(Html(messages(s"$key.p1", gFormUrl, formType)))
 
     @if(subsidyType == "full") {
-      @paragraph(Html(messages(s"$key.$subsidyType.$journeyType.p2")))
+      @paragraph(Html(messages(s"$key.$subsidyType.$claimType.p2")))
 
-      @if(journeyType == "single") {
+      @if(claimType == "single") {
         @bullets(
           Seq(
-            Html(messages(s"$key.$subsidyType.$journeyType.point.1", enterMrnUrl.url)),
-            Html(messages(s"$key.$subsidyType.$journeyType.point.2", commonRoutes.ChooseClaimTypeController.show))
+            Html(messages(s"$key.$subsidyType.$claimType.point.1", enterMrnUrl.url)),
+            Html(messages(s"$key.$subsidyType.$claimType.point.2", commonRoutes.ChooseClaimTypeController.show))
           )
         )
       }

@@ -40,16 +40,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesJourneyModes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesClaimModes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -63,7 +63,7 @@ import scala.collection.immutable.SortedMap
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
-    with SecuritiesJourneyTestData
+    with SecuritiesClaimTestData
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -85,13 +85,13 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(SecuritiesJourney.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
+  val session: SessionData = SessionData(SecuritiesClaim.empty(exampleEori).submitMovementReferenceNumber(exampleMrn))
 
   def validateSelectDutiesPage(
     securityId: String,
     singleSecurity: Boolean,
     doc: Document,
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     isError: Boolean = false
   ) = {
     val title       = doc.select("title").first().text()
@@ -99,10 +99,10 @@ class SelectDutiesControllerSpec
     val formHeading = doc.select(".govuk-heading-l").eachText().asScala.toList
 
     val dutiesAvailable: Seq[TaxCode] =
-      journey.getSecurityTaxCodesFor(securityId)
+      claim.getSecurityTaxCodesFor(securityId)
 
     val taxDetails: Seq[TaxDetails] =
-      dutiesAvailable.flatMap(journey.getSecurityTaxDetailsFor(securityId, _).toList)
+      dutiesAvailable.flatMap(claim.getSecurityTaxDetailsFor(securityId, _).toList)
 
     val expectedTitle =
       if (singleSecurity)
@@ -141,10 +141,10 @@ class SelectDutiesControllerSpec
     "show page is called" must {
       def performAction(securityId: String): Future[Result] = controller.show(securityId)(FakeRequest())
 
-      "display the page on a journey that has ACC14 tax codes" in
-        forAll(completeJourneyWithoutIPROrENUGen) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          securityIdWithTaxCodes(journey).fold(
+      "display the page on a claim that has ACC14 tax codes" in
+        forAll(completeClaimWithoutIPROrENUGen) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
+          securityIdWithTaxCodes(claim).fold(
             (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
           ) { securityId =>
             inSequence {
@@ -155,15 +155,15 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
+              doc => validateSelectDutiesPage(securityId, claim.isSingleSecurity, doc, claim)
             )
           }
         }
 
-      "display the page on a journey with a single security deposit" in
-        forAll(buildCompleteJourneyGen(numberOfSecurityDetails = Some(1))) { journey =>
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          securityIdWithTaxCodes(journey).fold(
+      "display the page on a claim with a single security deposit" in
+        forAll(buildCompleteClaimGen(numberOfSecurityDetails = Some(1))) { claim =>
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
+          securityIdWithTaxCodes(claim).fold(
             (status(performAction("anySecurityId")) shouldBe NOT_FOUND): Any
           ) { securityId =>
             inSequence {
@@ -174,28 +174,28 @@ class SelectDutiesControllerSpec
             checkPageIsDisplayed(
               performAction(securityId),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
+              doc => validateSelectDutiesPage(securityId, claim.isSingleSecurity, doc, claim)
             )
           }
         }
 
       "redirect to ineligible page when there are no available duties" in {
-        val journey                      = completeJourneyWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create journey"))
-        val securityId                   = journey.getSecurityDepositIds.head
-        val displayDeclaration           = journey.answers.displayDeclaration.get
+        val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
+        val securityId                   = claim.getSecurityDepositIds.head
+        val displayDeclaration           = claim.answers.displayDeclaration.get
         val securityDetails              = displayDeclaration.getSecurityDetailsFor(securityId).get
         val updatedSecurityDetails       = securityDetails.copy(taxDetails = List.empty)
         val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails =
           Some(
-            journey.getSecurityDetails
+            claim.getSecurityDetails
               .map(sd => updatedSecurityDetails)
               .filter(sd => sd.securityDepositId == securityId)
               .toList
           )
         )
         val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
-        val updatedJourney               = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers =>
             answers.copy(
               displayDeclaration = Some(updatedDisplayDeclaration),
@@ -205,7 +205,7 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(performAction(securityId), baseRoutes.IneligibleController.ineligible)
@@ -215,12 +215,12 @@ class SelectDutiesControllerSpec
     "show page for first duty is called" must {
       def performActionShowFirst(): Future[Result] = controller.showFirst()(FakeRequest())
 
-      "select duty and redirect to enter claim page on a journey with a single duty type" in
-        forAll(partialGenSingleDuty) { journey =>
-          val securityId = securityIdWithTaxCodes(journey).get
+      "select duty and redirect to enter claim page on a claim with a single duty type" in
+        forAll(partialGenSingleDuty) { claim =>
+          val securityId = securityIdWithTaxCodes(claim).get
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(Right(()))
           }
 
@@ -231,37 +231,37 @@ class SelectDutiesControllerSpec
         }
 
       "display the select duties page when there are multiple available duties" in
-        forAll(completeJourneyWithoutIPROrENUGen) { journey =>
-          val securityId = securityIdWithTaxCodes(journey).get
+        forAll(completeClaimWithoutIPROrENUGen) { claim =>
+          val securityId = securityIdWithTaxCodes(claim).get
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performActionShowFirst(),
             messageFromMessageKey(s"$messagesKey.securities.title"),
-            doc => validateSelectDutiesPage(securityId, journey.isSingleSecurity, doc, journey)
+            doc => validateSelectDutiesPage(securityId, claim.isSingleSecurity, doc, claim)
           )
         }
 
       "redirect to ineligible page when there are no available duties" in {
-        val journey                      = completeJourneyWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create journey"))
-        val securityId                   = journey.getSecurityDepositIds.head
-        val displayDeclaration           = journey.answers.displayDeclaration.get
+        val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
+        val securityId                   = claim.getSecurityDepositIds.head
+        val displayDeclaration           = claim.answers.displayDeclaration.get
         val securityDetails              = displayDeclaration.getSecurityDetailsFor(securityId).get
         val updatedSecurityDetails       = securityDetails.copy(taxDetails = List.empty)
         val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails =
           Some(
-            journey.getSecurityDetails
+            claim.getSecurityDetails
               .map(sd => updatedSecurityDetails)
               .filter(sd => sd.securityDepositId == securityId)
               .toList
           )
         )
         val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
-        val updatedJourney               = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers =>
             answers.copy(
               displayDeclaration = Some(updatedDisplayDeclaration),
@@ -271,19 +271,19 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(performActionShowFirst(), baseRoutes.IneligibleController.ineligible)
       }
 
       "redirect to ineligible page when security deposit ID is not found" in {
-        val journey                      = completeJourneyWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create journey"))
-        val displayDeclaration           = journey.answers.displayDeclaration.get
+        val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
+        val displayDeclaration           = claim.answers.displayDeclaration.get
         val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails = None)
         val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
-        val updatedJourney               = SecuritiesJourney.unsafeModifyAnswers(
-          journey,
+        val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
+          claim,
           answers =>
             answers.copy(
               displayDeclaration = Some(updatedDisplayDeclaration),
@@ -293,7 +293,7 @@ class SelectDutiesControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(updatedJourney))
+          mockGetSession(SessionData(updatedClaim))
         }
 
         checkIsRedirect(performActionShowFirst(), baseRoutes.IneligibleController.ineligible)
@@ -306,9 +306,9 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible page when there are no duties returned from ACC14" in
         forAll(genReasonForSecurity) { rfs =>
-          val journey        = securitiesJourneyWithMrnAndRfsAndDeclaration(rfs)
-          val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
-          securityIdWithTaxCodes(journey).fold {
+          val claim          = securitiesClaimWithMrnAndRfsAndDeclaration(rfs)
+          val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
+          securityIdWithTaxCodes(claim).fold {
             inAnyOrder {
               mockAuthWithDefaultRetrievals()
               mockGetSession(updatedSession)
@@ -323,39 +323,39 @@ class SelectDutiesControllerSpec
         }
 
       "move on to enter claim page when at least one checkbox has been changed" in
-        forAll(partialGen) { journey =>
-          val securityIdOpt = securityIdWithMoreChoicesThanThoseSelected(journey)
-          whenever(journey.answers.correctedAmounts.nonEmpty && securityIdOpt.isDefined) {
-            val securityId                                        = securityIdOpt.get
-            val availableTaxCodes: List[TaxCode]                  = journey.getSecurityTaxCodesFor(securityId).toList
-            val previouslySelectedTaxCodes: List[TaxCode]         =
-              journey.answers.correctedAmounts
+        forAll(partialGen) { claim =>
+          val securityIdOpt = securityIdWithMoreChoicesThanThoseSelected(claim)
+          whenever(claim.answers.correctedAmounts.nonEmpty && securityIdOpt.isDefined) {
+            val securityId                                    = securityIdOpt.get
+            val availableTaxCodes: List[TaxCode]              = claim.getSecurityTaxCodesFor(securityId).toList
+            val previouslySelectedTaxCodes: List[TaxCode]     =
+              claim.answers.correctedAmounts
                 .map(_(securityId))
                 .toList
                 .flatMap(_.keys)
-            val checkBoxesToSelect                                =
+            val checkBoxesToSelect                            =
               selectCheckBoxes(
-                journey,
+                claim,
                 securityId,
                 availableTaxCodes.zipWithIndex,
                 previouslySelectedTaxCodes.zipWithIndex
               )
-            val updatedSecuritiesReclaims                         =
+            val updatedSecuritiesReclaims                     =
               checkBoxesToSelect
                 .map(_._2)
                 .map(TaxCode(_))
                 .sorted
-            val updatedJourney: Either[String, SecuritiesJourney] =
-              journey.selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, updatedSecuritiesReclaims)
+            val updatedClaim: Either[String, SecuritiesClaim] =
+              claim.selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, updatedSecuritiesReclaims)
 
-            updatedJourney.fold(
+            updatedClaim.fold(
               error => {
-                logger.warn(s"unable to update journey with new tax codes $error")
+                logger.warn(s"unable to update claim with new tax codes $error")
                 assert(false)
               },
-              updatedJourney => {
+              updatedClaim => {
                 val updatedSession =
-                  SessionData.empty.copy(securitiesJourney = Some(updatedJourney))
+                  SessionData.empty.copy(securitiesClaim = Some(updatedClaim))
                 inAnyOrder {
                   mockAuthWithDefaultRetrievals()
                   mockGetSession(updatedSession)
@@ -370,14 +370,14 @@ class SelectDutiesControllerSpec
         }
 
       "select and redirect to enter claim when not in check claim or confirm full amount modes" in {
-        val initialJourney = completeJourneyGen.sample.get
-        val securityId     = securityIdWithTaxCodes(initialJourney).getOrElse(fail("Failed to get security ID"))
-        val nextTaxCode    = initialJourney.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
-        val journey        = SecuritiesJourney.unsafeModifyAnswers(
-          initialJourney,
+        val initialClaim = completeClaimGen.sample.get
+        val securityId   = securityIdWithTaxCodes(initialClaim).getOrElse(fail("Failed to get security ID"))
+        val nextTaxCode  = initialClaim.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
+        val claim        = SecuritiesClaim.unsafeModifyAnswers(
+          initialClaim,
           _.copy(
             correctedAmounts = Some(SortedMap(securityId -> SortedMap(nextTaxCode -> None))),
-            modes = SecuritiesJourneyModes(
+            modes = SecuritiesClaimModes(
               checkYourAnswersChangeMode = false,
               checkClaimDetailsChangeMode = false,
               claimFullAmountMode = false
@@ -385,14 +385,14 @@ class SelectDutiesControllerSpec
           )
         )
 
-        val updatedJourney = journey
+        val updatedClaim = claim
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(nextTaxCode))
           .getOrElse(fail("Failed to select duties"))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -402,14 +402,14 @@ class SelectDutiesControllerSpec
       }
 
       "select and redirect to confirm full repayment when check claim and claim full amount modes are true and reclaims is empty for the deposit ID" in {
-        val initialJourney = completeJourneyGen.sample.get
-        val securityId     = securityIdWithTaxCodes(initialJourney).getOrElse(fail("Failed to get security ID"))
-        val nextTaxCode    = initialJourney.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
-        val journey        = SecuritiesJourney.unsafeModifyAnswers(
-          initialJourney,
+        val initialClaim = completeClaimGen.sample.get
+        val securityId   = securityIdWithTaxCodes(initialClaim).getOrElse(fail("Failed to get security ID"))
+        val nextTaxCode  = initialClaim.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
+        val claim        = SecuritiesClaim.unsafeModifyAnswers(
+          initialClaim,
           _.copy(
             correctedAmounts = Some(SortedMap(securityId -> SortedMap.empty[TaxCode, Option[BigDecimal]])),
-            modes = SecuritiesJourneyModes(
+            modes = SecuritiesClaimModes(
               checkYourAnswersChangeMode = false,
               checkClaimDetailsChangeMode = true,
               claimFullAmountMode = true
@@ -417,14 +417,14 @@ class SelectDutiesControllerSpec
           )
         )
 
-        val updatedJourney = journey
+        val updatedClaim = claim
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(nextTaxCode))
           .getOrElse(fail("Failed to select duties"))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -434,14 +434,14 @@ class SelectDutiesControllerSpec
       }
 
       "select and redirect to confirm full repayment when check claim and claim full amount modes are true and reclaims is empty for for single security deposit ID" in {
-        val initialJourney = SecuritiesSingleJourneyGenerators.completeJourneyGen.sample.get
-        val securityId     = securityIdWithTaxCodes(initialJourney).getOrElse(fail("Failed to get security ID"))
-        val nextTaxCode    = initialJourney.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
-        val journey        = SecuritiesJourney.unsafeModifyAnswers(
-          initialJourney,
+        val initialClaim = SecuritiesSingleClaimGenerators.completeClaimGen.sample.get
+        val securityId   = securityIdWithTaxCodes(initialClaim).getOrElse(fail("Failed to get security ID"))
+        val nextTaxCode  = initialClaim.getSecurityTaxCodesWithAmounts(securityId).head.taxCode
+        val claim        = SecuritiesClaim.unsafeModifyAnswers(
+          initialClaim,
           _.copy(
             correctedAmounts = Some(SortedMap(securityId -> SortedMap.empty[TaxCode, Option[BigDecimal]])),
-            modes = SecuritiesJourneyModes(
+            modes = SecuritiesClaimModes(
               checkYourAnswersChangeMode = false,
               checkClaimDetailsChangeMode = true,
               claimFullAmountMode = true
@@ -449,14 +449,14 @@ class SelectDutiesControllerSpec
           )
         )
 
-        val updatedJourney = journey
+        val updatedClaim = claim
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(nextTaxCode))
           .getOrElse(fail("Failed to select duties"))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -466,22 +466,22 @@ class SelectDutiesControllerSpec
       }
 
       "select and redirect to check claim when check claim and claim full amount modes are true and the duty selected is the last incomplete claim" in {
-        val initialJourney     = SecuritiesJourneyGenerators
-          .buildCompleteJourneyGen(numberOfDutyTypes = Some(2))
+        val initialClaim       = SecuritiesClaimGenerators
+          .buildCompleteClaimGen(numberOfDutyTypes = Some(2))
           .sample
-          .getOrElse(fail("Failed to create journey"))
-        val securityId         = initialJourney.getSecurityDepositIds.head
-        val taxDetails         = initialJourney.getSecurityDetailsFor(securityId).get.taxDetails
+          .getOrElse(fail("Failed to create claim"))
+        val securityId         = initialClaim.getSecurityDepositIds.head
+        val taxDetails         = initialClaim.getSecurityDetailsFor(securityId).get.taxDetails
         val nextTaxCode        = taxDetails.head.getTaxCode
         val taxCodeWithAmounts =
           taxDetails.map(td => td.getTaxCode -> Some(td.getAmount)).filter((taxCode, _) => taxCode != nextTaxCode)
         val correctedAmounts   = SortedMap(securityId -> SortedMap(taxCodeWithAmounts*))
 
-        val journey = SecuritiesJourney.unsafeModifyAnswers(
-          initialJourney,
+        val claim = SecuritiesClaim.unsafeModifyAnswers(
+          initialClaim,
           _.copy(
             correctedAmounts = Some(correctedAmounts),
-            modes = SecuritiesJourneyModes(
+            modes = SecuritiesClaimModes(
               checkYourAnswersChangeMode = false,
               checkClaimDetailsChangeMode = true,
               claimFullAmountMode = true
@@ -489,14 +489,14 @@ class SelectDutiesControllerSpec
           )
         )
 
-        val updatedJourney = journey
+        val updatedClaim = claim
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(nextTaxCode))
           .getOrElse(fail("Failed to select duties"))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -506,22 +506,22 @@ class SelectDutiesControllerSpec
       }
 
       "select and redirect to check claim when check claim and claim full amount modes are true and the duty selected is the last incomplete claim for a single security deposit" in {
-        val initialJourney     = SecuritiesSingleJourneyGenerators
-          .buildCompleteJourneyGen()
+        val initialClaim       = SecuritiesSingleClaimGenerators
+          .buildCompleteClaimGen()
           .sample
-          .getOrElse(fail("Failed to create journey"))
-        val securityId         = initialJourney.getSecurityDepositIds.head
-        val taxDetails         = initialJourney.getSecurityDetailsFor(securityId).get.taxDetails
+          .getOrElse(fail("Failed to create claim"))
+        val securityId         = initialClaim.getSecurityDepositIds.head
+        val taxDetails         = initialClaim.getSecurityDetailsFor(securityId).get.taxDetails
         val nextTaxCode        = taxDetails.head.getTaxCode
         val taxCodeWithAmounts =
           taxDetails.map(td => td.getTaxCode -> Some(td.getAmount)).filter((taxCode, _) => taxCode != nextTaxCode)
         val correctedAmounts   = SortedMap(securityId -> SortedMap(taxCodeWithAmounts*))
 
-        val journey = SecuritiesJourney.unsafeModifyAnswers(
-          initialJourney,
+        val claim = SecuritiesClaim.unsafeModifyAnswers(
+          initialClaim,
           _.copy(
             correctedAmounts = Some(correctedAmounts),
-            modes = SecuritiesJourneyModes(
+            modes = SecuritiesClaimModes(
               checkYourAnswersChangeMode = false,
               checkClaimDetailsChangeMode = true,
               claimFullAmountMode = true
@@ -529,14 +529,14 @@ class SelectDutiesControllerSpec
           )
         )
 
-        val updatedJourney = journey
+        val updatedClaim = claim
           .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(securityId, Seq(nextTaxCode))
           .getOrElse(fail("Failed to select duties"))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(
@@ -545,13 +545,13 @@ class SelectDutiesControllerSpec
         )
       }
 
-      "redisplay the page with an error when no checkboxes are selected" in forAll(completeJourneyWithoutIPROrENUGen) {
-        journey =>
-          whenever(journey.answers.correctedAmounts.nonEmpty) {
-            securityIdWithTaxCodes(journey).fold(
+      "redisplay the page with an error when no checkboxes are selected" in forAll(completeClaimWithoutIPROrENUGen) {
+        claim =>
+          whenever(claim.answers.correctedAmounts.nonEmpty) {
+            securityIdWithTaxCodes(claim).fold(
               throw new Throwable("unexpectedly found securities reclaims already populated")
             ) { securityId =>
-              val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+              val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
               inSequence {
                 mockAuthWithDefaultRetrievals()
                 mockGetSession(updatedSession)
@@ -562,9 +562,9 @@ class SelectDutiesControllerSpec
                 doc =>
                   validateSelectDutiesPage(
                     securityId = securityId,
-                    journey.isSingleSecurity,
+                    claim.isSingleSecurity,
                     doc = doc,
-                    journey = journey,
+                    claim = claim,
                     isError = true
                   )
               )
@@ -572,16 +572,16 @@ class SelectDutiesControllerSpec
           }
       }
 
-      "redirect back to the CYA when the same duties has been selected" in forAll(completeJourneyWithoutIPROrENUGen) {
-        journey =>
-          whenever(journey.answers.correctedAmounts.nonEmpty) {
-            journey.getSelectedDepositIds.foreach { securityId =>
+      "redirect back to the CYA when the same duties has been selected" in forAll(completeClaimWithoutIPROrENUGen) {
+        claim =>
+          whenever(claim.answers.correctedAmounts.nonEmpty) {
+            claim.getSelectedDepositIds.foreach { securityId =>
               val selectedDuties: Seq[TaxCode] =
-                journey.getSelectedDutiesFor(securityId).get
+                claim.getSelectedDutiesFor(securityId).get
 
               inSequence {
                 mockAuthWithDefaultRetrievals()
-                mockGetSession(SessionData(journey))
+                mockGetSession(SessionData(claim))
               }
 
               checkIsRedirect(
@@ -596,16 +596,16 @@ class SelectDutiesControllerSpec
       }
 
       "redirect back to the check claim page when duty has been de-selected" in forAll(
-        completeJourneyWithoutIPROrENUGen
-      ) { journey =>
-        journey.getSelectedDepositIds.foreach { securityId =>
+        completeClaimWithoutIPROrENUGen
+      ) { claim =>
+        claim.getSelectedDepositIds.foreach { securityId =>
           val selectedDuties: Seq[TaxCode] =
-            journey.getSelectedDutiesFor(securityId).get
+            claim.getSelectedDutiesFor(securityId).get
 
           whenever(selectedDuties.size > 1) {
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
               mockStoreSession(Right(()))
             }
 
@@ -621,20 +621,20 @@ class SelectDutiesControllerSpec
 
       }
 
-      "redirect to the check claim page when new duty has been selected" in forAll(completeJourneyWithoutIPROrENUGen) {
-        journey =>
-          whenever(journey.answers.correctedAmounts.nonEmpty) {
-            journey.getSelectedDepositIds.foreach { securityId =>
+      "redirect to the check claim page when new duty has been selected" in forAll(completeClaimWithoutIPROrENUGen) {
+        claim =>
+          whenever(claim.answers.correctedAmounts.nonEmpty) {
+            claim.getSelectedDepositIds.foreach { securityId =>
               val availableDuties: Set[TaxCode] =
-                journey.getSecurityTaxCodesFor(securityId).toSet
+                claim.getSecurityTaxCodesFor(securityId).toSet
 
               val selectedDuties: Set[TaxCode] =
-                journey.getSelectedDutiesFor(securityId).get.toSet
+                claim.getSelectedDutiesFor(securityId).get.toSet
 
               (availableDuties -- selectedDuties).foreach { taxCode =>
                 inSequence {
                   mockAuthWithDefaultRetrievals()
-                  mockGetSession(SessionData(journey))
+                  mockGetSession(SessionData(claim))
                   mockStoreSession(Right(()))
                 }
 
@@ -659,18 +659,18 @@ object SelectDutiesControllerSpec {
         b.taxDetails.nonEmpty
       }.map(_.securityDepositId)
     )
-  def securityIdWithTaxCodes(journey: SecuritiesJourney): Option[String]                                   =
-    journey.getLeadDisplayDeclaration
+  def securityIdWithTaxCodes(claim: SecuritiesClaim): Option[String]                                       =
+    claim.getLeadDisplayDeclaration
       .map { displayDeclaration =>
         displayDeclaration.displayResponseDetail.securityDetails
       }
       .flatMap(getFirstSecurityWithTaxCodes)
 
-  def securityIdWithMoreChoicesThanThoseSelected(journey: SecuritiesJourney): Option[String] = {
-    val securityId = securityIdWithTaxCodes(journey)
+  def securityIdWithMoreChoicesThanThoseSelected(claim: SecuritiesClaim): Option[String] = {
+    val securityId = securityIdWithTaxCodes(claim)
     securityId.fold(Option.empty[String]) { securityId =>
-      val choices: List[TaxCode]  = journey.getSecurityTaxCodesFor(securityId).toList
-      val selected: List[TaxCode] = journey.answers.correctedAmounts
+      val choices: List[TaxCode]  = claim.getSecurityTaxCodesFor(securityId).toList
+      val selected: List[TaxCode] = claim.answers.correctedAmounts
         .map(_(securityId))
         .map(_.keys)
         .toList
@@ -679,8 +679,8 @@ object SelectDutiesControllerSpec {
     }
   }
 
-  val partialGen: Gen[SecuritiesJourney] =
-    buildCompleteJourneyGen(
+  val partialGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
       acc14DeclarantMatchesUserEori = true,
       acc14ConsigneeMatchesUserEori = false,
       allDutiesGuaranteeEligibleOpt = None,
@@ -693,8 +693,8 @@ object SelectDutiesControllerSpec {
       reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
     )
 
-  val partialGenSingleDuty: Gen[SecuritiesJourney] =
-    buildCompleteJourneyGen(
+  val partialGenSingleDuty: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
       acc14DeclarantMatchesUserEori = true,
       acc14ConsigneeMatchesUserEori = false,
       allDutiesGuaranteeEligibleOpt = None,
@@ -719,14 +719,14 @@ object SelectDutiesControllerSpec {
       .filter(a => selected.contains(a._1.taxCode))
 
   def selectCheckBoxes(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     securityId: String,
     availableTaxCodes: Seq[(TaxCode, Int)],
     previouslySelected: Seq[(TaxCode, Int)]
   ): Seq[(String, String)] =
     (previouslySelected.size, availableTaxCodes.size) match {
       case (0, _)          =>
-        Seq("select-duties[0]" -> journey.getSecurityTaxCodesFor(securityId).toList.head.value)
+        Seq("select-duties[0]" -> claim.getSecurityTaxCodesFor(securityId).toList.head.value)
       case (a, b) if a < b =>
         availableTaxCodes
           .find { a =>
@@ -737,7 +737,7 @@ object SelectDutiesControllerSpec {
           )(a => Seq(s"select-duties[${a._2}]" -> s"${a._1}"))
       case _               =>
         throw new Throwable(
-          "cannot test complete journey when all securities are selected or invalid securities are selected"
+          "cannot test complete claim when all securities are selected or invalid securities are selected"
         )
     }
 }

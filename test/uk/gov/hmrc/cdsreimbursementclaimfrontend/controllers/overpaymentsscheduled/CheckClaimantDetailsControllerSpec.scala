@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetails
@@ -67,7 +67,7 @@ class CheckClaimantDetailsControllerSpec
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  private val session = SessionData(journeyWithMrnAndDeclaration)
+  private val session = SessionData(claimWithMrnAndDeclaration)
 
   "Check Claimant Details Controller" when {
     "Show Check Claimant Details page" must {
@@ -76,8 +76,8 @@ class CheckClaimantDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(buildCompleteJourneyGen()) { journey =>
-          val sessionToAmend = SessionData(journey)
+        forAll(buildCompleteClaimGen()) { claim =>
+          val sessionToAmend = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -96,7 +96,7 @@ class CheckClaimantDetailsControllerSpec
         forAll(genEori) { eori =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(OverpaymentsScheduledJourney.empty(eori)))
+            mockGetSession(SessionData(OverpaymentsScheduledClaim.empty(eori)))
           }
 
           checkIsRedirect(
@@ -107,14 +107,14 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to startAddressLookup when no address is set" in {
-        forAll(completeJourneyGen) { journey =>
-          val initialJourney = OverpaymentsScheduledJourney
-            .unsafeModifyAnswers(journey, _.copy(contactAddress = None))
+        forAll(completeClaimGen) { claim =>
+          val initialClaim = OverpaymentsScheduledClaim
+            .unsafeModifyAnswers(claim, _.copy(contactAddress = None))
             .submitCheckYourAnswersChangeMode(false)
 
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(performAction(), routes.CheckClaimantDetailsController.redirectToALF)
@@ -122,14 +122,14 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to enter MRN when no contact details or address is set" in {
-        forAll(completeJourneyGen) { journey =>
-          val initialJourney = OverpaymentsScheduledJourney
-            .unsafeModifyAnswers(journey, _.copy(contactAddress = None, contactDetails = None))
+        forAll(completeClaimGen) { claim =>
+          val initialClaim = OverpaymentsScheduledClaim
+            .unsafeModifyAnswers(claim, _.copy(contactAddress = None, contactDetails = None))
             .submitCheckYourAnswersChangeMode(false)
 
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
-            mockGetSession(SessionData(initialJourney))
+            mockGetSession(SessionData(initialClaim))
           }
 
           checkIsRedirect(performAction(), routes.EnterMovementReferenceNumberController.show)
@@ -147,9 +147,9 @@ class CheckClaimantDetailsControllerSpec
       "redirect to the check your answers page and do not update the contact/address details if they are already present" in {
         forAll(displayDeclarationGen, genMrnContactDetails, genContactAddress) {
           (displayDeclaration, contactDetails, contactAddress) =>
-            val journey = OverpaymentsScheduledJourney
+            val claim = OverpaymentsScheduledClaim
               .tryBuildFrom(
-                OverpaymentsScheduledJourney.Answers(
+                OverpaymentsScheduledClaim.Answers(
                   userEoriNumber = displayDeclaration.getDeclarantEori,
                   movementReferenceNumber = Some(exampleMrn),
                   displayDeclaration = Some(displayDeclaration),
@@ -162,7 +162,7 @@ class CheckClaimantDetailsControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkIsRedirect(
@@ -174,14 +174,14 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the check your answers page and update the contact/address details if third party user" in {
         forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
-          val journey = OverpaymentsScheduledJourney
+          val claim = OverpaymentsScheduledClaim
             .empty(userEori)
             .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
             .flatMap(_.submitConsigneeEoriNumber(displayDeclaration.getConsigneeEori.get))
             .flatMap(_.submitDeclarantEoriNumber(displayDeclaration.getDeclarantEori))
             .getOrFail
 
-          val session = SessionData(journey)
+          val session = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -197,16 +197,16 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the check your answers page if user has seen CYA page" in {
-        forAll(completeJourneyGen, displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (journey, displayDeclaration, contactDetails, address) =>
-            val updatedJourney = journey
+        forAll(completeClaimGen, displayDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (claim, displayDeclaration, contactDetails, address) =>
+            val updatedClaim = claim
               .submitContactDetails(Some(contactDetails))
               .submitContactAddress(address)
 
             inSequence {
               mockAuthWithOrgWithEoriEnrolmentRetrievals()
-              mockGetSession(SessionData(journey))
-              mockStoreSession(SessionData(updatedJourney))(Right(()))
+              mockGetSession(SessionData(claim))
+              mockStoreSession(SessionData(updatedClaim))(Right(()))
             }
 
             checkIsRedirect(
@@ -253,12 +253,12 @@ class CheckClaimantDetailsControllerSpec
     }
 
     "update an address once complete and redirect to CYA when user has seen CYA page" in forAll(
-      completeJourneyGen,
+      completeClaimGen,
       genContactAddress
-    ) { (journey, address) =>
+    ) { (claim, address) =>
       inSequence {
         mockAuthWithOrgWithEoriEnrolmentRetrievals()
-        mockGetSession(SessionData(journey))
+        mockGetSession(SessionData(claim))
         mockAddressRetrieve(Right(address))
         mockStoreSession(Right(()))
       }

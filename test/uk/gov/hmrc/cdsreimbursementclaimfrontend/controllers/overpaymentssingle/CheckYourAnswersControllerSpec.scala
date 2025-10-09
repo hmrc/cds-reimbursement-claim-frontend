@@ -35,8 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Consignee
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType.Declarant
@@ -91,8 +91,8 @@ class CheckYourAnswersControllerSpec
 
   def validateCheckYourAnswersPage(
     doc: Document,
-    journey: OverpaymentsSingleJourney,
-    claim: OverpaymentsSingleJourney.Output,
+    claim: OverpaymentsSingleClaim,
+    output: OverpaymentsSingleClaim.Output,
     isPrintView: Boolean
   ) = {
     val cardTitles    = doc.select("h2.govuk-summary-card__title").eachText().asScala
@@ -114,57 +114,57 @@ class CheckYourAnswersControllerSpec
     )
 
     val expectedDocuments: Seq[String] =
-      journey.answers.supportingEvidences
+      claim.answers.supportingEvidences
         .groupBy(_.documentType)
         .flatMap { case (docType, docs) =>
           Seq(s"${m(s"choose-file-type.file-type.${docType.get}")}:") ++ docs.map(doc => s"${doc.fileName}")
         }
         .toSeq
 
-    val submissionDate: LocalDateTime = journey.submissionDateTime.getOrElse(LocalDateTime.now())
+    val submissionDate: LocalDateTime = claim.submissionDateTime.getOrElse(LocalDateTime.now())
 
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
-        "Movement Reference Number (MRN)"  -> Some(claim.movementReferenceNumber.value),
+        "Movement Reference Number (MRN)"  -> Some(output.movementReferenceNumber.value),
         "Personal details"                 -> Some(
-          CheckYourAnswersContactDetailsCardSummary.getContactDataString(claim.claimantInformation)
+          CheckYourAnswersContactDetailsCardSummary.getContactDataString(output.claimantInformation)
         ),
-        "Address"                          -> Some(CheckYourAnswersContactDetailsCardSummary.getAddressDataString(claim.claimantInformation)),
+        "Address"                          -> Some(CheckYourAnswersContactDetailsCardSummary.getAddressDataString(output.claimantInformation)),
         "Reason for claim"                 -> Some(
-          m(s"select-basis-for-claim.reason.${claim.basisOfClaim}")
+          m(s"select-basis-for-claim.reason.${output.basisOfClaim}")
         ),
-        "Additional claim information"     -> Some(claim.additionalDetails),
-        "Duplicate MRN"                    -> claim.duplicateMovementReferenceNumber.map(_.value),
-        "Correct EORI number"              -> claim.newEoriAndDan.map(_.eori.value),
-        "Correct deferment account number" -> claim.newEoriAndDan.map(_.dan),
-        "Total"                            -> Some(journey.getTotalReimbursementAmount.toPoundSterlingString),
+        "Additional claim information"     -> Some(output.additionalDetails),
+        "Duplicate MRN"                    -> output.duplicateMovementReferenceNumber.map(_.value),
+        "Correct EORI number"              -> output.newEoriAndDan.map(_.eori.value),
+        "Correct deferment account number" -> output.newEoriAndDan.map(_.dan),
+        "Total"                            -> Some(claim.getTotalReimbursementAmount.toPoundSterlingString),
         "What do you want to claim?"       -> Some(
-          claim.reimbursements
+          output.reimbursements
             .map(reimbursement => m(s"tax-code.${reimbursement.taxCode}"))
             .mkString(" ")
         ),
         "Payee"                            ->
-          Some(claim.displayPayeeType match {
+          Some(output.displayPayeeType match {
             case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
             case PayeeType.Declarant      => m("choose-payee-type.radio.declarant")
             case PayeeType.Representative => m("choose-payee-type.radio.representative")
           }),
         "Method"                           ->
-          Some(claim.reimbursementMethod match {
+          Some(output.reimbursementMethod match {
             case ReimbursementMethod.CurrentMonthAdjustment => m("check-your-answers.repayment-method.cma")
             case _                                          => m("check-your-answers.repayment-method.bt")
           }),
         "Uploaded files"                   -> (if expectedDocuments.isEmpty then None else Some(expectedDocuments.mkString(" "))),
-        "Bank details"                     -> claim.bankAccountDetails.map(details =>
+        "Bank details"                     -> output.bankAccountDetails.map(details =>
           Seq(details.accountName.value, details.sortCode.value, details.accountNumber.value).mkString(" ")
         )
       )
-        ++ claim.reimbursements.map { r =>
+        ++ output.reimbursements.map { r =>
           m(s"tax-code.${r.taxCode}") -> Some(r.amount.toPoundSterlingString)
         }
         ++
         Seq(
-          "Claim reference number" -> journey.caseNumber.map(_.value),
+          "Claim reference number" -> claim.caseNumber.map(_.value),
           "Submitted"              -> Some(
             s"${submissionDate.format(DateTimeFormatter.ofPattern("h:mm a"))}, ${messages(s"day-of-week.${submissionDate.getDayOfWeek.getValue}")}" ++
               " " ++ toDisplayDate(submissionDate.toLocalDate)
@@ -172,7 +172,7 @@ class CheckYourAnswersControllerSpec
         ).filter(_ => isPrintView)
     )
 
-    claim.payeeType shouldBe getPayeeType(journey.answers.payeeType.get)
+    output.payeeType shouldBe getPayeeType(claim.answers.payeeType.get)
   }
 
   private def getPayeeType(payeeType: PayeeType): PayeeType = payeeType match {
@@ -180,12 +180,12 @@ class CheckYourAnswersControllerSpec
     case _         => Declarant
   }
 
-  def validateConfirmationPage(doc: Document, journey: OverpaymentsSingleJourney, caseNumber: String): Assertion = {
+  def validateConfirmationPage(doc: Document, claim: OverpaymentsSingleClaim, caseNumber: String): Assertion = {
 
-    val mrn = journey.getLeadMovementReferenceNumber.get.value
+    val mrn = claim.getLeadMovementReferenceNumber.get.value
     mrn.isEmpty shouldBe false
 
-    val claimAmount = journey.getTotalReimbursementAmount.toPoundSterlingString
+    val claimAmount = claim.getTotalReimbursementAmount.toPoundSterlingString
 
     summaryKeyValueList(doc)                                          should containOnlyPairsOf(
       Seq(
@@ -202,10 +202,10 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "display the page if journey has complete answers" in {
-        forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+      "display the page if claim has complete answers" in {
+        forAll(completeClaimGen) { claim =>
+          val output         = claim.toOutput.getOrElse(fail("cannot get output of the claim"))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -214,25 +214,25 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.title"),
-            doc => validateCheckYourAnswersPage(doc, journey, claim, false)
+            doc => validateCheckYourAnswersPage(doc, claim, output, false)
           )
         }
       }
 
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
-        val journey =
-          buildCompleteJourneyGen(
+        val claim =
+          buildCompleteClaimGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
-              OverpaymentsSingleJourney.Features(
+              OverpaymentsSingleClaim.Features(
                 shouldAllowOtherBasisOfClaim = true
               )
             )
           ).sample.getOrElse(fail())
 
-        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+        val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
 
-        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -243,28 +243,26 @@ class CheckYourAnswersControllerSpec
       }
 
       "redirect to the proper page if any answer is missing" in {
-        val journey =
-          OverpaymentsSingleJourney
+        val claim =
+          OverpaymentsSingleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
-        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+        val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
       }
 
-      "redirect to the submission confirmation page if journey already finalized" in {
-        forAll(completeJourneyGen) { journey =>
+      "redirect to the submission confirmation page if claim already finalized" in {
+        forAll(completeClaimGen) { claim =>
           val updatedSession =
-            SessionData.empty.copy(overpaymentsSingleJourney =
-              journey.finalizeJourneyWith("dummy case reference").toOption
-            )
+            SessionData.empty.copy(overpaymentsSingleClaim = claim.finalizeClaimWith("dummy case reference").toOption)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -280,37 +278,37 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.showPrintView(FakeRequest())
 
-      "display the page if journey has complete answers" in {
-        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedJourney = journey.finalizeJourneyWith(caseNumber).getOrElse(fail("cannot submit case number"))
+      "display the page if claim has complete answers" in {
+        forAll(completeClaimGen, genCaseNumber) { (claim, caseNumber) =>
+          val output       = claim.toOutput.getOrElse(fail("cannot get output of the claim"))
+          val updatedClaim = claim.finalizeClaimWith(caseNumber).getOrElse(fail("cannot submit case number"))
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(updatedJourney))
+            mockGetSession(SessionData(updatedClaim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey(s"$messagesKey.print-view.title"),
-            doc => validateCheckYourAnswersPage(doc, updatedJourney, claim, true)
+            doc => validateCheckYourAnswersPage(doc, updatedClaim, output, true)
           )
         }
       }
 
       "redirect if any subsidy payment in the declaration when subsidies are blocked" in {
-        val journey =
-          buildCompleteJourneyGen(
+        val claim =
+          buildCompleteClaimGen(
             generateSubsidyPayments = GenerateSubsidyPayments.Some,
             features = Some(
-              OverpaymentsSingleJourney.Features(
+              OverpaymentsSingleClaim.Features(
                 shouldAllowOtherBasisOfClaim = true
               )
             )
           ).sample.getOrElse(fail())
 
-        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+        val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
 
-        val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+        val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -321,17 +319,17 @@ class CheckYourAnswersControllerSpec
       }
 
       "redirect to the proper page if any answer is missing" in {
-        val journey =
-          OverpaymentsSingleJourney
+        val claim =
+          OverpaymentsSingleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
-        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+        val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
@@ -343,19 +341,19 @@ class CheckYourAnswersControllerSpec
       def performAction(): Future[Result] = controller.submit(FakeRequest())
 
       "redirect to the confirmation page if success" in {
-        forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+        forAll(completeClaimGen) { claim =>
+          val output         = claim.toOutput.getOrElse(fail("cannot get output of the claim"))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
-            mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(claim))(
+            mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(output))(
               Future.successful(OverpaymentsSingleClaimConnector.Response("foo-123-abc"))
             )
             mockWipeOutCall()
             mockStoreSession(
-              updatedSession.copy(overpaymentsSingleJourney =
-                journey.finalizeJourneyWith("foo-123-abc").toOption.orElse(Some(journey))
+              updatedSession.copy(overpaymentsSingleClaim =
+                claim.finalizeClaimWith("foo-123-abc").toOption.orElse(Some(claim))
               )
             )(Right(()))
           }
@@ -365,13 +363,13 @@ class CheckYourAnswersControllerSpec
       }
 
       "show failure page if submission fails" in {
-        forAll(completeJourneyGen) { journey =>
-          val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+        forAll(completeClaimGen) { claim =>
+          val output         = claim.toOutput.getOrElse(fail("cannot get output of the claim"))
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
-            mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(claim))(
+            mockSubmitClaim(OverpaymentsSingleClaimConnector.Request(output))(
               Future.failed(new Exception("blah"))
             )
           }
@@ -383,17 +381,17 @@ class CheckYourAnswersControllerSpec
       }
 
       "redirect to the proper page if any answer is missing" in {
-        val journey =
-          OverpaymentsSingleJourney
+        val claim =
+          OverpaymentsSingleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
 
-        val errors: Seq[String] = journey.toOutput.left.getOrElse(Seq.empty)
+        val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(performAction(), controller.routeForValidationErrors(errors))
@@ -404,10 +402,10 @@ class CheckYourAnswersControllerSpec
 
       def performAction(): Future[Result] = controller.showConfirmation(FakeRequest())
 
-      "display the page if journey has been finalized" in {
-        forAll(completeJourneyGen, genCaseNumber) { (journey, caseNumber) =>
+      "display the page if claim has been finalized" in {
+        forAll(completeClaimGen, genCaseNumber) { (claim, caseNumber) =>
           val updatedSession =
-            SessionData.empty.copy(overpaymentsSingleJourney = journey.finalizeJourneyWith(caseNumber).toOption)
+            SessionData.empty.copy(overpaymentsSingleClaim = claim.finalizeClaimWith(caseNumber).toOption)
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)
@@ -416,14 +414,14 @@ class CheckYourAnswersControllerSpec
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("confirmation-of-submission.title"),
-            doc => validateConfirmationPage(doc, journey, caseNumber)
+            doc => validateConfirmationPage(doc, claim, caseNumber)
           )
         }
       }
 
-      "redirect to the check your answers page if journey not yet finalized" in {
-        forAll(completeJourneyGen) { journey =>
-          val updatedSession = SessionData.empty.copy(overpaymentsSingleJourney = Some(journey))
+      "redirect to the check your answers page if claim not yet finalized" in {
+        forAll(completeClaimGen) { claim =>
+          val updatedSession = SessionData.empty.copy(overpaymentsSingleClaim = Some(claim))
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(updatedSession)

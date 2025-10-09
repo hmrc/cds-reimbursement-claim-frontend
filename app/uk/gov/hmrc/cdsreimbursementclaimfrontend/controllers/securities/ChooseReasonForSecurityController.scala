@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -49,18 +49,18 @@ import scala.concurrent.Future
 
 @Singleton
 class ChooseReasonForSecurityController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   DeclarationConnector: DeclarationConnector,
   val xiEoriConnector: XiEoriConnector,
   chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with GetXiEoriMixin {
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
-    Some(SecuritiesJourney.Checks.hasMovementReferenceNumber)
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
+    Some(SecuritiesClaim.Checks.hasMovementReferenceNumber)
 
   private val postAction: Call = routes.ChooseReasonForSecurityController.submit
 
@@ -76,50 +76,50 @@ class ChooseReasonForSecurityController @Inject() (
   private val errorResultClaimExistsAlready: Result =
     Redirect(routes.ClaimInvalidTPI04Controller.show)
 
-  private def reasonsForSecurity(journey: SecuritiesJourney): Set[ReasonForSecurity] = journey.features match
+  private def reasonsForSecurity(claim: SecuritiesClaim): Set[ReasonForSecurity] = claim.features match
     case Some(features) => features.availableReasonsForSecurity
     case None           => Set.empty
 
   private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
 
-  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
-    journey.submitUserXiEori(userXiEori)
+  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
+    claim.submitUserXiEori(userXiEori)
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
 
     val reasonForSecurityForm: Form[ReasonForSecurity] =
-      Forms.reasonForSecurityForm.withDefault(journey.getReasonForSecurity)
+      Forms.reasonForSecurityForm.withDefault(claim.getReasonForSecurity)
 
     Ok(
-      chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity(journey), postAction)
+      chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity(claim), postAction)
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
           (
-            journey,
-            BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(journey), postAction))
+            claim,
+            BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(claim), postAction))
           ),
         reasonForSecurity =>
-          if journey.getReasonForSecurity.contains(reasonForSecurity) then
+          if claim.getReasonForSecurity.contains(reasonForSecurity) then
             (
-              journey,
-              if journey.answers.modes.checkDeclarationDetailsChangeMode
+              claim,
+              if claim.answers.modes.checkDeclarationDetailsChangeMode
               then Redirect(routes.CheckDeclarationDetailsController.show)
-              else if journey.reasonForSecurityIsIPROrENU
+              else if claim.reasonForSecurityIsIPROrENU
               then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
               else successResultSelectSecurities
             )
           else
             (for
-              mrn                          <- getMovementReferenceNumber(journey)
-              declaration                  <- lookupDisplayDeclaration(mrn, reasonForSecurity)
-              _                            <- checkIfDeclarationHaveSecurityDeposits(declaration)
-              updatedDeclaration            =
+              mrn                        <- getMovementReferenceNumber(claim)
+              declaration                <- lookupDisplayDeclaration(mrn, reasonForSecurity)
+              _                          <- checkIfDeclarationHaveSecurityDeposits(declaration)
+              updatedDeclaration          =
                 reasonForSecurity match {
                   case EndUseRelief =>
                     val updatedSecurityDetails =
@@ -133,37 +133,37 @@ class ChooseReasonForSecurityController @Inject() (
                     )
                   case _            => declaration
                 }
-              updatedJourney               <- submitReasonForSecurityAndDeclaration(journey, reasonForSecurity, updatedDeclaration)
-              journeyWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedJourney)
-              updatedJourneyWithRedirect   <-
-                if SecuritiesJourney.Checks
-                    .declarantOrImporterEoriMatchesUserOrHasBeenVerified(journeyWithRfsAndDeclaration)
+              updatedClaim               <- submitReasonForSecurityAndDeclaration(claim, reasonForSecurity, updatedDeclaration)
+              claimWithRfsAndDeclaration <- tryGetUserXiEoriIfNeeded(updatedClaim)
+              updatedClaimWithRedirect   <-
+                if SecuritiesClaim.Checks
+                    .declarantOrImporterEoriMatchesUserOrHasBeenVerified(claimWithRfsAndDeclaration)
                     .isInvalid
-                then redirectToEnterImporterEoriNumber(journeyWithRfsAndDeclaration)
+                then redirectToEnterImporterEoriNumber(claimWithRfsAndDeclaration)
                 else
                   for
                     similarClaimExistAlreadyInCDFPay <- checkIfClaimIsDuplicated(mrn, reasonForSecurity)
-                    updatedJourneyWithRedirect       <- submitClaimDuplicateCheckStatus(
-                                                          journeyWithRfsAndDeclaration,
+                    updatedClaimWithRedirect         <- submitClaimDuplicateCheckStatus(
+                                                          claimWithRfsAndDeclaration,
                                                           similarClaimExistAlreadyInCDFPay
                                                         )
-                  yield updatedJourneyWithRedirect
-            yield updatedJourneyWithRedirect)
-              .bimap(result => (journey, result), identity)
+                  yield updatedClaimWithRedirect
+            yield updatedClaimWithRedirect)
+              .bimap(result => (claim, result), identity)
               .merge
       )
   }
 
-  private def tryGetUserXiEoriIfNeeded(journey: SecuritiesJourney)(implicit
+  private def tryGetUserXiEoriIfNeeded(claim: SecuritiesClaim)(implicit
     hc: HeaderCarrier,
     r: Request[?]
-  ): EitherT[Future, Result, SecuritiesJourney] =
-    getUserXiEoriIfNeeded(journey, enabled = true)
+  ): EitherT[Future, Result, SecuritiesClaim] =
+    getUserXiEoriIfNeeded(claim, enabled = true)
       .leftMap(error => logAndDisplayError("Could not get XI EORI", error))
 
-  private def getMovementReferenceNumber(journey: SecuritiesJourney): EitherT[Future, Result, MRN] =
+  private def getMovementReferenceNumber(claim: SecuritiesClaim): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](
-      journey.getLeadMovementReferenceNumber,
+      claim.getLeadMovementReferenceNumber,
       Redirect(routes.EnterMovementReferenceNumberController.show)
     )
 
@@ -187,21 +187,21 @@ class ChooseReasonForSecurityController @Inject() (
     )
 
   private def submitReasonForSecurityAndDeclaration(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     reasonForSecurity: ReasonForSecurity,
     declaration: DisplayDeclaration
-  ): EitherT[Future, Result, SecuritiesJourney] =
+  ): EitherT[Future, Result, SecuritiesClaim] =
     EitherT
       .fromEither[Future](
-        journey
+        claim
           .submitReasonForSecurityAndDeclaration(reasonForSecurity, declaration)
       )
       .leftMap(error => Redirect(routeForValidationError(error)))
 
-  private def redirectToEnterImporterEoriNumber(journey: SecuritiesJourney) =
+  private def redirectToEnterImporterEoriNumber(claim: SecuritiesClaim) =
     EitherT.rightT[Future, Result](
       (
-        journey,
+        claim,
         successResultEnterImporterEori
       )
     )
@@ -216,28 +216,28 @@ class ChooseReasonForSecurityController @Inject() (
       .map(_.claimFound)
 
   private def submitClaimDuplicateCheckStatus(
-    journey: SecuritiesJourney,
+    claim: SecuritiesClaim,
     similarClaimExistAlreadyInCDFPay: Boolean
-  ): EitherT[Future, Result, (SecuritiesJourney, Result)] =
-    EitherT.liftF[Future, Result, (SecuritiesJourney, Result)](
+  ): EitherT[Future, Result, (SecuritiesClaim, Result)] =
+    EitherT.liftF[Future, Result, (SecuritiesClaim, Result)](
       EitherT
         .fromEither[Future](
-          journey
+          claim
             .submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay)
         )
         .leftMap(error =>
           (
-            journey,
+            claim,
             Redirect(routeForValidationError(error))
           )
         )
-        .map(journeyWithUpdatedStatus =>
+        .map(claimWithUpdatedStatus =>
           (
-            journeyWithUpdatedStatus,
+            claimWithUpdatedStatus,
             if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if journeyWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
+            } else if claimWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
               Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
             } else successResultSelectSecurities
           )

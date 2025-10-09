@@ -25,12 +25,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultip
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
@@ -49,7 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 object CheckYourAnswersClaimDetailsCardSummary {
 
   def render(
-    journeyType: String,
+    claimType: String,
     isPrintView: Boolean,
     mrnRowsOpt: Option[Seq[SummaryListRow]],
     claimSummaryDocumentOpt: Option[EvidenceDocument] = None,
@@ -149,7 +149,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
                   Actions(
                     items = Seq(
                       ActionItem(
-                        href = getNewEoriPageUrl(journeyType),
+                        href = getNewEoriPageUrl(claimType),
                         content = Text(messages("cya.change")),
                         visuallyHiddenText = Some(messages("check-your-answers.correct-eori"))
                       )
@@ -171,7 +171,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
                   Actions(
                     items = Seq(
                       ActionItem(
-                        href = getNewDanPageUrl(journeyType),
+                        href = getNewDanPageUrl(claimType),
                         content = Text(messages("cya.change")),
                         visuallyHiddenText = Some(messages("check-your-answers.new-dan"))
                       )
@@ -203,13 +203,13 @@ object CheckYourAnswersClaimDetailsCardSummary {
     )
   }
 
-  private def getNewEoriPageUrl(journey: String): String = journey match {
+  private def getNewEoriPageUrl(claim: String): String = claim match {
     case "single"    => overpaymentsSingleRoutes.EnterNewEoriNumberController.show.url
     case "multiple"  => overpaymentsMultipleRoutes.EnterNewEoriNumberController.show.url
     case "scheduled" => overpaymentsScheduledRoutes.EnterNewEoriNumberController.show.url
   }
 
-  private def getNewDanPageUrl(journey: String): String = journey match {
+  private def getNewDanPageUrl(claim: String): String = claim match {
     case "single"    => overpaymentsSingleRoutes.EnterNewDanController.show.url
     case "multiple"  => overpaymentsMultipleRoutes.EnterNewDanController.show.url
     case "scheduled" => overpaymentsScheduledRoutes.EnterNewDanController.show.url
@@ -353,11 +353,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
       }
     ).flatten
 
-  def renderForSingle(claim: OverpaymentsSingleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForSingle(claim: OverpaymentsSingleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "single",
+      claimType = "single",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForSingle(
@@ -376,11 +376,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(overpaymentsSingleRoutes.EnterAdditionalDetailsController.show) else None
     )
 
-  def renderForSingle(claim: RejectedGoodsSingleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForSingle(claim: RejectedGoodsSingleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "single",
+      claimType = "single",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForSingle(
@@ -404,11 +404,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(rejectedGoodsSingleRoutes.EnterRejectedGoodsDetailsController.show) else None
     )
 
-  def renderForMultiple(claim: OverpaymentsMultipleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForMultiple(claim: OverpaymentsMultipleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "multiple",
+      claimType = "multiple",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForMultiple(
@@ -426,11 +426,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(overpaymentsMultipleRoutes.EnterAdditionalDetailsController.show) else None
     )
 
-  def renderForMultiple(claim: RejectedGoodsMultipleJourney.Output, isPrintView: Boolean)(implicit
+  def renderForMultiple(claim: RejectedGoodsMultipleClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "multiple",
+      claimType = "multiple",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForMultiple(
@@ -454,11 +454,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(rejectedGoodsMultipleRoutes.EnterRejectedGoodsDetailsController.show) else None
     )
 
-  def renderForScheduled(claim: OverpaymentsScheduledJourney.Output, isPrintView: Boolean)(implicit
+  def renderForScheduled(claim: OverpaymentsScheduledClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "scheduled",
+      claimType = "scheduled",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForScheduled(
@@ -479,11 +479,11 @@ object CheckYourAnswersClaimDetailsCardSummary {
         if !isPrintView then Some(overpaymentsScheduledRoutes.UploadMrnListController.show) else None
     )
 
-  def renderForScheduled(claim: RejectedGoodsScheduledJourney.Output, isPrintView: Boolean)(implicit
+  def renderForScheduled(claim: RejectedGoodsScheduledClaim.Output, isPrintView: Boolean)(implicit
     messages: Messages
   ): SummaryList =
     render(
-      journeyType = "scheduled",
+      claimType = "scheduled",
       isPrintView = isPrintView,
       mrnRowsOpt = Some(
         makeMrnRowsForScheduled(
@@ -511,7 +511,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
     )
 
   def renderForSecurities(
-    claim: SecuritiesJourney.Output,
+    claim: SecuritiesClaim.Output,
     displayDeclarationOpt: Option[DisplayDeclaration],
     isPrintView: Boolean
   )(implicit

@@ -18,7 +18,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 @import java.time.LocalDateTime
 
 
@@ -28,7 +28,7 @@
     cyaCommon: check_your_answers_scheduled_common
 )
 
-@(caseNumber: String, claim: OverpaymentsScheduledJourney.Output, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, claim: OverpaymentsScheduledClaim.Output, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @card(messages("check-your-answers.print-view.submission-details"), CheckYourAnswersPrintViewHelper.render(caseNumber, submissionDate))

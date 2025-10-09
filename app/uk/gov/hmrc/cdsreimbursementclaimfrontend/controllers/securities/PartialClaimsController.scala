@@ -25,8 +25,8 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.partialClaimsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.partial_claims
@@ -35,52 +35,52 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class PartialClaimsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   partialClaimsPage: partial_claims
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends SecuritiesJourneyBaseController
-    with SecuritiesJourneyRouter
+    extends SecuritiesClaimBaseController
+    with SecuritiesClaimRouter
     with Logging {
 
   private val form: Form[YesNo] = partialClaimsForm
 
-  import SecuritiesJourney.Checks.*
+  import SecuritiesClaim.Checks.*
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     Ok(
       partialClaimsPage(
         form,
         postAction,
-        journey.getReasonForSecurity.get
+        claim.getReasonForSecurity.get
       )
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
           (
-            journey,
-            BadRequest(partialClaimsPage(formWithErrors, postAction, journey.getReasonForSecurity.get))
+            claim,
+            BadRequest(partialClaimsPage(formWithErrors, postAction, claim.getReasonForSecurity.get))
           ),
         yesNo =>
           yesNo match {
             case YesNo.Yes =>
-              (journey, Redirect(routes.SelectDutiesController.showFirst))
+              (claim, Redirect(routes.SelectDutiesController.showFirst))
             case YesNo.No  =>
               (
-                journey,
+                claim,
                 Redirect(routes.ClaimDeletedController.show)
               )
           }

@@ -22,9 +22,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
@@ -36,14 +36,14 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterClaimController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   enterMultipleClaims: enter_multiple_claims,
   mrnDoesNotExistPage: mrn_does_not_exist
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends OverpaymentsMultipleJourneyBaseController {
+    extends OverpaymentsMultipleClaimBaseController {
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleJourney]] =
+  final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show
@@ -58,11 +58,11 @@ class EnterClaimController @Inject() (
     showFirstByIndex(1)
 
   final def showFirstByIndex(pageIndex: Int): Action[AnyContent] =
-    simpleActionReadJourney { journey =>
+    simpleActionReadClaim { claim =>
       Redirect(
-        journey
+        claim
           .getNthMovementReferenceNumber(pageIndex - 1)
-          .flatMap(journey.getSelectedDuties(_))
+          .flatMap(claim.getSelectedDuties(_))
           .flatMap(_.headOption)
           .fold(routes.SelectDutiesController.showFirst)(taxCode =>
             routes.EnterClaimController.show(pageIndex, taxCode)
@@ -71,18 +71,18 @@ class EnterClaimController @Inject() (
     }
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
-      journey
+    actionReadClaim { implicit request => claim =>
+      claim
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-          journey.getAmountPaidForIfSelected(mrn, taxCode) match {
+          claim.getAmountPaidForIfSelected(mrn, taxCode) match {
             case None =>
               logger.warn(s"Claim data for selected MRN and tax code $taxCode does not exist.")
               Redirect(selectDutiesAction(pageIndex))
 
             case Some(amountPaid) =>
               val actualAmount =
-                journey.getCorrectedAmountFor(mrn, taxCode)
+                claim.getCorrectedAmountFor(mrn, taxCode)
 
               val form =
                 Forms
@@ -105,16 +105,16 @@ class EnterClaimController @Inject() (
     }
 
   final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    actionReadWriteJourney(
+    actionReadWriteClaim(
       implicit request =>
-        journey =>
-          journey
+        claim =>
+          claim
             .getNthMovementReferenceNumber(pageIndex - 1)
-            .fold((journey, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-              journey.getAmountPaidForIfSelected(mrn, taxCode) match {
+            .fold((claim, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+              claim.getAmountPaidForIfSelected(mrn, taxCode) match {
                 case None =>
                   // case when tax code not selectable nor selected
-                  (journey, Redirect(selectDutiesAction(pageIndex)))
+                  (claim, Redirect(selectDutiesAction(pageIndex)))
 
                 case Some(amountPaid) =>
                   Forms
@@ -123,7 +123,7 @@ class EnterClaimController @Inject() (
                     .fold(
                       formWithErrors =>
                         (
-                          journey,
+                          claim,
                           BadRequest(
                             enterMultipleClaims(
                               formWithErrors,
@@ -136,15 +136,15 @@ class EnterClaimController @Inject() (
                           )
                         ),
                       amount =>
-                        journey
+                        claim
                           .submitClaimAmount(mrn, taxCode, amount)
                           .fold(
                             error => {
                               logger.error(s"Error submitting reimbursement claim amount - $error")
-                              (journey, Redirect(enterClaimAction(pageIndex, taxCode)))
+                              (claim, Redirect(enterClaimAction(pageIndex, taxCode)))
                             },
-                            modifiedJourney =>
-                              (modifiedJourney, Redirect(decideNextRoute(modifiedJourney, pageIndex, mrn, taxCode)))
+                            modifiedClaim =>
+                              (modifiedClaim, Redirect(decideNextRoute(modifiedClaim, pageIndex, mrn, taxCode)))
                           )
                     )
 
@@ -153,10 +153,10 @@ class EnterClaimController @Inject() (
       fastForwardToCYAEnabled = false
     )
 
-  def decideNextRoute(journey: OverpaymentsMultipleJourney, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
-    if journey.hasCompleteReimbursementClaims && !journey.answers.dutiesChangeMode then claimsSummaryAction
+  def decideNextRoute(claim: OverpaymentsMultipleClaim, pageIndex: Int, mrn: MRN, taxCode: TaxCode): Call =
+    if claim.hasCompleteReimbursementClaims && !claim.answers.dutiesChangeMode then claimsSummaryAction
     else {
-      val selectedTaxCodes = journey.getSelectedDuties(mrn).getOrElse(Seq.empty)
+      val selectedTaxCodes = claim.getSelectedDuties(mrn).getOrElse(Seq.empty)
       selectedTaxCodes.indexOf(taxCode) match {
         case -1 => // invalid tax code
           selectDutiesAction(pageIndex)
@@ -165,7 +165,7 @@ class EnterClaimController @Inject() (
           enterClaimAction(pageIndex, selectedTaxCodes(n + 1))
 
         case _ =>
-          journey.getNthMovementReferenceNumber(pageIndex) match {
+          claim.getNthMovementReferenceNumber(pageIndex) match {
             case Some(_) => selectDutiesAction(pageIndex + 1)
             case None    => claimsSummaryAction
           }

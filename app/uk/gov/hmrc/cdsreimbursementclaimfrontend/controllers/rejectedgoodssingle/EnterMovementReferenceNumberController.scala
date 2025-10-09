@@ -27,8 +27,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
@@ -41,23 +41,23 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
   val featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number,
   subsidyWaiverPage: subsidy_waiver_error
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController
+    extends RejectedGoodsSingleClaimBaseController
     with EnterMovementReferenceNumberMixin {
 
   override val problemWithMrnCall: MRN => Call = routes.ProblemWithMrnController.show
 
-  override def form(journey: Journey): Form[MRN] =
+  override def form(claim: Claim): Form[MRN] =
     Forms.movementReferenceNumberForm
 
-  override def getMovementReferenceNumber(journey: Journey): Option[MRN] =
-    journey.getLeadMovementReferenceNumber
+  override def getMovementReferenceNumber(claim: Claim): Option[MRN] =
+    claim.getLeadMovementReferenceNumber
 
   override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
     form =>
@@ -82,16 +82,16 @@ class EnterMovementReferenceNumberController @Inject() (
           routes.EnterMovementReferenceNumberController.show
         )
 
-  override def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey] =
-    journey.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
+  override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
+    claim.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
 
-  override def modifyJourney(journey: Journey, userXiEori: UserXiEori): Journey =
-    journey.submitUserXiEori(userXiEori)
+  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
+    claim.submitUserXiEori(userXiEori)
 
-  override def afterSuccessfullSubmit(journey: RejectedGoodsSingleJourney): Result =
-    if journey.containsUnsupportedTaxCode then {
+  override def afterSuccessfullSubmit(claim: RejectedGoodsSingleClaim): Result =
+    if claim.containsUnsupportedTaxCode then {
       Redirect(routes.ProblemWithDeclarationController.show)
-    } else if journey.needsDeclarantAndConsigneeEoriSubmission then {
+    } else if claim.needsDeclarantAndConsigneeEoriSubmission then {
       Redirect(routes.EnterImporterEoriNumberController.show)
     } else {
       Redirect(routes.CheckDeclarationDetailsController.show)

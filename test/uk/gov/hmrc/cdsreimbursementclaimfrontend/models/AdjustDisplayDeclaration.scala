@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 trait AdjustDisplayDeclaration {
   def adjustWithDeclarantEori(
     displayDeclaration: DisplayDeclaration,
-    journey: CommonJourneyProperties
+    claim: CommonClaimProperties
   ): DisplayDeclaration =
-    journey.getDeclarantEoriFromACC14
+    claim.getDeclarantEoriFromACC14
       .fold(displayDeclaration) { eori =>
         val declarant = displayDeclaration.getDeclarantDetails.copy(declarantEORI = eori.value)
         val drd       = displayDeclaration.displayResponseDetail.copy(declarantDetails = declarant)

@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
@@ -50,7 +50,7 @@ class ChoosePayeeTypeControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
 
@@ -75,9 +75,7 @@ class ChoosePayeeTypeControllerSpec
         mockAuthWithDefaultRetrievals()
         mockGetSession(
           maybePayeeType.toList.foldLeft(session)((session, payeeType) =>
-            session.copy(rejectedGoodsScheduledJourney =
-              journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
-            )
+            session.copy(rejectedGoodsScheduledClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption)
           )
         )
       }
@@ -116,7 +114,7 @@ class ChoosePayeeTypeControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              rejectedGoodsScheduledJourney = journeyWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
+              rejectedGoodsScheduledClaim = claimWithMrnAndDeclaration.submitPayeeType(payeeType).toOption
             )
           )(Right(()))
         }

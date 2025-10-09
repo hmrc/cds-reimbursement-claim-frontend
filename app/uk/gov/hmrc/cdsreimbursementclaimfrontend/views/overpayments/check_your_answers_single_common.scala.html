@@ -17,14 +17,14 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 
 @this(
     card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: OverpaymentsSingleJourney.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages)
+@(claim: OverpaymentsSingleClaim.Output, isAllSelectedDutiesAreCMAEligible: Boolean, isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages)
 
 @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSingle(claim, isPrintView))
 

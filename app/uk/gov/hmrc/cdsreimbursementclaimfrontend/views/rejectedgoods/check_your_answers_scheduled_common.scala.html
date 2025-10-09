@@ -19,14 +19,14 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 
 @this(
     card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
 @(
-    claim: RejectedGoodsScheduledJourney.Output,
+    claim: RejectedGoodsScheduledClaim.Output,
     isPrintView: Boolean = false
 )(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 

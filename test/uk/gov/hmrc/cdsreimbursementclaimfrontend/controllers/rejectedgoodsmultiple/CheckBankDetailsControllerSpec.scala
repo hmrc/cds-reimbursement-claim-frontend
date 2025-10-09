@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
@@ -54,7 +54,7 @@ class CheckBankDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val messagesKey: String = "bank-details"
 
@@ -64,9 +64,9 @@ class CheckBankDetailsControllerSpec
       def performAction(): Future[Result] = controller.showWarning(FakeRequest())
 
       "display the page" in {
-        val journey        = completeJourneyGen.sample.getOrElse(fail("Journey building has failed."))
-        val claim          = journey.toOutput.getOrElse(fail("cannot get output of the journey"))
-        val sessionToAmend = SessionData(journey)
+        val claim          = completeClaimGen.sample.getOrElse(fail("Claim building has failed."))
+        val output         = claim.toOutput.getOrElse(fail("cannot get output of the claim"))
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -89,7 +89,7 @@ class CheckBankDetailsControllerSpec
             doc
               .select(".govuk-summary-list__row dd.govuk-summary-list__value")
               .get(0)
-              .text() shouldBe claim.bankAccountDetails.map(_.accountName).get.value
+              .text() shouldBe output.bankAccountDetails.map(_.accountName).get.value
             doc
               .select(".govuk-summary-list__row dt.govuk-summary-list__key")
               .get(1)
@@ -97,7 +97,7 @@ class CheckBankDetailsControllerSpec
             doc
               .select(".govuk-summary-list__row dd.govuk-summary-list__value")
               .get(1)
-              .text() shouldBe claim.bankAccountDetails.map(_.sortCode).get.value
+              .text() shouldBe output.bankAccountDetails.map(_.sortCode).get.value
             doc
               .select(".govuk-summary-list__row dt.govuk-summary-list__key")
               .get(2)
@@ -105,7 +105,7 @@ class CheckBankDetailsControllerSpec
             doc
               .select(".govuk-summary-list__row dd.govuk-summary-list__value")
               .get(2)
-              .text() shouldBe claim.bankAccountDetails.map(_.accountNumber).get.value
+              .text() shouldBe output.bankAccountDetails.map(_.accountNumber).get.value
           }
         )
       }
@@ -129,13 +129,13 @@ class CheckBankDetailsControllerSpec
         controller.submitWarning(FakeRequest().withFormUrlEncodedBody(data*))
 
       "reject an empty Yes/No answer" in {
-        val journey = journeyWithMrnAndDeclaration
+        val claim = claimWithMrnAndDeclaration
           .submitBankAccountDetails(exampleBankAccountDetails)
-          .getOrElse(fail("Journey building has failed."))
+          .getOrElse(fail("Claim building has failed."))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageWithErrorIsDisplayed(
@@ -150,9 +150,9 @@ class CheckBankDetailsControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              journeyWithMrnAndDeclaration
+              claimWithMrnAndDeclaration
                 .submitBankAccountDetails(exampleBankAccountDetails)
-                .getOrElse(fail("Journey building has failed."))
+                .getOrElse(fail("Claim building has failed."))
             )
           )
         }
@@ -165,9 +165,9 @@ class CheckBankDetailsControllerSpec
 
       "submit when user selects No" in {
         val sessionToAmend = SessionData(
-          journeyWithMrnAndDeclaration
+          claimWithMrnAndDeclaration
             .submitBankAccountDetails(exampleBankAccountDetails)
-            .getOrElse(fail("Journey building has failed."))
+            .getOrElse(fail("Claim building has failed."))
         )
 
         inSequence {
@@ -175,8 +175,7 @@ class CheckBankDetailsControllerSpec
           mockGetSession(sessionToAmend)
           mockStoreSession(
             sessionToAmend.copy(
-              rejectedGoodsMultipleJourney =
-                sessionToAmend.rejectedGoodsMultipleJourney.map(_.removeBankAccountDetails())
+              rejectedGoodsMultipleClaim = sessionToAmend.rejectedGoodsMultipleClaim.map(_.removeBankAccountDetails())
             )
           )(Right(()))
         }
@@ -188,13 +187,13 @@ class CheckBankDetailsControllerSpec
       }
 
       "redirect to CYA page when user has seen CYA page" in {
-        val journey = completeJourneyGen.sample
-          .getOrElse(fail("Journey building has failed."))
+        val claim = completeClaimGen.sample
+          .getOrElse(fail("Claim building has failed."))
           .submitCheckYourAnswersChangeMode(true)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(

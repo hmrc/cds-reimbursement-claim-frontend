@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
@@ -67,14 +67,14 @@ class EnterInspectionDateControllerSpec
 
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
-  val session: SessionData = SessionData(RejectedGoodsScheduledJourney.empty(exampleEori))
+  val session: SessionData = SessionData(RejectedGoodsScheduledClaim.empty(exampleEori))
 
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -92,9 +92,9 @@ class EnterInspectionDateControllerSpec
         )
       }
 
-      "the user has answered this question before" in forAll(buildCompleteJourneyGen()) { journey =>
-        val inspectionDate = journey.answers.inspectionDate
-        val updatedSession = SessionData(journey)
+      "the user has answered this question before" in forAll(buildCompleteClaimGen()) { claim =>
+        val inspectionDate = claim.answers.inspectionDate
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -170,15 +170,15 @@ class EnterInspectionDateControllerSpec
           whenever(address.postalCode.isDefined) {
             val adjustedDeclaration = adjustWithDeclarantEori(
               replaceEstablishmentAddresses(displayDeclaration, address),
-              session.rejectedGoodsScheduledJourney.get
+              session.rejectedGoodsScheduledClaim.get
             )
-            val journey             = session.rejectedGoodsScheduledJourney.get
+            val claim               = session.rejectedGoodsScheduledClaim.get
               .submitMovementReferenceNumberAndDeclaration(adjustedDeclaration.getMRN, adjustedDeclaration)
               .getOrFail
-            val initialSession      = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
+            val initialSession      = SessionData.empty.copy(rejectedGoodsScheduledClaim = Some(claim))
 
-            val updatedJourney = journey.submitInspectionDate(date)
-            val updatedSession = SessionData(updatedJourney)
+            val updatedClaim   = claim.submitInspectionDate(date)
+            val updatedSession = SessionData(updatedClaim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
@@ -206,16 +206,16 @@ class EnterInspectionDateControllerSpec
             displayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
           val adjustedDeclaration    = adjustWithDeclarantEori(
             replaceEstablishmentAddresses(displayDeclaration, addressWithoutPostCode),
-            session.rejectedGoodsScheduledJourney.get
+            session.rejectedGoodsScheduledClaim.get
           )
 
-          val journey        = session.rejectedGoodsScheduledJourney.get
+          val claim          = session.rejectedGoodsScheduledClaim.get
             .submitMovementReferenceNumberAndDeclaration(adjustedDeclaration.getMRN, adjustedDeclaration)
             .getOrFail
-          val initialSession = SessionData.empty.copy(rejectedGoodsScheduledJourney = Some(journey))
+          val initialSession = SessionData.empty.copy(rejectedGoodsScheduledClaim = Some(claim))
 
-          val updatedJourney = journey.submitInspectionDate(date)
-          val updatedSession = SessionData(updatedJourney)
+          val updatedClaim   = claim.submitInspectionDate(date)
+          val updatedSession = SessionData(updatedClaim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -233,10 +233,10 @@ class EnterInspectionDateControllerSpec
           )
       }
 
-      "redirect to CYA page if journey is complete" in forAll(buildCompleteJourneyGen(), genDate) { (journey, date) =>
-        val initialSession = SessionData(journey)
-        val updatedJourney = journey.submitInspectionDate(date)
-        val updatedSession = SessionData(updatedJourney)
+      "redirect to CYA page if claim is complete" in forAll(buildCompleteClaimGen(), genDate) { (claim, date) =>
+        val initialSession = SessionData(claim)
+        val updatedClaim   = claim.submitInspectionDate(date)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

@@ -23,8 +23,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -44,25 +44,25 @@ object EnterScheduledClaimMixin {
   )
 }
 
-trait EnterScheduledClaimMixin extends JourneyBaseController {
+trait EnterScheduledClaimMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.ScheduledVariantProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.ScheduledVariantProperties
 
   val enterClaimPage: enter_scheduled_claim
   val routesPack: EnterScheduledClaimMixin.RoutesPack
 
-  def modifyJourney(
-    journey: Journey,
+  def modifyClaim(
+    claim: Claim,
     dutyType: DutyType,
     taxCode: TaxCode,
     paidAmount: BigDecimal,
     correctAmount: BigDecimal
-  ): Either[String, Journey]
+  ): Either[String, Claim]
 
-  final val showFirst: Action[AnyContent] = actionReadJourney { _ => journey =>
-    journey.findNextDutyToSelectDuties match {
+  final val showFirst: Action[AnyContent] = actionReadClaim { _ => claim =>
+    claim.findNextDutyToSelectDuties match {
       case None =>
-        journey.getFirstDutyToClaim match {
+        claim.getFirstDutyToClaim match {
           case Some((dutyType, taxCode)) =>
             Redirect(routesPack.showAction(dutyType, taxCode))
 
@@ -75,9 +75,9 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
     }
   }
 
-  final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadJourney {
-    implicit request => journey =>
-      val maybeReimbursement: Option[AmountPaidWithCorrect] = journey.getReimbursementFor(dutyType, taxCode)
+  final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadClaim {
+    implicit request => claim =>
+      val maybeReimbursement: Option[AmountPaidWithCorrect] = claim.getReimbursementFor(dutyType, taxCode)
       val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
       Ok(
@@ -85,16 +85,16 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
       )
   }
 
-  final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteJourney(
+  final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         Future.successful(
           enterScheduledClaimForm
             .bindFromRequest()
             .fold(
               formWithErrors =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     enterClaimPage(
                       currentDuty,
@@ -105,12 +105,12 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                   )
                 ),
               reimbursement =>
-                modifyJourney(journey, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
+                modifyClaim(claim, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
                   .fold(
                     errors => {
                       logger.error(s"Error updating reimbursement selection - $errors")
                       (
-                        journey,
+                        claim,
                         BadRequest(
                           enterClaimPage(
                             currentDuty,
@@ -121,22 +121,22 @@ trait EnterScheduledClaimMixin extends JourneyBaseController {
                         )
                       )
                     },
-                    updatedJourney =>
+                    updatedClaim =>
                       (
-                        updatedJourney, {
-                          updatedJourney.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                        updatedClaim, {
+                          updatedClaim.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
                             case Some((nextDutyType, nextTaxCode: TaxCode)) =>
-                              if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                              if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
                               else if currentDuty.repr === nextDutyType.repr then
                                 Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
                               else Redirect(routesPack.showSelectDuties(nextDutyType))
 
                             case Some((nextDutyType, nextExciseCategory: ExciseCategory)) =>
-                              if journey.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                              if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
                               else Redirect(routesPack.showSelectExciseCategoryDuties(nextExciseCategory))
 
                             case None =>
-                              updatedJourney.findNextSelectedDutyAfter(currentDuty).match {
+                              updatedClaim.findNextSelectedDutyAfter(currentDuty).match {
                                 case Some(nextDutyType) => Redirect(routesPack.showSelectDuties(nextDutyType))
                                 case None               => Redirect(routesPack.showCheckClaimDetails)
                               }

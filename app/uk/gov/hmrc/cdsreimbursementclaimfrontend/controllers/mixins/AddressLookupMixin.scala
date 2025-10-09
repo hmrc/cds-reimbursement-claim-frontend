@@ -23,7 +23,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 
 import java.util.UUID
 import scala.concurrent.Future
-trait AddressLookupMixin extends JourneyBaseController {
+trait AddressLookupMixin extends ClaimBaseController {
 
   implicit val errorHandler: ErrorHandler
 
@@ -40,9 +40,9 @@ trait AddressLookupMixin extends JourneyBaseController {
   val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
 
-  def modifyJourney(journey: Journey, contactAddress: ContactAddress): Journey
+  def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim
 
-  def redirectToTheNextPage(journey: Journey): (Journey, Result)
+  def redirectToTheNextPage(claim: Claim): (Claim, Result)
 
   val redirectToALF: Action[AnyContent] =
     Action.andThen(jcc.authenticatedAction).async { implicit request =>
@@ -53,9 +53,9 @@ trait AddressLookupMixin extends JourneyBaseController {
     }
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
-    actionReadWriteJourney(
+    actionReadWriteClaim(
       implicit request =>
-        journey =>
+        claim =>
           maybeID
             .map(addressLookupService.retrieveUserAddress)
             .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
@@ -63,7 +63,7 @@ trait AddressLookupMixin extends JourneyBaseController {
               error => {
                 logger warn s"Error retrieving lookup address: $error"
                 (
-                  journey,
+                  claim,
                   if error.message.contains("/address/postcode: error.path.missing") || error.message
                       .contains("/address/lines: error.minLength")
                   then Redirect(problemWithAddressPage)
@@ -72,7 +72,7 @@ trait AddressLookupMixin extends JourneyBaseController {
               },
               contactAddress =>
                 redirectToTheNextPage(
-                  modifyJourney(journey, contactAddress.removeRedundantInformation().overflowExcessCharacters())
+                  modifyClaim(claim, contactAddress.removeRedundantInformation().overflowExcessCharacters())
                 )
             ),
       fastForwardToCYAEnabled = false

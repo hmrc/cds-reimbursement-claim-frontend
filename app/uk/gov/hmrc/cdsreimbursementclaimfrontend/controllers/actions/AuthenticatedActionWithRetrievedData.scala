@@ -47,7 +47,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 final case class AuthenticatedRequestWithRetrievedData[A](
-  journeyUserType: AuthenticatedUser,
+  claimUserType: AuthenticatedUser,
   userType: Option[UserType],
   request: MessagesRequest[A]
 ) extends WrappedRequest[A](request) {
@@ -56,7 +56,7 @@ final case class AuthenticatedRequestWithRetrievedData[A](
     request.headers
       .addIfMissing(
         CorrelationIdHeader.from(
-          journeyUserType.eoriOpt,
+          claimUserType.eoriOpt,
           request.session
             .get(SessionKeys.sessionId)
             .orElse(request.headers.get(HeaderNames.xSessionId))

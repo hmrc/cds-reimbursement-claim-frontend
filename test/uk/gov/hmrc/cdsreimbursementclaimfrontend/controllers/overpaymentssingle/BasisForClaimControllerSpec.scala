@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
@@ -59,8 +59,8 @@ class BasisForClaimControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journeyGen: Gen[OverpaymentsSingleJourney] =
-    buildJourneyFromAnswersGen(answersUpToBasisForClaimGen())
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
 
   def assertPageContent(
     doc: Document,
@@ -95,29 +95,29 @@ class BasisForClaimControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page the first time" in {
-        forAll(journeyGen) { journey =>
+        forAll(claimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes, None)
+            assertPageContent(_, claim.getAvailableClaimTypes, None)
           )
         }
       }
 
       "display page back with answer populated" in {
-        forAll(journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))) {
-          case (journey, basisOfClaim) =>
-            val journeyWithBasisOfClaim =
-              journey.submitBasisOfClaim(basisOfClaim)
+        forAll(claimGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))) {
+          case (claim, basisOfClaim) =>
+            val claimWithBasisOfClaim =
+              claim.submitBasisOfClaim(basisOfClaim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journeyWithBasisOfClaim))
+              mockGetSession(SessionData(claimWithBasisOfClaim))
             }
 
             checkPageIsDisplayed(
@@ -125,24 +125,24 @@ class BasisForClaimControllerSpec
               messageFromMessageKey("select-basis-for-claim.title"),
               assertPageContent(
                 _,
-                journeyWithBasisOfClaim.getAvailableClaimTypes,
-                journeyWithBasisOfClaim.answers.basisOfClaim
+                claimWithBasisOfClaim.getAvailableClaimTypes,
+                claimWithBasisOfClaim.answers.basisOfClaim
               )
             )
         }
       }
 
       "display page back in the change mode" in {
-        forAll(completeJourneyGen) { journey =>
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkPageIsDisplayed(
             performAction(),
             messageFromMessageKey("select-basis-for-claim.title"),
-            assertPageContent(_, journey.getAvailableClaimTypes, journey.answers.basisOfClaim)
+            assertPageContent(_, claim.getAvailableClaimTypes, claim.answers.basisOfClaim)
           )
         }
       }
@@ -154,13 +154,13 @@ class BasisForClaimControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "submit a valid basis for claim index" in forAll(
-        journeyGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))
-      ) { case (journey, basisOfClaim) =>
+        claimGen.flatMap(j => Gen.oneOf(j.getAvailableClaimTypes).map(b => (j, b)))
+      ) { case (claim, basisOfClaim) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
-            SessionData(journey.submitBasisOfClaim(basisOfClaim))
+            SessionData(claim.submitBasisOfClaim(basisOfClaim))
           )(Right(()))
         }
 
@@ -174,16 +174,16 @@ class BasisForClaimControllerSpec
         )
       }
 
-      "submit an invalid basis for claim index" in forAll(journeyGen) { journey =>
+      "submit an invalid basis for claim index" in forAll(claimGen) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
           performAction("select-basis-for-claim" -> "1000"),
           messageFromMessageKey("select-basis-for-claim.title"),
-          assertPageContent(_, journey.getAvailableClaimTypes, None),
+          assertPageContent(_, claim.getAvailableClaimTypes, None),
           expectedStatus = BAD_REQUEST
         )
       }

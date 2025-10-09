@@ -21,10 +21,10 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Individual
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Multiple
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Scheduled
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
@@ -42,7 +42,7 @@
 )
 
 
-@(form: Form[OverpaymentsJourneyType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[OverpaymentsClaimType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"overpayments.choose-how-many-mrns"}
 @title = @{messages(s"overpayments.choose-how-many-mrns.title")}

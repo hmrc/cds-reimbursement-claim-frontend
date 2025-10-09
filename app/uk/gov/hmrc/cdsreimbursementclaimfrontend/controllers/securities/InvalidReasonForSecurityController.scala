@@ -22,21 +22,21 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.invalid_reason_for_security
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class InvalidReasonForSecurityController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   invalidReasonForSecurity: invalid_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController {
+    extends SecuritiesClaimBaseController {
 
   val enterMRN: Call = routes.EnterMovementReferenceNumberController.show
 
-  def show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    Ok(invalidReasonForSecurity(enterMRN, journey.getLeadMovementReferenceNumber))
+  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    Ok(invalidReasonForSecurity(enterMRN, claim.getLeadMovementReferenceNumber))
   }
 }

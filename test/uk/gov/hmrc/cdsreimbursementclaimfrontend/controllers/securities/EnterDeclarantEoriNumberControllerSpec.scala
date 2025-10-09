@@ -29,8 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -73,7 +73,7 @@ class EnterDeclarantEoriNumberControllerSpec
     )
 
   lazy val initialSession: SessionData = SessionData(
-    SecuritiesJourney
+    SecuritiesClaim
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
       .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -87,7 +87,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(initialSession)
@@ -111,7 +111,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -138,7 +138,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, declaration)
@@ -165,7 +165,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
@@ -194,7 +194,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         lazy val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -277,7 +277,7 @@ class EnterDeclarantEoriNumberControllerSpec
             consigneeEORI = Some(yetAnotherExampleEori)
           )
 
-        val journey = SecuritiesJourney
+        val claim = SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -286,12 +286,12 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(claim.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
           mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
           mockStoreSession(
             SessionData(
-              journey
+              claim
                 .submitDeclarantEoriNumber(anotherExampleEori)
                 .flatMap(_.submitClaimDuplicateCheckStatus(false))
                 .getOrFail
@@ -314,7 +314,7 @@ class EnterDeclarantEoriNumberControllerSpec
             consigneeEORI = Some(yetAnotherExampleEori)
           )
 
-        val journey = SecuritiesJourney
+        val claim = SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -323,12 +323,12 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(claim.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
           mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
           mockStoreSession(
             SessionData(
-              journey
+              claim
                 .submitDeclarantEoriNumber(anotherExampleEori)
                 .flatMap(_.submitClaimDuplicateCheckStatus(true))
                 .getOrFail
@@ -351,7 +351,7 @@ class EnterDeclarantEoriNumberControllerSpec
             consigneeEORI = Some(yetAnotherExampleEori)
           )
 
-        val journey = SecuritiesJourney
+        val claim = SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
@@ -360,8 +360,8 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(journey.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(claim.submitDeclarantEoriNumber(anotherExampleEori).getOrFail))(Right(()))
           mockGetIsDuplicateClaim(Left(Error("foo")))
         }
 
@@ -380,7 +380,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, declaration)
@@ -409,7 +409,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, declaration)
@@ -438,7 +438,7 @@ class EnterDeclarantEoriNumberControllerSpec
           )
 
         lazy val session = SessionData(
-          SecuritiesJourney
+          SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)

@@ -21,9 +21,9 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
@@ -31,16 +31,16 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckBankDetailsController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends SecuritiesJourneyBaseController
+    extends SecuritiesClaimBaseController
     with CheckBankDetailsMixin {
 
-  import SecuritiesJourney.Checks._
+  import SecuritiesClaim.Checks._
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[SecuritiesJourney]] =
+  final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
@@ -49,8 +49,8 @@ class CheckBankDetailsController @Inject() (
   final override val postAction: Call =
     routes.CheckBankDetailsController.submitWarning
 
-  final override def continueRoute(journey: Journey): Call =
-    if journey.userHasSeenCYAPage | journey.needsDocumentTypeSelection then {
+  final override def continueRoute(claim: Claim): Call =
+    if claim.userHasSeenCYAPage | claim.needsDocumentTypeSelection then {
       routes.ChooseFileTypeController.show
     } else {
       routes.UploadFilesController.show
@@ -62,10 +62,10 @@ class CheckBankDetailsController @Inject() (
   final override val changeBankAccountDetailsRoute: Call =
     enterBankAccountDetailsRoute
 
-  final override def modifyJourney(journey: Journey, bankAccountDetails: BankAccountDetails): Either[String, Journey] =
-    journey.submitBankAccountDetails(bankAccountDetails)
+  final override def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim] =
+    claim.submitBankAccountDetails(bankAccountDetails)
 
-  final override def modifyJourneyRemoveBankDetails(journey: Journey): Journey =
-    journey.removeBankAccountDetails()
+  final override def modifyClaimRemoveBankDetails(claim: Claim): Claim =
+    claim.removeBankAccountDetails()
 
 }

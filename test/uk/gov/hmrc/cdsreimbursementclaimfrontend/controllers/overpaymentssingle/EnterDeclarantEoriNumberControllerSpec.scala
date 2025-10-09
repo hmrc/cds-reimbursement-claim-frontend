@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -58,7 +58,7 @@ class EnterDeclarantEoriNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+  val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
     .empty(anotherExampleEori)
     .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
     .getOrFail
@@ -69,10 +69,10 @@ class EnterDeclarantEoriNumberControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -93,7 +93,7 @@ class EnterDeclarantEoriNumberControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              OverpaymentsSingleJourney
+              OverpaymentsSingleClaim
                 .empty(exampleDisplayDeclaration.getDeclarantEori)
                 .submitMovementReferenceNumberAndDeclaration(
                   exampleDisplayDeclaration.getMRN,
@@ -115,7 +115,7 @@ class EnterDeclarantEoriNumberControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              OverpaymentsSingleJourney
+              OverpaymentsSingleClaim
                 .empty(exampleDisplayDeclaration.getConsigneeEori.get)
                 .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
                 .getOrFail
@@ -129,17 +129,17 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in {
-        val journey        = buildCompleteJourneyGen(
+      "display the page on a pre-existing claim" in {
+        val claim          = buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false
         ).sample.getOrElse(
-          fail("Unable to generate complete journey")
+          fail("Unable to generate complete claim")
         )
-        val eori           = journey.answers.eoriNumbersVerification
+        val eori           = claim.answers.eoriNumbersVerification
           .flatMap(_.declarantEoriNumber)
           .getOrElse(fail("No consignee eori found"))
-        val sessionToAmend = SessionData(journey)
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -167,7 +167,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "reject an empty Eori" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -183,7 +183,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -198,17 +198,17 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "submit a valid Eori which is the declarant Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration                 = buildDisplayDeclaration().withDeclarationId(mrn.value).withDeclarantEori(eori)
-        val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+        val displayDeclaration             = buildDisplayDeclaration().withDeclarationId(mrn.value).withDeclarantEori(eori)
+        val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
           .empty(anotherExampleEori)
           .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
           .getOrFail
-        val updatedJourney                     = journey.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
-        val updatedSession                     = SessionData(updatedJourney)
+        val updatedClaim                   = claim.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
+        val updatedSession                 = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -221,16 +221,16 @@ class EnterDeclarantEoriNumberControllerSpec
       "submit a valid Eori which is not the declarant" in forAll {
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
-            val displayDeclaration                 =
+            val displayDeclaration             =
               buildDisplayDeclaration().withDeclarationId(mrn.value).withDeclarantEori(wantedDeclarant)
-            val journey: OverpaymentsSingleJourney = OverpaymentsSingleJourney
+            val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
               .empty(anotherExampleEori)
               .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
               .getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkPageIsDisplayed(

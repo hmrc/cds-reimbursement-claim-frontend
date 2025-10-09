@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaNumGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genStringWithMaxSizeOfN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
@@ -59,14 +59,14 @@ class EnterSpecialCircumstancesControllerSpec
 
   private val messagesKey: String = "enter-special-circumstances.rejected-goods"
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Enter Special Circumstances Controller" must {
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -82,10 +82,10 @@ class EnterSpecialCircumstancesControllerSpec
         )
       }
 
-      "display the page on a change journey" in forAll(completeJourneyGenWithSpecialCircumstances) { journey =>
+      "display the page on a change claim" in forAll(completeClaimGenWithSpecialCircumstances) { claim =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
@@ -93,7 +93,7 @@ class EnterSpecialCircumstancesControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             formAction(doc)       shouldBe routes.EnterSpecialCircumstancesController.submit.url
-            selectedTextArea(doc) shouldBe journey.answers.basisOfClaimSpecialCircumstances
+            selectedTextArea(doc) shouldBe claim.answers.basisOfClaimSpecialCircumstances
           }
         )
       }
@@ -135,11 +135,11 @@ class EnterSpecialCircumstancesControllerSpec
         genStringWithMaxSizeOfN(50),
         Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances)
       ) { (details, basisOfClaim) =>
-        val journey = session.rejectedGoodsScheduledJourney.get.submitBasisOfClaim(basisOfClaim)
+        val claim = session.rejectedGoodsScheduledClaim.get.submitBasisOfClaim(basisOfClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkIsRedirect(
@@ -151,16 +151,16 @@ class EnterSpecialCircumstancesControllerSpec
       "redirect to the choose disposal method if a valid set of special circumstances are entered" in forAll(
         genStringWithMaxSizeOfN(50)
       ) { details =>
-        val journey        =
-          session.rejectedGoodsScheduledJourney.get.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-        val updatedJourney = journey
+        val claim        =
+          session.rejectedGoodsScheduledClaim.get.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+        val updatedClaim = claim
           .submitBasisOfClaimSpecialCircumstancesDetails(details)
           .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
-          mockStoreSession(SessionData(updatedJourney))(Right(()))
+          mockGetSession(SessionData(claim))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
         checkIsRedirect(

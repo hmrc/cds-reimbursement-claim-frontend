@@ -77,18 +77,18 @@ object Forms {
     )(Dan.apply)(v => Some(v.value))
   )
 
-  val chooseHowManyMrnsForm: Form[RejectedGoodsJourneyType] = Form(
+  val chooseHowManyMrnsForm: Form[RejectedGoodsClaimType] = Form(
     mapping(
       "rejected-goods.choose-how-many-mrns" -> nonEmptyText
-        .verifying("error.required", journey => journey.isEmpty || RejectedGoodsJourneyType.has(journey))
-    )(RejectedGoodsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
+        .verifying("error.required", claim => claim.isEmpty || RejectedGoodsClaimType.has(claim))
+    )(RejectedGoodsClaimType.findUnsafe)(borgc => Option(borgc.toString))
   )
 
-  val overpaymentsChooseHowManyMrnsForm: Form[OverpaymentsJourneyType] = Form(
+  val overpaymentsChooseHowManyMrnsForm: Form[OverpaymentsClaimType] = Form(
     mapping(
       "overpayments.choose-how-many-mrns" -> nonEmptyText
-        .verifying("error.required", journey => journey.isEmpty || OverpaymentsJourneyType.has(journey))
-    )(OverpaymentsJourneyType.findUnsafe)(borgc => Option(borgc.toString))
+        .verifying("error.required", claim => claim.isEmpty || OverpaymentsClaimType.has(claim))
+    )(OverpaymentsClaimType.findUnsafe)(borgc => Option(borgc.toString))
   )
 
   val northernIrelandForm: Form[YesNo] = YesOrNoQuestionForm("claim-northern-ireland")

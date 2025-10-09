@@ -33,14 +33,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
 import scala.concurrent.Future
@@ -52,7 +52,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -84,7 +84,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
-    journey: SecuritiesJourney
+    claim: SecuritiesClaim
   ): Assertion = {
 
     val claimDetailsCard               = getSummaryCardByTitle(doc, "Claim details")
@@ -101,29 +101,29 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
     getSummaryList(claimDetailsCard.get)               should containOnlyDefinedPairsOf(
       Seq(
-        "Movement Reference Number (MRN)"    -> journey.getLeadMovementReferenceNumber.map(_.value),
-        "Why was a security deposit needed?" -> journey.answers.reasonForSecurity
+        "Movement Reference Number (MRN)"    -> claim.getLeadMovementReferenceNumber.map(_.value),
+        "Why was a security deposit needed?" -> claim.answers.reasonForSecurity
           .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}"))
       )
     )
     getSummaryList(importDetailsCard.get)              should containOnlyDefinedPairsOf(
       Seq(
-        journey.getLeadDisplayDeclaration.get.getMaybeLRN match {
+        claim.getLeadDisplayDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          journey.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(securityDepositOrGuaranteeCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> journey.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
+        "Method of payment" -> claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
           messages(s"method-of-payment.${securityDetails.paymentMethod.value}")
         }
       ) ++
-        journey.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
+        claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
           securityDetails.taxDetails.map(taxDetails =>
             messageFromMessageKey(s"tax-code.${taxDetails.getTaxCode}") -> Some(
               taxDetails.getAmount.toPoundSterlingString
@@ -131,7 +131,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
           )
         }.get ++
         Seq(
-          "Total deposit or guarantee amount" -> journey.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map {
+          "Total deposit or guarantee amount" -> claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map {
             securityDetails =>
               securityDetails.getTotalAmount.toPoundSterlingString
           }
@@ -139,9 +139,9 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     )
     getSummaryList(importerDetailsCard.get)            should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> journey.getLeadDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getLeadDisplayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -150,9 +150,9 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     )
     getSummaryList(declarantDetailsCard.get)           should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.map(_.declarantName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> journey.getLeadDisplayDeclaration.map(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.map(_.declarantName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getLeadDisplayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
@@ -164,20 +164,20 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForSelectingSecurities
+          claimBuilder = buildSecuritiesClaimReadyForSelectingSecurities
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messages("check-import-declaration-details.title"),
-          doc => validateCheckDeclarationDetailsPage(doc, journey)
+          doc => validateCheckDeclarationDetailsPage(doc, claim)
         )
       }
 
@@ -192,7 +192,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
               ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -200,7 +200,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkIsRedirect(
@@ -216,7 +216,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
               ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>
-            val initialJourney = emptyJourney
+            val initialClaim = emptyClaim
               .submitMovementReferenceNumber(mrn)
               .submitReasonForSecurityAndDeclaration(rfs, decl)
               .flatMap(_.submitClaimDuplicateCheckStatus(false))
@@ -224,7 +224,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(initialJourney))
+              mockGetSession(SessionData(initialClaim))
             }
 
             checkIsRedirect(

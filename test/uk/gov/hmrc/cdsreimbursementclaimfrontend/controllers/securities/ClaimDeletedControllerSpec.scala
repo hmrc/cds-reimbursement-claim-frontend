@@ -34,11 +34,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.completeJourneyGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.completeClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -51,7 +51,7 @@ class ClaimDeletedControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -91,8 +91,8 @@ class ClaimDeletedControllerSpec
     "show page" must {
       def showClaimDeletedPage(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.show()(rh)
 
-      "display the page if securities feature is enabled" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      "display the page if securities feature is enabled" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -110,8 +110,8 @@ class ClaimDeletedControllerSpec
     "start new claim" must {
       def performAction(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.startNewClaim()(rh)
 
-      "redirect to start of journey" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      "redirect to start of claim" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -129,8 +129,8 @@ class ClaimDeletedControllerSpec
     "redirect to dashboard" must {
       def performAction(rh: Request[AnyContent] = FakeRequest()): Future[Result] = controller.redirectToDashboard()(rh)
 
-      "redirect to the claims dashboard" in forAll(completeJourneyGen) { journey =>
-        val updatedSession = SessionData.empty.copy(securitiesJourney = Some(journey))
+      "redirect to the claims dashboard" in forAll(completeClaimGen) { claim =>
+        val updatedSession = SessionData.empty.copy(securitiesClaim = Some(claim))
 
         inSequence {
           mockAuthWithDefaultRetrievals()

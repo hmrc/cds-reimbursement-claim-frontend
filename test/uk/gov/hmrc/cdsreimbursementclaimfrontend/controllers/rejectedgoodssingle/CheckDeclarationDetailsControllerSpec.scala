@@ -34,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
@@ -67,7 +67,7 @@ class CheckDeclarationDetailsControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   val messagesKey: String = "check-import-declaration-details"
 
@@ -87,7 +87,7 @@ class CheckDeclarationDetailsControllerSpec
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
-    journey: RejectedGoodsSingleJourney
+    claim: RejectedGoodsSingleClaim
   ): Assertion = {
 
     val claimDetailsCard     = getSummaryCardByTitle(doc, "Claim details")
@@ -104,28 +104,28 @@ class CheckDeclarationDetailsControllerSpec
 
     getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "MRN" -> journey.getLeadMovementReferenceNumber.map(_.value)
+        "MRN" -> claim.getLeadMovementReferenceNumber.map(_.value)
       )
     )
     getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
       Seq(
-        journey.getLeadDisplayDeclaration.get.getMaybeLRN match {
+        claim.getLeadDisplayDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          journey.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> journey.getLeadDisplayDeclaration.get.getMethodsOfPayment
+        "Method of payment" -> claim.getLeadDisplayDeclaration.get.getMethodsOfPayment
           .map { methods =>
             MethodOfPaymentSummary(methods)
           }
       ) ++
-        journey.getLeadDisplayDeclaration.get.getNdrcDutiesWithAmount
+        claim.getLeadDisplayDeclaration.get.getNdrcDutiesWithAmount
           .map(_.map { case (taxCode, amount) =>
             messageFromMessageKey(s"tax-code.$taxCode") -> Some(
               amount.toPoundSterlingString
@@ -133,14 +133,14 @@ class CheckDeclarationDetailsControllerSpec
           })
           .get ++
         Seq(
-          "Total" -> journey.getLeadDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+          "Total" -> claim.getLeadDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
         )
     )
     getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> journey.getLeadDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getLeadDisplayDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -149,9 +149,9 @@ class CheckDeclarationDetailsControllerSpec
     )
     getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> journey.getLeadDisplayDeclaration.map(_.declarantName),
-        "Email"   -> journey.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> journey.getLeadDisplayDeclaration.map(d =>
+        "Name"    -> claim.getLeadDisplayDeclaration.map(_.declarantName),
+        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getLeadDisplayDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
@@ -164,12 +164,12 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display the page" in {
-        val journey = buildCompleteJourneyGen(
+        val claim = buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false
-        ).sample.getOrElse(fail("Journey building has failed."))
+        ).sample.getOrElse(fail("Claim building has failed."))
 
-        val sessionToAmend = SessionData(journey)
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -179,7 +179,7 @@ class CheckDeclarationDetailsControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
-          doc => validateCheckDeclarationDetailsPage(doc, journey)
+          doc => validateCheckDeclarationDetailsPage(doc, claim)
         )
       }
     }
@@ -195,7 +195,7 @@ class CheckDeclarationDetailsControllerSpec
           mockGetSession(session)
           mockStoreSession(
             session.copy(
-              rejectedGoodsSingleJourney = session.rejectedGoodsSingleJourney.map(_.withEnterContactDetailsMode(true))
+              rejectedGoodsSingleClaim = session.rejectedGoodsSingleClaim.map(_.withEnterContactDetailsMode(true))
             )
           )(Right(()))
         }

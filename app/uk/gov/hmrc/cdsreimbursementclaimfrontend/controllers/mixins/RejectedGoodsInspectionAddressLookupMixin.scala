@@ -20,71 +20,71 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.HaveInspectionDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsJourneyProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.HaveInspectionDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsClaimProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_inspection_address_type
 
-trait RejectedGoodsInspectionAddressLookupMixin extends JourneyBaseController with AddressLookupMixin {
+trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with AddressLookupMixin {
 
-  type Journey <: journeys.Journey & JourneyBase & RejectedGoodsJourneyProperties & HaveInspectionDetails
+  type Claim <: claims.Claim & ClaimBase & RejectedGoodsClaimProperties & HaveInspectionDetails
 
   val startAddressLookup: Call
   val postAction: Call
 
   val inspectionAddressPage: choose_inspection_address_type
 
-  def modifyJourney(journey: Journey, inspectionAddress: InspectionAddress): Journey
+  def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    journey.getPotentialInspectionAddresses match {
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+    claim.getPotentialInspectionAddresses match {
       case Nil =>
         Redirect(startAddressLookup)
       case xs  =>
         Ok(
           inspectionAddressPage(
             xs,
-            inspectionAddressTypeForm.withDefault(journey.getInspectionAddressType),
+            inspectionAddressTypeForm.withDefault(claim.getInspectionAddressType),
             postAction
           )
         )
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney(
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         inspectionAddressTypeForm
           .bindFromRequest()
           .fold(
             errors =>
               (
-                journey,
-                BadRequest(inspectionAddressPage(journey.getPotentialInspectionAddresses, errors, postAction))
+                claim,
+                BadRequest(inspectionAddressPage(claim.getPotentialInspectionAddresses, errors, postAction))
               ),
             {
               case Other     =>
-                (journey, Redirect(startAddressLookup))
+                (claim, Redirect(startAddressLookup))
               case Declarant =>
-                journey.getDeclarantContactDetailsFromACC14
+                claim.getDeclarantContactDetailsFromACC14
                   .map { address =>
-                    redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Declarant).mapFrom(address)))
+                    redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Declarant).mapFrom(address)))
                   }
-                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
+                  .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
 
               case Importer =>
-                journey.getConsigneeContactDetailsFromACC14
+                claim.getConsigneeContactDetailsFromACC14
                   .map { address =>
-                    redirectToTheNextPage(modifyJourney(journey, InspectionAddress.ofType(Importer).mapFrom(address)))
+                    redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Importer).mapFrom(address)))
                   }
-                  .getOrElse((journey, Redirect(baseRoutes.IneligibleController.ineligible)))
+                  .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
 
             }
           ),

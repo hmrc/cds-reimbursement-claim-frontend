@@ -33,15 +33,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedul
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as overpaymentsSingleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimOther
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -71,34 +71,34 @@ class ChooseHowManyMrnsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private val form: Form[OverpaymentsJourneyType] = Forms.overpaymentsChooseHowManyMrnsForm
-  private val postAction: Call                    = routes.ChooseHowManyMrnsController.submit
+  private val form: Form[OverpaymentsClaimType] = Forms.overpaymentsChooseHowManyMrnsForm
+  private val postAction: Call                  = routes.ChooseHowManyMrnsController.submit
 
-  private def overpaymentsSingleJourneyFeatures(implicit
+  private def overpaymentsSingleClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsSingleJourney.Features] =
+  ): Option[OverpaymentsSingleClaim.Features] =
     Some(
-      OverpaymentsSingleJourney
+      OverpaymentsSingleClaim
         .Features(
           shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
         )
     )
 
-  private def overpaymentsMultipleJourneyFeatures(implicit
+  private def overpaymentsMultipleClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsMultipleJourney.Features] =
+  ): Option[OverpaymentsMultipleClaim.Features] =
     Some(
-      OverpaymentsMultipleJourney
+      OverpaymentsMultipleClaim
         .Features(
           shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
         )
     )
 
-  private def overpaymentsScheduledJourneyFeatures(implicit
+  private def overpaymentsScheduledClaimFeatures(implicit
     hc: HeaderCarrier
-  ): Option[OverpaymentsScheduledJourney.Features] =
+  ): Option[OverpaymentsScheduledClaim.Features] =
     Some(
-      OverpaymentsScheduledJourney
+      OverpaymentsScheduledClaim
         .Features(
           shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
         )
@@ -114,7 +114,7 @@ class ChooseHowManyMrnsController @Inject() (
 
   final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
-      request.authenticatedRequest.journeyUserType.eoriOpt
+      request.authenticatedRequest.claimUserType.eoriOpt
         .fold[Future[Result]](Future.failed(new Exception("User is missing EORI number"))) { eori =>
           form
             .bindFromRequest()
@@ -126,36 +126,36 @@ class ChooseHowManyMrnsController @Inject() (
                   ),
               {
                 case Individual =>
-                  (if request.sessionData.overpaymentsSingleJourney.isEmpty
-                     || request.sessionData.overpaymentsSingleJourney.exists(_.isFinalized)
+                  (if request.sessionData.overpaymentsSingleClaim.isEmpty
+                     || request.sessionData.overpaymentsSingleClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         OverpaymentsSingleJourney.empty(eori, features = overpaymentsSingleJourneyFeatures)
+                         OverpaymentsSingleClaim.empty(eori, features = overpaymentsSingleClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsSingleRoutes.HaveDocumentsReadyController.show))
 
                 case Multiple =>
-                  (if request.sessionData.overpaymentsMultipleJourney.isEmpty
-                     || request.sessionData.overpaymentsMultipleJourney.exists(_.isFinalized)
+                  (if request.sessionData.overpaymentsMultipleClaim.isEmpty
+                     || request.sessionData.overpaymentsMultipleClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         OverpaymentsMultipleJourney.empty(eori, features = overpaymentsMultipleJourneyFeatures)
+                         OverpaymentsMultipleClaim.empty(eori, features = overpaymentsMultipleClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))
                     .map(_ => Redirect(overpaymentsMultipleRoutes.HaveDocumentsReadyController.show))
 
                 case Scheduled =>
-                  (if request.sessionData.overpaymentsScheduledJourney.isEmpty
-                     || request.sessionData.overpaymentsScheduledJourney.exists(_.isFinalized)
+                  (if request.sessionData.overpaymentsScheduledClaim.isEmpty
+                     || request.sessionData.overpaymentsScheduledClaim.exists(_.isFinalized)
                    then
                      updateSession(sessionStore, request)(
                        SessionData(
-                         OverpaymentsScheduledJourney.empty(eori, features = overpaymentsScheduledJourneyFeatures)
+                         OverpaymentsScheduledClaim.empty(eori, features = overpaymentsScheduledClaimFeatures)
                        ).withExistingUserData
                      )
                    else Future.successful(Right(())))

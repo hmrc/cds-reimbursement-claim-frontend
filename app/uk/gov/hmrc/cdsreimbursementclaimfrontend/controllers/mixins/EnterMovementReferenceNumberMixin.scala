@@ -24,8 +24,8 @@ import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.CommonJourneyProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -37,41 +37,41 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXiEoriMixin {
+trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEoriMixin {
 
-  def modifyJourney(journey: Journey, mrn: MRN, declaration: DisplayDeclaration): Either[String, Journey]
+  def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim]
 
   def claimService: ClaimService
   def featureSwitchService: FeatureSwitchService
 
   val shouldValidateDeclaration: Boolean = true
 
-  def form(journey: Journey): Form[MRN]
-  def getMovementReferenceNumber(journey: Journey): Option[MRN]
+  def form(claim: Claim): Form[MRN]
+  def getMovementReferenceNumber(claim: Claim): Option[MRN]
   def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
   def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable
-  def afterSuccessfullSubmit(journey: Journey): Result
+  def afterSuccessfullSubmit(claim: Claim): Result
   val problemWithMrnCall: MRN => Call
 
   val formKey = "enter-movement-reference-number"
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful {
       Ok(
         viewTemplate(
-          form(journey).withDefault(getMovementReferenceNumber(journey))
+          form(claim).withDefault(getMovementReferenceNumber(claim))
         )(request)
       )
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val filledForm = form(journey).bindFromRequest()
+  final val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>
         Future.successful(
           (
-            journey,
+            claim,
             BadRequest(
               viewTemplate(formWithErrors)(request)
             )
@@ -80,33 +80,33 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
       (mrn: MRN) =>
         {
           for
-            maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
-            -               <- EnterMovementReferenceNumberUtil.validateEoriFormats(journey, maybeAcc14, featureSwitchService)
-            _               <- if shouldValidateDeclaration
-                               then EnterMovementReferenceNumberUtil.validateDeclarationCandidate(journey, maybeAcc14)
-                               else EitherT.fromEither[Future](Right(()))
-            updatedJourney  <- updateJourney(journey, mrn, maybeAcc14)
-            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
-          yield updatedJourney2
+            maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+            -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
+            _             <- if shouldValidateDeclaration
+                             then EnterMovementReferenceNumberUtil.validateDeclarationCandidate(claim, maybeAcc14)
+                             else EitherT.fromEither[Future](Right(()))
+            updatedClaim  <- updateClaim(claim, mrn, maybeAcc14)
+            updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, enabled = true)
+          yield updatedClaim2
         }.fold(
           error =>
             if error.message == "error.has-only-subsidy-items" then {
               (
-                journey,
+                claim,
                 Ok(
                   subsidyWaiverErrorPage(mrn, true)(request)
                 )
               )
             } else if error.message == "error.has-some-subsidy-items" then {
               (
-                journey,
+                claim,
                 Ok(
                   subsidyWaiverErrorPage(mrn, false)(request)
                 )
               )
             } else if error.message.startsWith("error.") then {
               (
-                journey,
+                claim,
                 BadRequest(
                   viewTemplate(filledForm.withError(formKey, error.message))(
                     request
@@ -114,20 +114,20 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
                 )
               )
             } else {
-              (journey, Redirect(problemWithMrnCall(mrn)))
+              (claim, Redirect(problemWithMrnCall(mrn)))
             },
-          updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
+          updatedClaim => (updatedClaim, afterSuccessfullSubmit(updatedClaim))
         )
     )
   }
 
-  final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    val filledForm = form(journey).bindFromRequest()
+  final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+    val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>
         Future.successful(
           (
-            journey,
+            claim,
             BadRequest(
               viewTemplate(formWithErrors)(request)
             )
@@ -136,27 +136,27 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
       (mrn: MRN) =>
         {
           for
-            maybeAcc14      <- claimService.getDisplayDeclaration(mrn)
-            -               <- EnterMovementReferenceNumberUtil.validateEoriFormats(journey, maybeAcc14, featureSwitchService)
-            updatedJourney  <- updateJourney(journey, mrn, maybeAcc14.map(_.removeSubsidyItems))
-            updatedJourney2 <- getUserXiEoriIfNeeded(updatedJourney, enabled = true)
-          yield updatedJourney2
+            maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+            -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
+            updatedClaim  <- updateClaim(claim, mrn, maybeAcc14.map(_.removeSubsidyItems))
+            updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, enabled = true)
+          yield updatedClaim2
         }.fold(
-          _ => (journey, Redirect(problemWithMrnCall(mrn))),
-          updatedJourney => (updatedJourney, afterSuccessfullSubmit(updatedJourney))
+          _ => (claim, Redirect(problemWithMrnCall(mrn))),
+          updatedClaim => (updatedClaim, afterSuccessfullSubmit(updatedClaim))
         )
     )
   }
 
-  private def updateJourney(
-    journey: Journey,
+  private def updateClaim(
+    claim: Claim,
     mrn: MRN,
     maybeAcc14: Option[DisplayDeclaration]
-  ): EitherT[Future, Error, Journey] =
+  ): EitherT[Future, Error, Claim] =
     maybeAcc14 match {
       case Some(acc14) =>
         EitherT.fromEither[Future](
-          modifyJourney(journey, mrn, acc14).left.map(Error.apply)
+          modifyClaim(claim, mrn, acc14).left.map(Error.apply)
         )
       case _           =>
         EitherT.leftT(Error("could not unbox display declaration"))
@@ -165,31 +165,31 @@ trait EnterMovementReferenceNumberMixin extends JourneyBaseController with GetXi
 
 object EnterMovementReferenceNumberUtil {
 
-  def validateDeclarationCandidate[Journey <: CommonJourneyProperties](
-    journey: Journey,
+  def validateDeclarationCandidate[Claim <: CommonClaimProperties](
+    claim: Claim,
     maybeAcc14: Option[DisplayDeclaration]
   )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
     maybeAcc14 match {
       case None              => EitherT.rightT(())
       case Some(declaration) =>
-        journey.validateDeclarationCandidate(declaration) match {
+        claim.validateDeclarationCandidate(declaration) match {
           case None        => EitherT.rightT(())
           case Some(error) => EitherT.leftT(Error(error))
         }
     }
 
-  def validateEoriFormats[Journey <: CommonJourneyProperties](
-    journey: Journey,
+  def validateEoriFormats[Claim <: CommonClaimProperties](
+    claim: Claim,
     maybeAcc14: Option[DisplayDeclaration],
     featureSwitchService: FeatureSwitchService
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): EitherT[Future, Error, Unit] =
     if featureSwitchService.isDisabled(Feature.NewEoriFormat)
     then {
-      if journey.answers.userEoriNumber.doesNotMatchOldFormat
+      if claim.answers.userEoriNumber.doesNotMatchOldFormat
       then
         EitherT.leftT(
           Error(
-            s"user's eori got new format (${journey.answers.userEoriNumber}) but the new-eori-format feature is off"
+            s"user's eori got new format (${claim.answers.userEoriNumber}) but the new-eori-format feature is off"
           )
         )
       else

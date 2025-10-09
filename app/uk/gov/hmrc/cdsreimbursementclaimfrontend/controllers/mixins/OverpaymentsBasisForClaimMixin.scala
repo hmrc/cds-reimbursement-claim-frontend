@@ -21,8 +21,8 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpaymentClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -30,30 +30,30 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_
 
 import scala.concurrent.Future
 
-trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
+trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
 
   val basisForClaimPage: select_basis_for_claim
   val postAction: Call
   val featureSwitchService: FeatureSwitchService
   def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call
 
-  def modifyJourney(journey: Journey, basisOfClaim: BasisOfOverpaymentClaim): Journey
+  def modifyClaim(claim: Claim, basisOfClaim: BasisOfOverpaymentClaim): Claim
 
   val formKey: String = "select-basis-for-claim"
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => journey =>
+    actionReadClaim { implicit request => claim =>
       Future.successful {
         val form: Form[BasisOfOverpaymentClaim] =
-          basisOfOverpaymentClaimForm.withDefault(journey.answers.basisOfClaim)
+          basisOfOverpaymentClaimForm.withDefault(claim.answers.basisOfClaim)
         Ok(
           basisForClaimPage(
             form,
-            journey.getAvailableClaimTypes,
+            claim.getAvailableClaimTypes,
             DropdownHints(
-              journey.getAvailableClaimTypes.toList.sorted
+              claim.getAvailableClaimTypes.toList.sorted
                 .map(_.toString)
             ),
             None,
@@ -64,20 +64,20 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       basisOfOverpaymentClaimForm
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   basisForClaimPage(
                     formWithErrors,
-                    journey.getAvailableClaimTypes,
+                    claim.getAvailableClaimTypes,
                     DropdownHints(
-                      journey.getAvailableClaimTypes.toList.sorted
+                      claim.getAvailableClaimTypes.toList.sorted
                         .map(_.toString)
                     ),
                     None,
@@ -89,7 +89,7 @@ trait OverpaymentsBasisForClaimMixin extends JourneyBaseController {
           basisOfClaim =>
             Future.successful(
               (
-                modifyJourney(journey, basisOfClaim),
+                modifyClaim(claim, basisOfClaim),
                 Redirect(continueRoute(basisOfClaim))
               )
             )

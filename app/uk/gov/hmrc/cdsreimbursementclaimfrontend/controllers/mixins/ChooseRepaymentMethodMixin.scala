@@ -21,33 +21,33 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
 import scala.concurrent.Future
 
-trait ChooseRepaymentMethodMixin extends JourneyBaseController {
+trait ChooseRepaymentMethodMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.SingleVariantProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.SingleVariantProperties
 
   def postAction: Call
   def enterBankDetailsRoute: Call
   def chooseRepaymentMethodPage: choose_repayment_method
 
-  def modifyJourney(journey: Journey, method: ReimbursementMethod): Either[String, Journey]
-  def resetReimbursementMethod(journey: Journey): Journey
+  def modifyClaim(claim: Claim, method: ReimbursementMethod): Either[String, Claim]
+  def resetReimbursementMethod(claim: Claim): Claim
 
   val form: Form[ReimbursementMethod] =
     Forms.reimbursementMethodForm("reimbursement-method")
 
   final val show: Action[AnyContent] =
-    actionReadJourney { implicit request => implicit journey =>
-      if journey.isAllSelectedDutiesAreCMAEligible then {
+    actionReadClaim { implicit request => implicit claim =>
+      if claim.isAllSelectedDutiesAreCMAEligible then {
         Ok(
           chooseRepaymentMethodPage(
-            form.withDefault(journey.answers.reimbursementMethod),
+            form.withDefault(claim.answers.reimbursementMethod),
             postAction
           )
         )
@@ -55,15 +55,15 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney(
+    actionReadWriteClaim(
       implicit request =>
-        journey =>
+        claim =>
           form
             .bindFromRequest()
             .fold(
               formWithErrors =>
                 (
-                  journey,
+                  claim,
                   BadRequest(
                     chooseRepaymentMethodPage(
                       formWithErrors,
@@ -72,16 +72,16 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
                   )
                 ),
               method =>
-                modifyJourney(journey, method) match {
-                  case Right(modifiedJourney) =>
+                modifyClaim(claim, method) match {
+                  case Right(modifiedClaim) =>
                     (
-                      modifiedJourney,
+                      modifiedClaim,
                       Redirect(enterBankDetailsRoute)
                     )
 
                   case Left("submitReimbursementMethod.notCMAEligible") =>
                     (
-                      journey,
+                      claim,
                       Redirect(enterBankDetailsRoute)
                     )
 
@@ -93,10 +93,10 @@ trait ChooseRepaymentMethodMixin extends JourneyBaseController {
     )
 
   final val reset: Action[AnyContent] =
-    actionReadWriteJourney { _ => journey =>
-      val updatedJourney =
-        if !journey.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(journey)
-        else journey
-      (updatedJourney, Redirect(checkYourAnswers))
+    actionReadWriteClaim { _ => claim =>
+      val updatedClaim =
+        if !claim.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(claim)
+        else claim
+      (updatedClaim, Redirect(checkYourAnswers))
     }
 }

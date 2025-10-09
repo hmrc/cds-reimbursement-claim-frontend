@@ -43,11 +43,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as commonRou
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators.exampleEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsJourneyType.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.exampleEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimOther
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
@@ -64,7 +64,7 @@ class ChooseHowManyMrnsControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with JourneyTestData {
+    with ClaimTestData {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -156,7 +156,7 @@ class ChooseHowManyMrnsControllerSpec
 
       "Redirect to (single route) HaveDocumentsReady page when user chooses Individual" in {
 
-        val updatedSession = SessionData(OverpaymentsSingleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsSingleClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -169,12 +169,12 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and journey is advanced" in {
+      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and claim is advanced" in {
 
         val session = SessionData(
-          OverpaymentsSingleJourneyGenerators
-            .buildJourneyFromAnswersGen(
-              OverpaymentsSingleJourneyGenerators.answersUpToBasisForClaimGen()
+          OverpaymentsSingleClaimGenerators
+            .buildClaimFromAnswersGen(
+              OverpaymentsSingleClaimGenerators.answersUpToBasisForClaimGen()
             )
             .sample
             .get
@@ -190,15 +190,15 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsSingleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and journey is already finalized" in {
+      "Redirect to (single route) HaveDocumentsReady page when user chooses Individual and claim is already finalized" in {
 
         val initialSession = SessionData(
-          OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-            .map(_.finalizeJourneyWith("FOO-1234567890").getOrFail)
+          OverpaymentsSingleClaimGenerators.completeClaimGen.sample
+            .map(_.finalizeClaimWith("FOO-1234567890").getOrFail)
             .get
         )
 
-        val updatedSession = SessionData(OverpaymentsSingleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsSingleClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -214,7 +214,7 @@ class ChooseHowManyMrnsControllerSpec
       "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple" in {
 
         val updatedSession = SessionData(
-          OverpaymentsMultipleJourney.empty(
+          OverpaymentsMultipleClaim.empty(
             eoriExample,
             Nonce.Any
           )
@@ -232,11 +232,11 @@ class ChooseHowManyMrnsControllerSpec
 
       }
 
-      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and journey is advanced" in {
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and claim is advanced" in {
 
         val session = SessionData(
-          OverpaymentsMultipleJourneyGenerators
-            .buildJourneyFromAnswersGen(OverpaymentsMultipleJourneyGenerators.answersUpToBasisForClaimGen())
+          OverpaymentsMultipleClaimGenerators
+            .buildClaimFromAnswersGen(OverpaymentsMultipleClaimGenerators.answersUpToBasisForClaimGen())
             .sample
             .get
         )
@@ -251,15 +251,15 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsMultipleRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and journey is already finalized" in {
+      "Redirect to (multiple route) HaveDocumentsReady page when user chooses Multiple and claim is already finalized" in {
 
         val initialSession = SessionData(
-          OverpaymentsMultipleJourneyGenerators.completeJourneyGen.sample
-            .map(_.finalizeJourneyWith("FOO-1234567890").getOrFail)
+          OverpaymentsMultipleClaimGenerators.completeClaimGen.sample
+            .map(_.finalizeClaimWith("FOO-1234567890").getOrFail)
             .get
         )
 
-        val updatedSession = SessionData(OverpaymentsMultipleJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsMultipleClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -277,11 +277,11 @@ class ChooseHowManyMrnsControllerSpec
         featureSwitch.enable(BasisOfClaimOther)
 
         val updatedSession = SessionData(
-          OverpaymentsMultipleJourney.empty(
+          OverpaymentsMultipleClaim.empty(
             eoriExample,
             Nonce.Any,
             features = Some(
-              OverpaymentsMultipleJourney.Features(
+              OverpaymentsMultipleClaim.Features(
                 shouldAllowOtherBasisOfClaim = true
               )
             )
@@ -303,7 +303,7 @@ class ChooseHowManyMrnsControllerSpec
       }
 
       "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled" in {
-        val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsScheduledClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -317,10 +317,10 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and journey is advanced" in {
+      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and claim is advanced" in {
         val session = SessionData(
-          OverpaymentsScheduledJourneyGenerators
-            .buildJourneyFromAnswersGen(OverpaymentsScheduledJourneyGenerators.answersUpToBasisForClaimGen())
+          OverpaymentsScheduledClaimGenerators
+            .buildClaimFromAnswersGen(OverpaymentsScheduledClaimGenerators.answersUpToBasisForClaimGen())
             .sample
             .get
         )
@@ -336,15 +336,15 @@ class ChooseHowManyMrnsControllerSpec
         checkIsRedirect(result, overpaymentsScheduledRoutes.HaveDocumentsReadyController.show)
       }
 
-      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and journey is already finalized" in {
+      "Redirect to (scheduled route) HaveDocumentsReady page when user chooses Scheduled and claim is already finalized" in {
 
         val initialSession = SessionData(
-          OverpaymentsScheduledJourneyGenerators.completeJourneyGen.sample
-            .map(_.finalizeJourneyWith("FOO-1234567890").getOrFail)
+          OverpaymentsScheduledClaimGenerators.completeClaimGen.sample
+            .map(_.finalizeClaimWith("FOO-1234567890").getOrFail)
             .get
         )
 
-        val updatedSession = SessionData(OverpaymentsScheduledJourney.empty(eoriExample, Nonce.Any))
+        val updatedSession = SessionData(OverpaymentsScheduledClaim.empty(eoriExample, Nonce.Any))
 
         inSequence {
           mockAuthWithEoriEnrolmentRetrievals(exampleEori)
@@ -361,11 +361,11 @@ class ChooseHowManyMrnsControllerSpec
         featureSwitch.enable(BasisOfClaimOther)
 
         val updatedSession = SessionData(
-          OverpaymentsScheduledJourney.empty(
+          OverpaymentsScheduledClaim.empty(
             eoriExample,
             Nonce.Any,
             features = Some(
-              OverpaymentsScheduledJourney.Features(
+              OverpaymentsScheduledClaim.Features(
                 shouldAllowOtherBasisOfClaim = true
               )
             )

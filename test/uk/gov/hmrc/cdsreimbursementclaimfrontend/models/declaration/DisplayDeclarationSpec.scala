@@ -20,10 +20,10 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 
-class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks with JourneyGenerators {
+class DisplayDeclarationSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks with ClaimGenerators {
 
   "The display declaration" should {
     "calculate the vat paid" in forAll(

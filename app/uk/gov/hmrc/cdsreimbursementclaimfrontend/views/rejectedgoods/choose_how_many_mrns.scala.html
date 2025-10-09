@@ -21,10 +21,10 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Individual
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Multiple
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsJourneyType.Scheduled
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Individual
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Multiple
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Scheduled
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
@@ -41,7 +41,7 @@
 )
 
 
-@(form: Form[RejectedGoodsJourneyType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[RejectedGoodsClaimType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"rejected-goods.choose-how-many-mrns"}
 @title = @{messages(s"rejected-goods.choose-how-many-mrns.title")}

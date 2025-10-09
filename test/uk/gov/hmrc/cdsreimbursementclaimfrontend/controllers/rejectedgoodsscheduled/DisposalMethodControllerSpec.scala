@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
@@ -59,7 +59,7 @@ class DisposalMethodControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val session: SessionData = SessionData(journeyWithMrnAndDeclaration)
+  val session: SessionData = SessionData(claimWithMrnAndDeclaration)
 
   "Disposal Method Controller" when {
     "Disposal Method page" must {
@@ -109,9 +109,9 @@ class DisposalMethodControllerSpec
       }
 
       "submit a valid disposal method" in forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
-        val journey        = session.rejectedGoodsScheduledJourney.getOrElse(fail("No rejected goods journey"))
-        val updatedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
-        val updatedSession = SessionData(updatedJourney)
+        val claim          = session.rejectedGoodsScheduledClaim.getOrElse(fail("No rejected goods claim"))
+        val updatedClaim   = claim.submitMethodOfDisposal(methodOfDisposal)
+        val updatedSession = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -126,18 +126,18 @@ class DisposalMethodControllerSpec
       }
 
       "redirect to CYA page" when {
-        "journey is complete" in forAll(buildCompleteJourneyGen()) { journey =>
-          val sessionWitJourney = SessionData(journey)
+        "claim is complete" in forAll(buildCompleteClaimGen()) { claim =>
+          val sessionWitClaim = SessionData(claim)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionWitJourney)
+            mockGetSession(sessionWitClaim)
           }
 
           checkIsRedirect(
             performAction(
               "select-method-of-disposal.rejected-goods" ->
-                journey.answers.methodOfDisposal.map(_.toString).value
+                claim.answers.methodOfDisposal.map(_.toString).value
             ),
             routes.CheckYourAnswersController.show
           )

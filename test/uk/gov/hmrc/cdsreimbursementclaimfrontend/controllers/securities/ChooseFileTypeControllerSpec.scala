@@ -31,11 +31,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class ChooseFileTypeControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -59,8 +59,8 @@ class ChooseFileTypeControllerSpec
 
   private val messagesKey: String = "choose-file-type"
 
-  def validateChooseFileTypePage(doc: Document, journey: SecuritiesJourney) = {
-    val expectedDocumentTypes = journey.getDocumentTypesIfRequired.get
+  def validateChooseFileTypePage(doc: Document, claim: SecuritiesClaim) = {
+    val expectedDocumentTypes = claim.getDocumentTypesIfRequired.get
       .map(dt => (messages(s"choose-file-type.file-type.$dt"), UploadDocumentType.keyOf(dt)))
 
     radioItems(doc) should contain theSameElementsAs expectedDocumentTypes
@@ -74,36 +74,36 @@ class ChooseFileTypeControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "display the page" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
 
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.securities.title"),
-          doc => validateChooseFileTypePage(doc, journey)
+          doc => validateChooseFileTypePage(doc, claim)
         )
 
       }
 
       "display the page when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
-          whenever(journey.needsDocumentTypeSelection) {
+        forAll(completeClaimGen) { claim =>
+          whenever(claim.needsDocumentTypeSelection) {
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
             }
 
             checkPageIsDisplayed(
               performAction(),
               messageFromMessageKey(s"$messagesKey.securities.title"),
-              doc => validateChooseFileTypePage(doc, journey)
+              doc => validateChooseFileTypePage(doc, claim)
             )
           }
         }
@@ -116,17 +116,17 @@ class ChooseFileTypeControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "redirect to choose files when valid document type selection" in forAllWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
-        journey.getDocumentTypesIfRequired.get.foreach { documentType =>
+      ) { case (claim, _) =>
+        claim.getDocumentTypesIfRequired.get.foreach { documentType =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
             mockStoreSession(
-              SessionData(journey.submitDocumentTypeSelection(documentType).getOrFail)
+              SessionData(claim.submitDocumentTypeSelection(documentType).getOrFail)
             )(Right(()))
           }
           checkIsRedirect(
@@ -137,67 +137,67 @@ class ChooseFileTypeControllerSpec
       }
 
       "re-display the page when invalid document type selection" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
         checkPageIsDisplayed(
           performAction("choose-file-type" -> "Foo"),
           messageFromMessageKey(s"$messagesKey.securities.title"),
-          doc => validateChooseFileTypePage(doc, journey),
+          doc => validateChooseFileTypePage(doc, claim),
           expectedStatus = 400
         )
       }
 
       "re-display the page when unsupported document type selection" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
         checkPageIsDisplayed(
           performAction("choose-file-type" -> "AirWayBill"),
           messageFromMessageKey(s"$messagesKey.securities.title"),
-          doc => validateChooseFileTypePage(doc, journey),
+          doc => validateChooseFileTypePage(doc, claim),
           expectedStatus = 400
         )
       }
 
       "re-display the page when nothing has been selected" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
-          journeyBuilder = buildSecuritiesJourneyWithSomeSecuritiesSelected
+          claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
-      ) { case (journey, _) =>
+      ) { case (claim, _) =>
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
         }
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey(s"$messagesKey.securities.title"),
-          doc => validateChooseFileTypePage(doc, journey),
+          doc => validateChooseFileTypePage(doc, claim),
           expectedStatus = 400
         )
       }
 
       "redirect to choose files when valid document type selection when in change mode" in {
-        forAll(completeJourneyGen) { journey =>
-          journey.getDocumentTypesIfRequired.get.foreach { documentType =>
+        forAll(completeClaimGen) { claim =>
+          claim.getDocumentTypesIfRequired.get.foreach { documentType =>
             inSequence {
               mockAuthWithDefaultRetrievals()
-              mockGetSession(SessionData(journey))
+              mockGetSession(SessionData(claim))
               mockStoreSession(
-                SessionData(journey.submitDocumentTypeSelection(documentType).getOrFail)
+                SessionData(claim.submitDocumentTypeSelection(documentType).getOrFail)
               )(Right(()))
             }
             checkIsRedirect(

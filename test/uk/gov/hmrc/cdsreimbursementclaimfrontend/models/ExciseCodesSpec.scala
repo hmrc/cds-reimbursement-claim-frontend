@@ -20,7 +20,7 @@ import cats.Functor
 import cats.Id
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsSingleJourneyGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectAdditionalInformationCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -49,9 +49,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
-      val journeyAnswers                      =
-        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+      val claimAnswers                        =
+        OverpaymentsSingleClaimGenerators.completeClaimGen.sample
+          .getOrElse(OverpaymentsSingleClaimGenerators.emptyClaim)
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
@@ -60,7 +60,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          journeyAnswers.displayDeclaration
+          claimAnswers.displayDeclaration
         )
 
       codes.size shouldBe 17
@@ -74,9 +74,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
-      val journeyAnswers =
-        OverpaymentsSingleJourneyGenerators.completeJourneyGen.sample
-          .getOrElse(OverpaymentsSingleJourneyGenerators.emptyJourney)
+      val claimAnswers =
+        OverpaymentsSingleClaimGenerators.completeClaimGen.sample
+          .getOrElse(OverpaymentsSingleClaimGenerators.emptyClaim)
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
@@ -86,7 +86,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val codes: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          journeyAnswers.displayDeclaration
+          claimAnswers.displayDeclaration
         )
 
       codes.size shouldBe 16

@@ -30,11 +30,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithJourneyGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.SecuritiesJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class AddOtherDocumentsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryMatchers
-    with TestWithJourneyGenerator[SecuritiesJourney] {
+    with TestWithClaimGenerator[SecuritiesClaim] {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -64,12 +64,12 @@ class AddOtherDocumentsControllerSpec
       def performAction: Future[Result] = controller.show(FakeRequest())
 
       "display the page if securities feature is enabled and RfS is IPR" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -83,12 +83,12 @@ class AddOtherDocumentsControllerSpec
       }
 
       "display the page if securities feature is enabled and RfS is for NIDAC" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForNidac
+          claimBuilder = buildSecuritiesClaimReadyForNidac
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -109,12 +109,12 @@ class AddOtherDocumentsControllerSpec
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
       "select 'Yes' should redirect to choose document type page when RfS is IPR" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -128,12 +128,12 @@ class AddOtherDocumentsControllerSpec
       }
 
       "select 'Yes' should redirect to choose document type page when RfS is for NIDAC" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForNidac
+          claimBuilder = buildSecuritiesClaimReadyForNidac
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -147,12 +147,12 @@ class AddOtherDocumentsControllerSpec
       }
 
       "select 'No' should redirect to choose payee type page when RfS is IPR" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForIPR
+          claimBuilder = buildSecuritiesClaimReadyForIPR
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -166,12 +166,12 @@ class AddOtherDocumentsControllerSpec
       }
 
       "select 'No' should redirect to choose payee type page when RfS is for NIDAC" in forSomeWith(
-        JourneyGenerator(
+        ClaimGenerator(
           testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
-          journeyBuilder = buildSecuritiesJourneyReadyForNidac
+          claimBuilder = buildSecuritiesClaimReadyForNidac
         )
-      ) { case (journey, _) =>
-        val updatedSession = SessionData(journey)
+      ) { case (claim, _) =>
+        val updatedSession = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()

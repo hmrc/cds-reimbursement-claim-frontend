@@ -22,16 +22,16 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_eori_number
 
 import scala.concurrent.Future
 
-trait EnterNewEoriNumberMixin extends JourneyBaseController {
+trait EnterNewEoriNumberMixin extends ClaimBaseController {
 
-  type Journey <: journeys.Journey & journeys.JourneyBase & journeys.OverpaymentsJourneyProperties
+  type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
 
   val eoriDetailsConnector: EoriDetailsConnector
   val newEoriPage: enter_new_eori_number
@@ -39,25 +39,25 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
   val continueAction: Call
   val formKey: String = "enter-new-eori-number"
 
-  def modifyJourney(journey: Journey, eori: Eori): Journey
+  def modifyClaim(claim: Claim, eori: Eori): Claim
 
-  def getNewEoriAnswer(journey: Journey): Option[Eori] =
-    journey.answers.newEori
+  def getNewEoriAnswer(claim: Claim): Option[Eori] =
+    claim.answers.newEori
 
-  def getImporterEori(journey: Journey) =
-    journey.getConsigneeEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
+  def getImporterEori(claim: Claim) =
+    claim.getConsigneeEoriFromACC14.getOrElse(claim.answers.userEoriNumber)
 
   private def newEoriStartWithValidCountryCode(newEori: Eori, importerEori: Eori): Option[String] = importerEori match
     case importEori if importEori.isGBEori && !newEori.isGBEori                        => Some("mustStartWithGB")
     case importEori if (importEori.isXiEori | importEori.isEuEori) && newEori.isGBEori => Some("mustNotStartWithGB")
     case _                                                                             => None
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     Future.successful {
       Ok(
         newEoriPage(
           eoriNumberForm(formKey)
-            .withDefault(getNewEoriAnswer(journey)),
+            .withDefault(getNewEoriAnswer(claim)),
           postAction
         )
       )
@@ -65,14 +65,14 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
   }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteJourney { implicit request => journey =>
+    actionReadWriteClaim { implicit request => claim =>
       eoriNumberForm(formKey)
         .bindFromRequest()
         .fold(
           formWithErrors =>
             Future.successful(
               (
-                journey,
+                claim,
                 BadRequest(
                   newEoriPage(
                     formWithErrors,
@@ -82,11 +82,11 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
               )
             ),
           eori =>
-            newEoriStartWithValidCountryCode(eori, getImporterEori(journey)) match {
+            newEoriStartWithValidCountryCode(eori, getImporterEori(claim)) match {
               case Some(errorMessageKey) =>
                 Future.successful(
                   (
-                    journey,
+                    claim,
                     BadRequest(
                       newEoriPage(
                         eoriNumberForm(formKey)
@@ -100,11 +100,11 @@ trait EnterNewEoriNumberMixin extends JourneyBaseController {
               case None                  =>
                 eoriDetailsConnector.getEoriDetails(eori).flatMap {
                   case Some(_) =>
-                    Future.successful((modifyJourney(journey, eori), Redirect(continueAction)))
+                    Future.successful((modifyClaim(claim, eori), Redirect(continueAction)))
                   case None    =>
                     Future.successful(
                       (
-                        journey,
+                        claim,
                         BadRequest(
                           newEoriPage(
                             eoriNumberForm(formKey)

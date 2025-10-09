@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
@@ -38,21 +38,21 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class UploadMrnListController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   uploadDocumentsConnector: UploadDocumentsConnector,
   val uploadDocumentsConfig: UploadDocumentsConfig,
   val fileUploadConfig: FileUploadConfig,
   val upload_mrn_list_description: upload_mrn_list_description
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController {
+    extends RejectedGoodsScheduledClaimBaseController {
 
   final val backlinkUrl: Call    = routes.CheckDeclarationDetailsController.show
   final val callbackAction: Call = routes.UploadMrnListController.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
     val continueUrl: Call =
-      if journey.hasCompleteAnswers then checkYourAnswers
+      if claim.hasCompleteAnswers then checkYourAnswers
       else routes.BasisForClaimController.show
 
     uploadDocumentsConnector
@@ -60,10 +60,10 @@ class UploadMrnListController @Inject() (
         UploadDocumentsConnector
           .Request(
             uploadDocumentsSessionConfig(
-              journey.answers.nonce,
+              claim.answers.nonce,
               continueUrl
             ),
-            journey.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty)
+            claim.answers.scheduledDocument.map(file => Seq(file)).getOrElse(Seq.empty)
           )
       )
       .map {
@@ -76,8 +76,8 @@ class UploadMrnListController @Inject() (
       }
   }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteJourneyWhenCallback(implicit request =>
-    journey =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaimWhenCallback(implicit request =>
+    claim =>
       request
         .asInstanceOf[Request[AnyContent]]
         .body
@@ -85,22 +85,22 @@ class UploadMrnListController @Inject() (
         .flatMap(_.asOpt[UploadMrnListCallback]) match {
         case None =>
           logger.warn("missing or invalid callback payload")
-          (journey, BadRequest("missing or invalid callback payload"))
+          (claim, BadRequest("missing or invalid callback payload"))
 
         case Some(callback) =>
           callback.uploadedFiles.headOption match {
             case Some(uploadedFile) =>
-              journey
+              claim
                 .receiveScheduledDocument(
                   callback.nonce,
                   uploadedFile
                 )
                 .fold(
-                  error => (journey, BadRequest(error)),
-                  modifiedJourney => (modifiedJourney, NoContent)
+                  error => (claim, BadRequest(error)),
+                  modifiedClaim => (modifiedClaim, NoContent)
                 )
             case None               =>
-              (journey.removeScheduledDocument, NoContent)
+              (claim.removeScheduledDocument, NoContent)
           }
 
       }

@@ -22,9 +22,9 @@ import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyTypesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_types
 
 import javax.inject.Inject
@@ -33,33 +33,33 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectDutyTypesController @Inject() (
-  val jcc: JourneyControllerComponents,
+  val jcc: ClaimControllerComponents,
   selectDutyTypesPage: select_duty_types
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
-    extends RejectedGoodsScheduledJourneyBaseController {
+    extends RejectedGoodsScheduledClaimBaseController {
 
   val postAction: Call = routes.SelectDutyTypesController.submit
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
-  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledJourney]] =
+  final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadJourney { implicit request => _ =>
+  val show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
     val form = selectDutyTypesForm
 
     Ok(selectDutyTypesPage(form, postAction))
 
   }
 
-  val submit: Action[AnyContent] = actionReadWriteJourney(
+  val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit request =>
-      journey =>
+      claim =>
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
               (
-                journey,
+                claim,
                 BadRequest(
                   selectDutyTypesPage(
                     formWithErrors,
@@ -68,18 +68,18 @@ class SelectDutyTypesController @Inject() (
                 )
               ),
             dutyTypes =>
-              journey
+              claim
                 .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
                 .fold(
                   errors => {
                     logger.error(s"Error updating duty types selection - $errors")
-                    (journey, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
+                    (claim, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
                   },
-                  updatedJourney =>
+                  updatedClaim =>
                     (
-                      updatedJourney,
+                      updatedClaim,
                       Redirect(
-                        if updatedJourney.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+                        if updatedClaim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
                         else
                           routes.SelectDutiesController
                             .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))

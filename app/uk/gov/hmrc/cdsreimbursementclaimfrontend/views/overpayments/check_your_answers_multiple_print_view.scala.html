@@ -18,7 +18,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.OverpaymentsMultipleJourney
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 @import java.time.LocalDateTime
 
 @this(
@@ -27,7 +27,7 @@
     cyaCommon: check_your_answers_multiple_common
 )
 
-@(caseNumber: String, claim: OverpaymentsMultipleJourney.Output, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(caseNumber: String, claim: OverpaymentsMultipleClaim.Output, submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @layout() {
     @card(messages("check-your-answers.print-view.submission-details"), CheckYourAnswersPrintViewHelper.render(caseNumber, submissionDate = submissionDate))

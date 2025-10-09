@@ -41,7 +41,7 @@ final case class RequestWithSessionDataAndRetrievedData[A](
   def whenAuthorisedUser(f: (Eori, Option[String]) => Future[Result])(resultIfUnsupportedUser: => Result)(implicit
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
-    request.authenticatedRequest.journeyUserType match {
+    request.authenticatedRequest.claimUserType match {
       case AuthenticatedUser.NonGovernmentGatewayAuthenticatedUser(_) =>
         Future.successful(resultIfUnsupportedUser)
 

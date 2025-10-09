@@ -33,9 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourneyGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsScheduledJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
@@ -48,7 +48,7 @@ import scala.concurrent.Future
 
 class EnterDeclarantEoriNumberControllerSpec
     extends ControllerSpec
-    with JourneyTestData
+    with ClaimTestData
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -67,7 +67,7 @@ class EnterDeclarantEoriNumberControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val session = SessionData(
-    RejectedGoodsScheduledJourney
+    RejectedGoodsScheduledClaim
       .empty(anotherExampleEori)
       .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
       .getOrFail
@@ -79,7 +79,7 @@ class EnterDeclarantEoriNumberControllerSpec
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
 
-      "display the page on a new journey" in {
+      "display the page on a new claim" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
@@ -103,7 +103,7 @@ class EnterDeclarantEoriNumberControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              RejectedGoodsScheduledJourney
+              RejectedGoodsScheduledClaim
                 .empty(exampleDisplayDeclaration.getDeclarantEori)
                 .submitMovementReferenceNumberAndDeclaration(
                   exampleDisplayDeclaration.getMRN,
@@ -120,14 +120,14 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "display the page on a pre-existing journey" in forAll(
-        buildCompleteJourneyGen(
+      "display the page on a pre-existing claim" in forAll(
+        buildCompleteClaimGen(
           acc14DeclarantMatchesUserEori = false,
           acc14ConsigneeMatchesUserEori = false
         )
-      ) { journey =>
-        val eori           = journey.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber).value
-        val sessionToAmend = SessionData(journey)
+      ) { claim =>
+        val eori           = claim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber).value
+        val sessionToAmend = SessionData(claim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -187,21 +187,21 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "submit a valid Eori which is the Consignee Eori" in forAll {
         (mrn: MRN, eori: Eori, declaration: DisplayDeclaration, details: DeclarantDetails) =>
-          val initialJourney = session.rejectedGoodsScheduledJourney.value
+          val initialClaim = session.rejectedGoodsScheduledClaim.value
 
           val displayDeclaration            = declaration.withDeclarationId(mrn.value)
           val declarantDetails              = details.copy(declarantEORI = eori.value)
           val updatedDisplayResponseDetails =
             displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
           val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-          val journey                       =
-            initialJourney
+          val claim                         =
+            initialClaim
               .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
               .getOrFail
 
-          val requiredSession = SessionData(journey)
-          val updatedJourney  = journey.submitDeclarantEoriNumber(eori)
-          val updatedSession  = session.copy(rejectedGoodsScheduledJourney = updatedJourney.toOption)
+          val requiredSession = SessionData(claim)
+          val updatedClaim    = claim.submitDeclarantEoriNumber(eori)
+          val updatedSession  = session.copy(rejectedGoodsScheduledClaim = updatedClaim.toOption)
 
           inSequence {
             mockAuthWithDefaultRetrievals()
@@ -218,7 +218,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "submit a valid Eori which is not the declarant" in forAll {
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori, declaration: DisplayDeclaration) =>
           whenever(enteredDeclarantEori !== wantedDeclarant) {
-            val initialJourney = session.rejectedGoodsScheduledJourney.value
+            val initialClaim = session.rejectedGoodsScheduledClaim.value
 
             val displayDeclaration            = declaration.withDeclarationId(mrn.value)
             val declarantDetails              = displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
@@ -226,12 +226,12 @@ class EnterDeclarantEoriNumberControllerSpec
               displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-            val journey                       =
-              initialJourney
+            val claim                         =
+              initialClaim
                 .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
                 .getOrFail
 
-            val requiredSession = SessionData(journey)
+            val requiredSession = SessionData(claim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()

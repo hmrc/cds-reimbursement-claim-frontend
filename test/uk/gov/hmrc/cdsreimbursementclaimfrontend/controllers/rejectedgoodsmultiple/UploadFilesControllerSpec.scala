@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConne
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsMultipleJourneyGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -71,8 +71,8 @@ class UploadFilesControllerSpec
       def performAction(): Future[Result] = controller.show(FakeRequest())
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
-        val journey =
-          RejectedGoodsMultipleJourney
+        val claim =
+          RejectedGoodsMultipleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .map(_.submitDocumentTypeSelection(UploadDocumentType.AirWayBill))
@@ -82,7 +82,7 @@ class UploadFilesControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              journey.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
+              claim.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
             )
           )
           mockInitializeCall()
@@ -95,8 +95,8 @@ class UploadFilesControllerSpec
       }
 
       "redirect to 'Upload Documents' when document type set and some files uploaded already" in {
-        val journey =
-          RejectedGoodsMultipleJourney
+        val claim =
+          RejectedGoodsMultipleClaim
             .empty(exampleDisplayDeclaration.getDeclarantEori)
             .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
             .getOrFail
@@ -104,11 +104,11 @@ class UploadFilesControllerSpec
           mockAuthWithDefaultRetrievals()
           mockGetSession(
             SessionData(
-              journey
+              claim
                 .submitDocumentTypeSelection(UploadDocumentType.AirWayBill)
                 .receiveUploadedFiles(
                   Some(UploadDocumentType.AirWayBill),
-                  journey.answers.nonce,
+                  claim.answers.nonce,
                   Seq(exampleUploadedFile)
                 )
                 .getOrFail
@@ -123,16 +123,16 @@ class UploadFilesControllerSpec
         )
       }
 
-      "redirect to 'Upload Documents' if journey has complete answers and document type set" in {
-        forAll(completeJourneyGen) { journey =>
+      "redirect to 'Upload Documents' if claim has complete answers and document type set" in {
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(
               SessionData(
-                journey.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
+                claim.submitDocumentTypeSelection(UploadDocumentType.CommercialInvoice)
               )
             )
-            mockInitializeCall(journey.answers.supportingEvidences)
+            mockInitializeCall(claim.answers.supportingEvidences)
           }
 
           checkIsRedirect(
@@ -142,11 +142,11 @@ class UploadFilesControllerSpec
         }
       }
 
-      "redirect to document type selection if journey has complete answers but document type not set" in {
-        forAll(completeJourneyGen) { journey =>
+      "redirect to document type selection if claim has complete answers but document type not set" in {
+        forAll(completeClaimGen) { claim =>
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(journey))
+            mockGetSession(SessionData(claim))
           }
 
           checkIsRedirect(
@@ -171,23 +171,23 @@ class UploadFilesControllerSpec
         )
 
       "return 204 if callback accepted" in {
-        val journey = journeyWithMrnAndDeclaration
+        val claim  = claimWithMrnAndDeclaration
         inSequence {
           mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(journey))
+          mockGetSession(SessionData(claim))
           mockStoreSession(
             SessionData(
-              journey
+              claim
                 .receiveUploadedFiles(
                   Some(UploadDocumentType.CommercialInvoice),
-                  journey.answers.nonce,
+                  claim.answers.nonce,
                   Seq(exampleUploadedFile)
                 )
                 .getOrFail
             )
           )(Right(()))
         }
-        val result  = performAction(callbackPayload.copy(nonce = journey.answers.nonce))
+        val result = performAction(callbackPayload.copy(nonce = claim.answers.nonce))
         status(result) shouldBe 204
       }
 
@@ -195,7 +195,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDeclaration)
+            SessionData(claimWithMrnAndDeclaration)
           )
         }
         val result = performAction(callbackPayload.copy(nonce = Nonce.random))
@@ -206,7 +206,7 @@ class UploadFilesControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(
-            SessionData(journeyWithMrnAndDeclaration)
+            SessionData(claimWithMrnAndDeclaration)
           )
         }
         val result = controller.submit(FakeRequest().withJsonBody(Json.parse("""{"foo":"bar"}""")))
