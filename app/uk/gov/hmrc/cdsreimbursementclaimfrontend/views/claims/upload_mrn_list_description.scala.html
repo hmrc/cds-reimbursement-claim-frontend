@@ -16,15 +16,11 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
     bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
-    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading,
-    fileUploadConfig: FileUploadConfig,
-    viewConfig: ViewConfig
+    subHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sub_heading
 )
 
 @(key: String, claim: String)(implicit messages: Messages)

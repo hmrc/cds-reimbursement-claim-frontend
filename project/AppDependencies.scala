@@ -5,11 +5,11 @@ import sbt.librarymanagement.InclExclRule
 object AppDependencies {
 
   val jsoupVersion         = "1.21.2"
-  val hmrcMongoPlayVersion = "2.7.0"
+  val hmrcMongoPlayVersion = "2.10.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % "10.1.0",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % "12.12.0",
+    "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % "10.2.0",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % "12.17.0",
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"     %% "cats-core"                  % "2.13.0"
   )
