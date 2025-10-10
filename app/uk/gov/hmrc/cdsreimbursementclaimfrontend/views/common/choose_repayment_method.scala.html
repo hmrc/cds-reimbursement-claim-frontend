@@ -61,19 +61,22 @@
             classes = "govuk-fieldset__legend--l",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = Seq(
+
+                    RadioItem(
+                    id = Some(s"reimbursement-method-bank-transfer"),
+                    value = Some("1"),
+                    content = HtmlContent(messages(s"reimbursement-method.bank-transfer")),
+                    checked = form.value.contains(BankAccountTransfer)
+
+                    ),
                 RadioItem(
                     id = Some(s"reimbursement-method-cma"),
                     value = Some("0"),
                     content = HtmlContent(messages(s"reimbursement-method.cma")),
-                    checked = form.value.contains(CurrentMonthAdjustment)
-                ),
-                RadioItem(
-                    id = Some(s"reimbursement-method-bank-transfer"),
-                    value = Some("1"),
-                    content = HtmlContent(messages(s"reimbursement-method.bank-transfer")),
-                    checked = form.value.contains(BankAccountTransfer),
+                    checked = form.value.contains(CurrentMonthAdjustment),
                     hint = Some(Hint(content = HtmlContent(messages(s"reimbursement-method.payment-option.hint"))))
                 )
+
             )
         )
         @submitButton("button.continue")
