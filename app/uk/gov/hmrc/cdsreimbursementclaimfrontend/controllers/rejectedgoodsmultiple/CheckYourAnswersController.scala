@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsMultipl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimLog
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -105,7 +105,7 @@ class CheckYourAnswersController @Inject() (
                   s"Successful submit of claim for ${output.movementReferenceNumbers.mkString(",")} with case number ${response.caseNumber}."
                 )
                 val summary =
-                  ClaimLog(output, claim.answers.userEoriNumber.value, Some(response.caseNumber), claim)
+                  JourneyLog(output, claim.answers.userEoriNumber.value, Some(response.caseNumber), claim)
                     .logInfo()
                 auditService.sendSuccessfulClaimEvent(claim, output, summary)
                 uploadDocumentsConnector.wipeOut
@@ -120,7 +120,7 @@ class CheckYourAnswersController @Inject() (
                 logger.error(
                   s"Failed to submit claim for ${output.movementReferenceNumbers.mkString(",")} because of $e."
                 )
-                val summary = ClaimLog(output, claim.answers.userEoriNumber.value, None, claim).logError(e)
+                val summary = JourneyLog(output, claim.answers.userEoriNumber.value, None, claim).logError(e)
                 auditService.sendFailedClaimEvent(claim, output, summary)
                 (claim, Ok(submitClaimFailedPage()))
               }

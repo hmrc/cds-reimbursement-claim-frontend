@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import play.api.Logger
 import play.api.libs.json.JsObject
@@ -22,8 +22,9 @@ import play.api.libs.json.JsString
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.*
 
-final case class ClaimLog(
+final case class JourneyLog(
   journeyType: String,
   journeyVariant: String,
   numberOfMultipleMRNs: Option[Int] = None,
@@ -39,29 +40,29 @@ final case class ClaimLog(
   claimedAmountThreshold: String,
   claimedDuties: Seq[String],
   numberOfClaimedDuties: Int,
-  uploads: ClaimLog.Uploads,
-  changes: ClaimLog.Changes,
+  uploads: JourneyLog.Uploads,
+  changes: JourneyLog.Changes,
   userHash: String,
   caseNumber: Option[String] = None,
   journeyDurationSeconds: Long
 ) {
 
   def logInfo(): JsObject = {
-    val claimLogJson = ClaimLog.formatter.writes(this)
+    val claimLogJson = JourneyLog.formatter.writes(this)
     val jsonString   = Json.stringify(claimLogJson)
     Logger(getClass()).info(s"json$jsonString")
     claimLogJson
   }
 
   def logError(e: Throwable): JsObject = {
-    val claimLogJson = ClaimLog.formatter.writes(this).+("error" -> JsString(e.getMessage()))
+    val claimLogJson = JourneyLog.formatter.writes(this).+("error" -> JsString(e.getMessage()))
     val jsonString   = Json.stringify(claimLogJson)
     Logger(getClass()).error(s"json$jsonString")
     claimLogJson
   }
 }
 
-object ClaimLog {
+object JourneyLog {
 
   final case class Uploads(
     numberOfEvidenceFilesAttached: Int,
@@ -97,8 +98,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
@@ -133,8 +134,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "multiple",
       numberOfMultipleMRNs = Some(output.movementReferenceNumbers.size),
@@ -169,8 +170,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "overpayments",
       journeyVariant = "scheduled",
       numberOfMultipleMRNs = None,
@@ -205,8 +206,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
@@ -241,8 +242,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "multiple",
       numberOfMultipleMRNs = Some(output.movementReferenceNumbers.size),
@@ -277,8 +278,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "rejectedgoods",
       journeyVariant = "scheduled",
       numberOfMultipleMRNs = None,
@@ -313,8 +314,8 @@ object ClaimLog {
     userEORI: String,
     caseNumber: Option[String],
     analytics: ClaimAnalytics
-  ): ClaimLog =
-    ClaimLog(
+  ): JourneyLog =
+    JourneyLog(
       journeyType = "securities",
       journeyVariant = "single",
       numberOfMultipleMRNs = None,
@@ -360,5 +361,5 @@ object ClaimLog {
 
   implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]
   implicit val formatterChanges: OFormat[Changes] = Json.using[Json.WithDefaultValues].format[Changes]
-  implicit val formatter: OFormat[ClaimLog]       = Json.format[ClaimLog]
+  implicit val formatter: OFormat[JourneyLog]     = Json.format[JourneyLog]
 }

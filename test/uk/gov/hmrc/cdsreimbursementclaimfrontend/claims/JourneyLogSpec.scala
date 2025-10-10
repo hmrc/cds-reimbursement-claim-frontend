@@ -19,12 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import java.time.LocalDate
 import scala.collection.immutable.SortedMap
 
-class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
+class JourneyLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
 
   case class TestClaimAnalytics(
     claimDurationSeconds: Long = 12345,
@@ -69,7 +70,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
           newEoriAndDan = None
         )
 
-      val log = ClaimLog.apply(
+      val log = JourneyLog.apply(
         output,
         "123EORI",
         Some("REF-1234"),
@@ -130,7 +131,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
         )
 
       val log =
-        ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(emailAddressHasChanged = false))
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(emailAddressHasChanged = false))
 
       log.journeyType                           shouldBe "overpayments"
       log.journeyVariant                        shouldBe "multiple"
@@ -195,7 +196,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
         )
 
       val log =
-        ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(contactNameHasChanged = false))
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(contactNameHasChanged = false))
 
       log.journeyType                           shouldBe "overpayments"
       log.journeyVariant                        shouldBe "scheduled"
@@ -268,7 +269,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
         )
 
       val log =
-        ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(phoneNumberHasChanged = false))
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(phoneNumberHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "single"
@@ -327,7 +328,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
         )
 
       val log =
-        ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(contactAddressHasChanged = false))
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(contactAddressHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "multiple"
@@ -395,7 +396,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
         )
 
       val log =
-        ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(bankAccountHasChanged = false))
+        JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics(bankAccountHasChanged = false))
 
       log.journeyType                           shouldBe "rejectedgoods"
       log.journeyVariant                        shouldBe "scheduled"
@@ -452,7 +453,7 @@ class ClaimLogSpec extends AnyWordSpec with Matchers with ClaimTestData {
           exportMovementReferenceNumber = Some(Seq(anotherExampleMrn))
         )
 
-      val log = ClaimLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics())
+      val log = JourneyLog.apply(output, "123EORI", Some("REF-1234"), TestClaimAnalytics())
 
       log.journeyType                           shouldBe "securities"
       log.journeyVariant                        shouldBe "single"
