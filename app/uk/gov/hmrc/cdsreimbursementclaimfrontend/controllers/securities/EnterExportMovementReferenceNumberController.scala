@@ -19,9 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Forms.mapping
-import play.api.data.Forms.optional
-import play.api.data.Forms.nonEmptyText
 import play.api.data.Form
 import play.api.data.FormError
 import play.api.mvc.Action
@@ -30,12 +27,12 @@ import play.api.mvc.Request
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.firstExportMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.nextExportMovementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
@@ -66,6 +63,9 @@ class EnterExportMovementReferenceNumberController @Inject() (
       hasMRNAndDisplayDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
+
+  private val enterFirstExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
+  private val enterNextExportMovementReferenceNumberKey: String  = "enter-export-movement-reference-number.next"
 
   def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
     if claim.isSingleSecurity
@@ -389,45 +389,4 @@ class EnterExportMovementReferenceNumberController @Inject() (
         (claim, Redirect(nextStepInClaim(claim))).asFuture
     }
 
-}
-
-object EnterExportMovementReferenceNumberController {
-  val enterFirstExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
-  val enterNextExportMovementReferenceNumberKey: String  = "enter-export-movement-reference-number.next"
-
-  val firstExportMovementReferenceNumberForm: Form[(MRN, YesNo)] =
-    Form(
-      mapping(
-        enterFirstExportMovementReferenceNumberKey                       ->
-          nonEmptyText
-            .verifying(
-              "securities.invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value),
-        s"$enterFirstExportMovementReferenceNumberKey.securities.yes-no" ->
-          YesOrNoQuestionForm.yesNoMapping(
-            s"$enterFirstExportMovementReferenceNumberKey.securities.yes-no"
-          )
-      )(Tuple2.apply)(Tuple2.unapply)
-    )
-
-  val nextExportMovementReferenceNumberForm: Form[(MRN, Option[YesNo])] =
-    Form(
-      mapping(
-        enterNextExportMovementReferenceNumberKey                        ->
-          nonEmptyText
-            .verifying(
-              "securities.invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value),
-        s"$enterFirstExportMovementReferenceNumberKey.securities.yes-no" ->
-          optional(
-            YesOrNoQuestionForm.yesNoMapping(
-              s"$enterFirstExportMovementReferenceNumberKey.securities.yes-no"
-            )
-          )
-      )(Tuple2.apply)(Tuple2.unapply)
-    )
 }

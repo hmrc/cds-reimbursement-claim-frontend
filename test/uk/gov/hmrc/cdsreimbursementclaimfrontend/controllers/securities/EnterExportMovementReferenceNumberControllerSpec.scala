@@ -703,7 +703,7 @@ class EnterExportMovementReferenceNumberControllerSpec
               )
             ),
             messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "second"),
-            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.securities.error.duplicate-number")
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.error.duplicate-number")
           )
         }
 
@@ -730,7 +730,7 @@ class EnterExportMovementReferenceNumberControllerSpec
               )
             ),
             messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.title", "third"),
-            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKey.securities.error.import")
+            messageFromMessageKey(s"$enterExportMovementReferenceNumberMultipleKeyAndSubKey.error.import")
           )
         }
       }

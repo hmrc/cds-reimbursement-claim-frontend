@@ -163,28 +163,6 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "reject an invalid MRN" in {
-        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
-
-        val claim: OverpaymentsSingleClaim =
-          claimGen.sample.get
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(claim))
-        }
-
-        checkPageIsDisplayed(
-          performAction(enterDuplicateMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey("enter-duplicate-movement-reference-number.title"),
-          doc =>
-            getErrorSummary(doc) shouldBe messageFromMessageKey(
-              "enter-duplicate-movement-reference-number.invalid.number"
-            ),
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
       "reject an empty MRN" in {
         val claim: OverpaymentsSingleClaim =
           claimGen.sample.get
@@ -277,6 +255,21 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
               routes.EnterImporterEoriNumberOfDuplicateDeclaration.show
             )
           }
+      }
+
+      "reject an MRN that matches the lead MRN" in forAll(claimGen) { claim =>
+        val mrn = claim.getLeadMovementReferenceNumber.getOrElse(fail("Failed to get lead MRN"))
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkPageWithErrorIsDisplayed(
+          performAction(enterDuplicateMovementReferenceNumberKey -> mrn.value),
+          messageFromMessageKey("enter-duplicate-movement-reference-number.title"),
+          messageFromMessageKey("enter-duplicate-movement-reference-number.invalid.enter-different-mrn")
+        )
       }
     }
   }

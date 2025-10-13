@@ -142,22 +142,6 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
 
-      "reject an invalid formatted MRN" in {
-        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey("enter-movement-reference-number.scheduled.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.number"),
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
       "reject an empty MRN" in {
         inSequence {
           mockAuthWithDefaultRetrievals()

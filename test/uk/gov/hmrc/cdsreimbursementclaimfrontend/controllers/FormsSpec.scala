@@ -20,15 +20,18 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.data.Form
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks {
 
   "Eori Form" should {
-    val eoriNumber = "enter-declarant-eori-number"
-    val form       = Forms.eoriNumberForm(eoriNumber)
+    val eoriNumber       = "enter-declarant-eori-number"
+    val form: Form[Eori] = Forms.eoriNumberForm(eoriNumber)
 
     "Accept a valid Eori" in forAll { (eori: Eori) =>
       val errors = form.bind(Map(eoriNumber -> eori.value)).errors
@@ -53,6 +56,166 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
     "Reject way too long Eori" in forAll(Gen.listOfN(17, Gen.numChar)) { ending =>
       val errors = form.bind(Map(eoriNumber -> s"GB${ending.mkString}")).errors
       errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+    }
+  }
+
+  "MRN Form" should {
+    val mrnKey          = "enter-movement-reference-number"
+    val form: Form[MRN] = Forms.movementReferenceNumberForm
+
+    "Accept a valid MRN" in forAll(genMRN) { mrn =>
+      val errors = form.bind(Map(mrnKey -> mrn.value)).errors
+      errors shouldBe Nil
+    }
+
+    "Reject empty MRN" in {
+      val errors = form.bind(Map(mrnKey -> "")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
+    }
+
+    "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
+      val errors = form.bind(Map(mrnKey -> mrnChars.toString())).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+    }
+
+    "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
+      val errors = form.bind(Map(mrnKey -> mrnChars.toString())).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+    }
+
+    "Reject MRN containing special characters" in {
+      val errors = form.bind(Map(mrnKey -> "01AAAAAA*AAAAAAAA2")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.characters")
+    }
+
+    "Reject MRN in the wrong format" in {
+      val errors = form.bind(Map(mrnKey -> "12AAAAAAAAAAAAAAAB")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.format")
+    }
+  }
+
+  "Export MRN Forms" when {
+    val mrnKey                                 = "enter-export-movement-reference-number"
+    val firstExportMrnForm: Form[(MRN, YesNo)] = Forms.firstExportMovementReferenceNumberForm
+    val firstYesNoKey                          = s"$mrnKey.securities.yes-no"
+
+    "First export MRN" should {
+      "Accept a valid MRN" in forAll(genMRN) { mrn =>
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrn.value, firstYesNoKey -> "true")).errors
+        errors shouldBe Nil
+      }
+
+      "Reject empty MRN" in {
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> "", firstYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
+      }
+
+      "Reject empty yes no option" in {
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> genMRN.sample.get.value, firstYesNoKey -> "")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
+      }
+
+      "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrnChars.toString(), firstYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+      }
+
+      "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrnChars.toString(), firstYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+      }
+
+      "Reject MRN containing special characters" in {
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> "01AAAAAA*AAAAAAAA2", firstYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.characters")
+      }
+
+      "Reject MRN in the wrong format" in {
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> "12AAAAAAAAAAAAAAAB", firstYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.format")
+      }
+    }
+
+    "Next export MRN" should {
+      val nextMrnKey                                    = "enter-export-movement-reference-number.next"
+      val nextExportMrnForm: Form[(MRN, Option[YesNo])] = Forms.nextExportMovementReferenceNumberForm
+      val nextYesNoKey                                  = s"$nextMrnKey.securities.yes-no"
+
+      "Accept a valid MRN" in forAll(genMRN) { mrn =>
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrn.value, nextYesNoKey -> "true")).errors
+        errors shouldBe Nil
+      }
+
+      "Reject empty MRN" in {
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> "", nextYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
+      }
+
+      "Accept empty optional yes no option" in {
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> genMRN.sample.get.value, nextYesNoKey -> "")).errors
+        errors shouldBe Nil
+      }
+
+      "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrnChars.toString(), nextYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+      }
+
+      "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrnChars.toString(), nextYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+      }
+
+      "Reject MRN containing special characters" in {
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> "01AAAAAA*AAAAAAAA2", nextYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.characters")
+      }
+
+      "Reject MRN in the wrong format" in {
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> "12AAAAAAAAAAAAAAAB", nextYesNoKey -> "true")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.format")
+      }
+    }
+  }
+
+  "Duplicate MRN Form" should {
+    val mrnKey          = "enter-duplicate-movement-reference-number"
+    val mainMrn         = MRN("01AAAAAAAAAAAAAAA2")
+    val form: Form[MRN] = Forms.enterDuplicateMrnCheckingAgainst(mainMrn)
+
+    "Accept a valid MRN" in forAll(genMRN) { mrn =>
+      val errors = form.bind(Map(mrnKey -> mrn.value)).errors
+      errors shouldBe Nil
+    }
+
+    "Reject empty MRN" in {
+      val errors = form.bind(Map(mrnKey -> "")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
+    }
+
+    "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
+      val errors = form.bind(Map(mrnKey -> mrnChars.toString())).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+    }
+
+    "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
+      val errors = form.bind(Map(mrnKey -> mrnChars.toString())).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
+    }
+
+    "Reject MRN containing special characters" in {
+      val errors = form.bind(Map(mrnKey -> "01AAAAAA*AAAAAAAA2")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.characters")
+    }
+
+    "Reject MRN in the wrong format" in {
+      val errors = form.bind(Map(mrnKey -> "12AAAAAAAAAAAAAAAB")).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.format")
+    }
+
+    "Reject MRN matching main MRN" in {
+      val errors = form.bind(Map(mrnKey -> mainMrn.value)).errors
+      errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.enter-different-mrn")
     }
   }
 

@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
@@ -160,27 +159,6 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      "reject an invalid MRN" in {
-        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(enterMovementReferenceNumberKey -> invalidMRN.value),
-          messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
-          doc => {
-            getErrorSummary(doc)                                        shouldBe messageFromMessageKey(
-              s"$enterMovementReferenceNumberKeyAndSubKey.invalid.number"
-            )
-            doc.getElementById(enterMovementReferenceNumberKey).`val`() shouldBe invalidMRN.value
-          },
-          expectedStatus = BAD_REQUEST
-        )
-      }
-
       "reject an empty MRN" in {
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -192,7 +170,7 @@ class EnterMovementReferenceNumberControllerSpec
           messageFromMessageKey(s"$enterMovementReferenceNumberKeyAndSubKey.title"),
           doc =>
             getErrorSummary(doc) shouldBe messageFromMessageKey(
-              s"$enterMovementReferenceNumberKeyAndSubKey.error.required"
+              s"$enterMovementReferenceNumberKey.error.required"
             ),
           expectedStatus = BAD_REQUEST
         )
