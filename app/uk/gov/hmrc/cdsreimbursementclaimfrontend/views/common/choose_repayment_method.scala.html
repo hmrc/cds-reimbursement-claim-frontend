@@ -23,13 +23,13 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
 
 @this(
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
-    heading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph,
@@ -48,35 +48,35 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title), classes="govuk-heading-xl cds-wrap-content")
 
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
-        @dropdownDetails(
-            summary = s"reimbursement-method.details.title",
-            html(paragraph(Html(messages(s"reimbursement-method.details.p1"))))
-        )
+
 
         @radios(
             form = form,
             name = key,
-            legend = "",
-            legendAsHeading = false,
-            classes = "",
+            legend = title,
+            legendAsHeading = true,
+            classes = "govuk-fieldset__legend--l",
             paddingClasses = "govuk-!-margin-bottom-6 govuk-!-margin-top-0",
             items = Seq(
-                RadioItem(
-                    id = Some(s"reimbursement-method-cma"),
-                    value = Some("0"),
-                    content = HtmlContent(messages(s"reimbursement-method.cma")),
-                    checked = form.value.contains(CurrentMonthAdjustment)
-                ),
-                RadioItem(
+
+                    RadioItem(
                     id = Some(s"reimbursement-method-bank-transfer"),
                     value = Some("1"),
                     content = HtmlContent(messages(s"reimbursement-method.bank-transfer")),
                     checked = form.value.contains(BankAccountTransfer)
+
+                    ),
+                RadioItem(
+                    id = Some(s"reimbursement-method-cma"),
+                    value = Some("0"),
+                    content = HtmlContent(messages(s"reimbursement-method.cma")),
+                    checked = form.value.contains(CurrentMonthAdjustment),
+                    hint = Some(Hint(content = HtmlContent(messages(s"reimbursement-method.payment-option.hint"))))
                 )
+
             )
         )
         @submitButton("button.continue")

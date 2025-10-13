@@ -1494,7 +1494,8 @@ reimbursement-method.details.p1=When Customs Duty or import VAT is overpaid usin
 reimbursement-method.details.title=What is current month adjustment (CMA)?
 reimbursement-method.error.invalid=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
 reimbursement-method.error.required=Select to be repaid by Current Month Adjustment (CMA) or Bank Account Transfer
-reimbursement-method.title=Choose repayment method
+reimbursement-method.title=How would you like to be repaid?
+reimbursement-method.payment-option.hint=If you used a deferment account at the time of import and claim within the adjustment period
 
 rejected-goods.choose-how-many-mrns.details.heading=What is an MRN?
 rejected-goods.choose-how-many-mrns.details.p1=An MRN is a unique 18-digit reference that is issued when an import is declared.
