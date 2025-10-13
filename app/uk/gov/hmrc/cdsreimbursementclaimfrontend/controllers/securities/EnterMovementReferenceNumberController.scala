@@ -18,17 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
-import play.api.data.Forms.text
-import play.api.data.validation.Constraints
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterMovementReferenceNumberController.movementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_movement_reference_number
 
 import scala.concurrent.ExecutionContext
@@ -80,36 +74,4 @@ class EnterMovementReferenceNumberController @Inject() (
             ).asFuture
         )
     }
-}
-
-object EnterMovementReferenceNumberController {
-
-  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
-
-  val movementReferenceNumberForm: Form[MRN] =
-    Form(
-      mapping(
-        enterMovementReferenceNumberKey ->
-          nonEmptyText
-            .verifying(
-              "securities.invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
-
-  val movementReferenceNumberForm2: Form[MRN] =
-    Form(
-      mapping(
-        enterMovementReferenceNumberKey ->
-          text
-            .verifying(Constraints.nonEmpty(errorMessage = "securities.error.required"))
-            .verifying(
-              "securities.invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
-            .transform[MRN](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
 }

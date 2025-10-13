@@ -363,11 +363,15 @@ object Forms {
     Form(
       mapping(
         "enter-movement-reference-number" ->
-          nonEmptyText
-            .verifying(
-              "invalid.number",
-              str => str.isEmpty || MRN(str).isValid
-            )
+          text
+            .transform[String](_.trim, identity)
+            .verifying(Constraint[String] { (str: String) =>
+              if str.isBlank then Invalid("error.required")
+              else if str.length != 18 then Invalid("invalid.length")
+              else if !str.matches("""^\w+$""") then Invalid("invalid.characters")
+              else if !MRN(str).isValid then Invalid("invalid.format")
+              else Valid
+            })
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))
     )
@@ -384,14 +388,62 @@ object Forms {
     Form(
       mapping(
         "enter-duplicate-movement-reference-number" ->
-          nonEmptyText
+          text
+            .transform[String](_.trim, identity)
             .verifying(Constraint[String] { (str: String) =>
-              if str === mainMrn.value then Invalid("invalid.enter-different-mrn")
-              else if str.nonEmpty && !MRN(str).isValid then Invalid("invalid.number")
+              if str.isBlank then Invalid("error.required")
+              else if str === mainMrn.value then Invalid("invalid.enter-different-mrn")
+              else if str.length != 18 then Invalid("invalid.length")
+              else if !str.matches("""^\w+$""") then Invalid("invalid.characters")
+              else if !MRN(str).isValid then Invalid("invalid.format")
               else Valid
             })
             .transform[MRN](MRN(_), _.value)
       )(identity)(Some(_))
+    )
+
+  val firstExportMovementReferenceNumberForm: Form[(MRN, YesNo)] =
+    Form(
+      mapping(
+        "enter-export-movement-reference-number"                   ->
+          text
+            .transform[String](_.trim, identity)
+            .verifying(Constraint[String] { (str: String) =>
+              if str.isBlank then Invalid("error.required")
+              else if str.length != 18 then Invalid("invalid.length")
+              else if !str.matches("""^\w+$""") then Invalid("invalid.characters")
+              else if !MRN(str).isValid then Invalid("invalid.format")
+              else Valid
+            })
+            .transform[MRN](MRN(_), _.value),
+        "enter-export-movement-reference-number.securities.yes-no" ->
+          YesOrNoQuestionForm.yesNoMapping(
+            "enter-export-movement-reference-number.securities.yes-no"
+          )
+      )(Tuple2.apply)(Tuple2.unapply)
+    )
+
+  val nextExportMovementReferenceNumberForm: Form[(MRN, Option[YesNo])] =
+    Form(
+      mapping(
+        "enter-export-movement-reference-number.next"              ->
+          text
+            .transform[String](_.trim, identity)
+            .verifying(Constraint[String] { (str: String) =>
+              if str.isBlank then Invalid("error.required")
+              else if str.length != 18 then Invalid("invalid.length")
+              else if !str.matches("""^\w+$""") then Invalid("invalid.characters")
+              else if !MRN(str).isValid then Invalid("invalid.format")
+              else Valid
+            })
+            .transform[MRN](MRN(_), _.value),
+        "enter-export-movement-reference-number.securities.yes-no" ->
+          optional(
+            YesOrNoQuestionForm.yesNoMapping(
+              "enter-export-movement-reference-number.securities.yes-no"
+            )
+          )
+      )(Tuple2.apply)(Tuple2.unapply)
     )
 
   val basisOfOverpaymentClaimForm: Form[BasisOfOverpaymentClaim] = Form(
