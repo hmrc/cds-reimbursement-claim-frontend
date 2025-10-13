@@ -208,7 +208,7 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
     doc
       .getElementById(s"claim-amount-total-$suffix")
       .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
-    doc.getElementById(s"blank-cell-$suffix").text() shouldBe ""
+    doc.getElementById(s"blank-cell-$suffix").text() shouldBe m("check-claim.table-header.action")
   }
 
   def validateClaimsTablesForSecurities(
@@ -252,14 +252,14 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
     doc.getElementById(s"selected-claim-header$suffix").text() shouldBe m("check-claim.table-header.selected-charges")
     doc.getElementById(s"full-amount-header$suffix").text()    shouldBe m("check-claim.table-header.full-amount")
     doc.getElementById(s"claim-amount-header$suffix").text()   shouldBe m("check-claim.table-header.claim-amount")
-    doc.getElementById(s"blank-header$suffix").text()          shouldBe ""
+    doc.getElementById(s"blank-header$suffix").text()          shouldBe m("check-claim.table-header.action")
   }
 
   private def validateClaimsTableSingleSecurityHeaders(doc: Document)(implicit m: Messages) = {
     doc.getElementById(s"selected-claim-header").text() shouldBe m("check-claim.table-header.selected-charges")
     doc.getElementById(s"full-amount-header").text()    shouldBe m("check-claim.table-header.full-amount")
     doc.getElementById(s"claim-amount-header").text()   shouldBe m("check-claim.table-header.claim-amount")
-    doc.getElementById(s"blank-header").text()          shouldBe ""
+    doc.getElementById(s"blank-header").text()          shouldBe m("check-claim.table-header.action")
   }
 
   private def validateDutyTotalRow(doc: Document, claims: Seq[ReimbursementWithCorrectAmount], suffix: String = "")(
@@ -270,7 +270,7 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
       .getElementById(s"full-amount-total-$suffix")
       .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
-    doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
+    doc.getElementById(s"blank-cell-$suffix").text()         shouldBe m("check-claim.table-header.action")
   }
 
   def validateCheckClaimTotal(doc: Document, expectedTotal: String)(implicit

@@ -110,6 +110,7 @@ check-claim.table-header.claim-amount=Swm yr hawliad
 check-claim.table-header.selected-charges=Taliadau a ddewiswyd
 check-claim.table-header.should-have-paid=Dylech fod wedi talu
 check-claim.table-header.full-amount=Y swm llawn
+check-claim.table-header.action=Camau i’w cymryd
 check-claim.table.change-link=<a href="{0}" class="govuk-link">Newid</a>
 check-claim.table.total=Cyfanswm yr hawliad
 check-claim.title=Gwiriwch gyfanswm yr ad-daliad ar gyfer yr hawliad hwn
