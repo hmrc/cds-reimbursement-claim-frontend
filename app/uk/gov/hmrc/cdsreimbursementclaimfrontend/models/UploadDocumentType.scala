@@ -199,22 +199,13 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
           + Other
 
       // Option D
-      case (ReasonForSecurity.AccountSales, _, proofOfAuthorityOpt)                 =>
-        Seq[UploadDocumentType](
-          CommercialInvoice,
-          ImportDeclaration,
-          CalculationWorksheetOrFinalSalesFigures
-        ) +? proofOfAuthorityOpt
-          + Other
-
-      // Option E
       case (ReasonForSecurity.MissingPreferenceCertificate, _, proofOfAuthorityOpt) =>
         Seq[UploadDocumentType](
           CommercialInvoice
         ) +? proofOfAuthorityOpt
           + Other
 
-      // Option F
+      // Option E
       case (ReasonForSecurity.MissingLicenseQuota, _, proofOfAuthorityOpt)          =>
         Seq[UploadDocumentType](
           CommercialInvoice,
@@ -223,7 +214,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
         ) +? proofOfAuthorityOpt
           + Other
 
-      // Option G
+      // Option F
       case (ReasonForSecurity.CommunitySystemsOfDutyRelief, _, proofOfAuthorityOpt) =>
         Seq[UploadDocumentType](
           CommercialInvoice,
@@ -232,7 +223,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
         ) +? proofOfAuthorityOpt
           + Other
 
-      // Option H
+      // Option G
       case (
             ReasonForSecurity.ManualOverrideDeposit | ReasonForSecurity.RevenueDispute |
             ReasonForSecurity.UKAPEntryPrice | ReasonForSecurity.UKAPSafeguardDuties,

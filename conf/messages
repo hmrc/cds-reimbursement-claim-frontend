@@ -682,7 +682,6 @@ choose-payment-method.rejected-goods.single.error.number=Select to be repaid by 
 choose-payment-method.rejected-goods.single.error.required=Select to be repaid by current month adjustment (CMA) or bank account transfer
 choose-payment-method.rejected-goods.single.title=Choose repayment method
 
-choose-reason-for-security.securities.AccountSales=Account Sales
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Missing document — community system of duty relief (CSDR)
 choose-reason-for-security.securities.EndUseRelief=Authorised-use (Great Britain) or end-use (Northern Ireland) relief
 choose-reason-for-security.securities.EndUseRelief.hint=For goods you imported for a specific use

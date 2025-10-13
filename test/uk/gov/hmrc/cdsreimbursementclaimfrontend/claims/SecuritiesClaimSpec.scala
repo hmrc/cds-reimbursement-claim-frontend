@@ -1130,7 +1130,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.AccountSales.acc14Code,
+          securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(anotherExampleEori)
         )
@@ -1138,7 +1138,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, displayDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe true
@@ -1149,7 +1149,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
       val displayDeclaration =
         buildSecuritiesDisplayDeclaration(
-          securityReason = ReasonForSecurity.AccountSales.acc14Code,
+          securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleXIEori)
         )
@@ -1157,7 +1157,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, displayDeclaration)
           .getOrFail
 
       exampleXIEori.isXiEori                         shouldBe true

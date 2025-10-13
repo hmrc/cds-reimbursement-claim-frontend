@@ -107,7 +107,6 @@ class ChooseReasonForSecurityControllerSpec
   @nowarn
   private val nidacOptions =
     Seq(
-      ("Account Sales", "AccountSales"),
       ("Manual override of duty amount", "ManualOverrideDeposit"),
       ("Missing document: quota license", "MissingLicenseQuota"),
       ("Missing proof of origin", "MissingPreferenceCertificate"),

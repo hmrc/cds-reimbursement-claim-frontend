@@ -311,7 +311,6 @@ choose-payee-type.title
 choose-payment-method.rejected-goods.single.bank-transfer
 choose-payment-method.rejected-goods.single.cma
 choose-payment-method.rejected-goods.single.title
-choose-reason-for-security.securities.AccountSales
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief
 choose-reason-for-security.securities.EndUseRelief
 choose-reason-for-security.securities.InwardProcessingRelief
