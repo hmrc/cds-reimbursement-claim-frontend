@@ -21,7 +21,7 @@ import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -68,7 +68,7 @@ final class OverpaymentsSingleClaim private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         true,
-        answers.displayDeclaration,
+        answers.importDeclaration,
         isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
@@ -92,16 +92,16 @@ final class OverpaymentsSingleClaim private (
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry) &&
       !(userHasGBEoriMatchingDuplicateDeclaration || userHasXIEoriMatchingDuplicateDeclaration)
 
-  def getDuplicateDisplayDeclaration: Option[DisplayDeclaration] =
+  def getDuplicateImportDeclaration: Option[ImportDeclaration] =
     answers.duplicateDeclaration
-      .map(_.displayDeclaration)
+      .map(_.importDeclaration)
 
   def getDeclarantEoriFromDuplicateACC14: Option[Eori] =
-    getDuplicateDisplayDeclaration
+    getDuplicateImportDeclaration
       .map(_.getDeclarantEori)
 
   def getConsigneeEoriFromDuplicateACC14: Option[Eori] =
-    getDuplicateDisplayDeclaration
+    getDuplicateImportDeclaration
       .flatMap(_.getConsigneeEori)
 
   def userHasGBEoriMatchingDuplicateDeclaration: Boolean =
@@ -116,7 +116,7 @@ final class OverpaymentsSingleClaim private (
 
   def needsUserXiEoriSubmissionForDuplicateDeclaration: Boolean =
     !userHasGBEoriMatchingDuplicateDeclaration &&
-      getDuplicateDisplayDeclaration.exists(_.containsXiEori) &&
+      getDuplicateImportDeclaration.exists(_.containsXiEori) &&
       answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleClaim =
@@ -126,7 +126,7 @@ final class OverpaymentsSingleClaim private (
     this.copy(answers.copy(modes = answers.modes.copy(enterContactDetailsMode = enabled)))
 
   def removeUnsupportedTaxCodes(): OverpaymentsSingleClaim =
-    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+    this.copy(answers.copy(importDeclaration = answers.importDeclaration.map(_.removeUnsupportedTaxCodes())))
 
   def submitNewEori(eori: Eori): OverpaymentsSingleClaim =
     whileClaimIsAmendable {
@@ -144,18 +144,18 @@ final class OverpaymentsSingleClaim private (
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
             if existingMrn === mrn &&
-              getLeadDisplayDeclaration.contains(displayDeclaration) =>
+              getLeadImportDeclaration.contains(importDeclaration) =>
           Right(this)
         case _ =>
-          if mrn =!= displayDeclaration.getMRN then
+          if mrn =!= importDeclaration.getMRN then
             Left(
-              "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+              "submitMovementReferenceNumber.wrongImportDeclarationMrn"
             )
           else
             Right(
@@ -164,7 +164,7 @@ final class OverpaymentsSingleClaim private (
                   .Answers(
                     userEoriNumber = answers.userEoriNumber,
                     movementReferenceNumber = Some(mrn),
-                    displayDeclaration = Some(displayDeclaration),
+                    importDeclaration = Some(importDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
                   ),
@@ -276,7 +276,7 @@ final class OverpaymentsSingleClaim private (
     */
   def submitDuplicateMovementReferenceNumberAndDeclaration(
     duplicateMrn: MRN,
-    duplicateDisplayDeclaration: DisplayDeclaration
+    duplicateImportDeclaration: ImportDeclaration
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
@@ -285,14 +285,14 @@ final class OverpaymentsSingleClaim private (
             "submitDuplicateMovementReferenceNumberAndDeclaration.mustBeDifferent"
           )
         case _                                                 =>
-          if duplicateMrn =!= duplicateDisplayDeclaration.getMRN then
+          if duplicateMrn =!= duplicateImportDeclaration.getMRN then
             Left(
-              "submitDuplicateMovementReferenceNumberAndDeclaration.wrongDisplayDeclarationMrn"
+              "submitDuplicateMovementReferenceNumberAndDeclaration.wrongImportDeclarationMrn"
             )
           else {
             val modifiedClaim = this.copy(
               answers.copy(
-                duplicateDeclaration = Some(DuplicateDeclaration(duplicateMrn, duplicateDisplayDeclaration))
+                duplicateDeclaration = Some(DuplicateDeclaration(duplicateMrn, duplicateImportDeclaration))
               )
             )
 
@@ -318,7 +318,7 @@ final class OverpaymentsSingleClaim private (
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
       if needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then
-        if answers.duplicateDeclaration.flatMap(_.displayDeclaration.getConsigneeEori).contains(consigneeEoriNumber)
+        if answers.duplicateDeclaration.flatMap(_.importDeclaration.getConsigneeEori).contains(consigneeEoriNumber)
         then
           Right(
             this.copy(
@@ -345,7 +345,7 @@ final class OverpaymentsSingleClaim private (
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
       if needsDeclarantAndConsigneeEoriCheckForDuplicateDeclaration then
-        if answers.duplicateDeclaration.map(_.displayDeclaration.getDeclarantEori).contains(declarantEoriNumber) then
+        if answers.duplicateDeclaration.map(_.importDeclaration.getDeclarantEori).contains(declarantEoriNumber) then
           Right(
             this.copy(
               answers.copy(duplicateDeclaration =
@@ -377,8 +377,8 @@ final class OverpaymentsSingleClaim private (
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
-      getLeadDisplayDeclaration match {
-        case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+      getLeadImportDeclaration match {
+        case None => Left("selectTaxCodeSetForReimbursement.missingImportDeclaration")
 
         case Some(_) =>
           if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
@@ -414,9 +414,9 @@ final class OverpaymentsSingleClaim private (
     correctAmount: BigDecimal
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
-      getLeadDisplayDeclaration match {
+      getLeadImportDeclaration match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(taxCode) match {
@@ -440,9 +440,9 @@ final class OverpaymentsSingleClaim private (
     claimAmount: BigDecimal
   ): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
-      getLeadDisplayDeclaration match {
+      getLeadImportDeclaration match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(taxCode) match {
@@ -665,7 +665,7 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
+    importDeclaration: Option[ImportDeclaration] = None,
     payeeType: Option[PayeeType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     duplicateDeclaration: Option[DuplicateDeclaration] = None,
@@ -735,7 +735,7 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
               DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED
             ),
             checkIsDefined(
-              _.answers.duplicateDeclaration.map(_.displayDeclaration),
+              _.answers.duplicateDeclaration.map(_.importDeclaration),
               DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED
             )
           )
@@ -754,25 +754,25 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
         DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_BE_DEFINED
       )
 
-    val hasDuplicateDisplayDeclaration: Validate[OverpaymentsSingleClaim] =
+    val hasDuplicateImportDeclaration: Validate[OverpaymentsSingleClaim] =
       checkIsTrue(
-        claim => claim.answers.duplicateDeclaration.map(_.displayDeclaration).isDefined,
+        claim => claim.answers.duplicateDeclaration.map(_.importDeclaration).isDefined,
         DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED
       )
 
-    val hasDuplicateDisplayDeclarationVerified: Validate[OverpaymentsSingleClaim] =
+    val hasDuplicateImportDeclarationVerified: Validate[OverpaymentsSingleClaim] =
       checkIsTrue(
         claim => claim.answers.duplicateDeclaration.flatMap(_.verificationStatus).exists(_.isVerified),
         DUPLICATE_DISPLAY_DECLARATION_MUST_BE_VERIFIED
       )
 
-    val hasDuplicateMRNAndDisplayDeclaration: Validate[OverpaymentsSingleClaim] =
-      hasDuplicateMovementReferenceNumber & hasDuplicateDisplayDeclaration
+    val hasDuplicateMRNAndImportDeclaration: Validate[OverpaymentsSingleClaim] =
+      hasDuplicateMovementReferenceNumber & hasDuplicateImportDeclaration
 
     val hasDuplicateDeclarationVerifiedIfRequired: Validate[OverpaymentsSingleClaim] =
       conditionally(
         _.answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry),
-        hasDuplicateMRNAndDisplayDeclaration andWhenValid hasDuplicateDisplayDeclarationVerified,
+        hasDuplicateMRNAndImportDeclaration andWhenValid hasDuplicateImportDeclarationVerified,
         always[OverpaymentsSingleClaim]
       )
 
@@ -789,7 +789,7 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
   /** Validate if all required answers has been provided and the claim is ready to produce output. */
   override implicit val validator: Validate[OverpaymentsSingleClaim] =
     all(
-      hasMRNAndDisplayDeclaration,
+      hasMRNAndImportDeclaration,
       containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       basisOfClaimHasBeenProvided,
@@ -849,8 +849,8 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
   ): Either[String, OverpaymentsSingleClaim] =
     empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapWhenDefined(
-        answers.movementReferenceNumber.zip(answers.displayDeclaration)
-      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        answers.movementReferenceNumber.zip(answers.importDeclaration)
+      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
@@ -863,14 +863,14 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
       .flatMapWhenDefined(
         answers.duplicateDeclaration
           .map(_.movementReferenceNumber)
-          .zip(answers.duplicateDeclaration.map(_.displayDeclaration))
-      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+          .zip(answers.duplicateDeclaration.map(_.importDeclaration))
+      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
         j.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
       })
-      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.displayDeclaration))(j =>
+      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
         d => d.getConsigneeEori.map(e => j.checkConsigneeEoriNumberWithDuplicateDeclaration(e)).getOrElse(Right(j))
       )
-      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.displayDeclaration))(j =>
+      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
         d => j.checkDeclarantEoriNumberWithDuplicateDeclaration(d.getDeclarantEori)
       )
       .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)

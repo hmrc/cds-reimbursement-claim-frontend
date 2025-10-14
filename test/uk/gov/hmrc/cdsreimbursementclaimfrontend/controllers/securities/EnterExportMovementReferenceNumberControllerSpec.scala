@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -88,9 +88,9 @@ class EnterExportMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
     (mockClaimsService
-      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -144,7 +144,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "display the page if acc14 is present" in forAllWith(
           ClaimGenerator(
-            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen,
             buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal
           )
         ) { case (claim, _) =>
@@ -162,7 +162,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "display the page with export MRN populated" in forAllWith(
           ClaimGenerator(
-            testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+            testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
             )
@@ -182,7 +182,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         "redirect to next page when method of disposal is not exported in single or multiple shipments" in {
-          val gen   = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+          val gen   = mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen.sample.getOrElse(
             fail("Failed to generate claim data")
           )
           val claim = buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
@@ -197,7 +197,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "redirect to next page when method of disposal is not exported in single or multiple shipments for single security deposit" in {
           val gen   =
-            SecuritiesSingleClaimGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+            SecuritiesSingleClaimGenerators.mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen.sample.getOrElse(
               fail("Failed to generate claim data")
             )
           val claim =
@@ -212,7 +212,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         "redirect to next page when reason for security is not temporary admission" in {
-          val gen          = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+          val gen          = mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen.sample.getOrElse(
             fail("Failed to generate claim data")
           )
           val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
@@ -230,7 +230,7 @@ class EnterExportMovementReferenceNumberControllerSpec
         }
 
         "redirect to choose export method page when method of disposal is not found" in {
-          val gen          = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen.sample.getOrElse(
+          val gen          = mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen.sample.getOrElse(
             fail("Failed to generate claim data")
           )
           val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal(gen)
@@ -252,7 +252,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "display the page" in forAllWith(
           ClaimGenerator(
-            testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+            testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -275,7 +275,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
       "display the page with yes no options on when user has seen check your answers page and page index is equal to export MRNs size" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
           )
@@ -300,7 +300,7 @@ class EnterExportMovementReferenceNumberControllerSpec
       }
 
       "redirect to show first when the page index is out of bounds and there are no export MRNs set" in {
-        val gen                 = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen                 = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim               = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
         val outOfBoundsMrnIndex = 1
 
@@ -316,7 +316,7 @@ class EnterExportMovementReferenceNumberControllerSpec
       }
 
       "redirect to show next when the page index is out of bounds and there are other export MRNs set" in {
-        val gen                 = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen                 = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim               = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
           Seq(MRN("19GB03I52858027001"))
         )(gen)
@@ -344,14 +344,14 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save an export MRN if valid and continue to next page when no selected" in forAllWith(
           ClaimGenerator(
-            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen,
             buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal
           )
         ) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockGetImportDeclaration(exampleMrn, Right(None))
             mockStoreSession(
               SessionData(
                 claim.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
@@ -373,7 +373,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save an export MRN if valid and continue to check export MRNs page when no selected and more than 1 export MRNs entered" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
             )
@@ -382,7 +382,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockGetImportDeclaration(exampleMrn, Right(None))
             mockStoreSession(
               SessionData(
                 claim.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
@@ -404,14 +404,14 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save an export MRN if valid and continue to enter next export MRN page when yes selected" in forAllWith(
           ClaimGenerator(
-            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen,
             buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal
           )
         ) { case (claim, _) =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockGetImportDeclaration(exampleMrn, Right(None))
             mockStoreSession(
               SessionData(
                 claim.submitExportMovementReferenceNumber(0, exampleMrn).getOrFail
@@ -433,16 +433,16 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject an export MRN if declaration exists for it" in forAllWith(
           ClaimGenerator(
-            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen,
             buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal
           )
         ) { case (claim, _) =>
-          val exportMrnAndDecl = mrnWithDisplayDeclarationGen.sample.get
+          val exportMrnAndDecl = mrnWithImportDeclarationGen.sample.get
 
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
+            mockGetImportDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -460,7 +460,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject an empty export MRN" in forAllWith(
           ClaimGenerator(
-            mrnWithRfsTempAdmissionWithDisplayDeclarationWithSingleShipmentMfdGen,
+            mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen,
             buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal
           )
         ) { case (claim, _) =>
@@ -484,7 +484,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject a duplicate export MRN" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
             )
@@ -495,7 +495,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+            mockGetImportDeclaration(MRN("19GB03I52858027002"), Right(None))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -516,7 +516,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save an export MRN if valid and continue to check export MRNs page" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -527,7 +527,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockGetImportDeclaration(exampleMrn, Right(None))
             mockStoreSession(
               SessionData(
                 claim.submitExportMovementReferenceNumber(mrnIndex, exampleMrn).getOrFail
@@ -548,7 +548,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save an export MRN if valid and continue to enter next export MRN when user has seen CYA page and selects yes" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -564,7 +564,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedClaim))
-            mockGetDisplayDeclaration(exampleMrn, Right(None))
+            mockGetImportDeclaration(exampleMrn, Right(None))
             mockStoreSession(
               SessionData(
                 updatedClaim.submitExportMovementReferenceNumber(mrnIndex, exampleMrn).getOrFail
@@ -586,7 +586,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "save the same export MRN if valid and continue to check your answers page when user has seen CYA page and selects no" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
             )
@@ -602,7 +602,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(updatedClaim))
-            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+            mockGetImportDeclaration(MRN("19GB03I52858027002"), Right(None))
             mockStoreSession(
               SessionData(
                 updatedClaim.submitExportMovementReferenceNumber(mrnIndex, MRN("19GB03I52858027002")).getOrFail
@@ -624,7 +624,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject an export MRN if declaration exists for it" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -632,12 +632,12 @@ class EnterExportMovementReferenceNumberControllerSpec
         ) { case (claim, _) =>
           val mrnIndex = 1
 
-          val exportMrnAndDecl = mrnWithDisplayDeclarationGen.sample.get
+          val exportMrnAndDecl = mrnWithImportDeclarationGen.sample.get
 
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
+            mockGetImportDeclaration(exportMrnAndDecl._1, Right(Some(exportMrnAndDecl._2)))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -654,7 +654,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject an empty export MRN" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -681,7 +681,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject a duplicate export MRN" in forAllWith(
           ClaimGenerator(
-            mrnWithTaRfsWithDisplayDeclarationGen,
+            mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
               Seq(MRN("19GB03I52858027001"))
             )
@@ -692,7 +692,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(MRN("19GB03I52858027001"), Right(None))
+            mockGetImportDeclaration(MRN("19GB03I52858027001"), Right(None))
           }
 
           checkPageWithErrorIsDisplayed(
@@ -709,7 +709,7 @@ class EnterExportMovementReferenceNumberControllerSpec
 
         "reject an export MRN at out of bounds index" in {
           val claimGen =
-            mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+            mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
           val claim    = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"))
           )(claimGen)
@@ -719,7 +719,7 @@ class EnterExportMovementReferenceNumberControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclaration(MRN("19GB03I52858027002"), Right(None))
+            mockGetImportDeclaration(MRN("19GB03I52858027002"), Right(None))
           }
 
           checkPageWithErrorIsDisplayed(

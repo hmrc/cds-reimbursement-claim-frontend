@@ -109,7 +109,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
@@ -128,7 +128,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to enter export MRN when export MRNs are empty" in {
-        val gen   = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen   = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
 
         inSequence {
@@ -143,7 +143,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to next page when method of disposal is not exported in multiple or single shipments" in {
-        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen          = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -165,7 +165,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to next page when reason for security is not temporary admission" in {
-        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen          = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -184,7 +184,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
       }
 
       "redirect to choose export method page when method of disposal is not found" in {
-        val gen          = mrnWithTaRfsWithDisplayDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
+        val gen          = mrnWithTaRfsWithImportDeclarationGen.sample.getOrElse(fail("Failed to generate claim data"))
         val claim        = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -214,7 +214,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "redirect to enter next export MRN form when yes" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
@@ -234,7 +234,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
       "redirect to choose payee type page when no is selected and has single security" in {
         forAllWith(
           ClaimGenerator(
-            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithTaRfsWithDisplayDeclarationGen,
+            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithTaRfsWithImportDeclarationGen,
             claimBuilder = SecuritiesSingleClaimGenerators
               .buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
                 Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
@@ -255,7 +255,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "redirect to confirm full repayment page when no is selected and has multiple securities" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
@@ -294,7 +294,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "stay on the same page and display error message when no option selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
@@ -322,7 +322,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "delete and redirect to check export MRNs when remaining export MRNs is not empty" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"), MRN("19GB03I52858027003"))
           )
@@ -344,7 +344,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "delete and redirect to choose export method when there are no remaining export MRNs set" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"))
           )
@@ -366,7 +366,7 @@ class CheckExportMovementReferenceNumbersControllerSpec
 
       "redirect to check export MRNs page when the export MRN to be deleted isn't in the export MRN list" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithTaRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithTaRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
             Seq(MRN("19GB03I52858027001"), MRN("19GB03I52858027002"))
           )

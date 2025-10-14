@@ -65,7 +65,7 @@ class AddOtherDocumentsControllerSpec
 
       "display the page if securities feature is enabled and RfS is IPR" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -84,7 +84,7 @@ class AddOtherDocumentsControllerSpec
 
       "display the page if securities feature is enabled and RfS is for NIDAC" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -110,7 +110,7 @@ class AddOtherDocumentsControllerSpec
 
       "select 'Yes' should redirect to choose document type page when RfS is IPR" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -129,7 +129,7 @@ class AddOtherDocumentsControllerSpec
 
       "select 'Yes' should redirect to choose document type page when RfS is for NIDAC" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -148,7 +148,7 @@ class AddOtherDocumentsControllerSpec
 
       "select 'No' should redirect to choose payee type page when RfS is IPR" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -167,7 +167,7 @@ class AddOtherDocumentsControllerSpec
 
       "select 'No' should redirect to choose payee type page when RfS is for NIDAC" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>

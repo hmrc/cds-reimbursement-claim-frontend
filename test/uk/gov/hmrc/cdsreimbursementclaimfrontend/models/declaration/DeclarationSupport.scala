@@ -17,15 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 trait DeclarationSupport {
-  extension (declaration: DisplayDeclaration) {
-    def withAllSubsidiesPaymentMethod(): DisplayDeclaration =
+  extension (declaration: ImportDeclaration) {
+    def withAllSubsidiesPaymentMethod(): ImportDeclaration =
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
           declaration.displayResponseDetail.ndrcDetails.map(_.map(_.copy(paymentMethod = "006")))
         )
       )
 
-    def withSomeSubsidiesPaymentMethod(): DisplayDeclaration =
+    def withSomeSubsidiesPaymentMethod(): ImportDeclaration =
       declaration.copy(displayResponseDetail =
         declaration.displayResponseDetail.copy(ndrcDetails =
           declaration.displayResponseDetail.ndrcDetails.map(_.zipWithIndex.map { case (ndrcDetails, index) =>

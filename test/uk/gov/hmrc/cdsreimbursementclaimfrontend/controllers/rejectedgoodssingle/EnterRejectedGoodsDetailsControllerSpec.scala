@@ -64,8 +64,8 @@ class EnterRejectedGoodsDetailsControllerSpec
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsSingleClaim = Some(
       RejectedGoodsSingleClaim
-        .empty(exampleDisplayDeclaration.getDeclarantEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .empty(exampleImportDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .getOrFail
     )
   )

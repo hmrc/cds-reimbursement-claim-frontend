@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SecurityDetailsSummary
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -38,7 +38,7 @@
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio)
 
 
-@(form: Form[YesNo], declaration: DisplayDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], declaration: ImportDeclaration, securityDepositId: String, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-securities"}
 @title = @{messages(s"select-securities.title")}

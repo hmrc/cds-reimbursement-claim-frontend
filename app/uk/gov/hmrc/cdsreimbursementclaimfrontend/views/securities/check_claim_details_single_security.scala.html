@@ -20,7 +20,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
@@ -35,7 +35,7 @@
     govukTable: GovukTable
 )
 
-@(displayDeclaration: DisplayDeclaration, securityDepositId: String, reclaims: List[ReclaimWithAmounts], availableDuties: Seq[DutyAmount], postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(importDeclaration: ImportDeclaration, securityDepositId: String, reclaims: List[ReclaimWithAmounts], availableDuties: Seq[DutyAmount], postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-claim.securities.single.title")}
 
@@ -47,7 +47,7 @@
         securityDepositId,
         reclaims,
         availableDuties,
-        displayDeclaration,
+        importDeclaration,
         "check-your-answers.claim-for-security",
         Some(routes.ConfirmSingleDepositRepaymentController.show),
         Some(routes.SelectDutiesController.showFirst)

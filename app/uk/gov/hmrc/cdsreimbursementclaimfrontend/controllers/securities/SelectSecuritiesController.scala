@@ -51,7 +51,7 @@ class SelectSecuritiesController @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -81,7 +81,7 @@ class SelectSecuritiesController @Inject() (
   final def show(securityDepositId: String): Action[AnyContent] = actionReadClaim { claim =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     claim
-      .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
+      .getImportDeclarationIfValidSecurityDepositId(securityDepositId)
       .fold(Redirect(baseRoutes.IneligibleController.ineligible)) { declaration =>
         Ok(
           selectSecuritiesPage(
@@ -104,7 +104,7 @@ class SelectSecuritiesController @Inject() (
           (
             claim,
             claim
-              .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
+              .getImportDeclarationIfValidSecurityDepositId(securityDepositId)
               .map(declaration =>
                 BadRequest(selectSecuritiesPage(formWithErrors, declaration, securityDepositId, postAction))
               )

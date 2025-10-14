@@ -20,7 +20,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
@@ -35,7 +35,7 @@
         cyaCommon: check_your_answers_common
 )
 
-@(claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, importDeclarationOpt: Option[ImportDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], postAction: Call, subKey: Option[String] = None)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{
     messages(s"check-your-answers.title")
@@ -45,7 +45,7 @@
 
     @heading(Html(title), classes="govuk-heading-l")
 
-    @cyaCommon(claim, isSingleSecurity, displayDeclarationOpt, exportDeclarationMrnOpt, isPrintView = false)
+    @cyaCommon(claim, isSingleSecurity, importDeclarationOpt, exportDeclarationMrnOpt, isPrintView = false)
 
     @subHeading(Html(messages(s"check-your-answers.confirmation-statement.h2")))
     @paragraph(Html(messages(s"check-your-answers.confirmation-statement")))

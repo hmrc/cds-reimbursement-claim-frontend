@@ -69,7 +69,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -92,7 +92,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionControllerSpec
 
         "redirect to CheckTotalImportDischarged" in forSomeWith(
           ClaimGenerator(
-            testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+            testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
             claimBuilder = buildSecuritiesClaimReadyForIPR
           )
         ) { case (claim, _) =>

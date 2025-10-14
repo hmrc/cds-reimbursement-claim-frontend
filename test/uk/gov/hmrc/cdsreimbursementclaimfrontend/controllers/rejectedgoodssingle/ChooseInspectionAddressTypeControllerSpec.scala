@@ -105,19 +105,19 @@ class ChooseInspectionAddressTypeControllerSpec
     "display page" when {
       "at least one of the ACC14 addresses are available" in {
         forAll(
-          arbitraryDisplayDeclaration.arbitrary.suchThat(declaration =>
+          arbitraryImportDeclaration.arbitrary.suchThat(declaration =>
             declaration.getDeclarantDetails.contactDetails.isDefined || declaration.getConsigneeDetails
               .flatMap(_.contactDetails)
               .isDefined
           )
-        ) { displayDeclaration =>
+        ) { importDeclaration =>
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(
               session.copy(rejectedGoodsSingleClaim =
                 RejectedGoodsSingleClaim
-                  .empty(displayDeclaration.getDeclarantEori)
-                  .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+                  .empty(importDeclaration.getDeclarantEori)
+                  .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
                   .toOption
               )
             )
@@ -127,8 +127,8 @@ class ChooseInspectionAddressTypeControllerSpec
             showPage(),
             messageFromMessageKey("inspection-address.type.title"),
             doc => {
-              val hasDeclarant = displayDeclaration.getDeclarantDetails.contactDetails.isDefined
-              val hasImporter  = displayDeclaration.getConsigneeDetails
+              val hasDeclarant = importDeclaration.getDeclarantDetails.contactDetails.isDefined
+              val hasImporter  = importDeclaration.getConsigneeDetails
                 .flatMap(_.contactDetails)
                 .isDefined
 
@@ -162,7 +162,7 @@ class ChooseInspectionAddressTypeControllerSpec
     "update inspection address and redirect to the check bank details page" when {
 
       "duties are not eligible for CMA" in {
-        forAll { (declaration: DisplayDeclaration, contactDetails: ContactDetails) =>
+        forAll { (declaration: ImportDeclaration, contactDetails: ContactDetails) =>
           val claim =
             RejectedGoodsSingleClaim
               .empty(declaration.getDeclarantEori)
@@ -198,7 +198,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update inspection address and redirect to the choose payee type page" when {
       "duties are not eligible for CMA and consignee/declarant EORIs DON'T match" in {
-        forAll { (generatedDeclaration: DisplayDeclaration, contactDetails: ContactDetails) =>
+        forAll { (generatedDeclaration: ImportDeclaration, contactDetails: ContactDetails) =>
           val declaration = generatedDeclaration
             .withConsigneeEori(Eori("GB000000000000001"))
             .withDeclarantEori(Eori("GB000000000000002"))
@@ -238,7 +238,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update inspection address and redirect to the choose repayment method page" when {
       "duties are eligible for CMA" in {
-        forAll { (declaration: DisplayDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
+        forAll { (declaration: ImportDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
           val updatedDeclaration =
             declaration.copy(displayResponseDetail =
               declaration.displayResponseDetail.copy(
@@ -282,7 +282,7 @@ class ChooseInspectionAddressTypeControllerSpec
 
     "update inspection address and redirect to choose file type for subsidies only claim" when {
       "duties are eligible for CMA" in {
-        forAll { (declaration: DisplayDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
+        forAll { (declaration: ImportDeclaration, consigneeDetails: ConsigneeDetails, ndrc: NdrcDetails) =>
           val updatedDeclaration =
             declaration
               .copy(displayResponseDetail =

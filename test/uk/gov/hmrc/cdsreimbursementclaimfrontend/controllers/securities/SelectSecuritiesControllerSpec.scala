@@ -95,9 +95,9 @@ class SelectSecuritiesControllerSpec
             .map(rfs => messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")),
           "Total security deposit value"    -> Some(securityDetails.getTotalAmount.toPoundSterlingString),
           "Security deposit paid"           -> Some(securityDetails.getPaidAmount.toPoundSterlingString),
-          "Security deposit payment date"   -> claim.getLeadDisplayDeclaration
+          "Security deposit payment date"   -> claim.getLeadImportDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.acceptanceDate)),
-          "Security deposit expiry date"    -> claim.getLeadDisplayDeclaration
+          "Security deposit expiry date"    -> claim.getLeadImportDeclaration
             .flatMap(d => DateUtils.displayFormat(d.displayResponseDetail.btaDueDate))
         )
       )
@@ -114,7 +114,7 @@ class SelectSecuritiesControllerSpec
 
       "redirect to the ineligible page if an invalid security deposit ID" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, _) =>
@@ -131,7 +131,7 @@ class SelectSecuritiesControllerSpec
 
       "display the page if a valid security deposit ID" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -153,7 +153,7 @@ class SelectSecuritiesControllerSpec
 
       "redirect to show by deposit ID if a valid first security deposit ID" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -175,7 +175,7 @@ class SelectSecuritiesControllerSpec
       "select security deposit and redirect to check declaration details if a single security deposit ID" in {
         forAllWith(
           ClaimGenerator(
-            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
             claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
           )
         ) { case (initialClaim, (_, _, decl)) =>
@@ -194,12 +194,12 @@ class SelectSecuritiesControllerSpec
       }
 
       "redirect to choose reason for security when there are no security deposits" in {
-        val gen = mrnWithRfsWithDisplayDeclarationGen.sample
-          .map { case (mrn, reasonForSecurity, displayDeclaration) =>
-            val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails = None)
-            val updatedDisplayDeclaration    =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
-            (mrn, reasonForSecurity, updatedDisplayDeclaration)
+        val gen = mrnWithRfsWithImportDeclarationGen.sample
+          .map { case (mrn, reasonForSecurity, importDeclaration) =>
+            val updatedDisplayResponseDetail = importDeclaration.displayResponseDetail.copy(securityDetails = None)
+            val updatedImportDeclaration     =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+            (mrn, reasonForSecurity, updatedImportDeclaration)
           }
           .getOrElse(fail("Failed to generate claim data"))
 
@@ -217,15 +217,15 @@ class SelectSecuritiesControllerSpec
       }
 
       "display error page when there is a problem selecting a security deposit for single security" in {
-        val gen = SecuritiesSingleClaimGenerators.mrnWithRfsWithDisplayDeclarationGen.sample
-          .map { case (mrn, reasonForSecurity, displayDeclaration) =>
+        val gen = SecuritiesSingleClaimGenerators.mrnWithRfsWithImportDeclarationGen.sample
+          .map { case (mrn, reasonForSecurity, importDeclaration) =>
             val securityDetails              =
-              displayDeclaration.displayResponseDetail.securityDetails.get.map(_.copy(securityDepositId = ""))
+              importDeclaration.displayResponseDetail.securityDetails.get.map(_.copy(securityDepositId = ""))
             val updatedDisplayResponseDetail =
-              displayDeclaration.displayResponseDetail.copy(securityDetails = Some(securityDetails))
-            val updatedDisplayDeclaration    =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
-            (mrn, reasonForSecurity, updatedDisplayDeclaration)
+              importDeclaration.displayResponseDetail.copy(securityDetails = Some(securityDetails))
+            val updatedImportDeclaration     =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+            (mrn, reasonForSecurity, updatedImportDeclaration)
           }
           .getOrElse(fail("Failed to generate claim data"))
 
@@ -249,7 +249,7 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and move to the next security" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -275,7 +275,7 @@ class SelectSecuritiesControllerSpec
 
       "skip the first security deposit and move to the next security" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -300,7 +300,7 @@ class SelectSecuritiesControllerSpec
 
       "select the last security deposit and move to the check declaration details page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -324,7 +324,7 @@ class SelectSecuritiesControllerSpec
 
       "skip the last security deposit and move to the check declaration details page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -348,7 +348,7 @@ class SelectSecuritiesControllerSpec
 
       "select the first security deposit and return to the check details page when in change mode" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimInChangeDeclarationDetailsMode
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -373,7 +373,7 @@ class SelectSecuritiesControllerSpec
 
       "de-select the last security deposit and return to the check details page when in change mode" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimInChangeDeclarationDetailsMode
         )
       ) { case (initialClaim, (_, _, decl)) =>
@@ -462,7 +462,7 @@ class SelectSecuritiesControllerSpec
 
       "reject empty selection and display error message" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = SecuritiesClaimGenerators.mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = SecuritiesClaimGenerators.buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (initialClaim, (_, _, decl)) =>

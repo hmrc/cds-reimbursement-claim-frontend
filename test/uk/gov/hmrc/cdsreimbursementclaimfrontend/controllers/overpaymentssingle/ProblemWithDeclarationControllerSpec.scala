@@ -64,7 +64,7 @@ class ProblemWithDeclarationControllerSpec
 
       "display the page with no continue option when all tax codes are unsupported" in {
         val claim = emptyClaim
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithOnlyUnsupportedCodes)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclarationWithOnlyUnsupportedCodes)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {
@@ -89,7 +89,7 @@ class ProblemWithDeclarationControllerSpec
 
       "display the page with continue option when some tax codes are unsupported" in {
         val claim = emptyClaim
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithSomeUnsupportedCode)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclarationWithSomeUnsupportedCode)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {
@@ -150,7 +150,7 @@ class ProblemWithDeclarationControllerSpec
 
       "submit when user selects Yes" in {
         val claim = emptyClaim
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclarationWithSomeUnsupportedCode)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclarationWithSomeUnsupportedCode)
           .getOrElse(fail("Failed to submit MRN and declaration."))
 
         inSequence {

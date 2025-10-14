@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
@@ -86,9 +86,9 @@ class ChooseInspectionAddressTypeControllerSpec
     "display the page" when {
 
       "Show the page when the first Acc 14 Declaration does not have a consignee" in forAll {
-        (contactDetails: ContactDetails, displayDeclaration: DisplayDeclaration) =>
-          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
+        (contactDetails: ContactDetails, importDeclaration: ImportDeclaration) =>
+          val declarant             = importDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
+          val displayResponseDetail = importDeclaration.displayResponseDetail
             .copy(
               consigneeDetails = None,
               declarantDetails = declarant
@@ -96,8 +96,8 @@ class ChooseInspectionAddressTypeControllerSpec
           val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
+              importDeclaration.getMRN,
+              ImportDeclaration(displayResponseDetail)
             )
             .getOrFail
 
@@ -120,17 +120,17 @@ class ChooseInspectionAddressTypeControllerSpec
       }
 
       "Show the page when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not have any contact details" in forAll {
-        (consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
+        (consignee: ConsigneeDetails, importDeclaration: ImportDeclaration) =>
+          val displayResponseDetail = importDeclaration.displayResponseDetail
             .copy(
               consigneeDetails = Some(consignee),
-              declarantDetails = displayDeclaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
+              declarantDetails = importDeclaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
             )
           val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
+              importDeclaration.getMRN,
+              ImportDeclaration(displayResponseDetail)
             )
             .getOrFail
 
@@ -153,9 +153,9 @@ class ChooseInspectionAddressTypeControllerSpec
       }
 
       "Show the page, with the existing value pre-selected, when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
-        (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
-          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
+        (contactDetails: ContactDetails, consignee: ConsigneeDetails, importDeclaration: ImportDeclaration) =>
+          val declarant             = importDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
+          val displayResponseDetail = importDeclaration.displayResponseDetail
             .copy(
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
@@ -163,8 +163,8 @@ class ChooseInspectionAddressTypeControllerSpec
           val claim                 = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
+              importDeclaration.getMRN,
+              ImportDeclaration(displayResponseDetail)
             )
             .getOrFail
           val optionChosen          = Gen.oneOf(Seq(Importer, Declarant)).sample.get
@@ -194,9 +194,9 @@ class ChooseInspectionAddressTypeControllerSpec
       }
 
       "Show the page when the first Acc 14 Declaration does has a consignee, with contact details, and the declarant does not has contact details" in forAll {
-        (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
-          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
+        (contactDetails: ContactDetails, consignee: ConsigneeDetails, importDeclaration: ImportDeclaration) =>
+          val declarant             = importDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
+          val displayResponseDetail = importDeclaration.displayResponseDetail
             .copy(
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
@@ -204,8 +204,8 @@ class ChooseInspectionAddressTypeControllerSpec
           val updatedClaim          = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
+              importDeclaration.getMRN,
+              ImportDeclaration(displayResponseDetail)
             )
             .getOrFail
 
@@ -258,9 +258,9 @@ class ChooseInspectionAddressTypeControllerSpec
       }
 
       "the user selects one of the addresses" in forAll {
-        (contactDetails: ContactDetails, consignee: ConsigneeDetails, displayDeclaration: DisplayDeclaration) =>
-          val declarant             = displayDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
-          val displayResponseDetail = displayDeclaration.displayResponseDetail
+        (contactDetails: ContactDetails, consignee: ConsigneeDetails, importDeclaration: ImportDeclaration) =>
+          val declarant             = importDeclaration.getDeclarantDetails.copy(contactDetails = Some(contactDetails))
+          val displayResponseDetail = importDeclaration.displayResponseDetail
             .copy(
               consigneeDetails = Some(consignee),
               declarantDetails = declarant
@@ -268,8 +268,8 @@ class ChooseInspectionAddressTypeControllerSpec
           val claim                 = session.rejectedGoodsMultipleClaim.get
             .submitMovementReferenceNumberAndDeclaration(
               0,
-              displayDeclaration.getMRN,
-              DisplayDeclaration(displayResponseDetail)
+              importDeclaration.getMRN,
+              ImportDeclaration(displayResponseDetail)
             )
             .flatMap(_.submitPayeeType(PayeeType.Declarant))
             .getOrFail

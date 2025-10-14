@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -47,16 +47,16 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
 
   val claimWithMrnAndDeclaration: OverpaymentsMultipleClaim =
     OverpaymentsMultipleClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   def claimWithMrnAndDeclarationWithFeatures(
     features: OverpaymentsMultipleClaim.Features
   ): OverpaymentsMultipleClaim =
     OverpaymentsMultipleClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   val completeClaimWithMatchingUserEoriGen: Gen[OverpaymentsMultipleClaim] =
@@ -250,9 +250,9 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
             }
         )
 
-      val displayDeclarations: Seq[DisplayDeclaration] =
+      val importDeclarations: Seq[ImportDeclaration] =
         paidDuties.map { case (mrn, paidDutiesPerMrn) =>
-          buildDisplayDeclaration(
+          buildImportDeclaration(
             mrn.value,
             declarantEORI,
             if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -282,7 +282,7 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
           userEoriNumber = userEoriNumber,
           movementReferenceNumbers = Some(mrns),
           payeeType = payeeType,
-          displayDeclarations = Some(displayDeclarations),
+          importDeclarations = Some(importDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
@@ -311,11 +311,11 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
     )
 
   def incompleteClaimWithMrnsGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
-    def submitData(claim: OverpaymentsMultipleClaim)(data: ((MRN, DisplayDeclaration), Int)) =
+    def submitData(claim: OverpaymentsMultipleClaim)(data: ((MRN, ImportDeclaration), Int)) =
       claim.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
-    listOfExactlyN(n, mrnWithDisplayDeclarationGen).map { data =>
-      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
+    listOfExactlyN(n, mrnWithImportDeclarationGen).map { data =>
+      val dataWithIndex: List[((MRN, ImportDeclaration), Int)] = data.zipWithIndex
       (
         emptyClaim
           .flatMapEach(dataWithIndex, submitData)
@@ -396,8 +396,8 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclarations: Seq[DisplayDeclaration] = mrns.map { mrn =>
-        buildDisplayDeclaration(
+      val importDeclarations: Seq[ImportDeclaration] = mrns.map { mrn =>
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -419,7 +419,7 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumbers = Some(mrns),
-        displayDeclarations = Some(displayDeclarations),
+        importDeclarations = Some(importDeclarations),
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
         contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,

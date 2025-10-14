@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
@@ -96,7 +96,7 @@ class EnterMovementReferenceNumberController @Inject() (
           mrn =>
             {
               for
-                maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+                maybeAcc14    <- claimService.getImportDeclaration(mrn)
                 _             <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
                                    claim,
                                    maybeAcc14
@@ -118,7 +118,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     )
                   )
-                } else if error.message === "submitMovementReferenceNumber.wrongDisplayDeclarationEori" then {
+                } else if error.message === "submitMovementReferenceNumber.wrongImportDeclarationEori" then {
                   (claim, BadRequest(customError(mrn, pageIndex, "multiple.error.wrongMRN")))
                 } else if error.message === "submitMovementReferenceNumber.needsSubsidy" then {
                   (
@@ -147,7 +147,7 @@ class EnterMovementReferenceNumberController @Inject() (
     claim: Claim,
     mrnIndex: Int,
     mrn: MRN,
-    maybeAcc14: Option[DisplayDeclaration]
+    maybeAcc14: Option[ImportDeclaration]
   ): EitherT[Future, Error, Claim] =
     maybeAcc14 match {
       case Some(acc14) =>

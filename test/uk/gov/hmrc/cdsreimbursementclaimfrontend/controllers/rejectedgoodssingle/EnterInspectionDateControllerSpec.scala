@@ -124,21 +124,21 @@ class EnterInspectionDateControllerSpec
 
     "handle submit requests" when {
       "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll(
-        displayDeclarationGen,
+        importDeclarationGen,
         genDate
-      ) { (displayDeclaration, date) =>
+      ) { (importDeclaration, date) =>
         val address: EstablishmentAddress = sample[EstablishmentAddress].copy(postalCode = Some("BN16 1A9"))
         val declarant                     = sample[DeclarantDetails].copy(establishmentAddress = address)
         val consignee                     = sample[ConsigneeDetails].copy(establishmentAddress = address)
 
-        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail
+        val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
         val initialClaim =
           RejectedGoodsSingleClaim
-            .empty(updatedDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .empty(updatedImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedImportDeclaration)
             .getOrFail
 
         val initialSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(initialClaim))
@@ -163,20 +163,20 @@ class EnterInspectionDateControllerSpec
 
       "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll(
         genDate,
-        displayDeclarationGen
-      ) { (date, displayDeclaration) =>
+        importDeclarationGen
+      ) { (date, importDeclaration) =>
         val address: EstablishmentAddress = sample[EstablishmentAddress].copy(postalCode = None)
         val declarant                     = sample[DeclarantDetails].copy(contactDetails = None, establishmentAddress = address)
         val consignee                     = sample[ConsigneeDetails].copy(contactDetails = None, establishmentAddress = address)
 
-        val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail
+        val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail
           .copy(consigneeDetails = Some(consignee), declarantDetails = declarant)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
         val claim =
           RejectedGoodsSingleClaim
-            .empty(updatedDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .empty(updatedImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedImportDeclaration)
             .getOrFail
 
         val requiredSession = SessionData(claim)

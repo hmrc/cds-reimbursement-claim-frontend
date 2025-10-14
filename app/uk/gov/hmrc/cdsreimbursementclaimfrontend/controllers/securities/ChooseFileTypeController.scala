@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ChooseFileTypeMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_file_type
 
@@ -45,7 +45,7 @@ class ChooseFileTypeController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 

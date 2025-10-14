@@ -50,7 +50,7 @@ class RejectedGoodsScheduledClaimSpec
       emptyClaim.answers.eoriNumbersVerification                                shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
       emptyClaim.answers.detailsOfRejectedGoods                                 shouldBe None
-      emptyClaim.answers.displayDeclaration                                     shouldBe None
+      emptyClaim.answers.importDeclaration                                      shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber) shouldBe None
       emptyClaim.answers.inspectionAddress                                      shouldBe None
       emptyClaim.answers.inspectionDate                                         shouldBe None
@@ -112,7 +112,7 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "accept submission of a new MRN" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl)
           .getOrFail
@@ -125,21 +125,21 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "decline submission of a wrong display declaration" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claimEither = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl.withDeclarationId("foo"))
 
-        claimEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+        claimEither shouldBe Left("submitMovementReferenceNumber.wrongImportDeclarationMrn")
       }
     }
 
     "accept change of the MRN" in {
-      forAll(completeClaimGen, displayDeclarationGen) { (claim, decl) =>
+      forAll(completeClaimGen, importDeclarationGen) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration     shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration      shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers             shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences shouldBe false
@@ -149,13 +149,13 @@ class RejectedGoodsScheduledClaimSpec
     "accept change of the MRN when user has XI eori" in {
       forAll(
         completeClaimGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value))),
-        displayDeclarationGen
+        importDeclarationGen
       ) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences  shouldBe false
@@ -170,7 +170,7 @@ class RejectedGoodsScheduledClaimSpec
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(
             claim.answers.movementReferenceNumber.get,
-            claim.answers.displayDeclaration.get
+            claim.answers.importDeclaration.get
           )
           .getOrFail
         modifiedClaim                                shouldBe claim
@@ -181,7 +181,7 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "accept submission of a new ACC14 data" in {
-      forAll(displayDeclarationGen) { acc14 =>
+      forAll(importDeclarationGen) { acc14 =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(
             exampleMrn,
@@ -189,11 +189,11 @@ class RejectedGoodsScheduledClaimSpec
           )
           .getOrFail
 
-        claim.answers.movementReferenceNumber.contains(exampleMrn)                             shouldBe true
-        claim.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
-        claim.hasCompleteAnswers                                                               shouldBe false
-        claim.hasCompleteReimbursementClaims                                                   shouldBe false
-        claim.hasCompleteSupportingEvidences                                                   shouldBe false
+        claim.answers.movementReferenceNumber.contains(exampleMrn)                            shouldBe true
+        claim.answers.importDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
+        claim.hasCompleteAnswers                                                              shouldBe false
+        claim.hasCompleteReimbursementClaims                                                  shouldBe false
+        claim.hasCompleteSupportingEvidences                                                  shouldBe false
       }
     }
 
@@ -203,11 +203,11 @@ class RejectedGoodsScheduledClaimSpec
           claim
             .submitMovementReferenceNumberAndDeclaration(
               exampleMrn,
-              exampleDisplayDeclaration
+              exampleImportDeclaration
             )
             .getOrFail
         modifiedClaim.answers.movementReferenceNumber shouldBe Some(exampleMrn)
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(exampleImportDeclaration)
         modifiedClaim.answers.correctedAmounts        shouldBe None
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
@@ -216,12 +216,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe true
@@ -230,12 +230,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       exampleXIEori.isXiEori                         shouldBe true
@@ -254,12 +254,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -268,12 +268,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -282,12 +282,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -297,12 +297,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -312,12 +312,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -340,48 +340,48 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "fail if submitted consignee EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
 
     "fail if submitted consignee EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
     }
 
     "fail if submitted declarant EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
     }
 
     "fail if submitted declarant EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
@@ -929,12 +929,12 @@ class RejectedGoodsScheduledClaimSpec
     }
 
     "submit bankAccountDetails and bankAccountType" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         RejectedGoodsScheduledClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceDutyTypeSetForReimbursement(DutyTypes.custom))
           .flatMap(_.selectAndReplaceTaxCodeSetForDutyType(DutyType.UkDuty, Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(DutyType.UkDuty, TaxCode.A00, BigDecimal("2.00"), BigDecimal("1.00")))
@@ -1040,7 +1040,7 @@ class RejectedGoodsScheduledClaimSpec
       import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport.withSomeSubsidiesPaymentMethod
 
       val declaration =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
           .withSomeSubsidiesPaymentMethod()
 
       val claim = RejectedGoodsScheduledClaim

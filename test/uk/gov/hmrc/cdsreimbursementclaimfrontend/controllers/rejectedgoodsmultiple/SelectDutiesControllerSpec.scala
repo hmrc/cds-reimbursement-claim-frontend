@@ -239,16 +239,16 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible when no duties are available" in {
         val displayResponseDetailWithoutDuties      =
-          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
-        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+          exampleImportDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleImportDeclaration.copy(displayResponseDetailWithoutDuties)
         val claim                                   = RejectedGoodsMultipleClaim
           .tryBuildFrom(
             RejectedGoodsMultipleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
-              displayDeclarations = Some(
+              importDeclarations = Some(
                 Seq(
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration
                     .withDeclarationId(exampleMrn.value)
                     .withDeclarantEori(exampleEori),
                   displayResponseDeclarationWithoutDuties
@@ -382,16 +382,16 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible when no duties are available" in {
         val displayResponseDetailWithoutDuties      =
-          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
-        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+          exampleImportDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleImportDeclaration.copy(displayResponseDetailWithoutDuties)
         val claim                                   = RejectedGoodsMultipleClaim
           .tryBuildFrom(
             RejectedGoodsMultipleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumbers = Some(Seq(exampleMrn, anotherExampleMrn)),
-              displayDeclarations = Some(
+              importDeclarations = Some(
                 Seq(
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration
                     .withDeclarationId(exampleMrn.value)
                     .withDeclarantEori(exampleEori),
                   displayResponseDeclarationWithoutDuties

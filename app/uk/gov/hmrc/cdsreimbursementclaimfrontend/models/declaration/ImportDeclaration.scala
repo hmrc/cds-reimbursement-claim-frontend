@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-final case class DisplayDeclaration(
+final case class ImportDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
 
@@ -145,22 +145,22 @@ final case class DisplayDeclaration(
       .map(getSecurityDetailsFor(_).map(_.getPaidAmount).getOrElse(BigDecimal("0.00")))
       .sum
 
-  def withDeclarationId(declarationId: String): DisplayDeclaration =
+  def withDeclarationId(declarationId: String): ImportDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(declarationId = declarationId))
 
-  def optionallyWithMRN(maybeMRN: Option[MRN]): DisplayDeclaration =
+  def optionallyWithMRN(maybeMRN: Option[MRN]): ImportDeclaration =
     maybeMRN
       .map(mrn => copy(displayResponseDetail = displayResponseDetail.copy(declarationId = mrn.value)))
       .getOrElse(this)
 
-  def withDeclarantEori(eori: Eori): DisplayDeclaration =
+  def withDeclarantEori(eori: Eori): ImportDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(declarantDetails =
         displayResponseDetail.declarantDetails.copy(declarantEORI = eori.value)
       )
     )
 
-  def withConsigneeEori(eori: Eori): DisplayDeclaration =
+  def withConsigneeEori(eori: Eori): ImportDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(consigneeDetails =
         displayResponseDetail.consigneeDetails
@@ -178,13 +178,13 @@ final case class DisplayDeclaration(
       )
     )
 
-  def withBankDetails(bankDetails: Option[BankDetails]): DisplayDeclaration =
+  def withBankDetails(bankDetails: Option[BankDetails]): ImportDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
 
-  def withReasonForSecurity(reasonForSecurity: ReasonForSecurity): DisplayDeclaration =
+  def withReasonForSecurity(reasonForSecurity: ReasonForSecurity): ImportDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(securityReason = Some(reasonForSecurity.acc14Code)))
 
-  def hasSameEoriAs(other: DisplayDeclaration): Boolean =
+  def hasSameEoriAs(other: ImportDeclaration): Boolean =
     this.getDeclarantEori === other.getDeclarantEori ||
       this.getConsigneeEori.exists(eori => other.getConsigneeEori.contains(eori))
 
@@ -235,7 +235,7 @@ final case class DisplayDeclaration(
   def hasOnlySubsidyPayments: Boolean =
     displayResponseDetail.ndrcDetails.exists(_.forall(_.hasSubsidyPaymentMethod))
 
-  def removeSubsidyItems: DisplayDeclaration =
+  def removeSubsidyItems: ImportDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(ndrcDetails =
         displayResponseDetail.ndrcDetails.map(ndrcDetailsList =>
@@ -244,7 +244,7 @@ final case class DisplayDeclaration(
       )
     )
 
-  def withDeclarantContactDetails(contactDetails: ContactDetails): DisplayDeclaration =
+  def withDeclarantContactDetails(contactDetails: ContactDetails): ImportDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(declarantDetails =
         displayResponseDetail.declarantDetails.copy(contactDetails = Some(contactDetails))
@@ -271,7 +271,7 @@ final case class DisplayDeclaration(
       case _                     => false
     }
 
-  def removeUnsupportedTaxCodes(): DisplayDeclaration =
+  def removeUnsupportedTaxCodes(): ImportDeclaration =
     copy(displayResponseDetail =
       displayResponseDetail.copy(ndrcDetails =
         displayResponseDetail.ndrcDetails.map(ndrcDetailsList =>
@@ -287,14 +287,14 @@ final case class DisplayDeclaration(
 
 }
 
-object DisplayDeclaration {
+object ImportDeclaration {
 
   // TODO: not good code, most of this needed to be mapped when parsing from JSON
   // Same as devs must know about some workaround extension class import which not always the case
-  implicit class DisplayDeclarationOps(private val displayDeclaration: DisplayDeclaration) {
+  implicit class ImportDeclarationOps(private val importDeclaration: ImportDeclaration) {
 
     def totalVatPaidCharges: Option[BigDecimal] =
-      displayDeclaration.displayResponseDetail.ndrcDetails
+      importDeclaration.displayResponseDetail.ndrcDetails
         .map(
           _.filter(ndrc => TaxCode(ndrc.taxType).isVAT)
         )
@@ -303,7 +303,7 @@ object DisplayDeclaration {
 
     def totalDutiesPaidCharges: BigDecimal =
       BigDecimal(
-        displayDeclaration.displayResponseDetail.ndrcDetails
+        importDeclaration.displayResponseDetail.ndrcDetails
           .map(
             _.filterNot(ndrc => TaxCode(ndrc.taxType).isVAT)
           )
@@ -312,39 +312,39 @@ object DisplayDeclaration {
 
     def totalPaidCharges: BigDecimal =
       BigDecimal(
-        displayDeclaration.displayResponseDetail.ndrcDetails.fold(0.0)(ndrcDetails =>
+        importDeclaration.displayResponseDetail.ndrcDetails.fold(0.0)(ndrcDetails =>
           ndrcDetails.map(s => s.amount.toDouble).sum
         )
       )
 
     def consigneeName: Option[String] =
-      displayDeclaration.displayResponseDetail.consigneeDetails.map(details => details.legalName)
+      importDeclaration.displayResponseDetail.consigneeDetails.map(details => details.legalName)
 
     def consigneeEmail: Option[String] =
-      displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
+      importDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
         details.contactDetails.flatMap(f => f.maybeEmailAddress)
       )
 
     def consigneeTelephone: Option[String] =
-      displayDeclaration.getConsigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
+      importDeclaration.getConsigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
 
     def consigneeAddress(implicit messages: Messages): Option[String] =
-      displayDeclaration.displayResponseDetail.consigneeDetails.map(details =>
+      importDeclaration.displayResponseDetail.consigneeDetails.map(details =>
         establishmentAddress(details.establishmentAddress).mkString("<br>")
       )
 
-    def declarantName: String = displayDeclaration.displayResponseDetail.declarantDetails.legalName
+    def declarantName: String = importDeclaration.displayResponseDetail.declarantDetails.legalName
 
     def declarantEmailAddress: Option[String] =
-      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details =>
+      importDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details =>
         details.maybeEmailAddress
       )
 
     def declarantTelephoneNumber: Option[String] =
-      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
+      importDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
 
     def declarantContactAddress(implicit messages: Messages): Option[String] =
-      Option(displayDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
+      Option(importDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
         establishmentAddress(address).mkString("<br>")
       )
 
@@ -372,7 +372,7 @@ object DisplayDeclaration {
       ).flattenOption
   }
 
-  implicit val format: OFormat[DisplayDeclaration] = Json.format[DisplayDeclaration]
+  implicit val format: OFormat[ImportDeclaration] = Json.format[ImportDeclaration]
 
-  implicit val equality: Eq[DisplayDeclaration] = Eq.fromUniversalEquals[DisplayDeclaration]
+  implicit val equality: Eq[ImportDeclaration] = Eq.fromUniversalEquals[ImportDeclaration]
 }

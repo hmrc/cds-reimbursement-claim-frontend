@@ -17,17 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
-trait AdjustDisplayDeclaration {
+trait AdjustImportDeclaration {
   def adjustWithDeclarantEori(
-    displayDeclaration: DisplayDeclaration,
+    importDeclaration: ImportDeclaration,
     claim: CommonClaimProperties
-  ): DisplayDeclaration =
+  ): ImportDeclaration =
     claim.getDeclarantEoriFromACC14
-      .fold(displayDeclaration) { eori =>
-        val declarant = displayDeclaration.getDeclarantDetails.copy(declarantEORI = eori.value)
-        val drd       = displayDeclaration.displayResponseDetail.copy(declarantDetails = declarant)
-        displayDeclaration.copy(displayResponseDetail = drd)
+      .fold(importDeclaration) { eori =>
+        val declarant = importDeclaration.getDeclarantDetails.copy(declarantEORI = eori.value)
+        val drd       = importDeclaration.displayResponseDetail.copy(declarantDetails = declarant)
+        importDeclaration.copy(displayResponseDetail = drd)
       }
 }

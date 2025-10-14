@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -26,10 +26,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.DateFormatter.toDisplayDate
 
-object DisplayDeclarationCardImportDetails {
+object ImportDeclarationCardImportDetails {
 
   def apply(
-    declaration: DisplayDeclaration,
+    declaration: ImportDeclaration,
     key: String
   )(implicit
     messages: Messages

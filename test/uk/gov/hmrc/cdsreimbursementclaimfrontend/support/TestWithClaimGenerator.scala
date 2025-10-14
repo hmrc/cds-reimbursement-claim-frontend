@@ -20,13 +20,13 @@ import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 trait TestWithClaimGenerator[Claim] {
   self: ScalaCheckPropertyChecks =>
 
-  extension [T <: Tuple](gen: Gen[MRN *: ReasonForSecurity *: DisplayDeclaration *: T]) {
-    def withReasonForSecurity(rfs: ReasonForSecurity): Gen[MRN *: ReasonForSecurity *: DisplayDeclaration *: T] =
+  extension [T <: Tuple](gen: Gen[MRN *: ReasonForSecurity *: ImportDeclaration *: T]) {
+    def withReasonForSecurity(rfs: ReasonForSecurity): Gen[MRN *: ReasonForSecurity *: ImportDeclaration *: T] =
       gen.map { case mrn *: _ *: declaration *: tup =>
         (mrn, rfs, declaration.withReasonForSecurity(rfs)) ++ tup
       }

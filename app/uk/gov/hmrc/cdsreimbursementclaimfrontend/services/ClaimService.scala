@@ -25,7 +25,7 @@ import com.google.inject.Singleton
 import play.api.http.Status.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -38,11 +38,11 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
-  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
+  def getImportDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[ImportDeclaration]]
 
-  def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+  def getImportDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, GetDeclarationError, DisplayDeclaration]
+  ): EitherT[Future, GetDeclarationError, ImportDeclaration]
 }
 
 @Singleton
@@ -53,13 +53,13 @@ class DefaultClaimService @Inject() (
 ) extends ClaimService
     with Logging {
 
-  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
+  def getImportDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[ImportDeclaration]] =
     DeclarationConnector
       .getDeclaration(mrn)
       .subflatMap { response =>
         if response.status === OK then {
           response
-            .parseJSON[DisplayDeclaration]()
+            .parseJSON[ImportDeclaration]()
             .map(Some(_))
             .leftMap(Error(_))
         } else if response.status === NO_CONTENT then {
@@ -67,16 +67,16 @@ class DefaultClaimService @Inject() (
         } else Left(Error(s"call to get declaration details ${response.status}"))
       }
 
-  def getDisplayDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+  def getImportDeclarationWithErrorCodes(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, GetDeclarationError, DisplayDeclaration] =
+  ): EitherT[Future, GetDeclarationError, ImportDeclaration] =
     DeclarationConnector
       .getDeclaration(mrn, reasonForSecurity)
       .leftMap(_ => GetDeclarationError.unexpectedError)
       .subflatMap { response =>
         if response.status === OK then {
           response
-            .parseJSON[DisplayDeclaration]()
+            .parseJSON[ImportDeclaration]()
             .leftMap(_ => GetDeclarationError.unexpectedError)
         } else if response.status === BAD_REQUEST then {
           Left(

@@ -16,21 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 
 trait ReplaceEstablishmentAddresses {
   def replaceEstablishmentAddresses(
-    displayDeclaration: DisplayDeclaration,
+    importDeclaration: ImportDeclaration,
     address: EstablishmentAddress
-  ): DisplayDeclaration = {
-    val consignee                    = displayDeclaration.getConsigneeDetails.map(_.copy(establishmentAddress = address))
-    val declarant                    = displayDeclaration.getDeclarantDetails.copy(establishmentAddress = address)
-    val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail
+  ): ImportDeclaration = {
+    val consignee                    = importDeclaration.getConsigneeDetails.map(_.copy(establishmentAddress = address))
+    val declarant                    = importDeclaration.getDeclarantDetails.copy(establishmentAddress = address)
+    val updatedDisplayResponseDetail = importDeclaration.displayResponseDetail
       .copy(
         consigneeDetails = consignee,
         declarantDetails = declarant
       )
-    displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+    importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
   }
 }

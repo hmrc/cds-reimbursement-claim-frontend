@@ -57,7 +57,7 @@ class CheckYourAnswersController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+    Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
@@ -79,7 +79,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   claim.isAllSelectedDutiesAreCMAEligible,
-                  claim.answers.displayDeclaration,
+                  claim.answers.importDeclaration,
                   postAction
                 )
               )

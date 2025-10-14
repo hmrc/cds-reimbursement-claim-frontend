@@ -21,7 +21,7 @@ import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -73,20 +73,20 @@ final class OverpaymentsMultipleClaim private (
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
 
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclarations.flatMap(_.headOption)
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclarations.flatMap(_.headOption)
 
-  def getDisplayDeclarationFor(mrn: MRN): Option[DisplayDeclaration] =
+  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
     for
-      declarations <- answers.displayDeclarations
+      declarations <- answers.importDeclarations
       declaration  <- declarations.find(_.getMRN === mrn)
     yield declaration
 
-  def getNthDisplayDeclaration(index: Int): Option[DisplayDeclaration] =
-    getNthMovementReferenceNumber(index).flatMap(getDisplayDeclarationFor)
+  def getNthImportDeclaration(index: Int): Option[ImportDeclaration] =
+    getNthMovementReferenceNumber(index).flatMap(getImportDeclarationFor)
 
-  override def getDisplayDeclarations: Seq[DisplayDeclaration] =
-    answers.displayDeclarations.getOrElse(Seq.empty)
+  override def getImportDeclarations: Seq[ImportDeclaration] =
+    answers.importDeclarations.getOrElse(Seq.empty)
 
   def getNthMovementReferenceNumber(index: Int): Option[MRN] =
     answers.movementReferenceNumbers.flatMap { mrns =>
@@ -110,13 +110,13 @@ final class OverpaymentsMultipleClaim private (
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry)
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
+    getLeadImportDeclaration.flatMap(_.getNdrcDetailsList)
 
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
-    getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
   def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
-    getDisplayDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
+    getImportDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
     * found.
@@ -170,7 +170,7 @@ final class OverpaymentsMultipleClaim private (
       .exists(isAllSelectedDutiesAreCMAEligible)
 
   def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
-    getDisplayDeclarationFor(declarationId)
+    getImportDeclarationFor(declarationId)
       .flatMap(_.getNdrcDutiesWithAmount)
       .getOrElse(Seq.empty)
 
@@ -254,42 +254,42 @@ final class OverpaymentsMultipleClaim private (
     BasisOfOverpaymentClaim
       .excludeNorthernIrelandClaims(
         hasDuplicateEntryClaim = false,
-        getLeadDisplayDeclaration,
+        getLeadImportDeclaration,
         isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
   def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
-    getDisplayDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
+    getImportDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
 
   def removeUnsupportedTaxCodes(): OverpaymentsMultipleClaim =
-    this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
+    this.copy(answers.copy(importDeclarations = answers.importDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
 
   /** Resets the claim with the new MRN or keep existing claim if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     index: Int,
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
       if index < 0 then Left("submitMovementReferenceNumber.negativeIndex")
       else if index > countOfMovementReferenceNumbers then Left("submitMovementReferenceNumber.invalidIndex")
-      else if mrn =!= displayDeclaration.getMRN then
+      else if mrn =!= importDeclaration.getMRN then
         Left(
-          "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+          "submitMovementReferenceNumber.wrongImportDeclarationMrn"
         )
       else if index > 0 &&
-        !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs)
+        !getLeadImportDeclaration.exists(importDeclaration.hasSameEoriAs)
       then
         Left(
-          "submitMovementReferenceNumber.wrongDisplayDeclarationEori"
+          "submitMovementReferenceNumber.wrongImportDeclarationEori"
         )
       else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
               if existingMrn === mrn &&
-                getDisplayDeclarationFor(mrn).contains(displayDeclaration) =>
+                getImportDeclarationFor(mrn).contains(importDeclaration) =>
             Right(this)
 
           // change an existing MRN
@@ -304,7 +304,7 @@ final class OverpaymentsMultipleClaim private (
                     .Answers(
                       userEoriNumber = answers.userEoriNumber,
                       movementReferenceNumbers = Some(Seq(mrn)),
-                      displayDeclarations = Some(Seq(displayDeclaration)),
+                      importDeclarations = Some(Seq(importDeclaration)),
                       eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
                     ),
@@ -319,8 +319,8 @@ final class OverpaymentsMultipleClaim private (
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers
                       .map(mrns => (mrns.take(index) :+ mrn) ++ mrns.drop(index + 1)),
-                    displayDeclarations = answers.displayDeclarations.map(
-                      _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
+                    importDeclarations = answers.importDeclarations.map(
+                      _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ importDeclaration
                     ),
                     correctedAmounts =
                       answers.correctedAmounts.map(_.removed(existingMrn).updated(mrn, OrderedMap.empty))
@@ -338,8 +338,8 @@ final class OverpaymentsMultipleClaim private (
                 this.copy(
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
-                    displayDeclarations =
-                      answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
+                    importDeclarations =
+                      answers.importDeclarations.map(_ :+ importDeclaration).orElse(Some(Seq(importDeclaration))),
                     correctedAmounts = answers.correctedAmounts
                       .map(_ + (mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]]))
                       .orElse(Some(OrderedMap(mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]])))
@@ -351,24 +351,24 @@ final class OverpaymentsMultipleClaim private (
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ): Either[String, OverpaymentsMultipleClaim] =
-    submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
+    submitMovementReferenceNumberAndDeclaration(0, mrn, importDeclaration)
 
-  def removeMovementReferenceNumberAndDisplayDeclaration(mrn: MRN): Either[String, OverpaymentsMultipleClaim] =
+  def removeMovementReferenceNumberAndImportDeclaration(mrn: MRN): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
       getIndexOfMovementReferenceNumber(mrn) match {
-        case None                                             => Left("removeMovementReferenceNumberAndDisplayDeclaration.notFound")
-        case Some(0)                                          => Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN")
+        case None                                             => Left("removeMovementReferenceNumberAndImportDeclaration.notFound")
+        case Some(0)                                          => Left("removeMovementReferenceNumberAndImportDeclaration.cannotRemoveFirstMRN")
         case Some(1) if countOfMovementReferenceNumbers === 2 =>
-          Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
+          Left("removeMovementReferenceNumberAndImportDeclaration.cannotRemoveSecondMRN")
         case Some(index)                                      =>
           Right(
             this.copy(
               answers.copy(
                 movementReferenceNumbers = answers.movementReferenceNumbers
                   .map(mrns => mrns.take(index) ++ mrns.drop(index + 1)),
-                displayDeclarations = answers.displayDeclarations.map(
+                importDeclarations = answers.importDeclarations.map(
                   _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
                 ),
                 correctedAmounts = answers.correctedAmounts.map(_.removed(mrn))
@@ -484,8 +484,8 @@ final class OverpaymentsMultipleClaim private (
     taxCodes: Seq[TaxCode]
   ): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(declarationId) match {
-        case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+      getImportDeclarationFor(declarationId) match {
+        case None => Left("selectTaxCodeSetForReimbursement.missingImportDeclaration")
 
         case Some(_) =>
           if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
@@ -525,9 +525,9 @@ final class OverpaymentsMultipleClaim private (
     correctAmount: BigDecimal
   ): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(declarationId) match {
+      getImportDeclarationFor(declarationId) match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(declarationId, taxCode) match {
@@ -563,9 +563,9 @@ final class OverpaymentsMultipleClaim private (
     claimAmount: BigDecimal
   ): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(declarationId) match {
+      getImportDeclarationFor(declarationId) match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(declarationId, taxCode) match {
@@ -768,7 +768,7 @@ object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClai
     userEoriNumber: Eori,
     movementReferenceNumbers: Option[Seq[MRN]] = None,
     payeeType: Option[PayeeType] = None,
-    displayDeclarations: Option[Seq[DisplayDeclaration]] = None,
+    importDeclarations: Option[Seq[ImportDeclaration]] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
@@ -822,7 +822,7 @@ object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClai
   /** Validate if all required answers has been provided and the claim is ready to produce output. */
   override implicit val validator: Validate[OverpaymentsMultipleClaim] =
     all(
-      hasMRNAndDisplayDeclaration,
+      hasMRNAndImportDeclaration,
       containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       basisOfClaimHasBeenProvided,
@@ -878,8 +878,8 @@ object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClai
     features: Option[Features] = None
   ): Either[String, OverpaymentsMultipleClaim] =
     empty(answers.userEoriNumber, answers.nonce, features)
-      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
-        case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.importDeclarations).zipWithIndex)(j => {
+        case ((mrn: MRN, decl: ImportDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)

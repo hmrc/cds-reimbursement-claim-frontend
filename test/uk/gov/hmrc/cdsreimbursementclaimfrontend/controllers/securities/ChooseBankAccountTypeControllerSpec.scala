@@ -76,7 +76,7 @@ class ChooseBankAccountTypeControllerSpec
 
     "display page" in forAllWith(
       ClaimGenerator(
-        testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+        testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsNotGuaranteeEligibleGen,
         claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
       )
     ) { case (initialClaim: SecuritiesClaim, _) =>
@@ -94,7 +94,7 @@ class ChooseBankAccountTypeControllerSpec
     "fail to submit bank account type" when {
       "nothing is selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsNotGuaranteeEligibleGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim: SecuritiesClaim, _) =>
@@ -120,7 +120,7 @@ class ChooseBankAccountTypeControllerSpec
     "successfully submit bank account type" when {
       "one of the options selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsNotGuaranteeEligibleGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsNotGuaranteeEligibleGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim: SecuritiesClaim, _) =>

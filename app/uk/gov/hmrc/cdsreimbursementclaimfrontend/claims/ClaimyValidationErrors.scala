@@ -22,7 +22,7 @@ object ClaimValidationErrors {
   val CLAIM_ALREADY_FINALIZED: String                  = "claimAlreadyFinalized"
   val MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER: String  = "missingFirstMovementReferenceNumber"
   val MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER: String = "missingSecondMovementReferenceNumber"
-  val MISSING_DISPLAY_DECLARATION: String              = "missingDisplayDeclaration"
+  val MISSING_DISPLAY_DECLARATION: String              = "missingImportDeclaration"
   val UNSUPPORTED_TAX_CODES: String                    = "unsupportedTaxCodes"
   val MISSING_BASIS_OF_CLAIM: String                   = "missingBasisOfClaim"
   val MISSING_DETAILS_OF_OVERPAYMENT: String           = "missingDetailsOfOverpayment"
@@ -87,11 +87,11 @@ object ClaimValidationErrors {
   val DUPLICATE_MOVEMENT_REFERENCE_NUMBER_MUST_NOT_BE_DEFINED: String           =
     "duplicateMovementReferenceNumber when basisOfClaim value is not DuplicateEntry"
   val DUPLICATE_DISPLAY_DECLARATION_MUST_BE_DEFINED: String                     =
-    "duplicateDisplayDeclaration must be defined when basisOfClaim value is DuplicateEntry"
+    "duplicateImportDeclaration must be defined when basisOfClaim value is DuplicateEntry"
   val DUPLICATE_DISPLAY_DECLARATION_MUST_BE_VERIFIED: String                    =
-    "duplicateDisplayDeclaration must be verified"
+    "duplicateImportDeclaration must be verified"
   val DUPLICATE_DISPLAY_DECLARATION_MUST_NOT_BE_DEFINED: String                 =
-    "duplicateDisplayDeclaration must not be defined when basisOfClaim value is not DuplicateEntry"
+    "duplicateImportDeclaration must not be defined when basisOfClaim value is not DuplicateEntry"
   val DUPLICATE_MOVEMENT_REFERENCE_NUMBER_NOT_REQUIRED: String                  =
     "duplicateMovementReferenceNumberNotRequired"
   val DUTIES_CHANGE_MODE_ENABLED: String                                        =
@@ -99,9 +99,9 @@ object ClaimValidationErrors {
   val ENTER_CONTACT_DETAILS_MODE_ENABLED: String                                =
     "enterContactDetailsModeEnabled"
   val DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT: String                           =
-    "displayDeclarationHasSubsidyPayment"
+    "importDeclarationHasSubsidyPayment"
   val DISPLAY_DECLARATION_MUST_HAVE_ONLY_SUBSIDY_PAYMENTS: String               =
-    "displayDeclarationMustHaveOnlySubsidyPayments"
+    "importDeclarationMustHaveOnlySubsidyPayments"
   val SHOULD_MATCH_ACC14_CONSIGNEE_EORI: String                                 =
     "submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14"
   val SHOULD_MATCH_ACC14_DUPLICATE_CONSIGNEE_EORI                               =

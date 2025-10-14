@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -42,10 +42,10 @@ class CheckDeclarationDetailsController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+    Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final override def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration] =
-    claim.getLeadDisplayDeclaration
+  final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
+    claim.getLeadImportDeclaration
 
   final override def continueRoute(claim: Claim): Call =
     routes.UploadMrnListController.show
@@ -56,7 +56,7 @@ class CheckDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDeclarationDetailsController.submit
 
-  override def viewTemplate: (DisplayDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
+  override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim) =>
       checkDeclarationDetailsPage(
         declaration = decl,

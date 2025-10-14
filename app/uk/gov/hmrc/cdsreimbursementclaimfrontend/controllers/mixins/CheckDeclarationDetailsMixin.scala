@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 import scala.concurrent.Future
 
@@ -31,15 +31,15 @@ trait CheckDeclarationDetailsMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & ClaimBase & CommonClaimProperties
 
-  def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration]
+  def getImportDeclaration(claim: Claim): Option[ImportDeclaration]
   def continueRoute(claim: Claim): Call
   val enterMovementReferenceNumberRoute: Call
 
-  def viewTemplate: (DisplayDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
+  def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful(
-      getDisplayDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
+      getImportDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
         Ok(
           viewTemplate(
             declaration,

@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
@@ -50,7 +50,7 @@ class SelectDutiesController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 

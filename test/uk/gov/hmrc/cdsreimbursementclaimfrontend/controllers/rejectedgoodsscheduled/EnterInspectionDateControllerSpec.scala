@@ -34,11 +34,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddresses
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -51,7 +51,7 @@ class EnterInspectionDateControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
-    with AdjustDisplayDeclaration
+    with AdjustImportDeclaration
     with ReplaceEstablishmentAddresses {
 
   override val overrideBindings: List[GuiceableModule] =
@@ -163,13 +163,13 @@ class EnterInspectionDateControllerSpec
 
       "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll {
         (
-          displayDeclaration: DisplayDeclaration,
+          importDeclaration: ImportDeclaration,
           address: EstablishmentAddress,
           date: InspectionDate
         ) =>
           whenever(address.postalCode.isDefined) {
             val adjustedDeclaration = adjustWithDeclarantEori(
-              replaceEstablishmentAddresses(displayDeclaration, address),
+              replaceEstablishmentAddresses(importDeclaration, address),
               session.rejectedGoodsScheduledClaim.get
             )
             val claim               = session.rejectedGoodsScheduledClaim.get
@@ -199,13 +199,13 @@ class EnterInspectionDateControllerSpec
 
       "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll {
         (
-          displayDeclaration: DisplayDeclaration,
+          importDeclaration: ImportDeclaration,
           date: InspectionDate
         ) =>
           val addressWithoutPostCode =
-            displayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
+            importDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
           val adjustedDeclaration    = adjustWithDeclarantEori(
-            replaceEstablishmentAddresses(displayDeclaration, addressWithoutPostCode),
+            replaceEstablishmentAddresses(importDeclaration, addressWithoutPostCode),
             session.rejectedGoodsScheduledClaim.get
           )
 

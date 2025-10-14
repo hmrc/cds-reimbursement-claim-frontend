@@ -18,7 +18,7 @@
 @import play.api.mvc.{Call, Request}
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 
 @this(
@@ -31,7 +31,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(declaration: DisplayDeclaration, isDuplicate: Boolean, postAction: Call, enterMrnAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(declaration: ImportDeclaration, isDuplicate: Boolean, postAction: Call, enterMrnAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages("check-import-declaration-details.title")}
 @layout(pageTitle = Some(s"$title")) {
@@ -39,7 +39,7 @@
     @heading(Html(title), classes="govuk-heading-l")
 
     @card(messages("check-import-declaration-details.card.claim-details"),
-        DisplayDeclarationCardClaimDetails(
+        ImportDeclarationCardClaimDetails(
             declaration,
             "check-import-declaration-details",
             enterMrnAction
@@ -48,7 +48,7 @@
     @subHeading(Html(messages(s"check-import-declaration-details.import-declaration-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
     @paragraph(Html(messages(s"check-import-declaration-details.import-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
     @card(messages("check-import-declaration-details.card.import-details"),
-        DisplayDeclarationCardImportDetails(
+        ImportDeclarationCardImportDetails(
             declaration,
             "check-import-declaration-details"
         ),
@@ -56,7 +56,7 @@
     )
 
     @card(messages("check-import-declaration-details.customs-duties-and-vat"),
-        DisplayDeclarationCardDutiesAndVATDetails(
+        ImportDeclarationCardDutiesAndVATDetails(
             declaration,
             "check-import-declaration-details"
         ),
@@ -65,7 +65,7 @@
 
     @if(declaration.getConsigneeDetails.isDefined){
         @card(messages("check-import-declaration-details.card.importer-details"),
-            DisplayDeclarationCardImporterDetails(
+            ImportDeclarationCardImporterDetails(
                 declaration,
                 "check-import-declaration-details"
             ),
@@ -74,7 +74,7 @@
     }
 
     @card(messages("check-import-declaration-details.card.declarant-details"),
-        DisplayDeclarationCardDeclarantDetails(
+        ImportDeclarationCardDeclarantDetails(
             declaration,
             "check-import-declaration-details"
         ),

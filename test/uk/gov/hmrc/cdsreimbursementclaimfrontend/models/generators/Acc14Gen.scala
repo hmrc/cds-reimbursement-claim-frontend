@@ -193,8 +193,8 @@ object Acc14Gen {
       ndrcDetails = ndrcDetails
     )
 
-  lazy val genDisplayDeclaration: Gen[DisplayDeclaration] =
-    genDisplayResponseDetail.map(DisplayDeclaration(_))
+  lazy val genImportDeclaration: Gen[ImportDeclaration] =
+    genDisplayResponseDetail.map(ImportDeclaration(_))
 
   implicit lazy val arbitraryDeclarantDetails: Arbitrary[DeclarantDetails] =
     Arbitrary(genDeclarantDetails)
@@ -208,7 +208,7 @@ object Acc14Gen {
   lazy val arbitraryDisplayResponseDetail: Arbitrary[DisplayResponseDetail] =
     Arbitrary(genDisplayResponseDetail)
 
-  implicit lazy val arbitraryDisplayDeclaration: Arbitrary[DisplayDeclaration] =
-    Arbitrary(genDisplayResponseDetail.map(DisplayDeclaration(_)))
+  implicit lazy val arbitraryImportDeclaration: Arbitrary[ImportDeclaration] =
+    Arbitrary(genDisplayResponseDetail.map(ImportDeclaration(_)))
 
 }

@@ -75,7 +75,7 @@ class CheckClaimantDetailsControllerSpec
         controller.show(FakeRequest())
 
       "display the page" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen, genMrnContactDetails, genContactAddress) {
+        forAll(mrnWithtRfsWithImportDeclarationGen, genMrnContactDetails, genContactAddress) {
           case ((mrn, rfs, decl), contactDeatils, address) =>
             val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
             whenever(depositIds.nonEmpty) {
@@ -127,7 +127,7 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the CYA page and do not update the contact/address details if they are already present" in {
         forAll(
-          mrnWithtRfsWithDisplayDeclarationGen,
+          mrnWithtRfsWithImportDeclarationGen,
           genMrnContactDetails,
           genContactAddress
         ) { case ((mrn, rfs, decl), contactDeatils, address) =>
@@ -160,22 +160,22 @@ class CheckClaimantDetailsControllerSpec
 
       "redirect to the CYA page and update the contact/address details if the claim does not already contain them." in {
         forAll(
-          mrnWithtRfsWithDisplayDeclarationGen,
+          mrnWithtRfsWithImportDeclarationGen,
           genConsigneeDetails,
           genDeclarantDetails,
           genContactAddress
         ) { case ((mrn, rfs, decl), consignee, declarant, address) =>
-          val eori               = exampleEori
-          val drd                = decl.displayResponseDetail.copy(
+          val eori              = exampleEori
+          val drd               = decl.displayResponseDetail.copy(
             declarantDetails = declarant.copy(declarantEORI = eori.value),
             consigneeDetails = Some(consignee.copy(consigneeEORI = eori.value))
           )
-          val displayDeclaration = decl.copy(displayResponseDetail = drd)
-          val depositIds         = decl.getSecurityDepositIds.getOrElse(Seq.empty)
-          val claim              = SecuritiesClaim
+          val importDeclaration = decl.copy(displayResponseDetail = drd)
+          val depositIds        = decl.getSecurityDepositIds.getOrElse(Seq.empty)
+          val claim             = SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(rfs, displayDeclaration)
+            .submitReasonForSecurityAndDeclaration(rfs, importDeclaration)
             .flatMap(_.submitClaimDuplicateCheckStatus(false))
             .flatMap(_.selectSecurityDepositId(depositIds.head))
             .getOrFail
@@ -201,7 +201,7 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the CYA page and update the contact/address details if third party user" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen, genEori) { case ((mrn, rfs, decl), userEori) =>
+        forAll(mrnWithtRfsWithImportDeclarationGen, genEori) { case ((mrn, rfs, decl), userEori) =>
           val declarationWithoutContactDetails =
             decl.copy(displayResponseDetail =
               decl.displayResponseDetail.copy(

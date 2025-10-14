@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -34,10 +34,10 @@
         card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, importDeclarationOpt: Option[ImportDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], isPrintView: Boolean = false)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @singleSecurity = {
-    @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSecurities(claim, displayDeclarationOpt, isPrintView))
+    @card(messages(s"check-your-answers.claim-details"), CheckYourAnswersClaimDetailsCardSummary.renderForSecurities(claim, importDeclarationOpt, isPrintView))
     
     @if(claim.reasonForSecurity == ReasonForSecurity.InwardProcessingRelief || 
         claim.reasonForSecurity == ReasonForSecurity.EndUseRelief
@@ -78,25 +78,25 @@
 }
 
 @key = @{"check-your-answers"}
-@numberOfSecurities = @{displayDeclarationOpt.map(_.getNumberOfSecurityDeposits).getOrElse(0)}
+@numberOfSecurities = @{importDeclarationOpt.map(_.getNumberOfSecurityDeposits).getOrElse(0)}
 
 @declarationDetails = {
-    @displayDeclarationOpt.map { displayDeclaration =>
+    @importDeclarationOpt.map { importDeclaration =>
         @subHeading(Html(messages(s"check-your-answers.declaration-details.h2")))
         @summary(SummaryList(
-            SecuritiesCdsDisplayDeclarationSummary(
-                displayDeclaration,
+            SecuritiesCdsImportDeclarationSummary(
+                importDeclaration,
                 s"check-your-answers.declaration-details",
                 if(isPrintView) None else Some(routes.EnterMovementReferenceNumberController.show),
                 if(isPrintView) None else Some(routes.ChooseReasonForSecurityController.show),
                 showImporterDeclarantDetails = false).rows
             ++ SecuritiesSelectionSummary(
                 claim.securitiesReclaims,
-                displayDeclaration,
+                importDeclaration,
                 key,
                 if(isPrintView) None else Some(routes.SelectSecuritiesController.show)).rows
             ++ PayeeTypeSummary(claim.displayPayeeType, s"check-your-answers.payee-type", if(isPrintView) None else Some(routes.ChoosePayeeTypeController.show)).rows
-            ++ SecuritiesPaymentMethodSummary(displayDeclaration, claim.securitiesReclaims.keySet, s"check-your-answers.payment-method")
+            ++ SecuritiesPaymentMethodSummary(importDeclaration, claim.securitiesReclaims.keySet, s"check-your-answers.payment-method")
         ))
     }
 }
@@ -127,17 +127,17 @@
 }
 
 @securitiesReclaims = {
-    @displayDeclarationOpt.map { displayDeclaration =>
+    @importDeclarationOpt.map { importDeclaration =>
         @claim.securitiesReclaims.map { case (securityDepositId, reclaims) =>
             @if(numberOfSecurities > 1){
-                @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", displayDeclarationOpt.map(d => d.getSecurityDepositIdIndex(securityDepositId) + 1).getOrElse(0), numberOfSecurities )))
+                @subHeading(Html(messages(s"check-your-answers.claim-for-security.h2", importDeclarationOpt.map(d => d.getSecurityDepositIdIndex(securityDepositId) + 1).getOrElse(0), numberOfSecurities )))
             } else if (claim.temporaryAdmissionMethodsOfDisposal.isEmpty){
                 @subHeading(Html(messages(s"check-your-answers.securities.claim-details.h2")))
             }
             @summary(SecuritiesReclaimDetailsSummary(
                 securityDepositId,
                 reclaims,
-                displayDeclaration,
+                importDeclaration,
                 s"check-your-answers.claim-for-security",
                 if(isPrintView) None else Some(routes.ConfirmFullRepaymentController.show),
                 if(isPrintView) None else Some(routes.SelectDutiesController.show),

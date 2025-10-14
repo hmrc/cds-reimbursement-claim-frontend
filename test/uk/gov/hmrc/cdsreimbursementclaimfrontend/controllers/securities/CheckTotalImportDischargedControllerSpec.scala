@@ -103,7 +103,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -129,7 +129,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to BOD3 form when yes is selected and RFS is InwardProcessingRelief" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithIPRRfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPRRfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -146,7 +146,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to BOD4 form when yes is selected and RFS is EndUseRelief" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithENURfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithENURfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -163,7 +163,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "redirect to correct error page when no is selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -180,7 +180,7 @@ class CheckTotalImportDischargedControllerSpec
 
       "stay on the same page and display error message when no option selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithIPROrENURfsWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithIPROrENURfsWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>

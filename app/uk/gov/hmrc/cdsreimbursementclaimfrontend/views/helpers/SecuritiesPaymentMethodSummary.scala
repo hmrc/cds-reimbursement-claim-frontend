@@ -17,23 +17,23 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
 object SecuritiesPaymentMethodSummary {
 
   def apply(
-    displayDeclaration: DisplayDeclaration,
+    importDeclaration: ImportDeclaration,
     securityDepositIds: Set[String],
     key: String
   )(implicit
     messages: Messages
   ): Seq[SummaryListRow] =
-    if (displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securityDepositIds)) {
+    if (importDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securityDepositIds)) {
       Seq.empty[SummaryListRow]
     } else
-      maybeLabelKey(displayDeclaration, securityDepositIds) match {
+      maybeLabelKey(importDeclaration, securityDepositIds) match {
         case Some(labelKey) =>
           Seq(
             SummaryListRow(
@@ -44,14 +44,14 @@ object SecuritiesPaymentMethodSummary {
         case None           => Seq.empty
       }
 
-  private def maybeLabelKey(displayDeclaration: DisplayDeclaration, securityDepositIds: Set[String]): Option[String] =
-    if (displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds)) {
+  private def maybeLabelKey(importDeclaration: ImportDeclaration, securityDepositIds: Set[String]): Option[String] =
+    if (importDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(securityDepositIds)) {
       Some(s"check-your-answers.payment-method.guarantee")
-    } else if (displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securityDepositIds)) {
+    } else if (importDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(securityDepositIds)) {
       Some(s"check-your-answers.payment-method.bt")
-    } else if (displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securityDepositIds)) {
+    } else if (importDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(securityDepositIds)) {
       Some(s"check-your-answers.payment-method.cash-account")
-    } else if (displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securityDepositIds)) {
+    } else if (importDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(securityDepositIds)) {
       Some(s"check-your-answers.payment-method.duty-deferment")
     } else {
       None

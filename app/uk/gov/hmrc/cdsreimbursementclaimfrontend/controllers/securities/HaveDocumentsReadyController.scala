@@ -39,7 +39,7 @@ class HaveDocumentsReadyController @Inject() (
 
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 

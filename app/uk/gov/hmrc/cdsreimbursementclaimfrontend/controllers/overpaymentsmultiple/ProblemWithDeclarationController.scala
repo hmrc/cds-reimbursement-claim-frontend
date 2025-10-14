@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.hasMRNAndDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.hasMRNAndImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
@@ -51,7 +51,7 @@ class ProblemWithDeclarationController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
-    Some(hasMRNAndDisplayDeclaration)
+    Some(hasMRNAndImportDeclaration)
 
   final override val postAction: Call =
     routes.ProblemWithDeclarationController.submit
@@ -65,7 +65,7 @@ class ProblemWithDeclarationController @Inject() (
   final def showNth(pageIndex: Int): Action[AnyContent] =
     actionReadClaim { implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      claim.getNthDisplayDeclaration(pageIndex - 1) match {
+      claim.getNthImportDeclaration(pageIndex - 1) match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
@@ -86,7 +86,7 @@ class ProblemWithDeclarationController @Inject() (
         case Some(_)                                                          =>
           Redirect(routes.CheckMovementReferenceNumbersController.show)
         case None                                                             =>
-          throw new IllegalStateException(s"Expected the claim to have $pageIndex DisplayDeclaration already")
+          throw new IllegalStateException(s"Expected the claim to have $pageIndex ImportDeclaration already")
       }
     }
 
@@ -99,7 +99,7 @@ class ProblemWithDeclarationController @Inject() (
             (
               claim,
               claim
-                .getNthDisplayDeclaration(pageIndex - 1)
+                .getNthImportDeclaration(pageIndex - 1)
                 .map { declaration =>
                   BadRequest(
                     problemWithDeclarationCanContinuePage(

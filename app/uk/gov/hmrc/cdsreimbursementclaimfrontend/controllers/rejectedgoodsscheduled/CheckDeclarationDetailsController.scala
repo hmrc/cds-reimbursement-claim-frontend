@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -37,8 +37,8 @@ class CheckDeclarationDetailsController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController
     with CheckDeclarationDetailsMixin {
 
-  final override def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration] =
-    claim.getLeadDisplayDeclaration
+  final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
+    claim.getLeadImportDeclaration
 
   final override def continueRoute(claim: Claim): Call =
     routes.UploadMrnListController.show
@@ -49,7 +49,7 @@ class CheckDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDeclarationDetailsController.submit
 
-  override def viewTemplate: (DisplayDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
+  override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim) =>
       checkDeclarationDetailsPage(
         declaration = decl,

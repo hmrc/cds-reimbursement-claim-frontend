@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import java.time.LocalDateTime
@@ -31,7 +31,7 @@
         card: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.card
 )
 
-@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, displayDeclarationOpt: Option[DisplayDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(caseNumber: String, amountRequested: BigDecimal, claim: SecuritiesClaim.Output, isSingleSecurity: Boolean, importDeclarationOpt: Option[ImportDeclaration], exportDeclarationMrnOpt: Option[Seq[MRN]], submissionDate: LocalDateTime)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @layout() {
     @if(isSingleSecurity){
@@ -40,5 +40,5 @@
         @summary(CheckYourAnswersPrintViewHelper.renderClaimDetails(caseNumber, claim.movementReferenceNumber, amountRequested.toPoundSterlingString, submissionDate = submissionDate))
     }
 
-    @cyaCommon(claim, isSingleSecurity, displayDeclarationOpt, exportDeclarationMrnOpt, isPrintView = true)
+    @cyaCommon(claim, isSingleSecurity, importDeclarationOpt, exportDeclarationMrnOpt, isPrintView = true)
 }

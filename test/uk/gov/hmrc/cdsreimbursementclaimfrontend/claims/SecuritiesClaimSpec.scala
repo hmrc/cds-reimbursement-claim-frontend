@@ -47,7 +47,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
       emptyClaim.answers.contactAddress                                         shouldBe None
       emptyClaim.answers.eoriNumbersVerification                                shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
-      emptyClaim.answers.displayDeclaration                                     shouldBe None
+      emptyClaim.answers.importDeclaration                                      shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber) shouldBe None
       emptyClaim.answers.selectedDocumentType                                   shouldBe None
       emptyClaim.answers.supportingEvidences                                    shouldBe Seq.empty
@@ -125,14 +125,14 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of a new RfS and declaration if matching the MRN" in {
-      forAll(mrnWithRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val claim = emptyClaim
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .getOrFail
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.hasCompleteAnswers                            shouldBe false
         claim.hasCompleteSupportingEvidences                shouldBe false
         claim.isFinalized                                   shouldBe false
@@ -147,7 +147,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     "accept change of an existing RfS and declaration" in {
       forAll(completeClaimGen) { claim =>
         val rfs           = claim.answers.reasonForSecurity.get
-        val decl          = claim.answers.displayDeclaration.get
+        val decl          = claim.answers.importDeclaration.get
         val modifiedClaim = claim
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .getOrFail
@@ -159,7 +159,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     "accept change of the MRN when user has XI eori" in {
       forAll(completeClaimGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))) { claim =>
         val rfs           = claim.answers.reasonForSecurity.get
-        val decl          = claim.answers.displayDeclaration.get
+        val decl          = claim.answers.importDeclaration.get
         val modifiedClaim = claim
           .submitReasonForSecurityAndDeclaration(rfs, decl)
           .getOrFail
@@ -172,7 +172,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a new RfS and declaration when MRN has not been provided yet" in {
-      forAll(rfsWithDisplayDeclarationGen) { case (rfs, decl) =>
+      forAll(rfsWithImportDeclarationGen) { case (rfs, decl) =>
         val claimResult = emptyClaim
           .submitReasonForSecurityAndDeclaration(rfs, decl)
 
@@ -181,40 +181,40 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a new RfS and declaration when different MRN in declaration" in {
-      forAll(genMRN, rfsWithDisplayDeclarationGen) { case (mrn, (rfs, decl)) =>
+      forAll(genMRN, rfsWithImportDeclarationGen) { case (mrn, (rfs, decl)) =>
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
 
-        claimResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationMrn")
+        claimResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongImportDeclarationMrn")
       }
     }
 
     "reject submission of a new RfS and declaration when different RfS in declaration" in {
-      forAll(genMRN, Gen.oneOf(ReasonForSecurity.values), securitiesDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(genMRN, Gen.oneOf(ReasonForSecurity.values), securitiesImportDeclarationGen) { case (mrn, rfs, decl) =>
         whenever(!decl.getReasonForSecurity.contains(rfs)) {
           val declWithMRN = decl.withDeclarationId(mrn.value)
           val claimResult = emptyClaim
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, declWithMRN)
 
-          claimResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
+          claimResult shouldBe Left("submitReasonForSecurityAndDeclaration.wrongImportDeclarationRfS")
         }
       }
     }
 
     "accept change of the RfS and declaration" in {
-      forAll(completeClaimGen, rfsWithDisplayDeclarationGen) { case (claim, (rfs, decl)) =>
+      forAll(completeClaimGen, rfsWithImportDeclarationGen) { case (claim, (rfs, decl)) =>
         val declWithMRN   = decl.optionallyWithMRN(claim.getLeadMovementReferenceNumber)
         val modifiedClaim = claim
           .submitReasonForSecurityAndDeclaration(rfs, declWithMRN)
           .getOrFail
-        modifiedClaim.answers.reasonForSecurity.contains(rfs)          shouldBe true
-        modifiedClaim.answers.displayDeclaration.contains(declWithMRN) shouldBe true
-        modifiedClaim.hasCompleteAnswers                               shouldBe false
-        modifiedClaim.hasCompleteSecuritiesReclaims                    shouldBe false
-        modifiedClaim.hasCompleteSupportingEvidences                   shouldBe false
-        modifiedClaim.isFinalized                                      shouldBe false
+        modifiedClaim.answers.reasonForSecurity.contains(rfs)         shouldBe true
+        modifiedClaim.answers.importDeclaration.contains(declWithMRN) shouldBe true
+        modifiedClaim.hasCompleteAnswers                              shouldBe false
+        modifiedClaim.hasCompleteSecuritiesReclaims                   shouldBe false
+        modifiedClaim.hasCompleteSupportingEvidences                  shouldBe false
+        modifiedClaim.isFinalized                                     shouldBe false
       }
     }
 
@@ -222,7 +222,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.ntas),
-        securitiesDisplayDeclarationGen
+        securitiesImportDeclarationGen
       ) { case (mrn, rfs, decl) =>
         val claim = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -246,7 +246,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
         genMRN,
         Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.ntas),
         Gen.listOf(Gen.oneOf(TemporaryAdmissionMethodOfDisposal.values)),
-        securitiesDisplayDeclarationGen
+        securitiesImportDeclarationGen
       ) { case (mrn, rfs, methodsOfDisposal, decl) =>
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -262,7 +262,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.ntas),
-        securitiesDisplayDeclarationGen,
+        securitiesImportDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
         val claim = emptyClaim
@@ -288,7 +288,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
       forAll(
         genMRN,
         Gen.oneOf(ReasonForSecurity.values -- ReasonForSecurity.ntas),
-        securitiesDisplayDeclarationGen,
+        securitiesImportDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, decl, exportMrn) =>
         val claimResult = emptyClaim
@@ -310,7 +310,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
             TemporaryAdmissionMethodOfDisposal.values.diff(exportedMethodsOfDisposal)
           )
         ),
-        securitiesDisplayDeclarationGen,
+        securitiesImportDeclarationGen,
         exportMrnTrueGen
       ) { case (mrn, rfs, methodsOfDisposal, decl, exportMrn) =>
         val claimResult = emptyClaim
@@ -325,7 +325,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of a valid selection of depositIds" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val claim      = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -335,7 +335,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
           .getOrFail
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.hasCompleteAnswers                            shouldBe false
         claim.hasCompleteSupportingEvidences                shouldBe false
@@ -345,7 +345,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of an empty selection of depositIds" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -357,7 +357,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a partially invalid selection of depositIds" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds  = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -370,7 +370,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a completely invalid selection of depositIds" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -412,7 +412,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept selection of a valid depositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositId = decl.getSecurityDepositIds.map(_.head).get
         val claim     = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -426,7 +426,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
         )
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs Seq(depositId)
         claim.hasCompleteAnswers                            shouldBe false
         claim.hasCompleteSupportingEvidences                shouldBe false
@@ -436,7 +436,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept removal of a valid depositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds = decl.getSecurityDepositIds.get
         val depositId  = depositIds.head
         val claim      = emptyClaim
@@ -454,7 +454,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
         )
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds.tail
         claim.hasCompleteAnswers                            shouldBe false
         claim.hasCompleteSupportingEvidences                shouldBe false
@@ -464,7 +464,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of an invalid depositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val claimResult = emptyClaim
           .submitMovementReferenceNumber(mrn)
           .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -476,7 +476,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the valid selection of the taxCodes for a known securityDepositId" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -511,7 +511,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         claim.hasCompleteAnswers                            shouldBe false
@@ -522,7 +522,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the valid selection of the taxCodes for a known securityDepositId including export" in {
-      forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnIncludingExportRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
         assert(reclaims.nonEmpty)
 
@@ -558,7 +558,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         claim.hasCompleteAnswers                            shouldBe false
@@ -569,7 +569,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of the valid selection of the taxCodes for a bogus securityDepositId" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
         val claimResult             = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -589,7 +589,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of the valid selection of the taxCodes for a not-selected securityDepositId" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.takeExcept(reclaims.map(_._1))).get
 
         whenever(depositIds.nonEmpty) {
@@ -614,7 +614,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of an empty selection of the taxCodes for a valid securityDepositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val claimResult             = emptyClaim
           .submitMovementReferenceNumber(mrn)
@@ -628,7 +628,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of an invalid selection of the taxCodes for a valid securityDepositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.map(_.halfNonEmpty).get
         val invalidTaxCodeSelection = TaxCodes.allExcept(decl.getSecurityTaxCodesFor(depositIds.head).toSet).headSeq
         val claimResult             = emptyClaim
@@ -693,7 +693,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the valid correct amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -732,7 +732,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         claim.hasCompleteAnswers                            shouldBe false
@@ -746,7 +746,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the valid claim amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal, BigDecimal)])] =
@@ -790,7 +790,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         claim.hasCompleteAnswers                            shouldBe false
@@ -804,7 +804,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the full reclaim amounts" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get.halfNonEmpty
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -844,7 +844,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedSecuritiesReclaims)
         claim.hasCompleteAnswers                            shouldBe false
@@ -858,7 +858,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a full deposit amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -895,7 +895,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of an exceeding reclaim amount for any valid securityDepositId and taxCode" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -933,7 +933,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a reclaim amount if bogus securityDepositId" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -965,7 +965,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of a reclaim amount if invalid taxCode" in {
-      forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+      forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
         val depositIds: Seq[String] = reclaims.map(_._1)
 
         val reclaimsBySecurityDepositId: Seq[(String, Seq[(TaxCode, BigDecimal)])] =
@@ -1058,7 +1058,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "accept submission of the full amounts reclaim for any valid securityDepositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
 
         val claim =
@@ -1085,7 +1085,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
 
         claim.answers.movementReferenceNumber.contains(mrn) shouldBe true
         claim.answers.reasonForSecurity.contains(rfs)       shouldBe true
-        claim.answers.displayDeclaration.contains(decl)     shouldBe true
+        claim.answers.importDeclaration.contains(decl)      shouldBe true
         claim.getSelectedDepositIds                           should contain theSameElementsAs depositIds
         claim.answers.correctedAmounts                      shouldBe Some(expectedCorrectedAmounts)
         claim.hasCompleteAnswers                            shouldBe false
@@ -1096,7 +1096,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of the full amounts reclaim for any invalid securityDepositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
         val claimResult             =
           emptyClaim
@@ -1111,7 +1111,7 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "reject submission of the full amounts reclaim for any not selected securityDepositId" in {
-      forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+      forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
         val depositIds: Seq[String] = decl.getSecurityDepositIds.get
         whenever(depositIds.size > 1) {
           val claimResult =
@@ -1128,17 +1128,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(anotherExampleEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe true
@@ -1147,17 +1147,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleXIEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, importDeclaration)
           .getOrFail
 
       exampleXIEori.isXiEori                         shouldBe true
@@ -1176,17 +1176,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleEori,
           consigneeEORI = Some(anotherExampleEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -1195,17 +1195,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -1214,17 +1214,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleXIEori,
           consigneeEORI = None
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1234,17 +1234,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleXIEori,
           consigneeEORI = Some(anotherExampleEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1254,17 +1254,17 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleXIEori)
         )
-      val claim              =
+      val claim             =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -1286,64 +1286,64 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "fail if submitted consignee EORI is not needed" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = exampleEori
         )
-      val claimEither        =
+      val claimEither       =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
 
     "fail if submitted consignee EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           declarantEORI = anotherExampleEori
         )
-      val claimEither        =
+      val claimEither       =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.EndUseRelief, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
     }
 
     "fail if submitted declarant EORI is not needed" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.InwardProcessingRelief.acc14Code,
           declarantEORI = exampleEori
         )
-      val claimEither        =
+      val claimEither       =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.InwardProcessingRelief, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
     }
 
     "fail if submitted declarant EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclaration =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.ManualOverrideDeposit.acc14Code,
           declarantEORI = anotherExampleEori
         )
-      val claimEither        =
+      val claimEither       =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
-          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.ManualOverrideDeposit, displayDeclaration)
+          .submitReasonForSecurityAndDeclaration(ReasonForSecurity.ManualOverrideDeposit, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
@@ -1391,19 +1391,19 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "submit bankAccountDetails and bankAccountType if expected" in {
-      val displayDeclarationNotAllGuaranteeEligible =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclarationNotAllGuaranteeEligible =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           depositDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = false
         )
-      val claim                                     =
+      val claim                                    =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(
             ReasonForSecurity.EndUseRelief,
-            displayDeclarationNotAllGuaranteeEligible
+            importDeclarationNotAllGuaranteeEligible
           )
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))
@@ -1415,19 +1415,19 @@ class SecuritiesClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with
     }
 
     "fail submitting bankAccountDetails if not needed" in {
-      val displayDeclarationAllGuaranteeEligible =
-        buildSecuritiesDisplayDeclaration(
+      val importDeclarationAllGuaranteeEligible =
+        buildSecuritiesImportDeclaration(
           securityReason = ReasonForSecurity.EndUseRelief.acc14Code,
           depositDetails = Seq("sid-001" -> Seq(TaxCode.A00 -> BigDecimal("12.34"))),
           allDutiesGuaranteeEligible = true
         )
-      val claimEither                            =
+      val claimEither                           =
         SecuritiesClaim
           .empty(exampleEori)
           .submitMovementReferenceNumber(exampleMrn)
           .submitReasonForSecurityAndDeclaration(
             ReasonForSecurity.EndUseRelief,
-            displayDeclarationAllGuaranteeEligible
+            importDeclarationAllGuaranteeEligible
           )
           .flatMap(_.submitClaimDuplicateCheckStatus(false))
           .flatMap(_.selectSecurityDepositIds(Seq("sid-001")))

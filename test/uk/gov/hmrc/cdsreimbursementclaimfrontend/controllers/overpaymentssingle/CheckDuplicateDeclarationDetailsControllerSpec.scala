@@ -104,28 +104,28 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
     getSummaryList(claimDetailsCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "MRN" -> claim.getDuplicateDisplayDeclaration.map(_.getMRN.value)
+        "MRN" -> claim.getDuplicateImportDeclaration.map(_.getMRN.value)
       )
     )
     getSummaryList(importDetailsCard.get)    should containOnlyDefinedPairsOf(
       Seq(
-        claim.getDuplicateDisplayDeclaration.get.getMaybeLRN match {
+        claim.getDuplicateImportDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          claim.getDuplicateDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getDuplicateImportDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(dutiesAndVATCard.get)     should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> claim.getDuplicateDisplayDeclaration.get.getMethodsOfPayment
+        "Method of payment" -> claim.getDuplicateImportDeclaration.get.getMethodsOfPayment
           .map { methods =>
             MethodOfPaymentSummary(methods)
           }
       ) ++
-        claim.getDuplicateDisplayDeclaration.get.getNdrcDutiesWithAmount
+        claim.getDuplicateImportDeclaration.get.getNdrcDutiesWithAmount
           .map(_.map { case (taxCode, amount) =>
             messageFromMessageKey(s"tax-code.$taxCode") -> Some(
               amount.toPoundSterlingString
@@ -133,14 +133,14 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           })
           .get ++
         Seq(
-          "Total" -> claim.getDuplicateDisplayDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
+          "Total" -> claim.getDuplicateImportDeclaration.map(_.totalPaidCharges.toPoundSterlingString)
         )
     )
     getSummaryList(importerDetailsCard.get)  should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> claim.getDuplicateDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> claim.getDuplicateDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> claim.getDuplicateDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getDuplicateImportDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getDuplicateImportDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getDuplicateImportDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -149,9 +149,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     )
     getSummaryList(declarantDetailsCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> claim.getDuplicateDisplayDeclaration.map(_.declarantName),
-        "Email"   -> claim.getDuplicateDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> claim.getDuplicateDisplayDeclaration.map(d =>
+        "Name"    -> claim.getDuplicateImportDeclaration.map(_.declarantName),
+        "Email"   -> claim.getDuplicateImportDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getDuplicateImportDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
@@ -165,7 +165,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       mrn           <- genMRN
       consigneeEori <- genEori
       declarantEori <- genEori
-      decl           = buildDisplayDeclaration(
+      decl           = buildImportDeclaration(
                          id = mrn.value,
                          declarantEORI = declarantEori,
                          consigneeEORI = Some(consigneeEori),
@@ -241,7 +241,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
                       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
             mrn  <- genMRN
             eori <- genEori
-            decl  = buildDisplayDeclaration(
+            decl  = buildImportDeclaration(
                       id = mrn.value,
                       declarantEORI = eori
                     )

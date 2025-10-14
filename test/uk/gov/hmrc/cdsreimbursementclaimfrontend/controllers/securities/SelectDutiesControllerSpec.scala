@@ -182,10 +182,10 @@ class SelectDutiesControllerSpec
       "redirect to ineligible page when there are no available duties" in {
         val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
         val securityId                   = claim.getSecurityDepositIds.head
-        val displayDeclaration           = claim.answers.displayDeclaration.get
-        val securityDetails              = displayDeclaration.getSecurityDetailsFor(securityId).get
+        val importDeclaration            = claim.answers.importDeclaration.get
+        val securityDetails              = importDeclaration.getSecurityDetailsFor(securityId).get
         val updatedSecurityDetails       = securityDetails.copy(taxDetails = List.empty)
-        val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails =
+        val updatedDisplayResponseDetail = importDeclaration.displayResponseDetail.copy(securityDetails =
           Some(
             claim.getSecurityDetails
               .map(sd => updatedSecurityDetails)
@@ -193,12 +193,12 @@ class SelectDutiesControllerSpec
               .toList
           )
         )
-        val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+        val updatedImportDeclaration     = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
         val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
           claim,
           answers =>
             answers.copy(
-              displayDeclaration = Some(updatedDisplayDeclaration),
+              importDeclaration = Some(updatedImportDeclaration),
               modes = answers.modes.copy(checkYourAnswersChangeMode = false)
             )
         )
@@ -248,10 +248,10 @@ class SelectDutiesControllerSpec
       "redirect to ineligible page when there are no available duties" in {
         val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
         val securityId                   = claim.getSecurityDepositIds.head
-        val displayDeclaration           = claim.answers.displayDeclaration.get
-        val securityDetails              = displayDeclaration.getSecurityDetailsFor(securityId).get
+        val importDeclaration            = claim.answers.importDeclaration.get
+        val securityDetails              = importDeclaration.getSecurityDetailsFor(securityId).get
         val updatedSecurityDetails       = securityDetails.copy(taxDetails = List.empty)
-        val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails =
+        val updatedDisplayResponseDetail = importDeclaration.displayResponseDetail.copy(securityDetails =
           Some(
             claim.getSecurityDetails
               .map(sd => updatedSecurityDetails)
@@ -259,12 +259,12 @@ class SelectDutiesControllerSpec
               .toList
           )
         )
-        val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+        val updatedImportDeclaration     = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
         val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
           claim,
           answers =>
             answers.copy(
-              displayDeclaration = Some(updatedDisplayDeclaration),
+              importDeclaration = Some(updatedImportDeclaration),
               modes = answers.modes.copy(checkYourAnswersChangeMode = false)
             )
         )
@@ -279,14 +279,14 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible page when security deposit ID is not found" in {
         val claim                        = completeClaimWithoutIPROrENUGen.sample.getOrElse(fail("Failed to create claim"))
-        val displayDeclaration           = claim.answers.displayDeclaration.get
-        val updatedDisplayResponseDetail = displayDeclaration.displayResponseDetail.copy(securityDetails = None)
-        val updatedDisplayDeclaration    = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
+        val importDeclaration            = claim.answers.importDeclaration.get
+        val updatedDisplayResponseDetail = importDeclaration.displayResponseDetail.copy(securityDetails = None)
+        val updatedImportDeclaration     = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetail)
         val updatedClaim                 = SecuritiesClaim.unsafeModifyAnswers(
           claim,
           answers =>
             answers.copy(
-              displayDeclaration = Some(updatedDisplayDeclaration),
+              importDeclaration = Some(updatedImportDeclaration),
               modes = answers.modes.copy(checkYourAnswersChangeMode = false)
             )
         )
@@ -660,9 +660,9 @@ object SelectDutiesControllerSpec {
       }.map(_.securityDepositId)
     )
   def securityIdWithTaxCodes(claim: SecuritiesClaim): Option[String]                                       =
-    claim.getLeadDisplayDeclaration
-      .map { displayDeclaration =>
-        displayDeclaration.displayResponseDetail.securityDetails
+    claim.getLeadImportDeclaration
+      .map { importDeclaration =>
+        importDeclaration.displayResponseDetail.securityDetails
       }
       .flatMap(getFirstSecurityWithTaxCodes)
 

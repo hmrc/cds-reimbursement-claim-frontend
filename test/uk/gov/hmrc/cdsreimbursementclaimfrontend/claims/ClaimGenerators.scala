@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
@@ -35,65 +35,65 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
   final def listOfExactlyN[A](n: Int, gen: Gen[A]): Gen[List[A]] =
     Gen.sequence((1 to n).map(_ => gen)).map(_.asScala.toList)
 
-  final lazy val mrnWithDisplayDeclarationGen: Gen[(MRN, DisplayDeclaration)] =
+  final lazy val mrnWithImportDeclarationGen: Gen[(MRN, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
-      acc14 <- displayDeclarationGen.map(
+      acc14 <- importDeclarationGen.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                )
     yield (mrn, acc14)
 
-  final lazy val mrnWithDisplayDeclarationSubsidyOnlyGen: Gen[(MRN, DisplayDeclaration)] =
+  final lazy val mrnWithImportDeclarationSubsidyOnlyGen: Gen[(MRN, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
-      acc14 <- displayDeclarationSubsidyOnly.map(
+      acc14 <- importDeclarationSubsidyOnly.map(
                  _.withDeclarationId(mrn.value)
                    .withDeclarantEori(exampleEori)
                )
     yield (mrn, acc14)
 
-  final val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
-    buildDisplayDeclarationGen(cmaEligible = true)
+  final val importDeclarationCMAEligibleGen: Gen[ImportDeclaration] =
+    buildImportDeclarationGen(cmaEligible = true)
 
-  final val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
-    buildDisplayDeclarationGen(cmaEligible = false)
+  final val importDeclarationNotCMAEligibleGen: Gen[ImportDeclaration] =
+    buildImportDeclarationGen(cmaEligible = false)
 
-  final val displayDeclarationSubsidyOnly: Gen[DisplayDeclaration] =
-    buildDisplayDeclarationGen(cmaEligible = false, subsidyPayments = GenerateSubsidyPayments.All)
+  final val importDeclarationSubsidyOnly: Gen[ImportDeclaration] =
+    buildImportDeclarationGen(cmaEligible = false, subsidyPayments = GenerateSubsidyPayments.All)
 
-  final lazy val displayDeclarationGen: Gen[DisplayDeclaration] =
+  final lazy val importDeclarationGen: Gen[ImportDeclaration] =
     Gen.oneOf(
-      displayDeclarationCMAEligibleGen,
-      displayDeclarationNotCMAEligibleGen
+      importDeclarationCMAEligibleGen,
+      importDeclarationNotCMAEligibleGen
     )
 
-  final val securitiesDisplayDeclarationGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible = true)
+  final val securitiesImportDeclarationGuaranteeEligibleGen: Gen[ImportDeclaration] =
+    buildSecuritiesImportDeclarationGen(allDutiesGuaranteeEligible = true)
 
-  final val securitiesDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
+  final val securitiesImportDeclarationNotGuaranteeEligibleGen: Gen[ImportDeclaration] =
+    buildSecuritiesImportDeclarationGen(allDutiesGuaranteeEligible = false)
 
-  final val securitiesSingleDisplayDeclarationGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible = true)
+  final val securitiesSingleImportDeclarationGuaranteeEligibleGen: Gen[ImportDeclaration] =
+    buildSingleSecurityImportDeclarationGen(allDutiesGuaranteeEligible = true)
 
-  final val securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen: Gen[DisplayDeclaration] =
-    buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible = false)
+  final val securitiesSingleImportDeclarationNotGuaranteeEligibleGen: Gen[ImportDeclaration] =
+    buildSingleSecurityImportDeclarationGen(allDutiesGuaranteeEligible = false)
 
-  final lazy val securitiesDisplayDeclarationGen: Gen[DisplayDeclaration] =
+  final lazy val securitiesImportDeclarationGen: Gen[ImportDeclaration] =
     Gen.oneOf(
-      securitiesDisplayDeclarationGuaranteeEligibleGen,
-      securitiesDisplayDeclarationNotGuaranteeEligibleGen
+      securitiesImportDeclarationGuaranteeEligibleGen,
+      securitiesImportDeclarationNotGuaranteeEligibleGen
     )
 
-  final lazy val securitiesSingleDisplayDeclarationGen: Gen[DisplayDeclaration] =
+  final lazy val securitiesSingleImportDeclarationGen: Gen[ImportDeclaration] =
     Gen.oneOf(
-      securitiesSingleDisplayDeclarationGuaranteeEligibleGen,
-      securitiesSingleDisplayDeclarationNotGuaranteeEligibleGen
+      securitiesSingleImportDeclarationGuaranteeEligibleGen,
+      securitiesSingleImportDeclarationNotGuaranteeEligibleGen
     )
 
-  final lazy val securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen =
-    securitiesDisplayDeclarationGen
+  final lazy val securitiesImportDeclarationWithoutIPROrEndUseReliefGen =
+    securitiesImportDeclarationGen
       .suchThat(
         _.getReasonForSecurity.exists(rfs =>
           rfs != ReasonForSecurity.InwardProcessingRelief
@@ -101,44 +101,44 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
         )
       )
 
-  final val exampleDisplayDeclaration: DisplayDeclaration =
-    displayDeclarationGen.sample.get
+  final val exampleImportDeclaration: ImportDeclaration =
+    importDeclarationGen.sample.get
 
-  final def exampleDisplayDeclarationWithNIExciseCodes: DisplayDeclaration =
+  final def exampleImportDeclarationWithNIExciseCodes: ImportDeclaration =
     (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(TaxCodes.excise)
-    yield buildDisplayDeclaration(
+    yield buildImportDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = (paidAmounts :+ ((TaxCode.A00, BigDecimal("1.01")))).map { case (t, a) => (t, a, false) }
     )).sample.get
 
-  final def exampleDisplayDeclarationWithSomeUnsupportedCode: DisplayDeclaration =
+  final def exampleImportDeclarationWithSomeUnsupportedCode: ImportDeclaration =
     (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.A00, TaxCode.UnsupportedTaxCode("foo")))
-    yield buildDisplayDeclaration(
+    yield buildImportDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
     )).sample.get
 
-  final def exampleDisplayDeclarationWithOnlyUnsupportedCodes: DisplayDeclaration =
+  final def exampleImportDeclarationWithOnlyUnsupportedCodes: ImportDeclaration =
     (for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen(Seq(TaxCode.UnsupportedTaxCode("foo"), TaxCode.UnsupportedTaxCode("bar")))
-    yield buildDisplayDeclaration(
+    yield buildImportDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, false) }
     )).sample.get
 
-  final val exampleSecuritiesDisplayDeclaration: DisplayDeclaration =
-    securitiesDisplayDeclarationGen.sample.get
+  final val exampleSecuritiesImportDeclaration: ImportDeclaration =
+    securitiesImportDeclarationGen.sample.get
 
   final def taxCodesWithAmountsGen: Gen[Seq[(TaxCode, BigDecimal)]] =
     for
@@ -173,15 +173,15 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
         )
     yield taxCodes.distinct.zip(amounts).toSeq
 
-  final def buildDisplayDeclarationGen(
+  final def buildImportDeclarationGen(
     cmaEligible: Boolean,
     subsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
-  ): Gen[DisplayDeclaration] =
+  ): Gen[ImportDeclaration] =
     for
       declarantEORI <- IdGen.genEori
       consigneeEORI <- IdGen.genEori
       paidAmounts   <- taxCodesWithAmountsGen
-    yield buildDisplayDeclaration(
+    yield buildImportDeclaration(
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
       dutyDetails = paidAmounts.map { case (t, a) => (t, a, cmaEligible) },
@@ -193,7 +193,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
       String.valueOf(l.toArray)
     )
 
-  final def buildSecuritiesDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
+  final def buildSecuritiesImportDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[ImportDeclaration] =
     for
       reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
       declarantEORI      <- IdGen.genEori
@@ -205,7 +205,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
           Gen.zip(depositIdGen, taxCodesWithAmountsGen)
         )
       declarantContact   <- Acc14Gen.genContactDetails
-    yield buildSecuritiesDisplayDeclaration(
+    yield buildSecuritiesImportDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),
@@ -220,7 +220,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
       declarantContact = Some(declarantContact)
     )
 
-  final def buildSingleSecurityDisplayDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[DisplayDeclaration] =
+  final def buildSingleSecurityImportDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[ImportDeclaration] =
     for
       reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
       declarantEORI      <- IdGen.genEori
@@ -228,7 +228,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
       numberOfSecurities <- Gen.const(1)
       reclaimsDetails    <- Gen.zip(depositIdGen, taxCodesWithAmountsGen).map(Seq(_))
       declarantContact   <- Acc14Gen.genContactDetails
-    yield buildSecuritiesDisplayDeclaration(
+    yield buildSecuritiesImportDeclaration(
       securityReason = reasonForSecurity.acc14Code,
       declarantEORI = declarantEORI,
       consigneeEORI = Some(consigneeEORI),

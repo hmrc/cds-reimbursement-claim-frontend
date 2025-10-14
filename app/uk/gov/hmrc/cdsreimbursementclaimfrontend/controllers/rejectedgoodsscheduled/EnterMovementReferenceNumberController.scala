@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -81,7 +81,7 @@ class EnterMovementReferenceNumberController @Inject() (
         routes.EnterMovementReferenceNumberController.show
       )
 
-  override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
+  override def modifyClaim(claim: Claim, mrn: MRN, declaration: ImportDeclaration): Either[String, Claim] =
     claim.submitMovementReferenceNumberAndDeclaration(mrn, declaration)
 
   override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =

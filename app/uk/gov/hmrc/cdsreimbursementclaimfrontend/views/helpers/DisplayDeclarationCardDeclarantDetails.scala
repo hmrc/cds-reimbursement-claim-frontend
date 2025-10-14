@@ -17,16 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 
-object DisplayDeclarationCardDeclarantDetails {
+object ImportDeclarationCardDeclarantDetails {
 
   def apply(
-    declaration: DisplayDeclaration,
+    declaration: ImportDeclaration,
     key: String
   )(implicit
     messages: Messages

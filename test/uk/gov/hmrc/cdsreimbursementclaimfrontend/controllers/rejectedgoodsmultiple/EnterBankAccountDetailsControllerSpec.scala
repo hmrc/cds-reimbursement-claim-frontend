@@ -513,16 +513,16 @@ class EnterBankAccountDetailsControllerSpec
         (bankDetails, accountExists) =>
           val initialClaim =
             RejectedGoodsMultipleClaim
-              .empty(exampleDisplayDeclaration.getDeclarantEori)
+              .empty(exampleImportDeclaration.getDeclarantEori)
               .submitMovementReferenceNumberAndDeclaration(
                 exampleMrn,
-                exampleDisplayDeclaration.withDeclarationId(exampleMrn.value)
+                exampleImportDeclaration.withDeclarationId(exampleMrn.value)
               )
               .flatMap(
                 _.submitMovementReferenceNumberAndDeclaration(
                   1,
                   anotherExampleMrn,
-                  exampleDisplayDeclaration.withDeclarationId(anotherExampleMrn.value)
+                  exampleImportDeclaration.withDeclarationId(anotherExampleMrn.value)
                 )
               )
               .flatMap(_.submitBankAccountType(BankAccountType.Personal))

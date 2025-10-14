@@ -26,7 +26,7 @@ import play.api.mvc.Result
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
@@ -39,7 +39,7 @@ import scala.concurrent.Future
 
 trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEoriMixin {
 
-  def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim]
+  def modifyClaim(claim: Claim, mrn: MRN, declaration: ImportDeclaration): Either[String, Claim]
 
   def claimService: ClaimService
   def featureSwitchService: FeatureSwitchService
@@ -80,7 +80,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
       (mrn: MRN) =>
         {
           for
-            maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+            maybeAcc14    <- claimService.getImportDeclaration(mrn)
             -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
             _             <- if shouldValidateDeclaration
                              then EnterMovementReferenceNumberUtil.validateDeclarationCandidate(claim, maybeAcc14)
@@ -134,7 +134,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
       (mrn: MRN) =>
         {
           for
-            maybeAcc14    <- claimService.getDisplayDeclaration(mrn)
+            maybeAcc14    <- claimService.getImportDeclaration(mrn)
             -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
             updatedClaim  <- updateClaim(claim, mrn, maybeAcc14.map(_.removeSubsidyItems))
             updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, enabled = true)
@@ -149,7 +149,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
   private def updateClaim(
     claim: Claim,
     mrn: MRN,
-    maybeAcc14: Option[DisplayDeclaration]
+    maybeAcc14: Option[ImportDeclaration]
   ): EitherT[Future, Error, Claim] =
     maybeAcc14 match {
       case Some(acc14) =>
@@ -165,7 +165,7 @@ object EnterMovementReferenceNumberUtil {
 
   def validateDeclarationCandidate[Claim <: CommonClaimProperties](
     claim: Claim,
-    maybeAcc14: Option[DisplayDeclaration]
+    maybeAcc14: Option[ImportDeclaration]
   )(implicit ec: ExecutionContext): EitherT[Future, Error, Unit] =
     maybeAcc14 match {
       case None              => EitherT.rightT(())
@@ -178,7 +178,7 @@ object EnterMovementReferenceNumberUtil {
 
   def validateEoriFormats[Claim <: CommonClaimProperties](
     claim: Claim,
-    maybeAcc14: Option[DisplayDeclaration],
+    maybeAcc14: Option[ImportDeclaration],
     featureSwitchService: FeatureSwitchService
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): EitherT[Future, Error, Unit] =
     if featureSwitchService.isDisabled(Feature.NewEoriFormat)

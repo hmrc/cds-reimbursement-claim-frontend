@@ -74,7 +74,7 @@ class UploadBillOfDischarge3ControllerSpec
 
       "redirect to 'Bill of discharge (BOD) form' when no file uploaded yet" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -92,7 +92,7 @@ class UploadBillOfDischarge3ControllerSpec
 
       "redirect to 'Bill of discharge (BOD) form' when some file uploaded already" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -140,7 +140,7 @@ class UploadBillOfDischarge3ControllerSpec
 
       "return 204 if callback accepted" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -161,7 +161,7 @@ class UploadBillOfDischarge3ControllerSpec
 
       "return 400 if callback rejected because of invalid nonce" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>
@@ -177,7 +177,7 @@ class UploadBillOfDischarge3ControllerSpec
 
       "return 400 if callback rejected because of invalid request" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>

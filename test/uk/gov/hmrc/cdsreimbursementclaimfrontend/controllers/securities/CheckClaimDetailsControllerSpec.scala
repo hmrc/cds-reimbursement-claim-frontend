@@ -111,7 +111,7 @@ class CheckClaimDetailsControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
       ) { case (initialClaim, _) =>
@@ -130,7 +130,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to check declaration details when correctedAmounts is empty" in {
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val claim        = buildSecuritiesClaimWithClaimsEntered(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(claim, _.copy(correctedAmounts = None))
 
@@ -147,7 +147,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to confirm full repayment (controller) when deposit needs full repayment confirmation" in {
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val initialClaim = buildSecuritiesClaimWithClaimsEntered(gen)
 
         val depositId = initialClaim.getSecurityDepositIds.head
@@ -174,7 +174,7 @@ class CheckClaimDetailsControllerSpec
       "redirect to enter claim when reclaims value is empty for the next tax code" in {
         val nextTaxCode  = TaxCode("A00")
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val claim        = buildSecuritiesClaimWithClaimsEntered(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -198,7 +198,7 @@ class CheckClaimDetailsControllerSpec
 
       "redirect to the next page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
       ) { case (initialClaim, _) =>

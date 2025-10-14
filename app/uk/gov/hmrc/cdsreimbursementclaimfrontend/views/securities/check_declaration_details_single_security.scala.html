@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,7 +33,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(importDeclaration: ImportDeclaration, postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @title = @{messages(s"check-import-declaration-details.title")}
 
@@ -42,8 +42,8 @@
     @heading(Html(title), classes="govuk-heading-l")
 
     @card(messages("check-import-declaration-details.card.claim-details"), 
-        SecuritiesDisplayDeclarationCardClaimDetails(
-            displayDeclaration,
+        SecuritiesImportDeclarationCardClaimDetails(
+            importDeclaration,
             "check-import-declaration-details",
             routes.EnterMovementReferenceNumberController.show,
             routes.ChooseReasonForSecurityController.show
@@ -53,25 +53,25 @@
     @paragraph(Html(messages(s"check-import-declaration-details.import-declaration-details.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @card(messages("check-import-declaration-details.card.import-details"), 
-        DisplayDeclarationCardImportDetails(
-            displayDeclaration,
+        ImportDeclarationCardImportDetails(
+            importDeclaration,
             "check-import-declaration-details"
         ),
         headingLevel = Some(3)
     )
 
     @card(messages("check-declaration-details.card.security-deposit-or-guarantee"),
-        SecuritiesDisplayDeclarationCardSingleSecurityDepositDetails(
-            displayDeclaration,
+        SecuritiesImportDeclarationCardSingleSecurityDepositDetails(
+            importDeclaration,
             "check-declaration-details"
         ),
         headingLevel = Some(3)
     )
 
-    @if(displayDeclaration.getConsigneeDetails.isDefined){
+    @if(importDeclaration.getConsigneeDetails.isDefined){
         @card(messages("check-import-declaration-details.card.importer-details"), 
-            DisplayDeclarationCardImporterDetails(
-                displayDeclaration,
+            ImportDeclarationCardImporterDetails(
+                importDeclaration,
                 "check-import-declaration-details"
             ),
             headingLevel = Some(3)
@@ -79,8 +79,8 @@
     }
 
     @card(messages("check-import-declaration-details.card.declarant-details"), 
-        DisplayDeclarationCardDeclarantDetails(
-            displayDeclaration,
+        ImportDeclarationCardDeclarantDetails(
+            importDeclaration,
             "check-import-declaration-details"
         ),
         headingLevel = Some(3)

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.immutable.SortedMap
@@ -27,7 +27,7 @@ trait ScheduledVariantAnswers extends CommonAnswers {
 
   def movementReferenceNumber: Option[MRN]
   def scheduledDocument: Option[UploadedFile]
-  def displayDeclaration: Option[DisplayDeclaration]
+  def importDeclaration: Option[ImportDeclaration]
   def correctedAmounts: Option[SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]]
   def exciseCategories: Option[Seq[ExciseCategory]]
 

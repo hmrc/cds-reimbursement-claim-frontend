@@ -90,8 +90,8 @@ class SelectDutiesControllerSpec
 
       "display the page the first time" in {
         val claim = RejectedGoodsSingleClaim
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .empty(exampleImportDeclaration.getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
           .getOrFail
 
         val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
@@ -130,15 +130,15 @@ class SelectDutiesControllerSpec
 
       "redirect to ineligible when no duties are available" in {
         val displayResponseDetailWithoutDuties      =
-          exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
-        val displayResponseDeclarationWithoutDuties = exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+          exampleImportDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        val displayResponseDeclarationWithoutDuties = exampleImportDeclaration.copy(displayResponseDetailWithoutDuties)
 
         val claim = RejectedGoodsSingleClaim
           .tryBuildFrom(
             RejectedGoodsSingleClaim.Answers(
               userEoriNumber = exampleEori,
               movementReferenceNumber = Some(exampleMrn),
-              displayDeclaration = Some(
+              importDeclaration = Some(
                 displayResponseDeclarationWithoutDuties
                   .withDeclarationId(exampleMrn.value)
                   .withDeclarantEori(exampleEori)
@@ -167,8 +167,8 @@ class SelectDutiesControllerSpec
     "reject an empty tax code selection" in {
 
       val claim = RejectedGoodsSingleClaim
-        .empty(exampleDisplayDeclaration.getDeclarantEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .empty(exampleImportDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .getOrFail
 
       val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))
@@ -189,16 +189,16 @@ class SelectDutiesControllerSpec
     "redirect to ineligible when no duties are available on submit" in {
 
       val displayResponseDetailWithoutDuties      =
-        exampleDisplayDeclaration.displayResponseDetail.copy(ndrcDetails = None)
+        exampleImportDeclaration.displayResponseDetail.copy(ndrcDetails = None)
       val displayResponseDeclarationWithoutDuties =
-        exampleDisplayDeclaration.copy(displayResponseDetailWithoutDuties)
+        exampleImportDeclaration.copy(displayResponseDetailWithoutDuties)
 
       val claim = RejectedGoodsSingleClaim
         .tryBuildFrom(
           RejectedGoodsSingleClaim.Answers(
             userEoriNumber = exampleEori,
             movementReferenceNumber = Some(exampleMrn),
-            displayDeclaration = Some(
+            importDeclaration = Some(
               displayResponseDeclarationWithoutDuties
                 .withDeclarationId(exampleMrn.value)
                 .withDeclarantEori(exampleEori)
@@ -219,13 +219,13 @@ class SelectDutiesControllerSpec
     }
 
     "select valid tax codes when none have been selected before" in {
-      forAll(displayDeclarationGen) { displayDeclaration =>
+      forAll(importDeclarationGen) { importDeclaration =>
         val initialClaim = RejectedGoodsSingleClaim
-          .empty(displayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .empty(importDeclaration.getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
-        val availableTaxCodes = displayDeclaration.getAvailableTaxCodes
+        val availableTaxCodes = importDeclaration.getAvailableTaxCodes
         val selectedTaxCodes  =
           if availableTaxCodes.size > 1 then availableTaxCodes.drop(1)
           else availableTaxCodes
@@ -255,7 +255,7 @@ class SelectDutiesControllerSpec
 
     "Acc14 excise code where the CMA eligible flag is true" in {
 
-      val displayDeclaration = buildDisplayDeclaration(
+      val importDeclaration = buildImportDeclaration(
         dutyDetails = Seq(
           (TaxCode.A80, BigDecimal("200.00"), true),
           (TaxCode.A95, BigDecimal("171.05"), false)
@@ -264,7 +264,7 @@ class SelectDutiesControllerSpec
 
       val claim = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .getOrFail
 
       val updatedSession = SessionData.empty.copy(rejectedGoodsSingleClaim = Some(claim))

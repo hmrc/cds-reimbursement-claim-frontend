@@ -75,7 +75,7 @@ class ChooseFileTypeControllerSpec
 
       "display the page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -117,7 +117,7 @@ class ChooseFileTypeControllerSpec
 
       "redirect to choose files when valid document type selection" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -138,7 +138,7 @@ class ChooseFileTypeControllerSpec
 
       "re-display the page when invalid document type selection" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -156,7 +156,7 @@ class ChooseFileTypeControllerSpec
 
       "re-display the page when unsupported document type selection" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -174,7 +174,7 @@ class ChooseFileTypeControllerSpec
 
       "re-display the page when nothing has been selected" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>

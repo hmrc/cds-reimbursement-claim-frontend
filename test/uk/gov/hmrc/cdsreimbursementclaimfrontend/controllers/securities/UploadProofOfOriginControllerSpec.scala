@@ -74,7 +74,7 @@ class UploadProofOfOriginControllerSpec
 
       "redirect to 'Add proof of origin' when no file uploaded yet" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -92,7 +92,7 @@ class UploadProofOfOriginControllerSpec
 
       "redirect to 'Add proof of origin' when some file uploaded already" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -140,7 +140,7 @@ class UploadProofOfOriginControllerSpec
 
       "return 204 if callback accepted" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -161,7 +161,7 @@ class UploadProofOfOriginControllerSpec
 
       "return 400 if callback rejected because of invalid nonce" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>
@@ -177,7 +177,7 @@ class UploadProofOfOriginControllerSpec
 
       "return 400 if callback rejected because of invalid request" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyNidacGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyNidacGen,
           claimBuilder = buildSecuritiesClaimReadyForNidac
         )
       ) { case (claim, _) =>

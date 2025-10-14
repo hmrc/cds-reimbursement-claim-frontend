@@ -110,7 +110,7 @@ class CheckMovementReferenceNumbersController @Inject() (
     actionReadWriteClaim(
       claim =>
         claim
-          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+          .removeMovementReferenceNumberAndImportDeclaration(mrn)
           .fold(
             error => {
               logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")

@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -71,7 +71,7 @@ class EnterDeclarantEoriNumberControllerSpec
   val session: SessionData = SessionData(
     RejectedGoodsMultipleClaim
       .empty(anotherExampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleImportDeclaration.getMRN, exampleImportDeclaration)
       .getOrFail
   )
 
@@ -106,10 +106,10 @@ class EnterDeclarantEoriNumberControllerSpec
           mockGetSession(
             SessionData(
               RejectedGoodsMultipleClaim
-                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .empty(exampleImportDeclaration.getDeclarantEori)
                 .submitMovementReferenceNumberAndDeclaration(
-                  exampleDisplayDeclaration.getMRN,
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration.getMRN,
+                  exampleImportDeclaration
                 )
                 .getOrFail
             )
@@ -188,17 +188,17 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll {
-        (mrn: MRN, eori: Eori, declaration: DisplayDeclaration, details: DeclarantDetails) =>
+        (mrn: MRN, eori: Eori, declaration: ImportDeclaration, details: DeclarantDetails) =>
           val initialClaim = session.rejectedGoodsMultipleClaim.value
 
-          val displayDeclaration            = declaration.withDeclarationId(mrn.value)
+          val importDeclaration             = declaration.withDeclarationId(mrn.value)
           val declarantDetails              = details.copy(declarantEORI = eori.value)
           val updatedDisplayResponseDetails =
-            displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
-          val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+            importDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
+          val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
           val claim                         =
             initialClaim
-              .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
               .getOrFail
           val requiredSession               = SessionData(claim)
           val updatedClaim                  = claim.submitDeclarantEoriNumber(eori)
@@ -217,19 +217,19 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "submit a valid Eori which is not the declarant" in forAll {
-        (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori, declaration: DisplayDeclaration) =>
+        (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori, declaration: ImportDeclaration) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
             val initialClaim                  = session.rejectedGoodsMultipleClaim.value
-            val displayDeclaration            = declaration.withDeclarationId(mrn.value)
+            val importDeclaration             = declaration.withDeclarationId(mrn.value)
             val updatedDeclarantDetails       =
-              displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
+              importDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
             val updatedDisplayResponseDetails =
-              displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
-            val updatedDisplayDeclaration     =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+              importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+            val updatedImportDeclaration      =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val claim                         =
               initialClaim
-                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
                 .toOption
             val requiredSession               = session.copy(rejectedGoodsMultipleClaim = claim)
 

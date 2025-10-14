@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -43,7 +43,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(displayDeclaration: DisplayDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+@(importDeclaration: ImportDeclaration, correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
 @title = @{
@@ -70,32 +70,32 @@
         )
     )
 
-    @summary(SecuritiesCdsDisplayDeclarationImportMrnSummary(
-        displayDeclaration,
+    @summary(SecuritiesCdsImportDeclarationImportMrnSummary(
+        importDeclaration,
         key,
         routes.EnterMovementReferenceNumberController.show,
     ))
 
     @subHeading(Html(messages(s"check-declaration-details.details.contact-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
-    @summary(SummaryList(SecuritiesCdsDisplayDeclarationContactDetailsSummary(
-        displayDeclaration,
+    @summary(SummaryList(SecuritiesCdsImportDeclarationContactDetailsSummary(
+        importDeclaration,
         key,
     ).rows))
 
     @subHeading(Html(messages(s"check-declaration-details.details.claim-details.h2")), classes="govuk-heading-m govuk-!-margin-top-1")
-    @summary(SummaryList(SecuritiesCdsDisplayDeclarationClaimDetailsSummary(
-        displayDeclaration,
+    @summary(SummaryList(SecuritiesCdsImportDeclarationClaimDetailsSummary(
+        importDeclaration,
         key,
         routes.ChooseReasonForSecurityController.show
     ).rows ++
             SecuritiesSelectionSummary(
                 correctedAmounts,
-                displayDeclaration,
+                importDeclaration,
                 "check-your-answers",
                 Some(routes.SelectSecuritiesController.show),
                 showTotalSecuritiesPaidAmount = true
             ).rows ++
-            (if(displayDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(correctedAmounts.keySet)) {
+            (if(importDeclaration.isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(correctedAmounts.keySet)) {
                 Seq.empty[SummaryListRow]
             } else {
                 Seq(
@@ -103,13 +103,13 @@
                         key = Key(Text(messages(s"check-declaration-details.method-of-payment-label"))),
                         value = Value(Text(
                             messages(
-                                if(displayDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(correctedAmounts.keySet)) {
+                                if(importDeclaration.isAllSelectedSecuritiesEligibleForGuaranteePayment(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.guarantee"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(correctedAmounts.keySet)) {
+                                } else if(importDeclaration.isAllSelectedSecuritiesEligibleForBankAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.bt"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(correctedAmounts.keySet)) {
+                                } else if(importDeclaration.isAllSelectedSecuritiesEligibleForCashAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.cash-account"
-                                } else if(displayDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(correctedAmounts.keySet)) {
+                                } else if(importDeclaration.isAllSelectedSecuritiesEligibleForDefermentAccount(correctedAmounts.keySet)) {
                                     s"check-your-answers.payment-method.duty-deferment"
                                 } else {
                                     s"check-declaration-details.payment-method.unavailable"

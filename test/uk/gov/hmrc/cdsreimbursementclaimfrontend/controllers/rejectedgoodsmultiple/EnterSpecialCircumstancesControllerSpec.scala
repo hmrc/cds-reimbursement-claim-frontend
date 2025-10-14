@@ -133,7 +133,7 @@ class EnterSpecialCircumstancesControllerSpec
       "basis of claim is not special circumstances" in {
         val claim =
           claimWithMrnAndDeclaration
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .map(_.submitBasisOfClaim(Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances).sample.get))
             .getOrFail
 

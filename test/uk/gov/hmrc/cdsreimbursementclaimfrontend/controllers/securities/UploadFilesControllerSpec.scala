@@ -74,7 +74,7 @@ class UploadFilesControllerSpec
 
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
+          testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen,
           claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
         )
       ) { case (claim, _) =>
@@ -106,7 +106,7 @@ class UploadFilesControllerSpec
 
     "return 204 if callback accepted" in forAllWith(
       ClaimGenerator(
-        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
+        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen,
         claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
     ) { case (claim, (_, _, _, documentType)) =>
@@ -127,7 +127,7 @@ class UploadFilesControllerSpec
 
     "return 400 if callback rejected because of invalid nonce" in forSomeWith(
       ClaimGenerator(
-        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
+        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen,
         claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
     ) { case (claim, (_, _, _, documentType)) =>
@@ -143,7 +143,7 @@ class UploadFilesControllerSpec
 
     "return 400 if callback rejected because of invalid document type" in forSomeWith(
       ClaimGenerator(
-        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
+        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen,
         claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
     ) { case (claim, _) =>
@@ -160,7 +160,7 @@ class UploadFilesControllerSpec
 
     "return 400 if callback rejected because of invalid request" in forSomeWith(
       ClaimGenerator(
-        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithDisplayDeclarationWithDocumentTypeGen,
+        testParamsGenerator = mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen,
         claimBuilder = buildSecuritiesClaimWithDocumentTypeSelected
       )
     ) { case (claim, _) =>
