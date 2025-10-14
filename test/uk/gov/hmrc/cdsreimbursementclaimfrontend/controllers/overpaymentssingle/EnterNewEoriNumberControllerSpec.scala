@@ -67,7 +67,7 @@ class EnterNewEoriNumberControllerSpec
   val session: SessionData = SessionData(
     OverpaymentsSingleClaim
       .empty(anotherExampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleImportDeclaration.getMRN, exampleImportDeclaration)
       .getOrFail
   )
 

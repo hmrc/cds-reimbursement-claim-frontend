@@ -41,7 +41,7 @@ class EnterImporterEoriNumberController @Inject() (
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
-    Some(hasMRNAndDisplayDeclarationAndRfS)
+    Some(hasMRNAndImportDeclarationAndRfS)
 
   final override val postAction: Call =
     routes.EnterImporterEoriNumberController.submit

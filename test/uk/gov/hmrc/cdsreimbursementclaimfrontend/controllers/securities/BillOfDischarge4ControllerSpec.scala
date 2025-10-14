@@ -77,7 +77,7 @@ class BillOfDischarge4ControllerSpec
 
       "display the page if securities feature is enabled (BOD4)" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyENUGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyENUGen,
           claimBuilder = buildSecuritiesClaimReadyForENU
         )
       ) { case (claim, _) =>

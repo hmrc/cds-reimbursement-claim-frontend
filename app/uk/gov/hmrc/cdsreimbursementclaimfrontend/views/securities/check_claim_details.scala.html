@@ -20,7 +20,7 @@
 @import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 @import scala.collection.immutable.SortedMap
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper
@@ -36,7 +36,7 @@
     govukTable: GovukTable
 )
 
-@(displayDeclaration: DisplayDeclaration,correctedAmounts: SortedMap[String, List[ReclaimWithAmounts]],postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
+@(importDeclaration: ImportDeclaration,correctedAmounts: SortedMap[String, List[ReclaimWithAmounts]],postAction: Call)(implicit request: Request[?], messages: Messages,viewConfig: ViewConfig)
 
 @title = @{messages(s"check-claim.securities.title")}
 
@@ -49,7 +49,7 @@
         @summary(ClaimsTableHelper.makeSecurityClaimFullAmount(
             securityDepositId,
             reclaims,
-            displayDeclaration,
+            importDeclaration,
             "check-your-answers.claim-for-security",
             Some(routes.ConfirmFullRepaymentController.show)
         ))

@@ -60,8 +60,8 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val originalDeclaration  = exampleDisplayDeclaration
-  val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value)
+  val originalDeclaration  = exampleImportDeclaration
+  val duplicateDeclaration = buildImportDeclaration(id = anotherExampleMrn.value)
 
   val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
     .empty(originalDeclaration.getDeclarantEori)
@@ -108,16 +108,16 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
           mockGetSession(
             SessionData(
               OverpaymentsSingleClaim
-                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .empty(exampleImportDeclaration.getDeclarantEori)
                 .submitMovementReferenceNumberAndDeclaration(
-                  exampleDisplayDeclaration.getMRN,
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration.getMRN,
+                  exampleImportDeclaration
                 )
                 .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
                 .flatMap(
                   _.submitDuplicateMovementReferenceNumberAndDeclaration(
                     duplicateDeclaration.getMRN,
-                    duplicateDeclaration.withDeclarantEori(exampleDisplayDeclaration.getDeclarantEori)
+                    duplicateDeclaration.withDeclarantEori(exampleImportDeclaration.getDeclarantEori)
                   )
                 )
                 .getOrFail
@@ -204,10 +204,10 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
       }
 
       "submit a valid Eori which is the declarant Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration             = buildDisplayDeclaration().withDeclarationId(mrn.value).withDeclarantEori(exampleEori)
+        val importDeclaration              = buildImportDeclaration().withDeclarationId(mrn.value).withDeclarantEori(exampleEori)
         val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
           .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
           .flatMap(
             _.submitDuplicateMovementReferenceNumberAndDeclaration(
@@ -233,11 +233,11 @@ class EnterDeclarantEoriNumberOfDuplicateDeclarationControllerSpec
       "submit a valid Eori which is not the declarant" in forAll {
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
-            val displayDeclaration             =
-              buildDisplayDeclaration().withDeclarationId(mrn.value).withDeclarantEori(exampleEori)
+            val importDeclaration              =
+              buildImportDeclaration().withDeclarationId(mrn.value).withDeclarantEori(exampleEori)
             val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
               .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
               .flatMap(
                 _.submitDuplicateMovementReferenceNumberAndDeclaration(

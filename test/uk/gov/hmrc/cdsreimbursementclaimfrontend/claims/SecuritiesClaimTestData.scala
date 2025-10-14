@@ -30,7 +30,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
     .submitMovementReferenceNumber(exampleMrn)
     .submitReasonForSecurityAndDeclaration(
       rfs,
-      buildSecuritiesDisplayDeclaration(
+      buildSecuritiesImportDeclaration(
         securityReason = rfs.acc14Code,
         declarantContact = Some(exampleDeclarationContactDetails)
       )
@@ -39,7 +39,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
     .getOrFail
 
   final def buildSecuritiesClaimReadyForSelectingSecurities(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl) =>
       emptyClaim
@@ -50,7 +50,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimReadyForIPR(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl) =>
       emptyClaim
@@ -61,7 +61,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimReadyForENU(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl) =>
       emptyClaim
@@ -72,7 +72,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimReadyForNidac(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl) =>
       emptyClaim
@@ -83,7 +83,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimWithDocumentTypeSelected(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, UploadDocumentType)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, UploadDocumentType)
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl, dt) =>
       emptyClaim
@@ -95,7 +95,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimWithSomeSecuritiesSelected(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = {
     val claim      = buildSecuritiesClaimReadyForSelectingSecurities(testParams)
     val depositIds = claim.getSecurityDepositIds
@@ -106,7 +106,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = {
     val claim      = buildSecuritiesClaimReadyForSelectingSecurities(testParams)
     val depositIds = claim.getSecurityDepositIds
@@ -124,7 +124,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   final def buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposalAndSomeExportMRNs(
     exportMRNs: Seq[MRN]
   )(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = {
     val claim      = buildSecuritiesClaimReadyForSelectingSecurities(testParams)
     val depositIds = claim.getSecurityDepositIds
@@ -147,28 +147,28 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimWithSomeSecuritiesSelectedGeneratedMfd(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)
   ): SecuritiesClaim = testParams match {
-    case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, _: TemporaryAdmissionMethodOfDisposal) =>
+    case (mrn: MRN, rfs: ReasonForSecurity, acc14: ImportDeclaration, _: TemporaryAdmissionMethodOfDisposal) =>
       buildSecuritiesClaimWithSomeSecuritiesSelected((mrn, rfs, acc14))
   }
 
   final def buildSecuritiesClaimWithSomeSecuritiesSelectedWithMehodOfDisposal(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, TemporaryAdmissionMethodOfDisposal)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)
   ): SecuritiesClaim = testParams match {
-    case (mrn: MRN, rfs: ReasonForSecurity, acc14: DisplayDeclaration, mfd: TemporaryAdmissionMethodOfDisposal) =>
+    case (mrn: MRN, rfs: ReasonForSecurity, acc14: ImportDeclaration, mfd: TemporaryAdmissionMethodOfDisposal) =>
       buildSecuritiesClaimWithSomeSecuritiesSelected((mrn, rfs, acc14))
         .submitTemporaryAdmissionMethodsOfDisposal(List(mfd))
         .getOrFail
   }
   final def buildSecuritiesClaimInChangeDeclarationDetailsMode(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration)
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim =
     buildSecuritiesClaimWithSomeSecuritiesSelected(testParams)
       .submitCheckDeclarationDetailsChangeMode(true)
 
   final def buildSecuritiesClaimWithDutiesPartiallySelected(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl, reclaims) =>
       val availableDepositIds: Seq[String] = decl.getSecurityDepositIds.get
@@ -197,7 +197,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimReadyForEnteringClaimAmounts(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl, reclaims) =>
       val depositIds: Seq[String]                           = reclaims.map(_._1).distinct
@@ -220,7 +220,7 @@ trait SecuritiesClaimTestData extends ClaimTestData {
   }
 
   final def buildSecuritiesClaimWithClaimsEntered(
-    testParams: (MRN, ReasonForSecurity, DisplayDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])
   ): SecuritiesClaim = testParams match {
     case (mrn, rfs, decl, reclaims) =>
       val depositIds = reclaims.map(_._1).distinct

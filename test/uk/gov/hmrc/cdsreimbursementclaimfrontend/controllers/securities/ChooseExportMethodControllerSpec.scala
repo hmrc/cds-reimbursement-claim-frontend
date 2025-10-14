@@ -93,7 +93,7 @@ class ChooseExportMethodControllerSpec
 
       "show the page for temporary admissions RfS" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
+          testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -123,7 +123,7 @@ class ChooseExportMethodControllerSpec
 
       "show an error if no export method is selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
+          testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -141,7 +141,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to /enter-export-movement-reference-number when single shipment is selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
+          testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -159,7 +159,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to /enter-export-movement-reference-number when multiple shipment is selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.ntas),
+          testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>
@@ -177,7 +177,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to /confirm-full-repayment if any option other than" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
+          testParamsGenerator = mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen,
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelectedGeneratedMfd
         )
       ) { case (claim, (_, _, _, methodOfDisposal)) =>
@@ -195,7 +195,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to choose payee type if any option other than exported methods of disposal and has single security" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsTempAdmissionWithDisplayDeclarationWithMfdGen,
+          testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen,
           claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithSomeSecuritiesSelectedGeneratedMfd
         )
       ) { case (claim, (_, _, _, methodOfDisposal)) =>
@@ -213,7 +213,7 @@ class ChooseExportMethodControllerSpec
 
       "redirect to check claimant details if reason for security is not ntas" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationGen(ReasonForSecurity.values -- ReasonForSecurity.ntas),
+          testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.values -- ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
         )
       ) { case (claim, _) =>

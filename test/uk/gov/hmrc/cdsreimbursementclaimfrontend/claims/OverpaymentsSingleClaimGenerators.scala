@@ -20,7 +20,7 @@ import cats.syntax.eq.*
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -33,8 +33,8 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
 
   val claimWithMrnAndDeclaration: OverpaymentsSingleClaim =
     OverpaymentsSingleClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   val completeClaimWithMatchingUserEoriAndCMAEligibleGen: Gen[OverpaymentsSingleClaim] =
@@ -270,8 +270,8 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           }
           .toMap
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -299,14 +299,14 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           payeeType = Some(payeeType),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
-            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, importDeclaration.withDeclarationId(mrn.value))),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           selectedDocumentType = None,
@@ -368,8 +368,8 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -390,7 +390,7 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumber = Some(mrn),
-        displayDeclaration = Some(displayDeclaration),
+        importDeclaration = Some(importDeclaration),
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
         contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
@@ -443,8 +443,8 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           }
           .toMap
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -466,13 +466,13 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
-            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, importDeclaration.withDeclarationId(mrn.value))),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           modes = ClaimModes(checkYourAnswersChangeMode = false)
@@ -531,8 +531,8 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           }
           .toMap
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -554,13 +554,13 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
           basisOfClaim = Some(basisOfClaim),
           duplicateDeclaration =
-            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, displayDeclaration.withDeclarationId(mrn.value))),
+            duplicateMrn.map(mrn => DuplicateDeclaration(mrn, importDeclaration.withDeclarationId(mrn.value))),
           additionalDetails = Some("additional details"),
           correctedAmounts = Some(correctedAmounts),
           modes = ClaimModes(checkYourAnswersChangeMode = false)

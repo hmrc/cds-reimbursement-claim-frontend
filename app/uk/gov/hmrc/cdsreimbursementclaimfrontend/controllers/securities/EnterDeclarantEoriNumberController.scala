@@ -73,7 +73,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
-    Some(hasMRNAndDisplayDeclarationAndRfS)
+    Some(hasMRNAndImportDeclarationAndRfS)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
     if !claim.needsDeclarantAndConsigneeEoriSubmission then nextPage(claim)

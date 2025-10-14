@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -33,7 +33,7 @@ object SecuritiesSelectionSummary {
 
   def apply(
     correctedAmounts: SortedMap[String, SortedMap[TaxCode, BigDecimal]],
-    declaration: DisplayDeclaration,
+    declaration: ImportDeclaration,
     key: String,
     changeCallOpt: Option[String => Call],
     showTotalSecuritiesPaidAmount: Boolean = false

@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
@@ -117,7 +117,7 @@ class ChooseReasonForSecurityController @Inject() (
           else
             (for
               mrn                        <- getMovementReferenceNumber(claim)
-              declaration                <- lookupDisplayDeclaration(mrn, reasonForSecurity)
+              declaration                <- lookupImportDeclaration(mrn, reasonForSecurity)
               _                          <- checkIfDeclarationHaveSecurityDeposits(declaration)
               updatedDeclaration          =
                 reasonForSecurity match {
@@ -167,20 +167,20 @@ class ChooseReasonForSecurityController @Inject() (
       Redirect(routes.EnterMovementReferenceNumberController.show)
     )
 
-  private def lookupDisplayDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
+  private def lookupImportDeclaration(mrn: MRN, reasonForSecurity: ReasonForSecurity)(implicit
     errorHandler: ErrorHandler,
     hc: HeaderCarrier,
     r: Request[?]
-  ): EitherT[Future, Result, DisplayDeclaration] =
+  ): EitherT[Future, Result, ImportDeclaration] =
     claimService
-      .getDisplayDeclarationWithErrorCodes(mrn, reasonForSecurity)
+      .getImportDeclarationWithErrorCodes(mrn, reasonForSecurity)
       .leftMap {
         case GetDeclarationError.declarationNotFound      => Redirect(routes.DeclarationNotFoundController.show)
         case GetDeclarationError.invalidReasonForSecurity => Redirect(routes.InvalidReasonForSecurityController.show)
         case _                                            => errorHandler.errorResult()
       }
 
-  private def checkIfDeclarationHaveSecurityDeposits(declaration: DisplayDeclaration): EitherT[Future, Result, String] =
+  private def checkIfDeclarationHaveSecurityDeposits(declaration: ImportDeclaration): EitherT[Future, Result, String] =
     EitherT.fromOption[Future](
       declaration.getSecurityDepositIds.flatMap(_.headOption),
       Redirect(routes.ChooseReasonForSecurityController.show)
@@ -189,7 +189,7 @@ class ChooseReasonForSecurityController @Inject() (
   private def submitReasonForSecurityAndDeclaration(
     claim: SecuritiesClaim,
     reasonForSecurity: ReasonForSecurity,
-    declaration: DisplayDeclaration
+    declaration: ImportDeclaration
   ): EitherT[Future, Result, SecuritiesClaim] =
     EitherT
       .fromEither[Future](

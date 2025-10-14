@@ -294,14 +294,14 @@ class EnterClaimControllerSpec
         val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim
           .unsafeModifyAnswers(
             claim,
-            _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+            _.copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
           )
 
         inSequence {
@@ -402,14 +402,14 @@ class EnterClaimControllerSpec
         val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
             claim.answers
-              .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+              .copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
 
@@ -443,14 +443,14 @@ class EnterClaimControllerSpec
         val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
             claim.answers
-              .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+              .copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
           .withDutiesChangeMode(true)
@@ -487,14 +487,14 @@ class EnterClaimControllerSpec
         val claim = claimGen.sample.getOrElse(fail("Failed to create claim"))
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim
           .tryBuildFrom(
             claim.answers
-              .copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+              .copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
           )
           .getOrFail
 
@@ -620,13 +620,13 @@ class EnterClaimControllerSpec
         val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim.unsafeModifyAnswers(
           claim,
-          _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+          _.copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
         )
 
         inSequence {
@@ -647,13 +647,13 @@ class EnterClaimControllerSpec
         val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(false)
 
         val displayResponseDetail: DisplayResponseDetail =
-          claim.answers.displayDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
-        val displayDeclaration                           =
-          claim.answers.displayDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
+          claim.answers.importDeclaration.get.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails)))
+        val importDeclaration                            =
+          claim.answers.importDeclaration.get.copy(displayResponseDetail = displayResponseDetail)
 
         val updatedClaim = OverpaymentsSingleClaim.unsafeModifyAnswers(
           claim,
-          _.copy(displayDeclaration = Some(displayDeclaration), correctedAmounts = Some(correctedAmounts))
+          _.copy(importDeclaration = Some(importDeclaration), correctedAmounts = Some(correctedAmounts))
         )
 
         inSequence {

@@ -93,7 +93,7 @@ class RejectedGoodsMultipleClaimFormatSpec
           .submitMovementReferenceNumberAndDeclaration(
             0,
             MRN("19GB03I52858027001"),
-            buildDisplayDeclaration("19GB03I52858027001")
+            buildImportDeclaration("19GB03I52858027001")
           )
           .getOrElse(fail("Claim creation has failed"))
       )

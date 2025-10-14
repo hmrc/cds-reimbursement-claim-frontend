@@ -460,8 +460,8 @@ class EnterBankAccountDetailsControllerSpec
       "the user enters details for the first time" in forAll(genBankAccountDetails) { bankDetails =>
         val initialClaim =
           OverpaymentsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 
@@ -498,8 +498,8 @@ class EnterBankAccountDetailsControllerSpec
       ) { bankDetails =>
         val initialClaim =
           OverpaymentsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .flatMap(_.submitBankAccountType(BankAccountType.Personal))
             .getOrFail
 

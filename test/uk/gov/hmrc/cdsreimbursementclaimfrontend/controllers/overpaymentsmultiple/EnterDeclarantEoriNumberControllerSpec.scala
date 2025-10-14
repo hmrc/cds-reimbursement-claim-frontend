@@ -64,7 +64,7 @@ class EnterDeclarantEoriNumberControllerSpec
   val session: SessionData = SessionData(
     OverpaymentsMultipleClaim
       .empty(anotherExampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleDisplayDeclaration.getMRN, exampleDisplayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleImportDeclaration.getMRN, exampleImportDeclaration)
       .getOrFail
   )
 
@@ -99,10 +99,10 @@ class EnterDeclarantEoriNumberControllerSpec
           mockGetSession(
             SessionData(
               OverpaymentsMultipleClaim
-                .empty(exampleDisplayDeclaration.getDeclarantEori)
+                .empty(exampleImportDeclaration.getDeclarantEori)
                 .submitMovementReferenceNumberAndDeclaration(
-                  exampleDisplayDeclaration.getMRN,
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration.getMRN,
+                  exampleImportDeclaration
                 )
                 .getOrFail
             )
@@ -121,8 +121,8 @@ class EnterDeclarantEoriNumberControllerSpec
           mockGetSession(
             SessionData(
               OverpaymentsMultipleClaim
-                .empty(exampleDisplayDeclaration.getConsigneeEori.get)
-                .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+                .empty(exampleImportDeclaration.getConsigneeEori.get)
+                .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
                 .getOrFail
             )
           )
@@ -204,14 +204,14 @@ class EnterDeclarantEoriNumberControllerSpec
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
         val initialClaim                  = session.overpaymentsMultipleClaim.getOrElse(fail("No overpayments claim"))
-        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
+        val importDeclaration             = buildImportDeclaration().withDeclarationId(mrn.value)
         val declarantDetails              = sample[DeclarantDetails].copy(declarantEORI = eori.value)
         val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+          importDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val claim                         =
           initialClaim
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
             .getOrFail
         val requiredSession               = SessionData(claim)
         val updatedClaim                  = claim.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
@@ -233,16 +233,16 @@ class EnterDeclarantEoriNumberControllerSpec
         (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
           whenever(enteredDeclarantEori =!= wantedDeclarant) {
             val initialClaim                  = session.overpaymentsMultipleClaim.getOrElse(fail("No overpayments claim"))
-            val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
+            val importDeclaration             = buildImportDeclaration().withDeclarationId(mrn.value)
             val updatedDeclarantDetails       =
-              displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
+              importDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
             val updatedDisplayResponseDetails =
-              displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
-            val updatedDisplayDeclaration     =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+              importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+            val updatedImportDeclaration      =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val claim                         =
               initialClaim
-                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
                 .getOrFail
             val requiredSession               = SessionData(claim)
 

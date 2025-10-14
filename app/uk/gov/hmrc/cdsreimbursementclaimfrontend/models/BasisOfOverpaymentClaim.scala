@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.kernel.Eq
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 import scala.math.Ordering
@@ -81,12 +81,12 @@ object BasisOfOverpaymentClaim extends EnumerationFormat[BasisOfOverpaymentClaim
 
   def excludeNorthernIrelandClaims(
     hasDuplicateEntryClaim: Boolean,
-    displayDeclarationOpt: Option[DisplayDeclaration],
+    importDeclarationOpt: Option[ImportDeclaration],
     isOtherEnabled: Boolean = true
   ): Set[BasisOfOverpaymentClaim] = {
 
     val receivedExciseCodes: List[String] =
-      displayDeclarationOpt
+      importDeclarationOpt
         .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
         .getOrElse(Nil)
 

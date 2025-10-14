@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 
 /** Common properties of the rejected-goods single, multiple and scheduled claims. */
@@ -30,7 +30,7 @@ trait RejectedGoodsClaimProperties extends CommonClaimProperties {
   final def needsSpecialCircumstancesBasisOfClaim: Boolean =
     answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
-  final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
+  final override def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
     if declaration.hasOnlySubsidyPayments
     then Some("error.has-only-subsidy-items")
     else if declaration.hasSomeSubsidyPayment

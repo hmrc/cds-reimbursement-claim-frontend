@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.*
@@ -64,8 +64,8 @@ class EnterImporterEoriNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val declaration: DisplayDeclaration =
-    buildSecuritiesDisplayDeclaration(
+  val declaration: ImportDeclaration =
+    buildSecuritiesImportDeclaration(
       exampleMrnAsString,
       ReasonForSecurity.MissingLicenseQuota.acc14Code,
       declarantEORI = anotherExampleEori,
@@ -107,8 +107,8 @@ class EnterImporterEoriNumberControllerSpec
       }
 
       "display the page on a new claim if consignee details are missing on declaration" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
@@ -217,20 +217,20 @@ class EnterImporterEoriNumberControllerSpec
           mrn: MRN,
           eori: Eori,
           reasonForSecurity: ReasonForSecurity,
-          initialDisplayDeclaration: DisplayDeclaration,
+          initialImportDeclaration: ImportDeclaration,
           initialConsigneeDetails: ConsigneeDetails
         ) =>
           val initialClaim                  = initialSession.securitiesClaim.getOrElse(fail("No rejected goods claim"))
-          val displayDeclaration            =
-            initialDisplayDeclaration.withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
+          val importDeclaration             =
+            initialImportDeclaration.withDeclarationId(mrn.value).withReasonForSecurity(reasonForSecurity)
           val consigneeDetails              = initialConsigneeDetails.copy(consigneeEORI = eori.value)
           val updatedDisplayResponseDetails =
-            displayDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
-          val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+            importDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
+          val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
           val claim                         =
             initialClaim
               .submitMovementReferenceNumber(mrn)
-              .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedDisplayDeclaration)
+              .submitReasonForSecurityAndDeclaration(reasonForSecurity, updatedImportDeclaration)
               .getOrFail
 
           val requiredSession = initialSession.copy(securitiesClaim = Some(claim))
@@ -257,8 +257,8 @@ class EnterImporterEoriNumberControllerSpec
       ) { (reasonForSecurity, mrn, enteredConsigneeEori, declarationEori) =>
         whenever(enteredConsigneeEori =!= declarationEori) {
 
-          val displayDeclaration =
-            buildSecuritiesDisplayDeclaration(
+          val importDeclaration =
+            buildSecuritiesImportDeclaration(
               id = mrn.value,
               securityReason = reasonForSecurity.acc14Code,
               declarantEORI = declarationEori,
@@ -268,7 +268,7 @@ class EnterImporterEoriNumberControllerSpec
           val claim = SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(mrn)
-            .submitReasonForSecurityAndDeclaration(reasonForSecurity, displayDeclaration)
+            .submitReasonForSecurityAndDeclaration(reasonForSecurity, importDeclaration)
             .getOrFail
 
           inSequence {

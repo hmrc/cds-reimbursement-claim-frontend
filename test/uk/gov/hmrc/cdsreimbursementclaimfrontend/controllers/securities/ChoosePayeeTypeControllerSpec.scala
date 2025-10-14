@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.EitherOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesDisplayDeclarationGuaranteeEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesDisplayDeclarationNotGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesImportDeclarationGuaranteeEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesImportDeclarationNotGuaranteeEligibleGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.BankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
@@ -59,20 +59,20 @@ class ChoosePayeeTypeControllerSpec
   private def initialClaim(
     guarantee: Boolean
   ): SecuritiesClaim = {
-    val displayDeclaration =
+    val importDeclaration =
       (
-        if guarantee then securitiesDisplayDeclarationGuaranteeEligibleGen
-        else securitiesDisplayDeclarationNotGuaranteeEligibleGen
+        if guarantee then securitiesImportDeclarationGuaranteeEligibleGen
+        else securitiesImportDeclarationNotGuaranteeEligibleGen
       ).sample.get
         .withBankDetails(Some(BankDetails(None, None)))
         .withReasonForSecurity(ReasonForSecurity.TemporaryAdmission2Y)
 
     SecuritiesClaim
-      .empty(displayDeclaration.getDeclarantEori, Nonce.random)
-      .submitMovementReferenceNumber(displayDeclaration.getMRN)
-      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.TemporaryAdmission2Y, displayDeclaration)
+      .empty(importDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumber(importDeclaration.getMRN)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.TemporaryAdmission2Y, importDeclaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(false))
-      .flatMap(_.selectSecurityDepositIds(displayDeclaration.getSecurityDepositIds.get))
+      .flatMap(_.selectSecurityDepositIds(importDeclaration.getSecurityDepositIds.get))
       .getOrFail
   }
 

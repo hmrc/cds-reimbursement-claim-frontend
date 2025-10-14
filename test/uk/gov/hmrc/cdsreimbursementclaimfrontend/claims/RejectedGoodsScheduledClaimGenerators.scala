@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils.*
 
@@ -33,8 +33,8 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
 
   val claimWithMrnAndDeclaration: RejectedGoodsScheduledClaim =
     RejectedGoodsScheduledClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   val completeClaimWithMatchingUserEoriGen: Gen[RejectedGoodsScheduledClaim] =
@@ -196,8 +196,8 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     yield {
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -238,7 +238,7 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumber = Some(mrn),
-        displayDeclaration = Some(displayDeclaration),
+        importDeclaration = Some(importDeclaration),
         payeeType = payeeType,
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
@@ -303,8 +303,8 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -325,7 +325,7 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumber = Some(mrn),
-        displayDeclaration = Some(displayDeclaration),
+        importDeclaration = Some(importDeclaration),
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
         contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
@@ -371,8 +371,8 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
           )
           .to(SortedMap)
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -394,7 +394,7 @@ object RejectedGoodsScheduledClaimGenerators extends ScheduledClaimGenerators wi
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,

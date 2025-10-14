@@ -107,7 +107,7 @@ class ConfirmFullRepaymentControllerSpec
     )
     summaryKeys     should ===(List("Movement Reference Number (MRN)", "Security deposit"))
     summaryValues   should ===(
-      List(claim.getDisplayDeclarationIfValidSecurityDepositId(securityId).value.getMRN.value, amountPaidFormatted)
+      List(claim.getImportDeclarationIfValidSecurityDepositId(securityId).value.getMRN.value, amountPaidFormatted)
     )
     legend          should ===(List("Do you want to claim back the full amount?"))
     radioItems(doc) should contain theSameElementsAs Seq(
@@ -167,7 +167,7 @@ class ConfirmFullRepaymentControllerSpec
         controller.submit(securityId)(FakeRequest().withFormUrlEncodedBody(data*))
 
       "redirect to the error page if we have arrived with an invalid security deposit ID" in {
-        mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen.sample.map { case (mrn, rfs, decl) =>
+        mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen.sample.map { case (mrn, rfs, decl) =>
           val initialClaim = emptyClaim
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -187,7 +187,7 @@ class ConfirmFullRepaymentControllerSpec
       }
 
       "move on to /check-claim page when yes is selected and there are no other security ids" in {
-        forAll(mrnWithRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnWithRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           whenever(
             Set[ReasonForSecurity](UKAPEntryPrice, OutwardProcessingRelief, RevenueDispute, ManualOverrideDeposit)
               .contains(rfs)
@@ -268,7 +268,7 @@ class ConfirmFullRepaymentControllerSpec
         }
 
       "move on to /select-duties/:securityID page when no is selected and continue is clicked" in {
-        forAll(mrnIncludingExportRfsWithDisplayDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
+        forAll(mrnIncludingExportRfsWithImportDeclarationWithReclaimsGen) { case (mrn, rfs, decl, reclaims) =>
           val depositIds: Seq[String] = reclaims.map(_._1).distinct
 
           val claim: SecuritiesClaim =

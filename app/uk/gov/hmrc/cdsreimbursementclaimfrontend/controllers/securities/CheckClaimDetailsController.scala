@@ -42,21 +42,21 @@ class CheckClaimDetailsController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
   final val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       checkIfAllReclaimsProvided(claim) {
-        claim.getLeadDisplayDeclaration
-          .fold((claim, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
+        claim.getLeadImportDeclaration
+          .fold((claim, Redirect(routes.EnterMovementReferenceNumberController.show))) { importDeclaration =>
             (
               claim
                 .submitCheckClaimDetailsChangeMode(true)
                 .resetClaimFullAmountMode(),
               Ok(
-                checkClaimDetailsPage(displayDeclaration, claim.getReclaimWithAmounts, postAction)
+                checkClaimDetailsPage(importDeclaration, claim.getReclaimWithAmounts, postAction)
               )
             )
           }

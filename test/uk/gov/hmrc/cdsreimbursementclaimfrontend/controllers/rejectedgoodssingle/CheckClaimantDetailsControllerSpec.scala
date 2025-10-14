@@ -147,11 +147,11 @@ class CheckClaimantDetailsControllerSpec
         )
 
       "redirect to the CYA page and do not update the contact/address details if they are already present" in {
-        forAll(displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (displayDeclaration, contactDeatils, address) =>
+        forAll(importDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (importDeclaration, contactDeatils, address) =>
             val claim = RejectedGoodsSingleClaim
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .empty(importDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
               .map(_.submitContactDetails(Some(contactDeatils)))
               .map(_.submitContactAddress(address))
               .getOrFail
@@ -171,12 +171,12 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the CYA page and update the contact/address details if third party user" in {
-        forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
+        forAll(importDeclarationGen, genEori) { (importDeclaration, userEori) =>
           val claim = RejectedGoodsSingleClaim
             .empty(userEori)
-            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-            .flatMap(_.submitConsigneeEoriNumber(displayDeclaration.getConsigneeEori.get))
-            .flatMap(_.submitDeclarantEoriNumber(displayDeclaration.getDeclarantEori))
+            .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
+            .flatMap(_.submitConsigneeEoriNumber(importDeclaration.getConsigneeEori.get))
+            .flatMap(_.submitDeclarantEoriNumber(importDeclaration.getDeclarantEori))
             .getOrFail
 
           val session = SessionData(claim)
@@ -195,8 +195,8 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the check your answers page if user has seen CYA page" in {
-        forAll(completeClaimGen, displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (claim, displayDeclaration, contactDetails, address) =>
+        forAll(completeClaimGen, importDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (claim, importDeclaration, contactDetails, address) =>
             val updatedClaim = claim
               .submitContactDetails(Some(contactDetails))
               .submitContactAddress(address)

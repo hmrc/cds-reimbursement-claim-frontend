@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 
 /** Common properties of the overpayments single, multiple and scheduled claims. */
@@ -29,7 +29,7 @@ trait OverpaymentsClaimProperties extends CommonClaimProperties {
 
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
-  final override def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
+  final override def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
     // If only subsidy logic needs to be added here
     if declaration.hasOnlySubsidyPayments
     then Some("error.has-only-subsidy-items")

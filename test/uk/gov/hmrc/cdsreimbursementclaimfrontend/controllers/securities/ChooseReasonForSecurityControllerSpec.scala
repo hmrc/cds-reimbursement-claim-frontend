@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.OutwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -128,9 +128,9 @@ class ChooseReasonForSecurityControllerSpec
     )
     .submitMovementReferenceNumber(exampleMrn)
 
-  private def mockGetDisplayDeclarationWithErrorCodes(response: Either[GetDeclarationError, DisplayDeclaration]) =
+  private def mockGetImportDeclarationWithErrorCodes(response: Either[GetDeclarationError, ImportDeclaration]) =
     (mockClaimsService
-      .getDisplayDeclarationWithErrorCodes(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
+      .getImportDeclarationWithErrorCodes(_: MRN, _: ReasonForSecurity)(_: HeaderCarrier))
       .expects(*, *, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -193,7 +193,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "retrieve the ACC14 declaration, make a TPI04 check and redirect to the select first security deposit page" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
           val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
           val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
@@ -214,7 +214,7 @@ class ChooseReasonForSecurityControllerSpec
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialClaim))
-              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+              mockGetImportDeclarationWithErrorCodes(Right(declaration))
               mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
               mockStoreSession(updatedClaim)(Right(()))
             }
@@ -231,13 +231,13 @@ class ChooseReasonForSecurityControllerSpec
 
 //      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
 //        forAll(
-//          securitiesDisplayDeclarationGen
+//          securitiesImportDeclarationGen
 //            .map(
 //              _.withDeclarantEori(exampleXIEori)
 //                .withConsigneeEori(anotherExampleXIEori)
 //            ),
 //          IdGen.genEori
-//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//        ) { case (declaration: ImportDeclaration, eori: Eori) =>
 //          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
 //          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
 //          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
@@ -259,7 +259,7 @@ class ChooseReasonForSecurityControllerSpec
 //            inSequence {
 //              mockAuthWithDefaultRetrievals()
 //              mockGetSession(SessionData(initialClaim))
-//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetImportDeclarationWithErrorCodes(Right(declaration))
 //              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
 //              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
 //              mockStoreSession(updatedClaim)(Right(()))
@@ -276,7 +276,7 @@ class ChooseReasonForSecurityControllerSpec
 //      }
 
       "retrieve the ACC14 declaration and redirect to the enter importer eori page" in {
-        forAll(securitiesDisplayDeclarationGen, IdGen.genEori) { case (declaration: DisplayDeclaration, eori: Eori) =>
+        forAll(securitiesImportDeclarationGen, IdGen.genEori) { case (declaration: ImportDeclaration, eori: Eori) =>
           val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
           val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
           val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
@@ -296,7 +296,7 @@ class ChooseReasonForSecurityControllerSpec
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(initialClaim))
-              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+              mockGetImportDeclarationWithErrorCodes(Right(declaration))
               mockStoreSession(updatedClaim)(Right(()))
             }
 
@@ -312,13 +312,13 @@ class ChooseReasonForSecurityControllerSpec
 
 //      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
 //        forAll(
-//          securitiesDisplayDeclarationGen
+//          securitiesImportDeclarationGen
 //            .map(
 //              _.withDeclarantEori(exampleXIEori)
 //                .withConsigneeEori(anotherExampleXIEori)
 //            ),
 //          IdGen.genEori
-//        ) { case (declaration: DisplayDeclaration, eori: Eori) =>
+//        ) { case (declaration: ImportDeclaration, eori: Eori) =>
 //          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
 //          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
 //          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
@@ -339,7 +339,7 @@ class ChooseReasonForSecurityControllerSpec
 //            inSequence {
 //              mockAuthWithDefaultRetrievals()
 //              mockGetSession(SessionData(initialClaim))
-//              mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+//              mockGetImportDeclarationWithErrorCodes(Right(declaration))
 //              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
 //              mockStoreSession(updatedClaim)(Right(()))
 //            }
@@ -356,8 +356,8 @@ class ChooseReasonForSecurityControllerSpec
 
       "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
         forAll(
-          securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen
-        ) { (declaration: DisplayDeclaration) =>
+          securitiesImportDeclarationWithoutIPROrEndUseReliefGen
+        ) { (declaration: ImportDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
           val initialClaim =
@@ -382,7 +382,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "redirect to the check declaration details page when reason for security didn't change and in a change mode" in {
-        forAll(securitiesDisplayDeclarationWithoutIPROrEndUseReliefGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationWithoutIPROrEndUseReliefGen) { (declaration: ImportDeclaration) =>
           val rfs = declaration.getReasonForSecurity
 
           val initialClaim =
@@ -408,7 +408,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "redirect to the Check Total Import Discharged page when reason for security is InwardProcessingRelief" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           val rfs = ReasonForSecurity.InwardProcessingRelief
 
           val updatedDeclaration = declaration
@@ -432,7 +432,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialClaim))
-            mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
+            mockGetImportDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
             mockStoreSession(updatedClaim)(Right(()))
           }
@@ -447,7 +447,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "redirect to the Check Total Import Discharged page when reason for security is EndUseRelief" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           val rfs = ReasonForSecurity.EndUseRelief
 
           val updatedDeclaration = declaration
@@ -476,7 +476,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialClaim))
-            mockGetDisplayDeclarationWithErrorCodes(Right(updatedDeclaration))
+            mockGetImportDeclarationWithErrorCodes(Right(updatedDeclaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
             mockStoreSession(updatedClaim)(Right(()))
           }
@@ -491,7 +491,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "retrieve the ACC14 declaration and redirect to the enter importer EORI page when user's EORI don't match those of ACC14" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           val initialClaim =
             SecuritiesClaim
               .empty(exampleEori)
@@ -506,7 +506,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialClaim))
-            mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+            mockGetImportDeclarationWithErrorCodes(Right(declaration))
             mockStoreSession(updatedClaim)(Right(()))
           }
 
@@ -521,7 +521,7 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "retrieve the ACC14 declaration and redirect to inelligible page when TPI04 says that the claim is duplicated" in {
-        forAll(securitiesDisplayDeclarationGen) { (declaration: DisplayDeclaration) =>
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           val initialClaim =
             SecuritiesClaim
               .empty(declaration.getDeclarantEori)
@@ -537,7 +537,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(initialClaim))
-            mockGetDisplayDeclarationWithErrorCodes(Right(declaration))
+            mockGetImportDeclarationWithErrorCodes(Right(declaration))
             mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = true)))
             mockStoreSession(updatedClaim)(Right(()))
           }
@@ -552,8 +552,8 @@ class ChooseReasonForSecurityControllerSpec
       }
 
       "redirect to wrong RfS page when selected RfS doesn't match the declaration" in forAll(
-        securitiesDisplayDeclarationGen
-      ) { (declaration: DisplayDeclaration) =>
+        securitiesImportDeclarationGen
+      ) { (declaration: ImportDeclaration) =>
         val claim =
           SecuritiesClaim
             .empty(declaration.getDeclarantEori)
@@ -564,7 +564,7 @@ class ChooseReasonForSecurityControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(claim))
-          mockGetDisplayDeclarationWithErrorCodes(Left(GetDeclarationError.invalidReasonForSecurity))
+          mockGetImportDeclarationWithErrorCodes(Left(GetDeclarationError.invalidReasonForSecurity))
         }
 
         checkIsRedirect(
@@ -575,8 +575,8 @@ class ChooseReasonForSecurityControllerSpec
         )
       }
 
-      "redirect to declaration not found page when no declaration found" in forAll(securitiesDisplayDeclarationGen) {
-        (declaration: DisplayDeclaration) =>
+      "redirect to declaration not found page when no declaration found" in forAll(securitiesImportDeclarationGen) {
+        (declaration: ImportDeclaration) =>
           val claim =
             SecuritiesClaim
               .empty(declaration.getDeclarantEori)
@@ -587,7 +587,7 @@ class ChooseReasonForSecurityControllerSpec
           inSequence {
             mockAuthWithDefaultRetrievals()
             mockGetSession(SessionData(claim))
-            mockGetDisplayDeclarationWithErrorCodes(
+            mockGetImportDeclarationWithErrorCodes(
               Left(GetDeclarationError.declarationNotFound)
             )
           }

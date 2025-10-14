@@ -74,7 +74,7 @@ class CheckYourAnswersController @Inject() (
                 checkYourAnswersPage(
                   output,
                   claim.isSingleSecurity,
-                  claim.answers.displayDeclaration,
+                  claim.answers.importDeclaration,
                   claim.answers.exportMovementReferenceNumbers,
                   postAction
                 )
@@ -168,7 +168,7 @@ class CheckYourAnswersController @Inject() (
                         claim.getTotalClaimAmount,
                         output,
                         claim.isSingleSecurity,
-                        claim.answers.displayDeclaration,
+                        claim.answers.importDeclaration,
                         claim.answers.exportMovementReferenceNumbers,
                         submissionDate
                       )

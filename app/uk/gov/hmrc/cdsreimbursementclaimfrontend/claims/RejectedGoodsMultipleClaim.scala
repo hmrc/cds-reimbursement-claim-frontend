@@ -21,7 +21,7 @@ import cats.syntax.eq.*
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -93,20 +93,20 @@ final class RejectedGoodsMultipleClaim private (
   def hasCompleteMovementReferenceNumbers: Boolean =
     countOfMovementReferenceNumbers >= 2
 
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    getLeadMovementReferenceNumber.flatMap(getDisplayDeclarationFor)
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    getLeadMovementReferenceNumber.flatMap(getImportDeclarationFor)
 
-  def getNthDisplayDeclaration(index: Int): Option[DisplayDeclaration] =
-    getNthMovementReferenceNumber(index).flatMap(getDisplayDeclarationFor)
+  def getNthImportDeclaration(index: Int): Option[ImportDeclaration] =
+    getNthMovementReferenceNumber(index).flatMap(getImportDeclarationFor)
 
-  def getDisplayDeclarationFor(mrn: MRN): Option[DisplayDeclaration] =
+  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
     for
-      declarations <- answers.displayDeclarations
+      declarations <- answers.importDeclarations
       declaration  <- declarations.find(_.getMRN === mrn)
     yield declaration
 
-  override def getDisplayDeclarations: Seq[DisplayDeclaration] =
-    answers.displayDeclarations.getOrElse(Seq.empty)
+  override def getImportDeclarations: Seq[ImportDeclaration] =
+    answers.importDeclarations.getOrElse(Seq.empty)
 
   def getCorrectAmountsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
     answers.correctedAmounts.flatMap(_.get(mrn))
@@ -119,7 +119,7 @@ final class RejectedGoodsMultipleClaim private (
     yield correctAmount
 
   def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
-    getDisplayDeclarationFor(declarationId)
+    getImportDeclarationFor(declarationId)
       .flatMap(_.getNdrcDutiesWithAmount)
       .getOrElse(Seq.empty)
 
@@ -164,10 +164,10 @@ final class RejectedGoodsMultipleClaim private (
     if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
 
   def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
-    getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
   def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
-    getDisplayDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
     * found.
@@ -234,37 +234,37 @@ final class RejectedGoodsMultipleClaim private (
     Some(UploadDocumentType.rejectedGoodsMultipleDocumentTypes)
 
   def containsUnsupportedTaxCodeFor(mrn: MRN): Boolean =
-    getDisplayDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
+    getImportDeclarationFor(mrn).exists(_.containsSomeUnsupportedTaxCode)
 
   def removeUnsupportedTaxCodes(): RejectedGoodsMultipleClaim =
-    this.copy(answers.copy(displayDeclarations = answers.displayDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
+    this.copy(answers.copy(importDeclarations = answers.importDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
 
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ): Either[String, RejectedGoodsMultipleClaim] =
-    submitMovementReferenceNumberAndDeclaration(0, mrn, displayDeclaration)
+    submitMovementReferenceNumberAndDeclaration(0, mrn, importDeclaration)
 
   def submitMovementReferenceNumberAndDeclaration(
     index: Int,
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ) =
     whileClaimIsAmendable {
       if index < 0 then Left("submitMovementReferenceNumber.negativeIndex")
       else if index > countOfMovementReferenceNumbers then Left("submitMovementReferenceNumber.invalidIndex")
-      else if mrn =!= displayDeclaration.getMRN then
+      else if mrn =!= importDeclaration.getMRN then
         Left(
-          "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+          "submitMovementReferenceNumber.wrongImportDeclarationMrn"
         )
-      else if index > 0 && !getLeadDisplayDeclaration.exists(displayDeclaration.hasSameEoriAs) then
-        Left("submitMovementReferenceNumber.wrongDisplayDeclarationEori")
+      else if index > 0 && !getLeadImportDeclaration.exists(importDeclaration.hasSameEoriAs) then
+        Left("submitMovementReferenceNumber.wrongImportDeclarationEori")
       else
         getNthMovementReferenceNumber(index) match {
           // do nothing if MRN value and positions does not change, and declaration is the same
           case Some(existingMrn)
               if existingMrn === mrn &&
-                getDisplayDeclarationFor(mrn).contains(displayDeclaration) =>
+                getImportDeclarationFor(mrn).contains(importDeclaration) =>
             Right(this)
 
           // change an existing MRN
@@ -279,7 +279,7 @@ final class RejectedGoodsMultipleClaim private (
                     .Answers(
                       userEoriNumber = answers.userEoriNumber,
                       movementReferenceNumbers = Some(Seq(mrn)),
-                      displayDeclarations = Some(Seq(displayDeclaration)),
+                      importDeclarations = Some(Seq(importDeclaration)),
                       eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                       nonce = answers.nonce
                     ),
@@ -294,8 +294,8 @@ final class RejectedGoodsMultipleClaim private (
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers
                       .map(mrns => (mrns.take(index) :+ mrn) ++ mrns.drop(index + 1)),
-                    displayDeclarations = answers.displayDeclarations.map(
-                      _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ displayDeclaration
+                    importDeclarations = answers.importDeclarations.map(
+                      _.filterNot(_.displayResponseDetail.declarationId === existingMrn.value) :+ importDeclaration
                     ),
                     correctedAmounts =
                       answers.correctedAmounts.map(_.removed(existingMrn).updated(mrn, OrderedMap.empty))
@@ -313,8 +313,8 @@ final class RejectedGoodsMultipleClaim private (
                 this.copy(
                   answers.copy(
                     movementReferenceNumbers = answers.movementReferenceNumbers.map(_ :+ mrn).orElse(Some(Seq(mrn))),
-                    displayDeclarations =
-                      answers.displayDeclarations.map(_ :+ displayDeclaration).orElse(Some(Seq(displayDeclaration))),
+                    importDeclarations =
+                      answers.importDeclarations.map(_ :+ importDeclaration).orElse(Some(Seq(importDeclaration))),
                     correctedAmounts = answers.correctedAmounts
                       .map(_ + (mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]]))
                       .orElse(Some(OrderedMap(mrn -> OrderedMap.empty[TaxCode, Option[BigDecimal]])))
@@ -324,20 +324,20 @@ final class RejectedGoodsMultipleClaim private (
         }
     }
 
-  def removeMovementReferenceNumberAndDisplayDeclaration(mrn: MRN): Either[String, RejectedGoodsMultipleClaim] =
+  def removeMovementReferenceNumberAndImportDeclaration(mrn: MRN): Either[String, RejectedGoodsMultipleClaim] =
     whileClaimIsAmendable {
       getIndexOfMovementReferenceNumber(mrn) match {
-        case None                                             => Left("removeMovementReferenceNumberAndDisplayDeclaration.notFound")
-        case Some(0)                                          => Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveFirstMRN")
+        case None                                             => Left("removeMovementReferenceNumberAndImportDeclaration.notFound")
+        case Some(0)                                          => Left("removeMovementReferenceNumberAndImportDeclaration.cannotRemoveFirstMRN")
         case Some(1) if countOfMovementReferenceNumbers === 2 =>
-          Left("removeMovementReferenceNumberAndDisplayDeclaration.cannotRemoveSecondMRN")
+          Left("removeMovementReferenceNumberAndImportDeclaration.cannotRemoveSecondMRN")
         case Some(index)                                      =>
           Right(
             this.copy(
               answers.copy(
                 movementReferenceNumbers = answers.movementReferenceNumbers
                   .map(mrns => mrns.take(index) ++ mrns.drop(index + 1)),
-                displayDeclarations = answers.displayDeclarations.map(
+                importDeclarations = answers.importDeclarations.map(
                   _.filterNot(_.displayResponseDetail.declarationId === mrn.value)
                 ),
                 correctedAmounts = answers.correctedAmounts.map(_.removed(mrn))
@@ -463,9 +463,9 @@ final class RejectedGoodsMultipleClaim private (
     taxCodes: Seq[TaxCode]
   ): Either[String, RejectedGoodsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(mrn) match {
+      getImportDeclarationFor(mrn) match {
         case None =>
-          Left("selectAndReplaceTaxCodeSetForReimbursement.missingDisplayDeclaration")
+          Left("selectAndReplaceTaxCodeSetForReimbursement.missingImportDeclaration")
 
         case Some(_) =>
           if taxCodes.isEmpty then Left("selectTaxCodeSetForReimbursement.emptySelection")
@@ -506,9 +506,9 @@ final class RejectedGoodsMultipleClaim private (
     correctAmount: BigDecimal
   ): Either[String, RejectedGoodsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(declarationId) match {
+      getImportDeclarationFor(declarationId) match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(declarationId, taxCode) match {
@@ -544,9 +544,9 @@ final class RejectedGoodsMultipleClaim private (
     claimAmount: BigDecimal
   ): Either[String, RejectedGoodsMultipleClaim] =
     whileClaimIsAmendable {
-      getDisplayDeclarationFor(declarationId) match {
+      getImportDeclarationFor(declarationId) match {
         case None =>
-          Left("submitCorrectAmount.missingDisplayDeclaration")
+          Left("submitCorrectAmount.missingImportDeclaration")
 
         case Some(_) =>
           getNdrcDetailsFor(declarationId, taxCode) match {
@@ -755,7 +755,7 @@ object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleCl
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumbers: Option[Seq[MRN]] = None,
-    displayDeclarations: Option[Seq[DisplayDeclaration]] = None,
+    importDeclarations: Option[Seq[ImportDeclaration]] = None,
     payeeType: Option[PayeeType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -819,7 +819,7 @@ object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleCl
   /** Validate if all required answers has been provided and the claim is ready to produce output. */
   override implicit val validator: Validate[RejectedGoodsMultipleClaim] =
     all(
-      hasMRNAndDisplayDeclaration,
+      hasMRNAndImportDeclaration,
       containsOnlySupportedTaxCodes,
       hasMultipleMovementReferenceNumbers,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
@@ -875,8 +875,8 @@ object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleCl
     features: Option[Features] = None
   ): Either[String, RejectedGoodsMultipleClaim] =
     empty(answers.userEoriNumber, answers.nonce, features)
-      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.displayDeclarations).zipWithIndex)(j => {
-        case ((mrn: MRN, decl: DisplayDeclaration), index: Int) =>
+      .flatMapEachWhenDefined(answers.movementReferenceNumbers.zipOpt(answers.importDeclarations).zipWithIndex)(j => {
+        case ((mrn: MRN, decl: ImportDeclaration), index: Int) =>
           j.submitMovementReferenceNumberAndDeclaration(index, mrn, decl)
       })
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)

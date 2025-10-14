@@ -24,7 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
@@ -50,7 +50,7 @@ class RejectedGoodsSingleClaimSpec
       emptyClaim.answers.contactAddress                                         shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
       emptyClaim.answers.detailsOfRejectedGoods                                 shouldBe None
-      emptyClaim.answers.displayDeclaration                                     shouldBe None
+      emptyClaim.answers.importDeclaration                                      shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber) shouldBe None
       emptyClaim.answers.inspectionAddress                                      shouldBe None
       emptyClaim.answers.inspectionDate                                         shouldBe None
@@ -129,7 +129,7 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "accept submission of a new MRN" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl)
           .getOrFail
@@ -142,21 +142,21 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "decline submission of a wrong display declaration" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claimEither = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl.withDeclarationId("foo"))
 
-        claimEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+        claimEither shouldBe Left("submitMovementReferenceNumber.wrongImportDeclarationMrn")
       }
     }
 
     "accept change of the MRN" in {
-      forAll(completeClaimGen, displayDeclarationGen) { (claim, decl) =>
+      forAll(completeClaimGen, importDeclarationGen) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration     shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration      shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers             shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences shouldBe false
@@ -166,13 +166,13 @@ class RejectedGoodsSingleClaimSpec
     "accept change of the MRN when user has XI eori" in {
       forAll(
         completeClaimGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value))),
-        displayDeclarationGen
+        importDeclarationGen
       ) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences  shouldBe false
@@ -187,7 +187,7 @@ class RejectedGoodsSingleClaimSpec
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(
             claim.answers.movementReferenceNumber.get,
-            claim.answers.displayDeclaration.get
+            claim.answers.importDeclaration.get
           )
           .getOrFail
         modifiedClaim                                shouldBe claim
@@ -198,7 +198,7 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "accept submission of a new ACC14 data" in {
-      forAll(displayDeclarationGen) { acc14 =>
+      forAll(importDeclarationGen) { acc14 =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(
             exampleMrn,
@@ -206,11 +206,11 @@ class RejectedGoodsSingleClaimSpec
           )
           .getOrFail
 
-        claim.answers.movementReferenceNumber.contains(exampleMrn)                             shouldBe true
-        claim.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
-        claim.hasCompleteAnswers                                                               shouldBe false
-        claim.hasCompleteReimbursementClaims                                                   shouldBe false
-        claim.hasCompleteSupportingEvidences                                                   shouldBe false
+        claim.answers.movementReferenceNumber.contains(exampleMrn)                            shouldBe true
+        claim.answers.importDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
+        claim.hasCompleteAnswers                                                              shouldBe false
+        claim.hasCompleteReimbursementClaims                                                  shouldBe false
+        claim.hasCompleteSupportingEvidences                                                  shouldBe false
       }
     }
 
@@ -220,11 +220,11 @@ class RejectedGoodsSingleClaimSpec
           claim
             .submitMovementReferenceNumberAndDeclaration(
               exampleMrn,
-              exampleDisplayDeclaration
+              exampleImportDeclaration
             )
             .getOrFail
         modifiedClaim.answers.movementReferenceNumber shouldBe Some(exampleMrn)
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(exampleImportDeclaration)
         modifiedClaim.answers.correctedAmounts        shouldBe None
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
@@ -233,12 +233,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe true
@@ -247,12 +247,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       exampleXIEori.isXiEori                         shouldBe true
@@ -271,12 +271,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -285,12 +285,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -299,12 +299,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -314,12 +314,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -329,12 +329,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(java.util.Locale.ENGLISH))))
           .getOrFail
 
@@ -357,48 +357,48 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "fail if submitted consignee EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
 
     "fail if submitted consignee EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
     }
 
     "fail if submitted declarant EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
     }
 
     "fail if submitted declarant EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
@@ -526,12 +526,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "select valid tax codes for reimbursement when none yet selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
 
       claimEither.isRight shouldBe true
@@ -542,32 +542,32 @@ class RejectedGoodsSingleClaimSpec
         .empty(exampleEori)
         .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
 
-      claimEither shouldBe Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+      claimEither shouldBe Left("selectTaxCodeSetForReimbursement.missingImportDeclaration")
     }
 
     "return left when selecting empty list of tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq.empty))
 
       claimEither shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
     }
 
     "replace valid tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       claimEither.getOrFail.getSelectedDuties           shouldBe Some(Seq(TaxCode.A00))
@@ -583,16 +583,16 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "replace valid tax codes for reimbursement with non-CMA duty addition when CurrentMonthAdjustment" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
@@ -609,16 +609,16 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "replace valid tax codes for reimbursement with non-CMA duty addition when BankAccountTransfer" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
@@ -635,12 +635,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "select invalid tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80)))
 
       claimEither.isRight shouldBe false
@@ -676,10 +676,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit valid correct amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("5.00")))
 
@@ -687,10 +687,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit valid claim amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
 
@@ -699,12 +699,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit valid correct amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A80, BigDecimal("5.00")))
 
@@ -712,12 +712,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit valid claim amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = RejectedGoodsSingleClaim
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("6.66")))
 
@@ -725,10 +725,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit invalid correct amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       val claimEitherTestZero     =
@@ -744,10 +744,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit invalid claim amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       val claimEitherTestZero     =
@@ -763,10 +763,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit invalid correct amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A80, BigDecimal("10.00")))
 
@@ -774,10 +774,10 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit invalid claim amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("0.00")))
 
@@ -789,7 +789,7 @@ class RejectedGoodsSingleClaimSpec
         .empty(exampleEori)
         .submitCorrectAmount(TaxCode.A80, BigDecimal("5.00"))
 
-      claimEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+      claimEither shouldBe Left("submitCorrectAmount.missingImportDeclaration")
     }
 
     "return left when submitting valid claim amount with missing display declaration" in {
@@ -797,24 +797,24 @@ class RejectedGoodsSingleClaimSpec
         .empty(exampleEori)
         .submitClaimAmount(TaxCode.A80, BigDecimal("6.66"))
 
-      claimEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+      claimEither shouldBe Left("submitCorrectAmount.missingImportDeclaration")
     }
 
     "return left when submitting valid correct amount for with no tax code selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("5.00")))
 
       claimEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
     }
 
     "return left when submitting valid claim amount for with no tax code selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = RejectedGoodsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = RejectedGoodsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
 
       claimEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
@@ -896,12 +896,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.99")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
@@ -910,12 +910,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "fail submitting CurrentMonthAdjustment as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val claimEither                      =
+      val importDeclarationNotCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
+      val claimEither                     =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
@@ -924,12 +924,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.01")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -938,12 +938,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val claimEither                      =
+      val importDeclarationNotCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
+      val claimEither                     =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -952,12 +952,12 @@ class RejectedGoodsSingleClaimSpec
     }
 
     "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         RejectedGoodsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -1006,8 +1006,8 @@ class RejectedGoodsSingleClaimSpec
       }
 
       "return false if at least one of the claimed tax code do not have a value specified" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+        forAll(importDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (importDeclaration: ImportDeclaration, ndrcDetails: List[NdrcDetails]) =>
             whenever(
               ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
                 .map(_.taxType)
@@ -1015,8 +1015,8 @@ class RejectedGoodsSingleClaimSpec
                 .size == ndrcDetails.size
             ) {
               val taxCodes     = ndrcDetails.map(details => TaxCode(details.taxType))
-              val drd          = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd    = displayDeclaration.copy(displayResponseDetail = drd)
+              val drd          = importDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd    = importDeclaration.copy(displayResponseDetail = drd)
               val initialClaim = RejectedGoodsSingleClaim
                 .empty(exampleEori)
                 .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
@@ -1031,16 +1031,16 @@ class RejectedGoodsSingleClaimSpec
       }
 
       "return false if no tax codes have been claimed yet" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+        forAll(importDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (importDeclaration: ImportDeclaration, ndrcDetails: List[NdrcDetails]) =>
             whenever(
               ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
                 .map(_.taxType)
                 .toSet
                 .size == ndrcDetails.size
             ) {
-              val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
+              val drd       = importDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd = importDeclaration.copy(displayResponseDetail = drd)
               val claim     = RejectedGoodsSingleClaim
                 .empty(exampleEori)
                 .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
@@ -1057,7 +1057,7 @@ class RejectedGoodsSingleClaimSpec
       import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport.withSomeSubsidiesPaymentMethod
 
       val declaration =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
           .withSomeSubsidiesPaymentMethod()
 
       val claim = RejectedGoodsSingleClaim
@@ -1088,7 +1088,7 @@ class RejectedGoodsSingleClaimSpec
         .empty(exampleEori)
         .submitMovementReferenceNumberAndDeclaration(
           exampleMrn,
-          exampleDisplayDeclarationWithSomeUnsupportedCode
+          exampleImportDeclarationWithSomeUnsupportedCode
         )
         .getOrFail
         .removeUnsupportedTaxCodes()

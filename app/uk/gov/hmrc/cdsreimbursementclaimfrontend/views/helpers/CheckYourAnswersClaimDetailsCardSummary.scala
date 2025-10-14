@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 object CheckYourAnswersClaimDetailsCardSummary {
 
@@ -512,7 +512,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
 
   def renderForSecurities(
     claim: SecuritiesClaim.Output,
-    displayDeclarationOpt: Option[DisplayDeclaration],
+    importDeclarationOpt: Option[ImportDeclaration],
     isPrintView: Boolean
   )(implicit
     messages: Messages
@@ -563,7 +563,7 @@ object CheckYourAnswersClaimDetailsCardSummary {
       claim.reasonForSecurity.match {
         case EndUseRelief | InwardProcessingRelief => None
         case _                                     =>
-          displayDeclarationOpt.flatMap(declaration =>
+          importDeclarationOpt.flatMap(declaration =>
             claim.securitiesReclaims.headOption.map((securityDepositId, reclaims) =>
               SummaryListRow(
                 key = Key(HtmlContent(messages(s"check-your-answers.securities.claim-full-amount.label"))),

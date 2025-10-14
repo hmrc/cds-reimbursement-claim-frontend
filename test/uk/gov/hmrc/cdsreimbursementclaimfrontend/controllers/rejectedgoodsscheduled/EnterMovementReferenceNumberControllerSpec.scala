@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledCl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
@@ -94,9 +94,9 @@ class EnterMovementReferenceNumberControllerSpec
 
   val messageKey: String = "enter-movement-reference-number"
 
-  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
     (mockClaimService
-      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -182,7 +182,7 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(None))
+          mockGetImportDeclaration(mrn, Right(None))
         }
 
         checkIsRedirect(
@@ -193,23 +193,23 @@ class EnterMovementReferenceNumberControllerSpec
 
       "submit a valid MRN and user is declarant" in forAll { (mrn: MRN) =>
         val claim                         = session.rejectedGoodsScheduledClaim.getOrElse(fail("No rejected goods claim"))
-        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
-        val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+        val importDeclaration             = buildImportDeclaration().withDeclarationId(mrn.value)
+        val updatedDeclarantDetails       = importDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = claim.answers.userEoriNumber.value
         )
         val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+          importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedClaim                  =
           claim
-            .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
             .getOrFail
         val updatedSession                = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+          mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -222,27 +222,27 @@ class EnterMovementReferenceNumberControllerSpec
       "submit a valid MRN and user is not the declarant or consignee" in forAll {
         (mrn: MRN, declarant: Eori, consignee: Eori) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
-            val claim              = session.rejectedGoodsScheduledClaim.getOrElse(fail("No rejected goods claim"))
-            val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
-            val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
-            val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
+            val claim             = session.rejectedGoodsScheduledClaim.getOrElse(fail("No rejected goods claim"))
+            val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
+            val declarantDetails  = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
+            val consigneeDetails  = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
 
-            val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+            val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
               declarantDetails = declarantDetails,
               consigneeDetails = Some(consigneeDetails)
             )
-            val updatedDisplayDeclaration     =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+            val updatedImportDeclaration      =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val updatedClaim                  =
               claim
-                .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
                 .getOrFail
             val updatedSession                = SessionData(updatedClaim)
 
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(session)
-              mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+              mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
               mockStoreSession(updatedSession)(Right(()))
             }
 
@@ -256,23 +256,23 @@ class EnterMovementReferenceNumberControllerSpec
       "redirect to problem with declaration if there are unsupported tax codes" in {
         val dutyDetails                   = Seq((TaxCode("999"), BigDecimal(1200), false))
         val claim                         = session.rejectedGoodsScheduledClaim.getOrElse(fail("No rejected goods claim"))
-        val displayDeclaration            = buildDisplayDeclaration(dutyDetails = dutyDetails).withDeclarationId(exampleMrn.value)
-        val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+        val importDeclaration             = buildImportDeclaration(dutyDetails = dutyDetails).withDeclarationId(exampleMrn.value)
+        val updatedDeclarantDetails       = importDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = claim.answers.userEoriNumber.value
         )
         val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+          importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedClaim                  =
           claim
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDisplayDeclaration)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedImportDeclaration)
             .getOrFail
         val updatedSession                = SessionData(updatedClaim)
 
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockGetDisplayDeclaration(exampleMrn, Right(Some(updatedDisplayDeclaration)))
+          mockGetImportDeclaration(exampleMrn, Right(Some(updatedImportDeclaration)))
           mockStoreSession(updatedSession)(Right(()))
         }
 
@@ -289,20 +289,20 @@ class EnterMovementReferenceNumberControllerSpec
       //   val consigneeXiEori = genXiEori.sample.get
 
       //   val claim            = session.rejectedGoodsScheduledClaim.getOrElse(fail("No overpayments claim"))
-      //   val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
+      //   val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
       //   val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
       //   val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 
-      //   val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+      //   val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
       //     declarantDetails = declarantDetails,
       //     consigneeDetails = Some(consigneeDetails)
       //   )
-      //   val updatedDisplayDeclaration     =
-      //     displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+      //   val updatedImportDeclaration     =
+      //     importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
       //   val updatedClaim =
       //     claim
-      //       .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+      //       .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
       //       .map(_.submitUserXiEori(UserXiEori(consigneeXiEori.value)))
       //       .getOrFail
 
@@ -311,7 +311,7 @@ class EnterMovementReferenceNumberControllerSpec
       //   inSequence {
       //     mockAuthWithDefaultRetrievals()
       //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+      //     mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
       //     mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
       //     mockStoreSession(updatedSession)(Right(()))
       //   }
@@ -329,20 +329,20 @@ class EnterMovementReferenceNumberControllerSpec
       //   val consigneeXiEori = genXiEori.sample.get
 
       //   val claim            = session.rejectedGoodsScheduledClaim.getOrElse(fail("No overpayments claim"))
-      //   val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
+      //   val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
       //   val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
       //   val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
 
-      //   val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+      //   val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
       //     declarantDetails = declarantDetails,
       //     consigneeDetails = Some(consigneeDetails)
       //   )
-      //   val updatedDisplayDeclaration     =
-      //     displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+      //   val updatedImportDeclaration     =
+      //     importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
 
       //   val updatedClaim =
       //     claim
-      //       .submitMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+      //       .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
       //       .map(_.submitUserXiEori(UserXiEori.NotRegistered))
       //       .getOrFail
 
@@ -351,7 +351,7 @@ class EnterMovementReferenceNumberControllerSpec
       //   inSequence {
       //     mockAuthWithDefaultRetrievals()
       //     mockGetSession(session)
-      //     mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+      //     mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
       //     mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
       //     mockStoreSession(updatedSession)(Right(()))
       //   }
@@ -372,8 +372,8 @@ class EnterMovementReferenceNumberControllerSpec
           )
         )
 
-        val displayDeclaration =
-          buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+        val importDeclaration =
+          buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
             .withDeclarantEori(declarant)
             .withConsigneeEori(consignee)
@@ -382,7 +382,7 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(session)
-          mockGetDisplayDeclaration(mrn, Right(Some(displayDeclaration)))
+          mockGetImportDeclaration(mrn, Right(Some(importDeclaration)))
         }
 
         checkPageIsDisplayed(

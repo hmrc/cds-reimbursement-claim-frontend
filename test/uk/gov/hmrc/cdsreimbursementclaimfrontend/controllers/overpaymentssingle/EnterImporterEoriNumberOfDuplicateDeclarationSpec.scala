@@ -60,8 +60,8 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val originalDeclaration  = exampleDisplayDeclaration
-  val duplicateDeclaration = buildDisplayDeclaration(id = anotherExampleMrn.value, consigneeEORI = Some(exampleEori))
+  val originalDeclaration  = exampleImportDeclaration
+  val duplicateDeclaration = buildImportDeclaration(id = anotherExampleMrn.value, consigneeEORI = Some(exampleEori))
 
   val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
     .empty(originalDeclaration.getConsigneeEori.get)
@@ -106,16 +106,16 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
           mockGetSession(
             SessionData(
               OverpaymentsSingleClaim
-                .empty(exampleDisplayDeclaration.getConsigneeEori.get)
+                .empty(exampleImportDeclaration.getConsigneeEori.get)
                 .submitMovementReferenceNumberAndDeclaration(
-                  exampleDisplayDeclaration.getMRN,
-                  exampleDisplayDeclaration
+                  exampleImportDeclaration.getMRN,
+                  exampleImportDeclaration
                 )
                 .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
                 .flatMap(
                   _.submitDuplicateMovementReferenceNumberAndDeclaration(
                     duplicateDeclaration.getMRN,
-                    duplicateDeclaration.withConsigneeEori(exampleDisplayDeclaration.getConsigneeEori.get)
+                    duplicateDeclaration.withConsigneeEori(exampleImportDeclaration.getConsigneeEori.get)
                   )
                 )
                 .getOrFail
@@ -202,11 +202,11 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       }
 
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
-        val displayDeclaration             =
-          buildDisplayDeclaration(consigneeEORI = Some(anotherExampleEori)).withDeclarationId(mrn.value)
+        val importDeclaration              =
+          buildImportDeclaration(consigneeEORI = Some(anotherExampleEori)).withDeclarationId(mrn.value)
         val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
           .empty(anotherExampleEori)
-          .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
           .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
           .flatMap(
             _.submitDuplicateMovementReferenceNumberAndDeclaration(
@@ -233,11 +233,11 @@ class EnterImporterEoriNumberOfDuplicateDeclarationSpec
       "submit a valid Eori which is not the consignee" in forAll {
         (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
           whenever(enteredConsigneeEori =!= wantedConsignee) {
-            val displayDeclaration             =
-              buildDisplayDeclaration(consigneeEORI = Some(exampleEori)).withDeclarationId(mrn.value)
+            val importDeclaration              =
+              buildImportDeclaration(consigneeEORI = Some(exampleEori)).withDeclarationId(mrn.value)
             val claim: OverpaymentsSingleClaim = OverpaymentsSingleClaim
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
               .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
               .flatMap(
                 _.submitDuplicateMovementReferenceNumberAndDeclaration(

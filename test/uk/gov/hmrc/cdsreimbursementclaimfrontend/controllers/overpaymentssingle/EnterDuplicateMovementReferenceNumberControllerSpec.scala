@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimG
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
@@ -78,9 +78,9 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
+  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
     (mockClaimService
-      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -122,7 +122,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           claimGen.sample.get
             .submitDuplicateMovementReferenceNumberAndDeclaration(
               anotherExampleMrn,
-              buildDisplayDeclaration(id = anotherExampleMrn.value)
+              buildImportDeclaration(id = anotherExampleMrn.value)
             )
             .getOrFail
 
@@ -190,7 +190,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(claim))
-          mockGetDisplayDeclaration(mrn, Right(None))
+          mockGetImportDeclaration(mrn, Right(None))
         }
 
         checkIsRedirect(
@@ -200,22 +200,22 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       "submit a valid MRN and user is declarant" in forAll(claimGen, genMRN) { case (claim, mrn) =>
-        val displayDeclaration            = buildDisplayDeclaration().withDeclarationId(mrn.value)
-        val updatedDeclarantDetails       = displayDeclaration.displayResponseDetail.declarantDetails.copy(
+        val importDeclaration             = buildImportDeclaration().withDeclarationId(mrn.value)
+        val updatedDeclarantDetails       = importDeclaration.displayResponseDetail.declarantDetails.copy(
           declarantEORI = claim.answers.userEoriNumber.value
         )
         val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
-        val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+          importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedImportDeclaration      = importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val updatedClaim                  =
           claim
-            .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+            .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
             .getOrFail
 
         inSequence {
           mockAuthWithDefaultRetrievals()
           mockGetSession(SessionData(claim))
-          mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+          mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
           mockStoreSession(SessionData(updatedClaim))(Right(()))
         }
 
@@ -228,25 +228,25 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "submit a valid MRN and user is not declarant nor consignee" in forAll(claimGen, genMRN, genEori, genEori) {
         case (claim, mrn, declarant, consignee) =>
           whenever(declarant =!= exampleEori && consignee =!= exampleEori) {
-            val displayDeclaration = buildDisplayDeclaration().withDeclarationId(mrn.value)
-            val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
-            val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
+            val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
+            val declarantDetails  = sample[DeclarantDetails].copy(declarantEORI = declarant.value)
+            val consigneeDetails  = sample[ConsigneeDetails].copy(consigneeEORI = consignee.value)
 
-            val updatedDisplayResponseDetails = displayDeclaration.displayResponseDetail.copy(
+            val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
               declarantDetails = declarantDetails,
               consigneeDetails = Some(consigneeDetails)
             )
-            val updatedDisplayDeclaration     =
-              displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
+            val updatedImportDeclaration      =
+              importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val updatedClaim                  =
               claim
-                .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedDisplayDeclaration)
+                .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
                 .getOrFail
 
             inSequence {
               mockAuthWithDefaultRetrievals()
               mockGetSession(SessionData(claim))
-              mockGetDisplayDeclaration(mrn, Right(Some(updatedDisplayDeclaration)))
+              mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
               mockStoreSession(SessionData(updatedClaim))(Right(()))
             }
 

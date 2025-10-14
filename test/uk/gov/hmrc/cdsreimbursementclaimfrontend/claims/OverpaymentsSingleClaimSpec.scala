@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
@@ -55,7 +55,7 @@ class OverpaymentsSingleClaimSpec
       emptyClaim.answers.eoriNumbersVerification                                shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber) shouldBe None
       emptyClaim.answers.additionalDetails                                      shouldBe None
-      emptyClaim.answers.displayDeclaration                                     shouldBe None
+      emptyClaim.answers.importDeclaration                                      shouldBe None
       emptyClaim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber) shouldBe None
       emptyClaim.answers.correctedAmounts                                       shouldBe None
       emptyClaim.answers.reimbursementMethod                                    shouldBe None
@@ -137,7 +137,7 @@ class OverpaymentsSingleClaimSpec
     }
 
     "accept submission of a new MRN" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl)
           .getOrFail
@@ -150,21 +150,21 @@ class OverpaymentsSingleClaimSpec
     }
 
     "decline submission of a wrong display declaration" in {
-      forAll(mrnWithDisplayDeclarationGen) { case (mrn, decl) =>
+      forAll(mrnWithImportDeclarationGen) { case (mrn, decl) =>
         val claimEither = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(mrn, decl.withDeclarationId("foo"))
 
-        claimEither shouldBe Left("submitMovementReferenceNumber.wrongDisplayDeclarationMrn")
+        claimEither shouldBe Left("submitMovementReferenceNumber.wrongImportDeclarationMrn")
       }
     }
 
     "accept change of the MRN" in {
-      forAll(completeClaimGen, displayDeclarationGen) { (claim, decl) =>
+      forAll(completeClaimGen, importDeclarationGen) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration     shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration      shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers             shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences shouldBe false
@@ -174,13 +174,13 @@ class OverpaymentsSingleClaimSpec
     "accept change of the MRN when user has XI eori" in {
       forAll(
         completeClaimGen.map(_.submitUserXiEori(UserXiEori(exampleXIEori.value))),
-        displayDeclarationGen
+        importDeclarationGen
       ) { (claim, decl) =>
         val decl2         = decl.withDeclarationId(exampleMrnAsString)
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(exampleMrn, decl2)
           .getOrFail
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(decl2)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(decl2)
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
         modifiedClaim.hasCompleteSupportingEvidences  shouldBe false
@@ -195,7 +195,7 @@ class OverpaymentsSingleClaimSpec
         val modifiedClaim = claim
           .submitMovementReferenceNumberAndDeclaration(
             claim.answers.movementReferenceNumber.get,
-            claim.answers.displayDeclaration.get
+            claim.answers.importDeclaration.get
           )
           .getOrFail
         modifiedClaim                                shouldBe claim
@@ -206,7 +206,7 @@ class OverpaymentsSingleClaimSpec
     }
 
     "accept submission of a new ACC14 data" in {
-      forAll(displayDeclarationGen) { acc14 =>
+      forAll(importDeclarationGen) { acc14 =>
         val claim = emptyClaim
           .submitMovementReferenceNumberAndDeclaration(
             exampleMrn,
@@ -214,11 +214,11 @@ class OverpaymentsSingleClaimSpec
           )
           .getOrFail
 
-        claim.answers.movementReferenceNumber.contains(exampleMrn)                             shouldBe true
-        claim.answers.displayDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
-        claim.hasCompleteAnswers                                                               shouldBe false
-        claim.hasCompleteReimbursementClaims                                                   shouldBe false
-        claim.hasCompleteSupportingEvidences                                                   shouldBe false
+        claim.answers.movementReferenceNumber.contains(exampleMrn)                            shouldBe true
+        claim.answers.importDeclaration.contains(acc14.withDeclarationId(exampleMrnAsString)) shouldBe true
+        claim.hasCompleteAnswers                                                              shouldBe false
+        claim.hasCompleteReimbursementClaims                                                  shouldBe false
+        claim.hasCompleteSupportingEvidences                                                  shouldBe false
       }
     }
 
@@ -228,11 +228,11 @@ class OverpaymentsSingleClaimSpec
           claim
             .submitMovementReferenceNumberAndDeclaration(
               exampleMrn,
-              exampleDisplayDeclaration
+              exampleImportDeclaration
             )
             .getOrFail
         modifiedClaim.answers.movementReferenceNumber shouldBe Some(exampleMrn)
-        modifiedClaim.answers.displayDeclaration      shouldBe Some(exampleDisplayDeclaration)
+        modifiedClaim.answers.importDeclaration       shouldBe Some(exampleImportDeclaration)
         modifiedClaim.answers.correctedAmounts        shouldBe None
         modifiedClaim.hasCompleteAnswers              shouldBe false
         modifiedClaim.hasCompleteReimbursementClaims  shouldBe false
@@ -241,12 +241,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe true
@@ -255,12 +255,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "needs XI eori submission if user's eori not matching those of ACC14 and ACC14 contains XI eori" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       exampleXIEori.isXiEori                         shouldBe true
@@ -279,8 +279,8 @@ class OverpaymentsSingleClaimSpec
     }
 
     "needs XI eori submission if user's eori not matching those of a duplicate ACC14, and duplicate ACC14 contains XI eori" in {
-      val duplicateDisplayDeclaration =
-        buildDisplayDeclaration(
+      val duplicateImportDeclaration =
+        buildImportDeclaration(
           id = anotherExampleMrn.value,
           declarantEORI = anotherExampleEori,
           consigneeEORI = Some(exampleXIEori)
@@ -291,7 +291,7 @@ class OverpaymentsSingleClaimSpec
           .empty(exampleEori)
           .submitMovementReferenceNumberAndDeclaration(
             exampleMrn,
-            exampleDisplayDeclaration
+            exampleImportDeclaration
               .withDeclarationId(exampleMrn.value)
               .withDeclarantEori(exampleEori)
           )
@@ -299,7 +299,7 @@ class OverpaymentsSingleClaimSpec
           .flatMap(
             _.submitDuplicateMovementReferenceNumberAndDeclaration(
               anotherExampleMrn,
-              duplicateDisplayDeclaration
+              duplicateImportDeclaration
             )
           )
           .getOrFail
@@ -326,12 +326,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -340,12 +340,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .getOrFail
 
       claim.needsDeclarantAndConsigneeEoriSubmission shouldBe false
@@ -354,12 +354,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is missing" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = None)
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
           .getOrFail
 
@@ -369,12 +369,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of declarant, and consignee eori is present" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleXIEori, consigneeEORI = Some(anotherExampleEori))
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
           .getOrFail
 
@@ -384,12 +384,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "does not need declarant and consignee submission if user's XI eori is matching that of consignee" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
-      val claim              =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleXIEori))
+      val claim             =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value.toLowerCase(Locale.ENGLISH))))
           .getOrFail
 
@@ -412,60 +412,60 @@ class OverpaymentsSingleClaimSpec
     }
 
     "fail if submitted consignee EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
 
     "fail if submitted consignee EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI)
     }
 
     "submit declarant eori number" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       claimEither.getOrFail.answers.eoriNumbersVerification.get.declarantEoriNumber shouldBe Some(anotherExampleEori)
     }
 
     "fail if submitted declarant EORI is not needed" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = exampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = exampleEori)
+      val claimEither       =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(anotherExampleEori))
 
       claimEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
     }
 
     "fail if submitted declarant EORI is not matching that of ACC14" in {
-      val displayDeclaration =
-        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
-      val claimEither        =
+      val importDeclaration =
+        buildImportDeclaration(declarantEORI = anotherExampleEori)
+      val claimEither       =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
           .flatMap(_.submitDeclarantEoriNumber(yetAnotherExampleEori))
 
       claimEither shouldBe Left(ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI)
@@ -570,12 +570,12 @@ class OverpaymentsSingleClaimSpec
     "submit duplicate mrn and declaration" in {
       val claimEither = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
         .flatMap(
           _.submitDuplicateMovementReferenceNumberAndDeclaration(
             anotherExampleMrn,
-            exampleDisplayDeclaration.withDeclarationId(anotherExampleMrn.value)
+            exampleImportDeclaration.withDeclarationId(anotherExampleMrn.value)
           )
         )
 
@@ -585,12 +585,12 @@ class OverpaymentsSingleClaimSpec
     "remove duplicated declaration when basis of claim changes" in {
       val claimEither = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
         .flatMap(
           _.submitDuplicateMovementReferenceNumberAndDeclaration(
             anotherExampleMrn,
-            exampleDisplayDeclaration.withDeclarationId(anotherExampleMrn.value)
+            exampleImportDeclaration.withDeclarationId(anotherExampleMrn.value)
           )
         )
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.EndUseRelief))
@@ -602,12 +602,12 @@ class OverpaymentsSingleClaimSpec
     "reject duplicate mrn and declaration if same mrn as main" in {
       val claimEither = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
         .flatMap(
           _.submitDuplicateMovementReferenceNumberAndDeclaration(
             exampleMrn,
-            exampleDisplayDeclaration
+            exampleImportDeclaration
           )
         )
 
@@ -617,12 +617,12 @@ class OverpaymentsSingleClaimSpec
     "reject duplicate mrn and declaration if same declaration as main" in {
       val claimEither = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
         .flatMap(
           _.submitDuplicateMovementReferenceNumberAndDeclaration(
             anotherExampleMrn,
-            exampleDisplayDeclaration
+            exampleImportDeclaration
           )
         )
 
@@ -636,7 +636,7 @@ class OverpaymentsSingleClaimSpec
           claim
             .submitDuplicateMovementReferenceNumberAndDeclaration(
               duplicateMrn,
-              exampleDisplayDeclaration.withDeclarationId(duplicateMrn.value)
+              exampleImportDeclaration.withDeclarationId(duplicateMrn.value)
             )
 
         modifiedClaimEither.isRight shouldBe claim.needsDuplicateMrnAndDeclaration
@@ -661,12 +661,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "select valid tax codes for reimbursement when none yet selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
 
       claimEither.isRight                    shouldBe true
@@ -681,28 +681,28 @@ class OverpaymentsSingleClaimSpec
         .empty(exampleEori)
         .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
 
-      claimEither shouldBe Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+      claimEither shouldBe Left("selectTaxCodeSetForReimbursement.missingImportDeclaration")
     }
 
     "return left when selecting empty list of tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq.empty))
 
       claimEither shouldBe Left("selectTaxCodeSetForReimbursement.emptySelection")
     }
 
     "select valid tax codes for reimbursement when none yet selected with excise code in declaration" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.NI407)))
 
@@ -711,10 +711,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "return all available claim types when excise code in declaration" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(
           exampleEori,
           features = Some(
@@ -724,17 +724,17 @@ class OverpaymentsSingleClaimSpec
               )
           )
         )
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
 
       claimEither.isRight                        shouldBe true
       claimEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs BasisOfOverpaymentClaim.values
     }
 
     "return all available claim types except for Other when OtherBasisOfClaim feature is disabled" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.NI407, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(
           exampleEori,
           features = Some(
@@ -744,16 +744,16 @@ class OverpaymentsSingleClaimSpec
               )
           )
         )
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
 
       claimEither.getOrFail.getAvailableClaimTypes.contains(BasisOfOverpaymentClaim.Miscellaneous) shouldBe false
     }
 
     "return all available claim types except IncorrectExciseValue when no excise code in declaration" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(
           exampleEori,
           features = Some(
@@ -763,23 +763,23 @@ class OverpaymentsSingleClaimSpec
               )
           )
         )
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
 
       claimEither.isRight                        shouldBe true
       claimEither.getOrFail.getAvailableClaimTypes should contain theSameElementsAs (BasisOfOverpaymentClaim.values - BasisOfOverpaymentClaim.IncorrectExciseValue)
     }
 
     "replace valid tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       claimEither.getOrFail.getSelectedDuties shouldBe Some(Seq(TaxCode.A00))
@@ -794,16 +794,16 @@ class OverpaymentsSingleClaimSpec
     }
 
     "replace valid tax codes for reimbursement with non-CMA duty addition when CurrentMonthAdjustment" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
 
@@ -820,16 +820,16 @@ class OverpaymentsSingleClaimSpec
     }
 
     "replace valid tax codes for reimbursement with non-CMA duty addition when BankAccountTransfer" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq(
           (TaxCode.A00, BigDecimal("10.00"), false),
           (TaxCode.A90, BigDecimal("20.00"), false),
           (TaxCode.A20, BigDecimal("30.00"), true)
         )
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A20)))
         .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
 
@@ -846,12 +846,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "select invalid tax codes for reimbursement" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80)))
 
       claimEither.isRight shouldBe false
@@ -887,10 +887,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit valid correct amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("5.00")))
 
@@ -898,10 +898,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit valid claim amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
 
@@ -910,12 +910,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit valid correct amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A80, BigDecimal("5.00")))
 
@@ -923,12 +923,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit valid claim amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+      val importDeclaration = buildImportDeclaration(dutyDetails =
         Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
       )
-      val claimEither        = OverpaymentsSingleClaim
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("6.66")))
 
@@ -940,7 +940,7 @@ class OverpaymentsSingleClaimSpec
         .empty(exampleEori)
         .submitCorrectAmount(TaxCode.A80, BigDecimal("5.00"))
 
-      claimEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+      claimEither shouldBe Left("submitCorrectAmount.missingImportDeclaration")
     }
 
     "return left when submitting valid claim amount with missing display declaration" in {
@@ -948,34 +948,34 @@ class OverpaymentsSingleClaimSpec
         .empty(exampleEori)
         .submitClaimAmount(TaxCode.A80, BigDecimal("6.66"))
 
-      claimEither shouldBe Left("submitCorrectAmount.missingDisplayDeclaration")
+      claimEither shouldBe Left("submitCorrectAmount.missingImportDeclaration")
     }
 
     "return left when submitting valid correct amount for with no tax code selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("5.00")))
 
       claimEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
     }
 
     "return left when submitting valid claim amount for with no tax code selected" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.submitClaimAmount(TaxCode.A00, BigDecimal("6.66")))
 
       claimEither shouldBe Left("submitCorrectAmount.taxCodeNotSelectedYet")
     }
 
     "submit invalid correct amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       val claimEitherTestZero     =
@@ -991,10 +991,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit invalid claim amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
 
       val claimEitherTestZero     =
@@ -1010,10 +1010,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit invalid correct amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitCorrectAmount(TaxCode.A80, BigDecimal("10.0")))
 
@@ -1021,10 +1021,10 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit invalid claim amount for wrong tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val claimEither        = OverpaymentsSingleClaim
+      val importDeclaration = buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val claimEither       = OverpaymentsSingleClaim
         .empty(exampleEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
         .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
         .flatMap(_.submitClaimAmount(TaxCode.A80, BigDecimal("0.00")))
 
@@ -1070,12 +1070,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.99")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
@@ -1084,12 +1084,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "fail submitting CurrentMonthAdjustment as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val claimEither                      =
+      val importDeclarationNotCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
+      val claimEither                     =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.CurrentMonthAdjustment))
@@ -1098,12 +1098,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit BankAccountTransfer as reimbursement method when all duties are CMA eligible" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.01")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -1112,12 +1112,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit BankAccountTransfer as reimbursement method when NOT all duties are CMA eligible" in {
-      val displayDeclarationNotCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
-      val claimEither                      =
+      val importDeclarationNotCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
+      val claimEither                     =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationNotCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationNotCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -1127,7 +1127,7 @@ class OverpaymentsSingleClaimSpec
 
     "computeBankDetails" should {
       "return consigneeBankDetails when payeeType is consignee" in {
-        val declaration = buildDisplayDeclaration(
+        val declaration = buildImportDeclaration(
           dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)),
           consigneeBankDetails = Some(exampleConsigneeBankAccountDetails),
           declarantBankDetails = Some(exampleDeclarantBankAccountDetails)
@@ -1147,7 +1147,7 @@ class OverpaymentsSingleClaimSpec
       }
 
       "return declarantBankDetails when payeeType is declarant" in {
-        val declaration = buildDisplayDeclaration(
+        val declaration = buildImportDeclaration(
           dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)),
           consigneeBankDetails = Some(exampleConsigneeBankAccountDetails),
           declarantBankDetails = Some(exampleDeclarantBankAccountDetails)
@@ -1169,12 +1169,12 @@ class OverpaymentsSingleClaimSpec
     }
 
     "submit bankAccountDetails and bankAccountType if reimbursement method is BankAccountTransfer" in {
-      val displayDeclarationAllCMAEligible =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
-      val claimEither                      =
+      val importDeclarationAllCMAEligible =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), true)))
+      val claimEither                     =
         OverpaymentsSingleClaim
           .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclarationAllCMAEligible)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclarationAllCMAEligible)
           .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
           .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
           .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
@@ -1223,8 +1223,8 @@ class OverpaymentsSingleClaimSpec
       }
 
       "return false if at least one of the claimed tax code do not have a value specified" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+        forAll(importDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (importDeclaration: ImportDeclaration, ndrcDetails: List[NdrcDetails]) =>
             whenever(
               ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
                 .map(_.taxType)
@@ -1232,8 +1232,8 @@ class OverpaymentsSingleClaimSpec
                 .size == ndrcDetails.size
             ) {
               val taxCodes     = ndrcDetails.map(details => TaxCode(details.taxType))
-              val drd          = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd    = displayDeclaration.copy(displayResponseDetail = drd)
+              val drd          = importDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd    = importDeclaration.copy(displayResponseDetail = drd)
               val initialClaim = OverpaymentsSingleClaim
                 .empty(exampleEori)
                 .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
@@ -1248,16 +1248,16 @@ class OverpaymentsSingleClaimSpec
       }
 
       "return false if no tax codes have been claimed yet" in {
-        forAll(displayDeclarationGen, Acc14Gen.genListNdrcDetails()) {
-          (displayDeclaration: DisplayDeclaration, ndrcDetails: List[NdrcDetails]) =>
+        forAll(importDeclarationGen, Acc14Gen.genListNdrcDetails()) {
+          (importDeclaration: ImportDeclaration, ndrcDetails: List[NdrcDetails]) =>
             whenever(
               ndrcDetails.size > 1 && ndrcDetails.forall(details => BigDecimal(details.amount) > 2) && ndrcDetails
                 .map(_.taxType)
                 .toSet
                 .size == ndrcDetails.size
             ) {
-              val drd       = displayDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
-              val updatedDd = displayDeclaration.copy(displayResponseDetail = drd)
+              val drd       = importDeclaration.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetails))
+              val updatedDd = importDeclaration.copy(displayResponseDetail = drd)
               val claim     = OverpaymentsSingleClaim
                 .empty(exampleEori)
                 .submitMovementReferenceNumberAndDeclaration(exampleMrn, updatedDd)
@@ -1274,7 +1274,7 @@ class OverpaymentsSingleClaimSpec
       import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport.withSomeSubsidiesPaymentMethod
 
       val declaration =
-        buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false)))
           .withSomeSubsidiesPaymentMethod()
 
       val claim = OverpaymentsSingleClaim
@@ -1393,7 +1393,7 @@ class OverpaymentsSingleClaimSpec
       .empty(exampleEori)
       .submitMovementReferenceNumberAndDeclaration(
         exampleMrn,
-        exampleDisplayDeclarationWithSomeUnsupportedCode
+        exampleImportDeclarationWithSomeUnsupportedCode
       )
       .getOrFail
       .removeUnsupportedTaxCodes()
@@ -1402,19 +1402,19 @@ class OverpaymentsSingleClaimSpec
   }
 
   "return left checking consignee eori with duplicate declaration when consignee eori doesn't match declaration eori" in {
-    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+    val importDeclaration          = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     )
-    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+    val duplicateImportDeclaration = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     ).optionallyWithMRN(Some(anotherExampleMrn))
       .withConsigneeEori(anotherExampleEori)
       .withDeclarantEori(yetAnotherExampleEori)
-    val claimEither                 = OverpaymentsSingleClaim
+    val claimEither                = OverpaymentsSingleClaim
       .empty(exampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateImportDeclaration))
 
     claimEither.getOrFail.checkConsigneeEoriNumberWithDuplicateDeclaration(exampleEori) shouldBe Left(
       "checkConsigneeEoriNumberWithDuplicateDeclaration.shouldMatchConsigneeEoriFromACC14"
@@ -1422,19 +1422,19 @@ class OverpaymentsSingleClaimSpec
   }
 
   "return left checking declarant eori with duplicate declaration when consignee eori doesn't match declaration eori" in {
-    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+    val importDeclaration          = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     )
-    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+    val duplicateImportDeclaration = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     ).optionallyWithMRN(Some(anotherExampleMrn))
       .withConsigneeEori(anotherExampleEori)
       .withDeclarantEori(yetAnotherExampleEori)
-    val claimEither                 = OverpaymentsSingleClaim
+    val claimEither                = OverpaymentsSingleClaim
       .empty(exampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateImportDeclaration))
 
     claimEither.getOrFail.checkDeclarantEoriNumberWithDuplicateDeclaration(exampleEori) shouldBe Left(
       ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI
@@ -1442,19 +1442,19 @@ class OverpaymentsSingleClaimSpec
   }
 
   "successfully accept declarant eori with duplicate declaration when no previous consignee check" in {
-    val displayDeclaration          = buildDisplayDeclaration(dutyDetails =
+    val importDeclaration          = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     )
-    val duplicateDisplayDeclaration = buildDisplayDeclaration(dutyDetails =
+    val duplicateImportDeclaration = buildImportDeclaration(dutyDetails =
       Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
     ).optionallyWithMRN(Some(anotherExampleMrn))
       .withConsigneeEori(anotherExampleEori)
       .withDeclarantEori(yetAnotherExampleEori)
-    val claimEither                 = OverpaymentsSingleClaim
+    val claimEither                = OverpaymentsSingleClaim
       .empty(exampleEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateDisplayDeclaration))
+      .flatMap(_.submitDuplicateMovementReferenceNumberAndDeclaration(anotherExampleMrn, duplicateImportDeclaration))
 
     claimEither.getOrFail
       .checkDeclarantEoriNumberWithDuplicateDeclaration(yetAnotherExampleEori)

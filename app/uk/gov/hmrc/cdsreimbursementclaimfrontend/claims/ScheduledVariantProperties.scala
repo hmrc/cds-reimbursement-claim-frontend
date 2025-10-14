@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import cats.syntax.eq.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -59,17 +59,17 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
 
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclaration
 
   def getSelectedDocumentType: Option[UploadDocumentType] =
     answers.selectedDocumentType
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsList)
+    getLeadImportDeclaration.flatMap(_.getNdrcDetailsList)
 
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
+    getLeadImportDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   def getSelectedDutyTypes: Option[Seq[DutyType]] =
     answers.correctedAmounts.map(_.keys.toSeq)

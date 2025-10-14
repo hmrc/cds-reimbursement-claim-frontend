@@ -38,12 +38,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryImportDeclaration
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -51,7 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleCla
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
-    with AdjustDisplayDeclaration
+    with AdjustImportDeclaration
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
@@ -71,14 +71,14 @@ class CheckMovementReferenceNumbersControllerSpec
 
   val formKey: String = "check-movement-reference-numbers.rejected-goods"
 
-  def areMrnsUnique(acc14Declarations: List[DisplayDeclaration]): Boolean =
+  def areMrnsUnique(acc14Declarations: List[ImportDeclaration]): Boolean =
     acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
 
   private val session = SessionData(RejectedGoodsMultipleClaim.empty(exampleEori))
 
   def addAcc14(
     claim: RejectedGoodsMultipleClaim,
-    acc14Declaration: DisplayDeclaration,
+    acc14Declaration: ImportDeclaration,
     submitEORIs: Boolean = false
   ): Either[String, RejectedGoodsMultipleClaim] = {
     val nextIndex           = claim.getMovementReferenceNumbers.map(_.size).getOrElse(0)
@@ -129,7 +129,7 @@ class CheckMovementReferenceNumbersControllerSpec
         )
       }
 
-      "redirect to enter second mrn page if only one MRN in the claim" in forAll { (firstMrn: DisplayDeclaration) =>
+      "redirect to enter second mrn page if only one MRN in the claim" in forAll { (firstMrn: ImportDeclaration) =>
         val session =
           SessionData(
             RejectedGoodsMultipleClaim
@@ -149,7 +149,7 @@ class CheckMovementReferenceNumbersControllerSpec
         )
       }
 
-      "show page with only 2 MRNs" in forAll { (firstMrn: DisplayDeclaration, secondMrn: DisplayDeclaration) =>
+      "show page with only 2 MRNs" in forAll { (firstMrn: ImportDeclaration, secondMrn: ImportDeclaration) =>
         whenever(firstMrn.getMRN =!= secondMrn.getMRN) {
           val claim = (for
             j1 <- addAcc14(
@@ -184,7 +184,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "show page with more than 2 MRNs" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
+      "show page with more than 2 MRNs" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val firstMrnClaim =
             addAcc14(
@@ -222,7 +222,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
 
       "redirect to enter importer EORI if required and missing" in forAll {
-        (acc14Declarations: List[DisplayDeclaration]) =>
+        (acc14Declarations: List[ImportDeclaration]) =>
           whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
             val firstMrnClaim =
               addAcc14(
@@ -259,7 +259,7 @@ class CheckMovementReferenceNumbersControllerSpec
           FakeRequest().withFormUrlEncodedBody(data*)
         )
 
-      "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
+      "reject an empty Yes/No answer" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
             addAcc14(claim, declaration).getOrFail
@@ -283,7 +283,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects Yes" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
+      "submit when user selects Yes" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
             addAcc14(claim, declaration).getOrFail
@@ -305,7 +305,7 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
-      "submit when user selects No" in forAll { (acc14Declarations: List[DisplayDeclaration]) =>
+      "submit when user selects No" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>
             addAcc14(claim, declaration).getOrFail
@@ -367,7 +367,7 @@ class CheckMovementReferenceNumbersControllerSpec
         )
 
       "redirect back to the check movement reference numbers page if remove worked" in forAll {
-        (acc14Declarations: List[DisplayDeclaration]) =>
+        (acc14Declarations: List[ImportDeclaration]) =>
           whenever(acc14Declarations.size > 3 && areMrnsUnique(acc14Declarations)) {
             val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) {
               case (claim, declaration) => addAcc14(claim, declaration).getOrFail
@@ -379,7 +379,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
             val mrn = Gen.oneOf(claim.getMovementReferenceNumbers.get.tail).sample.get
 
-            val updatedClaim   = claim.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
+            val updatedClaim   = claim.removeMovementReferenceNumberAndImportDeclaration(mrn).getOrFail
             val updatedSession = SessionData(updatedClaim)
 
             inSequence {
@@ -412,7 +412,7 @@ class CheckMovementReferenceNumbersControllerSpec
         whenever(claim.getMovementReferenceNumbers.map(_.size).get >= 3) {
           val mrn = Gen.oneOf(claim.getMovementReferenceNumbers.get.tail).sample.get
 
-          val updatedClaim = claim.removeMovementReferenceNumberAndDisplayDeclaration(mrn).getOrFail
+          val updatedClaim = claim.removeMovementReferenceNumberAndImportDeclaration(mrn).getOrFail
 
           println(updatedClaim.hasCompleteAnswers)
 

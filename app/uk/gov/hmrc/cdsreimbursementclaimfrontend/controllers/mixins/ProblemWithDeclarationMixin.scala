@@ -50,7 +50,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
   final val show: Action[AnyContent] =
     actionReadClaim { implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
-      claim.getLeadDisplayDeclaration match {
+      claim.getLeadImportDeclaration match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
           Ok(
             problemWithDeclarationDeadEndPage(
@@ -71,7 +71,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
         case Some(_)                                                          =>
           Redirect(checkDeclarationDetailsAction)
         case None                                                             =>
-          throw new IllegalStateException("Expected the claim to have DisplayDeclaration already")
+          throw new IllegalStateException("Expected the claim to have ImportDeclaration already")
       }
     }
 
@@ -83,7 +83,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
           formWithErrors =>
             (
               claim,
-              claim.getLeadDisplayDeclaration
+              claim.getLeadImportDeclaration
                 .map { declaration =>
                   BadRequest(
                     problemWithDeclarationCanContinuePage(

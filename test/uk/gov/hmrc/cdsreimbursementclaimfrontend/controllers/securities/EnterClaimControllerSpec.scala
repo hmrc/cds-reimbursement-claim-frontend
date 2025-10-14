@@ -104,7 +104,7 @@ class EnterClaimControllerSpec
 
       "redirect to the first enter claim page if a valid security deposit ID with selected duties" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -126,7 +126,7 @@ class EnterClaimControllerSpec
 
       "redirect to the select duties page if a valid security deposit ID but no duties selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimWithDutiesPartiallySelected
         )
       ) { case (initialClaim, _) =>
@@ -155,7 +155,7 @@ class EnterClaimControllerSpec
 
       "display the page if a valid security deposit ID" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -185,7 +185,7 @@ class EnterClaimControllerSpec
 
       "display error page if an invalid security deposit ID" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -203,7 +203,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -230,7 +230,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -259,7 +259,7 @@ class EnterClaimControllerSpec
 
       "display error page if an invalid security deposit ID" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -277,7 +277,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but the tax code was not selected" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -302,7 +302,7 @@ class EnterClaimControllerSpec
 
       "redirect back to the duties selection page if a valid deposit ID but unavailable tax code" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, (_, _, _, reclaims)) =>
@@ -325,7 +325,7 @@ class EnterClaimControllerSpec
 
       "save claim amount and progress to the next page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -367,7 +367,7 @@ class EnterClaimControllerSpec
       "save claim amount and progress to the next page when single security" in {
         forAllWith(
           ClaimGenerator(
-            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+            testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsWithImportDeclarationWithReclaimsGen,
             claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimReadyForEnteringClaimAmounts
           )
         ) { case (initialClaim, _) =>
@@ -407,7 +407,7 @@ class EnterClaimControllerSpec
 
       "save claim amount in change mode and progress to the next page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -455,7 +455,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is greater then the deposit amount" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -482,7 +482,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is empty" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -503,7 +503,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is zero" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>
@@ -528,7 +528,7 @@ class EnterClaimControllerSpec
 
       "re-display the page with error message if claimed amount is not a number" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimReadyForEnteringClaimAmounts
         )
       ) { case (initialClaim, _) =>

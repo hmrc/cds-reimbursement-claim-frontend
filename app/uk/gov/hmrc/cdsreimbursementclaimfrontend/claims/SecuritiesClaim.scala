@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -77,11 +77,11 @@ final class SecuritiesClaim private (
   override def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
 
-  override def getLeadDisplayDeclaration: Option[DisplayDeclaration] =
-    answers.displayDeclaration
+  override def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclaration
 
-  def getDisplayDeclarationIfValidSecurityDepositId(securityDepositId: String): Option[DisplayDeclaration] =
-    getLeadDisplayDeclaration
+  def getImportDeclarationIfValidSecurityDepositId(securityDepositId: String): Option[ImportDeclaration] =
+    getLeadImportDeclaration
       .flatMap(d => d.getSecurityDetailsFor(securityDepositId).map(_ => d))
 
   def getIndexOf(securityDepositId: String): Int =
@@ -89,29 +89,29 @@ final class SecuritiesClaim private (
 
   /** Returns all the security IDs available on the ACC14 declaration. */
   def getSecurityDepositIds: Seq[String] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.getSecurityDepositIds)
       .getOrElse(Seq.empty)
 
   def getSecurityDetails: Seq[SecurityDetails] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.getSecurityDetails)
       .getOrElse(Seq.empty)
 
   /** Returns true if the security ID is available on the ACC14 declaration. */
   def isValidSecurityDepositId(securityDepositId: String): Boolean =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .exists(_.isValidSecurityDepositId(securityDepositId))
 
   val isSingleSecurity: Boolean =
     getSecurityDetails.size == 1
 
   def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.getSecurityDetailsFor(securityDepositId))
 
   def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
 
   /** For the given deposit ID returns amount atributed to the given tax type (duty). */
@@ -124,7 +124,7 @@ final class SecuritiesClaim private (
 
   /** For the given deposit ID returns all declared tax types (duties). */
   def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .map(_.getSecurityTaxCodesFor(securityDepositId))
       .getOrElse(Seq.empty)
 
@@ -264,7 +264,7 @@ final class SecuritiesClaim private (
   }
 
   def isAllDeclaredDutiesAreGuaranteeEligible: Boolean =
-    getLeadDisplayDeclaration.exists(
+    getLeadImportDeclaration.exists(
       _.getAllSecurityMethodsOfPayment
         .exists(mps => mps.nonEmpty && mps.forall(mp => mp == "004" || mp == "005"))
     )
@@ -412,15 +412,15 @@ final class SecuritiesClaim private (
 
   def submitReasonForSecurityAndDeclaration(
     reasonForSecurity: ReasonForSecurity,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ): Either[String, SecuritiesClaim] =
     whileClaimIsAmendableAnd(hasMovementReferenceNumber) {
-      if !answers.movementReferenceNumber.contains(displayDeclaration.getMRN) then
-        Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationMrn")
-      else if !displayDeclaration.getReasonForSecurity.contains(reasonForSecurity) then
-        Left("submitReasonForSecurityAndDeclaration.wrongDisplayDeclarationRfS")
+      if !answers.movementReferenceNumber.contains(importDeclaration.getMRN) then
+        Left("submitReasonForSecurityAndDeclaration.wrongImportDeclarationMrn")
+      else if !importDeclaration.getReasonForSecurity.contains(reasonForSecurity) then
+        Left("submitReasonForSecurityAndDeclaration.wrongImportDeclarationRfS")
       else if answers.reasonForSecurity.contains(reasonForSecurity) &&
-        answers.displayDeclaration.contains(displayDeclaration)
+        answers.importDeclaration.contains(importDeclaration)
       then Right(this) // unchanged
       else
         Right(
@@ -430,7 +430,7 @@ final class SecuritiesClaim private (
               movementReferenceNumber = answers.movementReferenceNumber,
               nonce = answers.nonce,
               reasonForSecurity = Some(reasonForSecurity),
-              displayDeclaration = Some(displayDeclaration),
+              importDeclaration = Some(importDeclaration),
               eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly)
             )
           )
@@ -453,7 +453,7 @@ final class SecuritiesClaim private (
   def submitTemporaryAdmissionMethodsOfDisposal(
     methodsOfDisposal: List[TemporaryAdmissionMethodOfDisposal]
   ): Either[String, SecuritiesClaim] =
-    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
+    whileClaimIsAmendableAnd(hasMRNAndImportDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if needsMethodOfDisposalSubmission then {
         Right(
           this.copy(
@@ -476,7 +476,7 @@ final class SecuritiesClaim private (
     index: Int,
     exportMrn: MRN
   ): Either[String, SecuritiesClaim] =
-    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
+    whileClaimIsAmendableAnd(hasMRNAndImportDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       if needsExportMRNSubmission then {
         answers.exportMovementReferenceNumbers match {
           case None if index === 0 =>
@@ -509,7 +509,7 @@ final class SecuritiesClaim private (
     }
 
   def removeExportMovementReferenceNumber(mrn: MRN): Either[String, SecuritiesClaim] =
-    whileClaimIsAmendableAnd(hasMRNAndDisplayDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
+    whileClaimIsAmendableAnd(hasMRNAndImportDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       getIndexOfExportMovementReferenceNumber(mrn) match {
         case None => Left("removeExportMovementReferenceNumber.notFound")
 
@@ -1098,7 +1098,7 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     reasonForSecurity: Option[ReasonForSecurity] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
+    importDeclaration: Option[ImportDeclaration] = None,
     payeeType: Option[PayeeType] = None,
     similarClaimExistAlreadyInCDFPay: Option[Boolean] = None, // TPI04 check flag
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
@@ -1156,9 +1156,9 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
     val hasReasonForSecurity: Validate[SecuritiesClaim] =
       checkIsTrue(claim => claim.getReasonForSecurity.isDefined, MISSING_REASON_FOR_SECURITY)
 
-    val hasMRNAndDisplayDeclarationAndRfS: Validate[SecuritiesClaim] =
+    val hasMRNAndImportDeclarationAndRfS: Validate[SecuritiesClaim] =
       hasMovementReferenceNumber &
-        hasDisplayDeclaration &
+        hasImportDeclaration &
         hasReasonForSecurity
 
     val thereIsNoSimilarClaimInCDFPay: Validate[SecuritiesClaim] =
@@ -1178,7 +1178,7 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
         )
 
     val userCanProceedWithThisClaim: Validate[SecuritiesClaim] =
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         thereIsNoSimilarClaimInCDFPay &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
 
@@ -1282,7 +1282,7 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
 
   override implicit val validator: Validate[SecuritiesClaim] =
     Validator.all(
-      hasMRNAndDisplayDeclarationAndRfS,
+      hasMRNAndImportDeclarationAndRfS,
       thereIsNoSimilarClaimInCDFPay,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       hasMethodOfDisposalIfNeeded,
@@ -1339,8 +1339,8 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
     empty(answers.userEoriNumber, answers.nonce, features)
       .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
       .flatMapWhenDefined(
-        answers.reasonForSecurity.zip(answers.displayDeclaration)
-      )(j => { case (rfs: ReasonForSecurity, decl: DisplayDeclaration) =>
+        answers.reasonForSecurity.zip(answers.importDeclaration)
+      )(j => { case (rfs: ReasonForSecurity, decl: ImportDeclaration) =>
         j.submitReasonForSecurityAndDeclaration(rfs, decl)
       })
       .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)

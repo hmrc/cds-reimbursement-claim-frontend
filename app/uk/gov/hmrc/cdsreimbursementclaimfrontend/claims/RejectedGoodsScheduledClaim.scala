@@ -21,7 +21,7 @@ import cats.syntax.eq.*
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
@@ -75,24 +75,24 @@ final class RejectedGoodsScheduledClaim private (
     Some(UploadDocumentType.rejectedGoodsScheduledDocumentTypes)
 
   def removeUnsupportedTaxCodes(): RejectedGoodsScheduledClaim =
-    this.copy(answers.copy(displayDeclaration = answers.displayDeclaration.map(_.removeUnsupportedTaxCodes())))
+    this.copy(answers.copy(importDeclaration = answers.importDeclaration.map(_.removeUnsupportedTaxCodes())))
 
   /** Resets the claim with the new MRN or keep existing claim if submitted the same MRN and declaration as before.
     */
   def submitMovementReferenceNumberAndDeclaration(
     mrn: MRN,
-    displayDeclaration: DisplayDeclaration
+    importDeclaration: ImportDeclaration
   ) =
     whileClaimIsAmendable {
       getLeadMovementReferenceNumber match {
         case Some(existingMrn)
             if existingMrn === mrn &&
-              getLeadDisplayDeclaration.contains(displayDeclaration) =>
+              getLeadImportDeclaration.contains(importDeclaration) =>
           Right(this)
         case _ =>
-          if mrn =!= displayDeclaration.getMRN then
+          if mrn =!= importDeclaration.getMRN then
             Left(
-              "submitMovementReferenceNumber.wrongDisplayDeclarationMrn"
+              "submitMovementReferenceNumber.wrongImportDeclarationMrn"
             )
           else
             Right(
@@ -101,7 +101,7 @@ final class RejectedGoodsScheduledClaim private (
                   .Answers(
                     userEoriNumber = answers.userEoriNumber,
                     movementReferenceNumber = Some(mrn),
-                    displayDeclaration = Some(displayDeclaration),
+                    importDeclaration = Some(importDeclaration),
                     eoriNumbersVerification = answers.eoriNumbersVerification.map(_.keepUserXiEoriOnly),
                     nonce = answers.nonce
                   ),
@@ -564,7 +564,7 @@ object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduled
     nonce: Nonce = Nonce.random,
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
+    importDeclaration: Option[ImportDeclaration] = None,
     payeeType: Option[PayeeType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -633,7 +633,7 @@ object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduled
   /** Validate if all required answers has been provided and the claim is ready to produce output. */
   override implicit val validator: Validate[RejectedGoodsScheduledClaim] =
     all(
-      hasMRNAndDisplayDeclaration,
+      hasMRNAndImportDeclaration,
       containsOnlySupportedTaxCodes,
       declarantOrImporterEoriMatchesUserOrHasBeenVerified,
       scheduledDocumentHasBeenDefined,
@@ -691,8 +691,8 @@ object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduled
   ): Either[String, RejectedGoodsScheduledClaim] =
     empty(answers.userEoriNumber, answers.nonce, features)
       .flatMapWhenDefined(
-        answers.movementReferenceNumber.zip(answers.displayDeclaration)
-      )(j => { case (mrn: MRN, decl: DisplayDeclaration) =>
+        answers.movementReferenceNumber.zip(answers.importDeclaration)
+      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
         j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
       })
       .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)

@@ -254,8 +254,8 @@ class CheckYourAnswersControllerSpec
 
       "redirect to the proper page if any answer is missing" in {
         val claim = RejectedGoodsSingleClaim
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .empty(exampleImportDeclaration.getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
           .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
@@ -325,8 +325,8 @@ class CheckYourAnswersControllerSpec
 
       "redirect to the proper page if any answer is missing" in {
         val claim = RejectedGoodsSingleClaim
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .empty(exampleImportDeclaration.getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
           .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
@@ -386,8 +386,8 @@ class CheckYourAnswersControllerSpec
 
       "redirect to the proper page if any answer is missing" in {
         val claim = RejectedGoodsSingleClaim
-          .empty(exampleDisplayDeclaration.getDeclarantEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+          .empty(exampleImportDeclaration.getDeclarantEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
           .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)

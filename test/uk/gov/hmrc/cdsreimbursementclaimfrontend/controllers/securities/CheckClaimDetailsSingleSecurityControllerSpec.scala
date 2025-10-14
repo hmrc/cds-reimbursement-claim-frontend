@@ -136,7 +136,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen,
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen,
           claimBuilder = buildSecuritiesClaimWithClaimsEntered
         )
       ) { case (initialClaim, _) =>
@@ -155,7 +155,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "redirect to check declaration details when correctedAmounts is empty" in {
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(claim, _.copy(correctedAmounts = None))
 
@@ -172,7 +172,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "redirect to confirm full repayment when reclaims is empty for the deposit ID" in {
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -195,7 +195,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
       "redirect to enter claim when reclaims value is empty for the next tax code" in {
         val nextTaxCode  = TaxCode("A00")
         val gen          =
-          mrnWithRfsWithDisplayDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
+          mrnWithRfsWithImportDeclarationWithReclaimsGen.sample.getOrElse(fail("Failed to create claim data"))
         val claim        = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithClaimsEntered(gen)
         val updatedClaim = SecuritiesClaim.unsafeModifyAnswers(
           claim,
@@ -219,7 +219,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "redirect to choose payee type page if RFS is not NTAS" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen.withReasonForSecurity(
             ReasonForSecurity.MissingPreferenceCertificate
           ),
           claimBuilder = buildSecuritiesClaimWithClaimsEntered
@@ -238,7 +238,7 @@ class CheckClaimDetailsSingleSecurityControllerSpec
 
       "redirect to choose export method page if RFS is NTAS" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithRfsWithDisplayDeclarationWithReclaimsGen.withReasonForSecurity(
+          testParamsGenerator = mrnWithRfsWithImportDeclarationWithReclaimsGen.withReasonForSecurity(
             ReasonForSecurity.TemporaryAdmission2M
           ),
           claimBuilder = buildSecuritiesClaimWithClaimsEntered

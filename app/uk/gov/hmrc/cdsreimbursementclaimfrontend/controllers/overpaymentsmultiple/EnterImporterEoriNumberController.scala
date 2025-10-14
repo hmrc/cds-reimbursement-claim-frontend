@@ -39,7 +39,7 @@ class EnterImporterEoriNumberController @Inject() (
     with EnterImporterEoriNumberMixin {
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
-    Some(hasMRNAndDisplayDeclaration)
+    Some(hasMRNAndImportDeclaration)
 
   final override val postAction: Call =
     routes.EnterImporterEoriNumberController.submit

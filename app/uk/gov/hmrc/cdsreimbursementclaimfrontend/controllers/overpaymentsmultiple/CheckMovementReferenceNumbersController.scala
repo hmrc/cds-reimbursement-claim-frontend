@@ -108,7 +108,7 @@ class CheckMovementReferenceNumbersController @Inject() (
   final def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
     claim =>
       claim
-        .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+        .removeMovementReferenceNumberAndImportDeclaration(mrn)
         .fold(
           error => {
             logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")

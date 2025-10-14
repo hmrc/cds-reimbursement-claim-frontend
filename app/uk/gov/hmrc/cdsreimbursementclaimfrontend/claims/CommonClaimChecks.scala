@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 trait CommonClaimChecks[J <: CommonClaimProperties] {
 
@@ -28,19 +28,19 @@ trait CommonClaimChecks[J <: CommonClaimProperties] {
       MISSING_FIRST_MOVEMENT_REFERENCE_NUMBER
     )
 
-  final val hasDisplayDeclaration: Validate[J] =
+  final val hasImportDeclaration: Validate[J] =
     checkIsTrue(
-      claim => claim.getLeadDisplayDeclaration.isDefined,
+      claim => claim.getLeadImportDeclaration.isDefined,
       MISSING_DISPLAY_DECLARATION
     )
 
-  final val hasMRNAndDisplayDeclaration: Validate[J] =
-    hasMovementReferenceNumber & hasDisplayDeclaration
+  final val hasMRNAndImportDeclaration: Validate[J] =
+    hasMovementReferenceNumber & hasImportDeclaration
 
   final val containsOnlySupportedTaxCodes: Validate[J] =
     checkIsTrue(
       claim =>
-        claim.getDisplayDeclarations
+        claim.getImportDeclarations
           .forall(_.containsOnlySupportedTaxCodes),
       UNSUPPORTED_TAX_CODES
     )
@@ -118,10 +118,10 @@ trait CommonClaimChecks[J <: CommonClaimProperties] {
   final val supportingEvidenceHasBeenProvided: Validate[J] =
     checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
 
-  final def declarationHasNoSubsidyPayments: Validate[DisplayDeclaration] =
+  final def declarationHasNoSubsidyPayments: Validate[ImportDeclaration] =
     checkIsFalse(_.hasSomeSubsidyPayment, DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
 
   final val declarationsHasNoSubsidyPayments: Validate[J] =
-    checkEach(_.getDisplayDeclarations, declarationHasNoSubsidyPayments)
+    checkEach(_.getImportDeclarations, declarationHasNoSubsidyPayments)
 
 }

@@ -73,8 +73,8 @@ class UploadFilesControllerSpec
       "redirect to 'Upload Documents' when document type set and no files uploaded yet" in {
         val claim =
           RejectedGoodsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .map(_.submitDocumentTypeSelection(UploadDocumentType.AirWayBill))
             .getOrFail
 
@@ -97,8 +97,8 @@ class UploadFilesControllerSpec
       "redirect to 'Upload Documents' when document type set and some files uploaded already" in {
         val claim =
           RejectedGoodsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .getOrFail
         inSequence {
           mockAuthWithDefaultRetrievals()

@@ -42,7 +42,7 @@ class EnterNewEoriNumberController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
-    Some(hasMRNAndDisplayDeclaration)
+    Some(hasMRNAndImportDeclaration)
 
   final override val postAction: Call     = routes.EnterNewEoriNumberController.submit
   final override val continueAction: Call = routes.EnterNewDanController.show

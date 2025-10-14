@@ -45,7 +45,7 @@ class CheckDeclarationDetailsController @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -54,7 +54,7 @@ class CheckDeclarationDetailsController @Inject() (
       val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(true)
       (
         updatedClaim,
-        claim.getLeadDisplayDeclaration
+        claim.getLeadImportDeclaration
           .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
             Ok(checkDeclarationDetailsPage(declaration, claim.getSecuritiesReclaims, postAction))
           )

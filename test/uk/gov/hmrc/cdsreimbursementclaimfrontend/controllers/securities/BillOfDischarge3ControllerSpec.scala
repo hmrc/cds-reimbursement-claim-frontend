@@ -77,7 +77,7 @@ class BillOfDischarge3ControllerSpec
 
       "display the page if securities feature is enabled (BOD3)" in forSomeWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationOnlyIPRGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationOnlyIPRGen,
           claimBuilder = buildSecuritiesClaimReadyForIPR
         )
       ) { case (claim, _) =>

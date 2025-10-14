@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.firstExportMovementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.nextExportMovementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
@@ -60,7 +60,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
 
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -179,7 +179,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
               ).asFuture,
             { case (exportMrn, decision) =>
               claimService
-                .getDisplayDeclaration(exportMrn)
+                .getImportDeclaration(exportMrn)
                 .fold(_ => None, identity)
                 .map {
                   case None              =>
@@ -284,7 +284,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
               ).asFuture,
             (exportMrn, decision) =>
               claimService
-                .getDisplayDeclaration(exportMrn)
+                .getImportDeclaration(exportMrn)
                 .fold(_ => None, identity)
                 .map {
                   case None              =>

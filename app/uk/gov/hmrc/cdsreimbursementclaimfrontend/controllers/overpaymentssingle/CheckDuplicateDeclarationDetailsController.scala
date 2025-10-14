@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -43,14 +43,14 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(
-      hasMRNAndDisplayDeclaration &
+      hasMRNAndImportDeclaration &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified &
         needsDuplicateMrnAndDeclaration &
         hasDuplicateDeclarationVerifiedIfRequired
     )
 
-  final override def getDisplayDeclaration(claim: Claim): Option[DisplayDeclaration] =
-    claim.answers.duplicateDeclaration.map(_.displayDeclaration)
+  final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
+    claim.answers.duplicateDeclaration.map(_.importDeclaration)
 
   final override def continueRoute(claim: Claim): Call =
     routes.EnterAdditionalDetailsController.show
@@ -61,7 +61,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   private val postAction: Call =
     routes.CheckDuplicateDeclarationDetailsController.submit
 
-  final override def viewTemplate: (DisplayDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
+  final override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim) =>
       checkDeclarationDetailsPage(
         declaration = decl,

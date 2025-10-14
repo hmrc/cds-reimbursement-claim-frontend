@@ -77,7 +77,7 @@ class CheckDeclarationDetailsControllerSpec
     claim: SecuritiesClaim
   ): Assertion = {
 
-    val numberOfSecurities: Int = claim.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
+    val numberOfSecurities: Int = claim.getLeadImportDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
 
     val headers       = doc.select("h2.govuk-heading-m").eachText().asScala
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
@@ -95,28 +95,28 @@ class CheckDeclarationDetailsControllerSpec
     summaries.toSeq should containOnlyDefinedPairsOf(
       Seq(
         "Import Movement Reference Number (MRN)" -> claim.getLeadMovementReferenceNumber.map(_.value),
-        "Importer name"                          -> claim.answers.displayDeclaration.flatMap(_.consigneeName),
-        "Importer email"                         -> claim.answers.displayDeclaration.flatMap(_.consigneeEmail),
-        "Importer address"                       -> claim.answers.displayDeclaration.flatMap(d =>
+        "Importer name"                          -> claim.answers.importDeclaration.flatMap(_.consigneeName),
+        "Importer email"                         -> claim.answers.importDeclaration.flatMap(_.consigneeEmail),
+        "Importer address"                       -> claim.answers.importDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
         ),
-        "Importer telephone"                     -> claim.answers.displayDeclaration.flatMap(_.consigneeTelephone),
-        "Declarant name"                         -> claim.answers.displayDeclaration.map(_.declarantName),
-        "Declarant address"                      -> claim.answers.displayDeclaration.map(d =>
+        "Importer telephone"                     -> claim.answers.importDeclaration.flatMap(_.consigneeTelephone),
+        "Declarant name"                         -> claim.answers.importDeclaration.map(_.declarantName),
+        "Declarant address"                      -> claim.answers.importDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         ),
         "Reason for security deposit"            -> claim.answers.reasonForSecurity.map(rfs =>
           messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
         ),
-        "Date security deposit made"             -> claim.answers.displayDeclaration
+        "Date security deposit made"             -> claim.answers.importDeclaration
           .flatMap(_.displayResponseDetail.btaDueDate)
           .flatMap(DateUtils.displayFormat),
         "Total security deposit value"           -> (if claim.getSecuritiesReclaims.isEmpty
                                            then None
                                            else
-                                             claim.answers.displayDeclaration
+                                             claim.answers.importDeclaration
                                                .map(
                                                  _.getTotalSecuritiesAmountFor(
                                                    claim.getSecuritiesReclaims.keySet
@@ -126,7 +126,7 @@ class CheckDeclarationDetailsControllerSpec
         "Total security deposit paid"            -> (if claim.getSecuritiesReclaims.isEmpty
                                           then None
                                           else
-                                            claim.answers.displayDeclaration
+                                            claim.answers.importDeclaration
                                               .map(
                                                 _.getTotalSecuritiesPaidAmountFor(
                                                   claim.getSecuritiesReclaims.keySet
@@ -135,7 +135,7 @@ class CheckDeclarationDetailsControllerSpec
         ),
         "Method of payment"                      -> (if correctedAmounts.isEmpty then Some("Unavailable")
                                 else
-                                  claim.answers.displayDeclaration
+                                  claim.answers.importDeclaration
                                     .map(
                                       _.isAllSelectedSecuritiesEligibleForGuaranteePayment(
                                         correctedAmounts.keySet
@@ -150,7 +150,7 @@ class CheckDeclarationDetailsControllerSpec
         (if claim.getSecuritiesReclaims.isEmpty
          then Seq.empty
          else
-           claim.answers.displayDeclaration
+           claim.answers.importDeclaration
              .flatMap(_.getSecurityDepositIds)
              .getOrElse(Seq.empty)
              .zipWithIndex
@@ -190,7 +190,7 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "redirect to the enter declarant eori page if EORI hasn't pass validation" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
           val declarationWithNonMatchingEori = decl.withConsigneeEori(Eori("foo")).withDeclarantEori(Eori("bar"))
           val depositIds                     = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
@@ -214,7 +214,7 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "display the page if at least one security has been selected" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
             val initialClaim = emptyClaim
@@ -240,7 +240,7 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "display the page if none security has been selected" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
           val initialClaim = emptyClaim
             .submitMovementReferenceNumber(mrn)
             .submitReasonForSecurityAndDeclaration(rfs, decl)
@@ -271,7 +271,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "continue to the confirm full repayment page if some securities has been selected and RFS is not NTAS or MDP" in {
         forAll(
-          mrnWithRfsExcludingWithDisplayDeclarationGen(
+          mrnWithRfsExcludingWithImportDeclarationGen(
             ReasonForSecurity.ntas + MissingPreferenceCertificate
           )
         ) { case (mrn, rfs, decl) =>
@@ -306,7 +306,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "continue to the have your documents ready page if some securities has been selected and RFS is NTAS or MDP" in {
         forAll(
-          mrnWithRfsWithDisplayDeclarationGen(
+          mrnWithRfsWithImportDeclarationGen(
             ReasonForSecurity.ntas + MissingPreferenceCertificate
           )
         ) { case (mrn, rfs, decl) =>
@@ -337,7 +337,7 @@ class CheckDeclarationDetailsControllerSpec
 
       "continue to the confirm single deposit full repayment page if single security" in {
         forAll(
-          mrnWithRfsWithSingleSecurityDisplayDeclarationGen(
+          mrnWithRfsWithSingleSecurityImportDeclarationGen(
             Set(ReasonForSecurity.RevenueDispute.value)
           )
         ) { case (mrn, rfs, decl) =>
@@ -371,7 +371,7 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "re-display the check declaration details page if none securities selected" in {
-        forAll(mrnWithtRfsWithDisplayDeclarationGen) { case (mrn, rfs, decl) =>
+        forAll(mrnWithtRfsWithImportDeclarationGen) { case (mrn, rfs, decl) =>
           val depositIds = decl.getSecurityDepositIds.getOrElse(Seq.empty)
           whenever(depositIds.nonEmpty) {
 

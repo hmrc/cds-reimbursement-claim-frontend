@@ -100,7 +100,7 @@ class CheckYourAnswersControllerSpec
     isPrintView: Boolean = false
   ) = {
 
-    val numberOfSecurities: Int = claim.getLeadDisplayDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
+    val numberOfSecurities: Int = claim.getLeadImportDeclaration.map(_.getNumberOfSecurityDeposits).getOrElse(0)
 
     val summaryKeys   = doc.select(".govuk-summary-list__key").eachText()
     val summaryValues = doc.select(".govuk-summary-list__value").eachText()
@@ -127,7 +127,7 @@ class CheckYourAnswersControllerSpec
       )
       val claimsHeaders =
         output.securitiesReclaims.keys.map(sid =>
-          s"Claim details for security deposit or guarantee ${claim.getLeadDisplayDeclaration
+          s"Claim details for security deposit or guarantee ${claim.getLeadImportDeclaration
               .map(d => d.getSecurityDepositIdIndex(sid) + 1)
               .getOrElse(0)} of $numberOfSecurities".expectedAlways
         )
@@ -151,7 +151,7 @@ class CheckYourAnswersControllerSpec
         claim.answers.proofOfOriginDocuments
           .map(uploadDocument => s"${uploadDocument.fileName}")
 
-      val validateSecurityReclaims = claim.answers.displayDeclaration
+      val validateSecurityReclaims = claim.answers.importDeclaration
         .flatMap(_.getSecurityDepositIds)
         .getOrElse(Seq.empty)
         .zipWithIndex
@@ -165,7 +165,7 @@ class CheckYourAnswersControllerSpec
         output.securitiesReclaims.flatMap { case (sid, reclaims) =>
           Seq(
             "Claim full amount" -> Some(
-              if claim.answers.displayDeclaration
+              if claim.answers.importDeclaration
                   .map(_.isFullSecurityAmount(sid, reclaims.values.sum))
                   .getOrElse(false)
               then "Yes"
@@ -217,10 +217,10 @@ class CheckYourAnswersControllerSpec
           "Reason for security deposit"            -> claim.answers.reasonForSecurity.map(rfs =>
             messages(s"choose-reason-for-security.securities.${ReasonForSecurity.keyOf(rfs)}")
           ),
-          "Date security deposit made"             -> claim.answers.displayDeclaration
+          "Date security deposit made"             -> claim.answers.importDeclaration
             .flatMap(_.displayResponseDetail.btaDueDate)
             .flatMap(DateUtils.displayFormat),
-          "Total security deposit value"           -> claim.answers.displayDeclaration
+          "Total security deposit value"           -> claim.answers.importDeclaration
             .map(_.getTotalSecuritiesAmountFor(output.securitiesReclaims.keySet).toPoundSterlingString),
           "Payee"                                  -> output.displayPayeeType.map {
             case PayeeType.Consignee      => m("choose-payee-type.radio.importer")
@@ -228,7 +228,7 @@ class CheckYourAnswersControllerSpec
             case PayeeType.Representative => m("choose-payee-type.radio.representative")
           },
           "Payment method"                         -> Some(
-            if claim.answers.displayDeclaration
+            if claim.answers.importDeclaration
                 .map(_.isAllSelectedSecuritiesEligibleForGuaranteePayment(output.securitiesReclaims.keySet))
                 .getOrElse(false)
             then "Guarantee"
@@ -323,8 +323,8 @@ class CheckYourAnswersControllerSpec
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(
-              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
-              exampleSecuritiesDisplayDeclaration
+              exampleSecuritiesImportDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesImportDeclaration
             )
             .getOrFail
 
@@ -400,8 +400,8 @@ class CheckYourAnswersControllerSpec
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(
-              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
-              exampleSecuritiesDisplayDeclaration
+              exampleSecuritiesImportDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesImportDeclaration
             )
             .getOrFail
 
@@ -507,8 +507,8 @@ class CheckYourAnswersControllerSpec
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
             .submitReasonForSecurityAndDeclaration(
-              exampleSecuritiesDisplayDeclaration.getReasonForSecurity.get,
-              exampleSecuritiesDisplayDeclaration
+              exampleSecuritiesImportDeclaration.getReasonForSecurity.get,
+              exampleSecuritiesImportDeclaration
             )
             .getOrFail
 

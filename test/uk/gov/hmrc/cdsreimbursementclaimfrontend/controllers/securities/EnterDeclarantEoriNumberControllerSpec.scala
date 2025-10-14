@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -64,8 +64,8 @@ class EnterDeclarantEoriNumberControllerSpec
 
   val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
 
-  val declaration: DisplayDeclaration =
-    buildSecuritiesDisplayDeclaration(
+  val declaration: ImportDeclaration =
+    buildSecuritiesImportDeclaration(
       exampleMrnAsString,
       ReasonForSecurity.MissingLicenseQuota.acc14Code,
       declarantEORI = anotherExampleEori,
@@ -104,8 +104,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to the select securities page when eori submission not required" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.MissingLicenseQuota.acc14Code
           )
@@ -131,8 +131,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to the bill of discharge page when eori submission not required and rfs is InwardProcessingRelief" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.InwardProcessingRelief.acc14Code
           )
@@ -158,8 +158,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to the bill of discharge page when eori submission not required and rfs is EndUseRelief" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.EndUseRelief.acc14Code
           )
@@ -185,8 +185,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to the enter importer eori page when required but missing" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
@@ -269,8 +269,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to select securities and submit a valid EORI" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             id = exampleMrnAsString,
             securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
@@ -306,8 +306,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to ineligible page when claim already exists" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             id = exampleMrnAsString,
             securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
@@ -343,8 +343,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "display error page when isDuplicateClaim returns left" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             id = exampleMrnAsString,
             securityReason = ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
@@ -371,8 +371,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "on submit redirect to the bill of discharge page when rfs is InwardProcessingRelief" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.InwardProcessingRelief.acc14Code,
             exampleEori,
@@ -400,8 +400,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "on submit redirect to the bill of discharge page when rfs is EndUseRelief" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.EndUseRelief.acc14Code,
             exampleEori,
@@ -429,8 +429,8 @@ class EnterDeclarantEoriNumberControllerSpec
       }
 
       "redirect to the enter importer EORI page when required but missing" in {
-        val declaration: DisplayDeclaration =
-          buildSecuritiesDisplayDeclaration(
+        val declaration: ImportDeclaration =
+          buildSecuritiesImportDeclaration(
             exampleMrnAsString,
             ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,

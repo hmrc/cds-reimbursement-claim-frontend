@@ -35,11 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddresses
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
@@ -48,7 +48,7 @@ import scala.concurrent.Future
 
 class EnterInspectionDateControllerSpec
     extends ControllerSpec
-    with AdjustDisplayDeclaration
+    with AdjustImportDeclaration
     with ReplaceEstablishmentAddresses
     with AuthSupport
     with SessionSupport
@@ -79,7 +79,7 @@ class EnterInspectionDateControllerSpec
 
   def addAcc14(
     claim: RejectedGoodsMultipleClaim,
-    acc14Declaration: DisplayDeclaration
+    acc14Declaration: ImportDeclaration
   ): Either[String, RejectedGoodsMultipleClaim] = {
     val nextIndex           = claim.getMovementReferenceNumbers.map(_.size).getOrElse(0)
     val adjustedDeclaration = adjustWithDeclarantEori(acc14Declaration, claim)
@@ -157,20 +157,20 @@ class EnterInspectionDateControllerSpec
 
       "the user enters a date for the first time and Acc14 has returned contact details for the importer or declarant" in forAll {
         (
-          firstDisplayDeclaration: DisplayDeclaration,
-          secondDisplayDeclaration: DisplayDeclaration,
+          firstImportDeclaration: ImportDeclaration,
+          secondImportDeclaration: ImportDeclaration,
           address: EstablishmentAddress,
           date: InspectionDate
         ) =>
           whenever(
-            address.postalCode.isDefined && (firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN)
+            address.postalCode.isDefined && (firstImportDeclaration.getMRN !== secondImportDeclaration.getMRN)
           ) {
             val claim          = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleClaim.get,
-                      replaceEstablishmentAddresses(firstDisplayDeclaration, address)
+                      replaceEstablishmentAddresses(firstImportDeclaration, address)
                     )
-              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, address))
+              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondImportDeclaration, address))
             yield j2).getOrFail
             val initialSession = SessionData.empty.copy(rejectedGoodsMultipleClaim = Some(claim))
 
@@ -196,19 +196,19 @@ class EnterInspectionDateControllerSpec
 
       "the user enters a date for the first time and Acc14 hasn't returned any contact details" in forAll {
         (
-          firstDisplayDeclaration: DisplayDeclaration,
-          secondDisplayDeclaration: DisplayDeclaration,
+          firstImportDeclaration: ImportDeclaration,
+          secondImportDeclaration: ImportDeclaration,
           date: InspectionDate
         ) =>
-          whenever(firstDisplayDeclaration.getMRN !== secondDisplayDeclaration.getMRN) {
+          whenever(firstImportDeclaration.getMRN !== secondImportDeclaration.getMRN) {
             val addressWithoutPostCode =
-              firstDisplayDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
+              firstImportDeclaration.getDeclarantDetails.establishmentAddress.copy(postalCode = None)
             val claim                  = (for
               j1 <- addAcc14(
                       session.rejectedGoodsMultipleClaim.get,
-                      replaceEstablishmentAddresses(firstDisplayDeclaration, addressWithoutPostCode)
+                      replaceEstablishmentAddresses(firstImportDeclaration, addressWithoutPostCode)
                     )
-              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondDisplayDeclaration, addressWithoutPostCode))
+              j2 <- addAcc14(j1, replaceEstablishmentAddresses(secondImportDeclaration, addressWithoutPostCode))
             yield j2).getOrFail
             val initialSession         = SessionData.empty.copy(rejectedGoodsMultipleClaim = Some(claim))
 

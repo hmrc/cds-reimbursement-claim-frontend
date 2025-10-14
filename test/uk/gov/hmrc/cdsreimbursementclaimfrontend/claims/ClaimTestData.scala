@@ -236,7 +236,7 @@ trait ClaimTestData {
       documentType = UploadDocumentType.ScheduleOfMRNs
     )
 
-  final def buildDisplayDeclaration(
+  final def buildImportDeclaration(
     id: String = exampleMrnAsString,
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
@@ -246,7 +246,7 @@ trait ClaimTestData {
     declarantBankDetails: Option[BankAccountDetails] = None,
     consigneeBankDetails: Option[BankAccountDetails] = None,
     generateSubsidyPayments: GenerateSubsidyPayments = GenerateSubsidyPayments.None
-  ): DisplayDeclaration = {
+  ): ImportDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
       dutyDetails.zipWithIndex.map { case ((taxCode, paidAmount, cmaEligible), index) =>
         NdrcDetails(
@@ -284,7 +284,7 @@ trait ClaimTestData {
       case (d, c)       => Some(BankDetails(c, d))
     }
 
-    DisplayDeclaration {
+    ImportDeclaration {
       DisplayResponseDetail(
         declarationId = id,
         acceptanceDate = "11 October 2021",
@@ -321,7 +321,7 @@ trait ClaimTestData {
     }
   }
 
-  final def buildSecuritiesDisplayDeclaration(
+  final def buildSecuritiesImportDeclaration(
     id: String = exampleMrnAsString,
     securityReason: String,
     declarantEORI: Eori = exampleEori,
@@ -330,7 +330,7 @@ trait ClaimTestData {
     consigneeContact: Option[ContactDetails] = None,
     declarantContact: Option[ContactDetails] = None,
     allDutiesGuaranteeEligible: Boolean = false
-  ): DisplayDeclaration = {
+  ): ImportDeclaration = {
     val securityDetails: List[SecurityDetails] = depositDetails.map { case (securityDepositId, taxDetails) =>
       val totalAmount = taxDetails.map(_._2).sum
       SecurityDetails(
@@ -360,7 +360,7 @@ trait ClaimTestData {
           )
         )
 
-    DisplayDeclaration {
+    ImportDeclaration {
       DisplayResponseDetail(
         declarationId = id,
         acceptanceDate = "11 October 2021",

@@ -146,11 +146,11 @@ class CheckClaimantDetailsControllerSpec
         )
 
       "redirect to the check your answers page and do not update the contact/address details if they are already present" in {
-        forAll(displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (displayDeclaration, contactDeatils, address) =>
+        forAll(importDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (importDeclaration, contactDeatils, address) =>
             val claim = OverpaymentsMultipleClaim
-              .empty(displayDeclaration.getDeclarantEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .empty(importDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
               .map(_.submitContactDetails(Some(contactDeatils)))
               .map(_.submitContactAddress(address))
               .getOrFail
@@ -170,17 +170,17 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the check your answers page and update the contact/address details if the claim does not already contain them." in {
-        forAll(displayDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
-          (initialDisplayDeclaration, consignee, declarant, address) =>
-            val eori               = exampleEori
-            val drd                = initialDisplayDeclaration.displayResponseDetail.copy(
+        forAll(importDeclarationGen, genConsigneeDetails, genDeclarantDetails, genContactAddress) {
+          (initialImportDeclaration, consignee, declarant, address) =>
+            val eori              = exampleEori
+            val drd               = initialImportDeclaration.displayResponseDetail.copy(
               declarantDetails = declarant.copy(declarantEORI = eori.value),
               consigneeDetails = Some(consignee.copy(consigneeEORI = eori.value))
             )
-            val displayDeclaration = initialDisplayDeclaration.copy(displayResponseDetail = drd)
-            val claim              = OverpaymentsMultipleClaim
+            val importDeclaration = initialImportDeclaration.copy(displayResponseDetail = drd)
+            val claim             = OverpaymentsMultipleClaim
               .empty(exampleEori)
-              .submitMovementReferenceNumberAndDeclaration(exampleMrn, displayDeclaration)
+              .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
               .getOrFail
 
             val session = SessionData(claim)
@@ -205,12 +205,12 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the check your answers page and update the contact/address details if third party user" in {
-        forAll(displayDeclarationGen, genEori) { (displayDeclaration, userEori) =>
+        forAll(importDeclarationGen, genEori) { (importDeclaration, userEori) =>
           val claim = OverpaymentsMultipleClaim
             .empty(userEori)
-            .submitMovementReferenceNumberAndDeclaration(displayDeclaration.getMRN, displayDeclaration)
-            .flatMap(_.submitConsigneeEoriNumber(displayDeclaration.getConsigneeEori.get))
-            .flatMap(_.submitDeclarantEoriNumber(displayDeclaration.getDeclarantEori))
+            .submitMovementReferenceNumberAndDeclaration(importDeclaration.getMRN, importDeclaration)
+            .flatMap(_.submitConsigneeEoriNumber(importDeclaration.getConsigneeEori.get))
+            .flatMap(_.submitDeclarantEoriNumber(importDeclaration.getDeclarantEori))
             .getOrFail
 
           val session = SessionData(claim)
@@ -229,8 +229,8 @@ class CheckClaimantDetailsControllerSpec
       }
 
       "redirect to the check your answers page if user has seen CYA page" in {
-        forAll(completeClaimGen, displayDeclarationGen, genMrnContactDetails, genContactAddress) {
-          (claim, displayDeclaration, contactDetails, address) =>
+        forAll(completeClaimGen, importDeclarationGen, genMrnContactDetails, genContactAddress) {
+          (claim, importDeclaration, contactDetails, address) =>
             val updatedClaim = claim
               .submitContactDetails(Some(contactDetails))
               .submitContactAddress(address)

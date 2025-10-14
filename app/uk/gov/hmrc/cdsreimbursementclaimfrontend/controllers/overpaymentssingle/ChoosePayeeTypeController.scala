@@ -40,7 +40,7 @@ class ChoosePayeeTypeController @Inject() (
 
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[Claim]] =
-    Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+    Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final override def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim] =
     claim.submitPayeeType(payeeType)

@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -61,7 +61,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsSingleClaim]] =
     Some(
-      hasMRNAndDisplayDeclaration &
+      hasMRNAndImportDeclaration &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified &
         needsDuplicateMrnAndDeclaration
     )
@@ -83,7 +83,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
   override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable = ???
 
-  override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
+  override def modifyClaim(claim: Claim, mrn: MRN, declaration: ImportDeclaration): Either[String, Claim] =
     claim.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)
 
   override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =

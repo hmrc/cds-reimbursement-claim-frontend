@@ -35,13 +35,13 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           .answers
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            displayDeclaration = None
+            importDeclaration = None
           )
 
       val claims: Set[BasisOfOverpaymentClaim] =
         BasisOfOverpaymentClaim.excludeNorthernIrelandClaims(
           true,
-          draftC285Claim.displayDeclaration
+          draftC285Claim.importDeclaration
         )
 
       claims should be(

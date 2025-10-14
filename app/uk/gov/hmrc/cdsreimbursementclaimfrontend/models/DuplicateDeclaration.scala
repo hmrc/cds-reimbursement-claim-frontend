@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 final case class DuplicateDeclaration(
   movementReferenceNumber: MRN,
-  displayDeclaration: DisplayDeclaration,
+  importDeclaration: ImportDeclaration,
   verificationStatus: Option[DuplicateDeclarationVerificationStatus] = None
 )
 

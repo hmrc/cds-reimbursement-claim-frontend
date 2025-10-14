@@ -44,7 +44,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS
+      hasMRNAndImportDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
         & reasonForSecurityIsIPROrENU
     )
@@ -52,7 +52,7 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
       Future.successful(
-        claim.getLeadDisplayDeclaration
+        claim.getLeadImportDeclaration
           .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
             Ok(checkDeclarationDetailsPage(declaration, postAction))
           )

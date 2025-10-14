@@ -108,22 +108,22 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     )
     getSummaryList(importDetailsCard.get)              should containOnlyDefinedPairsOf(
       Seq(
-        claim.getLeadDisplayDeclaration.get.getMaybeLRN match {
+        claim.getLeadImportDeclaration.get.getMaybeLRN match {
           case Some(lrn) => "Local Reference Number (LRN)" -> Some(lrn)
           case _         => ""                             -> None
         },
         "Date of import" -> DateUtils.displayFormat(
-          claim.getLeadDisplayDeclaration.map(_.displayResponseDetail.acceptanceDate)
+          claim.getLeadImportDeclaration.map(_.displayResponseDetail.acceptanceDate)
         )
       )
     )
     getSummaryList(securityDepositOrGuaranteeCard.get) should containOnlyDefinedPairsOf(
       Seq(
-        "Method of payment" -> claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
+        "Method of payment" -> claim.getLeadImportDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
           messages(s"method-of-payment.${securityDetails.paymentMethod.value}")
         }
       ) ++
-        claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
+        claim.getLeadImportDeclaration.get.getSingleSecurityDetails.map { securityDetails =>
           securityDetails.taxDetails.map(taxDetails =>
             messageFromMessageKey(s"tax-code.${taxDetails.getTaxCode}") -> Some(
               taxDetails.getAmount.toPoundSterlingString
@@ -131,7 +131,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
           )
         }.get ++
         Seq(
-          "Total deposit or guarantee amount" -> claim.getLeadDisplayDeclaration.get.getSingleSecurityDetails.map {
+          "Total deposit or guarantee amount" -> claim.getLeadImportDeclaration.get.getSingleSecurityDetails.map {
             securityDetails =>
               securityDetails.getTotalAmount.toPoundSterlingString
           }
@@ -139,9 +139,9 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     )
     getSummaryList(importerDetailsCard.get)            should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeName),
-        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.consigneeEmail),
-        "Address" -> claim.getLeadDisplayDeclaration.flatMap(d =>
+        "Name"    -> claim.getLeadImportDeclaration.flatMap(_.consigneeName),
+        "Email"   -> claim.getLeadImportDeclaration.flatMap(_.consigneeEmail),
+        "Address" -> claim.getLeadImportDeclaration.flatMap(d =>
           d.displayResponseDetail.consigneeDetails.map(details =>
             d.establishmentAddress(details.establishmentAddress).mkString(" ")
           )
@@ -150,9 +150,9 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
     )
     getSummaryList(declarantDetailsCard.get)           should containOnlyDefinedPairsOf(
       Seq(
-        "Name"    -> claim.getLeadDisplayDeclaration.map(_.declarantName),
-        "Email"   -> claim.getLeadDisplayDeclaration.flatMap(_.declarantEmailAddress),
-        "Address" -> claim.getLeadDisplayDeclaration.map(d =>
+        "Name"    -> claim.getLeadImportDeclaration.map(_.declarantName),
+        "Email"   -> claim.getLeadImportDeclaration.flatMap(_.declarantEmailAddress),
+        "Address" -> claim.getLeadImportDeclaration.map(d =>
           d.establishmentAddress(d.displayResponseDetail.declarantDetails.establishmentAddress).mkString(" ")
         )
       )
@@ -165,7 +165,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
       "display page" in forAllWith(
         ClaimGenerator(
-          testParamsGenerator = mrnWithtRfsWithDisplayDeclarationWithoutIPROrENUGen,
+          testParamsGenerator = mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen,
           claimBuilder = buildSecuritiesClaimReadyForSelectingSecurities
         )
       ) { case (claim, _) =>
@@ -188,7 +188,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
         "redirect to confirm full repayment when reason for security is not NTAS or MDP" in {
           forAll(
-            mrnWithRfsExcludingWithDisplayDeclarationGen(
+            mrnWithRfsExcludingWithImportDeclarationGen(
               ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>
@@ -212,7 +212,7 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
 
         "redirect to have documents ready when reason for security is NTAS or MDP" in {
           forAll(
-            mrnWithRfsWithDisplayDeclarationGen(
+            mrnWithRfsWithImportDeclarationGen(
               ReasonForSecurity.ntas + MissingPreferenceCertificate
             )
           ) { case (mrn, rfs, decl) =>

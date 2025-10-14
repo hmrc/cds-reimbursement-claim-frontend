@@ -81,7 +81,7 @@ class SecuritiesClaimFormatSpec extends AnyWordSpec with JsonFormatTest with Mat
           .submitMovementReferenceNumber(MRN("19GB03I52858027001"))
           .submitReasonForSecurityAndDeclaration(
             ReasonForSecurity.MissingLicenseQuota,
-            exampleSecuritiesDisplayDeclaration
+            exampleSecuritiesImportDeclaration
               .withDeclarationId("19GB03I52858027001")
               .withReasonForSecurity(ReasonForSecurity.MissingLicenseQuota)
           )

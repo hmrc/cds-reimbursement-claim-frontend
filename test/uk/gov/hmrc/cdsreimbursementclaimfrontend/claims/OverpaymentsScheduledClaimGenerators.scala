@@ -20,7 +20,7 @@ import cats.syntax.eq.*
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -37,8 +37,8 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
 
   val claimWithMrnAndDeclaration: OverpaymentsScheduledClaim =
     OverpaymentsScheduledClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori, Nonce.random)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   val completeClaimWithMatchingUserEoriGen: Gen[OverpaymentsScheduledClaim] =
@@ -257,8 +257,8 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
           )
           .to(SortedMap)
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -291,7 +291,7 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           payeeType = payeeType,
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
@@ -361,8 +361,8 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }.toSeq
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -383,7 +383,7 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
         nonce = Nonce.random,
         userEoriNumber = userEoriNumber,
         movementReferenceNumber = Some(mrn),
-        displayDeclaration = Some(displayDeclaration),
+        importDeclaration = Some(importDeclaration),
         eoriNumbersVerification = eoriNumbersVerification,
         contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
         contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,
@@ -434,8 +434,8 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
           )
           .to(SortedMap)
 
-      val displayDeclaration: DisplayDeclaration =
-        buildDisplayDeclaration(
+      val importDeclaration: ImportDeclaration =
+        buildImportDeclaration(
           mrn.value,
           declarantEORI,
           if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -457,7 +457,7 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
           nonce = Nonce.random,
           userEoriNumber = userEoriNumber,
           movementReferenceNumber = Some(mrn),
-          displayDeclaration = Some(displayDeclaration),
+          importDeclaration = Some(importDeclaration),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,

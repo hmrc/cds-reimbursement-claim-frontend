@@ -31,12 +31,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndDisplayDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
 import scala.concurrent.ExecutionContext
@@ -53,7 +53,7 @@ class ConfirmFullRepaymentController @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
-      hasMRNAndDisplayDeclarationAndRfS &
+      hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
@@ -65,16 +65,16 @@ class ConfirmFullRepaymentController @Inject() (
         )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
     }
 
-  private def getPageModel(displayDeclaration: DisplayDeclaration, id: String): ConfirmFullRepaymentModel =
+  private def getPageModel(importDeclaration: ImportDeclaration, id: String): ConfirmFullRepaymentModel =
     ConfirmFullRepaymentModel(
-      mrn = displayDeclaration.getMRN.value,
+      mrn = importDeclaration.getMRN.value,
       securityId = id,
-      depositValue = displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
+      depositValue = importDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
     )
 
   def show(id: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     claim
-      .getDisplayDeclarationIfValidSecurityDepositId(id)
+      .getImportDeclarationIfValidSecurityDepositId(id)
       .map(getPageModel(_, id))
       .fold((claim, errorHandler.errorResult())) { case model =>
         (
@@ -100,7 +100,7 @@ class ConfirmFullRepaymentController @Inject() (
             (
               claim,
               claim
-                .getDisplayDeclarationIfValidSecurityDepositId(id)
+                .getImportDeclarationIfValidSecurityDepositId(id)
                 .map(getPageModel(_, id))
                 .map { case model =>
                   BadRequest(

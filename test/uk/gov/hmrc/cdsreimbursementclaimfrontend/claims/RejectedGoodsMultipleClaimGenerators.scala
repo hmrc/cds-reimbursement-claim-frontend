@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
@@ -40,27 +40,27 @@ object RejectedGoodsMultipleClaimGenerators extends ClaimGenerators with ClaimTe
 
   val claimWithMrnAndDeclaration: RejectedGoodsMultipleClaim =
     RejectedGoodsMultipleClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori)
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   def claimWithMrnAndDeclarationWithFeatures(
     features: RejectedGoodsMultipleClaim.Features
   ): RejectedGoodsMultipleClaim =
     RejectedGoodsMultipleClaim
-      .empty(exampleDisplayDeclaration.getDeclarantEori, features = Some(features))
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+      .empty(exampleImportDeclaration.getDeclarantEori, features = Some(features))
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
 
   final val emptyClaim: RejectedGoodsMultipleClaim =
     RejectedGoodsMultipleClaim.empty(exampleEori)
 
   def incompleteClaimWithMrnsGen(n: Int): Gen[(RejectedGoodsMultipleClaim, Seq[MRN])] = {
-    def submitData(claim: RejectedGoodsMultipleClaim)(data: ((MRN, DisplayDeclaration), Int)) =
+    def submitData(claim: RejectedGoodsMultipleClaim)(data: ((MRN, ImportDeclaration), Int)) =
       claim.submitMovementReferenceNumberAndDeclaration(data._2, data._1._1, data._1._2)
 
-    listOfExactlyN(n, mrnWithDisplayDeclarationGen).map { data =>
-      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
+    listOfExactlyN(n, mrnWithImportDeclarationGen).map { data =>
+      val dataWithIndex: List[((MRN, ImportDeclaration), Int)] = data.zipWithIndex
       (
         emptyClaim
           .flatMapEach(dataWithIndex, submitData)
@@ -71,7 +71,7 @@ object RejectedGoodsMultipleClaimGenerators extends ClaimGenerators with ClaimTe
   }
 
   def incompleteClaimWithMrnsSubsidyOnlyGen(n: Int): Gen[(RejectedGoodsMultipleClaim, Seq[MRN])] = {
-    def submitData(claim: RejectedGoodsMultipleClaim)(data: ((MRN, DisplayDeclaration), Int)) = {
+    def submitData(claim: RejectedGoodsMultipleClaim)(data: ((MRN, ImportDeclaration), Int)) = {
       val ((mrn, declaration), index) = data
       if index == 0 then
         claim
@@ -83,8 +83,8 @@ object RejectedGoodsMultipleClaimGenerators extends ClaimGenerators with ClaimTe
           .submitMovementReferenceNumberAndDeclaration(index, mrn, declaration)
     }
 
-    listOfExactlyN(n, mrnWithDisplayDeclarationSubsidyOnlyGen).map { data =>
-      val dataWithIndex: List[((MRN, DisplayDeclaration), Int)] = data.zipWithIndex
+    listOfExactlyN(n, mrnWithImportDeclarationSubsidyOnlyGen).map { data =>
+      val dataWithIndex: List[((MRN, ImportDeclaration), Int)] = data.zipWithIndex
       (
         claimWithMrnAndDeclarationWithFeatures(
           RejectedGoodsMultipleClaim.Features()
@@ -372,9 +372,9 @@ object RejectedGoodsMultipleClaimGenerators extends ClaimGenerators with ClaimTe
             }
         )
 
-      val displayDeclarations: Seq[DisplayDeclaration] =
+      val importDeclarations: Seq[ImportDeclaration] =
         paidDuties.map { case (mrn, paidDutiesPerMrn) =>
-          buildDisplayDeclaration(
+          buildImportDeclaration(
             mrn.value,
             declarantEORI,
             if hasConsigneeDetailsInACC14 then Some(consigneeEORI) else None,
@@ -404,7 +404,7 @@ object RejectedGoodsMultipleClaimGenerators extends ClaimGenerators with ClaimTe
           userEoriNumber = userEoriNumber,
           payeeType = if submitPayeeType then Some(payeeType) else None,
           movementReferenceNumbers = Some(mrns),
-          displayDeclarations = Some(displayDeclarations),
+          importDeclarations = Some(importDeclarations),
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,

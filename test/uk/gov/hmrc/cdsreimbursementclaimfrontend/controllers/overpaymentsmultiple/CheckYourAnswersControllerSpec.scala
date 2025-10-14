@@ -227,8 +227,8 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val claim =
           OverpaymentsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
@@ -272,7 +272,7 @@ class CheckYourAnswersControllerSpec
       "redirect to the enter MRN page when missing declarations answer" in {
         val claim = OverpaymentsMultipleClaim.unsafeModifyAnswers(
           completeClaimGen.sample.get,
-          _.copy(displayDeclarations = None)
+          _.copy(importDeclarations = None)
         )
 
         inSequence {
@@ -340,8 +340,8 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val claim =
           OverpaymentsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)
@@ -402,8 +402,8 @@ class CheckYourAnswersControllerSpec
       "redirect to the proper page if any answer is missing" in {
         val claim =
           OverpaymentsMultipleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .getOrFail
 
         val errors: Seq[String] = claim.toOutput.left.getOrElse(Seq.empty)

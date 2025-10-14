@@ -67,8 +67,8 @@ class EnterSpecialCircumstancesControllerSpec
   val session: SessionData = SessionData.empty.copy(
     rejectedGoodsSingleClaim = Some(
       RejectedGoodsSingleClaim
-        .empty(exampleDisplayDeclaration.getDeclarantEori)
-        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+        .empty(exampleImportDeclaration.getDeclarantEori)
+        .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
         .getOrFail
     )
   )
@@ -118,8 +118,8 @@ class EnterSpecialCircumstancesControllerSpec
       "the user enters details for the first time" in {
         val claim: RejectedGoodsSingleClaim =
           RejectedGoodsSingleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .map(_.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances))
             .getOrFail
 
@@ -172,8 +172,8 @@ class EnterSpecialCircumstancesControllerSpec
       "basis of claim is not special circumstances" in {
         val claim: RejectedGoodsSingleClaim =
           RejectedGoodsSingleClaim
-            .empty(exampleDisplayDeclaration.getDeclarantEori)
-            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleDisplayDeclaration)
+            .empty(exampleImportDeclaration.getDeclarantEori)
+            .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
             .map(_.submitBasisOfClaim(Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances).sample.get))
             .getOrFail
 

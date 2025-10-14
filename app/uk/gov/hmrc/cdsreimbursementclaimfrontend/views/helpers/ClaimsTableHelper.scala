@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
@@ -565,7 +565,7 @@ object ClaimsTableHelper {
   def makeSecurityClaimFullAmount(
     securityDepositId: String,
     reclaims: List[ReclaimWithAmounts],
-    declaration: DisplayDeclaration,
+    declaration: ImportDeclaration,
     key: String,
     fullAmountChangeCallOpt: Option[String => Call]
   )(implicit messages: Messages): SummaryList = SummaryList(
@@ -609,7 +609,7 @@ object ClaimsTableHelper {
     securityDepositId: String,
     reclaims: List[ReclaimWithAmounts],
     availableDuties: Seq[DutyAmount],
-    declaration: DisplayDeclaration,
+    declaration: ImportDeclaration,
     key: String,
     fullAmountChangeCallOpt: Option[Call],
     selectDutiesChangeCallOpt: Option[Call]

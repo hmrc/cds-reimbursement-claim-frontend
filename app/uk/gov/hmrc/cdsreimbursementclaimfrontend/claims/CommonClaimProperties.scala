@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
@@ -52,15 +52,15 @@ trait CommonClaimProperties {
       getDeclarantEoriFromACC14 === getConsigneeEoriFromACC14
 
   def getLeadMovementReferenceNumber: Option[MRN]
-  def getLeadDisplayDeclaration: Option[DisplayDeclaration]
+  def getLeadImportDeclaration: Option[ImportDeclaration]
   def needsPayeeTypeSelection: Boolean            = true
   def needsBanksAccountDetailsSubmission: Boolean = true
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]]
 
-  def getDisplayDeclarations: Seq[DisplayDeclaration] =
-    getLeadDisplayDeclaration.fold(Seq.empty[DisplayDeclaration])(Seq.apply(_))
+  def getImportDeclarations: Seq[ImportDeclaration] =
+    getLeadImportDeclaration.fold(Seq.empty[ImportDeclaration])(Seq.apply(_))
 
-  def validateDeclarationCandidate(declaration: DisplayDeclaration): Option[String] =
+  def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
     None
 
   final val ZERO: BigDecimal = BigDecimal("0")
@@ -70,24 +70,24 @@ trait CommonClaimProperties {
       answers.supportingEvidences.forall(_.documentType.isDefined)
 
   final def getConsigneeEoriFromACC14: Option[Eori] =
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeEori)
+    getLeadImportDeclaration.flatMap(_.getConsigneeEori)
 
   final def getConsigneeContactDetailsFromACC14: Option[ContactDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails).flatMap(_.contactDetails)
+    getLeadImportDeclaration.flatMap(_.getConsigneeDetails).flatMap(_.contactDetails)
 
   final def getDeclarantEoriFromACC14: Option[Eori] =
-    getLeadDisplayDeclaration.map(_.getDeclarantEori)
+    getLeadImportDeclaration.map(_.getDeclarantEori)
 
   final def getDeclarantContactDetailsFromACC14: Option[ContactDetails] =
-    getLeadDisplayDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
+    getLeadImportDeclaration.flatMap(_.getDeclarantDetails.contactDetails)
 
   final def isConsigneePostCodeFromAcc14: Option[Boolean] =
-    getLeadDisplayDeclaration.map(
+    getLeadImportDeclaration.map(
       _.getConsigneeDetails.exists(_.establishmentAddress.postalCode.isEmpty)
     )
 
   final def isDeclarantPostCodeFromAcc14: Option[Boolean] =
-    getLeadDisplayDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress.postalCode.isEmpty)
+    getLeadImportDeclaration.map(_.getDeclarantDetails).map(_.establishmentAddress.postalCode.isEmpty)
 
   /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
   final def needsDeclarantAndConsigneeEoriSubmission: Boolean =
@@ -102,7 +102,7 @@ trait CommonClaimProperties {
 
   final def needsUserXiEoriSubmission: Boolean =
     !userHasGBEoriMatchingDeclaration &&
-      getLeadDisplayDeclaration.exists(_.containsXiEori) &&
+      getLeadImportDeclaration.exists(_.containsXiEori) &&
       answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
 
   final def userHasGBEoriMatchingDeclaration: Boolean =
@@ -120,11 +120,11 @@ trait CommonClaimProperties {
       !isDeclarantPostCodeFromAcc14.getOrElse(false)
 
   final def getConsigneeBankAccountDetails: Option[BankAccountDetails] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails))
 
   final def getDeclarantBankAccountDetails: Option[BankAccountDetails] =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
 
   final def computeBankAccountDetails: Option[BankAccountDetails] =
@@ -180,7 +180,7 @@ trait CommonClaimProperties {
     }
 
   final def haveBankDetailsOnAcc14: Boolean =
-    getLeadDisplayDeclaration
+    getLeadImportDeclaration
       .exists(_.hasBankDetails)
 
   final def getClaimantType: ClaimantType =
@@ -209,9 +209,9 @@ trait CommonClaimProperties {
     yield ClaimantInformation.from(
       getClaimantEori,
       getClaimantType match {
-        case ClaimantType.Consignee => getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails)
-        case ClaimantType.Declarant => getLeadDisplayDeclaration.map(_.getDeclarantDetails)
-        case ClaimantType.User      => getLeadDisplayDeclaration.map(_.getDeclarantDetails)
+        case ClaimantType.Consignee => getLeadImportDeclaration.flatMap(_.getConsigneeDetails)
+        case ClaimantType.Declarant => getLeadImportDeclaration.map(_.getDeclarantDetails)
+        case ClaimantType.User      => getLeadImportDeclaration.map(_.getDeclarantDetails)
       },
       contactDetails,
       contactAddress
@@ -239,8 +239,8 @@ trait CommonClaimProperties {
     answers.contactAddress
 
   final def getInitialAddressDetailsFromDeclaration: Option[ContactAddress] = (
-    getLeadDisplayDeclaration.flatMap(_.getConsigneeDetails),
-    getLeadDisplayDeclaration.map(_.getDeclarantDetails)
+    getLeadImportDeclaration.flatMap(_.getConsigneeDetails),
+    getLeadImportDeclaration.map(_.getDeclarantDetails)
   ) match {
     case (Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
       Some(consigneeDetails.establishmentAddress.toContactAddress)
@@ -257,7 +257,7 @@ trait CommonClaimProperties {
   }
 
   def containsUnsupportedTaxCode: Boolean =
-    getLeadDisplayDeclaration.map(_.containsSomeUnsupportedTaxCode).getOrElse(false)
+    getLeadImportDeclaration.map(_.containsSomeUnsupportedTaxCode).getOrElse(false)
 
   def getPayeeTypeForOutput(payeeTypeOpt: Option[PayeeType]): Option[PayeeType] =
     payeeTypeOpt.map(payeeType => if payeeType === Representative then Declarant else payeeType)
