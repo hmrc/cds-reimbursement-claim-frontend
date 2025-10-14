@@ -648,7 +648,6 @@ choose-payment-method.rejected-goods.single.error.number=Dewiswch i gael eich ad
 choose-payment-method.rejected-goods.single.error.required=Dewiswch i gael eich ad-dalu drwy addasiad mis cyfredol (CMA) neu drwy drosglwyddiad cyfrif banc
 choose-payment-method.rejected-goods.single.title=Dewiswch ddull ad-dalu
 
-choose-reason-for-security.securities.AccountSales=Gwerthiannau Cyfrif
 choose-reason-for-security.securities.CommunitySystemsOfDutyRelief=Dogfen ar goll: System Rhyddhad Tollau Gymunedol (CSDR)
 choose-reason-for-security.securities.EndUseRelief=Rhyddhad defnydd awdurdodedig (Prydain Fawr) neu ryddhad defnydd terfynol (Gogledd Iwerddon)
 choose-reason-for-security.securities.EndUseRelief.hint=Ar gyfer nwyddau a fewnforiwyd gennych at ddefnydd penodol

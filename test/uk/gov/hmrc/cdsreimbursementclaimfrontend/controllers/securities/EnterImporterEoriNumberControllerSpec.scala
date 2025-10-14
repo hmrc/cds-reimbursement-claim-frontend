@@ -67,7 +67,7 @@ class EnterImporterEoriNumberControllerSpec
   val declaration: DisplayDeclaration =
     buildSecuritiesDisplayDeclaration(
       exampleMrnAsString,
-      ReasonForSecurity.AccountSales.acc14Code,
+      ReasonForSecurity.MissingLicenseQuota.acc14Code,
       declarantEORI = anotherExampleEori,
       consigneeEORI = Some(yetAnotherExampleEori)
     )
@@ -76,7 +76,7 @@ class EnterImporterEoriNumberControllerSpec
     SecuritiesClaim
       .empty(exampleEori)
       .submitMovementReferenceNumber(exampleMrn)
-      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+      .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, declaration)
       .flatMap(_.submitClaimDuplicateCheckStatus(false))
       .getOrFail
   )
@@ -110,7 +110,7 @@ class EnterImporterEoriNumberControllerSpec
         val declaration: DisplayDeclaration =
           buildSecuritiesDisplayDeclaration(
             exampleMrnAsString,
-            ReasonForSecurity.AccountSales.acc14Code,
+            ReasonForSecurity.MissingLicenseQuota.acc14Code,
             declarantEORI = anotherExampleEori,
             consigneeEORI = None
           )
@@ -119,7 +119,7 @@ class EnterImporterEoriNumberControllerSpec
           SecuritiesClaim
             .empty(exampleEori)
             .submitMovementReferenceNumber(exampleMrn)
-            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.AccountSales, declaration)
+            .submitReasonForSecurityAndDeclaration(ReasonForSecurity.MissingLicenseQuota, declaration)
             .flatMap(_.submitClaimDuplicateCheckStatus(false))
             .getOrFail
         )

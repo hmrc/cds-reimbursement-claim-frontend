@@ -25,21 +25,20 @@ sealed trait ReasonForSecurity(val acc14Code: String) {
 
 object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
 
-  case object AccountSales extends ReasonForSecurity("ACS") { val order = 6 }
-  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("MDC") { val order = 8 }
+  case object CommunitySystemsOfDutyRelief extends ReasonForSecurity("MDC") { val order = 7 }
   case object EndUseRelief extends ReasonForSecurity("ENU") { val order = 5 }
   case object InwardProcessingRelief extends ReasonForSecurity("IPR") { val order = 4 }
-  case object ManualOverrideDeposit extends ReasonForSecurity("MOD") { val order = 7 }
-  case object MissingLicenseQuota extends ReasonForSecurity("MDL") { val order = 10 }
-  case object MissingPreferenceCertificate extends ReasonForSecurity("MDP") { val order = 9 }
-  case object OutwardProcessingRelief extends ReasonForSecurity("OPR") { val order = 11 }
-  case object RevenueDispute extends ReasonForSecurity("RED") { val order = 12 }
+  case object ManualOverrideDeposit extends ReasonForSecurity("MOD") { val order = 6 }
+  case object MissingLicenseQuota extends ReasonForSecurity("MDL") { val order = 9 }
+  case object MissingPreferenceCertificate extends ReasonForSecurity("MDP") { val order = 8 }
+  case object OutwardProcessingRelief extends ReasonForSecurity("OPR") { val order = 10 }
+  case object RevenueDispute extends ReasonForSecurity("RED") { val order = 11 }
   case object TemporaryAdmission2Y extends ReasonForSecurity("T24") { val order = 0 }
   case object TemporaryAdmission6M extends ReasonForSecurity("TA6") { val order = 3 }
   case object TemporaryAdmission3M extends ReasonForSecurity("TA3") { val order = 2 }
   case object TemporaryAdmission2M extends ReasonForSecurity("TA2") { val order = 1 }
-  case object UKAPEntryPrice extends ReasonForSecurity("CEP") { val order = 13 }
-  case object UKAPSafeguardDuties extends ReasonForSecurity("CSD") { val order = 14 }
+  case object UKAPEntryPrice extends ReasonForSecurity("CEP") { val order = 12 }
+  case object UKAPSafeguardDuties extends ReasonForSecurity("CSD") { val order = 13 }
 
   val ntas: Set[ReasonForSecurity] =
     Set(
@@ -59,7 +58,6 @@ object ReasonForSecurity extends EnumerationFormat[ReasonForSecurity] {
     Set(
       MissingPreferenceCertificate,
       MissingLicenseQuota,
-      AccountSales,
       UKAPEntryPrice,
       UKAPSafeguardDuties,
       RevenueDispute,

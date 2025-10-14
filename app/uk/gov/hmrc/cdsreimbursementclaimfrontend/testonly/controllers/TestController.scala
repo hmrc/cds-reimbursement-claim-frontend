@@ -29,7 +29,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
-// This controller will be deleted at the end of CDSR-1781
+// TODO This controller will be deleted at the end of CDSR-1781
 
 @Singleton
 class TestController @Inject() (
@@ -40,7 +40,10 @@ class TestController @Inject() (
 
   def testIsDuplicate(mrn: String, reason: String): Action[AnyContent] = Action.async { implicit request =>
     connector
-      .getIsDuplicate(MRN(mrn), ReasonForSecurity.find(reason).getOrElse(ReasonForSecurity.AccountSales))
+      .getIsDuplicate(
+        MRN(mrn),
+        ReasonForSecurity.find(reason).getOrElse(ReasonForSecurity.MissingLicenseQuota)
+      )
       .fold(
         error => Ok(s"We got an error $error"),
         result => Ok(s"We got a result $result")
