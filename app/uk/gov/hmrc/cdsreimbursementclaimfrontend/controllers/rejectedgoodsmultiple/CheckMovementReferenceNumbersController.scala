@@ -69,7 +69,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
     }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { claim =>
     claim.getMovementReferenceNumbers
       .map { mrns =>
         checkMovementReferenceNumbersForm

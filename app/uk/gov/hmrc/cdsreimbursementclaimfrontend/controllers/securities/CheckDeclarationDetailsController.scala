@@ -50,7 +50,7 @@ class CheckDeclarationDetailsController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    simpleActionReadWriteClaim { implicit request => claim =>
+    simpleActionReadWriteClaim { claim =>
       val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(true)
       (
         updatedClaim,
@@ -62,7 +62,7 @@ class CheckDeclarationDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    simpleActionReadWriteClaim { implicit request => claim =>
+    simpleActionReadWriteClaim { claim =>
       val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(false)
       if claim.getSelectedDepositIds.isEmpty then
         (updatedClaim, Redirect(routes.CheckDeclarationDetailsController.show))

@@ -76,7 +76,7 @@ trait CheckBankDetailsMixin extends ClaimBaseController {
     }
 
   final val submitWarning: Action[AnyContent] =
-    simpleActionReadWriteClaim { implicit request => claim =>
+    simpleActionReadWriteClaim { claim =>
       bankDetailsAreYouSureForm
         .bindFromRequest()
         .fold(

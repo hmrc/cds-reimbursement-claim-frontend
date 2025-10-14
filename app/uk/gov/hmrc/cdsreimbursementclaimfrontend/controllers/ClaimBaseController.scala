@@ -193,7 +193,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
 
   /** Simple POST action to submit form and update the current claim state. */
   final def simpleActionReadWriteClaim(
-    body: Request[?] => Claim => (Claim, Result),
+    body: Request[?] ?=> Claim => (Claim, Result),
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
@@ -206,7 +206,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
                 if claim.isFinalized then (claim, Redirect(claimSubmissionConfirmation))
                 else
                   checkIfMaybeActionPreconditionFails(claim) match {
-                    case None         => body(request)(claim)
+                    case None         => body(using request)(claim)
                     case Some(errors) =>
                       logger.info(s"${errors.headOption}, ${routeForValidationErrors(errors)}")
                       (claim, Redirect(routeForValidationErrors(errors)))

@@ -55,7 +55,7 @@ class SelectSecuritiesController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  final val showFirst: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
+  final val showFirst: Action[AnyContent] = simpleActionReadWriteClaim { claim =>
     claim.getSecurityDepositIds.headOption.fold(
       (claim, Redirect(routes.ChooseReasonForSecurityController.show))
     ) { firstDepositId =>
