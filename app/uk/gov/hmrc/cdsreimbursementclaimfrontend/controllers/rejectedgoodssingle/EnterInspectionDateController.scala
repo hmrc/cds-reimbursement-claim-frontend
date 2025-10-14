@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterInspectionDateController @Inject() (
@@ -47,38 +46,33 @@ class EnterInspectionDateController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      val form = enterInspectionDateForm.withDefault(claim.answers.inspectionDate)
-      Ok(enterInspectionDatePage(form, postAction))
-    }
+    val form = enterInspectionDateForm.withDefault(claim.answers.inspectionDate)
+    Ok(enterInspectionDatePage(form, postAction))
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
-    Future.successful(
-      enterInspectionDateForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              claim,
-              BadRequest(
-                enterInspectionDatePage(
-                  formWithErrors,
-                  postAction
-                )
+    enterInspectionDateForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            claim,
+            BadRequest(
+              enterInspectionDatePage(
+                formWithErrors,
+                postAction
               )
-            ),
-          date =>
-            (
-              claim.submitInspectionDate(date),
-              if claim.needsDeclarantAndConsigneePostCode then
-                Redirect(routes.ChooseInspectionAddressTypeController.show)
-              else {
-                Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
-              }
             )
-        )
-    )
+          ),
+        date =>
+          (
+            claim.submitInspectionDate(date),
+            if claim.needsDeclarantAndConsigneePostCode then Redirect(routes.ChooseInspectionAddressTypeController.show)
+            else {
+              Redirect(routes.ChooseInspectionAddressTypeController.redirectToALF())
+            }
+          )
+      )
   }
 
 }

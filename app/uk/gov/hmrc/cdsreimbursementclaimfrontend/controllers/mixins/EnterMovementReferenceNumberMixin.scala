@@ -56,25 +56,21 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
   val formKey = "enter-movement-reference-number"
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      Ok(
-        viewTemplate(
-          form(claim).withDefault(getMovementReferenceNumber(claim))
-        )
+    Ok(
+      viewTemplate(
+        form(claim).withDefault(getMovementReferenceNumber(claim))
       )
-    }
+    )
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>
-        Future.successful(
-          (
-            claim,
-            BadRequest(
-              viewTemplate(formWithErrors)
-            )
+        (
+          claim,
+          BadRequest(
+            viewTemplate(formWithErrors)
           )
         ),
       (mrn: MRN) =>
@@ -123,12 +119,10 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>
-        Future.successful(
-          (
-            claim,
-            BadRequest(
-              viewTemplate(formWithErrors)
-            )
+        (
+          claim,
+          BadRequest(
+            viewTemplate(formWithErrors)
           )
         ),
       (mrn: MRN) =>

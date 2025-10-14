@@ -25,8 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
-import scala.concurrent.Future
-
 trait EnterNewDanMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
@@ -42,14 +40,12 @@ trait EnterNewDanMixin extends ClaimBaseController {
     claim.answers.newDan
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      Ok(
-        newDanPage(
-          newDanForm(formKey).withDefault(getNewDanAnswer(claim)),
-          postAction
-        )
+    Ok(
+      newDanPage(
+        newDanForm(formKey).withDefault(getNewDanAnswer(claim)),
+        postAction
       )
-    }
+    )
   }
 
   final val submit: Action[AnyContent] =
@@ -58,23 +54,19 @@ trait EnterNewDanMixin extends ClaimBaseController {
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  newDanPage(
-                    formWithErrors,
-                    postAction
-                  )
+            (
+              claim,
+              BadRequest(
+                newDanPage(
+                  formWithErrors,
+                  postAction
                 )
               )
             ),
           dan =>
-            Future.successful(
-              (
-                modifyClaim(claim, dan),
-                Redirect(continueAction)
-              )
+            (
+              modifyClaim(claim, dan),
+              Redirect(continueAction)
             )
         )
     }

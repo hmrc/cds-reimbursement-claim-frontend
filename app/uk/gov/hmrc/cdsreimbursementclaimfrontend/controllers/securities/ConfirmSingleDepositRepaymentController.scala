@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment_for_single_depositId
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class ConfirmSingleDepositRepaymentController @Inject() (
@@ -56,7 +55,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadWriteClaim { claim =>
+  val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     claim.getSecurityDetails.headOption
       .fold((claim, errorHandler.errorResult())) { case securityDetail =>
         (
@@ -73,7 +72,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
 
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim(
+  val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       form
         .bindFromRequest()
@@ -108,7 +107,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
                   }
 
               }
-              .getOrElse(Future.successful((claim, errorHandler.errorResult())))
+              .getOrElse((claim, errorHandler.errorResult()))
         ),
     fastForwardToCYAEnabled = false
   )

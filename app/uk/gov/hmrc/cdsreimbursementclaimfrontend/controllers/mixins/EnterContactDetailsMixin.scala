@@ -24,8 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
-import scala.concurrent.Future
-
 trait EnterContactDetailsMixin extends ClaimBaseController {
 
   val postAction: Call
@@ -38,12 +36,10 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
 
   final def show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful(
-        Ok(
-          enterOrChangeContactDetailsPage(
-            Forms.mrnContactDetailsForm.withDefault(claim.answers.contactDetails),
-            postAction
-          )
+      Ok(
+        enterOrChangeContactDetailsPage(
+          Forms.mrnContactDetailsForm.withDefault(claim.answers.contactDetails),
+          postAction
         )
       )
     }
@@ -54,28 +50,23 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  enterOrChangeContactDetailsPage(
-                    formWithErrors,
-                    postAction
-                  )
+            (
+              claim,
+              BadRequest(
+                enterOrChangeContactDetailsPage(
+                  formWithErrors,
+                  postAction
                 )
               )
             ),
           contactDetails => {
-            val previousDetails =
-              claim.answers.contactDetails
-            val updatedClaim    = modifyClaim(
+            val updatedClaim = modifyClaim(
               claim,
               Some(
-                contactDetails
-                  .computeChanges(previousDetails)
+                contactDetails.computeChanges(claim.answers.contactDetails)
               )
             )
-            Future.successful((updatedClaim, Redirect(continueRoute)))
+            (updatedClaim, Redirect(continueRoute))
           }
         )
     )

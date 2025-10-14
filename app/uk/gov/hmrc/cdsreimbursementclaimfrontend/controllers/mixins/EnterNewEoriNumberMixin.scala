@@ -27,8 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_eori_number
 
-import scala.concurrent.Future
-
 trait EnterNewEoriNumberMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
@@ -53,15 +51,14 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
     case _                                                                             => None
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      Ok(
-        newEoriPage(
-          eoriNumberForm(formKey)
-            .withDefault(getNewEoriAnswer(claim)),
-          postAction
-        )
+    Ok(
+      newEoriPage(
+        eoriNumberForm(formKey)
+          .withDefault(getNewEoriAnswer(claim)),
+        postAction
       )
-    }
+    )
+
   }
 
   final val submit: Action[AnyContent] =
@@ -70,48 +67,43 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  newEoriPage(
-                    formWithErrors,
-                    postAction
-                  )
+            (
+              claim,
+              BadRequest(
+                newEoriPage(
+                  formWithErrors,
+                  postAction
                 )
               )
             ),
           eori =>
             newEoriStartWithValidCountryCode(eori, getImporterEori(claim)) match {
               case Some(errorMessageKey) =>
-                Future.successful(
-                  (
-                    claim,
-                    BadRequest(
-                      newEoriPage(
-                        eoriNumberForm(formKey)
-                          .fill(eori)
-                          .withError(FormError("enter-new-eori-number", errorMessageKey)),
-                        postAction
-                      )
+                (
+                  claim,
+                  BadRequest(
+                    newEoriPage(
+                      eoriNumberForm(formKey)
+                        .fill(eori)
+                        .withError(FormError("enter-new-eori-number", errorMessageKey)),
+                      postAction
                     )
                   )
                 )
               case None                  =>
-                eoriDetailsConnector.getEoriDetails(eori).flatMap {
+                eoriDetailsConnector.getEoriDetails(eori).map {
                   case Some(_) =>
-                    Future.successful((modifyClaim(claim, eori), Redirect(continueAction)))
-                  case None    =>
-                    Future.successful(
-                      (
-                        claim,
-                        BadRequest(
-                          newEoriPage(
-                            eoriNumberForm(formKey)
-                              .fill(eori)
-                              .withError(FormError("enter-new-eori-number", "doesNotExist")),
-                            postAction
-                          )
+                    (modifyClaim(claim, eori), Redirect(continueAction))
+
+                  case None =>
+                    (
+                      claim,
+                      BadRequest(
+                        newEoriPage(
+                          eoriNumberForm(formKey)
+                            .fill(eori)
+                            .withError(FormError("enter-new-eori-number", "doesNotExist")),
+                          postAction
                         )
                       )
                     )

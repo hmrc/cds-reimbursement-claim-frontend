@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_or_change_method_of_disposal
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class DisposalMethodController @Inject() (
@@ -48,12 +47,10 @@ class DisposalMethodController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful(
-      Ok(
-        enterOrChangeMethodOfDisposal(
-          Forms.methodOfDisposalForm.withDefault(claim.answers.methodOfDisposal),
-          postAction
-        )
+    Ok(
+      enterOrChangeMethodOfDisposal(
+        Forms.methodOfDisposalForm.withDefault(claim.answers.methodOfDisposal),
+        postAction
       )
     )
   }
@@ -64,21 +61,15 @@ class DisposalMethodController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(enterOrChangeMethodOfDisposal(formWithErrors, postAction))
-              )
+            (
+              claim,
+              BadRequest(enterOrChangeMethodOfDisposal(formWithErrors, postAction))
             ),
-          methodOfDisposal => {
-            val updatedClaim = claim.submitMethodOfDisposal(methodOfDisposal)
-            Future.successful(
-              (
-                updatedClaim,
-                Redirect(routes.EnterRejectedGoodsDetailsController.show)
-              )
+          methodOfDisposal =>
+            (
+              claim.submitMethodOfDisposal(methodOfDisposal),
+              Redirect(routes.EnterRejectedGoodsDetailsController.show)
             )
-          }
         )
 
     }

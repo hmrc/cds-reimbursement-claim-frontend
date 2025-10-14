@@ -22,16 +22,14 @@ import play.api.data.FormError
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_scheduled_claim
-
-import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 object EnterScheduledClaimMixin {
   final case class RoutesPack(
@@ -87,64 +85,62 @@ trait EnterScheduledClaimMixin extends ClaimBaseController {
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteClaim(
     claim =>
-      Future.successful(
-        enterScheduledClaimForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(
-                  enterClaimPage(
-                    currentDuty,
-                    currentTaxCode,
-                    redirectVerificationMessage(formWithErrors),
-                    routesPack.postAction(currentDuty, currentTaxCode)
-                  )
+      enterScheduledClaimForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                enterClaimPage(
+                  currentDuty,
+                  currentTaxCode,
+                  redirectVerificationMessage(formWithErrors),
+                  routesPack.postAction(currentDuty, currentTaxCode)
                 )
-              ),
-            reimbursement =>
-              modifyClaim(claim, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating reimbursement selection - $errors")
-                    (
-                      claim,
-                      BadRequest(
-                        enterClaimPage(
-                          currentDuty,
-                          currentTaxCode,
-                          enterScheduledClaimForm,
-                          routesPack.postAction(currentDuty, currentTaxCode)
-                        )
+              )
+            ),
+          reimbursement =>
+            modifyClaim(claim, currentDuty, currentTaxCode, reimbursement.paidAmount, reimbursement.claimAmount)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating reimbursement selection - $errors")
+                  (
+                    claim,
+                    BadRequest(
+                      enterClaimPage(
+                        currentDuty,
+                        currentTaxCode,
+                        enterScheduledClaimForm,
+                        routesPack.postAction(currentDuty, currentTaxCode)
                       )
                     )
-                  },
-                  updatedClaim =>
-                    (
-                      updatedClaim, {
-                        updatedClaim.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
-                          case Some((nextDutyType, nextTaxCode: TaxCode)) =>
-                            if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
-                            else if currentDuty.repr === nextDutyType.repr then
-                              Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
-                            else Redirect(routesPack.showSelectDuties(nextDutyType))
+                  )
+                },
+                updatedClaim =>
+                  (
+                    updatedClaim, {
+                      updatedClaim.findNextSelectedTaxCodeAfter(currentDuty, currentTaxCode) match {
+                        case Some((nextDutyType, nextTaxCode: TaxCode)) =>
+                          if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                          else if currentDuty.repr === nextDutyType.repr then
+                            Redirect(routesPack.showAction(nextDutyType, nextTaxCode))
+                          else Redirect(routesPack.showSelectDuties(nextDutyType))
 
-                          case Some((nextDutyType, nextExciseCategory: ExciseCategory)) =>
-                            if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
-                            else Redirect(routesPack.showSelectExciseCategoryDuties(nextExciseCategory))
+                        case Some((nextDutyType, nextExciseCategory: ExciseCategory)) =>
+                          if claim.hasCompleteReimbursementClaims then Redirect(routesPack.showCheckClaimDetails)
+                          else Redirect(routesPack.showSelectExciseCategoryDuties(nextExciseCategory))
 
-                          case None =>
-                            updatedClaim.findNextSelectedDutyAfter(currentDuty).match {
-                              case Some(nextDutyType) => Redirect(routesPack.showSelectDuties(nextDutyType))
-                              case None               => Redirect(routesPack.showCheckClaimDetails)
-                            }
-                        }
+                        case None =>
+                          updatedClaim.findNextSelectedDutyAfter(currentDuty).match {
+                            case Some(nextDutyType) => Redirect(routesPack.showSelectDuties(nextDutyType))
+                            case None               => Redirect(routesPack.showCheckClaimDetails)
+                          }
                       }
-                    )
-                )
-          )
-      ),
+                    }
+                  )
+              )
+        ),
     fastForwardToCYAEnabled = false
   )
 

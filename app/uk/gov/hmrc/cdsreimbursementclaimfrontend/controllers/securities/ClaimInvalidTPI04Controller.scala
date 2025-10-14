@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.error_claim_invalid_tpi04
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class ClaimInvalidTPI04Controller @Inject() (
@@ -36,6 +35,6 @@ class ClaimInvalidTPI04Controller @Inject() (
 
   val show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful(Ok(errorClaimInvalidTPI04Page(claim.getReasonForSecurity)))
+      Ok(errorClaimInvalidTPI04Page(claim.getReasonForSecurity))
     }
 }

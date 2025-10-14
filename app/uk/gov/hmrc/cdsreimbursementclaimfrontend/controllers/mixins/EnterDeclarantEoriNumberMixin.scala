@@ -27,8 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 
-import scala.concurrent.Future
-
 trait EnterDeclarantEoriNumberMixin extends ClaimBaseController {
 
   val postAction: Call
@@ -48,68 +46,64 @@ trait EnterDeclarantEoriNumberMixin extends ClaimBaseController {
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful {
-        if !needsEoriSubmission(claim) then Redirect(whenEoriInputNotRequiredAction)
-        else {
-          val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(claim))
-          Ok(
-            enterDeclarantEoriNumber(
-              form,
-              postAction
-            )
+      if !needsEoriSubmission(claim)
+      then Redirect(whenEoriInputNotRequiredAction)
+      else {
+        val form = eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(claim))
+        Ok(
+          enterDeclarantEoriNumber(
+            form,
+            postAction
           )
-        }
+        )
       }
     }
 
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
-      if !needsEoriSubmission(claim) then (claim, Redirect(whenEoriInputNotRequiredAction))
+      if !needsEoriSubmission(claim)
+      then (claim, Redirect(whenEoriInputNotRequiredAction))
       else {
         eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              Future.successful(
-                (
-                  claim,
-                  BadRequest(
-                    enterDeclarantEoriNumber(
-                      formWithErrors,
-                      postAction
-                    )
+              (
+                claim,
+                BadRequest(
+                  enterDeclarantEoriNumber(
+                    formWithErrors,
+                    postAction
                   )
                 )
               ),
             eori =>
-              Future.successful(
-                modifyClaim(claim, eori)
-                  .fold(
-                    {
-                      case ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI |
-                          ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI =>
-                        (
-                          claim,
-                          BadRequest(
-                            enterDeclarantEoriNumber(
-                              eoriNumberForm(eoriNumberFormKey)
-                                .withError(
-                                  FormError(
-                                    eoriNumberFormKey,
-                                    "eori-should-match-declarant"
-                                  )
+              modifyClaim(claim, eori)
+                .fold(
+                  {
+                    case ClaimValidationErrors.SHOULD_MATCH_ACC14_DECLARANT_EORI |
+                        ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_DECLARANT_EORI =>
+                      (
+                        claim,
+                        BadRequest(
+                          enterDeclarantEoriNumber(
+                            eoriNumberForm(eoriNumberFormKey)
+                              .withError(
+                                FormError(
+                                  eoriNumberFormKey,
+                                  "eori-should-match-declarant"
                                 )
-                                .withDefault(Some(eori)),
-                              postAction
-                            )
+                              )
+                              .withDefault(Some(eori)),
+                            postAction
                           )
                         )
-                      case errors =>
-                        (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-                    },
-                    updatedClaim => (updatedClaim, Redirect(continueAction))
-                  )
-              )
+                      )
+                    case errors =>
+                      (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+                  },
+                  updatedClaim => (updatedClaim, Redirect(continueAction))
+                )
           )
       }
     }

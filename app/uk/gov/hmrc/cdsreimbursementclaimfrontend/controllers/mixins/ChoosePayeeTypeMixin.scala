@@ -27,8 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
-import scala.concurrent.Future
-
 trait ChoosePayeeTypeMixin extends ClaimBaseController {
 
   def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim]
@@ -64,12 +62,10 @@ trait ChoosePayeeTypeMixin extends ClaimBaseController {
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  choosePayeeTypePage(formWithErrors, postAction)
-                )
+            (
+              claim,
+              BadRequest(
+                choosePayeeTypePage(formWithErrors, postAction)
               )
             ),
           submitPayeeType

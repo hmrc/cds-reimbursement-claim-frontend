@@ -25,8 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
-import scala.concurrent.Future
-
 trait CheckDeclarationDetailsMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & ClaimBase & CommonClaimProperties
@@ -38,16 +36,15 @@ trait CheckDeclarationDetailsMixin extends ClaimBaseController {
   def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful(
-      getImportDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
-        Ok(
-          viewTemplate(
-            declaration,
-            claim
-          )
+    getImportDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
+      Ok(
+        viewTemplate(
+          declaration,
+          claim
         )
       )
     )
+
   }
 
   final val submit: Action[AnyContent] = simpleActionReadClaim { claim =>

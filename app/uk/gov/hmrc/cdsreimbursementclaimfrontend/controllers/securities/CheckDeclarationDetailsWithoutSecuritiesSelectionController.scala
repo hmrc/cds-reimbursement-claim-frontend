@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details_without_securities_selection
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
@@ -51,12 +50,10 @@ class CheckDeclarationDetailsWithoutSecuritiesSelectionController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful(
-        claim.getLeadImportDeclaration
-          .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
-            Ok(checkDeclarationDetailsPage(declaration, postAction))
-          )
-      )
+      claim.getLeadImportDeclaration
+        .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
+          Ok(checkDeclarationDetailsPage(declaration, postAction))
+        )
     }
 
   final val submit: Action[AnyContent] =
