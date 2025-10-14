@@ -103,8 +103,6 @@ class ChooseReasonForSecurityControllerSpec
 //      ("Outward-processing relief (OPR)", "OutwardProcessingRelief")   //currently disabled
     )
 
-  // currently disabled
-  @nowarn
   private val nidacOptions =
     Seq(
       ("Manual override of duty amount", "ManualOverrideDeposit"),
@@ -120,9 +118,7 @@ class ChooseReasonForSecurityControllerSpec
       userEoriNumber = exampleEori,
       features = Some(
         SecuritiesClaim.Features(availableReasonsForSecurity =
-          ReasonForSecurity.ntas ++ ReasonForSecurity.niru.filterNot(option =>
-            option == OutwardProcessingRelief || option == CommunitySystemsOfDutyRelief
-          )
+          ReasonForSecurity.ntas ++ ReasonForSecurity.niru ++ ReasonForSecurity.nidac
         )
       )
     )
@@ -148,7 +144,7 @@ class ChooseReasonForSecurityControllerSpec
       .returning(response)
 
   def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
-    radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions
+    radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions ++ nidacOptions
 
     hasContinueButton(doc)
   }
@@ -170,6 +166,33 @@ class ChooseReasonForSecurityControllerSpec
           performAction(),
           messageFromMessageKey(s"$messagesKey.title"),
           doc => validateChooseReasonForSecurityPage(doc)
+        )
+      }
+
+      "display the page with all but MPD nidac reasons for security available" in {
+        val claim: SecuritiesClaim = SecuritiesClaim
+          .empty(
+            userEoriNumber = exampleEori,
+            features = Some(
+              SecuritiesClaim.Features(availableReasonsForSecurity =
+                ReasonForSecurity.ntas ++ ReasonForSecurity.niru ++ Set(ReasonForSecurity.MissingPreferenceCertificate)
+              )
+            )
+          )
+          .submitMovementReferenceNumber(exampleMrn)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc =>
+            radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions ++ Set(
+              ("Missing proof of origin", "MissingPreferenceCertificate")
+            )
         )
       }
     }
