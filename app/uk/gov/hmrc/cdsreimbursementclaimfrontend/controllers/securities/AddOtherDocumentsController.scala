@@ -51,11 +51,11 @@ class AddOtherDocumentsController @Inject() (
         & needsAddOtherDocuments
     )
 
-  def show: Action[AnyContent] = actionReadClaim { claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit))
   }
 
-  def submit: Action[AnyContent] = actionReadClaim { claim =>
+  val submit: Action[AnyContent] = actionReadClaim { claim =>
     form
       .bindFromRequest()
       .fold(

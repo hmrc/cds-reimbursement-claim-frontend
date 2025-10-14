@@ -32,7 +32,7 @@ class ClaimInvalidNotExportedAllController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesClaimBaseController {
 
-  def show: Action[AnyContent] = actionReadClaim { _ =>
+  val show: Action[AnyContent] = actionReadClaim { _ =>
     Ok(claimInvalidNotExportedAll(routes.EnterMovementReferenceNumberController.start.url))
   }
 }

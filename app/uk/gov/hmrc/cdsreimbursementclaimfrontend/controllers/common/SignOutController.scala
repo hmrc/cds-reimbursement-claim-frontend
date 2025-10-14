@@ -32,7 +32,7 @@ class SignOutController @Inject() (
     extends FrontendBaseController
     with Logging {
 
-  def showSignOutPage(): Action[AnyContent] = Action { _ =>
+  val showSignOutPage: Action[AnyContent] = Action { _ =>
     Redirect(viewConfig.feedbackUrl).withNewSession
   }
 }

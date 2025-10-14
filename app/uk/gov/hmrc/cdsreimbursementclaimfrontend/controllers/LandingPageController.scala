@@ -32,7 +32,7 @@ class LandingPageController @Inject() (
     extends FrontendBaseController
     with Logging {
 
-  def showLandingPage(): Action[AnyContent] = Action { implicit request =>
+  val showLandingPage: Action[AnyContent] = Action { implicit request =>
     Redirect(viewConfig.govUkLandingPageUrl)
   }
 }

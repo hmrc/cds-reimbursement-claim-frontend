@@ -34,7 +34,7 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
 
   def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 
-  final def show: Action[AnyContent] =
+  final val show: Action[AnyContent] =
     actionReadClaim { claim =>
       Ok(
         enterOrChangeContactDetailsPage(
@@ -44,7 +44,7 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
       )
     }
 
-  final def submit: Action[AnyContent] =
+  final val submit: Action[AnyContent] =
     actionReadWriteClaim(claim =>
       Forms.mrnContactDetailsForm
         .bindFromRequest()
