@@ -59,7 +59,7 @@ trait EnterScheduledClaimMixin extends ClaimBaseController {
     correctAmount: BigDecimal
   ): Either[String, Claim]
 
-  final val showFirst: Action[AnyContent] = actionReadClaim { _ => claim =>
+  final val showFirst: Action[AnyContent] = actionReadClaim { claim =>
     claim.findNextDutyToSelectDuties match {
       case None =>
         claim.getFirstDutyToClaim match {
@@ -75,15 +75,15 @@ trait EnterScheduledClaimMixin extends ClaimBaseController {
     }
   }
 
-  final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] = actionReadClaim {
-    implicit request => claim =>
+  final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
+    actionReadClaim { claim =>
       val maybeReimbursement: Option[AmountPaidWithCorrect] = claim.getReimbursementFor(dutyType, taxCode)
       val form                                              = enterScheduledClaimForm.withDefault(maybeReimbursement)
 
       Ok(
         enterClaimPage(dutyType, taxCode, form, routesPack.postAction(dutyType, taxCode))
       )
-  }
+    }
 
   final def submit(currentDuty: DutyType, currentTaxCode: TaxCode): Action[AnyContent] = actionReadWriteClaim(
     implicit request =>

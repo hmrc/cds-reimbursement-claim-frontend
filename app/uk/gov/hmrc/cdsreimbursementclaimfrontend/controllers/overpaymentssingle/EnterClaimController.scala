@@ -71,7 +71,7 @@ class EnterClaimController @Inject() (
     )
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show)

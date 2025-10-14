@@ -48,19 +48,19 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
 
   def form(claim: Claim): Form[MRN]
   def getMovementReferenceNumber(claim: Claim): Option[MRN]
-  def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable
-  def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable
+  def viewTemplate: Form[MRN] => Request[?] ?=> HtmlFormat.Appendable
+  def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable
   def afterSuccessfullSubmit(claim: Claim): Result
   val problemWithMrnCall: MRN => Call
 
   val formKey = "enter-movement-reference-number"
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful {
       Ok(
         viewTemplate(
           form(claim).withDefault(getMovementReferenceNumber(claim))
-        )(request)
+        )
       )
     }
   }
@@ -73,7 +73,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
           (
             claim,
             BadRequest(
-              viewTemplate(formWithErrors)(request)
+              viewTemplate(formWithErrors)
             )
           )
         ),
@@ -94,23 +94,21 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
               (
                 claim,
                 Ok(
-                  subsidyWaiverErrorPage(mrn, true)(request)
+                  subsidyWaiverErrorPage(mrn, true)
                 )
               )
             } else if error.message == "error.has-some-subsidy-items" then {
               (
                 claim,
                 Ok(
-                  subsidyWaiverErrorPage(mrn, false)(request)
+                  subsidyWaiverErrorPage(mrn, false)
                 )
               )
             } else if error.message.startsWith("error.") then {
               (
                 claim,
                 BadRequest(
-                  viewTemplate(filledForm.withError(formKey, error.message))(
-                    request
-                  )
+                  viewTemplate(filledForm.withError(formKey, error.message))
                 )
               )
             } else {
@@ -129,7 +127,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
           (
             claim,
             BadRequest(
-              viewTemplate(formWithErrors)(request)
+              viewTemplate(formWithErrors)
             )
           )
         ),

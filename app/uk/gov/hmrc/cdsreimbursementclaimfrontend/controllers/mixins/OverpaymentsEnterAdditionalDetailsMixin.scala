@@ -38,7 +38,7 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
   def modifyClaim(claim: Claim, additionalDetails: String): Claim
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Future.successful {
         val form: Form[String] =
           enterAdditionalDetailsForm.withDefault(claim.answers.additionalDetails)

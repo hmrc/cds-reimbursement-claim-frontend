@@ -35,7 +35,7 @@ trait ChooseBankAccountTypeMixin extends ClaimBaseController {
 
   def modifyClaim(claim: Claim, bankAccountType: BankAccountType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       chooseBankAccountTypePage(
         bankAccountTypeForm.withDefault(claim.answers.bankAccountType),

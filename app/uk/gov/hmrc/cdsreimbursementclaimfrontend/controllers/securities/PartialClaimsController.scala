@@ -53,7 +53,7 @@ class PartialClaimsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     Ok(
       partialClaimsPage(

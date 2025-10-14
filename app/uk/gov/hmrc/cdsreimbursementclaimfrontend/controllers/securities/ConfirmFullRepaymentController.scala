@@ -57,12 +57,14 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val showFirst: Action[AnyContent]                                                                       = actionReadClaim { _ => claim =>
-    claim.getSelectedDepositIds.headOption
-      .fold(
-        Redirect(routes.CheckDeclarationDetailsController.show)
-      )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
-  }
+  val showFirst: Action[AnyContent] =
+    actionReadClaim { claim =>
+      claim.getSelectedDepositIds.headOption
+        .fold(
+          Redirect(routes.CheckDeclarationDetailsController.show)
+        )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
+    }
+
   private def getPageModel(displayDeclaration: DisplayDeclaration, id: String): ConfirmFullRepaymentModel =
     ConfirmFullRepaymentModel(
       mrn = displayDeclaration.getMRN.value,

@@ -34,11 +34,11 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
   val uploadFilesRoute: Call
 
   def viewTemplate
-    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] => HtmlFormat.Appendable
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] ?=> HtmlFormat.Appendable
 
   def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getDocumentTypesIfRequired match {
       case None =>
         Redirect(uploadFilesRoute)
@@ -52,7 +52,7 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
             form,
             availableDocumentTypes,
             claim.answers.supportingEvidences.nonEmpty
-          )(request)
+          )
         )
     }
   }
@@ -79,7 +79,7 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
                         formWithErrors,
                         availableDocumentTypes,
                         claim.answers.supportingEvidences.nonEmpty
-                      )(request)
+                      )
                     )
                   ),
                 {

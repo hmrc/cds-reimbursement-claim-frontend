@@ -63,7 +63,7 @@ class ProblemWithDeclarationController @Inject() (
     routes.CheckDeclarationDetailsController.show
 
   final def showNth(pageIndex: Int): Action[AnyContent] =
-    actionReadClaim { implicit request => implicit claim =>
+    actionReadClaim { implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
       claim.getNthDisplayDeclaration(pageIndex - 1) match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>

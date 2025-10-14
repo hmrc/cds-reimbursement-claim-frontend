@@ -51,7 +51,7 @@ class CheckDeclarationDetailsSingleSecurityController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Future.successful(
         claim.getLeadDisplayDeclaration
           .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>

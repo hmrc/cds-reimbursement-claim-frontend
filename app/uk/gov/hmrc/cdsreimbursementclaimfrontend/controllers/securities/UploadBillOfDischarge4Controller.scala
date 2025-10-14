@@ -61,7 +61,7 @@ class UploadBillOfDischarge4Controller @Inject() (
   final val callbackAction: Call = routes.UploadBillOfDischarge4Controller.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     val continueUrl: Call =
       if claim.hasCompleteAnswers then checkYourAnswers
       else routes.AddOtherDocumentsController.show

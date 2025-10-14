@@ -43,7 +43,7 @@ trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with
 
   def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getPotentialInspectionAddresses match {
       case Nil =>
         Redirect(startAddressLookup)

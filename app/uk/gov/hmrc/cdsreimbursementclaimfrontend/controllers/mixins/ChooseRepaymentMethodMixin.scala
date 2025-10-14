@@ -43,7 +43,7 @@ trait ChooseRepaymentMethodMixin extends ClaimBaseController {
     Forms.reimbursementMethodForm("reimbursement-method")
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => implicit claim =>
+    actionReadClaim { implicit claim =>
       if claim.isAllSelectedDutiesAreCMAEligible then {
         Ok(
           chooseRepaymentMethodPage(

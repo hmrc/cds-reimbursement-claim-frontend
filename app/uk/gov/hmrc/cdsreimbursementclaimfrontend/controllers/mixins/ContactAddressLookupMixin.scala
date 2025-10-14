@@ -29,13 +29,13 @@ trait ContactAddressLookupMixin extends ClaimBaseController with AddressLookupMi
   val nextPageInTheClaim: Call
   val startAddressLookup: Call
 
-  def viewTemplate: MrnContactDetails => ContactAddress => Request[?] => HtmlFormat.Appendable
+  def viewTemplate: MrnContactDetails => ContactAddress => Request[?] ?=> HtmlFormat.Appendable
 
   final val show: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
     val (maybeContactDetails, maybeAddressDetails) = (claim.answers.contactDetails, claim.answers.contactAddress)
     (maybeContactDetails, maybeAddressDetails) match {
       case (Some(cd), Some(ca)) =>
-        (claim, Ok(viewTemplate(cd)(ca)(request)))
+        (claim, Ok(viewTemplate(cd)(ca)))
       case (Some(cd), None)     =>
         (claim, Redirect(startAddressLookup))
       case _                    =>

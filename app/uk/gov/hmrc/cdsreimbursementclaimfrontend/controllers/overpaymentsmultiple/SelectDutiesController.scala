@@ -47,7 +47,7 @@ class SelectDutiesController @Inject() (
 
   val showFirst: Action[AnyContent] = show(1)
 
-  def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { claim =>
     claim
       .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>

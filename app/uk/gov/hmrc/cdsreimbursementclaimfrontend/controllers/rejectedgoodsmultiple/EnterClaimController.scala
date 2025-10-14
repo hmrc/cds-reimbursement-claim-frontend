@@ -71,7 +71,7 @@ class EnterClaimController @Inject() (
     }
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>

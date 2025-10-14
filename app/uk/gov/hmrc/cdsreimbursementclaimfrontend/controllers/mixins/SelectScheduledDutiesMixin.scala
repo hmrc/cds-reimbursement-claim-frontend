@@ -58,7 +58,7 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
   val selectAndReplaceTaxCodeSetForDutyType: Claim => (DutyType, Seq[TaxCode]) => Either[String, Claim]
   val selectAndReplaceTaxCodeSetForExciseCategory: Claim => (ExciseCategory, Seq[TaxCode]) => Either[String, Claim]
 
-  final def show(dutyType: DutyType): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final def show(dutyType: DutyType): Action[AnyContent] = actionReadClaim { claim =>
     if claim.isDutyTypeSelected then {
       if dutyType == DutyType.Excise then {
         val postAction: Call                                   = routesPack.submitExciseCategories
@@ -163,8 +163,8 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
     }
   }
 
-  final def showExciseDuties(exciseCategory: ExciseCategory): Action[AnyContent] = actionReadClaim {
-    implicit request => claim =>
+  final def showExciseDuties(exciseCategory: ExciseCategory): Action[AnyContent] =
+    actionReadClaim { claim =>
       if claim.isDutyTypeSelected then {
         val postAction: Call                     = routesPack.submitExciseDuties(exciseCategory)
         val maybeTaxCodes: Option[List[TaxCode]] = Option(
@@ -178,7 +178,7 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
       } else {
         Redirect(routesPack.showSelectDutyTypes)
       }
-  }
+    }
 
   final def submitExciseDuties(exciseCategory: ExciseCategory): Action[AnyContent] = actionReadWriteClaim {
     implicit request => claim =>

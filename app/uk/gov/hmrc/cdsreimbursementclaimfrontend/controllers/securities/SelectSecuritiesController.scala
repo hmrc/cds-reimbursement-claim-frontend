@@ -78,7 +78,7 @@ class SelectSecuritiesController @Inject() (
     }
   }
 
-  final def show(securityDepositId: String): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final def show(securityDepositId: String): Action[AnyContent] = actionReadClaim { claim =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     claim
       .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)

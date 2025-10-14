@@ -73,16 +73,15 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   override def getMovementReferenceNumber(claim: Claim): Option[MRN] =
     claim.answers.duplicateDeclaration.map(_.movementReferenceNumber)
 
-  override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
+  override def viewTemplate: Form[MRN] => Request[?] ?=> HtmlFormat.Appendable =
     form =>
-      implicit request =>
-        enterDuplicateMovementReferenceNumberPage(
-          form,
-          Some("overpayments.single"),
-          routes.EnterDuplicateMovementReferenceNumberController.submit
-        )
+      enterDuplicateMovementReferenceNumberPage(
+        form,
+        Some("overpayments.single"),
+        routes.EnterDuplicateMovementReferenceNumberController.submit
+      )
 
-  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable = ???
+  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable = ???
 
   override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
     claim.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, declaration)

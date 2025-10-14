@@ -41,7 +41,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     val form = enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods)
     Ok(enterRejectedGoodsDetailsPage(form, routes.EnterRejectedGoodsDetailsController.submit))
   }

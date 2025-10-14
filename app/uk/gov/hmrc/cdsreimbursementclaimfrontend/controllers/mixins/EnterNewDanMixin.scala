@@ -41,7 +41,7 @@ trait EnterNewDanMixin extends ClaimBaseController {
   def getNewDanAnswer(claim: Claim): Option[Dan] =
     claim.answers.newDan
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful {
       Ok(
         newDanPage(

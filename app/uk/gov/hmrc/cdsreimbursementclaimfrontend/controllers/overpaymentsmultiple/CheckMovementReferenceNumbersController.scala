@@ -46,7 +46,7 @@ class CheckMovementReferenceNumbersController @Inject() (
   private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
   private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getMovementReferenceNumbers
       .map { mrns =>
         if claim.hasCompleteMovementReferenceNumbers then {

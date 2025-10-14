@@ -47,7 +47,7 @@ class CheckMovementReferenceNumbersController @Inject() (
   private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim.getMovementReferenceNumbers
         .map { mrns =>
           if claim.hasCompleteMovementReferenceNumbers then

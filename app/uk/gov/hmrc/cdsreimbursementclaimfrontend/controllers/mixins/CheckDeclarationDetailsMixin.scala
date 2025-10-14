@@ -35,16 +35,16 @@ trait CheckDeclarationDetailsMixin extends ClaimBaseController {
   def continueRoute(claim: Claim): Call
   val enterMovementReferenceNumberRoute: Call
 
-  def viewTemplate: (DisplayDeclaration, Claim) => Request[?] => HtmlFormat.Appendable
+  def viewTemplate: (DisplayDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful(
       getDisplayDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
         Ok(
           viewTemplate(
             declaration,
             claim
-          )(request)
+          )
         )
       )
     )

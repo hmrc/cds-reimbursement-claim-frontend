@@ -174,7 +174,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
 
   /** Async GET action to show page based on the request and the current claim state. */
   final def actionReadClaim(
-    body: Request[?] => Claim => Result | Future[Result]
+    body: Request[?] ?=> Claim => Result | Future[Result]
   ): Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -184,7 +184,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
             if claim.isFinalized then Future.successful(Redirect(claimSubmissionConfirmation))
             else
               checkIfMaybeActionPreconditionFails(claim) match {
-                case None         => body(request)(claim).toFuture
+                case None         => body(using request)(claim).toFuture
                 case Some(errors) => Future.successful(Redirect(routeForValidationErrors(errors)))
               }
           )

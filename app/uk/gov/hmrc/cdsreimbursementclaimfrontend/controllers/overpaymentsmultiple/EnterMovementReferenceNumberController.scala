@@ -53,7 +53,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   final val showFirst: Action[AnyContent] = show(1)
 
-  final def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { claim =>
     if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
       Redirect(routes.CheckMovementReferenceNumbersController.show)
     else {

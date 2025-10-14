@@ -47,7 +47,7 @@ class SelectDutiesController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future {
       val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
 

@@ -61,11 +61,11 @@ class CheckTotalImportDischargedController @Inject() (
   private val successResultBOD4: Result =
     Redirect(routes.UploadBillOfDischarge4Controller.show)
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
+  def show: Action[AnyContent] = actionReadClaim { _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit))
   }
 
-  def submit: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadClaim { claim =>
     form
       .bindFromRequest()
       .fold(

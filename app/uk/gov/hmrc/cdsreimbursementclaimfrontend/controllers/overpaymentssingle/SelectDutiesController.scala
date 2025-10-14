@@ -48,7 +48,7 @@ class SelectDutiesController @Inject() (
   final val postAction: Call =
     routes.SelectDutiesController.submit
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
 
     if availableDuties.isEmpty then {

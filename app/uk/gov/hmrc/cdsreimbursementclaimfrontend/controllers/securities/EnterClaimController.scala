@@ -67,7 +67,7 @@ class EnterClaimController @Inject() (
   )
 
   final def show(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
         identity,
         { case (correctAmountOpt, paidAmount) =>

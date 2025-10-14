@@ -58,7 +58,7 @@ trait EnterBankAccountDetailsMixin extends ClaimBaseController {
 
   def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterBankAccountDetailsPage(
         enterBankDetailsForm.withDefault(claim.answers.bankAccountDetails),

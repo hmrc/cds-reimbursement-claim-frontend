@@ -46,7 +46,7 @@ class BasisForClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     val form: Form[BasisOfRejectedGoodsClaim] =
       basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
     Ok(

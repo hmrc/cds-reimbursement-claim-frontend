@@ -53,9 +53,8 @@ class ChooseFileTypeController @Inject() (
     routes.UploadFilesController.show
 
   final override def viewTemplate
-    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] => HtmlFormat.Appendable =
-    (form, documentTypes, _) =>
-      implicit request => chooseFileTypePage(form, documentTypes, routes.ChooseFileTypeController.submit)
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] ?=> HtmlFormat.Appendable =
+    (form, documentTypes, _) => chooseFileTypePage(form, documentTypes, routes.ChooseFileTypeController.submit)
 
   final override def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim] =
     claim

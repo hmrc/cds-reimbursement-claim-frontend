@@ -44,7 +44,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterRejectedGoodsDetailsPage(
         enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods),

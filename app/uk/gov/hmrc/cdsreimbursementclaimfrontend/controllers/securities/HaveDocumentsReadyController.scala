@@ -44,7 +44,7 @@ class HaveDocumentsReadyController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       val continueUrl =
         if claim.isSingleSecurity
         then routes.ConfirmSingleDepositRepaymentController.show.url

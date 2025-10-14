@@ -37,7 +37,7 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
   def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 
   final def show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
