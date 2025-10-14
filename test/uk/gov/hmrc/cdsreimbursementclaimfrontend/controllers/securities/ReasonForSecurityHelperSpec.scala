@@ -26,21 +26,47 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
 
   "ReasonForSecurityHelper" should {
 
-    "show all but nidac reasons for security, and show MDP RfS" in {
+    "show all but nidac reasons for security, except for MDP RfS" in {
 
       val config = Configuration(
         ConfigFactory.parseString(
           """
-            | features.security-reasons.nidac-only-mdp = on
+            | features.security-reasons.nidac.mdp.enabled = on
+            | features.security-reasons.nidac.mdl.enabled = off
+            | features.security-reasons.nidac.cep.enabled = off
+            | features.security-reasons.nidac.csd.enabled = off
+            | features.security-reasons.nidac.red.enabled = off
+            | features.security-reasons.nidac.mod.enabled = off
             |""".stripMargin
         )
       )
 
       new ReasonForSecurityHelper(
         configuration = config
-      ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.ntas
+      ).availableReasonsForSecurity() shouldBe ReasonForSecurity.ntas
         ++ ReasonForSecurity.niru
         ++ Set(ReasonForSecurity.MissingPreferenceCertificate)
+    }
+
+    "show all but nidac reasons for security" in {
+
+      val config = Configuration(
+        ConfigFactory.parseString(
+          """
+            | features.security-reasons.nidac.mdp.enabled = off
+            | features.security-reasons.nidac.mdl.enabled = off
+            | features.security-reasons.nidac.cep.enabled = off
+            | features.security-reasons.nidac.csd.enabled = off
+            | features.security-reasons.nidac.red.enabled = off
+            | features.security-reasons.nidac.mod.enabled = off
+            |""".stripMargin
+        )
+      )
+
+      new ReasonForSecurityHelper(
+        configuration = config
+      ).availableReasonsForSecurity() shouldBe ReasonForSecurity.ntas
+        ++ ReasonForSecurity.niru
     }
 
     "show all reasons for security" in {
@@ -48,14 +74,19 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       val config = Configuration(
         ConfigFactory.parseString(
           """
-            | features.security-reasons.nidac-only-mdp = off
+            | features.security-reasons.nidac.mdp.enabled = on
+            | features.security-reasons.nidac.mdl.enabled = on
+            | features.security-reasons.nidac.cep.enabled = on
+            | features.security-reasons.nidac.csd.enabled = on
+            | features.security-reasons.nidac.red.enabled = on
+            | features.security-reasons.nidac.mod.enabled = on
             |""".stripMargin
         )
       )
 
       new ReasonForSecurityHelper(
         configuration = config
-      ).avalaibleReasonsForSecurity() shouldBe ReasonForSecurity.ntas
+      ).availableReasonsForSecurity() shouldBe ReasonForSecurity.ntas
         ++ ReasonForSecurity.niru
         ++ ReasonForSecurity.nidac
 

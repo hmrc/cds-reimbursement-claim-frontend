@@ -102,7 +102,7 @@ class ChooseClaimTypeController @Inject() (
                           Nonce.random,
                           features = Some(
                             SecuritiesClaim.Features(availableReasonsForSecurity =
-                              reasonForSecurityHelper.avalaibleReasonsForSecurity()
+                              reasonForSecurityHelper.availableReasonsForSecurity()
                             )
                           )
                         )

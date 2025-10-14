@@ -24,16 +24,31 @@ class ReasonForSecurityHelper(
 ) {
 
   private lazy val nidacMdpVisibility: Boolean =
-    configuration.getOptional[Boolean]("features.security-reasons.nidac-only-mdp").getOrElse(false)
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.mdp.enabled").getOrElse(false)
+  private lazy val nidacMdlVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.mdl.enabled").getOrElse(false)
+  private lazy val nidacCepVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.cep.enabled").getOrElse(false)
+  private lazy val nidacCsdVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.csd.enabled").getOrElse(false)
+  private lazy val nidacRedVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.red.enabled").getOrElse(false)
+  private lazy val nidacModVisibility: Boolean =
+    configuration.getOptional[Boolean]("features.security-reasons.nidac.mod.enabled").getOrElse(false)
 
-  def avalaibleReasonsForSecurity(): Set[ReasonForSecurity] = getNtasOptions() ++ getNiruOptions() ++ getNidacOptions()
+  def availableReasonsForSecurity(): Set[ReasonForSecurity] = getNtasOptions() ++ getNiruOptions() ++ getNidacOptions()
 
   private def getNtasOptions() = ReasonForSecurity.ntas
 
   private def getNidacOptions() =
-    if nidacMdpVisibility
-    then Set(ReasonForSecurity.MissingPreferenceCertificate)
-    else ReasonForSecurity.nidac
+    Set(
+      if nidacMdpVisibility then Some(ReasonForSecurity.MissingPreferenceCertificate) else None,
+      if nidacMdlVisibility then Some(ReasonForSecurity.MissingLicenseQuota) else None,
+      if nidacCepVisibility then Some(ReasonForSecurity.UKAPEntryPrice) else None,
+      if nidacCsdVisibility then Some(ReasonForSecurity.UKAPSafeguardDuties) else None,
+      if nidacRedVisibility then Some(ReasonForSecurity.RevenueDispute) else None,
+      if nidacModVisibility then Some(ReasonForSecurity.ManualOverrideDeposit) else None
+    ).flatten
 
   private def getNiruOptions() = ReasonForSecurity.niru
 
