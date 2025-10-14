@@ -76,7 +76,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       Forms.problemWithDeclarationForm
         .bindFromRequest()
         .fold(

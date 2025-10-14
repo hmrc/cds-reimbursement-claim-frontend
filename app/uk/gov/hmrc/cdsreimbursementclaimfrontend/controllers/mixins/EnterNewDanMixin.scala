@@ -53,7 +53,7 @@ trait EnterNewDanMixin extends ClaimBaseController {
   }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       newDanForm(formKey)
         .bindFromRequest()
         .fold(

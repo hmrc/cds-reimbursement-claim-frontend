@@ -57,7 +57,7 @@ class EnterSpecialCircumstancesController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterSpecialCircumstancesForm
       .bindFromRequest()
       .fold(

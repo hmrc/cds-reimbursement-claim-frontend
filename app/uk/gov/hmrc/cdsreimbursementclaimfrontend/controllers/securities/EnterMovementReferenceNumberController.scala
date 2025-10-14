@@ -48,7 +48,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       movementReferenceNumberForm
         .bindFromRequest()
         .fold(

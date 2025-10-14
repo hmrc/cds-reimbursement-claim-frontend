@@ -72,42 +72,41 @@ class SelectDutiesController @Inject() (
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim => {
-        val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
-        Future.successful(if availableDuties.isEmpty then {
-          logger.warn("No available duties")
-          (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-        } else {
-          val form = selectDutiesForm(availableDuties.map(_._1))
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  claim,
-                  BadRequest(
-                    selectDutiesPage(
-                      formWithErrors,
-                      availableDuties,
-                      None,
-                      true,
-                      Some("single"),
-                      postAction,
-                      Some(viewConfig.rejectedGoodsOverpaidVatGuidanceUrl)
-                    )
+    claim => {
+      val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
+      Future.successful(if availableDuties.isEmpty then {
+        logger.warn("No available duties")
+        (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+      } else {
+        val form = selectDutiesForm(availableDuties.map(_._1))
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                claim,
+                BadRequest(
+                  selectDutiesPage(
+                    formWithErrors,
+                    availableDuties,
+                    None,
+                    true,
+                    Some("single"),
+                    postAction,
+                    Some(viewConfig.rejectedGoodsOverpaidVatGuidanceUrl)
                   )
-                ),
-              taxCodesSelected =>
-                (
-                  claim
-                    .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
-                    .getOrElse(claim),
-                  Redirect(routes.EnterClaimController.showFirst)
                 )
-            )
-        })
-      },
+              ),
+            taxCodesSelected =>
+              (
+                claim
+                  .selectAndReplaceTaxCodeSetForReimbursement(taxCodesSelected)
+                  .getOrElse(claim),
+                Redirect(routes.EnterClaimController.showFirst)
+              )
+          )
+      })
+    },
     fastForwardToCYAEnabled = false
   )
 }

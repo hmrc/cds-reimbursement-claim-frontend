@@ -28,7 +28,7 @@ trait ProblemWithMrnMixin extends ClaimBaseController {
   val enterMRNCall: Call
 
   final def show(mrn: MRN): Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       (claim, Ok(problemWithMRNPage(mrn, enterMRNCall)))
     }
 }

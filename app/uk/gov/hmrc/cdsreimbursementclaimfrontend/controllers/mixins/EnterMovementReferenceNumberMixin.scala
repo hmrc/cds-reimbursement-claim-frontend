@@ -65,7 +65,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>
@@ -119,7 +119,7 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
     )
   }
 
-  final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteClaim { claim =>
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
       formWithErrors =>

@@ -69,24 +69,23 @@ trait EnterBankAccountDetailsMixin extends ClaimBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      implicit claim =>
-        enterBankDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(
-                  enterBankAccountDetailsPage(
-                    formWithErrors,
-                    isCMA(claim),
-                    routesPack.submitPath
-                  )
+    implicit claim =>
+      enterBankDetailsForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                enterBankAccountDetailsPage(
+                  formWithErrors,
+                  isCMA(claim),
+                  routesPack.submitPath
                 )
-              ),
-            validateBankAccountDetails(claim, _, None)
-          ),
+              )
+            ),
+          validateBankAccountDetails(claim, _, None)
+        ),
     fastForwardToCYAEnabled = false
   )
 

@@ -46,7 +46,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
     Ok(enterRejectedGoodsDetailsPage(form, routes.EnterRejectedGoodsDetailsController.submit))
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterRejectedGoodsDetailsForm
       .bindFromRequest()
       .fold(

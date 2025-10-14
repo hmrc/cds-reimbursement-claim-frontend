@@ -62,7 +62,7 @@ trait EnterImporterEoriNumberMixin extends ClaimBaseController {
     }
   }
 
-  final val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     if !needsEoriSubmission(claim) then (claim, Redirect(whenEoriInputNotRequiredAction))
     else {
       eoriNumberForm(eoriNumberFormKey)

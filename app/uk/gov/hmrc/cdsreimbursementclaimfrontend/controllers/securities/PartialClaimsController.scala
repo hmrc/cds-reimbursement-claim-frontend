@@ -64,7 +64,7 @@ class PartialClaimsController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     form
       .bindFromRequest()

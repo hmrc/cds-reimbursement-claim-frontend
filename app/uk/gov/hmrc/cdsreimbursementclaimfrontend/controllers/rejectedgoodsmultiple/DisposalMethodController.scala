@@ -57,7 +57,7 @@ class DisposalMethodController @Inject() (
   }
 
   val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       Forms.methodOfDisposalForm
         .bindFromRequest()
         .fold(

@@ -54,46 +54,44 @@ trait ChooseRepaymentMethodMixin extends ClaimBaseController {
       } else Redirect(enterBankDetailsRoute)
     }
 
-  final val submit: Action[AnyContent] =
-    actionReadWriteClaim(
-      implicit request =>
-        claim =>
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
+  final val submit: Action[AnyContent] = actionReadWriteClaim(
+    claim =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                chooseRepaymentMethodPage(
+                  formWithErrors,
+                  postAction
+                )
+              )
+            ),
+          method =>
+            modifyClaim(claim, method) match {
+              case Right(modifiedClaim) =>
+                (
+                  modifiedClaim,
+                  Redirect(enterBankDetailsRoute)
+                )
+
+              case Left("submitReimbursementMethod.notCMAEligible") =>
                 (
                   claim,
-                  BadRequest(
-                    chooseRepaymentMethodPage(
-                      formWithErrors,
-                      postAction
-                    )
-                  )
-                ),
-              method =>
-                modifyClaim(claim, method) match {
-                  case Right(modifiedClaim) =>
-                    (
-                      modifiedClaim,
-                      Redirect(enterBankDetailsRoute)
-                    )
+                  Redirect(enterBankDetailsRoute)
+                )
 
-                  case Left("submitReimbursementMethod.notCMAEligible") =>
-                    (
-                      claim,
-                      Redirect(enterBankDetailsRoute)
-                    )
-
-                  case Left(error) =>
-                    Future.failed(new Exception(error))
-                }
-            ),
-      fastForwardToCYAEnabled = false
-    )
+              case Left(error) =>
+                Future.failed(new Exception(error))
+            }
+        ),
+    fastForwardToCYAEnabled = false
+  )
 
   final val reset: Action[AnyContent] =
-    actionReadWriteClaim { _ => claim =>
+    actionReadWriteClaim { claim =>
       val updatedClaim =
         if !claim.isAllSelectedDutiesAreCMAEligible then resetReimbursementMethod(claim)
         else claim

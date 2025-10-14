@@ -53,7 +53,7 @@ class EnterInspectionDateController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     Future.successful(
       enterInspectionDateForm
         .bindFromRequest()

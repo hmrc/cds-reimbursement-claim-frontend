@@ -62,7 +62,7 @@ class BasisForClaimController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(

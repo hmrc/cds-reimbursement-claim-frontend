@@ -91,7 +91,7 @@ class ProblemWithDeclarationController @Inject() (
     }
 
   final def submitNth(pageIndex: Int): Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       Forms.problemWithDeclarationForm
         .bindFromRequest()
         .fold(

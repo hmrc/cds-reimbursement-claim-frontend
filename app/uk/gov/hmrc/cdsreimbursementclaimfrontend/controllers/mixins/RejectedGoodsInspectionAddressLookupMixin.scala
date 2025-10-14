@@ -59,35 +59,34 @@ trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        inspectionAddressTypeForm
-          .bindFromRequest()
-          .fold(
-            errors =>
-              (
-                claim,
-                BadRequest(inspectionAddressPage(claim.getPotentialInspectionAddresses, errors, postAction))
-              ),
-            {
-              case Other     =>
-                (claim, Redirect(startAddressLookup))
-              case Declarant =>
-                claim.getDeclarantContactDetailsFromACC14
-                  .map { address =>
-                    redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Declarant).mapFrom(address)))
-                  }
-                  .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
+    claim =>
+      inspectionAddressTypeForm
+        .bindFromRequest()
+        .fold(
+          errors =>
+            (
+              claim,
+              BadRequest(inspectionAddressPage(claim.getPotentialInspectionAddresses, errors, postAction))
+            ),
+          {
+            case Other     =>
+              (claim, Redirect(startAddressLookup))
+            case Declarant =>
+              claim.getDeclarantContactDetailsFromACC14
+                .map { address =>
+                  redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Declarant).mapFrom(address)))
+                }
+                .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
 
-              case Importer =>
-                claim.getConsigneeContactDetailsFromACC14
-                  .map { address =>
-                    redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Importer).mapFrom(address)))
-                  }
-                  .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
+            case Importer =>
+              claim.getConsigneeContactDetailsFromACC14
+                .map { address =>
+                  redirectToTheNextPage(modifyClaim(claim, InspectionAddress.ofType(Importer).mapFrom(address)))
+                }
+                .getOrElse((claim, Redirect(baseRoutes.IneligibleController.ineligible)))
 
-            }
-          ),
+          }
+        ),
     fastForwardToCYAEnabled = false
   )
 

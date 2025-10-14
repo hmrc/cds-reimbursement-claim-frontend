@@ -68,7 +68,7 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       checkExportMovementReferenceNumbersKey
     )
 
-  val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmissionExported(claim) { exportMRNs =>
       if exportMRNs.isEmpty
       then (claim, Redirect(routes.EnterExportMovementReferenceNumberController.showFirst))
@@ -89,70 +89,68 @@ class CheckExportMovementReferenceNumbersController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        whenTemporaryAdmissionExported(claim) { exportMRNs =>
-          checkExportMovementReferenceNumbersForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  claim,
-                  BadRequest(
-                    checkExportMovementReferenceNumbersPage(
-                      exportMRNs,
-                      formWithErrors,
-                      routes.CheckExportMovementReferenceNumbersController.submit,
-                      routes.EnterExportMovementReferenceNumberController.showNext,
-                      routes.CheckExportMovementReferenceNumbersController.delete
+    claim =>
+      whenTemporaryAdmissionExported(claim) { exportMRNs =>
+        checkExportMovementReferenceNumbersForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                claim,
+                BadRequest(
+                  checkExportMovementReferenceNumbersPage(
+                    exportMRNs,
+                    formWithErrors,
+                    routes.CheckExportMovementReferenceNumbersController.submit,
+                    routes.EnterExportMovementReferenceNumberController.showNext,
+                    routes.CheckExportMovementReferenceNumbersController.delete
+                  )
+                )
+              ),
+            decision =>
+              decision match {
+                case Yes =>
+                  (
+                    claim,
+                    Redirect(
+                      routes.EnterExportMovementReferenceNumberController.showNext(exportMRNs.size + 1)
                     )
                   )
-                ),
-              decision =>
-                decision match {
-                  case Yes =>
-                    (
-                      claim,
-                      Redirect(
-                        routes.EnterExportMovementReferenceNumberController.showNext(exportMRNs.size + 1)
-                      )
-                    )
-                  case No  =>
-                    if claim.userHasSeenCYAPage
-                    then (claim, Redirect(routes.CheckYourAnswersController.show))
-                    else (claim, Redirect(nextStepInClaim(claim)))
-                }
-            )
+                case No  =>
+                  if claim.userHasSeenCYAPage
+                  then (claim, Redirect(routes.CheckYourAnswersController.show))
+                  else (claim, Redirect(nextStepInClaim(claim)))
+              }
+          )
 
-        },
+      },
     fastForwardToCYAEnabled = false
   )
 
   def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        whenTemporaryAdmissionExported(claim) { exportMRNs =>
-          if exportMRNs.contains(mrn) then
-            claim
-              .removeExportMovementReferenceNumber(mrn)
-              .fold(
-                error => {
-                  logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                  (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-                },
-                updatedClaim =>
-                  (
-                    updatedClaim,
-                    updatedClaim.answers.exportMovementReferenceNumbers match {
-                      case Some(exportMRNs) if exportMRNs.nonEmpty =>
-                        Redirect(routes.CheckExportMovementReferenceNumbersController.show)
-                      case _                                       =>
-                        Redirect(routes.ChooseExportMethodController.show)
-                    }
-                  )
-              )
-          else (claim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
-        },
+    claim =>
+      whenTemporaryAdmissionExported(claim) { exportMRNs =>
+        if exportMRNs.contains(mrn) then
+          claim
+            .removeExportMovementReferenceNumber(mrn)
+            .fold(
+              error => {
+                logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+                (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+              },
+              updatedClaim =>
+                (
+                  updatedClaim,
+                  updatedClaim.answers.exportMovementReferenceNumbers match {
+                    case Some(exportMRNs) if exportMRNs.nonEmpty =>
+                      Redirect(routes.CheckExportMovementReferenceNumbersController.show)
+                    case _                                       =>
+                      Redirect(routes.ChooseExportMethodController.show)
+                  }
+                )
+            )
+        else (claim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
+      },
     fastForwardToCYAEnabled = false
   )
 

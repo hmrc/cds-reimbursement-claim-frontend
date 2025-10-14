@@ -95,7 +95,7 @@ class ChooseReasonForSecurityController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     form
       .bindFromRequest()
       .fold(

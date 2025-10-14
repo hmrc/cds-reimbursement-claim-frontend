@@ -106,17 +106,16 @@ class CheckMovementReferenceNumbersController @Inject() (
   }
 
   final def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
-    _ =>
-      claim =>
-        claim
-          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
-          .fold(
-            error => {
-              logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-              (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-            },
-            updatedClaim => nextPageOnDelete(updatedClaim)
-          ),
+    claim =>
+      claim
+        .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+        .fold(
+          error => {
+            logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+            (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+          },
+          updatedClaim => nextPageOnDelete(updatedClaim)
+        ),
     fastForwardToCYAEnabled = false
   )
 

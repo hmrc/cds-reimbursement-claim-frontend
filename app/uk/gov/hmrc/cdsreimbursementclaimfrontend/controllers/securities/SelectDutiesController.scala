@@ -65,7 +65,7 @@ class SelectDutiesController @Inject() (
       .noneIfEmpty
       .fold(error(CdsError("no tax codes available")))(f)
 
-  final val showFirst: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final val showFirst: Action[AnyContent] = actionReadWriteClaim { claim =>
     claim.getSecurityDepositIds.headOption
       .map { securityId =>
         processAvailableDuties[SecuritiesClaim, Result](
@@ -113,7 +113,7 @@ class SelectDutiesController @Inject() (
       }
   }
 
-  final def show(securityId: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def show(securityId: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     processAvailableDuties[SecuritiesClaim, Result](
       securityId: String,
       claim: SecuritiesClaim,
@@ -145,43 +145,42 @@ class SelectDutiesController @Inject() (
   }
 
   final def submit(securityId: String): Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        processAvailableDuties[SecuritiesClaim, Result](
-          securityId: String,
-          claim: SecuritiesClaim,
-          error => {
-            logger.warn(s"No Available duties: $error")
-            (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
-          },
-          dutiesAvailable => {
-            val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
-            val boundForm = form.bindFromRequest()
-            boundForm
-              .fold(
-                errors => {
-                  logger.warn(
-                    s"Selection of duties to be repaid failed for $securityId because of errors:" +
-                      s"${errors.errors.mkString("", ",", "")}"
-                  )
-                  (
-                    claim,
-                    Ok(
-                      selectDutiesPage(
-                        boundForm,
-                        claim.isSingleSecurity,
-                        securityId,
-                        dutiesAvailable,
-                        routes.SelectDutiesController.submit(securityId)
-                      )
+    claim =>
+      processAvailableDuties[SecuritiesClaim, Result](
+        securityId: String,
+        claim: SecuritiesClaim,
+        error => {
+          logger.warn(s"No Available duties: $error")
+          (claim, Redirect(baseRoutes.IneligibleController.ineligible)).asFuture
+        },
+        dutiesAvailable => {
+          val form      = selectDutiesForm(dutiesAvailable.map(_.taxCode))
+          val boundForm = form.bindFromRequest()
+          boundForm
+            .fold(
+              errors => {
+                logger.warn(
+                  s"Selection of duties to be repaid failed for $securityId because of errors:" +
+                    s"${errors.errors.mkString("", ",", "")}"
+                )
+                (
+                  claim,
+                  Ok(
+                    selectDutiesPage(
+                      boundForm,
+                      claim.isSingleSecurity,
+                      securityId,
+                      dutiesAvailable,
+                      routes.SelectDutiesController.submit(securityId)
                     )
                   )
-                },
-                dutiesSelected => updateAndRedirect(claim, securityId, dutiesSelected)
-              )
-              .asFuture
-          }
-        ),
+                )
+              },
+              dutiesSelected => updateAndRedirect(claim, securityId, dutiesSelected)
+            )
+            .asFuture
+        }
+      ),
     fastForwardToCYAEnabled = false
   )
 

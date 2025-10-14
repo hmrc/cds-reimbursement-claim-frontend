@@ -52,7 +52,7 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       enterAdditionalDetailsForm
         .bindFromRequest()
         .fold(

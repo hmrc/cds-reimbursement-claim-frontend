@@ -95,7 +95,7 @@ class SelectSecuritiesController @Inject() (
 
   }
 
-  final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     form
       .bindFromRequest()

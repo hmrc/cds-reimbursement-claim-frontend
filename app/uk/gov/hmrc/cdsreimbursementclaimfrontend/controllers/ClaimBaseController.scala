@@ -261,7 +261,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
 
   /** Async POST action to submit form and update claim. */
   final def actionReadWriteClaim(
-    body: Request[?] => Claim => (Claim, Result) | Future[(Claim, Result)],
+    body: Request[?] ?=> Claim => (Claim, Result) | Future[(Claim, Result)],
     fastForwardToCYAEnabled: Boolean = true
   ): Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
@@ -273,7 +273,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
                 if claim.isFinalized then Future.successful((claim, Redirect(claimSubmissionConfirmation)))
                 else
                   checkIfMaybeActionPreconditionFails(claim) match {
-                    case None         => body(request)(claim)
+                    case None         => body(using request)(claim)
                     case Some(errors) => Future.successful((claim, Redirect(routeForValidationErrors(errors))))
                   }
               )

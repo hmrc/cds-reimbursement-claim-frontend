@@ -60,7 +60,7 @@ class CheckYourAnswersController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
@@ -88,7 +88,7 @@ class CheckYourAnswersController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput

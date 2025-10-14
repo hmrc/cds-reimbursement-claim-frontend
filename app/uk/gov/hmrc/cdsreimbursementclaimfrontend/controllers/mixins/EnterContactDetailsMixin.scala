@@ -49,35 +49,34 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
     }
 
   final def submit: Action[AnyContent] =
-    actionReadWriteClaim(implicit request =>
-      claim =>
-        Forms.mrnContactDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              Future.successful(
-                (
-                  claim,
-                  BadRequest(
-                    enterOrChangeContactDetailsPage(
-                      formWithErrors,
-                      postAction
-                    )
+    actionReadWriteClaim(claim =>
+      Forms.mrnContactDetailsForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              (
+                claim,
+                BadRequest(
+                  enterOrChangeContactDetailsPage(
+                    formWithErrors,
+                    postAction
                   )
                 )
-              ),
-            contactDetails => {
-              val previousDetails =
-                claim.answers.contactDetails
-              val updatedClaim    = modifyClaim(
-                claim,
-                Some(
-                  contactDetails
-                    .computeChanges(previousDetails)
-                )
               )
-              Future.successful((updatedClaim, Redirect(continueRoute)))
-            }
-          )
+            ),
+          contactDetails => {
+            val previousDetails =
+              claim.answers.contactDetails
+            val updatedClaim    = modifyClaim(
+              claim,
+              Some(
+                contactDetails
+                  .computeChanges(previousDetails)
+              )
+            )
+            Future.successful((updatedClaim, Redirect(continueRoute)))
+          }
+        )
     )
 }

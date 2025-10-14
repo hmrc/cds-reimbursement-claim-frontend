@@ -54,27 +54,26 @@ trait AddressLookupMixin extends ClaimBaseController {
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
     actionReadWriteClaim(
-      implicit request =>
-        claim =>
-          maybeID
-            .map(addressLookupService.retrieveUserAddress)
-            .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
-            .fold(
-              error => {
-                logger warn s"Error retrieving lookup address: $error"
-                (
-                  claim,
-                  if error.message.contains("/address/postcode: error.path.missing") || error.message
-                      .contains("/address/lines: error.minLength")
-                  then Redirect(problemWithAddressPage)
-                  else Redirect(baseRoutes.IneligibleController.ineligible)
-                )
-              },
-              contactAddress =>
-                redirectToTheNextPage(
-                  modifyClaim(claim, contactAddress.removeRedundantInformation().overflowExcessCharacters())
-                )
-            ),
+      claim =>
+        maybeID
+          .map(addressLookupService.retrieveUserAddress)
+          .getOrElse(EitherT.leftT[Future, ContactAddress](Error("The address lookup ID is missing")))
+          .fold(
+            error => {
+              logger warn s"Error retrieving lookup address: $error"
+              (
+                claim,
+                if error.message.contains("/address/postcode: error.path.missing") || error.message
+                    .contains("/address/lines: error.minLength")
+                then Redirect(problemWithAddressPage)
+                else Redirect(baseRoutes.IneligibleController.ineligible)
+              )
+            },
+            contactAddress =>
+              redirectToTheNextPage(
+                modifyClaim(claim, contactAddress.removeRedundantInformation().overflowExcessCharacters())
+              )
+          ),
       fastForwardToCYAEnabled = false
     )
 

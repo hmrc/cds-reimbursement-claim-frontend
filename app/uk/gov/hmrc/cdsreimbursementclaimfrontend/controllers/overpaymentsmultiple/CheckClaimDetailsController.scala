@@ -48,7 +48,7 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  final val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     (
       claim.withDutiesChangeMode(false),
       if !claim.hasCompleteMovementReferenceNumbers then Redirect(enterMrnAction)

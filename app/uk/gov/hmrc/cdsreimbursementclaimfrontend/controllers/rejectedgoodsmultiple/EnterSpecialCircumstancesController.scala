@@ -52,7 +52,7 @@ class EnterSpecialCircumstancesController @Inject() (
     Ok(enterSpecialCircumstancesPage(form, postAction))
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterSpecialCircumstancesForm
       .bindFromRequest()
       .fold(

@@ -58,43 +58,42 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        claim.getDocumentTypesIfRequired match {
-          case None =>
-            (claim, Redirect(uploadFilesRoute))
+    claim =>
+      claim.getDocumentTypesIfRequired match {
+        case None =>
+          (claim, Redirect(uploadFilesRoute))
 
-          case Some(availableDocumentTypes) =>
-            val form: Form[Option[UploadDocumentType]] =
-              Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
+        case Some(availableDocumentTypes) =>
+          val form: Form[Option[UploadDocumentType]] =
+            Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
 
-            form
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    claim,
-                    BadRequest(
-                      viewTemplate(
-                        formWithErrors,
-                        availableDocumentTypes,
-                        claim.answers.supportingEvidences.nonEmpty
-                      )
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  claim,
+                  BadRequest(
+                    viewTemplate(
+                      formWithErrors,
+                      availableDocumentTypes,
+                      claim.answers.supportingEvidences.nonEmpty
                     )
-                  ),
-                {
-                  case None =>
-                    (claim, Redirect(checkYourAnswers))
+                  )
+                ),
+              {
+                case None =>
+                  (claim, Redirect(checkYourAnswers))
 
-                  case Some(documentType) =>
-                    modifyClaim(claim, documentType)
-                      .fold(
-                        error => (claim, logAndDisplayError("Unexpected", error)),
-                        upddatedClaim => (upddatedClaim, Redirect(uploadFilesRoute))
-                      )
-                }
-              )
-        },
+                case Some(documentType) =>
+                  modifyClaim(claim, documentType)
+                    .fold(
+                      error => (claim, logAndDisplayError("Unexpected", error)),
+                      upddatedClaim => (upddatedClaim, Redirect(uploadFilesRoute))
+                    )
+              }
+            )
+      },
     fastForwardToCYAEnabled = false
   )
 

@@ -47,7 +47,7 @@ trait ChoosePayeeTypeMixin extends ClaimBaseController {
       )
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       if claim.needsPayeeTypeSelection
       then {
         val form: Form[PayeeType] =
@@ -59,7 +59,7 @@ trait ChoosePayeeTypeMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       payeeTypeForm
         .bindFromRequest()
         .fold(

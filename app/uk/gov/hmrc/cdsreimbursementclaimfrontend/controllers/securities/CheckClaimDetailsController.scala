@@ -47,7 +47,7 @@ class CheckClaimDetailsController @Inject() (
     )
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       checkIfAllReclaimsProvided(claim) {
         claim.getLeadDisplayDeclaration
           .fold((claim, Redirect(routes.EnterMovementReferenceNumberController.show))) { displayDeclaration =>
@@ -64,7 +64,7 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { _ => claim =>
+    actionReadWriteClaim { claim =>
       checkIfAllReclaimsProvided(claim) {
         (claim, decideNextPage(claim))
       }

@@ -42,7 +42,7 @@ trait CheckBankDetailsMixin extends ClaimBaseController {
     YesOrNoQuestionForm("bank-details")
 
   final val showWarning: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       claim.answers.bankAccountDetails
         .map { (bankAccountDetails: BankAccountDetails) =>
           modifyClaim(claim, bankAccountDetails)

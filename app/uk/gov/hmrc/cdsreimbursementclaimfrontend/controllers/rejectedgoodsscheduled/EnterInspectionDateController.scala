@@ -47,7 +47,7 @@ class EnterInspectionDateController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterInspectionDateForm
       .bindFromRequest()
       .fold(

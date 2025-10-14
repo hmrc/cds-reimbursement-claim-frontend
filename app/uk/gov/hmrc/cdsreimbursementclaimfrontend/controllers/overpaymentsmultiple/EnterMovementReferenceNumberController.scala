@@ -70,7 +70,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
   }
 
-  final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
     if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
       (
         claim,

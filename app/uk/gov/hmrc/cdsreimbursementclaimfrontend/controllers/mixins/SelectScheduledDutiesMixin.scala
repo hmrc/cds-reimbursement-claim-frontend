@@ -76,7 +76,7 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
     }
   }
 
-  final def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routesPack.submitDutyType(currentDuty)
     if claim.isDutyTypeSelected then {
       Future.successful(
@@ -122,7 +122,7 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
 
   }
 
-  final def submitExciseCategories: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def submitExciseCategories: Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routesPack.submitExciseCategories
     if claim.isDutyTypeSelected then {
       Future.successful(
@@ -180,8 +180,8 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
       }
     }
 
-  final def submitExciseDuties(exciseCategory: ExciseCategory): Action[AnyContent] = actionReadWriteClaim {
-    implicit request => claim =>
+  final def submitExciseDuties(exciseCategory: ExciseCategory): Action[AnyContent] =
+    actionReadWriteClaim { claim =>
       val postAction: Call = routesPack.submitExciseDuties(exciseCategory)
       if claim.isDutyTypeSelected then {
         Future.successful(
@@ -221,6 +221,6 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
         (claim, Redirect(routesPack.showSelectDutyTypes))
       }
 
-  }
+    }
 
 }

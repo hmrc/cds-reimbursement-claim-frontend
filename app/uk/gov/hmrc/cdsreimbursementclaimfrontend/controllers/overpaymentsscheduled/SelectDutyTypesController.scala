@@ -44,13 +44,13 @@ class SelectDutyTypesController @Inject() (
   final override val actionPrecondition: Option[Validate[OverpaymentsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     val form = selectDutyTypesForm.withDefault(claim.getSelectedDutyTypes.map(_.toList))
     (claim, Ok(selectDutyTypesPage(form, postAction)))
 
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     selectDutyTypesForm
       .bindFromRequest()
       .fold(

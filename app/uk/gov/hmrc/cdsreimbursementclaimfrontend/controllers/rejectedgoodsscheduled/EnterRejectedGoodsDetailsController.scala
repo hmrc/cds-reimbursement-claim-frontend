@@ -53,7 +53,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => (claim: RejectedGoodsScheduledClaim) =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { (claim: RejectedGoodsScheduledClaim) =>
     enterRejectedGoodsDetailsForm
       .bindFromRequest()
       .fold(

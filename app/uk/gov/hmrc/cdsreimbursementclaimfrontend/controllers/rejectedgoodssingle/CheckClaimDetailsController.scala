@@ -45,7 +45,7 @@ class CheckClaimDetailsController @Inject() (
   final val enterClaimAction: TaxCode => Call = routes.EnterClaimController.show
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       (
         claim.withDutiesChangeMode(false),
         if claim.hasCompleteReimbursementClaims
@@ -64,7 +64,7 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val redirectToSelectDuties: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       (
         claim.withDutiesChangeMode(true),
         Redirect(routes.SelectDutiesController.show)
@@ -72,7 +72,7 @@ class CheckClaimDetailsController @Inject() (
     }
 
   final val continue: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       (
         claim.withDutiesChangeMode(false),
         Redirect(

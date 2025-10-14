@@ -64,7 +64,7 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       basisOfOverpaymentClaimForm
         .bindFromRequest()
         .fold(
