@@ -55,7 +55,7 @@ class CheckYourAnswersController @Inject() (
   private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 
   val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput
@@ -84,7 +84,7 @@ class CheckYourAnswersController @Inject() (
     }
 
   val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       claim
         .submitCheckYourAnswersChangeMode(true)
         .toOutput

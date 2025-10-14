@@ -57,7 +57,7 @@ class CheckClaimDetailsController @Inject() (
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       val answers                        = sortReimbursementsByDisplayDuty(claim.getReimbursements)
       val reimbursementTotal: BigDecimal = claim.getTotalReimbursementAmount
       (
@@ -82,12 +82,11 @@ class CheckClaimDetailsController @Inject() (
       )
     }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim(implicit request =>
-    claim =>
-      (
-        claim.withDutiesChangeMode(false),
-        Redirect(routes.ChoosePayeeTypeController.show)
-      )
+  val submit: Action[AnyContent] = actionReadWriteClaim(claim =>
+    (
+      claim.withDutiesChangeMode(false),
+      Redirect(routes.ChoosePayeeTypeController.show)
+    )
   )
 
 }

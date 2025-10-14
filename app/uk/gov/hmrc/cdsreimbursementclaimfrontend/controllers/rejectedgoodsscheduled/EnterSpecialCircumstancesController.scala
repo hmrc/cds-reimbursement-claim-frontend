@@ -48,7 +48,7 @@ class EnterSpecialCircumstancesController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterSpecialCircumstancesPage(
         enterSpecialCircumstancesForm.withDefault(claim.answers.basisOfClaimSpecialCircumstances),
@@ -57,7 +57,7 @@ class EnterSpecialCircumstancesController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterSpecialCircumstancesForm
       .bindFromRequest()
       .fold(

@@ -57,12 +57,14 @@ class ConfirmFullRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  val showFirst: Action[AnyContent]                                                                       = actionReadClaim { _ => claim =>
-    claim.getSelectedDepositIds.headOption
-      .fold(
-        Redirect(routes.CheckDeclarationDetailsController.show)
-      )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
-  }
+  val showFirst: Action[AnyContent] =
+    actionReadClaim { claim =>
+      claim.getSelectedDepositIds.headOption
+        .fold(
+          Redirect(routes.CheckDeclarationDetailsController.show)
+        )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
+    }
+
   private def getPageModel(displayDeclaration: DisplayDeclaration, id: String): ConfirmFullRepaymentModel =
     ConfirmFullRepaymentModel(
       mrn = displayDeclaration.getMRN.value,
@@ -70,7 +72,7 @@ class ConfirmFullRepaymentController @Inject() (
       depositValue = displayDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
     )
 
-  def show(id: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def show(id: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     claim
       .getDisplayDeclarationIfValidSecurityDepositId(id)
       .map(getPageModel(_, id))
@@ -90,40 +92,39 @@ class ConfirmFullRepaymentController @Inject() (
   }
 
   def submit(id: String): Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                claim
-                  .getDisplayDeclarationIfValidSecurityDepositId(id)
-                  .map(getPageModel(_, id))
-                  .map { case model =>
-                    BadRequest(
-                      confirmFullRepaymentPage(
-                        formWithErrors,
-                        model,
-                        routes.ConfirmFullRepaymentController.submit(id)
-                      )
+    claim =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              claim
+                .getDisplayDeclarationIfValidSecurityDepositId(id)
+                .map(getPageModel(_, id))
+                .map { case model =>
+                  BadRequest(
+                    confirmFullRepaymentPage(
+                      formWithErrors,
+                      model,
+                      routes.ConfirmFullRepaymentController.submit(id)
                     )
-                  }
-                  .getOrElse(errorHandler.errorResult())
-              ),
-            answer =>
-              if claim.getClaimFullAmountStatus(id).contains(answer) &&
-                claim.userHasSeenCYAPage
-              then (claim, Redirect(checkYourAnswers))
-              else
-                answer match {
-                  case Yes =>
-                    submitYes(id, claim)
-                  case No  =>
-                    submitNo(id, claim)
+                  )
                 }
-          ),
+                .getOrElse(errorHandler.errorResult())
+            ),
+          answer =>
+            if claim.getClaimFullAmountStatus(id).contains(answer) &&
+              claim.userHasSeenCYAPage
+            then (claim, Redirect(checkYourAnswers))
+            else
+              answer match {
+                case Yes =>
+                  submitYes(id, claim)
+                case No  =>
+                  submitNo(id, claim)
+              }
+        ),
     fastForwardToCYAEnabled = false
   )
 

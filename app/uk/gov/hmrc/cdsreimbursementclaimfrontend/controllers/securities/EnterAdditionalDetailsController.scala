@@ -54,7 +54,7 @@ class EnterAdditionalDetailsController @Inject() (
     else routes.EnterContactDetailsController.show
 
   final val show: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       val form: Form[String] =
         Forms.enterAdditionalDetailsSecuritiesForm.withDefault(claim.answers.additionalDetails)
 
@@ -72,7 +72,7 @@ class EnterAdditionalDetailsController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       Forms.enterAdditionalDetailsSecuritiesForm
         .bindFromRequest()
         .fold(

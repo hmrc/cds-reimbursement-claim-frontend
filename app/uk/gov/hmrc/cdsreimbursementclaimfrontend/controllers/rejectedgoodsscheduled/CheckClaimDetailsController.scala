@@ -54,7 +54,7 @@ class CheckClaimDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     val answers            = sortReimbursementsByDisplayDuty(claim.getReimbursements)
     val reimbursementTotal = claim.getTotalReimbursementAmount
     (
@@ -79,12 +79,11 @@ class CheckClaimDetailsController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim(implicit request =>
-    claim =>
-      (
-        claim.withDutiesChangeMode(false),
-        Redirect(routes.EnterInspectionDateController.show)
-      )
+  val submit: Action[AnyContent] = actionReadWriteClaim(claim =>
+    (
+      claim.withDutiesChangeMode(false),
+      Redirect(routes.EnterInspectionDateController.show)
+    )
   )
 
 }

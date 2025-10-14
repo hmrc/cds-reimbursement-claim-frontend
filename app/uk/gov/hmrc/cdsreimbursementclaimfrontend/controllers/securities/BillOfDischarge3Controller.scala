@@ -45,7 +45,7 @@ class BillOfDischarge3Controller @Inject() (
         & reasonForSecurityIsIPR
     )
 
-  val invalid: Action[AnyContent] = actionReadClaim { implicit request => _ =>
+  val invalid: Action[AnyContent] = actionReadClaim { _ =>
     Ok(invalidBillOfDischarge(BOD3))
   }
 }

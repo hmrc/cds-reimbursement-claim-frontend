@@ -35,7 +35,7 @@ trait ChooseBankAccountTypeMixin extends ClaimBaseController {
 
   def modifyClaim(claim: Claim, bankAccountType: BankAccountType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       chooseBankAccountTypePage(
         bankAccountTypeForm.withDefault(claim.answers.bankAccountType),
@@ -46,26 +46,25 @@ trait ChooseBankAccountTypeMixin extends ClaimBaseController {
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        bankAccountTypeForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(claim), postAction))
-              ),
-            bankAccountType =>
-              modifyClaim(claim, bankAccountType)
-                .fold(
-                  e => {
-                    logger.warn(e)
-                    (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-                  },
-                  updatedClaim => (updatedClaim, Redirect(enterBankAccountDetailsRoute))
-                )
-          ),
+    claim =>
+      bankAccountTypeForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(chooseBankAccountTypePage(formWithErrors, isCMA(claim), postAction))
+            ),
+          bankAccountType =>
+            modifyClaim(claim, bankAccountType)
+              .fold(
+                e => {
+                  logger.warn(e)
+                  (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+                },
+                updatedClaim => (updatedClaim, Redirect(enterBankAccountDetailsRoute))
+              )
+        ),
     fastForwardToCYAEnabled = false
   )
 }

@@ -59,28 +59,26 @@ class EnterMovementReferenceNumberController @Inject() (
   override def getMovementReferenceNumber(claim: Claim): Option[MRN] =
     claim.getLeadMovementReferenceNumber
 
-  override def viewTemplate: Form[MRN] => Request[?] => HtmlFormat.Appendable =
+  override def viewTemplate: Form[MRN] => Request[?] ?=> HtmlFormat.Appendable =
     form =>
-      implicit request =>
-        enterMovementReferenceNumberPage(
-          form,
-          "single",
-          None,
-          routes.EnterMovementReferenceNumberController.submit
-        )
+      enterMovementReferenceNumberPage(
+        form,
+        "single",
+        None,
+        routes.EnterMovementReferenceNumberController.submit
+      )
 
-  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] => HtmlFormat.Appendable =
+  override def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable =
     (mrn, isOnlySubsidies) =>
-      implicit request =>
-        subsidyWaiverPage(
-          "C285",
-          "single",
-          if isOnlySubsidies then "full" else "part",
-          mrn,
-          routes.EnterMovementReferenceNumberController.submitWithoutSubsidies,
-          viewConfig.legacyC285FormUrl,
-          routes.EnterMovementReferenceNumberController.show
-        )
+      subsidyWaiverPage(
+        "C285",
+        "single",
+        if isOnlySubsidies then "full" else "part",
+        mrn,
+        routes.EnterMovementReferenceNumberController.submitWithoutSubsidies,
+        viewConfig.legacyC285FormUrl,
+        routes.EnterMovementReferenceNumberController.show
+      )
 
   override def modifyClaim(claim: Claim, mrn: MRN, declaration: DisplayDeclaration): Either[String, Claim] =
     claim.submitMovementReferenceNumberAndDeclaration(mrn, declaration)

@@ -56,7 +56,7 @@ class ConfirmSingleDepositRepaymentController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadWriteClaim { claim =>
     claim.getSecurityDetails.headOption
       .fold((claim, errorHandler.errorResult())) { case securityDetail =>
         (
@@ -74,43 +74,42 @@ class ConfirmSingleDepositRepaymentController @Inject() (
   }
 
   def submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                claim.getSecurityDetails.headOption
-                  .map { case securityDetail =>
-                    BadRequest(
-                      confirmFullRepaymentPageForSingleDepositId(
-                        formWithErrors,
-                        securityDetail,
-                        routes.ConfirmSingleDepositRepaymentController.submit
-                      )
-                    )
-                  }
-                  .getOrElse(errorHandler.errorResult())
-              ),
-            answer =>
+    claim =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
               claim.getSecurityDetails.headOption
                 .map { case securityDetail =>
-                  if claim.getClaimFullAmountStatus(securityDetail.securityDepositId).contains(answer) &&
-                    claim.userHasSeenCYAPage
-                  then (claim, Redirect(checkYourAnswers))
-                  else
-                    answer match {
-                      case Yes =>
-                        submitYes(securityDetail.securityDepositId, claim)
-                      case No  =>
-                        submitNo(securityDetail.securityDepositId, claim)
-                    }
-
+                  BadRequest(
+                    confirmFullRepaymentPageForSingleDepositId(
+                      formWithErrors,
+                      securityDetail,
+                      routes.ConfirmSingleDepositRepaymentController.submit
+                    )
+                  )
                 }
-                .getOrElse(Future.successful((claim, errorHandler.errorResult())))
-          ),
+                .getOrElse(errorHandler.errorResult())
+            ),
+          answer =>
+            claim.getSecurityDetails.headOption
+              .map { case securityDetail =>
+                if claim.getClaimFullAmountStatus(securityDetail.securityDepositId).contains(answer) &&
+                  claim.userHasSeenCYAPage
+                then (claim, Redirect(checkYourAnswers))
+                else
+                  answer match {
+                    case Yes =>
+                      submitYes(securityDetail.securityDepositId, claim)
+                    case No  =>
+                      submitNo(securityDetail.securityDepositId, claim)
+                  }
+
+              }
+              .getOrElse(Future.successful((claim, errorHandler.errorResult())))
+        ),
     fastForwardToCYAEnabled = false
   )
 

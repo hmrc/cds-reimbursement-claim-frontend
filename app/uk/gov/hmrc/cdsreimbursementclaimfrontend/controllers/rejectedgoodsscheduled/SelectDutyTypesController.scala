@@ -44,7 +44,7 @@ class SelectDutyTypesController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => _ =>
+  val show: Action[AnyContent] = actionReadClaim { _ =>
     val form = selectDutyTypesForm
 
     Ok(selectDutyTypesPage(form, postAction))
@@ -52,41 +52,40 @@ class SelectDutyTypesController @Inject() (
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        selectDutyTypesForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(
-                  selectDutyTypesPage(
-                    formWithErrors,
-                    postAction
-                  )
+    claim =>
+      selectDutyTypesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                selectDutyTypesPage(
+                  formWithErrors,
+                  postAction
                 )
-              ),
-            dutyTypes =>
-              claim
-                .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating duty types selection - $errors")
-                    (claim, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
-                  },
-                  updatedClaim =>
-                    (
-                      updatedClaim,
-                      Redirect(
-                        if updatedClaim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
-                        else
-                          routes.SelectDutiesController
-                            .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
-                      )
+              )
+            ),
+          dutyTypes =>
+            claim
+              .selectAndReplaceDutyTypeSetForReimbursement(dutyTypes)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating duty types selection - $errors")
+                  (claim, BadRequest(selectDutyTypesPage(selectDutyTypesForm, postAction)))
+                },
+                updatedClaim =>
+                  (
+                    updatedClaim,
+                    Redirect(
+                      if updatedClaim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+                      else
+                        routes.SelectDutiesController
+                          .show(dutyTypes.headOption.getOrElse(throw new Exception("Unexpected empty duty types")))
                     )
-                )
-          ),
+                  )
+              )
+        ),
     fastForwardToCYAEnabled = false
   )
 }

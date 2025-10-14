@@ -67,7 +67,7 @@ class EnterClaimController @Inject() (
   )
 
   final def show(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
         identity,
         { case (correctAmountOpt, paidAmount) =>
@@ -91,55 +91,54 @@ class EnterClaimController @Inject() (
 
   final def submit(securityDepositId: String, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteClaim(
-      implicit request =>
-        claim =>
-          validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
-            result => (claim, result),
-            { case (_, totalAmount) =>
-              val form = Forms.claimAmountForm(key, totalAmount)
-              form
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      claim,
-                      BadRequest(
-                        enterClaimPage(
-                          formWithErrors,
-                          securityDepositId,
-                          claim.isSingleSecurity,
-                          taxCode,
-                          totalAmount,
-                          routes.EnterClaimController.submit(securityDepositId, taxCode)
-                        )
+      claim =>
+        validateDepositIdAndTaxCode(claim, securityDepositId, taxCode).fold(
+          result => (claim, result),
+          { case (_, totalAmount) =>
+            val form = Forms.claimAmountForm(key, totalAmount)
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  (
+                    claim,
+                    BadRequest(
+                      enterClaimPage(
+                        formWithErrors,
+                        securityDepositId,
+                        claim.isSingleSecurity,
+                        taxCode,
+                        totalAmount,
+                        routes.EnterClaimController.submit(securityDepositId, taxCode)
                       )
-                    ),
-                  claimAmount => {
-                    val amountHasChanged: Boolean =
-                      !claim
-                        .getClaimAmountFor(securityDepositId, taxCode)
-                        .exists(_ === claimAmount)
-                    if amountHasChanged then
-                      claim
-                        .submitClaimAmount(securityDepositId, taxCode, claimAmount)
-                        .fold(
-                          error =>
-                            (
-                              claim,
-                              Redirect(routeForValidationError(error))
-                            ),
-                          updatedClaim =>
-                            (
-                              updatedClaim,
-                              Redirect(nextPage(updatedClaim, securityDepositId, taxCode, amountHasChanged = true))
-                            )
-                        )
-                    else (claim, Redirect(nextPage(claim, securityDepositId, taxCode, amountHasChanged = false)))
+                    )
+                  ),
+                claimAmount => {
+                  val amountHasChanged: Boolean =
+                    !claim
+                      .getClaimAmountFor(securityDepositId, taxCode)
+                      .exists(_ === claimAmount)
+                  if amountHasChanged then
+                    claim
+                      .submitClaimAmount(securityDepositId, taxCode, claimAmount)
+                      .fold(
+                        error =>
+                          (
+                            claim,
+                            Redirect(routeForValidationError(error))
+                          ),
+                        updatedClaim =>
+                          (
+                            updatedClaim,
+                            Redirect(nextPage(updatedClaim, securityDepositId, taxCode, amountHasChanged = true))
+                          )
+                      )
+                  else (claim, Redirect(nextPage(claim, securityDepositId, taxCode, amountHasChanged = false)))
 
-                  }
-                )
-            }
-          ),
+                }
+              )
+          }
+        ),
       fastForwardToCYAEnabled = false
     )
 

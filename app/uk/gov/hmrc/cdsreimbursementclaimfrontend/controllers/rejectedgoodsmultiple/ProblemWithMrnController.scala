@@ -38,7 +38,7 @@ class ProblemWithMrnController @Inject() (
   final val enterMRNCall: Int => Call = routes.EnterMovementReferenceNumberController.show
 
   final def show(pageIndex: Int, mrn: MRN): Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       (claim, Ok(problemWithMRNPage(mrn, enterMRNCall(pageIndex))))
     }
 }

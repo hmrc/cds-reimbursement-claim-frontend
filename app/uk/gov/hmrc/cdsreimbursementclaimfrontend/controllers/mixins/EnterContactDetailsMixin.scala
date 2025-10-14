@@ -37,7 +37,7 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
   def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 
   final def show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Future.successful(
         Ok(
           enterOrChangeContactDetailsPage(
@@ -49,35 +49,34 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
     }
 
   final def submit: Action[AnyContent] =
-    actionReadWriteClaim(implicit request =>
-      claim =>
-        Forms.mrnContactDetailsForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              Future.successful(
-                (
-                  claim,
-                  BadRequest(
-                    enterOrChangeContactDetailsPage(
-                      formWithErrors,
-                      postAction
-                    )
+    actionReadWriteClaim(claim =>
+      Forms.mrnContactDetailsForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              (
+                claim,
+                BadRequest(
+                  enterOrChangeContactDetailsPage(
+                    formWithErrors,
+                    postAction
                   )
                 )
-              ),
-            contactDetails => {
-              val previousDetails =
-                claim.answers.contactDetails
-              val updatedClaim    = modifyClaim(
-                claim,
-                Some(
-                  contactDetails
-                    .computeChanges(previousDetails)
-                )
               )
-              Future.successful((updatedClaim, Redirect(continueRoute)))
-            }
-          )
+            ),
+          contactDetails => {
+            val previousDetails =
+              claim.answers.contactDetails
+            val updatedClaim    = modifyClaim(
+              claim,
+              Some(
+                contactDetails
+                  .computeChanges(previousDetails)
+              )
+            )
+            Future.successful((updatedClaim, Redirect(continueRoute)))
+          }
+        )
     )
 }

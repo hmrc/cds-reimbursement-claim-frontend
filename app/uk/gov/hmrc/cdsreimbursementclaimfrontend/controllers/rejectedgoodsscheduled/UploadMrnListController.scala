@@ -50,7 +50,7 @@ class UploadMrnListController @Inject() (
   final val callbackAction: Call = routes.UploadMrnListController.submit
   final val selfUrl: String      = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     val continueUrl: Call =
       if claim.hasCompleteAnswers then checkYourAnswers
       else routes.BasisForClaimController.show

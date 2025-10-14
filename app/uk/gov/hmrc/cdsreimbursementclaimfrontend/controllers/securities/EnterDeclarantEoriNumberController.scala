@@ -75,14 +75,14 @@ class EnterDeclarantEoriNumberController @Inject() (
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(hasMRNAndDisplayDeclarationAndRfS)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     if !claim.needsDeclarantAndConsigneeEoriSubmission then nextPage(claim)
     else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
       Redirect(routes.EnterImporterEoriNumberController.show)
     else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     if !claim.needsDeclarantAndConsigneeEoriSubmission then (claim, nextPage(claim))
     else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
       (claim, Redirect(routes.EnterImporterEoriNumberController.show))

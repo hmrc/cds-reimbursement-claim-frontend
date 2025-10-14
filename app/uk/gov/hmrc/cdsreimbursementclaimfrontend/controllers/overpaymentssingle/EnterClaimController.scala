@@ -71,7 +71,7 @@ class EnterClaimController @Inject() (
     )
 
   final def show(taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim.getSelectedDuties match {
         case None =>
           Redirect(routes.SelectDutiesController.show)
@@ -108,63 +108,62 @@ class EnterClaimController @Inject() (
 
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteClaim(
-      implicit request =>
-        claim =>
-          claim.getSelectedDuties match {
-            case None =>
-              (claim, Redirect(routes.SelectDutiesController.show))
+      claim =>
+        claim.getSelectedDuties match {
+          case None =>
+            (claim, Redirect(routes.SelectDutiesController.show))
 
-            case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
-              claim.getNdrcDetailsFor(taxCode) match {
-                case Some(ndrcDetails) =>
-                  val maybeMRN = claim.getLeadMovementReferenceNumber.map(_.value)
-                  Forms
-                    .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
-                    .bindFromRequest()
-                    .fold(
-                      formWithErrors =>
-                        Future.successful(
-                          (
-                            claim,
-                            BadRequest(
-                              enterClaim(
-                                formWithErrors,
-                                maybeMRN,
-                                TaxCode(ndrcDetails.taxType),
-                                BigDecimal(ndrcDetails.amount),
-                                postAction(taxCode)
-                              )
+          case Some(selectedDuties) if selectedDuties.contains(taxCode) =>
+            claim.getNdrcDetailsFor(taxCode) match {
+              case Some(ndrcDetails) =>
+                val maybeMRN = claim.getLeadMovementReferenceNumber.map(_.value)
+                Forms
+                  .claimAmountForm(key, BigDecimal(ndrcDetails.amount))
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      Future.successful(
+                        (
+                          claim,
+                          BadRequest(
+                            enterClaim(
+                              formWithErrors,
+                              maybeMRN,
+                              TaxCode(ndrcDetails.taxType),
+                              BigDecimal(ndrcDetails.amount),
+                              postAction(taxCode)
                             )
                           )
-                        ),
-                      claimAmount =>
-                        claim
-                          .getNdrcDetailsFor(taxCode) match {
-                          case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
-                          case Some(_) =>
-                            claim
-                              .submitClaimAmount(taxCode, claimAmount)
-                              .fold(
-                                error =>
-                                  Future
-                                    .failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
-                                updatedClaim =>
-                                  (
-                                    updatedClaim,
-                                    redirectToNextPage(updatedClaim, taxCode)
-                                  )
-                              )
-                        }
-                    )
+                        )
+                      ),
+                    claimAmount =>
+                      claim
+                        .getNdrcDetailsFor(taxCode) match {
+                        case None    => Future.failed(new Exception(s"Cannot find ndrc details for $taxCode"))
+                        case Some(_) =>
+                          claim
+                            .submitClaimAmount(taxCode, claimAmount)
+                            .fold(
+                              error =>
+                                Future
+                                  .failed(new Exception(s"Cannot submit amount for $taxCode reimbursement - $error")),
+                              updatedClaim =>
+                                (
+                                  updatedClaim,
+                                  redirectToNextPage(updatedClaim, taxCode)
+                                )
+                            )
+                      }
+                  )
 
-                case None =>
-                  logger.error("Attempting to claim a reimbursement before selecting an MRN")
-                  Future.successful((claim, Redirect(routes.EnterMovementReferenceNumberController.show)))
-              }
+              case None =>
+                logger.error("Attempting to claim a reimbursement before selecting an MRN")
+                Future.successful((claim, Redirect(routes.EnterMovementReferenceNumberController.show)))
+            }
 
-            case _ =>
-              (claim, redirectWhenInvalidTaxCode(claim))
-          },
+          case _ =>
+            (claim, redirectWhenInvalidTaxCode(claim))
+        },
       fastForwardToCYAEnabled = false
     )
 

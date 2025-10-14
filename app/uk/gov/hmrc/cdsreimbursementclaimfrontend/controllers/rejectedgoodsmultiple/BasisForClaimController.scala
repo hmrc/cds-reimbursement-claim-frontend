@@ -46,7 +46,7 @@ class BasisForClaimController @Inject() (
 
   val formKey: String = "select-basis-for-claim.rejected-goods"
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     val form: Form[BasisOfRejectedGoodsClaim] =
       basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
     Ok(
@@ -58,7 +58,7 @@ class BasisForClaimController @Inject() (
     )
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(

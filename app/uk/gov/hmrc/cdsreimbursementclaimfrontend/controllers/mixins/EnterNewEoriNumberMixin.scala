@@ -52,7 +52,7 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
     case importEori if (importEori.isXiEori | importEori.isEuEori) && newEori.isGBEori => Some("mustNotStartWithGB")
     case _                                                                             => None
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful {
       Ok(
         newEoriPage(
@@ -65,7 +65,7 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
   }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       eoriNumberForm(formKey)
         .bindFromRequest()
         .fold(

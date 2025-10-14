@@ -36,7 +36,7 @@ class InvalidReasonForSecurityController @Inject() (
 
   val enterMRN: Call = routes.EnterMovementReferenceNumberController.show
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(invalidReasonForSecurity(enterMRN, claim.getLeadMovementReferenceNumber))
   }
 }

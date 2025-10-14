@@ -38,7 +38,7 @@ class EnterMovementReferenceNumberController @Inject() (
     Action(Redirect(routes.EnterMovementReferenceNumberController.show))
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Ok(
         enterMovementReferenceNumberPage(
           movementReferenceNumberForm.withDefault(claim.answers.movementReferenceNumber),
@@ -48,7 +48,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       movementReferenceNumberForm
         .bindFromRequest()
         .fold(

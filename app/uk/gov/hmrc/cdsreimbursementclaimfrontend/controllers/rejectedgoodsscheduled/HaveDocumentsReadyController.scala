@@ -34,7 +34,7 @@ class HaveDocumentsReadyController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController {
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => _ =>
+    actionReadClaim { _ =>
       Ok(haveDocumentsReadyPage())
     }
 }

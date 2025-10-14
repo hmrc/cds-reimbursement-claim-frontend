@@ -47,7 +47,7 @@ class DisposalMethodController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterOrChangeMethodOfDisposal(
         Forms.methodOfDisposalForm.withDefault(claim.answers.methodOfDisposal),
@@ -57,7 +57,7 @@ class DisposalMethodController @Inject() (
   }
 
   val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       Forms.methodOfDisposalForm
         .bindFromRequest()
         .fold(

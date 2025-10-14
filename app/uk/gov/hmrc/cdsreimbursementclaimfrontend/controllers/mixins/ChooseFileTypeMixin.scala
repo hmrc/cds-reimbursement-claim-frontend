@@ -34,11 +34,11 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
   val uploadFilesRoute: Call
 
   def viewTemplate
-    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] => HtmlFormat.Appendable
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] ?=> HtmlFormat.Appendable
 
   def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim]
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getDocumentTypesIfRequired match {
       case None =>
         Redirect(uploadFilesRoute)
@@ -52,49 +52,48 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
             form,
             availableDocumentTypes,
             claim.answers.supportingEvidences.nonEmpty
-          )(request)
+          )
         )
     }
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        claim.getDocumentTypesIfRequired match {
-          case None =>
-            (claim, Redirect(uploadFilesRoute))
+    claim =>
+      claim.getDocumentTypesIfRequired match {
+        case None =>
+          (claim, Redirect(uploadFilesRoute))
 
-          case Some(availableDocumentTypes) =>
-            val form: Form[Option[UploadDocumentType]] =
-              Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
+        case Some(availableDocumentTypes) =>
+          val form: Form[Option[UploadDocumentType]] =
+            Forms.chooseFileTypeForm(availableDocumentTypes.toSet)
 
-            form
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  (
-                    claim,
-                    BadRequest(
-                      viewTemplate(
-                        formWithErrors,
-                        availableDocumentTypes,
-                        claim.answers.supportingEvidences.nonEmpty
-                      )(request)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  claim,
+                  BadRequest(
+                    viewTemplate(
+                      formWithErrors,
+                      availableDocumentTypes,
+                      claim.answers.supportingEvidences.nonEmpty
                     )
-                  ),
-                {
-                  case None =>
-                    (claim, Redirect(checkYourAnswers))
+                  )
+                ),
+              {
+                case None =>
+                  (claim, Redirect(checkYourAnswers))
 
-                  case Some(documentType) =>
-                    modifyClaim(claim, documentType)
-                      .fold(
-                        error => (claim, logAndDisplayError("Unexpected", error)),
-                        upddatedClaim => (upddatedClaim, Redirect(uploadFilesRoute))
-                      )
-                }
-              )
-        },
+                case Some(documentType) =>
+                  modifyClaim(claim, documentType)
+                    .fold(
+                      error => (claim, logAndDisplayError("Unexpected", error)),
+                      upddatedClaim => (upddatedClaim, Redirect(uploadFilesRoute))
+                    )
+              }
+            )
+      },
     fastForwardToCYAEnabled = false
   )
 

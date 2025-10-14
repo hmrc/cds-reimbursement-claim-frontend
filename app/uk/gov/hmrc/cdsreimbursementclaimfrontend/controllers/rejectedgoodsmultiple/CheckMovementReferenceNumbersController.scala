@@ -47,7 +47,7 @@ class CheckMovementReferenceNumbersController @Inject() (
   private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim.getMovementReferenceNumbers
         .map { mrns =>
           if claim.hasCompleteMovementReferenceNumbers then
@@ -69,7 +69,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
     }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { claim =>
     claim.getMovementReferenceNumbers
       .map { mrns =>
         checkMovementReferenceNumbersForm
@@ -108,17 +108,16 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   final def delete(mrn: MRN): Action[AnyContent] =
     actionReadWriteClaim(
-      _ =>
-        claim =>
-          claim
-            .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
-            .fold(
-              error => {
-                logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
-                (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-              },
-              updatedClaim => nextPageOnDelete(updatedClaim)
-            ),
+      claim =>
+        claim
+          .removeMovementReferenceNumberAndDisplayDeclaration(mrn)
+          .fold(
+            error => {
+              logger.warn(s"Error occurred trying to remove MRN $mrn - `$error`")
+              (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+            },
+            updatedClaim => nextPageOnDelete(updatedClaim)
+          ),
       fastForwardToCYAEnabled = false
     )
 

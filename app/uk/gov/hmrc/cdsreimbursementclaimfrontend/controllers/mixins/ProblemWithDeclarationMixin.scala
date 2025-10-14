@@ -48,7 +48,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
     }
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => implicit claim =>
+    actionReadClaim { implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
       claim.getLeadDisplayDeclaration match {
         case Some(declaration) if declaration.containsOnlyUnsupportedTaxCodes =>
@@ -76,7 +76,7 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => implicit claim =>
+    actionReadWriteClaim { implicit claim =>
       Forms.problemWithDeclarationForm
         .bindFromRequest()
         .fold(

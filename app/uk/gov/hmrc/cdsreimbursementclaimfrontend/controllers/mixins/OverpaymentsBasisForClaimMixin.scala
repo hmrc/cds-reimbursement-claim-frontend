@@ -44,7 +44,7 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
   val formKey: String = "select-basis-for-claim"
 
   final val show: Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       Future.successful {
         val form: Form[BasisOfOverpaymentClaim] =
           basisOfOverpaymentClaimForm.withDefault(claim.answers.basisOfClaim)
@@ -64,7 +64,7 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
     }
 
   final val submit: Action[AnyContent] =
-    actionReadWriteClaim { implicit request => claim =>
+    actionReadWriteClaim { claim =>
       basisOfOverpaymentClaimForm
         .bindFromRequest()
         .fold(

@@ -44,7 +44,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterRejectedGoodsDetailsPage(
         enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods),
@@ -53,7 +53,7 @@ class EnterRejectedGoodsDetailsController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => (claim: RejectedGoodsScheduledClaim) =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { (claim: RejectedGoodsScheduledClaim) =>
     enterRejectedGoodsDetailsForm
       .bindFromRequest()
       .fold(

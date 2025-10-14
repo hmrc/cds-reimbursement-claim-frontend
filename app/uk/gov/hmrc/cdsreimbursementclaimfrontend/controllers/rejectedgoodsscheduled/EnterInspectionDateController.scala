@@ -38,7 +38,7 @@ class EnterInspectionDateController @Inject() (
   val formKey: String          = "enter-inspection-date.rejected-goods"
   private val postAction: Call = routes.EnterInspectionDateController.submit
 
-  def show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterInspectionDatePage(
         enterInspectionDateForm.withDefault(claim.answers.inspectionDate),
@@ -47,7 +47,7 @@ class EnterInspectionDateController @Inject() (
     )
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterInspectionDateForm
       .bindFromRequest()
       .fold(

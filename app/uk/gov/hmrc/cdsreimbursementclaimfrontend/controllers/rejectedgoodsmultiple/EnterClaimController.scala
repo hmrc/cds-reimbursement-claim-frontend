@@ -71,7 +71,7 @@ class EnterClaimController @Inject() (
     }
 
   final def show(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    actionReadClaim { implicit request => claim =>
+    actionReadClaim { claim =>
       claim
         .getNthMovementReferenceNumber(pageIndex - 1)
         .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
@@ -106,50 +106,49 @@ class EnterClaimController @Inject() (
 
   final def submit(pageIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteClaim(
-      implicit request =>
-        claim =>
-          claim
-            .getNthMovementReferenceNumber(pageIndex - 1)
-            .fold((claim, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-              claim.getAmountPaidForIfSelected(mrn, taxCode) match {
-                case None =>
-                  // case when tax code not selectable nor selected
-                  (claim, Redirect(selectDutiesAction(pageIndex)))
+      claim =>
+        claim
+          .getNthMovementReferenceNumber(pageIndex - 1)
+          .fold((claim, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+            claim.getAmountPaidForIfSelected(mrn, taxCode) match {
+              case None =>
+                // case when tax code not selectable nor selected
+                (claim, Redirect(selectDutiesAction(pageIndex)))
 
-                case Some(amountPaid) =>
-                  Forms
-                    .claimAmountForm(key, amountPaid)
-                    .bindFromRequest()
-                    .fold(
-                      formWithErrors =>
-                        (
-                          claim,
-                          BadRequest(
-                            enterMultipleClaims(
-                              formWithErrors,
-                              pageIndex,
-                              mrn,
-                              taxCode,
-                              amountPaid,
-                              submitClaimAction(pageIndex, taxCode)
-                            )
+              case Some(amountPaid) =>
+                Forms
+                  .claimAmountForm(key, amountPaid)
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      (
+                        claim,
+                        BadRequest(
+                          enterMultipleClaims(
+                            formWithErrors,
+                            pageIndex,
+                            mrn,
+                            taxCode,
+                            amountPaid,
+                            submitClaimAction(pageIndex, taxCode)
                           )
-                        ),
-                      amount =>
-                        claim
-                          .submitClaimAmount(mrn, taxCode, amount)
-                          .fold(
-                            error => {
-                              logger.error(s"Error submitting reimbursement claim amount - $error")
-                              (claim, Redirect(enterClaimAction(pageIndex, taxCode)))
-                            },
-                            modifiedClaim =>
-                              (modifiedClaim, Redirect(decideNextRoute(modifiedClaim, pageIndex, mrn, taxCode)))
-                          )
-                    )
+                        )
+                      ),
+                    amount =>
+                      claim
+                        .submitClaimAmount(mrn, taxCode, amount)
+                        .fold(
+                          error => {
+                            logger.error(s"Error submitting reimbursement claim amount - $error")
+                            (claim, Redirect(enterClaimAction(pageIndex, taxCode)))
+                          },
+                          modifiedClaim =>
+                            (modifiedClaim, Redirect(decideNextRoute(modifiedClaim, pageIndex, mrn, taxCode)))
+                        )
+                  )
 
-              }
-            },
+            }
+          },
       fastForwardToCYAEnabled = false
     )
 

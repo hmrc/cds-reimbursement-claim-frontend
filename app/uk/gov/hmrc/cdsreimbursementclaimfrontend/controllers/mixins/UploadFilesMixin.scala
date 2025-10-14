@@ -55,7 +55,7 @@ trait UploadFilesMixin extends ClaimBaseController {
 
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
 
-  final val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.answers.selectedDocumentType match {
       case None =>
         Redirect(selectDocumentTypePageAction)
@@ -119,7 +119,7 @@ trait UploadFilesMixin extends ClaimBaseController {
       }
   )
 
-  final val summary: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final val summary: Action[AnyContent] = actionReadClaim { claim =>
     if claim.answers.supportingEvidences.isEmpty
     then Redirect(selectDocumentTypePageAction)
     else

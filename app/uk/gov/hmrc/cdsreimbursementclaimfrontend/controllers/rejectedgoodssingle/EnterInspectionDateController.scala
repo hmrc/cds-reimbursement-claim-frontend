@@ -46,14 +46,14 @@ class EnterInspectionDateController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful {
       val form = enterInspectionDateForm.withDefault(claim.answers.inspectionDate)
       Ok(enterInspectionDatePage(form, postAction))
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     Future.successful(
       enterInspectionDateForm
         .bindFromRequest()

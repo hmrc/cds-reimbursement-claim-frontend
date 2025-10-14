@@ -47,7 +47,7 @@ class SelectDutiesController @Inject() (
 
   val showFirst: Action[AnyContent] = show(1)
 
-  def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { claim =>
     claim
       .getNthMovementReferenceNumber(pageIndex - 1)
       .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
@@ -73,49 +73,48 @@ class SelectDutiesController @Inject() (
   }
 
   def submit(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        claim
-          .getNthMovementReferenceNumber(pageIndex - 1)
-          .fold((claim, BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties(mrn)
-            if availableDuties.isEmpty then {
-              logger.warn("No available duties")
-              (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-            } else {
-              val form = selectDutiesForm(availableDuties.map(_._1))
-              form
-                .bindFromRequest()
-                .fold(
-                  formWithErrors =>
-                    (
-                      claim,
-                      BadRequest(
-                        selectDutiesPage(
-                          form = formWithErrors,
-                          availableTaxCodes = availableDuties,
-                          indexAndMrnOpt = Some((pageIndex, mrn)),
-                          showCmaNotEligibleHint = false,
-                          subKey = Some("multiple"),
-                          postAction = routes.SelectDutiesController.submit(pageIndex)
-                        )
-                      )
-                    ),
-                  taxCodesSelected =>
-                    (
-                      claim
-                        .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodesSelected)
-                        .getOrElse(claim),
-                      Redirect(
-                        taxCodesSelected.headOption match {
-                          case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
-                          case None          => routes.SelectDutiesController.show(pageIndex)
-                        }
+    claim =>
+      claim
+        .getNthMovementReferenceNumber(pageIndex - 1)
+        .fold((claim, BadRequest(mrnDoesNotExistPage()))) { mrn =>
+          val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties(mrn)
+          if availableDuties.isEmpty then {
+            logger.warn("No available duties")
+            (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+          } else {
+            val form = selectDutiesForm(availableDuties.map(_._1))
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  (
+                    claim,
+                    BadRequest(
+                      selectDutiesPage(
+                        form = formWithErrors,
+                        availableTaxCodes = availableDuties,
+                        indexAndMrnOpt = Some((pageIndex, mrn)),
+                        showCmaNotEligibleHint = false,
+                        subKey = Some("multiple"),
+                        postAction = routes.SelectDutiesController.submit(pageIndex)
                       )
                     )
-                )
-            }
-          },
+                  ),
+                taxCodesSelected =>
+                  (
+                    claim
+                      .selectAndReplaceTaxCodeSetForReimbursement(mrn, taxCodesSelected)
+                      .getOrElse(claim),
+                    Redirect(
+                      taxCodesSelected.headOption match {
+                        case Some(taxCode) => routes.EnterClaimController.show(pageIndex, taxCode)
+                        case None          => routes.SelectDutiesController.show(pageIndex)
+                      }
+                    )
+                  )
+              )
+          }
+        },
     fastForwardToCYAEnabled = false
   )
 }

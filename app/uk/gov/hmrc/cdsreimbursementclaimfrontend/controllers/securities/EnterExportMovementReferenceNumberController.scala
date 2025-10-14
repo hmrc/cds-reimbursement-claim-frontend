@@ -72,7 +72,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
     then routes.ChoosePayeeTypeController.show
     else routes.ConfirmFullRepaymentController.showFirst
 
-  val showFirst: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val showFirst: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmissionExported(claim) {
       val form =
         claim.answers.exportMovementReferenceNumbers.flatMap(
@@ -113,7 +113,7 @@ class EnterExportMovementReferenceNumberController @Inject() (
     }
   }
 
-  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmissionExported(claim) {
       val form = nextExportMovementReferenceNumberForm
         .withDefault(
@@ -161,215 +161,213 @@ class EnterExportMovementReferenceNumberController @Inject() (
   }
 
   val submitFirst: Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        whenTemporaryAdmissionExported(claim) {
-          val form = firstExportMovementReferenceNumberForm
-          form
-            .bindFromRequest()
-            .fold(
-              (formWithErrors: Form[(MRN, YesNo)]) =>
-                (
-                  claim,
-                  BadRequest(
-                    enterFirstExportMovementReferenceNumberPage(
-                      formWithErrors,
-                      routes.EnterExportMovementReferenceNumberController.submitFirst
-                    )
+    claim =>
+      whenTemporaryAdmissionExported(claim) {
+        val form = firstExportMovementReferenceNumberForm
+        form
+          .bindFromRequest()
+          .fold(
+            (formWithErrors: Form[(MRN, YesNo)]) =>
+              (
+                claim,
+                BadRequest(
+                  enterFirstExportMovementReferenceNumberPage(
+                    formWithErrors,
+                    routes.EnterExportMovementReferenceNumberController.submitFirst
                   )
-                ).asFuture,
-              { case (exportMrn, decision) =>
-                claimService
-                  .getDisplayDeclaration(exportMrn)
-                  .fold(_ => None, identity)
-                  .map {
-                    case None              =>
-                      // when import declaration does not exist with the given exportMRN
-                      claim
-                        .submitExportMovementReferenceNumber(0, exportMrn)
-                        .fold(
-                          {
-                            case "submitExportMovementReferenceNumber.unexpected" =>
-                              (claim, Redirect(nextStepInClaim(claim)))
+                )
+              ).asFuture,
+            { case (exportMrn, decision) =>
+              claimService
+                .getDisplayDeclaration(exportMrn)
+                .fold(_ => None, identity)
+                .map {
+                  case None              =>
+                    // when import declaration does not exist with the given exportMRN
+                    claim
+                      .submitExportMovementReferenceNumber(0, exportMrn)
+                      .fold(
+                        {
+                          case "submitExportMovementReferenceNumber.unexpected" =>
+                            (claim, Redirect(nextStepInClaim(claim)))
 
-                            case "submitExportMovementReferenceNumber.duplicated" =>
-                              val updatedForm = form
-                                .withError(
-                                  enterFirstExportMovementReferenceNumberKey,
-                                  "securities.error.duplicate-number"
-                                )
-                              (
-                                claim,
-                                BadRequest(
-                                  enterFirstExportMovementReferenceNumberPage(
-                                    updatedForm,
-                                    routes.EnterExportMovementReferenceNumberController.submitFirst
-                                  )
+                          case "submitExportMovementReferenceNumber.duplicated" =>
+                            val updatedForm = form
+                              .withError(
+                                enterFirstExportMovementReferenceNumberKey,
+                                "securities.error.duplicate-number"
+                              )
+                            (
+                              claim,
+                              BadRequest(
+                                enterFirstExportMovementReferenceNumberPage(
+                                  updatedForm,
+                                  routes.EnterExportMovementReferenceNumberController.submitFirst
                                 )
                               )
-                            case _                                                =>
-                              val updatedForm =
-                                form.withError(enterFirstExportMovementReferenceNumberKey, "securities.error.import")
-                              (
-                                claim,
-                                BadRequest(
-                                  enterFirstExportMovementReferenceNumberPage(
-                                    updatedForm,
-                                    routes.EnterExportMovementReferenceNumberController.submitFirst
-                                  )
+                            )
+                          case _                                                =>
+                            val updatedForm =
+                              form.withError(enterFirstExportMovementReferenceNumberKey, "securities.error.import")
+                            (
+                              claim,
+                              BadRequest(
+                                enterFirstExportMovementReferenceNumberPage(
+                                  updatedForm,
+                                  routes.EnterExportMovementReferenceNumberController.submitFirst
                                 )
                               )
-                          },
-                          updatedClaim =>
-                            decision match {
-                              case Yes =>
+                            )
+                        },
+                        updatedClaim =>
+                          decision match {
+                            case Yes =>
+                              (
+                                updatedClaim,
+                                Redirect(routes.EnterExportMovementReferenceNumberController.showNext(2))
+                              )
+
+                            case No =>
+                              // when there are already more export MRNs we must be in change mode and should display summary page
+                              if claim.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
                                 (
                                   updatedClaim,
-                                  Redirect(routes.EnterExportMovementReferenceNumberController.showNext(2))
+                                  Redirect(routes.CheckExportMovementReferenceNumbersController.show)
                                 )
-
-                              case No =>
-                                // when there are already more export MRNs we must be in change mode and should display summary page
-                                if claim.answers.exportMovementReferenceNumbers.exists(_.size > 1) then
-                                  (
-                                    updatedClaim,
-                                    Redirect(routes.CheckExportMovementReferenceNumbersController.show)
-                                  )
-                                else
-                                  (
-                                    updatedClaim,
-                                    Redirect(nextStepInClaim(claim))
-                                  )
-                            }
-                        )
-                    // when import declaration exists with the given exportMRN
-                    case Some(declaration) =>
-                      val formErrorKey = enterFirstExportMovementReferenceNumberKey
-                      val updatedForm  =
-                        form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
-                      (
-                        claim,
-                        BadRequest(
-                          enterFirstExportMovementReferenceNumberPage(
-                            updatedForm,
-                            routes.EnterExportMovementReferenceNumberController.submitFirst
-                          )
+                              else
+                                (
+                                  updatedClaim,
+                                  Redirect(nextStepInClaim(claim))
+                                )
+                          }
+                      )
+                  // when import declaration exists with the given exportMRN
+                  case Some(declaration) =>
+                    val formErrorKey = enterFirstExportMovementReferenceNumberKey
+                    val updatedForm  =
+                      form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
+                    (
+                      claim,
+                      BadRequest(
+                        enterFirstExportMovementReferenceNumberPage(
+                          updatedForm,
+                          routes.EnterExportMovementReferenceNumberController.submitFirst
                         )
                       )
-                  }
-              }
-            )
-        },
+                    )
+                }
+            }
+          )
+      },
     fastForwardToCYAEnabled = false
   )
 
   def submitNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim(
-    implicit request =>
-      claim =>
-        whenTemporaryAdmissionExported(claim) {
-          val form = nextExportMovementReferenceNumberForm
-          form
-            .bindFromRequest()
-            .fold(
-              (formWithErrors: Form[(MRN, Option[YesNo])]) =>
-                (
-                  claim,
-                  BadRequest(
-                    enterNextExportMovementReferenceNumberPage(
-                      pageIndex,
-                      claim.userHasSeenCYAPage
-                        && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
-                      formWithErrors,
-                      routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                    )
+    claim =>
+      whenTemporaryAdmissionExported(claim) {
+        val form = nextExportMovementReferenceNumberForm
+        form
+          .bindFromRequest()
+          .fold(
+            (formWithErrors: Form[(MRN, Option[YesNo])]) =>
+              (
+                claim,
+                BadRequest(
+                  enterNextExportMovementReferenceNumberPage(
+                    pageIndex,
+                    claim.userHasSeenCYAPage
+                      && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
+                    formWithErrors,
+                    routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                   )
-                ).asFuture,
-              (exportMrn, decision) =>
-                claimService
-                  .getDisplayDeclaration(exportMrn)
-                  .fold(_ => None, identity)
-                  .map {
-                    case None              =>
-                      claim
-                        .submitExportMovementReferenceNumber(pageIndex - 1, exportMrn)
-                        .fold(
-                          {
-                            case "submitExportMovementReferenceNumber.unexpected" =>
-                              (claim, Redirect(nextStepInClaim(claim)))
+                )
+              ).asFuture,
+            (exportMrn, decision) =>
+              claimService
+                .getDisplayDeclaration(exportMrn)
+                .fold(_ => None, identity)
+                .map {
+                  case None              =>
+                    claim
+                      .submitExportMovementReferenceNumber(pageIndex - 1, exportMrn)
+                      .fold(
+                        {
+                          case "submitExportMovementReferenceNumber.unexpected" =>
+                            (claim, Redirect(nextStepInClaim(claim)))
 
-                            case "submitExportMovementReferenceNumber.duplicated" =>
-                              val updatedForm = form
-                                .withError(
-                                  enterNextExportMovementReferenceNumberKey,
-                                  "securities.error.duplicate-number"
-                                )
-                              (
-                                claim,
-                                BadRequest(
-                                  enterNextExportMovementReferenceNumberPage(
-                                    pageIndex,
-                                    claim.answers.exportMovementReferenceNumbers
-                                      .map(_.size)
-                                      .exists(size => pageIndex == size),
-                                    updatedForm,
-                                    routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                                  )
+                          case "submitExportMovementReferenceNumber.duplicated" =>
+                            val updatedForm = form
+                              .withError(
+                                enterNextExportMovementReferenceNumberKey,
+                                "securities.error.duplicate-number"
+                              )
+                            (
+                              claim,
+                              BadRequest(
+                                enterNextExportMovementReferenceNumberPage(
+                                  pageIndex,
+                                  claim.answers.exportMovementReferenceNumbers
+                                    .map(_.size)
+                                    .exists(size => pageIndex == size),
+                                  updatedForm,
+                                  routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                                 )
                               )
-                            case _                                                =>
-                              val updatedForm =
-                                form.withError(enterNextExportMovementReferenceNumberKey, "securities.error.import")
-                              (
-                                claim,
-                                BadRequest(
-                                  enterNextExportMovementReferenceNumberPage(
-                                    pageIndex,
-                                    claim.answers.exportMovementReferenceNumbers
-                                      .map(_.size)
-                                      .exists(size => pageIndex == size),
-                                    updatedForm,
-                                    routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                                  )
+                            )
+                          case _                                                =>
+                            val updatedForm =
+                              form.withError(enterNextExportMovementReferenceNumberKey, "securities.error.import")
+                            (
+                              claim,
+                              BadRequest(
+                                enterNextExportMovementReferenceNumberPage(
+                                  pageIndex,
+                                  claim.answers.exportMovementReferenceNumbers
+                                    .map(_.size)
+                                    .exists(size => pageIndex == size),
+                                  updatedForm,
+                                  routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                                 )
                               )
-                          },
-                          updatedClaim =>
-                            decision match {
-                              case Some(Yes) =>
-                                (
-                                  updatedClaim,
-                                  Redirect(routes.EnterExportMovementReferenceNumberController.showNext(pageIndex + 1))
-                                )
+                            )
+                        },
+                        updatedClaim =>
+                          decision match {
+                            case Some(Yes) =>
+                              (
+                                updatedClaim,
+                                Redirect(routes.EnterExportMovementReferenceNumberController.showNext(pageIndex + 1))
+                              )
 
-                              case _ =>
-                                if claim.answers.exportMovementReferenceNumbers
-                                    .flatMap(_.drop(pageIndex - 1).headOption)
-                                    .contains(exportMrn) && claim.userHasSeenCYAPage
-                                then (updatedClaim, Redirect(routes.CheckYourAnswersController.show))
-                                else (updatedClaim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
-                            }
-                        )
-                    // when import declaration exists with the given exportMRN
-                    case Some(declaration) =>
-                      val formErrorKey = enterNextExportMovementReferenceNumberKey
-                      val updatedForm  =
-                        form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
-                      (
-                        claim,
-                        BadRequest(
-                          enterNextExportMovementReferenceNumberPage(
-                            pageIndex,
-                            claim.answers.exportMovementReferenceNumbers
-                              .map(_.size)
-                              .exists(size => pageIndex == size),
-                            updatedForm,
-                            routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                          )
+                            case _ =>
+                              if claim.answers.exportMovementReferenceNumbers
+                                  .flatMap(_.drop(pageIndex - 1).headOption)
+                                  .contains(exportMrn) && claim.userHasSeenCYAPage
+                              then (updatedClaim, Redirect(routes.CheckYourAnswersController.show))
+                              else (updatedClaim, Redirect(routes.CheckExportMovementReferenceNumbersController.show))
+                          }
+                      )
+                  // when import declaration exists with the given exportMRN
+                  case Some(declaration) =>
+                    val formErrorKey = enterNextExportMovementReferenceNumberKey
+                    val updatedForm  =
+                      form.copy(data = Map.empty, errors = List(FormError(formErrorKey, "securities.error.import")))
+                    (
+                      claim,
+                      BadRequest(
+                        enterNextExportMovementReferenceNumberPage(
+                          pageIndex,
+                          claim.answers.exportMovementReferenceNumbers
+                            .map(_.size)
+                            .exists(size => pageIndex == size),
+                          updatedForm,
+                          routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
                         )
                       )
-                  }
-            )
-        },
+                    )
+                }
+          )
+      },
     fastForwardToCYAEnabled = false
   )
 

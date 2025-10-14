@@ -55,7 +55,7 @@ class SelectSecuritiesController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  final val showFirst: Action[AnyContent] = simpleActionReadWriteClaim { implicit request => claim =>
+  final val showFirst: Action[AnyContent] = simpleActionReadWriteClaim { claim =>
     claim.getSecurityDepositIds.headOption.fold(
       (claim, Redirect(routes.ChooseReasonForSecurityController.show))
     ) { firstDepositId =>
@@ -78,7 +78,7 @@ class SelectSecuritiesController @Inject() (
     }
   }
 
-  final def show(securityDepositId: String): Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  final def show(securityDepositId: String): Action[AnyContent] = actionReadClaim { claim =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     claim
       .getDisplayDeclarationIfValidSecurityDepositId(securityDepositId)
@@ -95,7 +95,7 @@ class SelectSecuritiesController @Inject() (
 
   }
 
-  final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  final def submit(securityDepositId: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routes.SelectSecuritiesController.submit(securityDepositId)
     form
       .bindFromRequest()

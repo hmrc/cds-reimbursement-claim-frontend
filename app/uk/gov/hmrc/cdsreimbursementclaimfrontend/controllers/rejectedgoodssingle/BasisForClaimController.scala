@@ -48,7 +48,7 @@ class BasisForClaimController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndDisplayDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { implicit request => claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     Future.successful {
       val form: Form[BasisOfRejectedGoodsClaim] =
         basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
@@ -62,7 +62,7 @@ class BasisForClaimController @Inject() (
     }
   }
 
-  val submit: Action[AnyContent] = actionReadWriteClaim { implicit request => claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(
