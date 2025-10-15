@@ -64,7 +64,7 @@ object ClaimsTableHelper {
       HeadCell(
         content = Text(messages("check-claim.table-header.action")),
         classes = "govuk-table__header govuk-table__header--numeric govuk-table__header--nowrap",
-        attributes = Map("id" -> s"blank-header$headerIdSuffix")
+        attributes = Map("id" -> s"action-header$headerIdSuffix")
       )
     )
 
@@ -90,7 +90,7 @@ object ClaimsTableHelper {
       HeadCell(
         content = Text(messages("check-claim.table-header.action")),
         classes = "govuk-table__header govuk-table__header--numeric",
-        attributes = Map("id" -> "blank-header")
+        attributes = Map("id" -> "action-header")
       )
     )
 
@@ -257,7 +257,7 @@ object ClaimsTableHelper {
       ),
       TableRow(
         content = Text(messages("check-claim.table-header.action")),
-        attributes = Map("id" -> s"blank-cell-$idSuffix"),
+        attributes = Map("id" -> s"action-cell-$idSuffix"),
         classes = "govuk-table__cell govuk-table__cell--numeric"
       )
     )
