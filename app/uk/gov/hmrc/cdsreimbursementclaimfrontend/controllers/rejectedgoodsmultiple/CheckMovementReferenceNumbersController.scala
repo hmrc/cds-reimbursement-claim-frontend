@@ -69,42 +69,44 @@ class CheckMovementReferenceNumbersController @Inject() (
 
     }
 
-  final val submit: Action[AnyContent] = simpleActionReadWriteClaim { claim =>
-    claim.getMovementReferenceNumbers
-      .map { mrns =>
-        checkMovementReferenceNumbersForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(
-                  checkMovementReferenceNumbers(
-                    mrns,
-                    formWithErrors,
-                    postAction,
-                    routes.EnterMovementReferenceNumberController.show,
-                    routes.CheckMovementReferenceNumbersController.delete
-                  )
-                )
-              ),
-            answer =>
-              answer match {
-                case Yes =>
-                  (
-                    claim,
-                    Redirect(
-                      routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1)
+  final val submit: Action[AnyContent] = simpleActionReadWriteClaim(
+    claim =>
+      claim.getMovementReferenceNumbers
+        .map { mrns =>
+          checkMovementReferenceNumbersForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                (
+                  claim,
+                  BadRequest(
+                    checkMovementReferenceNumbers(
+                      mrns,
+                      formWithErrors,
+                      postAction,
+                      routes.EnterMovementReferenceNumberController.show,
+                      routes.CheckMovementReferenceNumbersController.delete
                     )
                   )
-                case No  =>
-                  if shouldForwardToCYA(claim) then (claim, Redirect(checkYourAnswers))
-                  else (claim.withEnterContactDetailsMode(true), Redirect(routes.BasisForClaimController.show))
-              }
-          )
-      }
-      .getOrElse((claim, Redirect(routes.EnterMovementReferenceNumberController.show(0))))
-  }
+                ),
+              answer =>
+                answer match {
+                  case Yes =>
+                    (
+                      claim,
+                      Redirect(
+                        routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1)
+                      )
+                    )
+                  case No  =>
+                    if shouldForwardToCYA(claim) then (claim, Redirect(checkYourAnswers))
+                    else (claim.withEnterContactDetailsMode(true), Redirect(routes.BasisForClaimController.show))
+                }
+            )
+        }
+        .getOrElse((claim, Redirect(routes.EnterMovementReferenceNumberController.show(0)))),
+    fastForwardToCYAEnabled = false
+  )
 
   final def delete(mrn: MRN): Action[AnyContent] =
     actionReadWriteClaim(

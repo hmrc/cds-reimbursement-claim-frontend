@@ -305,6 +305,20 @@ class CheckMovementReferenceNumbersControllerSpec
         }
       }
 
+      "submit when user selects Yes and in change mode" in {
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(true)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkIsRedirect(
+          performAction(formKey -> "true"),
+          routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1)
+        )
+      }
+
       "submit when user selects No" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
         whenever(acc14Declarations.size > 2 && areMrnsUnique(acc14Declarations)) {
           val claim = acc14Declarations.foldLeft(session.rejectedGoodsMultipleClaim.get) { case (claim, declaration) =>

@@ -38,8 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.completeClaimGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
@@ -254,6 +254,20 @@ class CheckMovementReferenceNumbersControllerSpec
             BAD_REQUEST
           )
         }
+      }
+
+      "submit when user selects Yes and in change mode" in {
+        val claim = completeClaimGen.sample.get.submitCheckYourAnswersChangeMode(true)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkIsRedirect(
+          performAction(formKey -> "true"),
+          routes.EnterMovementReferenceNumberController.show(claim.countOfMovementReferenceNumbers + 1)
+        )
       }
 
       "submit when user selects Yes" in forAll { (acc14Declarations: List[ImportDeclaration]) =>
