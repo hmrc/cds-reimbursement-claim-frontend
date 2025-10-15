@@ -52,7 +52,7 @@ class ChooseExportMethodController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  def show: Action[AnyContent] = actionReadWriteClaim { claim =>
+  val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmission(claim) {
       (
         claim,
@@ -66,7 +66,7 @@ class ChooseExportMethodController @Inject() (
     }
   }
 
-  def submit: Action[AnyContent] = actionReadWriteClaim { claim =>
+  val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmission(claim) {
       form
         .bindFromRequest()

@@ -85,7 +85,7 @@ class ChooseReasonForSecurityController @Inject() (
   override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
     claim.submitUserXiEori(userXiEori)
 
-  def show: Action[AnyContent] = actionReadClaim { claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
 
     val reasonForSecurityForm: Form[ReasonForSecurity] =
       Forms.reasonForSecurityForm.withDefault(claim.getReasonForSecurity)

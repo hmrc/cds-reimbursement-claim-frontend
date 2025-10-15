@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.select
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class BasisForClaimController @Inject() (
@@ -49,17 +48,17 @@ class BasisForClaimController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      val form: Form[BasisOfRejectedGoodsClaim] =
-        basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
-      Ok(
-        basisForClaimPage(
-          form,
-          BasisOfRejectedGoodsClaim.values,
-          routes.BasisForClaimController.submit
-        )
+    val form: Form[BasisOfRejectedGoodsClaim] =
+      basisOfRejectedGoodsClaimForm.withDefault(claim.answers.basisOfClaim)
+
+    Ok(
+      basisForClaimPage(
+        form,
+        BasisOfRejectedGoodsClaim.values,
+        routes.BasisForClaimController.submit
       )
-    }
+    )
+
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
@@ -67,27 +66,23 @@ class BasisForClaimController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(
-            (
-              claim,
-              BadRequest(
-                basisForClaimPage(
-                  formWithErrors,
-                  BasisOfRejectedGoodsClaim.values,
-                  routes.BasisForClaimController.submit
-                )
+          (
+            claim,
+            BadRequest(
+              basisForClaimPage(
+                formWithErrors,
+                BasisOfRejectedGoodsClaim.values,
+                routes.BasisForClaimController.submit
               )
             )
           ),
         basisOfClaim =>
-          Future.successful(
-            (
-              claim.submitBasisOfClaim(basisOfClaim),
-              Redirect(basisOfClaim match {
-                case SpecialCircumstances => routes.EnterSpecialCircumstancesController.show
-                case _                    => routes.DisposalMethodController.show
-              })
-            )
+          (
+            claim.submitBasisOfClaim(basisOfClaim),
+            Redirect(basisOfClaim match {
+              case SpecialCircumstances => routes.EnterSpecialCircumstancesController.show
+              case _                    => routes.DisposalMethodController.show
+            })
           )
       )
   }

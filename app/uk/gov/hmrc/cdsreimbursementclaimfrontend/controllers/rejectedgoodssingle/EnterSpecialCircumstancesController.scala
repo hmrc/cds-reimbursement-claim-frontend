@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterSpecialCircumstancesController @Inject() (
@@ -48,40 +47,35 @@ class EnterSpecialCircumstancesController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      val form = enterSpecialCircumstancesForm.withDefault(claim.answers.basisOfClaimSpecialCircumstances)
-
-      Ok(enterSpecialCircumstancesPage(form, postAction))
-    }
+    val form = enterSpecialCircumstancesForm.withDefault(claim.answers.basisOfClaimSpecialCircumstances)
+    Ok(enterSpecialCircumstancesPage(form, postAction))
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
-    Future.successful(
-      enterSpecialCircumstancesForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              claim,
-              BadRequest(
-                enterSpecialCircumstancesPage(
-                  formWithErrors,
-                  postAction
-                )
+    enterSpecialCircumstancesForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            claim,
+            BadRequest(
+              enterSpecialCircumstancesPage(
+                formWithErrors,
+                postAction
               )
-            ),
-          specialCircumstances =>
-            claim
-              .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
-              .fold(
-                errors => {
-                  logger.error(s"unable to match basis of claim - $errors")
-                  (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-                },
-                updatedClaim => (updatedClaim, Redirect(routes.DisposalMethodController.show))
-              )
-        )
-    )
+            )
+          ),
+        specialCircumstances =>
+          claim
+            .submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstances)
+            .fold(
+              errors => {
+                logger.error(s"unable to match basis of claim - $errors")
+                (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+              },
+              updatedClaim => (updatedClaim, Redirect(routes.DisposalMethodController.show))
+            )
+      )
   }
 
 }

@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details_single_security
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarationDetailsSingleSecurityController @Inject() (
@@ -52,22 +51,17 @@ class CheckDeclarationDetailsSingleSecurityController @Inject() (
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful(
-        claim.getLeadImportDeclaration
-          .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
-            Ok(checkDeclarationDetailsPage(declaration, postAction))
-          )
-      )
+      claim.getLeadImportDeclaration
+        .fold(Redirect(routes.EnterMovementReferenceNumberController.show))(declaration =>
+          Ok(checkDeclarationDetailsPage(declaration, postAction))
+        )
     }
 
   final val submit: Action[AnyContent] =
     simpleActionReadClaim { claim =>
-      if (
-        claim.getReasonForSecurity
+      if claim.getReasonForSecurity
           .exists(ntas.contains) || claim.getReasonForSecurity.contains(MissingPreferenceCertificate)
-      )
-        Redirect(routes.HaveDocumentsReadyController.show)
-      else
-        Redirect(routes.ConfirmFullRepaymentController.showFirst)
+      then Redirect(routes.HaveDocumentsReadyController.show)
+      else Redirect(routes.ConfirmFullRepaymentController.showFirst)
     }
 }

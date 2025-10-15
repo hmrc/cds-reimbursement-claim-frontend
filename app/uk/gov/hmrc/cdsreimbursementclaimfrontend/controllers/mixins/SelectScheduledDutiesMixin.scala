@@ -31,8 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_categories
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_duty_codes
 
-import scala.concurrent.Future
-
 object SelectScheduledDutiesMixin {
   final case class RoutesPack(
     showSelectDutyTypes: Call,
@@ -79,43 +77,42 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
   final def submit(currentDuty: DutyType): Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routesPack.submitDutyType(currentDuty)
     if claim.isDutyTypeSelected then {
-      Future.successful(
-        selectDutyCodesForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
-              ),
-            selectedTaxCodes =>
-              selectAndReplaceTaxCodeSetForDutyType(claim)(currentDuty, selectedTaxCodes)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating tax codes selection - $errors")
-                    (
-                      claim,
+
+      selectDutyCodesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(selectDutyCodesPage(currentDuty, formWithErrors, postAction))
+            ),
+          selectedTaxCodes =>
+            selectAndReplaceTaxCodeSetForDutyType(claim)(currentDuty, selectedTaxCodes)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating tax codes selection - $errors")
+                  (
+                    claim,
+                    BadRequest(
+                      selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)
+                    )
+                  )
+                },
+                updatedClaim =>
+                  (
+                    updatedClaim,
+                    selectedTaxCodes.headOption.fold(
                       BadRequest(
-                        selectDutyCodesPage(currentDuty, selectDutyCodesForm, postAction)
-                      )
-                    )
-                  },
-                  updatedClaim =>
-                    (
-                      updatedClaim,
-                      selectedTaxCodes.headOption.fold(
-                        BadRequest(
-                          selectDutyCodesPage(
-                            currentDuty,
-                            selectDutyCodesForm,
-                            postAction
-                          )
+                        selectDutyCodesPage(
+                          currentDuty,
+                          selectDutyCodesForm,
+                          postAction
                         )
-                      )(taxCode => Redirect(routesPack.showEnterClaim(currentDuty, taxCode)))
-                    )
-                )
-          )
-      )
+                      )
+                    )(taxCode => Redirect(routesPack.showEnterClaim(currentDuty, taxCode)))
+                  )
+              )
+        )
     } else {
       (claim, Redirect(routesPack.showSelectDutyTypes))
     }
@@ -125,39 +122,38 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
   final def submitExciseCategories: Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routesPack.submitExciseCategories
     if claim.isDutyTypeSelected then {
-      Future.successful(
-        selectExciseCategoriesForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              (
-                claim,
-                BadRequest(selectExciseCategoriesPage(formWithErrors, postAction))
-              ),
-            selectedExciseCategories =>
-              selectAndReplaceExciseCodeCategories(claim)(selectedExciseCategories)
-                .fold(
-                  errors => {
-                    logger.error(s"Error updating excise categories selection - $errors")
-                    (
-                      claim,
+
+      selectExciseCategoriesForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(selectExciseCategoriesPage(formWithErrors, postAction))
+            ),
+          selectedExciseCategories =>
+            selectAndReplaceExciseCodeCategories(claim)(selectedExciseCategories)
+              .fold(
+                errors => {
+                  logger.error(s"Error updating excise categories selection - $errors")
+                  (
+                    claim,
+                    BadRequest(
+                      selectExciseCategoriesPage(selectExciseCategoriesForm, postAction)
+                    )
+                  )
+                },
+                updatedClaim =>
+                  (
+                    updatedClaim,
+                    selectedExciseCategories.headOption.fold(
                       BadRequest(
                         selectExciseCategoriesPage(selectExciseCategoriesForm, postAction)
                       )
-                    )
-                  },
-                  updatedClaim =>
-                    (
-                      updatedClaim,
-                      selectedExciseCategories.headOption.fold(
-                        BadRequest(
-                          selectExciseCategoriesPage(selectExciseCategoriesForm, postAction)
-                        )
-                      )(exciseCategory => Redirect(routesPack.showExciseDuties(exciseCategory)))
-                    )
-                )
-          )
-      )
+                    )(exciseCategory => Redirect(routesPack.showExciseDuties(exciseCategory)))
+                  )
+              )
+        )
     } else {
       (claim, Redirect(routesPack.showSelectDutyTypes))
     }
@@ -184,39 +180,38 @@ trait SelectScheduledDutiesMixin extends ClaimBaseController {
     actionReadWriteClaim { claim =>
       val postAction: Call = routesPack.submitExciseDuties(exciseCategory)
       if claim.isDutyTypeSelected then {
-        Future.successful(
-          selectDutyCodesForm
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                (
-                  claim,
-                  BadRequest(selectExciseDutyCodesPage(exciseCategory, formWithErrors, postAction))
-                ),
-              selectedTaxCodes =>
-                selectAndReplaceTaxCodeSetForExciseCategory(claim)(exciseCategory, selectedTaxCodes)
-                  .fold(
-                    errors => {
-                      logger.error(s"Error updating tax codes selection - $errors")
-                      (
-                        claim,
+
+        selectDutyCodesForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              (
+                claim,
+                BadRequest(selectExciseDutyCodesPage(exciseCategory, formWithErrors, postAction))
+              ),
+            selectedTaxCodes =>
+              selectAndReplaceTaxCodeSetForExciseCategory(claim)(exciseCategory, selectedTaxCodes)
+                .fold(
+                  errors => {
+                    logger.error(s"Error updating tax codes selection - $errors")
+                    (
+                      claim,
+                      BadRequest(
+                        selectExciseDutyCodesPage(exciseCategory, selectDutyCodesForm, postAction)
+                      )
+                    )
+                  },
+                  updatedClaim =>
+                    (
+                      updatedClaim,
+                      selectedTaxCodes.headOption.fold(
                         BadRequest(
                           selectExciseDutyCodesPage(exciseCategory, selectDutyCodesForm, postAction)
                         )
-                      )
-                    },
-                    updatedClaim =>
-                      (
-                        updatedClaim,
-                        selectedTaxCodes.headOption.fold(
-                          BadRequest(
-                            selectExciseDutyCodesPage(exciseCategory, selectDutyCodesForm, postAction)
-                          )
-                        )(taxCode => Redirect(routesPack.showEnterClaim(DutyType.Excise, taxCode)))
-                      )
-                  )
-            )
-        )
+                      )(taxCode => Redirect(routesPack.showEnterClaim(DutyType.Excise, taxCode)))
+                    )
+                )
+          )
       } else {
         (claim, Redirect(routesPack.showSelectDutyTypes))
       }

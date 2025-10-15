@@ -122,17 +122,15 @@ class EnterClaimController @Inject() (
                   .bindFromRequest()
                   .fold(
                     formWithErrors =>
-                      Future.successful(
-                        (
-                          claim,
-                          BadRequest(
-                            enterClaim(
-                              formWithErrors,
-                              maybeMRN,
-                              TaxCode(ndrcDetails.taxType),
-                              BigDecimal(ndrcDetails.amount),
-                              postAction(taxCode)
-                            )
+                      (
+                        claim,
+                        BadRequest(
+                          enterClaim(
+                            formWithErrors,
+                            maybeMRN,
+                            TaxCode(ndrcDetails.taxType),
+                            BigDecimal(ndrcDetails.amount),
+                            postAction(taxCode)
                           )
                         )
                       ),
@@ -158,7 +156,7 @@ class EnterClaimController @Inject() (
 
               case None =>
                 logger.error("Attempting to claim a reimbursement before selecting an MRN")
-                Future.successful((claim, Redirect(routes.EnterMovementReferenceNumberController.show)))
+                (claim, Redirect(routes.EnterMovementReferenceNumberController.show))
             }
 
           case _ =>

@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_add
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterAdditionalDetailsController @Inject() (
@@ -58,17 +57,15 @@ class EnterAdditionalDetailsController @Inject() (
       val form: Form[String] =
         Forms.enterAdditionalDetailsSecuritiesForm.withDefault(claim.answers.additionalDetails)
 
-      Future.successful {
-        (
-          claim.submitAdditionalDetailsPageVisited(true),
-          Ok(
-            enterAdditionalDetailsPage(
-              form,
-              postAction
-            )
+      (
+        claim.submitAdditionalDetailsPageVisited(true),
+        Ok(
+          enterAdditionalDetailsPage(
+            form,
+            postAction
           )
         )
-      }
+      )
     }
 
   final val submit: Action[AnyContent] =
@@ -77,23 +74,19 @@ class EnterAdditionalDetailsController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  enterAdditionalDetailsPage(
-                    formWithErrors,
-                    postAction
-                  )
+            (
+              claim,
+              BadRequest(
+                enterAdditionalDetailsPage(
+                  formWithErrors,
+                  postAction
                 )
               )
             ),
           additionalDetails =>
-            Future.successful(
-              (
-                claim.submitAdditionalDetails(additionalDetails),
-                Redirect(continueRoute(claim))
-              )
+            (
+              claim.submitAdditionalDetails(additionalDetails),
+              Redirect(continueRoute(claim))
             )
         )
     }

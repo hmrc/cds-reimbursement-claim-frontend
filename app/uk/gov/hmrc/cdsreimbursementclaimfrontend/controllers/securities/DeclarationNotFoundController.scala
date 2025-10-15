@@ -36,7 +36,7 @@ class DeclarationNotFoundController @Inject() (
 
   val enterMRN: Call = routes.EnterMovementReferenceNumberController.show
 
-  def show: Action[AnyContent] = actionReadClaim { claim =>
+  val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(declarationNotFound(enterMRN, claim.getLeadMovementReferenceNumber))
   }
 }

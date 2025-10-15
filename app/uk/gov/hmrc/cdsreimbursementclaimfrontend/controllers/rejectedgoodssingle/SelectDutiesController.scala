@@ -74,7 +74,7 @@ class SelectDutiesController @Inject() (
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     claim => {
       val availableDuties: Seq[(TaxCode, Boolean)] = claim.getAvailableDuties
-      Future.successful(if availableDuties.isEmpty then {
+      if availableDuties.isEmpty then {
         logger.warn("No available duties")
         (claim, Redirect(baseRoutes.IneligibleController.ineligible))
       } else {
@@ -105,7 +105,7 @@ class SelectDutiesController @Inject() (
                 Redirect(routes.EnterClaimController.showFirst)
               )
           )
-      })
+      }
     },
     fastForwardToCYAEnabled = false
   )

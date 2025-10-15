@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_
 import javax.inject.Inject
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class EnterRejectedGoodsDetailsController @Inject() (
@@ -46,34 +45,29 @@ class EnterRejectedGoodsDetailsController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      val form = enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods)
-
-      Ok(enterRejectedGoodsDetailsPage(form, postAction))
-    }
+    val form = enterRejectedGoodsDetailsForm.withDefault(claim.answers.detailsOfRejectedGoods)
+    Ok(enterRejectedGoodsDetailsPage(form, postAction))
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
-    Future.successful(
-      enterRejectedGoodsDetailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              claim,
-              BadRequest(
-                enterRejectedGoodsDetailsPage(
-                  formWithErrors,
-                  postAction
-                )
+    enterRejectedGoodsDetailsForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            claim,
+            BadRequest(
+              enterRejectedGoodsDetailsPage(
+                formWithErrors,
+                postAction
               )
-            ),
-          rejectedGoodsDetails =>
-            (
-              claim.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
-              Redirect(routes.SelectDutiesController.show)
             )
-        )
-    )
+          ),
+        rejectedGoodsDetails =>
+          (
+            claim.submitDetailsOfRejectedGoods(rejectedGoodsDetails),
+            Redirect(routes.SelectDutiesController.show)
+          )
+      )
   }
 }

@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
-import scala.concurrent.Future
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors
 import play.api.data.FormError
 
@@ -48,71 +47,67 @@ trait EnterImporterEoriNumberMixin extends ClaimBaseController {
   val eoriNumberFormKey: String = "enter-importer-eori-number"
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
-    Future.successful {
-      if !needsEoriSubmission(claim) then Redirect(whenEoriInputNotRequiredAction)
-      else
-        Ok(
-          enterImporterEoriNumber(
-            eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(claim)),
-            postAction,
-            claim.getLeadMovementReferenceNumber,
-            changeMrnAction
-          )
+    if !needsEoriSubmission(claim)
+    then Redirect(whenEoriInputNotRequiredAction)
+    else
+      Ok(
+        enterImporterEoriNumber(
+          eoriNumberForm(eoriNumberFormKey).withDefault(getEoriNumberAnswer(claim)),
+          postAction,
+          claim.getLeadMovementReferenceNumber,
+          changeMrnAction
         )
-    }
+      )
   }
 
   final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
-    if !needsEoriSubmission(claim) then (claim, Redirect(whenEoriInputNotRequiredAction))
+    if !needsEoriSubmission(claim)
+    then (claim, Redirect(whenEoriInputNotRequiredAction))
     else {
       eoriNumberForm(eoriNumberFormKey)
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  enterImporterEoriNumber(
-                    formWithErrors,
-                    postAction,
-                    claim.getLeadMovementReferenceNumber,
-                    changeMrnAction
-                  )
+            (
+              claim,
+              BadRequest(
+                enterImporterEoriNumber(
+                  formWithErrors,
+                  postAction,
+                  claim.getLeadMovementReferenceNumber,
+                  changeMrnAction
                 )
               )
             ),
           eori =>
-            Future.successful(
-              modifyClaim(claim, eori)
-                .fold(
-                  {
-                    case ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI |
-                        ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_CONSIGNEE_EORI =>
-                      (
-                        claim,
-                        BadRequest(
-                          enterImporterEoriNumber(
-                            eoriNumberForm(eoriNumberFormKey)
-                              .withError(
-                                FormError(
-                                  eoriNumberFormKey,
-                                  "eori-should-match-importer"
-                                )
+            modifyClaim(claim, eori)
+              .fold(
+                {
+                  case ClaimValidationErrors.SHOULD_MATCH_ACC14_CONSIGNEE_EORI |
+                      ClaimValidationErrors.SHOULD_MATCH_ACC14_DUPLICATE_CONSIGNEE_EORI =>
+                    (
+                      claim,
+                      BadRequest(
+                        enterImporterEoriNumber(
+                          eoriNumberForm(eoriNumberFormKey)
+                            .withError(
+                              FormError(
+                                eoriNumberFormKey,
+                                "eori-should-match-importer"
                               )
-                              .withDefault(Some(eori)),
-                            postAction,
-                            claim.getLeadMovementReferenceNumber,
-                            changeMrnAction
-                          )
+                            )
+                            .withDefault(Some(eori)),
+                          postAction,
+                          claim.getLeadMovementReferenceNumber,
+                          changeMrnAction
                         )
                       )
-                    case errors =>
-                      (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-                  },
-                  updatedClaim => (updatedClaim, Redirect(continueAction))
-                )
-            )
+                    )
+                  case errors =>
+                    (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+                },
+                updatedClaim => (updatedClaim, Redirect(continueAction))
+              )
         )
     }
   }

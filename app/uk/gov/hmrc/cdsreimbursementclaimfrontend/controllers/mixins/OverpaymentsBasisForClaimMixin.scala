@@ -28,8 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_basis_for_claim
 
-import scala.concurrent.Future
-
 trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
@@ -45,22 +43,20 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
-      Future.successful {
-        val form: Form[BasisOfOverpaymentClaim] =
-          basisOfOverpaymentClaimForm.withDefault(claim.answers.basisOfClaim)
-        Ok(
-          basisForClaimPage(
-            form,
-            claim.getAvailableClaimTypes,
-            DropdownHints(
-              claim.getAvailableClaimTypes.toList.sorted
-                .map(_.toString)
-            ),
-            None,
-            postAction
-          )
+      val form: Form[BasisOfOverpaymentClaim] =
+        basisOfOverpaymentClaimForm.withDefault(claim.answers.basisOfClaim)
+      Ok(
+        basisForClaimPage(
+          form,
+          claim.getAvailableClaimTypes,
+          DropdownHints(
+            claim.getAvailableClaimTypes.toList.sorted
+              .map(_.toString)
+          ),
+          None,
+          postAction
         )
-      }
+      )
     }
 
   final val submit: Action[AnyContent] =
@@ -69,29 +65,25 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(
-              (
-                claim,
-                BadRequest(
-                  basisForClaimPage(
-                    formWithErrors,
-                    claim.getAvailableClaimTypes,
-                    DropdownHints(
-                      claim.getAvailableClaimTypes.toList.sorted
-                        .map(_.toString)
-                    ),
-                    None,
-                    postAction
-                  )
+            (
+              claim,
+              BadRequest(
+                basisForClaimPage(
+                  formWithErrors,
+                  claim.getAvailableClaimTypes,
+                  DropdownHints(
+                    claim.getAvailableClaimTypes.toList.sorted
+                      .map(_.toString)
+                  ),
+                  None,
+                  postAction
                 )
               )
             ),
           basisOfClaim =>
-            Future.successful(
-              (
-                modifyClaim(claim, basisOfClaim),
-                Redirect(continueRoute(basisOfClaim))
-              )
+            (
+              modifyClaim(claim, basisOfClaim),
+              Redirect(continueRoute(basisOfClaim))
             )
         )
     }
