@@ -145,6 +145,13 @@ object Forms {
       )(PayeeType.tryParse)(p => Some(PayeeType.keyOf(p)))
     )
 
+  val currencyTypeForm: Form[CurrencyType] =
+    Form(
+      mapping(
+        "choose-currency-type" -> nonEmptyText.verifying(CurrencyType.keys.contains)
+      )(CurrencyType.tryParse)(p => Some(CurrencyType.keyOf(p)))
+    )
+
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
       mapping(

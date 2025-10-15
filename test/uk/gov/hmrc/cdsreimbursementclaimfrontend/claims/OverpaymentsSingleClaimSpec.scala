@@ -1125,6 +1125,44 @@ class OverpaymentsSingleClaimSpec
       claimEither.isRight shouldBe true
     }
 
+    "submit currency type" in {
+      val declaration =
+        buildImportDeclaration(dutyDetails =
+          Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("2.00"), true))
+        )
+
+      val claim =
+        OverpaymentsSingleClaim
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
+          .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
+          .flatMap(_.submitCorrectAmount(TaxCode.A90, BigDecimal("1.00")))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+          .flatMap(_.submitPayeeType(PayeeType.Consignee))
+          .flatMap(_.submitCurrencyType(CurrencyType.EUR))
+          .getOrFail
+
+      claim.answers.currencyType shouldBe Some(CurrencyType.EUR)
+    }
+
+    "submit currency type and get error if not needed" in {
+      val declaration =
+        buildImportDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false)))
+
+      val claimEither =
+        OverpaymentsSingleClaim
+          .empty(exampleEori)
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00)))
+          .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
+          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+          .flatMap(_.submitPayeeType(PayeeType.Consignee))
+          .flatMap(_.submitCurrencyType(CurrencyType.EUR))
+
+      claimEither shouldBe Left("submitCurrencyType.doesNotNeedCurrencyTypeSelection")
+    }
+
     "computeBankDetails" should {
       "return consigneeBankDetails when payeeType is consignee" in {
         val declaration = buildImportDeclaration(

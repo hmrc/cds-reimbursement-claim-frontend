@@ -72,6 +72,9 @@ GET         /overpayments/single/check-claim/continue                           
 GET         /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentMethodController.show
 POST        /overpayments/single/choose-repayment-method                                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentMethodController.submit
 
+GET         /overpayments/single/choose-repayment-currency                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentCurrencyController.show
+POST        /overpayments/single/choose-repayment-currency                                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseRepaymentCurrencyController.submit
+
 GET         /overpayments/single/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.show
 POST        /overpayments/single/choose-file-type                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ChooseFileTypeController.submit
 

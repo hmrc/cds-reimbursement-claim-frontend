@@ -249,6 +249,7 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           .map(_.toMap)
       bankAccountType             <- Gen.oneOf(BankAccountType.values)
       payeeType                   <- Gen.oneOf(PayeeType.values)
+      currencyType                <- Gen.oneOf(CurrencyType.values)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
       newEoriAndDan                = basisOfClaim match {
@@ -301,6 +302,7 @@ object OverpaymentsSingleClaimGenerators extends ClaimGenerators with ClaimTestD
           movementReferenceNumber = Some(mrn),
           importDeclaration = Some(importDeclaration),
           payeeType = Some(payeeType),
+          currencyType = if correctedAmounts.size % 2 == 0 then Some(currencyType) else None,
           eoriNumbersVerification = eoriNumbersVerification,
           contactDetails = if submitContactDetails then Some(exampleContactDetails) else None,
           contactAddress = if submitContactAddress then Some(exampleContactAddress) else None,

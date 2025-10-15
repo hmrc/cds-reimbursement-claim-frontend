@@ -1,0 +1,87 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CurrencyType
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+
+@this(
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    govukRadios: GovukRadios
+)
+
+@(form: Form[CurrencyType], postAction: Call)(implicit request: Request[?], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"choose-currency-type"}
+@title = @{messages(s"choose-currency-type.title")}
+
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+
+    @errorSummary(form.errors)
+
+    @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+
+        @govukRadios(Radios(
+            fieldset = Some(Fieldset(
+              legend = Some(Legend(
+                content = Text(title),
+                classes = "govuk-fieldset__legend--l cds-wrap-content govuk-!-margin-bottom-8",
+                isPageHeading = true
+              ))
+            )),
+            name = key,
+            errorMessage = if(form.hasErrors)Some(ErrorMessage(content = Text(messages("choose-currency-type.error.required")), visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText")))) else None,
+            items = Seq(
+                RadioItem(
+                    value = Some("GBP"),
+                    content = Text(messages(s"choose-currency-type.radio.gbp")),
+                    checked = form.value.contains(CurrencyType.GBP),
+                    hint = Some(Hint(
+                      content = HtmlContent(messages("choose-currency-type.radio.importer.hint"))
+                    ))
+                ),
+                RadioItem(
+                    value = Some("EUR"),
+                    content = Text(messages(s"choose-currency-type.radio.eur")),
+                    checked = form.value.contains(CurrencyType.EUR),
+                    hint = Some(Hint(
+                      content = HtmlContent(messages("choose-currency-type.radio.declarant.hint"))
+                    ))
+                )
+            ),
+            classes = ""
+          ))
+
+        @submitButton("button.continue")
+    }
+}

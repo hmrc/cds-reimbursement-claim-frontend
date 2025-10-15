@@ -38,7 +38,7 @@ class ChooseRepaymentMethodController @Inject() (
     extends OverpaymentsSingleClaimBaseController
     with ChooseRepaymentMethodMixin {
 
-  override def enterBankDetailsRoute: Call = routes.EnterBankAccountDetailsController.show
+  override def enterBankDetailsRoute: Call = routes.ChooseRepaymentCurrencyController.show
 
   override def modifyClaim(
     claim: OverpaymentsSingleClaim,

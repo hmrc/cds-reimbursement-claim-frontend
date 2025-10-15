@@ -366,6 +366,9 @@ final class OverpaymentsSingleClaim private (
       else Right(this)
     }
 
+  def needsCurrencyTypeSelection: Boolean =
+    getSelectedDuties.exists(_.size % 2 == 0)
+
   def submitAdditionalDetails(
     additionalDetails: String
   ): OverpaymentsSingleClaim =
@@ -474,6 +477,23 @@ final class OverpaymentsSingleClaim private (
             )
           )
         )
+    }
+
+  def submitCurrencyType(currencyType: CurrencyType): Either[String, OverpaymentsSingleClaim] =
+    whileClaimIsAmendable {
+      if needsCurrencyTypeSelection
+      then
+        if answers.currencyType.contains(currencyType)
+        then Right(this)
+        else
+          Right(
+            copy(newAnswers =
+              answers.copy(
+                currencyType = Some(currencyType)
+              )
+            )
+          )
+      else Left("submitCurrencyType.doesNotNeedCurrencyTypeSelection")
     }
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsSingleClaim] =
@@ -667,6 +687,7 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
     movementReferenceNumber: Option[MRN] = None,
     importDeclaration: Option[ImportDeclaration] = None,
     payeeType: Option[PayeeType] = None,
+    currencyType: Option[CurrencyType] = None,
     eoriNumbersVerification: Option[EoriNumbersVerification] = None,
     duplicateDeclaration: Option[DuplicateDeclaration] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -881,6 +902,7 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
       .map(_.withDutiesChangeMode(answers.modes.dutiesChangeMode))
       .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
       .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.currencyType)(_.submitCurrencyType)
       .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
       .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
       .mapWhenDefined(answers.newEori)(_.submitNewEori)
