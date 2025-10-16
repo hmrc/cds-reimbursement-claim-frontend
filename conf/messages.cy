@@ -1299,7 +1299,7 @@ enter-movement-reference-number.securities.title=Cyfeirnod Symud (MRN)
 enter-movement-reference-number.single.label=Nodwch yr MRN ar gyfer yr hawliad hwn
 enter-movement-reference-number.single.title=Cyfeirnod Symud (MRN)
 
-enter-new-dan.title=Beth yw rhif y cyfrif gohirio cywir
+enter-new-dan.title=Beth yw rhif y cyfrif gohirio cywir?
 enter-new-dan.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r cyfrif gohirio hwn.
 enter-new-dan.hint=Mae’n rhaid i rif y cyfrif fod yn 7 rhif
 enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
