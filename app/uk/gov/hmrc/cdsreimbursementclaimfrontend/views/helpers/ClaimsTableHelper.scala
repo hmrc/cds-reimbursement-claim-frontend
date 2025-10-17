@@ -256,8 +256,8 @@ object ClaimsTableHelper {
         classes = "govuk-table__cell govuk-table__cell--numeric"
       ),
       TableRow(
-        content = Text(messages("check-claim.table-header.action")),
-        attributes = Map("id" -> s"action-cell-$idSuffix"),
+        content = Text(""),
+        attributes = Map("id" -> s"blank-cell-$idSuffix"),
         classes = "govuk-table__cell govuk-table__cell--numeric"
       )
     )

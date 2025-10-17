@@ -201,14 +201,14 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
   private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit
     m: Messages
   ) = {
-    doc.getElementById(s"total-$suffix").text()       shouldBe m("check-claim.total.header")
+    doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
     doc
       .getElementById(s"full-amount-total-$suffix")
-      .text()                                         shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
+      .text()                                        shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc
       .getElementById(s"claim-amount-total-$suffix")
-      .text()                                         shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
-    doc.getElementById(s"action-cell-$suffix").text() shouldBe m("check-claim.table-header.action")
+      .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
+    doc.getElementById(s"blank-cell-$suffix").text() shouldBe ""
   }
 
   def validateClaimsTablesForSecurities(
