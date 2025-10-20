@@ -270,7 +270,7 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
       .getElementById(s"full-amount-total-$suffix")
       .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
     doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
-    doc.getElementById(s"action-cell-$suffix").text()        shouldBe m("check-claim.table-header.action")
+    doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
   }
 
   def validateCheckClaimTotal(doc: Document, expectedTotal: String)(implicit
