@@ -87,8 +87,6 @@ class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks 
 |declaration-not-found.submit
 |claimant-details.contact.title
 |claimant-details.contact.details
-|check-claimant-details.contact.details
-|check-claimant-details.change-hint.contact
 |select-securities.title.caption
 |confirm-full-repayment.caption""".stripMargin.linesIterator.toSet
 

@@ -211,7 +211,27 @@ class ChooseExportMethodControllerSpec
         )
       }
 
-      "redirect to check claimant details if reason for security is not ntas" in forAllWith(
+      "redirect to choose payee type if rfs is not ntas for single security" in forAllWith(
+        ClaimGenerator(
+          testParamsGenerator = SecuritiesSingleClaimGenerators.mrnWithRfsWithImportDeclarationGen(
+            ReasonForSecurity.values -- ReasonForSecurity.ntas
+          ),
+          claimBuilder = SecuritiesSingleClaimGenerators.buildSecuritiesClaimWithSomeSecuritiesSelected
+        )
+      ) { case (claim, _) =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone))),
+          routes.ChoosePayeeTypeController.show
+        )
+      }
+
+      "redirect to confirm full repayment if rfs is not ntas" in forAllWith(
         ClaimGenerator(
           testParamsGenerator = mrnWithRfsWithImportDeclarationGen(ReasonForSecurity.values -- ReasonForSecurity.ntas),
           claimBuilder = buildSecuritiesClaimWithSomeSecuritiesSelected
@@ -225,7 +245,7 @@ class ChooseExportMethodControllerSpec
 
         checkIsRedirect(
           performAction(Some(List(TemporaryAdmissionMethodOfDisposal.DeclaredToAFreeZone))),
-          routes.CheckClaimantDetailsController.show
+          routes.ConfirmFullRepaymentController.showFirst
         )
       }
     }

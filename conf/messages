@@ -137,14 +137,6 @@ check-claim.securities.single.hidden.duty-amount={0} amount
 check-claim.securities.single.claiming-full-amount=Do you want to claim back the full amount?
 check-claim.securities.single.what-do-you-want-to-claim=What do you want to claim?
 
-
-check-claimant-details.change-hint.address=Contact address
-check-claimant-details.change-hint.contact=Contact details
-check-claimant-details.contact.address=Contact address
-check-claimant-details.contact.details=Contact details
-check-claimant-details.inset-text=Contact details are used only for this claim.
-check-claimant-details.title=Confirm contact details for this claim
-
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 check-declaration-details.bta-due-date-label=Date security deposit made
 check-declaration-details.declarant-address-label=Declarant address

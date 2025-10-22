@@ -139,13 +139,6 @@ check-claim.excise.duties-selected-summary.hidden=Y tollau {0} rydych am hawlio 
 check-claim.duties-selected-summary.hidden=Y {0} rydych am hawlio ar eu cyfer
 check-claim.table.scheduled.change-link=<a href="{0}" id="{1}" class="govuk-link">Newid<span class="govuk-visually-hidden">{2}</span></a>
 
-check-claimant-details.change-hint.address=Cyfeiriad cyswllt
-check-claimant-details.change-hint.contact=Manylion cyswllt
-check-claimant-details.contact.address=Cyfeiriad cyswllt
-check-claimant-details.contact.details=Manylion cyswllt
-check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
-check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
-
 check-declaration-details.banner.empty-securities-selection=Mae’n rhaid i chi ddewis o leiaf un sicrwydd er mwyn symud ymlaen gyda’r hawliad hwn.
 check-declaration-details.bta-due-date-label=Dyddiad gwneud y blaendal sicrwydd
 check-declaration-details.declarant-address-label=Cyfeiriad y datganydd

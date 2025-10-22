@@ -34,7 +34,7 @@ trait OverpaymentsMultipleClaimRouter {
       case INCOMPLETE_REIMBURSEMENT_CLAIMS                          => routes.CheckClaimDetailsController.show
       case INCOMPLETE_SUPPORTING_EVIDENCES                          => routes.ChooseFileTypeController.show
       case MISSING_CONTACT_DETAILS                                  => routes.EnterContactDetailsController.show
-      case MISSING_CONTACT_ADDRESS                                  => routes.CheckClaimantDetailsController.redirectToALF
+      case MISSING_CONTACT_ADDRESS                                  => routes.ClaimantAddressController.redirectToALF
       case TOTAL_REIMBURSEMENT_AMOUNT_MUST_BE_GREATER_THAN_ZERO     => routes.CheckClaimDetailsController.show
       case DECLARANT_EORI_NUMBER_MUST_BE_PROVIDED                   => routes.EnterDeclarantEoriNumberController.show
       case DECLARANT_EORI_NUMBER_MUST_BE_EQUAL_TO_THAT_OF_ACC14     => routes.EnterDeclarantEoriNumberController.show
