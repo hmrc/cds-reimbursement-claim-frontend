@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CurrencyType
+import org.jsoup.nodes.Document
 
 class ChooseRepaymentCurrencyControllerSpec
     extends PropertyBasedControllerSpec
@@ -64,28 +65,63 @@ class ChooseRepaymentCurrencyControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 1)
 
+  def prepareClaim() = {
+    val declaration =
+      buildImportDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("2.00"), true))
+      )
+
+    OverpaymentsSingleClaim
+      .empty(exampleEori)
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
+      .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
+      .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
+      .flatMap(_.submitCorrectAmount(TaxCode.A90, BigDecimal("1.00")))
+      .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
+      .flatMap(_.submitPayeeType(PayeeType.Consignee))
+      .getOrFail
+  }
+
+  def assertPageContent(selection: Option[String])(doc: Document) = {
+    radioItems(doc) should containOnlyPairsOf(
+      Seq(
+        m("choose-currency-type.radio.gbp") -> "GBP",
+        m("choose-currency-type.radio.eur") -> "EUR"
+      )
+    )
+    hasContinueButton(doc)
+  }
+
   "Choose Currency Type Controller" should {
 
-    def showPage(): Future[Result] =
-      controller.show(FakeRequest())
+    def showPage(): Future[Result] = controller.show(FakeRequest())
+
+    def submitPage(selected: String): Future[Result] = controller.submit(
+      FakeRequest()
+        .withFormUrlEncodedBody("choose-currency-type" -> selected)
+    )
 
     "display page" in {
 
-      val declaration =
-        buildImportDeclaration(dutyDetails =
-          Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("2.00"), true))
-        )
+      val claim = prepareClaim()
+
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(SessionData(claim))
+      }
+
+      checkPageIsDisplayed(
+        showPage(),
+        messageFromMessageKey(s"$formKey.title"),
+        assertPageContent(None)
+      )
+    }
+
+    "display page with EUR option pre-selected" in {
 
       val claim =
-        OverpaymentsSingleClaim
-          .empty(exampleEori)
-          .submitMovementReferenceNumberAndDeclaration(exampleMrn, declaration)
-          .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90)))
-          .flatMap(_.submitCorrectAmount(TaxCode.A00, BigDecimal("0.00")))
-          .flatMap(_.submitCorrectAmount(TaxCode.A90, BigDecimal("1.00")))
-          .flatMap(_.submitReimbursementMethod(ReimbursementMethod.BankAccountTransfer))
-          .flatMap(_.submitPayeeType(PayeeType.Consignee))
-          .flatMap(_.submitCurrencyType(CurrencyType.EUR))
+        prepareClaim()
+          .submitCurrencyType(CurrencyType.EUR)
           .getOrFail
 
       inSequence {
@@ -95,8 +131,43 @@ class ChooseRepaymentCurrencyControllerSpec
 
       checkPageIsDisplayed(
         showPage(),
-        messageFromMessageKey(s"$formKey.title")
+        messageFromMessageKey(s"$formKey.title"),
+        assertPageContent(Some("EUR"))
       )
+    }
+
+    "submit EUR option selected" in {
+
+      val claim = prepareClaim()
+
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(SessionData(claim))
+        mockStoreSession(SessionData(claim.submitCurrencyType(CurrencyType.EUR).getOrFail))(Right(()))
+      }
+
+      checkIsRedirect(
+        submitPage("EUR"),
+        routes.EnterBankAccountDetailsController.show
+      )
+
+    }
+
+    "submit GBP option selected" in {
+
+      val claim = prepareClaim()
+
+      inSequence {
+        mockAuthWithDefaultRetrievals()
+        mockGetSession(SessionData(claim))
+        mockStoreSession(SessionData(claim.submitCurrencyType(CurrencyType.GBP).getOrFail))(Right(()))
+      }
+
+      checkIsRedirect(
+        submitPage("GBP"),
+        routes.EnterBankAccountDetailsController.show
+      )
+
     }
 
   }
