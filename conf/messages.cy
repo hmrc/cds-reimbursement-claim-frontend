@@ -1552,7 +1552,9 @@ reimbursement-method.details.p1=Pan fydd Toll Dramor neu TAW mewnforio yn cael e
 reimbursement-method.details.title=Beth yw addasiad mis cyfredol (CMA)?
 reimbursement-method.error.invalid=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
-reimbursement-method.title=Dewiswch ddull ad-dalu
+reimbursement-method.title=Sut yr hoffech gael eich ad-daliad?
+reimbursement-method.payment-option.hint=Os gwnaethoch ddefnyddio cyfrif gohirio ar adeg y mewnforio a’ch bod yn hawlio o fewn y cyfnod addasu
+
 
 rejected-goods.choose-how-many-mrns.details.heading=Beth yw MRN?
 rejected-goods.choose-how-many-mrns.details.p1=Cyfeirnod 18 digid unigryw yw MRN sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio.
