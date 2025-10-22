@@ -46,7 +46,7 @@ class EnterContactDetailsController @Inject() (
     routes.EnterContactDetailsController.submit
 
   final override val continueRoute: Call =
-    routes.CheckClaimantDetailsController.show // change to redirectToALF when CheckClaimantDetails page is removed
+    routes.ClaimantAddressController.redirectToALF()
 
   final override def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim =
     claim.submitContactDetails(contactDetails)

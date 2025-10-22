@@ -17,10 +17,8 @@ POST        /overpayments/multiple/enter-importer-eori                          
 GET         /overpayments/multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterDeclarantEoriNumberController.show
 POST        /overpayments/multiple/enter-declarant-eori                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterDeclarantEoriNumberController.submit
 
-GET         /overpayments/multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimantDetailsController.show
-POST        /overpayments/multiple/claimant-details                                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimantDetailsController.submit
-GET         /overpayments/multiple/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimantDetailsController.redirectToALF
-GET         /overpayments/multiple/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET         /overpayments/multiple/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ClaimantAddressController.redirectToALF
+GET         /overpayments/multiple/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
 GET         /overpayments/multiple/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithAddressController.show
 
 GET         /overpayments/multiple/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.show
