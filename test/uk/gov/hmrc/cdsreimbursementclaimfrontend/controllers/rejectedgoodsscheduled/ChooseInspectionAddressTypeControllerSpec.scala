@@ -73,7 +73,11 @@ class ChooseInspectionAddressTypeControllerSpec
 
   val session: SessionData = SessionData(RejectedGoodsScheduledClaim.empty(exampleEori))
 
-  "Enter Special Circumstances Controller" must {
+  "Choose Inspection Address Type Controller" must {
+
+    def showConfirmationPage: Future[Result] =
+      controller.showAddressConfirmationPage(FakeRequest())
+
     "Show Page" when {
       def performAction(): Future[Result] =
         controller.show(FakeRequest())
@@ -301,6 +305,54 @@ class ChooseInspectionAddressTypeControllerSpec
             )
           )
         }
+      }
+    }
+    "redirect to confirmation page" when {
+
+      "show confirmation page is called and addressId is Some" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim =
+          RejectedGoodsScheduledClaim.unsafeModifyAnswers(claim, _.copy(contactAddress = Some(address)))
+
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        val addressId = address.addressId.getOrElse(fail("Failed to get addressId"))
+
+        checkIsRedirect(
+          showConfirmationPage,
+          viewConfig.getAddressConfirmationUrl(addressId)
+        )
+      }
+    }
+
+    "redirect to start address lookup" when {
+
+      "show confirmation page is called and addressId is None" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim =
+          RejectedGoodsScheduledClaim.unsafeModifyAnswers(
+            claim,
+            _.copy(contactAddress = Some(address.copy(addressId = None)))
+          )
+
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          showConfirmationPage,
+          controller.startAddressLookup
+        )
       }
     }
   }

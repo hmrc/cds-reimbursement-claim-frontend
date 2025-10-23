@@ -185,7 +185,10 @@ class AddressLookupServiceSpec
 
     "retrieving address" should {
 
-      "succeed having valid address ID" in forAll { (id: UUID, address: ContactAddress) =>
+      "succeed having valid address ID" in forAll { (id: UUID, initialAddress: ContactAddress) =>
+
+        val address = initialAddress.copy(addressId = Some(id))
+
         val addressLines = Seq(
           address.line1.some.toList,
           address.line2.toList,

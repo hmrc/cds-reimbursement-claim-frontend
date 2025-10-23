@@ -140,7 +140,8 @@ object CheckYourAnswersInspectionDetailsCardSummary {
       inspectionAddressTypeChangeCallOpt =
         if !isPrintView then Some(rejectedGoodsSingleRoutes.ChooseInspectionAddressTypeController.show) else None,
       inspectionAddressChangeCallOpt =
-        if !isPrintView then Some(rejectedGoodsSingleRoutes.ChooseInspectionAddressTypeController.redirectToALF())
+        if !isPrintView then
+          Some(rejectedGoodsSingleRoutes.ChooseInspectionAddressTypeController.showAddressConfirmationPage)
         else None
     )
 
@@ -156,7 +157,8 @@ object CheckYourAnswersInspectionDetailsCardSummary {
       inspectionAddressTypeChangeCallOpt =
         if !isPrintView then Some(rejectedGoodsMultipleRoutes.ChooseInspectionAddressTypeController.show) else None,
       inspectionAddressChangeCallOpt =
-        if !isPrintView then Some(rejectedGoodsMultipleRoutes.ChooseInspectionAddressTypeController.redirectToALF())
+        if !isPrintView then
+          Some(rejectedGoodsMultipleRoutes.ChooseInspectionAddressTypeController.showAddressConfirmationPage)
         else None
     )
 
@@ -172,7 +174,8 @@ object CheckYourAnswersInspectionDetailsCardSummary {
       inspectionAddressTypeChangeCallOpt =
         if !isPrintView then Some(rejectedGoodsScheduledRoutes.ChooseInspectionAddressTypeController.show) else None,
       inspectionAddressChangeCallOpt =
-        if !isPrintView then Some(rejectedGoodsScheduledRoutes.ChooseInspectionAddressTypeController.redirectToALF())
+        if !isPrintView then
+          Some(rejectedGoodsScheduledRoutes.ChooseInspectionAddressTypeController.showAddressConfirmationPage)
         else None
     )
 }

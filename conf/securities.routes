@@ -52,6 +52,7 @@ GET          /securities/delete-export-movement-reference-number/:mrn  @uk.gov.h
 
 GET          /securities/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimantAddressController.redirectToALF()
 GET          /securities/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /securities/claimant-details/confirm-address              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimantAddressController.showAddressConfirmationPage
 GET          /securities/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ProblemWithAddressController.show
 
 GET          /securities/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterContactDetailsController.show

@@ -61,7 +61,8 @@ object ClaimantInformation {
         countryCode = claimantDetails.map(_.establishmentAddress.countryCode),
         telephoneNumber = None,
         faxNumber = None,
-        emailAddress = contactDetails.emailAddress.flatMap(_.value.asSomeIfNonEmpty)
+        emailAddress = contactDetails.emailAddress.flatMap(_.value.asSomeIfNonEmpty),
+        addressId = contactAddress.addressId
       ),
       contactInformation = ContactInformation(
         contactPerson = contactDetails.fullName.asSomeIfNonEmpty,
@@ -74,7 +75,8 @@ object ClaimantInformation {
         postalCode = contactAddress.postcode.asSomeIfNonEmpty,
         telephoneNumber = contactDetails.phoneNumber.map(_.value),
         faxNumber = None,
-        emailAddress = contactDetails.emailAddress.flatMap(_.value.asSomeIfNonEmpty)
+        emailAddress = contactDetails.emailAddress.flatMap(_.value.asSomeIfNonEmpty),
+        addressId = contactAddress.addressId
       )
     )
 

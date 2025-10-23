@@ -177,7 +177,8 @@ trait ClaimTestData {
       postalCode = Some("AA1AAB"),
       telephoneNumber = None,
       faxNumber = None,
-      emailAddress = None
+      emailAddress = None,
+      addressId = None
     )
 
   final val exampleContactInformation2: ContactInformation =
@@ -192,7 +193,8 @@ trait ClaimTestData {
       postalCode = Some("AA2AAA"),
       telephoneNumber = None,
       faxNumber = None,
-      emailAddress = None
+      emailAddress = None,
+      addressId = None
     )
 
   final val exampleClaimantInformation =

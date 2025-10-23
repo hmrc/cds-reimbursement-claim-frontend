@@ -28,6 +28,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
@@ -68,70 +69,118 @@ class ClaimantAddressControllerSpec
 
   private val session = SessionData(claimWithMrnAndDeclaration)
 
-  "The address lookup" should {
+  "Claimant Address Controller" when {
 
-    "start successfully" in forAll(genUrl) { lookupUrl =>
-      inSequence {
-        mockAuthWithDefaultRetrievals()
-        mockAddressLookup(Right(lookupUrl))
+    "The address lookup" should {
+
+      "start successfully" in forAll(genUrl) { lookupUrl =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockAddressLookup(Right(lookupUrl))
+        }
+
+        checkIsRedirect(startAddressLookup(), lookupUrl.toString)
       }
 
-      checkIsRedirect(startAddressLookup(), lookupUrl.toString)
+      "fail to start if error response received from downstream ALF service" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockAddressLookup(Left(Error("Request was not accepted")))
+        }
+
+        checkIsTechnicalErrorPage(startAddressLookup())
+      }
+
+      "update an address once complete" in forAll(genContactAddress) { address =>
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockAddressRetrieve(Right(address))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          retrieveAddress(Some(UUID.randomUUID())),
+          routes.CheckYourAnswersController.show
+        )
+      }
+
+      "update an address once complete and redirect to CYA when user has seen CYA page" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(claim))
+          mockAddressRetrieve(Right(address))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          retrieveAddress(Some(UUID.randomUUID())),
+          routes.CheckYourAnswersController.show
+        )
+      }
+
+      "fail to update address once bad address lookup ID provided" in {
+        val addressId = UUID.randomUUID()
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
+        }
+
+        checkIsRedirect(
+          retrieveAddress(Some(addressId)),
+          baseRoutes.IneligibleController.ineligible
+        )
+      }
     }
 
-    "fail to start if error response received from downstream ALF service" in {
-      inSequence {
-        mockAuthWithDefaultRetrievals()
-        mockAddressLookup(Left(Error("Request was not accepted")))
+    "Show confirmation page" should {
+
+      "redirect to confirmation page when addressId is Some" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim =
+          RejectedGoodsScheduledClaim.unsafeModifyAnswers(claim, _.copy(contactAddress = Some(address)))
+
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        val addressId = address.addressId.getOrElse(fail("Failed to get addressId"))
+
+        checkIsRedirect(
+          showConfirmationPage,
+          viewConfig.getAddressConfirmationUrl(addressId)
+        )
       }
 
-      checkIsTechnicalErrorPage(startAddressLookup())
-    }
+      "redirect to start address lookup when addressId is None" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim = RejectedGoodsScheduledClaim.unsafeModifyAnswers(
+          claim,
+          _.copy(contactAddress = Some(address.copy(addressId = None)))
+        )
 
-    "update an address once complete" in forAll(genContactAddress) { address =>
-      inSequence {
-        mockAuthWithDefaultRetrievals()
-        mockGetSession(session)
-        mockAddressRetrieve(Right(address))
-        mockStoreSession(Right(()))
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          showConfirmationPage,
+          controller.startAddressLookup
+        )
       }
-
-      checkIsRedirect(
-        retrieveAddress(Some(UUID.randomUUID())),
-        routes.CheckYourAnswersController.show
-      )
-    }
-
-    "update an address once complete and redirect to CYA when user has seen CYA page" in forAll(
-      completeClaimGen,
-      genContactAddress
-    ) { (claim, address) =>
-      inSequence {
-        mockAuthWithOrgWithEoriEnrolmentRetrievals()
-        mockGetSession(SessionData(claim))
-        mockAddressRetrieve(Right(address))
-        mockStoreSession(Right(()))
-      }
-
-      checkIsRedirect(
-        retrieveAddress(Some(UUID.randomUUID())),
-        routes.CheckYourAnswersController.show
-      )
-    }
-
-    "fail to update address once bad address lookup ID provided" in {
-      val addressId = UUID.randomUUID()
-
-      inSequence {
-        mockAuthWithDefaultRetrievals()
-        mockGetSession(session)
-        mockAddressRetrieve(Left(Error(s"No address found for $addressId")))
-      }
-
-      checkIsRedirect(
-        retrieveAddress(Some(addressId)),
-        baseRoutes.IneligibleController.ineligible
-      )
     }
 
     def startAddressLookup(): Future[Result] =
@@ -139,5 +188,8 @@ class ClaimantAddressControllerSpec
 
     def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
       controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
+
+    def showConfirmationPage: Future[Result] =
+      controller.showAddressConfirmationPage(FakeRequest())
   }
 }

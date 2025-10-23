@@ -19,6 +19,7 @@ POST        /overpayments/scheduled/upload-mrn-list                             
 
 GET         /overpayments/scheduled/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ClaimantAddressController.redirectToALF
 GET         /overpayments/scheduled/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET         /overpayments/scheduled/claimant-details/confirm-address                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ClaimantAddressController.showAddressConfirmationPage
 
 GET         /overpayments/scheduled/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.ProblemWithAddressController.show
 

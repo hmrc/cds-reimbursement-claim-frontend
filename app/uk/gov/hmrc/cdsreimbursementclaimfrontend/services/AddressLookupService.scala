@@ -184,6 +184,7 @@ class DefaultAddressLookupService @Inject() (
             .validate[ContactAddress](addressLookupResponseReads)
             .asEither
             .leftMap(formatErrors)
+            .map(contactAddress => contactAddress.copy(addressId = Some(addressId)))
         else Left(Error("Failed to retrieve ALF address"))
       }
   }

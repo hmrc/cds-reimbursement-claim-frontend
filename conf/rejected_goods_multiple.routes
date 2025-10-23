@@ -15,6 +15,7 @@ POST         /rejected-goods/multiple/check-mrn                                 
 
 GET          /rejected-goods/multiple/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.redirectToALF()
 GET          /rejected-goods/multiple/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/claimant-details/confirm-address              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.showAddressConfirmationPage
 GET          /rejected-goods/multiple/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithAddressController.show
 
 GET          /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show
@@ -51,6 +52,7 @@ GET          /rejected-goods/multiple/inspection-address/choose-type            
 POST         /rejected-goods/multiple/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.submit
 GET          /rejected-goods/multiple/inspection-address/lookup-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.redirectToALF()
 GET          /rejected-goods/multiple/inspection-address/update-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/inspection-address/confirm-address            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.showAddressConfirmationPage
 
 GET          /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.show
 POST         /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.submit

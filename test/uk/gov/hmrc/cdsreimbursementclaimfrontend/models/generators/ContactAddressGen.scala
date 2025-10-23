@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 
 import java.util.Locale
+import java.util.UUID
 import scala.collection.immutable.ArraySeq
 
 object ContactAddressGen {
@@ -37,20 +38,22 @@ object ContactAddressGen {
 
   lazy val genContactAddress: Gen[ContactAddress] =
     for
-      num      <- Gen.choose(1, 100)
-      street   <- genStringWithMaxSizeOfN(7)
-      district <- Gen.option(genStringWithMaxSizeOfN(5))
-      road     <- if district.isDefined then Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
-      town     <- genStringWithMaxSizeOfN(10)
-      postcode <- genPostcode
-      country  <- genCountry
+      num       <- Gen.choose(1, 100)
+      street    <- genStringWithMaxSizeOfN(7)
+      district  <- Gen.option(genStringWithMaxSizeOfN(5))
+      road      <- if district.isDefined then Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
+      town      <- genStringWithMaxSizeOfN(10)
+      postcode  <- genPostcode
+      country   <- genCountry
+      addressId <- Gen.uuid
     yield ContactAddress(
       line1 = s"$num $street",
       line2 = district,
       line3 = road,
       line4 = town,
       postcode = postcode,
-      country = country
+      country = country,
+      addressId = Some(addressId)
     )
 
   lazy val genCountry: Gen[Country] = Gen

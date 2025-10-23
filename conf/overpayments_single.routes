@@ -16,6 +16,7 @@ POST        /overpayments/single/check-mrn                                      
 
 GET         /overpayments/single/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ClaimantAddressController.redirectToALF
 GET         /overpayments/single/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET         /overpayments/single/claimant-details/confirm-address                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ClaimantAddressController.showAddressConfirmationPage
 GET         /overpayments/single/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.ProblemWithAddressController.show
 
 GET         /overpayments/single/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.EnterContactDetailsController.show
