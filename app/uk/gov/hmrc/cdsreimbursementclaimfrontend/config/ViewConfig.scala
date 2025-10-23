@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -181,4 +182,7 @@ class ViewConfig @Inject() (
     if ReasonForSecurity.nidac.contains(rfs) then "customsaccountingrepayments@hmrc.gov.uk"
     else if ReasonForSecurity.niru.contains(rfs) then "niru@hmrc.gov.uk"
     else "ntis@hmrc.gov.uk"
+
+  def getAddressConfirmationUrl(addressId: UUID): String =
+    getString("external-url.address-lookup-confirmation").replace("{addressId}", addressId.toString)
 }

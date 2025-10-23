@@ -19,6 +19,7 @@ POST        /overpayments/multiple/enter-declarant-eori                         
 
 GET         /overpayments/multiple/claimant-details/lookup-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ClaimantAddressController.redirectToALF
 GET         /overpayments/multiple/claimant-details/update-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET         /overpayments/multiple/claimant-details/confirm-address                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ClaimantAddressController.showAddressConfirmationPage
 GET         /overpayments/multiple/claimant-details/problem-with-address                    @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.ProblemWithAddressController.show
 
 GET         /overpayments/multiple/claimant-details/change-contact-details                  @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.EnterContactDetailsController.show

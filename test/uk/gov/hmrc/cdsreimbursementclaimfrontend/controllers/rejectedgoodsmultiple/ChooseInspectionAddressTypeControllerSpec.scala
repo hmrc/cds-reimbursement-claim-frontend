@@ -30,6 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
@@ -80,6 +81,9 @@ class ChooseInspectionAddressTypeControllerSpec
 
   def retrieveAddress(maybeAddressId: Option[UUID]): Future[Result] =
     controller.retrieveAddressFromALF(maybeAddressId)(FakeRequest())
+
+  def showConfirmationPage: Future[Result] =
+    controller.showAddressConfirmationPage(FakeRequest())
 
   "Choose Inspection Address Type Controller" should {
 
@@ -339,6 +343,55 @@ class ChooseInspectionAddressTypeControllerSpec
             claim,
             Redirect(routes.CheckYourAnswersController.show)
           )
+        )
+      }
+    }
+
+    "redirect to confirmation page" when {
+
+      "show confirmation page is called and addressId is Some" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim =
+          RejectedGoodsMultipleClaim.unsafeModifyAnswers(claim, _.copy(contactAddress = Some(address)))
+
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        val addressId = address.addressId.getOrElse(fail("Failed to get addressId"))
+
+        checkIsRedirect(
+          showConfirmationPage,
+          viewConfig.getAddressConfirmationUrl(addressId)
+        )
+      }
+    }
+
+    "redirect to start address lookup" when {
+
+      "show confirmation page is called and addressId is None" in forAll(
+        completeClaimGen,
+        genContactAddress
+      ) { (claim, address) =>
+        val updatedClaim =
+          RejectedGoodsMultipleClaim.unsafeModifyAnswers(
+            claim,
+            _.copy(contactAddress = Some(address.copy(addressId = None)))
+          )
+
+        inSequence {
+          mockAuthWithOrgWithEoriEnrolmentRetrievals()
+          mockGetSession(SessionData(updatedClaim))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          showConfirmationPage,
+          controller.startAddressLookup
         )
       }
     }

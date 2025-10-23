@@ -20,6 +20,8 @@ import cats.Eq
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 
+import java.util.UUID
+
 final case class ContactInformation(
   contactPerson: Option[String],
   addressLine1: Option[String],
@@ -31,7 +33,8 @@ final case class ContactInformation(
   postalCode: Option[String],
   telephoneNumber: Option[String],
   faxNumber: Option[String],
-  emailAddress: Option[String]
+  emailAddress: Option[String],
+  addressId: Option[UUID]
 )
 
 object ContactInformation {

@@ -46,6 +46,9 @@ class ClaimantAddressController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
+  val startAddressLookup: Call =
+    routes.ClaimantAddressController.redirectToALF()
+
   override val problemWithAddressPage: Call = routes.ProblemWithAddressController.show
 
   override val retrieveLookupAddress: Call =

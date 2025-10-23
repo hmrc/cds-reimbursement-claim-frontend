@@ -20,6 +20,7 @@ import cats.Eq
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
+import java.util.UUID
 import scala.annotation.tailrec
 
 /** Address model returned from the Address Lookup Frontend service */
@@ -30,21 +31,22 @@ final case class ContactAddress(
   line4: String,
   postcode: String,
   country: Country,
-  addressHasChanged: Boolean = false
+  addressHasChanged: Boolean = false,
+  addressId: Option[UUID] = None
 ) {
 
   @tailrec
   def overflowExcessCharacters(): ContactAddress =
     this match {
-      case ca @ ContactAddress(line1, line2, _, _, _, _, _) if line1.length > 35 =>
+      case ca @ ContactAddress(line1, line2, _, _, _, _, _, _) if line1.length > 35 =>
         val (l1, l2) = overflow(line1, line2, 35)
         ca.copy(line1 = l1, line2 = l2).overflowExcessCharacters()
 
-      case ca @ ContactAddress(_, Some(line2), line3, _, _, _, _) if line2.length > 35 =>
+      case ca @ ContactAddress(_, Some(line2), line3, _, _, _, _, _) if line2.length > 35 =>
         val (l2, l3) = overflow(line2, line3, 35)
         ca.copy(line2 = Some(l2), line3 = l3).overflowExcessCharacters()
 
-      case ca @ ContactAddress(_, _, Some(line3), _, _, _, _) if line3.length > 35 =>
+      case ca @ ContactAddress(_, _, Some(line3), _, _, _, _, _) if line3.length > 35 =>
         val (l3, _) = overflow(line3, None, 35)
         ca.copy(line3 = Some(l3))
 
