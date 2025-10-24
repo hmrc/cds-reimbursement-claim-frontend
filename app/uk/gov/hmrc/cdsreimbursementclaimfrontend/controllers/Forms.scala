@@ -70,17 +70,20 @@ object Forms {
     )(Eori.apply)(v => Some(v.value))
   )
 
-  def newDanForm(key: String): Form[Dan] = Form(
-    mapping(
-      key -> text
-        .verifying(Constraint[String] { (str: String) =>
-          if str.isBlank then Invalid("error.required")
-          else if str.length != 7 then Invalid("error.maxLength")
-          else if !str.forall(_.isDigit) then Invalid("invalid.number")
-          else Valid
-        })
-    )(Dan.apply)(v => Some(v.value))
-  )
+  def newDanForm(key: String): Form[Dan] =
+    Form(
+      mapping(
+        key -> text
+          .transform[String](_.trim, identity)
+          .verifying(Constraint[String] { (str: String) =>
+            if str.isBlank then Invalid("error.required")
+            else if str.length != 7 then Invalid("error.maxLength")
+            else if !str.forall(_.isDigit) then Invalid("invalid.number")
+            else Valid
+          })
+          .transform[Dan](Dan(_), _.value)
+      )(identity)(Some(_))
+    )
 
   val chooseHowManyMrnsForm: Form[RejectedGoodsClaimType] = Form(
     mapping(
