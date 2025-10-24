@@ -231,21 +231,10 @@ class EnterMovementReferenceNumberControllerSpec
           }
       }
 
-      "reject an MRN with subsidies payment method" in forAll { (mrn: MRN, declarant: Eori, consignee: Eori) =>
-        val session = SessionData.empty.copy(
-          overpaymentsScheduledClaim = Some(
-            OverpaymentsScheduledClaim
-              .empty(
-                exampleEori
-              )
-          )
-        )
-
+      "display subsidy waiver error page for MRN with some subsidies payment method" in forAll { (mrn: MRN) =>
         val importDeclaration =
           buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
             .withDeclarationId(mrn.value)
-            .withDeclarantEori(declarant)
-            .withConsigneeEori(consignee)
             .withSomeSubsidiesPaymentMethod()
 
         inSequence {
@@ -257,6 +246,30 @@ class EnterMovementReferenceNumberControllerSpec
         checkPageIsDisplayed(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
           messageFromMessageKey("subsidy-waiver-error.title"),
+          doc =>
+            doc
+              .select("form")
+              .attr("action") shouldBe routes.EnterMovementReferenceNumberController.submitWithoutSubsidies.url,
+          expectedStatus = OK
+        )
+      }
+
+      "display subsidy waiver error page for MRN with only subsidies payment method" in forAll { (mrn: MRN) =>
+        val importDeclaration =
+          buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withAllSubsidiesPaymentMethod()
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetImportDeclaration(mrn, Right(Some(importDeclaration)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          messageFromMessageKey("subsidy-waiver-error.title"),
+          doc => doc.select("form").attr("action").isEmpty shouldBe true,
           expectedStatus = OK
         )
       }
@@ -370,6 +383,70 @@ class EnterMovementReferenceNumberControllerSpec
       //       routes.EnterImporterEoriNumberController.show
       //     )
       //   }
+    }
+
+    "Submit MRN without subsidies" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submitWithoutSubsidies(FakeRequest().withFormUrlEncodedBody(data*))
+
+      "reject an empty MRN" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterMovementReferenceNumberKey -> ""),
+          messageFromMessageKey("enter-movement-reference-number.scheduled.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.error.required"),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "remove subsidies for MRN with some subsidies payment method" in forAll { (mrn: MRN) =>
+        val claim                         = session.overpaymentsScheduledClaim.getOrElse(fail("No overpayments claim"))
+        val importDeclaration             =
+          buildImportDeclaration(dutyDetails = Seq((TaxCode.A50, 100, false), (TaxCode.A70, 100, false)))
+            .withDeclarationId(mrn.value)
+            .withSomeSubsidiesPaymentMethod()
+        val updatedDeclarantDetails       = importDeclaration.displayResponseDetail.declarantDetails.copy(
+          declarantEORI = claim.answers.userEoriNumber.value
+        )
+        val updatedDisplayResponseDetails =
+          importDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
+        val updatedImportDeclaration      =
+          importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails).removeSubsidyItems
+        val updatedClaim                  =
+          claim
+            .submitMovementReferenceNumberAndDeclaration(mrn, updatedImportDeclaration)
+            .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetImportDeclaration(mrn, Right(Some(importDeclaration)))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> mrn.value),
+          routes.CheckDeclarationDetailsController.show
+        )
+      }
+
+      "reject an unknown mrn or mrn without declaration" in {
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(session)
+          mockGetImportDeclaration(exampleMrn, Right(None))
+        }
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.ProblemWithMrnController.show(exampleMrn)
+        )
+      }
     }
   }
 }

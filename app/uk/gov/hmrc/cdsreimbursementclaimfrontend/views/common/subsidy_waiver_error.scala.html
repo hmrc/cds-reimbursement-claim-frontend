@@ -42,7 +42,7 @@
     @paragraph(Html(messages(s"$key.p1", gFormUrl, formType)))
 
     @if(subsidyType == "full") {
-      @paragraph(Html(messages(s"$key.$subsidyType.$claimType.p2")))
+        @paragraph(Html(messages(s"$key.$subsidyType.$claimType.p2", enterMrnUrl.url, commonRoutes.ChooseClaimTypeController.show)))
 
       @if(claimType == "single") {
         @bullets(
@@ -55,12 +55,10 @@
     }
 
     @if(subsidyType == "part") {
-     @paragraph(Html(messages(s"$key.$subsidyType.p2")))
-      @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
-        <input type="hidden" name="enter-movement-reference-number" value="@mrn.value"/>
-        @submitButton(s"button.continue")
-      }
+        @paragraph(Html(messages(s"$key.$subsidyType.p2")))
+        @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
+            <input type="hidden" name="enter-movement-reference-number" value="@mrn.value"/>
+            @submitButton(s"button.continue")
+        }
     }
-
-
 }

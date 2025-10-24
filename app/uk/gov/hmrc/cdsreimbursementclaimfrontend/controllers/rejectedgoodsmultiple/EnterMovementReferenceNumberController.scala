@@ -24,6 +24,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Request
 import play.api.mvc.Result
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
@@ -37,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -46,10 +48,23 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
-  enterMovementReferenceNumberPage: enter_movement_reference_number
+  enterMovementReferenceNumberPage: enter_movement_reference_number,
+  subsidyWaiverPage: subsidy_waiver_error
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleClaimBaseController
     with GetXiEoriMixin {
+
+  def subsidyWaiverErrorPage: (MRN, Boolean, Int) => Request[?] ?=> HtmlFormat.Appendable =
+    (mrn, isOnlySubsidies, pageIndex) =>
+      subsidyWaiverPage(
+        "C&E1179",
+        "multiple",
+        if isOnlySubsidies then "full" else "part",
+        mrn,
+        routes.EnterMovementReferenceNumberController.submitWithoutSubsidies(pageIndex),
+        viewConfig.ce1179FormUrl,
+        routes.EnterMovementReferenceNumberController.show(pageIndex)
+      )
 
   final val showFirst: Action[AnyContent] = show(1)
 
@@ -99,21 +114,20 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for
                 maybeAcc14    <- claimService.getImportDeclaration(mrn)
+                updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14)
                 _             <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
                                    claim,
-                                   maybeAcc14
-                                 )
-                updatedClaim  <- updateClaim(
-                                   claim,
-                                   mrnIndex,
-                                   mrn,
                                    maybeAcc14
                                  )
                 updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
               yield updatedClaim2
             }.fold(
               error =>
-                if error.message.startsWith("error.") then {
+                if error.message === "error.has-only-subsidy-items" then {
+                  (claim, Ok(subsidyWaiverErrorPage(mrn, true, pageIndex)))
+                } else if error.message == "error.has-some-subsidy-items" then {
+                  (claim, Ok(subsidyWaiverErrorPage(mrn, false, pageIndex)))
+                } else if error.message.startsWith("error.") then {
                   (
                     claim,
                     BadRequest(
@@ -127,31 +141,51 @@ class EnterMovementReferenceNumberController @Inject() (
                     )
                   )
                 } else if error.message === "submitMovementReferenceNumber.wrongImportDeclarationEori" then {
-                  (
-                    claim,
-                    BadRequest(customError(mrn, pageIndex, "error.wrongMRN"))
-                  )
-                } else if error.message === "submitMovementReferenceNumber.needsSubsidy" then {
-                  (
-                    claim,
-                    BadRequest(customError(mrn, pageIndex, "error.needsSubsidy"))
-                  )
-                } else if error.message === "submitMovementReferenceNumber.needsNonSubsidy" then {
-                  (
-                    claim,
-                    BadRequest(
-                      customError(mrn, pageIndex, "error.needsNonSubsidy")
-                    )
-                  )
+                  (claim, BadRequest(customError(mrn, pageIndex, "error.wrongMRN")))
                 } else if error.message === "submitMovementReferenceNumber.movementReferenceNumberAlreadyExists" then {
-                  (
-                    claim,
-                    BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN"))
-                  )
+                  (claim, BadRequest(customError(mrn, pageIndex, "multiple.error.existingMRN")))
                 } else {
                   logger.error(s"Unable to record $mrn", error.toException)
                   (claim, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn)))
                 },
+              updatedClaim => (updatedClaim, redirectLocation(claim, updatedClaim, mrn, pageIndex))
+            )
+        )
+    }
+  }
+
+  final def submitWithoutSubsidies(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
+    if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
+      (
+        claim,
+        Redirect(routes.CheckMovementReferenceNumbersController.show)
+      )
+    else {
+      val mrnIndex: Int = pageIndex - 1
+      movementReferenceNumberForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                enterMovementReferenceNumberPage(
+                  formWithErrors,
+                  "multiple",
+                  Some(pageIndex),
+                  routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                )
+              )
+            ),
+          mrn =>
+            {
+              for
+                maybeAcc14    <- claimService.getImportDeclaration(mrn)
+                updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14.map(_.removeSubsidyItems))
+                updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
+              yield updatedClaim2
+            }.fold(
+              _ => (claim, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn))),
               updatedClaim => (updatedClaim, redirectLocation(claim, updatedClaim, mrn, pageIndex))
             )
         )
