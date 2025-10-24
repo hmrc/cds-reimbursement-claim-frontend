@@ -72,8 +72,13 @@ object Forms {
 
   def newDanForm(key: String): Form[Dan] = Form(
     mapping(
-      key -> nonEmptyText(maxLength = 7)
-        .verifying("invalid.number", str => str.length > 7 || str.isEmpty || Dan(str).isValid)
+      key -> text
+        .verifying(Constraint[String] { (str: String) =>
+          if str.isBlank then Invalid("error.required")
+          else if str.length != 7 then Invalid("error.maxLength")
+          else if !str.forall(_.isDigit) then Invalid("invalid.number")
+          else Valid
+        })
     )(Dan.apply)(v => Some(v.value))
   )
 
