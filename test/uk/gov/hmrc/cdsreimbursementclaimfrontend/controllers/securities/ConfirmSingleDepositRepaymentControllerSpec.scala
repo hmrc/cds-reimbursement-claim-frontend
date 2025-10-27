@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission3M
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesClaimModes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -48,6 +49,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import java.text.NumberFormat
 import java.util.Locale
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -238,6 +240,29 @@ class ConfirmSingleDepositRepaymentControllerSpec
             routes.PartialClaimsController.show
           )
         }
+      }
+
+      "redirect back to check repayment total when no is selected and was the previous selection" in {
+        val claim = SecuritiesClaim.unsafeModifyAnswers(
+          completeClaimGen.sample.get,
+          _.copy(
+            modes = SecuritiesClaimModes(
+              checkYourAnswersChangeMode = false,
+              checkClaimDetailsChangeMode = true,
+              claimFullAmountMode = false
+            )
+          )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkIsRedirect(
+          performAction(Seq(confirmFullRepaymentKey -> "false")),
+          routes.CheckClaimDetailsSingleSecurityController.show
+        )
       }
 
       "display error when no option selected" in {

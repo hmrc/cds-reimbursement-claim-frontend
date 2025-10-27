@@ -136,14 +136,16 @@ class ConfirmSingleDepositRepaymentController @Inject() (
   def submitNo(securityId: String, claim: SecuritiesClaim)(implicit
     request: Request[?]
   ): (SecuritiesClaim, Result) =
-    claim
-      .clearCorrectedAmounts(securityId)
-      .fold(
-        { error =>
-          logger.warn(error)
-          (claim, errorHandler.errorResult())
-        },
-        updatedClaim => (updatedClaim, Redirect(routes.PartialClaimsController.show))
-      )
-
+    if claim.answers.modes.checkClaimDetailsChangeMode && claim.getClaimFullAmountStatus(securityId).contains(No) then
+      (claim, Redirect(routes.CheckClaimDetailsSingleSecurityController.show))
+    else
+      claim
+        .clearCorrectedAmounts(securityId)
+        .fold(
+          { error =>
+            logger.warn(error)
+            (claim, errorHandler.errorResult())
+          },
+          updatedClaim => (updatedClaim, Redirect(routes.PartialClaimsController.show))
+        )
 }
