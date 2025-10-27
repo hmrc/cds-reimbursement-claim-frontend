@@ -101,6 +101,7 @@ class UploadDocumentsConnectorSpec
       maximumFileSizeBytes = 10L * 1024L * 1024L,
       allowedContentTypes = "image/png",
       allowedFileExtensions = "*.png",
+      prePopulateYesOrNoForm = None,
       content = UploadDocumentsSessionConfig
         .Content(
           serviceName = "service.title",
