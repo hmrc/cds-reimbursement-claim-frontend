@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ExciseCategory, TaxCode}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -56,16 +56,15 @@
 
     @errorSummary(form.errors)
 
-    @heading(Html(title))
-
-    @paragraph(Html(messages(s"select-excise-duty-codes.p1")))
-    
     @formWithCSRF(postAction, Symbol("novalidate") -> "novalidate") {
 
         @checkboxes(
             field = form(s"select-duty-codes"),
-            legend = null,
-            items = options
+            items = options,
+            legend = HtmlContent(title),
+            legendAsHeading = true,
+            legendClasses = Some("govuk-fieldset__legend--l"),
+            hint = Some(Html(messages(s"select-excise-duty-codes.p1")))
         )
 
         @submitButton("button.continue")
