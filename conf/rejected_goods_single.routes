@@ -12,11 +12,10 @@ POST         /rejected-goods/single/enter-declarant-eori                        
                 
 GET          /rejected-goods/single/check-mrn                                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.show
 POST         /rejected-goods/single/check-mrn                                                   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.submit
-                
-GET          /rejected-goods/single/claimant-details                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.show
-POST         /rejected-goods/single/claimant-details                                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.submit
-GET          /rejected-goods/single/claimant-details/lookup-address                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.redirectToALF()
-GET          /rejected-goods/single/claimant-details/update-address                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+
+GET          /rejected-goods/single/claimant-details/lookup-address                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ClaimantAddressController.redirectToALF()
+GET          /rejected-goods/single/claimant-details/update-address                             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/single/claimant-details/confirm-address                            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ClaimantAddressController.showAddressConfirmationPage
 GET          /rejected-goods/single/claimant-details/problem-with-address                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ProblemWithAddressController.show
                 
 GET          /rejected-goods/single/claimant-details/change-contact-details                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.show
@@ -44,6 +43,7 @@ POST         /rejected-goods/single/inspection-address/choose-type              
                 
 GET          /rejected-goods/single/inspection-address/lookup-address                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.redirectToALF()
 GET          /rejected-goods/single/inspection-address/update-address                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/single/inspection-address/confirm-address                          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.ChooseInspectionAddressTypeController.showAddressConfirmationPage
                 
 GET          /rejected-goods/single/enter-inspection-date                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.show
 POST         /rejected-goods/single/enter-inspection-date                                       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterInspectionDateController.submit

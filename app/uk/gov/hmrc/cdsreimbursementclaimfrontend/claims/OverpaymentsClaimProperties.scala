@@ -30,7 +30,6 @@ trait OverpaymentsClaimProperties extends CommonClaimProperties {
   def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
   final override def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
-    // If only subsidy logic needs to be added here
     if declaration.hasOnlySubsidyPayments
     then Some("error.has-only-subsidy-items")
     else if declaration.hasSomeSubsidyPayment

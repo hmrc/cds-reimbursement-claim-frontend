@@ -1,8 +1,9 @@
 GET          /rejected-goods/multiple/have-your-documents-ready                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.HaveDocumentsReadyController.show
 
-GET          /rejected-goods/multiple/enter-movement-reference-number               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showFirst()
-GET          /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show(index: Int)
-POST         /rejected-goods/multiple/enter-movement-reference-number/:index        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submit(index: Int)
+GET          /rejected-goods/multiple/enter-movement-reference-number                               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.showFirst()
+GET          /rejected-goods/multiple/enter-movement-reference-number/:index                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.show(index: Int)
+POST         /rejected-goods/multiple/enter-movement-reference-number/:index                        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submit(index: Int)
+POST         /rejected-goods/multiple/enter-movement-reference-number/:index/without-subsidies      @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterMovementReferenceNumberController.submitWithoutSubsidies(index: Int)
 
 GET          /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.show
 POST         /rejected-goods/multiple/enter-importer-eori                           @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterImporterEoriNumberController.submit
@@ -13,10 +14,9 @@ POST         /rejected-goods/multiple/enter-declarant-eori                      
 GET          /rejected-goods/multiple/check-mrn                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.show
 POST         /rejected-goods/multiple/check-mrn                                     @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckDeclarationDetailsController.submit
 
-GET          /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.show
-POST         /rejected-goods/multiple/claimant-details                              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.submit
-GET          /rejected-goods/multiple/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.redirectToALF()
-GET          /rejected-goods/multiple/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.CheckClaimantDetailsController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/claimant-details/lookup-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.redirectToALF()
+GET          /rejected-goods/multiple/claimant-details/update-address               @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/claimant-details/confirm-address              @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ClaimantAddressController.showAddressConfirmationPage
 GET          /rejected-goods/multiple/claimant-details/problem-with-address         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ProblemWithAddressController.show
 
 GET          /rejected-goods/multiple/claimant-details/change-contact-details       @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterContactDetailsController.show
@@ -53,6 +53,7 @@ GET          /rejected-goods/multiple/inspection-address/choose-type            
 POST         /rejected-goods/multiple/inspection-address/choose-type                @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.submit
 GET          /rejected-goods/multiple/inspection-address/lookup-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.redirectToALF()
 GET          /rejected-goods/multiple/inspection-address/update-address             @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.retrieveAddressFromALF(id: Option[UUID] ?= None)
+GET          /rejected-goods/multiple/inspection-address/confirm-address            @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.ChooseInspectionAddressTypeController.showAddressConfirmationPage
 
 GET          /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.show
 POST         /rejected-goods/multiple/enter-inspection-date                         @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.EnterInspectionDateController.submit

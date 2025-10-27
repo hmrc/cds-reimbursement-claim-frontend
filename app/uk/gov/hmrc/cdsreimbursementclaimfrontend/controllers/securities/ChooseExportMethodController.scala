@@ -111,7 +111,13 @@ class ChooseExportMethodController @Inject() (
     claim.getReasonForSecurity
       .fold((claim, errorHandler.errorResult())) {
         case rfs if ReasonForSecurity.ntas.contains(rfs) => body
-        case _                                           => (claim, Redirect(routes.CheckClaimantDetailsController.show))
+        case _                                           =>
+          (
+            claim,
+            if claim.isSingleSecurity
+            then Redirect(routes.ChoosePayeeTypeController.show)
+            else Redirect(routes.ConfirmFullRepaymentController.showFirst)
+          )
       }
 
 }

@@ -137,14 +137,6 @@ check-claim.securities.single.hidden.duty-amount={0} amount
 check-claim.securities.single.claiming-full-amount=Do you want to claim back the full amount?
 check-claim.securities.single.what-do-you-want-to-claim=What do you want to claim?
 
-
-check-claimant-details.change-hint.address=Contact address
-check-claimant-details.change-hint.contact=Contact details
-check-claimant-details.contact.address=Contact address
-check-claimant-details.contact.details=Contact details
-check-claimant-details.inset-text=Contact details are used only for this claim.
-check-claimant-details.title=Confirm contact details for this claim
-
 check-declaration-details.banner.empty-securities-selection=You must choose at least one security to progress with this claim.
 check-declaration-details.bta-due-date-label=Date security deposit made
 check-declaration-details.declarant-address-label=Declarant address
@@ -1299,7 +1291,7 @@ enter-movement-reference-number.single.title=Movement Reference Number (MRN)
 enter-new-dan.title=What’s the correct deferment account number?
 enter-new-dan.inset-text=You must be authorised to use this deferment account.
 enter-new-dan.hint=Must be 7 numbers
-enter-new-dan.error.maxLength=Deferment account number must only include numbers 0 to 9
+enter-new-dan.error.maxLength=Deferment account number must be 7 digits
 enter-new-dan.error.required=Enter deferment account number
 enter-new-dan.invalid.number=Deferment account number must only include numbers 0 to 9
 enter-new-dan.label=Enter the correct deferment account number

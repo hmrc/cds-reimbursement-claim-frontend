@@ -34,7 +34,7 @@ class ProblemWithAddressController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesClaimBaseController {
 
-  val startAddressLookup: Call = routes.CheckClaimantDetailsController.redirectToALF()
+  val startAddressLookup: Call = routes.ClaimantAddressController.redirectToALF()
 
   val show: Action[AnyContent] = actionReadClaim { _ =>
     Ok(problemWithAddressPage(startAddressLookup))

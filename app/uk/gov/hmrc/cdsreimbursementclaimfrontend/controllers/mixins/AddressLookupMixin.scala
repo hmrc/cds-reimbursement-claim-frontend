@@ -39,6 +39,7 @@ trait AddressLookupMixin extends ClaimBaseController {
 
   val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
+  val startAddressLookup: Call
 
   def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim
 
@@ -77,4 +78,11 @@ trait AddressLookupMixin extends ClaimBaseController {
       fastForwardToCYAEnabled = false
     )
 
+  val showAddressConfirmationPage: Action[AnyContent] =
+    actionReadClaim(claim =>
+      claim.answers.contactAddress.flatMap(_.addressId) match {
+        case Some(addressId) => Redirect(Call("GET", viewConfig.getAddressConfirmationUrl(addressId)))
+        case _               => Redirect(startAddressLookup)
+      }
+    )
 }

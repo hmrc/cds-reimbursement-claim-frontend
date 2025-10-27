@@ -139,13 +139,6 @@ check-claim.excise.duties-selected-summary.hidden=Y tollau {0} rydych am hawlio 
 check-claim.duties-selected-summary.hidden=Y {0} rydych am hawlio ar eu cyfer
 check-claim.table.scheduled.change-link=<a href="{0}" id="{1}" class="govuk-link">Newid<span class="govuk-visually-hidden">{2}</span></a>
 
-check-claimant-details.change-hint.address=Cyfeiriad cyswllt
-check-claimant-details.change-hint.contact=Manylion cyswllt
-check-claimant-details.contact.address=Cyfeiriad cyswllt
-check-claimant-details.contact.details=Manylion cyswllt
-check-claimant-details.inset-text=Defnyddir manylion cyswllt ar gyfer yr hawliad hwn yn unig.
-check-claimant-details.title=Cadarnhau manylion cyswllt ar gyfer yr hawliad hwn
-
 check-declaration-details.banner.empty-securities-selection=Mae’n rhaid i chi ddewis o leiaf un sicrwydd er mwyn symud ymlaen gyda’r hawliad hwn.
 check-declaration-details.bta-due-date-label=Dyddiad gwneud y blaendal sicrwydd
 check-declaration-details.declarant-address-label=Cyfeiriad y datganydd
@@ -1298,7 +1291,7 @@ enter-movement-reference-number.single.title=Cyfeirnod Symud (MRN)
 enter-new-dan.title=Beth yw rhif y cyfrif gohirio cywir?
 enter-new-dan.inset-text=Mae’n rhaid i chi fod wedi’ch awdurdodi i ddefnyddio’r cyfrif gohirio hwn.
 enter-new-dan.hint=Mae’n rhaid i rif y cyfrif fod yn 7 rhif
-enter-new-dan.error.maxLength=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
+enter-new-dan.error.maxLength=Mae’n rhaid i rif y cyfrif gohirio fod yn 7 digid
 enter-new-dan.error.required=Nodwch rif cyfrif gohirio
 enter-new-dan.invalid.number=Mae’n rhaid i rif cyfrif gohirio gynnwys y rhifau 0 i 9 yn unig
 enter-new-dan.label=Nodwch rif y cyfrif gohirio cywir
@@ -1552,7 +1545,9 @@ reimbursement-method.details.p1=Pan fydd Toll Dramor neu TAW mewnforio yn cael e
 reimbursement-method.details.title=Beth yw addasiad mis cyfredol (CMA)?
 reimbursement-method.error.invalid=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
 reimbursement-method.error.required=Dewiswch i gael eich ad-dalu drwy Addasiad Mis Cyfredol (CMA) neu drwy Drosglwyddiad Cyfrif Banc
-reimbursement-method.title=Dewiswch ddull ad-dalu
+reimbursement-method.title=Sut yr hoffech gael eich ad-daliad?
+reimbursement-method.payment-option.hint=Os gwnaethoch ddefnyddio cyfrif gohirio ar adeg y mewnforio a’ch bod yn hawlio o fewn y cyfnod addasu
+
 
 rejected-goods.choose-how-many-mrns.details.heading=Beth yw MRN?
 rejected-goods.choose-how-many-mrns.details.p1=Cyfeirnod 18 digid unigryw yw MRN sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio.
