@@ -49,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import java.text.NumberFormat
 import java.util.Locale
-import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -227,11 +226,20 @@ class ConfirmSingleDepositRepaymentControllerSpec
       }
 
       "continue to partial claims page when no is selected" in {
-        forAll(incompleteClaim) { claim =>
-          val sessionData = SessionData(claim)
+        forAll(incompleteClaim) { initialClaim =>
+          val claim = SecuritiesClaim.unsafeModifyAnswers(
+            initialClaim,
+            _.copy(
+              modes = SecuritiesClaimModes(
+                checkYourAnswersChangeMode = false,
+                checkClaimDetailsChangeMode = false
+              )
+            )
+          )
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionData)
+            mockGetSession(SessionData(claim))
             mockStoreSession(Right(()))
           }
 
