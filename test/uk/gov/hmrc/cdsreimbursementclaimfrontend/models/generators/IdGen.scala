@@ -91,6 +91,12 @@ object IdGen {
     d2      <- Gen.listOfN(1, Gen.numChar)
   yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
 
+  lazy val genChiefEntryMRN: Gen[MRN] = for
+    d1        <- Gen.listOfN(3, Gen.numChar)
+    maybeDash <- Gen.option(Gen.const("-"))
+    d2        <- Gen.listOfN(6, Gen.numChar)
+  yield MRN((d1 ++ maybeDash ++ d2).mkString)
+
   lazy val genName: Gen[Name] = for
     name     <- genStringWithMaxSizeOfN(20)
     lastName <- genStringWithMaxSizeOfN(20)
