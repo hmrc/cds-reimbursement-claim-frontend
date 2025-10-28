@@ -44,11 +44,9 @@ class SelectDutyTypesController @Inject() (
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
-  val show: Action[AnyContent] = actionReadClaim { _ =>
-    val form = selectDutyTypesForm
-
+  val show: Action[AnyContent] = actionReadClaim { claim =>
+    val form = selectDutyTypesForm.withDefault(claim.getSelectedDutyTypes.map(_.toList))
     Ok(selectDutyTypesPage(form, postAction))
-
   }
 
   val submit: Action[AnyContent] = actionReadWriteClaim(
