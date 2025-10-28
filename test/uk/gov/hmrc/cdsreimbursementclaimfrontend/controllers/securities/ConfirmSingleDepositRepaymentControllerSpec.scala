@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.TemporaryAdmission3M
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesClaimModes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
@@ -225,11 +226,20 @@ class ConfirmSingleDepositRepaymentControllerSpec
       }
 
       "continue to partial claims page when no is selected" in {
-        forAll(incompleteClaim) { claim =>
-          val sessionData = SessionData(claim)
+        forAll(incompleteClaim) { initialClaim =>
+          val claim = SecuritiesClaim.unsafeModifyAnswers(
+            initialClaim,
+            _.copy(
+              modes = SecuritiesClaimModes(
+                checkYourAnswersChangeMode = false,
+                checkClaimDetailsChangeMode = false
+              )
+            )
+          )
+
           inSequence {
             mockAuthWithDefaultRetrievals()
-            mockGetSession(sessionData)
+            mockGetSession(SessionData(claim))
             mockStoreSession(Right(()))
           }
 
@@ -238,6 +248,29 @@ class ConfirmSingleDepositRepaymentControllerSpec
             routes.PartialClaimsController.show
           )
         }
+      }
+
+      "redirect back to check repayment total when no is selected and was the previous selection" in {
+        val claim = SecuritiesClaim.unsafeModifyAnswers(
+          completeClaimGen.sample.get,
+          _.copy(
+            modes = SecuritiesClaimModes(
+              checkYourAnswersChangeMode = false,
+              checkClaimDetailsChangeMode = true,
+              claimFullAmountMode = false
+            )
+          )
+        )
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkIsRedirect(
+          performAction(Seq(confirmFullRepaymentKey -> "false")),
+          routes.CheckClaimDetailsSingleSecurityController.show
+        )
       }
 
       "display error when no option selected" in {
