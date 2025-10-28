@@ -105,6 +105,11 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
         errors shouldBe Nil
       }
 
+      "Accept a valid CHIEF entry" in forAll(genChiefEntryMRN) { mrn =>
+        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrn.value, firstYesNoKey -> "true")).errors
+        errors shouldBe Nil
+      }
+
       "Reject empty MRN" in {
         val errors = firstExportMrnForm.bind(Map(mrnKey -> "", firstYesNoKey -> "true")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
@@ -113,16 +118,6 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
       "Reject empty yes no option" in {
         val errors = firstExportMrnForm.bind(Map(mrnKey -> genMRN.sample.get.value, firstYesNoKey -> "")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
-      }
-
-      "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
-        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrnChars.toString(), firstYesNoKey -> "true")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
-      }
-
-      "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
-        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrnChars.toString(), firstYesNoKey -> "true")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
       }
 
       "Reject MRN containing special characters" in {
@@ -146,6 +141,11 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
         errors shouldBe Nil
       }
 
+      "Accept a valid CHIEF entry" in forAll(genChiefEntryMRN) { mrn =>
+        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrn.value, nextYesNoKey -> "true")).errors
+        errors shouldBe Nil
+      }
+
       "Reject empty MRN" in {
         val errors = nextExportMrnForm.bind(Map(nextMrnKey -> "", nextYesNoKey -> "true")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
@@ -154,16 +154,6 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
       "Accept empty optional yes no option" in {
         val errors = nextExportMrnForm.bind(Map(nextMrnKey -> genMRN.sample.get.value, nextYesNoKey -> "")).errors
         errors shouldBe Nil
-      }
-
-      "Reject too long MRN" in forAll(Gen.listOfN(19, Gen.alphaNumChar)) { mrnChars =>
-        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrnChars.toString(), nextYesNoKey -> "true")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
-      }
-
-      "Reject too short MRN" in forAll(Gen.listOfN(17, Gen.alphaNumChar)) { mrnChars =>
-        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrnChars.toString(), nextYesNoKey -> "true")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.length")
       }
 
       "Reject MRN containing special characters" in {

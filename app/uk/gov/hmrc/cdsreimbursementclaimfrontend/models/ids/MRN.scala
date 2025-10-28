@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.Eq
 import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.chiefValidityRegex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
@@ -25,12 +26,14 @@ import java.util.Locale
 
 final case class MRN private (value: String) {
 
-  def isValid: Boolean = value `matches` validityRegex
+  def isValid: Boolean           = value `matches` validityRegex
+  def isValidChiefEntry: Boolean = value `matches` chiefValidityRegex
 }
 
 object MRN {
 
-  private val validityRegex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
+  private val validityRegex      = """\d{2}[a-zA-Z]{2}\w{13}\d"""
+  private val chiefValidityRegex = """(\d{3})?-?\d{6}"""
 
   def apply(value: String): MRN = {
     val valueInUppercaseWithNoSpaces = value.toUpperCase(Locale.UK).replaceAll("\\s", "")
