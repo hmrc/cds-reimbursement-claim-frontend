@@ -17,7 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
@@ -157,9 +160,8 @@ class UploadFilesControllerSpec
 
     "'Upload Documents' submitted the callback" must {
 
-      def performAction(callback: UploadDocumentsCallback): Future[Result] = {
+      def performAction(callback: UploadDocumentsCallback): Future[Result] =
         controller.submit(FakeRequest().withJsonBody(Json.toJson(callback)))
-      }
 
       val callbackPayload: UploadDocumentsCallback =
         UploadDocumentsCallback(
@@ -240,7 +242,8 @@ class UploadFilesControllerSpec
         content = UploadDocumentsSessionConfig.Content(
           serviceName = messages("service.title"),
           title = messages("choose-files.title", "air waybill"),
-          descriptionHtml = "\n<p class=\"govuk-body govuk-!-margin-bottom-2\">\n    Air waybill can be up to a maximum of 9 MB size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.\n</p>\n\n\n<p class=\"govuk-body govuk-!-margin-bottom-6\">\n    You can use the 'Choose files' button to upload or 'drag and drop' multiple files.\n\n</p>",
+          descriptionHtml =
+            "\n<p class=\"govuk-body govuk-!-margin-bottom-2\">\n    Air waybill can be up to a maximum of 9 MB size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.\n</p>\n\n\n<p class=\"govuk-body govuk-!-margin-bottom-6\">\n    You can use the 'Choose files' button to upload or 'drag and drop' multiple files.\n</p>\n",
           serviceUrl = viewConfig.homePageUrl,
           accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
           phaseBanner = "beta",
