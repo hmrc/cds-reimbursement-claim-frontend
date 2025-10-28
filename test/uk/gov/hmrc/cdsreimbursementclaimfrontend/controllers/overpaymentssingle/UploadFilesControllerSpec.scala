@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.scalatest.BeforeAndAfterEach
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
@@ -33,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType.AirWayBill
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -155,8 +157,9 @@ class UploadFilesControllerSpec
 
     "'Upload Documents' submitted the callback" must {
 
-      def performAction(callback: UploadDocumentsCallback): Future[Result] =
+      def performAction(callback: UploadDocumentsCallback): Future[Result] = {
         controller.submit(FakeRequest().withJsonBody(Json.toJson(callback)))
+      }
 
       val callbackPayload: UploadDocumentsCallback =
         UploadDocumentsCallback(
@@ -205,6 +208,67 @@ class UploadFilesControllerSpec
 
     }
 
-  }
+    "sets configuration for upload documents session configuration" in {
+      val messagesApi: MessagesApi = instanceOf[MessagesApi]
 
+      implicit val messages: Messages = MessagesImpl(lang = Lang("en"), messagesApi)
+
+      val result: UploadDocumentsSessionConfig = controller.uploadDocumentsSessionConfig(
+        nonce = Nonce.Any,
+        documentType = UploadDocumentType.AirWayBill,
+        continueAfterYesAnswerUrl = "",
+        continueAfterNoAnswerUrl = "",
+        prePopulateYesOrNoForm = Some(false)
+      )
+
+      val expectedResult: UploadDocumentsSessionConfig = UploadDocumentsSessionConfig(
+        nonce = Nonce.Any,
+        continueUrl = "",
+        continueAfterYesAnswerUrl = Some(""),
+        continueWhenFullUrl = "http://localhost:7500",
+        callbackUrl = "http://localhost:7500/claim-back-import-duty-vat/overpayments/single/choose-files",
+        minimumNumberOfFiles = 1,
+        maximumNumberOfFiles = 100,
+        initialNumberOfEmptyRows = 1,
+        maximumFileSizeBytes = 9000000,
+        allowedContentTypes =
+          "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
+        allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
+        prePopulateYesOrNoForm = Some(false),
+        cargo = Some(AirWayBill),
+        newFileDescription = Some("Air waybill"),
+        content = UploadDocumentsSessionConfig.Content(
+          serviceName = messages("service.title"),
+          title = messages("choose-files.title", "air waybill"),
+          descriptionHtml = "\n<p class=\"govuk-body govuk-!-margin-bottom-2\">\n    Air waybill can be up to a maximum of 9 MB size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.\n</p>\n\n\n<p class=\"govuk-body govuk-!-margin-bottom-6\">\n    You can use the 'Choose files' button to upload or 'drag and drop' multiple files.\n\n</p>",
+          serviceUrl = viewConfig.homePageUrl,
+          accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
+          phaseBanner = "beta",
+          phaseBannerUrl = viewConfig.betaFeedbackUrl,
+          signOutUrl = viewConfig.ggSignOut,
+          timedOutUrl = viewConfig.ggTimedOutUrl,
+          keepAliveUrl = viewConfig.ggKeepAliveUrl,
+          timeoutSeconds = viewConfig.ggTimeoutSeconds,
+          countdownSeconds = viewConfig.ggCountdownSeconds,
+          pageTitleClasses = "govuk-heading-xl",
+          allowedFilesTypesHint = messages("choose-files.allowed-file-types"),
+          fileUploadedProgressBarLabel = messages("choose-files.uploaded.label"),
+          chooseFirstFileLabel = messages("choose-files.choose.first.label", "air waybill"),
+          chooseNextFileLabel = Some(messages("choose-files.choose.next.label", "air waybill")),
+          addAnotherDocumentButtonText = Some(messages("choose-files.choose.next.label", "air waybill")),
+          yesNoQuestionText = Some(messages("choose-files.add-another-document-question")),
+          yesNoQuestionRequiredError = Some(messages("choose-files.add-another-document-question.error.required"))
+        ),
+        features = UploadDocumentsSessionConfig.Features(
+          showUploadMultiple = true,
+          showLanguageSelection = viewConfig.enableLanguageSwitching,
+          showAddAnotherDocumentButton = false,
+          showYesNoQuestionBeforeContinue = true,
+          enableMultipleFilesPicker = true
+        )
+      )
+
+      result shouldBe expectedResult
+    }
+  }
 }
