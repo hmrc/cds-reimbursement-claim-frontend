@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
 
@@ -48,6 +49,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   val xiEoriConnector: XiEoriConnector,
+  val featureSwitchService: FeatureSwitchService,
   enterMovementReferenceNumberPage: enter_movement_reference_number,
   subsidyWaiverPage: subsidy_waiver_error
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
@@ -112,6 +114,7 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for
                 maybeAcc14    <- claimService.getImportDeclaration(mrn)
+                -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
                 updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14)
                 _             <- EnterMovementReferenceNumberUtil.validateDeclarationCandidate(
                                    claim,
@@ -177,6 +180,7 @@ class EnterMovementReferenceNumberController @Inject() (
             {
               for
                 maybeAcc14    <- claimService.getImportDeclaration(mrn)
+                -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
                 updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14.map(_.removeSubsidyItems))
                 updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
               yield updatedClaim2

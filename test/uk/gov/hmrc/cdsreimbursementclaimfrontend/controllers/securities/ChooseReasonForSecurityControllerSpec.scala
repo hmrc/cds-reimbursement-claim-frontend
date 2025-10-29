@@ -48,10 +48,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -80,6 +82,8 @@ class ChooseReasonForSecurityControllerSpec
     )
 
   val controller: ChooseReasonForSecurityController = instanceOf[ChooseReasonForSecurityController]
+
+  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -619,6 +623,108 @@ class ChooseReasonForSecurityControllerSpec
             ),
             routes.DeclarationNotFoundController.show
           )
+      }
+
+      "submit with declaration with new eori formats" in {
+        val declaration =
+          securitiesImportDeclarationWithoutIPROrEndUseReliefGen.sample
+            .getOrElse(fail("Failed to generate declaration"))
+            .withDeclarantEori(exampleEoriNewFormat)
+            .withConsigneeEori(exampleEoriNewFormat)
+
+        val rfs = declaration.getReasonForSecurity.get
+
+        val claim =
+          SecuritiesClaim
+            .empty(exampleEoriNewFormat)
+            .submitMovementReferenceNumber(declaration.getMRN)
+
+        val updatedClaim =
+          claim
+            .submitReasonForSecurityAndDeclaration(rfs, declaration)
+            .flatMap(_.submitClaimDuplicateCheckStatus(false))
+            .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclarationWithErrorCodes(Right(declaration))
+          mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
+        }
+
+        featureSwitch.enable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(
+            Seq("choose-reason-for-security.securities" -> rfs.toString)
+          ),
+          routes.SelectSecuritiesController.showFirst()
+        )
+      }
+
+      "fail when submitting with declaration with a user eori format that is not yet supported" in {
+        val declaration = securitiesImportDeclarationGen.sample.getOrElse(fail("Failed to generate declaration"))
+        val claim       = SecuritiesClaim.empty(exampleEoriNewFormat).submitMovementReferenceNumber(declaration.getMRN)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclarationWithErrorCodes(Right(declaration))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(
+            Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
+          ),
+          routes.InvalidReasonForSecurityController.show
+        )
+      }
+
+      "fail when submitting with declaration with a declarant eori format that is not yet supported" in {
+        val declaration = securitiesImportDeclarationGen.sample
+          .getOrElse(fail("Failed to generate declaration"))
+          .withDeclarantEori(exampleEoriNewFormat)
+        val claim       = SecuritiesClaim.empty(exampleEori).submitMovementReferenceNumber(declaration.getMRN)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclarationWithErrorCodes(Right(declaration))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(
+            Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
+          ),
+          routes.InvalidReasonForSecurityController.show
+        )
+      }
+
+      "fail when submitting with declaration with a consignee eori format that is not yet supported" in {
+        val declaration = securitiesImportDeclarationGen.sample
+          .getOrElse(fail("Failed to generate declaration"))
+          .withConsigneeEori(exampleEoriNewFormat)
+        val claim       = SecuritiesClaim.empty(exampleEori).submitMovementReferenceNumber(declaration.getMRN)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclarationWithErrorCodes(Right(declaration))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(
+            Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
+          ),
+          routes.InvalidReasonForSecurityController.show
+        )
       }
     }
   }

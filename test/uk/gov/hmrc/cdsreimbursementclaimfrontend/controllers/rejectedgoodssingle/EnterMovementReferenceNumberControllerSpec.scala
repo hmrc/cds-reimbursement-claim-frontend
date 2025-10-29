@@ -47,10 +47,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -78,6 +80,8 @@ class EnterMovementReferenceNumberControllerSpec
     )
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
+
+  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -234,6 +238,86 @@ class EnterMovementReferenceNumberControllerSpec
               routes.EnterImporterEoriNumberController.show
             )
           }
+      }
+
+      "submit a valid MRN with new eori formats" in {
+        val claim             = RejectedGoodsSingleClaim.empty(exampleEoriNewFormat)
+        val importDeclaration =
+          exampleImportDeclaration
+            .withDeclarantEori(exampleEoriNewFormat)
+            .withConsigneeEori(exampleEoriNewFormat)
+
+        val updatedClaim = claim
+          .submitMovementReferenceNumberAndDeclaration(exampleMrn, importDeclaration)
+          .getOrFail
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclaration(exampleMrn, Right(Some(importDeclaration)))
+          mockStoreSession(SessionData(updatedClaim))(Right(()))
+        }
+
+        featureSwitch.enable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.CheckDeclarationDetailsController.show
+        )
+      }
+
+      "fail when submitting a valid MRN and user eori format is not yet supported" in {
+        val claim             = RejectedGoodsSingleClaim.empty(exampleEoriNewFormat)
+        val importDeclaration = exampleImportDeclaration
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclaration(exampleMrn, Right(Some(importDeclaration)))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.ProblemWithMrnController.show(exampleMrn)
+        )
+      }
+
+      "fail when submitting a valid MRN and declarant eori format is not yet supported" in {
+        val claim             = RejectedGoodsSingleClaim.empty(exampleEori)
+        val importDeclaration = exampleImportDeclaration.withDeclarantEori(exampleEoriNewFormat)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclaration(exampleMrn, Right(Some(importDeclaration)))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.ProblemWithMrnController.show(exampleMrn)
+        )
+      }
+
+      "fail when submitting a valid MRN and consignee eori format is not yet supported" in {
+        val claim             = RejectedGoodsSingleClaim.empty(exampleEori)
+        val importDeclaration = exampleImportDeclaration.withConsigneeEori(exampleEoriNewFormat)
+
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+          mockGetImportDeclaration(exampleMrn, Right(Some(importDeclaration)))
+        }
+
+        featureSwitch.disable(Feature.NewEoriFormat)
+
+        checkIsRedirect(
+          performAction(enterMovementReferenceNumberKey -> exampleMrn.value),
+          routes.ProblemWithMrnController.show(exampleMrn)
+        )
       }
 
       "redirect to problem with declaration if there are unsupported tax codes" in {
