@@ -76,6 +76,7 @@ trait WafErrorMitigationHelper {
       maximumFileSizeBytes = 10000000,
       allowedContentTypes = "text/plain",
       allowedFileExtensions = ".txt",
+      prePopulateYesOrNoForm = None,
       cargo = None,
       newFileDescription = None,
       content = uploadDocumentsContent,

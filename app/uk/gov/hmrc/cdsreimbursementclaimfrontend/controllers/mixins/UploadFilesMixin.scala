@@ -76,7 +76,8 @@ trait UploadFilesMixin extends ClaimBaseController {
                   documentType = documentType,
                   continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
                   continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
-                  minimumNumberOfFiles = if (documentUploadRequired(claim)) 1 else 0
+                  minimumNumberOfFiles = if (documentUploadRequired(claim)) 1 else 0,
+                  prePopulateYesOrNoForm = None
                 ),
                 claim.answers.supportingEvidences
                   .map(file => file.copy(description = file.documentType.map(documentTypeDescription)))
@@ -144,6 +145,7 @@ trait UploadFilesMixin extends ClaimBaseController {
                     documentType = documentType,
                     continueAfterYesAnswerUrl = continueAfterYesAnswerUrl,
                     continueAfterNoAnswerUrl = continueAfterNoAnswerUrl,
+                    prePopulateYesOrNoForm = Some(false),
                     minimumNumberOfFiles = if (documentUploadRequired(claim)) 1 else 0
                   ),
                   existingFiles = claim.answers.supportingEvidences
@@ -165,7 +167,8 @@ trait UploadFilesMixin extends ClaimBaseController {
     continueAfterYesAnswerUrl: String,
     continueAfterNoAnswerUrl: String,
     minimumNumberOfFiles: Int = 1,
-    showYesNoQuestionBeforeContinue: Boolean = true
+    showYesNoQuestionBeforeContinue: Boolean = true,
+    prePopulateYesOrNoForm: Option[Boolean]
   )(implicit messages: Messages): UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       nonce = nonce,
@@ -180,6 +183,7 @@ trait UploadFilesMixin extends ClaimBaseController {
       allowedContentTypes =
         "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
       allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
+      prePopulateYesOrNoForm = prePopulateYesOrNoForm,
       cargo = Some(documentType),
       newFileDescription = Some(documentTypeDescription(documentType)),
       content = uploadDocumentsContent(documentType),

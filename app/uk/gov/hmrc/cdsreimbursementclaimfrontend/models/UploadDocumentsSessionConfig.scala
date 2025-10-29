@@ -32,6 +32,7 @@ final case class UploadDocumentsSessionConfig(
   maximumFileSizeBytes: Long, // maximum size of a single file upload
   allowedContentTypes: String, // a list of allowed file types (i.e. MIME types),
   allowedFileExtensions: String, // file picker filter hint, see: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept
+  prePopulateYesOrNoForm: Option[Boolean],
   cargo: Option[UploadDocumentType] = None, // type of the document to assign to the newly added files
   newFileDescription: Option[String], // description of the new file added
   content: Content,
