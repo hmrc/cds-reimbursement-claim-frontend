@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
@@ -41,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -52,6 +54,7 @@ class ChooseReasonForSecurityController @Inject() (
   val jcc: ClaimControllerComponents,
   claimService: ClaimService,
   DeclarationConnector: DeclarationConnector,
+  featureSwitchService: FeatureSwitchService,
   val xiEoriConnector: XiEoriConnector,
   chooseReasonForSecurityPage: choose_reason_for_security
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
@@ -118,6 +121,9 @@ class ChooseReasonForSecurityController @Inject() (
             (for
               mrn                        <- getMovementReferenceNumber(claim)
               declaration                <- lookupImportDeclaration(mrn, reasonForSecurity)
+              _                          <- EnterMovementReferenceNumberUtil
+                                              .validateEoriFormats(claim, Some(declaration), featureSwitchService)
+                                              .leftMap(_ => Redirect(routes.InvalidReasonForSecurityController.show))
               _                          <- checkIfDeclarationHaveSecurityDeposits(declaration)
               updatedDeclaration          =
                 reasonForSecurity match {
