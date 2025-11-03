@@ -285,94 +285,81 @@ final case class ImportDeclaration(
       )
     )
 
+  def totalVatPaidCharges: Option[BigDecimal] =
+    displayResponseDetail.ndrcDetails
+      .map(
+        _.filter(ndrc => TaxCode(ndrc.taxType).isVAT)
+      )
+      .map(ndrcDetails => BigDecimal(ndrcDetails.map(s => s.amount.toDouble).sum))
+      .filter(_ > 0.0)
+
+  def totalDutiesPaidCharges: BigDecimal =
+    BigDecimal(
+      displayResponseDetail.ndrcDetails
+        .map(
+          _.filterNot(ndrc => TaxCode(ndrc.taxType).isVAT)
+        )
+        .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+    )
+
+  def totalPaidCharges: BigDecimal =
+    BigDecimal(
+      displayResponseDetail.ndrcDetails.fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+    )
+
+  def consigneeName: Option[String] =
+    displayResponseDetail.consigneeDetails.map(details => details.legalName)
+
+  def consigneeEmail: Option[String] =
+    displayResponseDetail.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.maybeEmailAddress))
+
+  def consigneeTelephone: Option[String] =
+    getConsigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
+
+  def consigneeAddress(implicit messages: Messages): Option[String] =
+    displayResponseDetail.consigneeDetails.map(details =>
+      establishmentAddress(details.establishmentAddress).mkString("<br>")
+    )
+
+  def declarantName: String = displayResponseDetail.declarantDetails.legalName
+
+  def declarantEmailAddress: Option[String] =
+    displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.maybeEmailAddress)
+
+  def declarantTelephoneNumber: Option[String] =
+    displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
+
+  def declarantContactAddress(implicit messages: Messages): Option[String] =
+    Option(displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
+      establishmentAddress(address).mkString("<br>")
+    )
+
+  def declarantAddress(contactDetails: ContactDetails)(implicit messages: Messages): List[String] = {
+    val lines = List(
+      contactDetails.addressLine1,
+      contactDetails.addressLine2,
+      contactDetails.addressLine3,
+      contactDetails.addressLine4,
+      contactDetails.postalCode,
+      contactDetails.countryCode
+        .map(countryCode => messages(s"country.$countryCode"))
+    )
+    lines.collect { case Some(s) => s }
+  }
+
+  def establishmentAddress(establishmentAddress: EstablishmentAddress)(implicit messages: Messages): List[String] =
+    List(
+      Some(establishmentAddress.addressLine1),
+      establishmentAddress.addressLine2,
+      establishmentAddress.addressLine3,
+      establishmentAddress.postalCode,
+      Some(establishmentAddress.countryCode)
+        .map(countryCode => messages(s"country.$countryCode"))
+    ).flattenOption
+
 }
 
 object ImportDeclaration {
-
-  // TODO: not good code, most of this needed to be mapped when parsing from JSON
-  // Same as devs must know about some workaround extension class import which not always the case
-  implicit class ImportDeclarationOps(private val importDeclaration: ImportDeclaration) {
-
-    def totalVatPaidCharges: Option[BigDecimal] =
-      importDeclaration.displayResponseDetail.ndrcDetails
-        .map(
-          _.filter(ndrc => TaxCode(ndrc.taxType).isVAT)
-        )
-        .map(ndrcDetails => BigDecimal(ndrcDetails.map(s => s.amount.toDouble).sum))
-        .filter(_ > 0.0)
-
-    def totalDutiesPaidCharges: BigDecimal =
-      BigDecimal(
-        importDeclaration.displayResponseDetail.ndrcDetails
-          .map(
-            _.filterNot(ndrc => TaxCode(ndrc.taxType).isVAT)
-          )
-          .fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
-      )
-
-    def totalPaidCharges: BigDecimal =
-      BigDecimal(
-        importDeclaration.displayResponseDetail.ndrcDetails.fold(0.0)(ndrcDetails =>
-          ndrcDetails.map(s => s.amount.toDouble).sum
-        )
-      )
-
-    def consigneeName: Option[String] =
-      importDeclaration.displayResponseDetail.consigneeDetails.map(details => details.legalName)
-
-    def consigneeEmail: Option[String] =
-      importDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
-        details.contactDetails.flatMap(f => f.maybeEmailAddress)
-      )
-
-    def consigneeTelephone: Option[String] =
-      importDeclaration.getConsigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
-
-    def consigneeAddress(implicit messages: Messages): Option[String] =
-      importDeclaration.displayResponseDetail.consigneeDetails.map(details =>
-        establishmentAddress(details.establishmentAddress).mkString("<br>")
-      )
-
-    def declarantName: String = importDeclaration.displayResponseDetail.declarantDetails.legalName
-
-    def declarantEmailAddress: Option[String] =
-      importDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details =>
-        details.maybeEmailAddress
-      )
-
-    def declarantTelephoneNumber: Option[String] =
-      importDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
-
-    def declarantContactAddress(implicit messages: Messages): Option[String] =
-      Option(importDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
-        establishmentAddress(address).mkString("<br>")
-      )
-
-    def declarantAddress(contactDetails: ContactDetails)(implicit messages: Messages): List[String] = {
-      val lines = List(
-        contactDetails.addressLine1,
-        contactDetails.addressLine2,
-        contactDetails.addressLine3,
-        contactDetails.addressLine4,
-        contactDetails.postalCode,
-        contactDetails.countryCode
-          .map(countryCode => messages(s"country.$countryCode"))
-      )
-      lines.collect { case Some(s) => s }
-    }
-
-    def establishmentAddress(establishmentAddress: EstablishmentAddress)(implicit messages: Messages): List[String] =
-      List(
-        Some(establishmentAddress.addressLine1),
-        establishmentAddress.addressLine2,
-        establishmentAddress.addressLine3,
-        establishmentAddress.postalCode,
-        Some(establishmentAddress.countryCode)
-          .map(countryCode => messages(s"country.$countryCode"))
-      ).flattenOption
-  }
-
   implicit val format: OFormat[ImportDeclaration] = Json.format[ImportDeclaration]
-
-  implicit val equality: Eq[ImportDeclaration] = Eq.fromUniversalEquals[ImportDeclaration]
+  implicit val equality: Eq[ImportDeclaration]    = Eq.fromUniversalEquals[ImportDeclaration]
 }

@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoute
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils

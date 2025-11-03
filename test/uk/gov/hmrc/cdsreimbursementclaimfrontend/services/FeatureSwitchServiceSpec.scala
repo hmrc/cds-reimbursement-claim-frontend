@@ -68,20 +68,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
       featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
     }
 
-    "enable and disable all features for session" ignore forAll(featureList) { feature =>
-      val featureSwitch: FeatureSwitchService =
-        new ConfiguredFeatureSwitchService(configuration, featuresCache)
-
-      featureSwitch.enableForSession(feature)
-      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
-      featureSwitch.disableForSession(feature)
-      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
-      featureSwitch.enableForSession(feature)
-      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe true
-      featureSwitch.disableForSession(feature)
-      featureSwitch.isEnabled(Feature.of(feature.name).value) shouldBe false
-    }
-
     "enable and disable all features for test and session" in forAll(featureList) { feature =>
       val featureSwitch: FeatureSwitchService =
         new ConfiguredFeatureSwitchService(configuration, featuresCache)

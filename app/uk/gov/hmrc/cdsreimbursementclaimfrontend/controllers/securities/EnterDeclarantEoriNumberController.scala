@@ -67,7 +67,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   // Error: Claim has already been submitted as part of a whole or partial claim
   private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible) // TODO: fix in CDSR-1773
+    Redirect(controllers.routes.IneligibleController.ineligible)
 
   import SecuritiesClaim.Checks._
 

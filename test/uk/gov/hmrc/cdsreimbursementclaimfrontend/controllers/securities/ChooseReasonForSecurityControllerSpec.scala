@@ -99,10 +99,8 @@ class ChooseReasonForSecurityControllerSpec
 
   private val niruOptions =
     Seq(
-//      ("Missing document — community system of duty relief (CSDR)", "CommunitySystemsOfDutyRelief"),   //currently disabled
       ("Inward-processing relief (IPR)", "InwardProcessingRelief"),
       ("Authorised-use (Great Britain) or end-use (Northern Ireland) relief", "EndUseRelief")
-//      ("Outward-processing relief (OPR)", "OutwardProcessingRelief")   //currently disabled
     )
 
   private val nidacOptions =
@@ -254,52 +252,6 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-//      "retrieve the ACC14 declaration having XI eori, make a TPI04 check and redirect to the select first security deposit page" in {
-//        forAll(
-//          securitiesImportDeclarationGen
-//            .map(
-//              _.withDeclarantEori(exampleXIEori)
-//                .withConsigneeEori(anotherExampleXIEori)
-//            ),
-//          IdGen.genEori
-//        ) { case (declaration: ImportDeclaration, eori: Eori) =>
-//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-//
-//          whenever(!reasonForSecurityIsDischarge) {
-//            val initialClaim =
-//              SecuritiesClaim
-//                .empty(eori)
-//                .submitMovementReferenceNumber(declaration.getMRN)
-//
-//            val updatedClaim = SessionData(
-//              initialClaim
-//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
-//                .map(_.submitUserXiEori(UserXiEori(anotherExampleXIEori.value)))
-//                .flatMap(_.submitClaimDuplicateCheckStatus(false))
-//                .getOrFail
-//            )
-//
-//            inSequence {
-//              mockAuthWithDefaultRetrievals()
-//              mockGetSession(SessionData(initialClaim))
-//              mockGetImportDeclarationWithErrorCodes(Right(declaration))
-//              mockGetXiEori(Future.successful(UserXiEori(anotherExampleXIEori.value)))
-//              mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
-//              mockStoreSession(updatedClaim)(Right(()))
-//            }
-//
-//            checkIsRedirect(
-//              performAction(
-//                Seq("choose-reason-for-security.securities" -> rfs.toString)
-//              ),
-//              routes.SelectSecuritiesController.showFirst()
-//            )
-//          }
-//        }
-//      }
-
       "retrieve the ACC14 declaration and redirect to the enter importer eori page" in {
         forAll(securitiesImportDeclarationGen, IdGen.genEori) { case (declaration: ImportDeclaration, eori: Eori) =>
           val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
@@ -334,50 +286,6 @@ class ChooseReasonForSecurityControllerSpec
           }
         }
       }
-
-//      "retrieve the ACC14 declaration having XI eori and redirect to the enter importer eori page" in {
-//        forAll(
-//          securitiesImportDeclarationGen
-//            .map(
-//              _.withDeclarantEori(exampleXIEori)
-//                .withConsigneeEori(anotherExampleXIEori)
-//            ),
-//          IdGen.genEori
-//        ) { case (declaration: ImportDeclaration, eori: Eori) =>
-//          val rfs: ReasonForSecurity                = declaration.getReasonForSecurity.get
-//          val bodRfsList: Set[ReasonForSecurity]    = Set(InwardProcessingRelief, EndUseRelief)
-//          val reasonForSecurityIsDischarge: Boolean = bodRfsList.contains(rfs)
-//
-//          whenever(!reasonForSecurityIsDischarge) {
-//            val initialClaim =
-//              SecuritiesClaim
-//                .empty(eori)
-//                .submitMovementReferenceNumber(declaration.getMRN)
-//
-//            val updatedClaim = SessionData(
-//              initialClaim
-//                .submitReasonForSecurityAndDeclaration(rfs, declaration)
-//                .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-//                .getOrFail
-//            )
-//
-//            inSequence {
-//              mockAuthWithDefaultRetrievals()
-//              mockGetSession(SessionData(initialClaim))
-//              mockGetImportDeclarationWithErrorCodes(Right(declaration))
-//              mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-//              mockStoreSession(updatedClaim)(Right(()))
-//            }
-//
-//            checkIsRedirect(
-//              performAction(
-//                Seq("choose-reason-for-security.securities" -> rfs.toString)
-//              ),
-//              routes.EnterImporterEoriNumberController.show
-//            )
-//          }
-//        }
-//      }
 
       "redirect to the first select security page when reason for security didn't change and NOT in a change mode" in {
         forAll(

@@ -49,7 +49,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -95,12 +94,6 @@ class EnterMovementReferenceNumberControllerSpec
       .getImportDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(expectedMrn, *)
       .returning(EitherT.fromEither[Future](response))
-
-  private def mockGetXiEori(response: Future[UserXiEori]) =
-    (mockXiEoriConnector
-      .getXiEori(_: HeaderCarrier))
-      .expects(*)
-      .returning(response)
 
   val messageKey: String = "enter-movement-reference-number"
 
@@ -267,62 +260,6 @@ class EnterMovementReferenceNumberControllerSpec
         checkIsRedirect(
           performAction("enter-movement-reference-number" -> leadMrn.value)(),
           routes.EnterImporterEoriNumberController.show
-        )
-      }
-
-      "redirect to Enter Importer Eori page when user eori is not matching declaration XI eori's for first MRN" ignore {
-        val importDeclaration =
-          getImportDeclarationForMrn(leadMrn)
-            .withDeclarantEori(anotherExampleXIEori)
-            .withConsigneeEori(yetAnotherExampleXIEori)
-
-        val updatedClaim =
-          claim
-            .submitMovementReferenceNumberAndDeclaration(leadMrn, importDeclaration)
-            .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-            .getOrFail
-
-        val updatedSession = SessionData(updatedClaim)
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-          mockGetImportDeclaration(leadMrn, Right(Some(importDeclaration)))
-          mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction("enter-movement-reference-number" -> leadMrn.value)(),
-          routes.EnterImporterEoriNumberController.show
-        )
-      }
-
-      "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" ignore {
-        val importDeclaration =
-          getImportDeclarationForMrn(leadMrn)
-            .withDeclarantEori(exampleXIEori)
-            .withConsigneeEori(anotherExampleXIEori)
-
-        val updatedClaim =
-          claim
-            .submitMovementReferenceNumberAndDeclaration(leadMrn, importDeclaration)
-            .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
-            .getOrFail
-
-        val updatedSession = SessionData(updatedClaim)
-
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(session)
-          mockGetImportDeclaration(leadMrn, Right(Some(importDeclaration)))
-          mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction("enter-movement-reference-number" -> leadMrn.value)(),
-          routes.CheckDeclarationDetailsController.show
         )
       }
 

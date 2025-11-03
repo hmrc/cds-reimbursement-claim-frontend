@@ -89,7 +89,7 @@ class CheckEoriDetailsController @Inject() (
         (
           eori: Eori,
           name: Option[String]
-        ) => // fixme fetch name from sub09 (eoriDetailsConnector.getCurrentUserEoriDetails....)
+        ) =>
           Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
       }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
     }

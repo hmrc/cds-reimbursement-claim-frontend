@@ -47,12 +47,6 @@ object AddressLookupLabels {
   implicit val labelsConfig: OFormat[AddressLookupLabels]        = Json.format[AddressLookupLabels]
 }
 
-// "countryPickerLabels": {
-//   "title": "Custom title",
-//   "heading": "Custom heading",
-//   "countryLabel": "Custom country label",
-//   "submitLabel": "Custom submit label"
-// }
 final case class CountryPickerLabels(
   title: Option[String] = None,
   heading: Option[String] = None,
@@ -60,15 +54,6 @@ final case class CountryPickerLabels(
   submitLabel: Option[String] = None
 )
 
-// "selectPageLabels": {
-//   "title": "Choose address",
-//   "heading": "Choose address",
-//   "headingWithPostcode": "foo",
-//   "proposalListLabel": "Please select one of the following addresses",
-//   "submitLabel": "Continue",
-//   "searchAgainLinkText": "Search again",
-//   "editAddressLinkText": "Enter address manually"
-// }
 final case class SelectPageLabels(
   title: Option[String] = None,
   heading: Option[String] = None,
@@ -79,16 +64,6 @@ final case class SelectPageLabels(
   editAddressLinkText: Option[String] = None
 )
 
-// "confirmPageLabels": {
-//   "title": "Confirm address",
-//   "heading": "Review and confirm",
-//   "infoSubheading": "Your selected address",
-//   "infoMessage": "This is how your address will look. Please double-check it and, if accurate, click on the <kbd>Confirm</kbd> button.",
-//   "submitLabel": "Confirm Address",
-//   "searchAgainLinkText": "Search again",
-//   "changeLinkText": "Edit address",
-//   "confirmChangeText": "By confirming this change, you agree that the information you have given is complete and correct."
-// }
 final case class ConfirmPageLabels(
   title: Option[String] = None,
   heading: Option[String] = None,
@@ -100,18 +75,6 @@ final case class ConfirmPageLabels(
   confirmChangeText: Option[String] = None
 )
 
-// "editPageLabels": {
-//   "title": "Enter address",
-//   "heading": "Enter address",
-//   "organisationLabel": "Organisation (optional)",
-//   "line1Label": "Address line 1",
-//   "line2Label": "Address line 2 (optional)",
-//   "line3Label": "Address line 3 (optional)",
-//   "townLabel": "Town/City",
-//   "postcodeLabel": "Postcode (optional)",
-//   "countryLabel": "Country",
-//   "submitLabel": "Continue"
-// }
 final case class EditPageLabels(
   title: Option[String] = None,
   heading: Option[String] = None,
@@ -125,17 +88,6 @@ final case class EditPageLabels(
   submitLabel: Option[String] = None
 )
 
-// "lookupPageLabels": {
-//   "title": "Find address",
-//   "heading": "Find address",
-//   "afterHeadingText": "We will use this address to send letters",
-//   "filterLabel": "Property name or number (optional)",
-//   "postcodeLabel": "Postcode",
-//   "submitLabel": "Find address",
-//   "noResultsFoundMessage": "Sorry, we couldn't find anything for that postcode.",
-//   "resultLimitExceededMessage": "There were too many results. Please add additional details to limit the number of results.",
-//   "manualAddressLinkText": "Enter the address manually"
-// }
 final case class LookupPageLabels(
   title: Option[String] = None,
   heading: Option[String] = None,
