@@ -300,62 +300,6 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
-      // "redirect to Enter Importer Eori page when user eori is not matching declaration XI eori's for first MRN" in {
-      //   val importDeclaration =
-      //     getImportDeclarationForMrn(leadMrn)
-      //       .withDeclarantEori(anotherExampleXIEori)
-      //       .withConsigneeEori(yetAnotherExampleXIEori)
-
-      //   val updatedClaim =
-      //     claim
-      //       .submitMovementReferenceNumberAndDeclaration(leadMrn, importDeclaration)
-      //       .map(_.submitUserXiEori(UserXiEori.NotRegistered))
-      //       .getOrFail
-
-      //   val updatedSession = SessionData(updatedClaim)
-
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetImportDeclaration(leadMrn, Right(Some(importDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
-
-      //   checkIsRedirect(
-      //     performAction("enter-movement-reference-number" -> leadMrn.value)(),
-      //     routes.EnterImporterEoriNumberController.show
-      //   )
-      // }
-
-      // "redirect to CheckDeclarationDetails page for first MRN if user's XI eori matches declaration eori's" in {
-      //   val importDeclaration =
-      //     getImportDeclarationForMrn(leadMrn)
-      //       .withDeclarantEori(exampleXIEori)
-      //       .withConsigneeEori(anotherExampleXIEori)
-
-      //   val updatedClaim =
-      //     claim
-      //       .submitMovementReferenceNumberAndDeclaration(leadMrn, importDeclaration)
-      //       .map(_.submitUserXiEori(UserXiEori(exampleXIEori.value)))
-      //       .getOrFail
-
-      //   val updatedSession = SessionData(updatedClaim)
-
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetImportDeclaration(leadMrn, Right(Some(importDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori(exampleXIEori.value)))
-      //     mockStoreSession(updatedSession)(Right(()))
-      //   }
-
-      //   checkIsRedirect(
-      //     performAction("enter-movement-reference-number" -> leadMrn.value)(),
-      //     routes.CheckDeclarationDetailsController.show
-      //   )
-      // }
-
       "redirect to Check Movement Reference Numbers page for second MRN when declarantEORI matches" in {
 
         val updatedClaimWithLeadMrn   = claim

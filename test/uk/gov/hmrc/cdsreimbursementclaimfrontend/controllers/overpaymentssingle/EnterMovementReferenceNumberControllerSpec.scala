@@ -271,66 +271,6 @@ class EnterMovementReferenceNumberControllerSpec
           }
       }
 
-      // "submit a valid MRN and user is not the declarant nor consignee but has matching XI eori" in {
-      //   val mrn             = genMRN.sample.get
-      //   val declarantXiEori = genXiEori.sample.get
-      //   val consigneeXiEori = genXiEori.sample.get
-
-      //   val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
-      //   val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantXiEori.value)
-      //   val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
-
-      //   val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
-      //     declarantDetails = declarantDetails,
-      //     consigneeDetails = Some(consigneeDetails)
-      //   )
-      //   val updatedImportDeclaration     =
-      //     importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori(consigneeXiEori.value)))
-      //     mockStoreSessions()
-      //   }
-
-      //   checkIsRedirect(
-      //     performAction(enterMovementReferenceNumberKey -> mrn.value),
-      //     routes.CheckDeclarationDetailsController.show
-      //   )
-      // }
-
-      // "submit a valid MRN and user is not the declarant nor consignee, and has no XI eori" in {
-      //   val mrn             = genMRN.sample.get
-      //   val declarantEori   = genEori.sample.get
-      //   val consigneeXiEori = genXiEori.sample.get
-
-      //   val importDeclaration = buildImportDeclaration().withDeclarationId(mrn.value)
-      //   val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = declarantEori.value)
-      //   val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = consigneeXiEori.value)
-
-      //   val updatedDisplayResponseDetails = importDeclaration.displayResponseDetail.copy(
-      //     declarantDetails = declarantDetails,
-      //     consigneeDetails = Some(consigneeDetails)
-      //   )
-      //   val updatedImportDeclaration     =
-      //     importDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
-
-      //   inSequence {
-      //     mockAuthWithDefaultRetrievals()
-      //     mockGetSession(session)
-      //     mockGetImportDeclaration(mrn, Right(Some(updatedImportDeclaration)))
-      //     mockGetXiEori(Future.successful(UserXiEori.NotRegistered))
-      //     mockStoreSessions()
-      //   }
-
-      //   checkIsRedirect(
-      //     performAction(enterMovementReferenceNumberKey -> mrn.value),
-      //     routes.EnterImporterEoriNumberController.show
-      //   )
-      // }
-
       "submit a valid MRN with new eori formats" in {
         val claim             = OverpaymentsSingleClaim.empty(exampleEoriNewFormat)
         val importDeclaration =

@@ -165,7 +165,7 @@ class EnterSpecialCircumstancesControllerSpec
 
         checkIsRedirect(
           performAction(messagesKey -> details),
-          "choose-disposal-method"
+          routes.DisposalMethodController.show
         )
       }
     }

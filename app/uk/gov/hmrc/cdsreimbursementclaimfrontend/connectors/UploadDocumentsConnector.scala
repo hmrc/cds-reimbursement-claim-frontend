@@ -94,7 +94,6 @@ class UploadDocumentsConnectorImpl @Inject() (
 ) extends UploadDocumentsConnector
     with Retries {
 
-  // TODO: unsure if still needed, find out what configuration does
   val serviceId: String = AppName.fromConfiguration(configuration)
 
   override def initialize(request: Request)(implicit

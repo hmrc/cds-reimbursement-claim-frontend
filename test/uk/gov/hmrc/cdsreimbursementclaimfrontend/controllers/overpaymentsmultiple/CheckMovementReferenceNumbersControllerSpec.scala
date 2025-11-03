@@ -100,7 +100,6 @@ class CheckMovementReferenceNumbersControllerSpec
         controller.show(FakeRequest())
 
       def validateMrnLine(div: Element, index: Int, possibleMrns: List[MRN], hasDeleteLink: Boolean = true): Boolean = {
-        // TODO: Get correct URL
         div
           .select("dd:nth-of-type(2)")
           .select("a:nth-of-type(1)")
