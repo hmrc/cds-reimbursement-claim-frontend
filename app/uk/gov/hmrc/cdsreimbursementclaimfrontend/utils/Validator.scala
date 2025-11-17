@@ -706,10 +706,7 @@ object Validator {
     }
 
     /** Prints result for debugging purposes. */
-    def debug: Result = {
-      println(result.fold(e => s"Invalid(${e.summary})", ? => "Valid"))
-      result
-    }
+    def debug: Result = result
   }
 
   /** Single error representation. */
