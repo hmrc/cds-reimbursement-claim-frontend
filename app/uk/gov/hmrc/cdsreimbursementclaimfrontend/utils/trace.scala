@@ -18,13 +18,8 @@ package scala
 
 extension [A](inline code: => A) {
 
-  inline def trace: A =
-    println(
-      s"\t${scala.io.AnsiColor.BLUE}tracing${scala.io.AnsiColor.RESET} ${scala.compiletime.codeOf(code)}"
-    )
+  inline def trace: A = {
     val result = code
-    println(
-      s"\t${scala.io.AnsiColor.BLUE}result is${scala.io.AnsiColor.RESET} ${scala.io.AnsiColor.BOLD}$result${scala.io.AnsiColor.RESET}"
-    )
     result
+  }
 }
