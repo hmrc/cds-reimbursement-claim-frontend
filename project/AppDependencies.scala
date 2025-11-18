@@ -5,11 +5,11 @@ object AppDependencies {
 
   val jsoupVersion         = "1.21.2"
   val hmrcMongoPlayVersion = "2.10.0"
-  val bootstrapVersion     = "10.3.0"
+  val bootstrapVersion     = "10.4.0"
   val playSuffix           = "-play-30"
 
   val compile = Seq(
-    "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % "10.4.0",
+    "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % "12.20.0",
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % hmrcMongoPlayVersion,
     "org.typelevel"     %% "cats-core"                  % "2.13.0"
