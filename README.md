@@ -79,12 +79,12 @@ This service is built using [Play Framework](https://www.playframework.com/) and
 
 Running this service locally requires multiple other services to be up and running. The best way to achieve that is by using [Service Manager](https://github.com/hmrc/sm2):
 
-    sm --start CDSRC_ALL
+    sm2 --start CDSRC_ALL
 
 ### Run locally in a development mode
 
-    sm --start CDSRC_ALL
-    sm --stop CDSRC_FRONTEND
+    sm2 --start CDSRC_ALL
+    sm2 --stop CDSRC_FRONTEND
     sbt run
 
 ## License

@@ -23,8 +23,6 @@ class ReasonForSecurityHelper(
   configuration: Configuration
 ) {
 
-  private lazy val nidacMdpVisibility: Boolean =
-    configuration.getOptional[Boolean]("features.security-reasons.nidac.mdp.enabled").getOrElse(false)
   private lazy val nidacMdlVisibility: Boolean =
     configuration.getOptional[Boolean]("features.security-reasons.nidac.mdl.enabled").getOrElse(false)
   private lazy val nidacCepVisibility: Boolean =
@@ -42,7 +40,7 @@ class ReasonForSecurityHelper(
 
   private def getNidacOptions() =
     Set(
-      if nidacMdpVisibility then Some(ReasonForSecurity.MissingPreferenceCertificate) else None,
+      Some(ReasonForSecurity.MissingPreferenceCertificate),
       if nidacMdlVisibility then Some(ReasonForSecurity.MissingLicenseQuota) else None,
       if nidacCepVisibility then Some(ReasonForSecurity.UKAPEntryPrice) else None,
       if nidacCsdVisibility then Some(ReasonForSecurity.UKAPSafeguardDuties) else None,

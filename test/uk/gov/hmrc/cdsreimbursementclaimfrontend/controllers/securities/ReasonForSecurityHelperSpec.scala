@@ -31,7 +31,6 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
       val config = Configuration(
         ConfigFactory.parseString(
           """
-            | features.security-reasons.nidac.mdp.enabled = on
             | features.security-reasons.nidac.mdl.enabled = off
             | features.security-reasons.nidac.cep.enabled = off
             | features.security-reasons.nidac.csd.enabled = off
@@ -48,33 +47,11 @@ class ReasonForSecurityHelperSpec extends AnyWordSpec with Matchers {
         ++ Set(ReasonForSecurity.MissingPreferenceCertificate)
     }
 
-    "show all but nidac reasons for security" in {
-
-      val config = Configuration(
-        ConfigFactory.parseString(
-          """
-            | features.security-reasons.nidac.mdp.enabled = off
-            | features.security-reasons.nidac.mdl.enabled = off
-            | features.security-reasons.nidac.cep.enabled = off
-            | features.security-reasons.nidac.csd.enabled = off
-            | features.security-reasons.nidac.red.enabled = off
-            | features.security-reasons.nidac.mod.enabled = off
-            |""".stripMargin
-        )
-      )
-
-      new ReasonForSecurityHelper(
-        configuration = config
-      ).availableReasonsForSecurity() shouldBe ReasonForSecurity.ntas
-        ++ ReasonForSecurity.niru
-    }
-
     "show all reasons for security" in {
 
       val config = Configuration(
         ConfigFactory.parseString(
           """
-            | features.security-reasons.nidac.mdp.enabled = on
             | features.security-reasons.nidac.mdl.enabled = on
             | features.security-reasons.nidac.cep.enabled = on
             | features.security-reasons.nidac.csd.enabled = on
