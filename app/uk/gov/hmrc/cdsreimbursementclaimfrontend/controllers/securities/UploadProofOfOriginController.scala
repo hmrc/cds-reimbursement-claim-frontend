@@ -126,7 +126,7 @@ class UploadProofOfOriginController @Inject() (
       maximumFileSizeBytes = fileUploadConfig.readMaxFileSize("proof-of-origin"),
       allowedContentTypes =
         "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
-      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.pst,.ost,.eml,.doc,.docx,.xls,.xlsx,.ods,.odt",
+      allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.doc,.docx,.xls,.xlsx,.ods,.odt",
       prePopulateYesOrNoForm = None,
       cargo = Some(UploadDocumentType.ProofOfOrigin),
       newFileDescription = None,
