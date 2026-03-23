@@ -18,26 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.pattern.after
-import play.api.Configuration
-import play.api.Logger
+import play.api.{Configuration, Logger}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.mdc.Mdc
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 trait Retries {
 
-  protected def actorSystem: ActorSystem
-
   val shouldRetry: Try[HttpResponse] => Boolean =
     _.fold(NonFatal(_), _.status >= 499)
-
   val retryReason: HttpResponse => String =
     response => s"received $response"
 
@@ -68,6 +61,8 @@ trait Retries {
         }
     loop(intervals)(Mdc.mdcData)(block)
   }
+
+  protected def actorSystem: ActorSystem
 
 }
 

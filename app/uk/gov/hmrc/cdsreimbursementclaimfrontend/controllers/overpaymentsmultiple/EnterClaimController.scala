@@ -16,22 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.mrn_does_not_exist
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_multiple_claims
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -45,17 +41,14 @@ class EnterClaimController @Inject() (
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
+  final val showFirst: Action[AnyContent] =
+    showFirstByIndex(1)
   val claimsSummaryAction: Call                 = routes.CheckClaimDetailsController.show
   val selectDutiesAction: Int => Call           = routes.SelectDutiesController.show
   val enterClaimAction: (Int, TaxCode) => Call  = routes.EnterClaimController.show
   val submitClaimAction: (Int, TaxCode) => Call = routes.EnterClaimController.submit
-
   val key: String            = "enter-claim-amount"
   val subKey: Option[String] = Some("multiple")
-
-  final val showFirst: Action[AnyContent] =
-    showFirstByIndex(1)
 
   final def showFirstByIndex(pageIndex: Int): Action[AnyContent] =
     simpleActionReadClaim { claim =>

@@ -17,32 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.payeeTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_payee_type
 
 trait ChoosePayeeTypeMixin extends ClaimBaseController {
-
-  def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim]
-  val choosePayeeTypePage: choose_payee_type
-  val postAction: Call
-  def nextPage(claim: Claim): Call
-
-  final def submitPayeeType(payeeType: PayeeType)(implicit claim: Claim): (Claim, Result) =
-    modifyClaim(claim, payeeType)
-      .fold(
-        e => {
-          logger.warn(e)
-          (claim, Redirect(baseRoutes.IneligibleController.ineligible))
-        },
-        (_, Redirect(nextPage(claim)))
-      )
 
   final val show: Action[AnyContent] =
     actionReadWriteClaim { implicit claim =>
@@ -55,7 +36,6 @@ trait ChoosePayeeTypeMixin extends ClaimBaseController {
         (claim, Redirect(nextPage(claim)))
       }
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { implicit claim =>
       payeeTypeForm
@@ -71,4 +51,20 @@ trait ChoosePayeeTypeMixin extends ClaimBaseController {
           submitPayeeType
         )
     }
+  val choosePayeeTypePage: choose_payee_type
+  val postAction: Call
+
+  def modifyClaim(claim: Claim, payeeType: PayeeType): Either[String, Claim]
+
+  def nextPage(claim: Claim): Call
+
+  final def submitPayeeType(payeeType: PayeeType)(implicit claim: Claim): (Claim, Result) =
+    modifyClaim(claim, payeeType)
+      .fold(
+        e => {
+          logger.warn(e)
+          (claim, Redirect(baseRoutes.IneligibleController.ineligible))
+        },
+        (_, Redirect(nextPage(claim)))
+      )
 }

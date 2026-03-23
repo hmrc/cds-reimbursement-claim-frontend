@@ -23,6 +23,8 @@ sealed trait ClaimantType
 /** The type of a user filling out the claim. */
 object ClaimantType extends EnumerationFormat[ClaimantType] {
 
+  override val values: Set[ClaimantType] = Set(Consignee, Declarant, User)
+
   /** Importer of the goods. */
   case object Consignee extends ClaimantType
 
@@ -31,6 +33,4 @@ object ClaimantType extends EnumerationFormat[ClaimantType] {
 
   /** New representative, not a consignee nor the original declarant. */
   case object User extends ClaimantType
-
-  override val values: Set[ClaimantType] = Set(Consignee, Declarant, User)
 }

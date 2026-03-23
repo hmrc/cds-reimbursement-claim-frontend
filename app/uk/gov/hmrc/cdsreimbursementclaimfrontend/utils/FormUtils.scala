@@ -20,14 +20,9 @@ import cats.Eq
 import cats.instances.int.*
 import cats.syntax.either.*
 import cats.syntax.eq.*
-import play.api.data.format.Formats
-import play.api.data.format.Formatter
-import play.api.data.validation.Constraint
-import play.api.data.validation.Invalid
-import play.api.data.validation.Valid
-import play.api.data.FormError
-import play.api.data.Forms
-import play.api.data.Mapping
+import play.api.data.{FormError, Forms, Mapping}
+import play.api.data.format.{Formats, Formatter}
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import scala.math.BigDecimal.RoundingMode
 import scala.util.Try
@@ -91,9 +86,6 @@ object FormUtils {
           }
     }
 
-  def moneyBigDecimalFormat(errorMsg: String): Formatter[BigDecimal] =
-    bigDecimalFormat(precision = 13, scale = 2, errorMsg)
-
   def moneyMapping(
     errorMsg: String = "error.invalid-text",
     allowZero: Boolean = false,
@@ -110,6 +102,9 @@ object FormUtils {
           }
         )
       )
+
+  def moneyBigDecimalFormat(errorMsg: String): Formatter[BigDecimal] =
+    bigDecimalFormat(precision = 13, scale = 2, errorMsg)
 
   def bigDecimalFormat(precision: Int, scale: Int, errorMsg: String): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {

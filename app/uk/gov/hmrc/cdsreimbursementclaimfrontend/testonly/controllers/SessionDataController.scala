@@ -16,31 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
-import play.api.libs.json.JsError
-import play.api.libs.json.JsSuccess
-import play.api.libs.json.Json
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.mvc.*
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
 class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendBaseController {
-
-  override protected def controllerComponents: MessagesControllerComponents =
-    jcc.controllerComponents
-
-  private val showSessionDataAction   = routes.SessionDataController.show
-  private val submitSessionDataAction = routes.SessionDataController.show
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     jcc.sessionCache
@@ -54,7 +43,6 @@ class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit 
         )
       )
   }
-
   val submit: Action[AnyContent] = Action.async { implicit request =>
     request.body.asFormUrlEncoded
       .flatMap(_.get("sessionData").flatMap(_.headOption))
@@ -94,6 +82,8 @@ class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit 
       }
 
   }
+  private val showSessionDataAction   = routes.SessionDataController.show
+  private val submitSessionDataAction = routes.SessionDataController.show
 
   def renderPage(sessionData: String, error: Option[String] = None): Html = Html(
     s"""
@@ -106,7 +96,7 @@ class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit 
     |  textarea {flex: 1; border: 0; margin: 1em 0;}
     |  button {font-size: 1em}
     |  .error {color: red; font-weight: bold; font-size: 1em;}
-    |  </style> 
+    |  </style>
     |  </head>
     |  <body>
     |    ${error.map(e => s"""<div class="error">$e</div>""".stripMargin).getOrElse("")}
@@ -119,4 +109,7 @@ class SessionDataController @Inject() (jcc: ClaimControllerComponents)(implicit 
     |  </html>
     """.stripMargin
   )
+
+  override protected def controllerComponents: MessagesControllerComponents =
+    jcc.controllerComponents
 }

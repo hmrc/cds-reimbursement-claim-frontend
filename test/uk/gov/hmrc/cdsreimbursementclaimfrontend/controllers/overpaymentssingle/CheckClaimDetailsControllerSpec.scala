@@ -19,23 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
 import scala.concurrent.Future
@@ -57,6 +51,31 @@ class CheckClaimDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(
+      buildAnswersGen(
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        reimbursementMethod = None,
+        submitEvidence = false,
+        checkYourAnswersChangeMode = false
+      )
+    )
+  val claimWithNoClaimsGen: Gen[OverpaymentsSingleClaim] =
+    claimGen.map(claim =>
+      OverpaymentsSingleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
+    )
+  val claimWithIncompleteClaimsGen: Gen[OverpaymentsSingleClaim] =
+    claimGen.map(claim =>
+      OverpaymentsSingleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
 
   def assertPageContent(
     doc: Document,
@@ -86,34 +105,6 @@ class CheckClaimDetailsControllerSpec
     doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
 
   }
-
-  val claimGen: Gen[OverpaymentsSingleClaim] =
-    buildClaimFromAnswersGen(
-      buildAnswersGen(
-        submitBankAccountDetails = false,
-        submitBankAccountType = false,
-        reimbursementMethod = None,
-        submitEvidence = false,
-        checkYourAnswersChangeMode = false
-      )
-    )
-
-  val claimWithNoClaimsGen: Gen[OverpaymentsSingleClaim] =
-    claimGen.map(claim =>
-      OverpaymentsSingleClaim
-        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
-    )
-
-  val claimWithIncompleteClaimsGen: Gen[OverpaymentsSingleClaim] =
-    claimGen.map(claim =>
-      OverpaymentsSingleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
-        )
-    )
 
   "Check Claim Details Controller" when {
 

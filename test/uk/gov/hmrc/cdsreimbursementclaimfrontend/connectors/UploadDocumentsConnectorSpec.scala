@@ -27,18 +27,14 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, UploadDocumentType, UploadDocumentsSessionConfig, UploadedFile}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.time.{ZoneOffset, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import java.time.ZonedDateTime
-import java.time.ZoneOffset
 
 class UploadDocumentsConnectorSpec
     extends AnyWordSpec
@@ -70,10 +66,6 @@ class UploadDocumentsConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-UploadDocumentsConnectorSpec")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new UploadDocumentsConnectorImpl(
       mockHttp,
@@ -81,11 +73,9 @@ class UploadDocumentsConnectorSpec
       config,
       actorSystem
     )
-
   val expectedInitializationUrl = "http://host3:124/internal/initialize"
   val expectedWipeOutUrl        = "http://host3:124/internal/wipe-out"
   val expectedUploadFileUrl     = "http://host3:124/internal/upload"
-
   val uploadDocumentsParameters: UploadDocumentsSessionConfig =
     UploadDocumentsSessionConfig(
       continueUrl = "/foo",
@@ -134,10 +124,8 @@ class UploadDocumentsConnectorSpec
           enableMultipleFilesPicker = true
         )
     )
-
   val initializationRequest: UploadDocumentsConnector.Request =
     UploadDocumentsConnector.Request(uploadDocumentsParameters, Seq.empty)
-
   val givenInitializationCallReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(
       expectedInitializationUrl,
@@ -148,12 +136,15 @@ class UploadDocumentsConnectorSpec
         )
       )
     )(_)
-
   val givenWipeOutCallReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostStringSuccess(
       expectedWipeOutUrl,
       ""
     )(_)
+  val responseHeaders: Map[String, Seq[String]] =
+    Map("Location" -> Seq("http://foo.bar/zoo"))
+  val expectedResponse: Some[String] =
+    Some("http://foo.bar/zoo")
 
   def givenUploadFileCallReturns(
     fileToUpload: UploadDocumentsConnector.FileToUpload
@@ -163,11 +154,8 @@ class UploadDocumentsConnectorSpec
       Json.toJson(fileToUpload)
     )(_)
 
-  val responseHeaders: Map[String, Seq[String]] =
-    Map("Location" -> Seq("http://foo.bar/zoo"))
-
-  val expectedResponse: Some[String] =
-    Some("http://foo.bar/zoo")
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "UploadDocumentsConnector" must {
     "have retries defined" in {

@@ -19,12 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -32,28 +28,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{DeclarationConnector, XiEoriConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.{EndUseRelief, InwardProcessingRelief}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, ExistingClaim, Feature, ReasonForSecurity, SessionData, UserXiEori}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -67,11 +52,7 @@ class ChooseReasonForSecurityControllerSpec
     with SessionSupport
     with TestWithClaimGenerator[SecuritiesClaim]
     with BeforeAndAfterEach {
-
-  val mockClaimsService: ClaimService                = mock[ClaimService]
-  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
-  val mockXiEoriConnector: XiEoriConnector           = mock[XiEoriConnector]
-
+  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
@@ -80,39 +61,13 @@ class ChooseReasonForSecurityControllerSpec
       bind[DeclarationConnector].toInstance(mockDeclarationConnector),
       bind[XiEoriConnector].toInstance(mockXiEoriConnector)
     )
-
+  val mockClaimsService: ClaimService                = mock[ClaimService]
+  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
+  val mockXiEoriConnector: XiEoriConnector           = mock[XiEoriConnector]
   val controller: ChooseReasonForSecurityController = instanceOf[ChooseReasonForSecurityController]
-
-  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private val messagesKey: String = "choose-reason-for-security.securities"
-
-  private val ntasOptions = Seq(
-    ("Temporary Admission (24 months)", "TemporaryAdmission2Y"),
-    ("Temporary Admission (2 months)", "TemporaryAdmission2M"),
-    ("Temporary Admission (3 months)", "TemporaryAdmission3M"),
-    ("Temporary Admission (6 months)", "TemporaryAdmission6M")
-  )
-
-  private val niruOptions =
-    Seq(
-      ("Inward-processing relief (IPR)", "InwardProcessingRelief"),
-      ("Authorised-use (Great Britain) or end-use (Northern Ireland) relief", "EndUseRelief")
-    )
-
-  private val nidacOptions =
-    Seq(
-      ("Manual override of duty amount", "ManualOverrideDeposit"),
-      ("Missing document: quota license", "MissingLicenseQuota"),
-      ("Missing proof of origin", "MissingPreferenceCertificate"),
-      ("Revenue Dispute or Inland Pre-Clearance (IPC)", "RevenueDispute"),
-      ("UKAP Entry Price", "UKAPEntryPrice"),
-      ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
-    )
-
   val initialClaim: SecuritiesClaim = SecuritiesClaim
     .empty(
       userEoriNumber = exampleEori,
@@ -123,6 +78,33 @@ class ChooseReasonForSecurityControllerSpec
       )
     )
     .submitMovementReferenceNumber(exampleMrn)
+  private val messagesKey: String = "choose-reason-for-security.securities"
+  private val ntasOptions = Seq(
+    ("Temporary Admission (24 months)", "TemporaryAdmission2Y"),
+    ("Temporary Admission (2 months)", "TemporaryAdmission2M"),
+    ("Temporary Admission (3 months)", "TemporaryAdmission3M"),
+    ("Temporary Admission (6 months)", "TemporaryAdmission6M")
+  )
+  private val niruOptions =
+    Seq(
+      ("Inward-processing relief (IPR)", "InwardProcessingRelief"),
+      ("Authorised-use (Great Britain) or end-use (Northern Ireland) relief", "EndUseRelief")
+    )
+  private val nidacOptions =
+    Seq(
+      ("Manual override of duty amount", "ManualOverrideDeposit"),
+      ("Missing document: quota license", "MissingLicenseQuota"),
+      ("Missing proof of origin", "MissingPreferenceCertificate"),
+      ("Revenue Dispute or Inland Pre-Clearance (IPC)", "RevenueDispute"),
+      ("UKAP Entry Price", "UKAPEntryPrice"),
+      ("UKAP Safeguard Duties", "UKAPSafeguardDuties")
+    )
+
+  def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
+    radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions ++ nidacOptions
+
+    hasContinueButton(doc)
+  }
 
   private def mockGetImportDeclarationWithErrorCodes(response: Either[GetDeclarationError, ImportDeclaration]) =
     (mockClaimsService
@@ -142,12 +124,6 @@ class ChooseReasonForSecurityControllerSpec
       .getXiEori(_: HeaderCarrier))
       .expects(*)
       .returning(response)
-
-  def validateChooseReasonForSecurityPage(doc: Document): Assertion = {
-    radioItems(doc) should contain theSameElementsAs ntasOptions ++ niruOptions ++ nidacOptions
-
-    hasContinueButton(doc)
-  }
 
   "ChooseReasonForSecurityController" when {
 

@@ -16,23 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.hasMRNAndImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.ProblemWithDeclarationMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.{problem_with_declaration_can_continue, problem_with_declaration_dead_end}
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -44,21 +39,13 @@ class ProblemWithDeclarationController @Inject() (
     extends OverpaymentsMultipleClaimBaseController
     with ProblemWithDeclarationMixin {
 
-  override def removeUnsupportedTaxCodesFromClaim(
-    claim: OverpaymentsMultipleClaim
-  ): OverpaymentsMultipleClaim =
-    claim.removeUnsupportedTaxCodes()
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndImportDeclaration)
-
   final override val postAction: Call =
     routes.ProblemWithDeclarationController.submit
-
   final override val enterAnotherMrnAction: Call =
     routes.EnterMovementReferenceNumberController.showFirst
-
   final override val checkDeclarationDetailsAction: Call =
     routes.CheckDeclarationDetailsController.show
 
@@ -124,4 +111,9 @@ class ProblemWithDeclarationController @Inject() (
             }
         )
     }
+
+  override def removeUnsupportedTaxCodesFromClaim(
+    claim: OverpaymentsMultipleClaim
+  ): OverpaymentsMultipleClaim =
+    claim.removeUnsupportedTaxCodes()
 }

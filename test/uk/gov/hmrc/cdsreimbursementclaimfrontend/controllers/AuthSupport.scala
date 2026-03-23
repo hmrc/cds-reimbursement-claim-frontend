@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.Configuration
 import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
@@ -31,8 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthSupport {
   this: ControllerSpec & SessionSupport =>
@@ -48,17 +46,8 @@ trait AuthSupport {
     mockSessionCache,
     mockEoriDetailsConnector
   )(instanceOf[ExecutionContext])
-
-  def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
-    result: Future[R]
-  ): Any =
-    (mockAuthConnector
-      .authorise(_: Predicate, _: Retrieval[R])(
-        _: HeaderCarrier,
-        _: ExecutionContext
-      ))
-      .expects(predicate, retrieval, *, *)
-      .returning(result)
+  val expectedRetrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
+    Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials
 
   def mockAuthWithDefaultRetrievals(): Any =
     mockAuthWithAllRetrievals(
@@ -76,22 +65,6 @@ trait AuthSupport {
         )
       ),
       Some(Credentials("gg-cred-id", "GovernmentGateway"))
-    )
-
-  val expectedRetrievals: Retrieval[Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]] =
-    Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials
-
-  def mockAuthWithAllRetrievals(
-    retrievedAffinityGroup: Option[AffinityGroup],
-    retrievedEnrolments: Set[Enrolment],
-    retrievedCredentials: Option[Credentials]
-  ): Any =
-    mockAuth(EmptyPredicate, expectedRetrievals)(
-      Future successful (
-        retrievedAffinityGroup and Enrolments(
-          retrievedEnrolments
-        ) `and` retrievedCredentials
-      )
     )
 
   def mockAuthWithAllIndividualRetrievals(
@@ -147,6 +120,30 @@ trait AuthSupport {
       Set.empty,
       Some(Credentials("gg-cred-id", "GovernmentGateway"))
     )
+
+  def mockAuthWithAllRetrievals(
+    retrievedAffinityGroup: Option[AffinityGroup],
+    retrievedEnrolments: Set[Enrolment],
+    retrievedCredentials: Option[Credentials]
+  ): Any =
+    mockAuth(EmptyPredicate, expectedRetrievals)(
+      Future successful (
+        retrievedAffinityGroup and Enrolments(
+          retrievedEnrolments
+        ) `and` retrievedCredentials
+      )
+    )
+
+  def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
+    result: Future[R]
+  ): Any =
+    (mockAuthConnector
+      .authorise(_: Predicate, _: Retrieval[R])(
+        _: HeaderCarrier,
+        _: ExecutionContext
+      ))
+      .expects(predicate, retrieval, *, *)
+      .returning(result)
 
   def mockAuthWithNonGGUserRetrievals(): Any =
     mockAuthWithAllRetrievals(

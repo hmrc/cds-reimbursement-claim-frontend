@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
@@ -33,31 +32,24 @@ import play.api.*
 import play.api.http.HttpConfiguration
 import play.api.i18n.*
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.mvc.{Call, Result}
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.{FeaturesCache, SessionCache}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.PageAssertions
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{FeatureSet, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{PageAssertions, SummaryMatchers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{OrderedMap, SeqUtils}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.play.PlayMongoModule
 
 import java.net.URLEncoder
 import java.util.concurrent.ConcurrentHashMap
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
-import scala.collection.immutable.SortedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 @Singleton
 class TestMessagesApi(
@@ -115,20 +107,16 @@ trait ControllerSpec
     with PageAssertions {
 
   implicit val lang: Lang = Lang("en")
-
+  lazy val fakeApplication: Application = buildFakeApplication()
+  lazy val theMessagesApi               = fakeApplication.injector.instanceOf[MessagesApi]
+  private lazy val additionalConfig = Configuration()
   val sessionCacheBinding: GuiceableModule =
     bind[SessionCache].to[TestSessionCache]
-
   val featuresCacheBinding: GuiceableModule =
     bind[FeaturesCache].to[TestFeaturesCache]
 
-  def overrideBindings: List[GuiceableModule] =
-    List(sessionCacheBinding)
-
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").html()
-
-  private lazy val additionalConfig = Configuration()
 
   def buildFakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -150,8 +138,8 @@ trait ControllerSpec
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
 
-  lazy val fakeApplication: Application = buildFakeApplication()
-  lazy val theMessagesApi               = fakeApplication.injector.instanceOf[MessagesApi]
+  def overrideBindings: List[GuiceableModule] =
+    List(sessionCacheBinding)
 
   def instanceOf[A : ClassTag]: A = fakeApplication.injector.instanceOf[A]
 
@@ -168,12 +156,6 @@ trait ControllerSpec
     super.afterAll()
   }
 
-  final def messageFromMessageKey(messageKey: String, args: Any*): String = {
-    val m = theMessagesApi(messageKey, args*)
-    if m === messageKey then sys.error(s"Message key `$messageKey` is missing a message")
-    m
-  }
-
   /** Resolves key to message, reports an error if message is missing. */
   final def m(messageKey: String, args: Any*): String =
     messageFromMessageKey(messageKey, args*)
@@ -181,8 +163,8 @@ trait ControllerSpec
   final def checkIsTechnicalErrorPage(
     result: Future[Result]
   )(implicit pos: Position): Any = {
-    import cats.instances.int._
-    import cats.syntax.eq._
+    import cats.instances.int.*
+    import cats.syntax.eq.*
     if status(result) =!= INTERNAL_SERVER_ERROR then println(contentAsString(result))
 
     (status(result), redirectLocation(result)) shouldBe (INTERNAL_SERVER_ERROR -> None)
@@ -191,12 +173,10 @@ trait ControllerSpec
     )
   }
 
-  final def checkIsRedirect(
-    result: Future[Result],
-    expectedRedirectUrl: String
-  )(implicit pos: Position): Any = {
-    status(result)           shouldBe SEE_OTHER
-    redirectLocation(result) shouldBe Some(expectedRedirectUrl)
+  final def messageFromMessageKey(messageKey: String, args: Any*): String = {
+    val m = theMessagesApi(messageKey, args*)
+    if m === messageKey then sys.error(s"Message key `$messageKey` is missing a message")
+    m
   }
 
   final def checkIsRedirect(
@@ -204,6 +184,14 @@ trait ControllerSpec
     expectedRedirectCall: Call
   )(implicit pos: Position): Any =
     checkIsRedirect(result, expectedRedirectCall.url)
+
+  final def checkIsRedirect(
+    result: Future[Result],
+    expectedRedirectUrl: String
+  )(implicit pos: Position): Any = {
+    status(result)           shouldBe SEE_OTHER
+    redirectLocation(result) shouldBe Some(expectedRedirectUrl)
+  }
 
   final def checkPageIsDisplayed(
     result: Future[Result],

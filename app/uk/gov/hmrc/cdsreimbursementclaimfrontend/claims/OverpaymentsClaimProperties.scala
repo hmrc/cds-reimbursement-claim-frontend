@@ -16,18 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 /** Common properties of the overpayments single, multiple and scheduled claims. */
 trait OverpaymentsClaimProperties extends CommonClaimProperties {
-
-  override def answers: OverpaymentsAnswers
-
-  def hasCompleteReimbursementClaims: Boolean
-  def getTotalReimbursementAmount: BigDecimal
-
-  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 
   final override def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
     if declaration.hasOnlySubsidyPayments
@@ -35,4 +28,12 @@ trait OverpaymentsClaimProperties extends CommonClaimProperties {
     else if declaration.hasSomeSubsidyPayment
     then Some("error.has-some-subsidy-items")
     else None
+
+  override def answers: OverpaymentsAnswers
+
+  def hasCompleteReimbursementClaims: Boolean
+
+  def getTotalReimbursementAmount: BigDecimal
+
+  def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim]
 }

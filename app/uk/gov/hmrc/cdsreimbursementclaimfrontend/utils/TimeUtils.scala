@@ -21,9 +21,7 @@ import cats.syntax.either.*
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-import java.time.Clock
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.{Clock, LocalDate, LocalDateTime}
 import scala.util.Try
 
 object TimeUtils {

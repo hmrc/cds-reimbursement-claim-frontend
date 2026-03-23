@@ -19,10 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -30,13 +27,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReimbursementMethod, SessionData}
 
 import scala.concurrent.Future
 
@@ -56,19 +50,6 @@ class ChooseRepaymentMethodControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  def assertPageContent(
-    doc: Document
-  ): Unit = {
-    radioItems(doc) should containOnlyPairsOf(
-      Seq(
-        m("reimbursement-method.cma")           -> "0",
-        m("reimbursement-method.bank-transfer") -> "1"
-      )
-    )
-    hasContinueButton(doc)
-  }
-
   val claimCMAEligibleGen: Gen[OverpaymentsSingleClaim] =
     buildClaimFromAnswersGen(
       buildAnswersGen(
@@ -81,7 +62,6 @@ class ChooseRepaymentMethodControllerSpec
         checkYourAnswersChangeMode = false
       )
     )
-
   val claimNotCMAEligibleGen: Gen[OverpaymentsSingleClaim] =
     buildClaimFromAnswersGen(
       buildAnswersGen(
@@ -94,6 +74,18 @@ class ChooseRepaymentMethodControllerSpec
         checkYourAnswersChangeMode = false
       )
     )
+
+  def assertPageContent(
+    doc: Document
+  ): Unit = {
+    radioItems(doc) should containOnlyPairsOf(
+      Seq(
+        m("reimbursement-method.cma")           -> "0",
+        m("reimbursement-method.bank-transfer") -> "1"
+      )
+    )
+    hasContinueButton(doc)
+  }
 
   "Repayment Method Controller" when {
 

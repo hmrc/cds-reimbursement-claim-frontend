@@ -16,26 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsMultipleClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{OverpaymentsMultipleClaimConnector, UploadDocumentsConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_your_answers_multiple_print_view
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.{confirmation_of_submission, submit_claim_error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.{check_your_answers_multiple, check_your_answers_multiple_print_view}
 
 import scala.concurrent.ExecutionContext
 
@@ -52,13 +45,9 @@ class CheckYourAnswersController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends OverpaymentsMultipleClaimBaseController {
 
-  private val postAction: Call             = routes.CheckYourAnswersController.submit
-  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
   final val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim
@@ -84,7 +73,6 @@ class CheckYourAnswersController @Inject() (
             )
         )
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim
@@ -126,7 +114,6 @@ class CheckYourAnswersController @Inject() (
               }
         )
     }
-
   final val showConfirmation: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -153,7 +140,6 @@ class CheckYourAnswersController @Inject() (
           }
           .getOrElse(redirectToTheStartOfTheClaim)
       }
-
   final val showPrintView: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -184,4 +170,6 @@ class CheckYourAnswersController @Inject() (
           }
           .getOrElse(redirectToTheStartOfTheClaim)
       }
+  private val postAction: Call             = routes.CheckYourAnswersController.submit
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 }

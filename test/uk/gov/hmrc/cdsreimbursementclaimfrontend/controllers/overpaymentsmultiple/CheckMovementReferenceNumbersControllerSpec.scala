@@ -21,10 +21,7 @@ import org.jsoup.nodes.Element
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -32,19 +29,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimTestData, OverpaymentsMultipleClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.completeClaimGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AdjustImportDeclaration, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.arbitraryImportDeclaration
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -70,11 +62,10 @@ class CheckMovementReferenceNumbersControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val formKey: String = "check-movement-reference-numbers"
+  private val session = SessionData(OverpaymentsMultipleClaim.empty(exampleEori))
 
   def areMrnsUnique(acc14Declarations: List[ImportDeclaration]): Boolean =
     acc14Declarations.map(_.getMRN).toSet.size == acc14Declarations.size
-
-  private val session = SessionData(OverpaymentsMultipleClaim.empty(exampleEori))
 
   def addAcc14(
     claim: OverpaymentsMultipleClaim,

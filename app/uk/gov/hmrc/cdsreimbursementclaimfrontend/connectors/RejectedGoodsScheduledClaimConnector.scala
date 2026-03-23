@@ -17,26 +17,22 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.syntax.eq.*
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
+import play.api.libs.ws.JsonBodyWritables.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
-import play.api.libs.ws.JsonBodyWritables.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
 import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @ImplementedBy(classOf[RejectedGoodsScheduledClaimConnectorImpl])
 trait RejectedGoodsScheduledClaimConnector {
@@ -58,7 +54,7 @@ class RejectedGoodsScheduledClaimConnectorImpl @Inject() (
     with Retries
     with WafErrorMitigationHelper {
 
-  import RejectedGoodsScheduledClaimConnector._
+  import RejectedGoodsScheduledClaimConnector.*
 
   lazy val baseUrl: String                     = servicesConfig.baseUrl("cds-reimbursement-claim")
   lazy val contextPath: String                 =

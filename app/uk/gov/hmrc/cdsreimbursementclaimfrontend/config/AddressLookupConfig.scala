@@ -19,22 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.URI
-import java.net.URL
+import java.net.{URI, URL}
 import javax.inject.Singleton
 
 @Singleton
 class AddressLookupConfig @Inject() (config: ServicesConfig) {
 
-  private val serviceName = "address-lookup-frontend"
-
   lazy val serviceUrl: URL = URI.create(config.baseUrl(serviceName)).toURL()
-
   lazy val addressesShowLimit: Int = config.getInt(s"microservice.services.$serviceName.max-addresses-to-show")
-
   lazy val startLookupUrl: URL = LookupAddressUrl("init-endpoint")
-
   lazy val retrieveAddressUrl: URL = LookupAddressUrl("address-retrieve-endpoint")
+  private val serviceName = "address-lookup-frontend"
 
   object LookupAddressUrl {
     def apply(pathConfigKey: String): URL =

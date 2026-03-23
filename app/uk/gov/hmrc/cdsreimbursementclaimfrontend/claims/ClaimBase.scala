@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.ValidationResultOps
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.{Validate, ValidationResultOps}
 
 trait Claim {
 
@@ -41,11 +39,11 @@ trait ClaimBase extends Claim {
   final def hasCompleteAnswers: Boolean =
     validate(self).isValid
 
-  /** Check if the claim has been successfully submitted. */
-  final def isFinalized: Boolean = caseNumber.isDefined
-
   /** Check if the user has already visited the CYA page at least once. */
   final def userHasSeenCYAPage: Boolean = answers.checkYourAnswersChangeMode
+
+  final def prettyPrint(implicit format: Format[Type]): String =
+    Json.prettyPrint(Json.toJson[Type](self))
 
   /** Execute the following code only when claim wasn't submitted yet. */
   final protected def whileClaimIsAmendable(body: => Type): Type =
@@ -62,14 +60,14 @@ trait ClaimBase extends Claim {
     if isFinalized then Right(self)
     else condition(self).map(_ => body).left.map(_.headMessage)
 
+  /** Check if the claim has been successfully submitted. */
+  final def isFinalized: Boolean = caseNumber.isDefined
+
   /** Execute the following code only when claim wasn't submitted yet and requirements are met. */
   final protected def whileClaimIsAmendableAnd(condition: Validate[Type])(
     body: => Either[String, Type]
   ): Either[String, Type] =
     if isFinalized then Left(ClaimValidationErrors.CLAIM_ALREADY_FINALIZED)
     else condition(self).left.map(_.headMessage).flatMap(_ => body)
-
-  final def prettyPrint(implicit format: Format[Type]): String =
-    Json.prettyPrint(Json.toJson[Type](self))
 
 }

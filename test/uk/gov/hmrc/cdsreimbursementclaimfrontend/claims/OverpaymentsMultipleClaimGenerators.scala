@@ -18,22 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, BasisOfOverpaymentClaim, ClaimModes, EoriNumbersVerification, NewEoriAndDan, Nonce, PayeeType, TaxCode, TaxCodes, UploadDocumentType, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimModes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NewEoriAndDan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
 
 import scala.jdk.CollectionConverters.*
@@ -42,23 +30,14 @@ import scala.util.Random
 /** A collection of generators supporting the tests of OverpaymentsMultipleClaim. */
 object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTestData {
 
+  type TaxCodesAndAmounts = (Seq[TaxCode], Seq[TaxCode], List[BigDecimal], Seq[BigDecimal])
   val emptyClaim: OverpaymentsMultipleClaim =
     OverpaymentsMultipleClaim.empty(exampleEori)
-
   val claimWithMrnAndDeclaration: OverpaymentsMultipleClaim =
     OverpaymentsMultipleClaim
       .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random)
       .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
       .getOrFail
-
-  def claimWithMrnAndDeclarationWithFeatures(
-    features: OverpaymentsMultipleClaim.Features
-  ): OverpaymentsMultipleClaim =
-    OverpaymentsMultipleClaim
-      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
-      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
-      .getOrFail
-
   val completeClaimWithMatchingUserEoriGen: Gen[OverpaymentsMultipleClaim] =
     Gen.oneOf(
       buildCompleteClaimGen(
@@ -92,6 +71,14 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
       completeClaimWithMatchingUserEoriGen,
       completeClaimWithNonNatchingUserEoriGen
     )
+
+  def claimWithMrnAndDeclarationWithFeatures(
+    features: OverpaymentsMultipleClaim.Features
+  ): OverpaymentsMultipleClaim =
+    OverpaymentsMultipleClaim
+      .empty(exampleImportDeclaration.getDeclarantEori, Nonce.random, features = Some(features))
+      .submitMovementReferenceNumberAndDeclaration(exampleMrn, exampleImportDeclaration)
+      .getOrFail
 
   def buildCompleteClaimGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -133,22 +120,6 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
         identity
       )
     )
-
-  type TaxCodesAndAmounts = (Seq[TaxCode], Seq[TaxCode], List[BigDecimal], Seq[BigDecimal])
-
-  def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for
-    numberOfTaxCodes         <- Gen.choose(1, maxSize)
-    numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
-    taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all).map(_.distinct)
-    paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
-    correctedAmounts         <-
-      Gen
-        .sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts
-            .take(numberOfSelectedTaxCodes)
-            .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
-        )
-  yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
 
   def buildClaimGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -301,6 +272,20 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
       answers
     }
 
+  def taxCodesAndAmountsGen(maxSize: Int): Gen[TaxCodesAndAmounts] = for
+    numberOfTaxCodes         <- Gen.choose(1, maxSize)
+    numberOfSelectedTaxCodes <- Gen.choose(1, numberOfTaxCodes)
+    taxCodes                 <- Gen.pick(numberOfTaxCodes, TaxCodes.all).map(_.distinct)
+    paidAmounts              <- Gen.listOfN(numberOfTaxCodes, amountNumberGen)
+    correctedAmounts         <-
+      Gen
+        .sequence[Seq[BigDecimal], BigDecimal](
+          paidAmounts
+            .take(numberOfSelectedTaxCodes)
+            .map(a => Gen.choose(BigDecimal("0.00"), a - BigDecimal.exact("0.01")))
+        )
+  yield (taxCodes.toSeq, taxCodes.take(numberOfSelectedTaxCodes).toSeq, paidAmounts, correctedAmounts)
+
   def buildClaimFromAnswersGen(
     answersGen: Gen[OverpaymentsMultipleClaim.Answers]
   ): Gen[OverpaymentsMultipleClaim] =
@@ -309,6 +294,40 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
         .tryBuildFrom(_)
         .fold(e => throw new Exception(e), identity)
     )
+
+  def incompleteClaimWithCompleteClaimsGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
+    def submitData(claim: OverpaymentsMultipleClaim)(data: (MRN, TaxCode, BigDecimal)) =
+      claim.submitClaimAmount(data._1, data._2, data._3)
+
+    incompleteClaimWithSelectedDutiesGen(n).map { case (claim, mrns) =>
+      val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
+        claim.getSelectedDuties(mrn).get.map { taxCode =>
+          (mrn, taxCode, claim.getAmountPaidFor(mrn, taxCode).get)
+        }
+      }
+      (claim.flatMapEach(data, submitData).getOrFail, mrns)
+    }
+  }
+
+  def incompleteClaimWithSelectedDutiesGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
+    def submitData(claim: OverpaymentsMultipleClaim)(data: (MRN, Seq[TaxCode])) =
+      claim.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
+
+    incompleteClaimWithMrnsGen(n).flatMap { case (claim, _) =>
+      val gen = mrnWithSelectedTaxCodesGen(claim)
+      Gen
+        .sequence[Seq[(MRN, Seq[TaxCode])], (MRN, Seq[TaxCode])](gen)
+        .map { mrnsWithTaxCodesSelection =>
+          val modifiedClaim = claim
+            .flatMapEach(mrnsWithTaxCodesSelection, submitData)
+            .getOrFail
+          (
+            modifiedClaim,
+            modifiedClaim.answers.movementReferenceNumbers.get
+          )
+        }
+    }
+  }
 
   def incompleteClaimWithMrnsGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
     def submitData(claim: OverpaymentsMultipleClaim)(data: ((MRN, ImportDeclaration), Int)) =
@@ -333,40 +352,6 @@ object OverpaymentsMultipleClaimGenerators extends ClaimGenerators with ClaimTes
         .map(availableTaxCodes.take)
         .map(seq => (mrn, seq))
     }
-
-  def incompleteClaimWithSelectedDutiesGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
-    def submitData(claim: OverpaymentsMultipleClaim)(data: (MRN, Seq[TaxCode])) =
-      claim.selectAndReplaceTaxCodeSetForReimbursement(data._1, data._2)
-
-    incompleteClaimWithMrnsGen(n).flatMap { case (claim, _) =>
-      val gen = mrnWithSelectedTaxCodesGen(claim)
-      Gen
-        .sequence[Seq[(MRN, Seq[TaxCode])], (MRN, Seq[TaxCode])](gen)
-        .map { mrnsWithTaxCodesSelection =>
-          val modifiedClaim = claim
-            .flatMapEach(mrnsWithTaxCodesSelection, submitData)
-            .getOrFail
-          (
-            modifiedClaim,
-            modifiedClaim.answers.movementReferenceNumbers.get
-          )
-        }
-    }
-  }
-
-  def incompleteClaimWithCompleteClaimsGen(n: Int): Gen[(OverpaymentsMultipleClaim, Seq[MRN])] = {
-    def submitData(claim: OverpaymentsMultipleClaim)(data: (MRN, TaxCode, BigDecimal)) =
-      claim.submitClaimAmount(data._1, data._2, data._3)
-
-    incompleteClaimWithSelectedDutiesGen(n).map { case (claim, mrns) =>
-      val data: Seq[(MRN, TaxCode, BigDecimal)] = mrns.flatMap { mrn =>
-        claim.getSelectedDuties(mrn).get.map { taxCode =>
-          (mrn, taxCode, claim.getAmountPaidFor(mrn, taxCode).get)
-        }
-      }
-      (claim.flatMapEach(data, submitData).getOrFail, mrns)
-    }
-  }
 
   def answersUpToBasisForClaimGen(
     acc14DeclarantMatchesUserEori: Boolean = true,

@@ -16,18 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_or_change_method_of_disposal
 
 import scala.concurrent.ExecutionContext
@@ -40,12 +36,9 @@ class DisposalMethodController @Inject() (
     extends RejectedGoodsMultipleClaimBaseController
     with Logging {
 
-  private def postAction: Call = routes.DisposalMethodController.submit
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsMultipleClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
   val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterOrChangeMethodOfDisposal(
@@ -54,7 +47,6 @@ class DisposalMethodController @Inject() (
       )
     )
   }
-
   val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       Forms.methodOfDisposalForm
@@ -72,4 +64,6 @@ class DisposalMethodController @Inject() (
             )
         )
     }
+
+  private def postAction: Call = routes.DisposalMethodController.submit
 }

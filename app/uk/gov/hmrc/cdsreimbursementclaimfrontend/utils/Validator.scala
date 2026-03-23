@@ -19,58 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 /** Simple validator abstraction */
 object Validator {
 
-  sealed trait Error {
-
-    /** Returns first error message. */
-    def headMessage: String
-
-    /** Returns all errors' messages in a depth-first flattened sequence. */
-    def messages: Seq[String]
-
-    /** Combines all errors' messages into a single sentence. */
-    def summary: String
-
-    /** Maps error messages with the provided function. */
-    def map(f: String => String): Error
-
-    /** Combines this error with another one using logical conjunction. */
-    infix def and(other: Error): Error
-
-    /** Combines this error with another one using logical disjunction. */
-    infix def or(other: Error): Error
-  }
-  object Error {
-
-    /** Wraps a message as a single error. */
-    def apply(message: String): Error = Single(message)
-  }
-
   /** Validation result type. */
   type Result = Either[Error, Unit]
-
   /** The validator function type. */
   type Validate[-T] = T => Result
-
-  /** Invalid result helpers. */
-  object Invalid {
-
-    /** Creates representation of a failed validation result with single error message. */
-    def apply(errorMessage: String): Result =
-      Left(Single(errorMessage))
-
-    /** Creates representation of a failed validation result with multiple error messages. */
-    def apply(firstErrorMessage: String, nextErrorMessages: String*): Result =
-      Left(And(Single(firstErrorMessage) +: nextErrorMessages.map(Single.apply)))
-  }
-
   /** Successsful validation result alias. */
   val Valid = Right(())
-
-  /** Runs all provided checks. */
-  def apply[T](constraints: Validate[T]*): Validate[T] =
-    (entity: T) =>
-      constraints
-        .foldLeft[Result](Valid)((v, fx) => v.and(fx(entity)))
 
   /** Runs all provided checks. Provided as a named alias to the apply method. */
   def validate[T](constraints: Validate[T]*): Validate[T] =
@@ -81,10 +35,6 @@ object Validator {
 
   /** Validator that always fails. */
   def never[T]: Validate[T] = (_: T) => Left(Error("this validation never succeeds"))
-
-  /** Conjuction. Succeeds only if all constraints are valid. */
-  def all[T](constraints: Validate[T]*): Validate[T] =
-    apply(constraints*)
 
   /** Conjuction. Succeeds only if all constraints are valid. Breaks the circuit after first invalid result.
     */
@@ -97,6 +47,16 @@ object Validator {
   def allWithPrefix[T](errorPrefix: String, constraints: Validate[T]*): Validate[T] =
     (entity: T) => all(constraints*)(entity).left.map(_.map(e => s"$errorPrefix$e"))
 
+  /** Conjuction. Succeeds only if all constraints are valid. */
+  def all[T](constraints: Validate[T]*): Validate[T] =
+    apply(constraints*)
+
+  /** Runs all provided checks. */
+  def apply[T](constraints: Validate[T]*): Validate[T] =
+    (entity: T) =>
+      constraints
+        .foldLeft[Result](Valid)((v, fx) => v.and(fx(entity)))
+
   /** Conjuction. Succeeds only if all constraints are valid, otherwise prepend calculated errorPrefix. */
   def allWithComputedPrefix[T](errorPrefix: T => String, constraints: Validate[T]*): Validate[T] =
     (entity: T) =>
@@ -104,6 +64,10 @@ object Validator {
         val prefix = errorPrefix(entity)
         r.map(e => s"$prefix$e")
       }
+
+  /** Disjunction. Succeeds if any of the constraints is valid, otherwise prepend errorPrefix. */
+  def anyWithPrefix[T](errorPrefix: String, constraints: Validate[T]*): Validate[T] =
+    (entity: T) => any(constraints*)(entity).left.map(_.map(e => s"$errorPrefix$e"))
 
   /** Disjunction. Succeeds if any of the constraints is valid. */
   def any[T](constraints: Validate[T]*): Validate[T] =
@@ -114,10 +78,6 @@ object Validator {
         if (results.exists(_.isRight)) Valid
         else results.reduce((a, b) => a or b)
       }
-
-  /** Disjunction. Succeeds if any of the constraints is valid, otherwise prepend errorPrefix. */
-  def anyWithPrefix[T](errorPrefix: String, constraints: Validate[T]*): Validate[T] =
-    (entity: T) => any(constraints*)(entity).left.map(_.map(e => s"$errorPrefix$e"))
 
   /** Disjunction. Succeeds if any of the constraints is valid, otherwise prepend errorPrefix. */
   def anyWithComputedPrefix[T](errorPrefix: T => String, constraints: Validate[T]*): Validate[T] =
@@ -202,10 +162,6 @@ object Validator {
         .and(constraintC(entity._3))
         .and(constraintD(entity._4))
 
-  /** Validate if the test passes, otherwise fail with error. */
-  def checkIsTrue[T](test: T => Boolean, error: String): Validate[T] =
-    a => Either.cond(test(a), (), Error(error))
-
   /** Validate if the test fails, otherwise fail with error. */
   def checkIsFalse[T](test: T => Boolean, error: String): Validate[T] =
     a => Either.cond(!test(a), (), Error(error))
@@ -229,6 +185,10 @@ object Validator {
   /** Validate if two properties return different value. */
   def checkNotEquals[T, A](value1: T => A, value2: T => A, error: String): Validate[T] =
     checkIsTrue((entity: T) => value1(entity) != value2(entity), error)
+
+  /** Validate if the test passes, otherwise fail with error. */
+  def checkIsTrue[T](test: T => Boolean, error: String): Validate[T] =
+    a => Either.cond(test(a), (), Error(error))
 
   /** Validate if the test returns Right, otherwise fail with Left error. */
   def checkFromEither[T](test: T => Either[String, Any]): Validate[T] =
@@ -267,32 +227,6 @@ object Validator {
           constraintLeft,
           constraintRight
         )
-
-  /** Apply constraint to each element of the extracted sequence. */
-  def checkEach[T, E](elements: T => Seq[E], constraint: Validate[E]): Validate[T] =
-    (entity: T) => {
-      val es = elements(entity)
-      if (es.nonEmpty)
-        es.map(constraint)
-          .reduce(_.and(_))
-      else Valid
-    }
-
-  /** Apply constraint to each element of the extracted sequence. If invalid then compute and add prefix to the errors.
-    */
-  def checkEachWithErrorPrefix[T, E](
-    elements: T => Seq[E],
-    constraint: Validate[E],
-    errorPrefix: Int => String
-  ): Validate[T] =
-    (entity: T) => {
-      val es = elements(entity)
-      if (es.nonEmpty)
-        es.zipWithIndex
-          .map { case (v, i) => constraint(v).left.map(_.map(e => s"${errorPrefix(i)}$e")) }
-          .reduce(_.and(_))
-      else Valid
-    }
 
   /** Apply constraint to each element of the extracted sequence if non empty. */
   def checkEachIfNonEmpty[T, E](elements: T => Seq[E], constraint: Validate[E]): Validate[T] =
@@ -334,6 +268,16 @@ object Validator {
           if (isValidIfNone) Valid else Left(Error("Expected Some sequence but got None"))
         )
 
+  /** Apply constraint to each element of the extracted sequence. */
+  def checkEach[T, E](elements: T => Seq[E], constraint: Validate[E]): Validate[T] =
+    (entity: T) => {
+      val es = elements(entity)
+      if (es.nonEmpty)
+        es.map(constraint)
+          .reduce(_.and(_))
+      else Valid
+    }
+
   /** Apply constraint to each element of the extracted sequence if non empty. If invalid then compute and add prefix to
     * the errors.
     */
@@ -349,6 +293,22 @@ object Validator {
         .getOrElse(
           if (isValidIfNone) Valid else Left(Error("Expected Some sequence but got None"))
         )
+
+  /** Apply constraint to each element of the extracted sequence. If invalid then compute and add prefix to the errors.
+    */
+  def checkEachWithErrorPrefix[T, E](
+    elements: T => Seq[E],
+    constraint: Validate[E],
+    errorPrefix: Int => String
+  ): Validate[T] =
+    (entity: T) => {
+      val es = elements(entity)
+      if (es.nonEmpty)
+        es.zipWithIndex
+          .map { case (v, i) => constraint(v).left.map(_.map(e => s"${errorPrefix(i)}$e")) }
+          .reduce(_.and(_))
+      else Valid
+    }
 
   /** Check if all extracted optional properties are defined. */
   def checkIfAllDefined[T](
@@ -493,6 +453,33 @@ object Validator {
       else Valid
     }
 
+  def validateStringNonEmpty(errorMessage: String) =
+    checkIsTrue[String](_.nonEmpty, errorMessage)
+
+  def validateCollectionNonEmpty(errorMessage: String) =
+    checkIsTrue[Iterable[?]](_.nonEmpty, errorMessage)
+
+  sealed trait Error {
+
+    /** Returns first error message. */
+    def headMessage: String
+
+    /** Returns all errors' messages in a depth-first flattened sequence. */
+    def messages: Seq[String]
+
+    /** Combines all errors' messages into a single sentence. */
+    def summary: String
+
+    /** Maps error messages with the provided function. */
+    def map(f: String => String): Error
+
+    /** Combines this error with another one using logical conjunction. */
+    infix def and(other: Error): Error
+
+    /** Combines this error with another one using logical disjunction. */
+    infix def or(other: Error): Error
+  }
+
   final implicit class StringMatchers(val value: String) extends AnyVal {
     def lengthMinMaxInclusive(min: Int, max: Int): Boolean  =
       value != null && value.length >= min && value.length <= max
@@ -576,6 +563,10 @@ object Validator {
   final implicit class ValidateOps[T](val thisValidate: T => Result) {
 
     /** Conjuction. Compose this check with another check and expect them both to pass. */
+    infix def &[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
+      thisValidate.and(otherValidate)
+
+    /** Conjuction. Compose this check with another check and expect them both to pass. */
     infix def and[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
       (entity: T1) =>
         thisValidate(entity)
@@ -589,6 +580,10 @@ object Validator {
           )
 
     /** Disjunction. Compose this check with another check and expect at least one of them to pass. */
+    infix def |[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
+      thisValidate.or(otherValidate)
+
+    /** Disjunction. Compose this check with another check and expect at least one of them to pass. */
     infix def or[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
       (entity: T1) =>
         thisValidate(entity).left
@@ -596,14 +591,6 @@ object Validator {
             otherValidate(entity).left
               .map(error2 => error1 or error2)
           )
-
-    /** Conjuction. Compose this check with another check and expect them both to pass. */
-    infix def &[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
-      thisValidate.and(otherValidate)
-
-    /** Disjunction. Compose this check with another check and expect at least one of them to pass. */
-    infix def |[T1 <: T](otherValidate: Validate[T1]): Validate[T1] =
-      thisValidate.or(otherValidate)
 
     /** Product. Compose this check with another check to construct tuple of checks. */
     infix def *[U](otherValidate: Validate[U]): Validate[(T, U)] =
@@ -785,10 +772,22 @@ object Validator {
 
   // common checks
 
-  def validateStringNonEmpty(errorMessage: String) =
-    checkIsTrue[String](_.nonEmpty, errorMessage)
+  object Error {
 
-  def validateCollectionNonEmpty(errorMessage: String) =
-    checkIsTrue[Iterable[?]](_.nonEmpty, errorMessage)
+    /** Wraps a message as a single error. */
+    def apply(message: String): Error = Single(message)
+  }
+
+  /** Invalid result helpers. */
+  object Invalid {
+
+    /** Creates representation of a failed validation result with single error message. */
+    def apply(errorMessage: String): Result =
+      Left(Single(errorMessage))
+
+    /** Creates representation of a failed validation result with multiple error messages. */
+    def apply(firstErrorMessage: String, nextErrorMessages: String*): Result =
+      Left(And(Single(firstErrorMessage) +: nextErrorMessages.map(Single.apply)))
+  }
 
 }

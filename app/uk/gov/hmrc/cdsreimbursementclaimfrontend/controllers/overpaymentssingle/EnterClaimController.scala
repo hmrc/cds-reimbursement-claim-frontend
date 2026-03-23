@@ -16,23 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, Call, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.hasMRNAndImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_single_claim
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterClaimController @Inject() (
@@ -106,6 +99,12 @@ class EnterClaimController @Inject() (
       }
     }
 
+  private def redirectWhenInvalidTaxCode(claim: Claim): Result =
+    Redirect {
+      if claim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
+      else routes.SelectDutiesController.show
+    }
+
   final def submit(taxCode: TaxCode): Action[AnyContent] =
     actionReadWriteClaim(
       claim =>
@@ -164,12 +163,6 @@ class EnterClaimController @Inject() (
         },
       fastForwardToCYAEnabled = false
     )
-
-  private def redirectWhenInvalidTaxCode(claim: Claim): Result =
-    Redirect {
-      if claim.hasCompleteReimbursementClaims then routes.CheckClaimDetailsController.show
-      else routes.SelectDutiesController.show
-    }
 
   private def redirectToNextPage(claim: Claim, taxCode: TaxCode): Result =
     if claim.hasCompleteReimbursementClaims && !claim.answers.dutiesChangeMode then

@@ -23,14 +23,11 @@ import play.api.libs.json.Format
   */
 @SuppressWarnings(Array("org.wartremover.warts.Throw"))
 trait EnumerationFormat[T] {
-
-  val values: Set[T]
-
   final lazy val keys: Set[String] =
     values.map(keyOf)
-
   final lazy val valueMap: Map[String, T] =
     values.map(v => (v.toString, v)).toMap
+  val values: Set[T]
 
   final def parse(key: String): Option[T] =
     valueMap.get(key)

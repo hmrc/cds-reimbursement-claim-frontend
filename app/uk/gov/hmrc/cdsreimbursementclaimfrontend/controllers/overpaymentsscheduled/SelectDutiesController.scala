@@ -16,21 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.SelectScheduledDutiesMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_codes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_categories
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_duty_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, ExciseCategory, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.{select_duty_codes, select_excise_categories, select_excise_duty_codes}
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton

@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.classic.spi.ThrowableProxyUtil
+import ch.qos.logback.classic.spi.{ILoggingEvent, ThrowableProxyUtil}
 import ch.qos.logback.core.encoder.EncoderBase
 import com.fasterxml.jackson.core.JsonGenerator.Feature
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.lang3.time.FastDateFormat
 import play.api.Logger
@@ -30,25 +28,18 @@ import play.api.Logger
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.util.Locale
-
-import scala.jdk.CollectionConverters.*
-import scala.util.Success
-import scala.util.Try
 import scala.annotation.nowarn
+import scala.jdk.CollectionConverters.*
+import scala.util.{Success, Try}
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 @nowarn
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
-  private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)
-
   lazy val appName: String = Try(ConfigFactory.load().getString("appName")) match {
     case Success(name) => name
     case _             => "APP NAME NOT SET"
   }
-
-  private val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZZ"
-
   private lazy val dateFormat = {
     val dformat = Try(ConfigFactory.load().getString("logger.json.dateformat")) match {
       case Success(date) => date
@@ -56,6 +47,8 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     }
     FastDateFormat.getInstance(dformat)
   }
+  private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)
+  private val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZZ"
 
   override def encode(event: ILoggingEvent): Array[Byte] = {
     val eventNode = mapper.createObjectNode

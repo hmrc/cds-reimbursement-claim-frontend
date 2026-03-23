@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import play.api.Configuration
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class FileUploadConfig @Inject() (config: Configuration) {
@@ -39,12 +38,12 @@ class FileUploadConfig @Inject() (config: Configuration) {
   def readMaxFileSizeHumanReadable(uploadDocumentKey: String): String =
     s"${humanReadableFileSize(config.underlying.getLong(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-file-size"))}"
 
-  def readMaxUploadsValue(uploadDocumentKey: String): Int =
-    config.underlying.getInt(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-uploads")
-
   private def humanReadableFileSize(bytes: Long): String =
     if bytes >= 1000000000 then s"${(bytes / 1000000000)} GB"
     else if bytes >= 1000000 then s"${(bytes / 1000000)} MB"
     else if bytes >= 1000 then s"${(bytes / 1000)} kB"
     else s"$bytes B"
+
+  def readMaxUploadsValue(uploadDocumentKey: String): Int =
+    config.underlying.getInt(s"microservice.services.upscan-initiate.$uploadDocumentKey.max-uploads")
 }

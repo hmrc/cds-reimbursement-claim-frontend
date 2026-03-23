@@ -17,22 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.implicits.*
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, CdsError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Indeterminate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Partial
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.Yes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CdsError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, Partial, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
@@ -48,16 +41,6 @@ object EnterBankAccountDetailsMixin {
 }
 
 trait EnterBankAccountDetailsMixin extends ClaimBaseController {
-
-  val enterBankAccountDetailsPage: enter_bank_account_details
-  val bankAccountReputationService: BankAccountReputationService
-  val routesPack: EnterBankAccountDetailsMixin.RoutesPack[Claim]
-  def isCMA(claim: Claim): Boolean = false
-
-  implicit val errorHandler: ErrorHandler
-
-  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterBankAccountDetailsPage(
@@ -67,7 +50,6 @@ trait EnterBankAccountDetailsMixin extends ClaimBaseController {
       )
     )
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     implicit claim =>
       enterBankDetailsForm
@@ -88,6 +70,15 @@ trait EnterBankAccountDetailsMixin extends ClaimBaseController {
         ),
     fastForwardToCYAEnabled = false
   )
+  val enterBankAccountDetailsPage: enter_bank_account_details
+  val bankAccountReputationService: BankAccountReputationService
+
+  implicit val errorHandler: ErrorHandler
+  val routesPack: EnterBankAccountDetailsMixin.RoutesPack[Claim]
+
+  def isCMA(claim: Claim): Boolean = false
+
+  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
 
   def validateBankAccountDetails(
     claim: Claim,

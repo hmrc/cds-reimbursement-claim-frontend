@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
 final case class BarsBusiness(
   companyName: String, // Must be between 1 and 70 characters long

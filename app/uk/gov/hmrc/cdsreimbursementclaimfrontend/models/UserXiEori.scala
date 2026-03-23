@@ -16,24 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Format
-import play.api.libs.json.JsFalse
-import play.api.libs.json.JsSuccess
-import play.api.libs.json.Json
-import play.api.libs.json.Reads
-import play.api.libs.json.Writes
+import play.api.libs.json.*
 
 sealed trait UserXiEori
 
 object UserXiEori {
-
-  object NotRegistered extends UserXiEori
-  final case class Some private[UserXiEori] (value: String) extends UserXiEori
+  private val formatOfSome: Format[Some] = Json.format[Some]
 
   def apply(value: String): UserXiEori =
     UserXiEori.Some(value)
 
-  private val formatOfSome: Format[Some] = Json.format[Some]
+  final case class Some private[UserXiEori] (value: String) extends UserXiEori
+
+  object NotRegistered extends UserXiEori
 
   implicit val format: Format[UserXiEori] =
     Format(

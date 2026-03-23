@@ -22,13 +22,18 @@ sealed trait MethodOfDisposal
 
 object MethodOfDisposal extends EnumerationFormat[MethodOfDisposal] {
 
-  case object Export extends MethodOfDisposal
-  case object PostalExport extends MethodOfDisposal
-  case object DonationToCharity extends MethodOfDisposal
-  case object PlacedInCustomsWarehouse extends MethodOfDisposal
-  case object ExportInBaggage extends MethodOfDisposal
-  case object Destruction extends MethodOfDisposal
-
   override val values: Set[MethodOfDisposal] =
     Set(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction)
+
+  case object Export extends MethodOfDisposal
+
+  case object PostalExport extends MethodOfDisposal
+
+  case object DonationToCharity extends MethodOfDisposal
+
+  case object PlacedInCustomsWarehouse extends MethodOfDisposal
+
+  case object ExportInBaggage extends MethodOfDisposal
+
+  case object Destruction extends MethodOfDisposal
 }

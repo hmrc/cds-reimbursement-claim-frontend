@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{InspectionAddress, InspectionAddressType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 
 trait InspectionAddressUtils {
   def inspectionAddressFromContactDetails(

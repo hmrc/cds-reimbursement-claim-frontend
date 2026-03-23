@@ -17,35 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
-import play.api.data.Forms.mapping
-import play.api.data.Forms.text
-import play.api.data.validation.Constraint
-import play.api.data.validation.Invalid
-import play.api.data.validation.Valid
-import play.api.data.validation.ValidationError
-import play.api.data.validation.ValidationResult
-import play.api.data.Form
-import play.api.data.Mapping
+import play.api.data.Forms.{mapping, text}
+import play.api.data.{Form, Mapping}
+import play.api.data.validation.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
 
 object YesOrNoQuestionForm {
 
-  private def isBoolean(s: String): ValidationResult = s match {
-    case "true"  => Valid
-    case "false" => Valid
-    case _       => Invalid(ValidationError("error.required"))
-  }
-
-  private def booleanThatExists: Constraint[String] = {
-    lazy val errorMessage: String = "error.required"
-    Constraint[String]("constraint.yesno") { s =>
-      if s === null then Invalid(ValidationError(errorMessage))
-      else if s.trim.isEmpty then Invalid(ValidationError(errorMessage))
-      else isBoolean(s)
-    }
-  }
+  def apply(key: String): Form[YesNo] =
+    Form(
+      mapping(
+        key -> yesNoMapping(key)
+      )(identity)(Some(_))
+    )
 
   def yesNoMapping(key: String): Mapping[YesNo] =
     text()
@@ -61,10 +46,18 @@ object YesOrNoQuestionForm {
         }
       )
 
-  def apply(key: String): Form[YesNo] =
-    Form(
-      mapping(
-        key -> yesNoMapping(key)
-      )(identity)(Some(_))
-    )
+  private def booleanThatExists: Constraint[String] = {
+    lazy val errorMessage: String = "error.required"
+    Constraint[String]("constraint.yesno") { s =>
+      if s === null then Invalid(ValidationError(errorMessage))
+      else if s.trim.isEmpty then Invalid(ValidationError(errorMessage))
+      else isBoolean(s)
+    }
+  }
+
+  private def isBoolean(s: String): ValidationResult = s match {
+    case "true"  => Valid
+    case "false" => Valid
+    case _       => Invalid(ValidationError("error.required"))
+  }
 }

@@ -17,36 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FormMessageKeyAndUrl
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_can_continue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.problem_with_declaration_dead_end
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimBase, OverpaymentsMultipleClaim, OverpaymentsScheduledClaim, OverpaymentsSingleClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, Forms}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{FormMessageKeyAndUrl, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.{problem_with_declaration_can_continue, problem_with_declaration_dead_end}
 
 trait ProblemWithDeclarationMixin extends ClaimBaseController {
-  def removeUnsupportedTaxCodesFromClaim(claim: Claim): Claim
-  val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue
-  val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
-  val postAction: Call
-  val enterAnotherMrnAction: Call
-  val checkDeclarationDetailsAction: Call
-
-  def getFormMessageKeyAndUrl(claim: ClaimBase): FormMessageKeyAndUrl =
-    claim match {
-      case j @ (_: OverpaymentsSingleClaim | _: OverpaymentsMultipleClaim | _: OverpaymentsScheduledClaim) =>
-        FormMessageKeyAndUrl("problem-with-declaration.c285-form", viewConfig.legacyC285FormUrl)
-      case _                                                                                               =>
-        FormMessageKeyAndUrl("problem-with-declaration.ce1179-form", viewConfig.ce1179FormUrl)
-    }
-
   final val show: Action[AnyContent] =
     actionReadClaim { implicit claim =>
       val form: Form[YesNo] = Forms.problemWithDeclarationForm
@@ -74,7 +51,6 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
           throw new IllegalStateException("Expected the claim to have ImportDeclaration already")
       }
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { implicit claim =>
       Forms.problemWithDeclarationForm
@@ -104,5 +80,20 @@ trait ProblemWithDeclarationMixin extends ClaimBaseController {
                 (removeUnsupportedTaxCodesFromClaim(claim), Redirect(checkDeclarationDetailsAction))
             }
         )
+    }
+  val problemWithDeclarationCanContinuePage: problem_with_declaration_can_continue
+  val problemWithDeclarationDeadEndPage: problem_with_declaration_dead_end
+  val postAction: Call
+  val enterAnotherMrnAction: Call
+  val checkDeclarationDetailsAction: Call
+
+  def removeUnsupportedTaxCodesFromClaim(claim: Claim): Claim
+
+  def getFormMessageKeyAndUrl(claim: ClaimBase): FormMessageKeyAndUrl =
+    claim match {
+      case j @ (_: OverpaymentsSingleClaim | _: OverpaymentsMultipleClaim | _: OverpaymentsScheduledClaim) =>
+        FormMessageKeyAndUrl("problem-with-declaration.c285-form", viewConfig.legacyC285FormUrl)
+      case _                                                                                               =>
+        FormMessageKeyAndUrl("problem-with-declaration.ce1179-form", viewConfig.ce1179FormUrl)
     }
 }

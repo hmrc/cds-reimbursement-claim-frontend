@@ -17,39 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{RejectedGoodsMultipleClaim, RejectedGoodsScheduledClaim, RejectedGoodsSingleClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseHowManyMrnsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedActionWithRetrievedData, SessionDataActionWithRetrievedData, WithAuthRetrievalsAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple.routes as rejectedGoodsMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled.routes as rejectedGoodsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.routes as rejectedGoodsSingleRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RejectedGoodsClaimType.{Individual, Multiple, Scheduled}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{RejectedGoodsClaimType, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_how_many_mrns
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
@@ -67,30 +53,12 @@ class ChooseHowManyMrnsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  val dataKey: String                    = "rejected-goods.choose-how-many-mrns"
-  val form: Form[RejectedGoodsClaimType] = chooseHowManyMrnsForm
-  private val postAction: Call           = routes.ChooseHowManyMrnsController.submit
-
-  private def rejectedGoodsSingleClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[RejectedGoodsSingleClaim.Features] = None
-
-  private def rejectedGoodsMultipleClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[RejectedGoodsMultipleClaim.Features] = None
-
-  private def rejectedGoodsScheduledClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[RejectedGoodsScheduledClaim.Features] = None
-
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show))
-
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
       Ok(chooseHowManyMrnsPage(form, postAction))
     }
-
   final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       request.authenticatedRequest.claimUserType.eoriOpt
@@ -144,5 +112,20 @@ class ChooseHowManyMrnsController @Inject() (
             )
         }
     }
+  val dataKey: String                    = "rejected-goods.choose-how-many-mrns"
+  val form: Form[RejectedGoodsClaimType] = chooseHowManyMrnsForm
+  private val postAction: Call           = routes.ChooseHowManyMrnsController.submit
+
+  private def rejectedGoodsSingleClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsSingleClaim.Features] = None
+
+  private def rejectedGoodsMultipleClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsMultipleClaim.Features] = None
+
+  private def rejectedGoodsScheduledClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[RejectedGoodsScheduledClaim.Features] = None
 
 }

@@ -17,27 +17,18 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, YesOrNoQuestionForm, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{TemporaryAdmissionMethodOfDisposal, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_export_movement_reference_numbers
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -55,19 +46,6 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
-  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
-    if claim.isSingleSecurity
-    then routes.ChoosePayeeTypeController.show
-    else routes.ConfirmFullRepaymentController.showFirst
-
-  private val checkExportMovementReferenceNumbersKey: String = "check-export-movement-reference-numbers"
-
-  private val checkExportMovementReferenceNumbersForm: Form[YesNo] =
-    YesOrNoQuestionForm(
-      checkExportMovementReferenceNumbersKey
-    )
-
   val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmissionExported(claim) { exportMRNs =>
       if exportMRNs.isEmpty
@@ -87,7 +65,6 @@ class CheckExportMovementReferenceNumbersController @Inject() (
         )
     }
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       whenTemporaryAdmissionExported(claim) { exportMRNs =>
@@ -126,6 +103,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       },
     fastForwardToCYAEnabled = false
   )
+  private val checkExportMovementReferenceNumbersKey: String = "check-export-movement-reference-numbers"
+  private val checkExportMovementReferenceNumbersForm: Form[YesNo] =
+    YesOrNoQuestionForm(
+      checkExportMovementReferenceNumbersKey
+    )
 
   def delete(mrn: MRN): Action[AnyContent] = actionReadWriteClaim(
     claim =>
@@ -173,6 +155,11 @@ class CheckExportMovementReferenceNumbersController @Inject() (
       case (Some(_), _, _)                                                                              =>
         (claim, Redirect(nextStepInClaim(claim)))
     }
+
+  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
+    if claim.isSingleSecurity
+    then routes.ChoosePayeeTypeController.show
+    else routes.ConfirmFullRepaymentController.showFirst
 
   private def containsExportedMod(mods: List[TemporaryAdmissionMethodOfDisposal]) =
     mods

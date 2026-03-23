@@ -16,21 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import play.api.mvc.Call
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.{Call, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.RejectedGoodsInspectionAddressLookupMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_inspection_address_type
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -42,20 +39,16 @@ class ChooseInspectionAddressTypeController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController
     with RejectedGoodsInspectionAddressLookupMixin {
 
-  private val nextPage: Call =
-    routes.ChoosePayeeTypeController.show
-
   override val postAction: Call =
     routes.ChooseInspectionAddressTypeController.submit
-
   override val problemWithAddressPage: Call =
     routes.ProblemWithAddressController.show
-
   override val startAddressLookup: Call =
     routes.ChooseInspectionAddressTypeController.redirectToALF()
-
   override val retrieveLookupAddress: Call =
     routes.ChooseInspectionAddressTypeController.retrieveAddressFromALF()
+  private val nextPage: Call =
+    routes.ChoosePayeeTypeController.show
 
   final override def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim =
     claim.submitInspectionAddress(inspectionAddress)

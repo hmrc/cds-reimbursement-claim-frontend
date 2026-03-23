@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckBankDetailsMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
 import scala.concurrent.ExecutionContext
@@ -37,7 +36,7 @@ class CheckBankDetailsController @Inject() (
     extends SecuritiesClaimBaseController
     with CheckBankDetailsMixin {
 
-  import SecuritiesClaim.Checks._
+  import SecuritiesClaim.Checks.*
 
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
@@ -48,6 +47,10 @@ class CheckBankDetailsController @Inject() (
 
   final override val postAction: Call =
     routes.CheckBankDetailsController.submitWarning
+  final override val enterBankAccountDetailsRoute: Call =
+    routes.EnterBankAccountDetailsController.show
+  final override val changeBankAccountDetailsRoute: Call =
+    enterBankAccountDetailsRoute
 
   final override def continueRoute(claim: Claim): Call =
     if claim.userHasSeenCYAPage | claim.needsDocumentTypeSelection then {
@@ -55,12 +58,6 @@ class CheckBankDetailsController @Inject() (
     } else {
       routes.UploadFilesController.show
     }
-
-  final override val enterBankAccountDetailsRoute: Call =
-    routes.EnterBankAccountDetailsController.show
-
-  final override val changeBankAccountDetailsRoute: Call =
-    enterBankAccountDetailsRoute
 
   final override def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim] =
     claim.submitBankAccountDetails(bankAccountDetails)

@@ -22,8 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils.*
 
 import scala.collection.immutable.SortedMap
@@ -119,44 +118,6 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
         identity
       )
     )
-
-  def buildClaimGenWithoutSupportingEvidence(
-    acc14DeclarantMatchesUserEori: Boolean = true,
-    acc14ConsigneeMatchesUserEori: Boolean = true,
-    hasConsigneeDetailsInACC14: Boolean = true,
-    submitDeclarantDetails: Boolean = true,
-    submitConsigneeDetails: Boolean = true,
-    submitContactDetails: Boolean = true,
-    submitContactAddress: Boolean = true,
-    submitBankAccountDetails: Boolean = true,
-    submitBankAccountType: Boolean = true,
-    taxCodes: Seq[TaxCode] = TaxCodes.all,
-    payeeType: PayeeType = PayeeType.Consignee
-  ): Gen[OverpaymentsScheduledClaim] =
-    buildAnswersGen(
-      acc14DeclarantMatchesUserEori,
-      acc14ConsigneeMatchesUserEori,
-      hasConsigneeDetailsInACC14,
-      submitDeclarantDetails,
-      submitConsigneeDetails,
-      submitContactDetails,
-      submitContactAddress,
-      submitBankAccountDetails,
-      submitBankAccountType,
-      submitEvidence = true,
-      taxCodes = taxCodes,
-      emptyDocumentType = true,
-      payeeType = Some(payeeType)
-    ).map(OverpaymentsScheduledClaim.tryBuildFrom(_))
-      .map(
-        _.fold(
-          error =>
-            throw new Exception(
-              s"Cannot build complete OverpaymentsScheduledClaim because of $error, fix the test data generator."
-            ),
-          identity
-        )
-      )
 
   def buildClaimGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -322,6 +283,44 @@ object OverpaymentsScheduledClaimGenerators extends ScheduledClaimGenerators wit
 
       answers
     }
+
+  def buildClaimGenWithoutSupportingEvidence(
+    acc14DeclarantMatchesUserEori: Boolean = true,
+    acc14ConsigneeMatchesUserEori: Boolean = true,
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitDeclarantDetails: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true,
+    taxCodes: Seq[TaxCode] = TaxCodes.all,
+    payeeType: PayeeType = PayeeType.Consignee
+  ): Gen[OverpaymentsScheduledClaim] =
+    buildAnswersGen(
+      acc14DeclarantMatchesUserEori,
+      acc14ConsigneeMatchesUserEori,
+      hasConsigneeDetailsInACC14,
+      submitDeclarantDetails,
+      submitConsigneeDetails,
+      submitContactDetails,
+      submitContactAddress,
+      submitBankAccountDetails,
+      submitBankAccountType,
+      submitEvidence = true,
+      taxCodes = taxCodes,
+      emptyDocumentType = true,
+      payeeType = Some(payeeType)
+    ).map(OverpaymentsScheduledClaim.tryBuildFrom(_))
+      .map(
+        _.fold(
+          error =>
+            throw new Exception(
+              s"Cannot build complete OverpaymentsScheduledClaim because of $error, fix the test data generator."
+            ),
+          identity
+        )
+      )
 
   def buildClaimFromAnswersGen(
     answersGen: Gen[OverpaymentsScheduledClaim.Answers],

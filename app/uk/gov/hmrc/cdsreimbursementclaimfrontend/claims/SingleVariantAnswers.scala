@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReimbursementMethod, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 /** Common answers of the single claim variant. */
 trait SingleVariantAnswers extends CommonAnswers {

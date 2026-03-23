@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
 final case class BarsAddress(
   lines: List[String], // One to four lines; cumulative length must be between 1 and 140 characters.

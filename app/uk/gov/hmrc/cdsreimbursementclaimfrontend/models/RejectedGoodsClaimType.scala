@@ -22,12 +22,7 @@ sealed trait RejectedGoodsClaimType
 
 object RejectedGoodsClaimType extends EnumerationFormat[RejectedGoodsClaimType] {
 
-  case object Individual extends RejectedGoodsClaimType
-  case object Multiple extends RejectedGoodsClaimType
-  case object Scheduled extends RejectedGoodsClaimType
-
   override val values: Set[RejectedGoodsClaimType] = Set(Individual, Multiple, Scheduled)
-
   private[models] val rejectedGoodsClaimTypeStringMap: Map[String, RejectedGoodsClaimType] =
     values.map(a => a.toString -> a).toMap
 
@@ -39,4 +34,10 @@ object RejectedGoodsClaimType extends EnumerationFormat[RejectedGoodsClaimType] 
 
   def findUnsafe(claimType: String): RejectedGoodsClaimType =
     rejectedGoodsClaimTypeStringMap(claimType)
+
+  case object Individual extends RejectedGoodsClaimType
+
+  case object Multiple extends RejectedGoodsClaimType
+
+  case object Scheduled extends RejectedGoodsClaimType
 }

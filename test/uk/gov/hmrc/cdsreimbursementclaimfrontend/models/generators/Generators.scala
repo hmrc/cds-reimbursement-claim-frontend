@@ -16,19 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
 
-  def alphaNumGenerator(n: Int): Gen[String] = Gen.listOfN(n, Gen.alphaNumChar).map(_.mkString)
   def alphaNumGen(n: Int): String            = alphaNumGenerator(n).sample.getOrElse(sys.error("Could not generate instance"))
+
+  def alphaNumGenerator(n: Int): Gen[String] = Gen.listOfN(n, Gen.alphaNumChar).map(_.mkString)
 
   def alphaCharGen(n: Int): String =
     Gen.listOfN(n, Gen.alphaChar).map(_.mkString).sample.getOrElse(sys.error("Could not generate instance"))
-
-  def numStringGen(n: Int): String =
-    Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error("Could not generate instance"))
 
   def moneyGen(integralPart: Int, fractionalPart: Int): String = {
     val finalIntegral   = integralPart match {
@@ -43,6 +40,9 @@ object Generators {
     }
     finalIntegral + "." + finalFractional
   }
+
+  def numStringGen(n: Int): String =
+    Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error("Could not generate instance"))
 
   def sample[A](implicit anItem: Arbitrary[A]): A =
     sample(anItem.arbitrary)

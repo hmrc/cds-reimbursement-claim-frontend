@@ -21,30 +21,23 @@ import cats.implicits.*
 import com.google.inject.Inject
 import org.apache.pekko.actor.ActorSystem
 import play.api.Configuration
-import play.api.libs.json.Json
-import play.api.libs.json.Writes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.TechnicalServiceError
+import play.api.libs.json.{Json, Writes}
+import play.api.libs.ws.JsonBodyWritables.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.{ConnectorFailure, ServiceUnavailableError, TechnicalServiceError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.HttpResponseOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
-import play.api.libs.ws.JsonBodyWritables.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
 import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @Singleton
 class BankAccountReputationConnector @Inject() (
@@ -56,6 +49,9 @@ class BankAccountReputationConnector @Inject() (
   ec: ExecutionContext
 ) extends Retries
     with Logging {
+
+  lazy val retryIntervals: Seq[FiniteDuration] =
+    Retries.getConfIntervals("bank-account-reputation", configuration).toList
 
   def getBusinessReputation(
     data: BarsBusinessAssessRequest
@@ -73,30 +69,8 @@ class BankAccountReputationConnector @Inject() (
     yield businessResponse
   }
 
-  def getPersonalReputation(
-    data: BarsPersonalAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
-    val url = getUri("bank-account-reputation", "personal")
-    for
-      httpResponse     <- getReputation(data, url)
-      personalResponse <-
-        EitherT.fromEither[Future](
-          httpResponse
-            .parseJSON[PersonalCompleteResponse]()
-            .map(_.toCommonResponse())
-            .leftMap(ConnectorFailure(_): ConnectorError)
-        )
-    yield personalResponse
-  }
-
   private def getUri(serviceName: String, apiName: String): String =
     servicesConfig.baseUrl(serviceName) + servicesConfig.getString(s"microservice.services.$serviceName.$apiName")
-
-  lazy val retryIntervals: Seq[FiniteDuration] =
-    Retries.getConfIntervals("bank-account-reputation", configuration).toList
-
-  private def errorMessage(url: String, response: HttpResponse): String =
-    s"Request to POST $url failed because of $response ${response.body}"
 
   private def getReputation[T](data: T, url: String)(implicit hc: HeaderCarrier, wts: Writes[T]) =
     EitherT {
@@ -116,4 +90,23 @@ class BankAccountReputationConnector @Inject() (
       case x if (x >= 500) & (x < 600) => Left(ServiceUnavailableError(errorMessage(url, response)))
       case _                           => Left(ConnectorFailure(errorMessage(url, response)))
     }
+
+  private def errorMessage(url: String, response: HttpResponse): String =
+    s"Request to POST $url failed because of $response ${response.body}"
+
+  def getPersonalReputation(
+    data: BarsPersonalAssessRequest
+  )(implicit hc: HeaderCarrier): EitherT[Future, ConnectorError, BankAccountReputation] = {
+    val url = getUri("bank-account-reputation", "personal")
+    for
+      httpResponse     <- getReputation(data, url)
+      personalResponse <-
+        EitherT.fromEither[Future](
+          httpResponse
+            .parseJSON[PersonalCompleteResponse]()
+            .map(_.toCommonResponse())
+            .leftMap(ConnectorFailure(_): ConnectorError)
+        )
+    yield personalResponse
+  }
 }

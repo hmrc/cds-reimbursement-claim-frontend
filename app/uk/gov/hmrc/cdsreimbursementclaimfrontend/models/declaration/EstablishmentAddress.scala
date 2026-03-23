@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import cats.Eq
 import cats.implicits.catsSyntaxEq
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.StringUtils.*
 
@@ -47,11 +46,6 @@ object EstablishmentAddress {
 
   implicit val eq: Eq[EstablishmentAddress] = Eq.fromUniversalEquals
 
-  private def combineAddressLines(line2: Option[String], line3: Option[String]): Option[String] = {
-    val lines = List(line2, line3).flatten(Option.option2Iterable)
-    if lines.length === 0 then None else Some(lines.mkString(", "))
-  }
-
   def fromContactAddress(contactAddress: ContactAddress): EstablishmentAddress =
     EstablishmentAddress(
       contactAddress.line1,
@@ -60,4 +54,9 @@ object EstablishmentAddress {
       contactAddress.postcode.asSomeIfNonEmpty,
       contactAddress.country.code
     )
+
+  private def combineAddressLines(line2: Option[String], line3: Option[String]): Option[String] = {
+    val lines = List(line2, line3).flatten(Option.option2Iterable)
+    if lines.length === 0 then None else Some(lines.mkString(", "))
+  }
 }

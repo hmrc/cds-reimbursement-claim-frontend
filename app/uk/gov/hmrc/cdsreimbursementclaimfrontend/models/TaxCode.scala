@@ -29,12 +29,12 @@ sealed abstract class TaxCode(
 ) extends Product
     with Serializable {
 
-  override def toString: String = value
-
   private val order: Int = dutyType.ordinal * 100000
     + exciseCategory.map(ec => ec.ordinal * 10000).getOrElse(0)
     + value.headOption.filter(_.isLetter).map(_ * 1000).getOrElse(0)
     + value.filter(_.isDigit).toIntOption.getOrElse(0)
+
+  override def toString: String = value
 }
 
 object TaxCode {

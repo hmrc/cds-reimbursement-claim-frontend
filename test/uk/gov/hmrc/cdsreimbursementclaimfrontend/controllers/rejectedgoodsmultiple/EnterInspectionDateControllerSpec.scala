@@ -18,10 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmulti
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -29,20 +26,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimTestData, RejectedGoodsMultipleClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AdjustImportDeclaration, InspectionDate, ReplaceEstablishmentAddresses, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{EstablishmentAddress, ImportDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DateGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AdjustImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReplaceEstablishmentAddresses
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
 
@@ -66,7 +56,7 @@ class EnterInspectionDateControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
+  val session: SessionData = SessionData(RejectedGoodsMultipleClaim.empty(exampleEori))
   private val messagesKey: String = "enter-inspection-date.rejected-goods"
 
   def showPage(): Future[Result] =
@@ -74,8 +64,6 @@ class EnterInspectionDateControllerSpec
 
   def submitInspectionDate(data: (String, String)*): Future[Result] =
     controller.submit(FakeRequest().withFormUrlEncodedBody(data*))
-
-  val session: SessionData = SessionData(RejectedGoodsMultipleClaim.empty(exampleEori))
 
   def addAcc14(
     claim: RejectedGoodsMultipleClaim,

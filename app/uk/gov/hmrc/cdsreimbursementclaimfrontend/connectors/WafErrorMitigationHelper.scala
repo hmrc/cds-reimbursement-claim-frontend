@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector.FileToUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{EvidenceDocument, Nonce, UploadDocumentsSessionConfig}
+import uk.gov.hmrc.http.HeaderCarrier
+
 import java.nio.charset.StandardCharsets
+import scala.concurrent.{ExecutionContext, Future}
 
 trait WafErrorMitigationHelper {
 

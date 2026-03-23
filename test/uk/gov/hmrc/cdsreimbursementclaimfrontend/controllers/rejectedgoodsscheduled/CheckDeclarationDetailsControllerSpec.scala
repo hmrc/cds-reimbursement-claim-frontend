@@ -16,15 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
+import org.jsoup.nodes.{Document, Element}
+import org.scalatest.{Assertion, BeforeAndAfterEach}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -32,16 +27,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -53,39 +45,22 @@ class CheckDeclarationDetailsControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with ScalaCheckPropertyChecks {
-
-  val mockClaimService: ClaimService = mock[ClaimService]
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimService)
     )
+  val mockClaimService: ClaimService = mock[ClaimService]
 
   implicit val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
   val session =
     SessionData.empty.copy(rejectedGoodsScheduledClaim = Some(RejectedGoodsScheduledClaim.empty(exampleEori)))
 
   val messagesKey: String = "check-import-declaration-details"
-
-  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
-    doc.select(".govuk-summary-card").asScala.find { card =>
-      card.select(".govuk-summary-card__title").text() == title
-    }
-
-  def getSummaryList(card: Element): Seq[(String, String)] = {
-    val rows = card.select(".govuk-summary-list__row").asScala
-    rows.map { row =>
-      val key   = row.select(".govuk-summary-list__key").text
-      val value = row.select(".govuk-summary-list__value").text
-      key -> value
-    }.toSeq
-  }
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
@@ -158,6 +133,20 @@ class CheckDeclarationDetailsControllerSpec
         )
       )
     )
+  }
+
+  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
+    doc.select(".govuk-summary-card").asScala.find { card =>
+      card.select(".govuk-summary-card__title").text() == title
+    }
+
+  def getSummaryList(card: Element): Seq[(String, String)] = {
+    val rows = card.select(".govuk-summary-list__row").asScala
+    rows.map { row =>
+      val key   = row.select(".govuk-summary-list__key").text
+      val value = row.select(".govuk-summary-list__value").text
+      key -> value
+    }.toSeq
   }
 
   "Check Declaration Details Controller" when {

@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 trait JsonFormatTest {
   this: Matchers =>

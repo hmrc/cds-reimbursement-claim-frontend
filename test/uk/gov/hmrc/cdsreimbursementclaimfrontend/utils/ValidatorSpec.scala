@@ -23,12 +23,13 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class ValidatorSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
-  import Validator._
-
-  case class Foo(bar: String, bazOpt: Option[Int] = None)
+  import Validator.*
 
   def assertEquals[A, B](a: A, b: B) = a shouldBe b
+
   def expect(bs: Boolean*)           = bs.foreach(_ shouldBe true)
+
+  case class Foo(bar: String, bazOpt: Option[Int] = None)
 
   "Validator" should {
 

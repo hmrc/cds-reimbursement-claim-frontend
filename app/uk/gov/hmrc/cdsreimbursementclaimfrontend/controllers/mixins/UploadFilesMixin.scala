@@ -17,44 +17,18 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
+import play.api.mvc.{Action, AnyContent, Call, Request}
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, UploadDocumentsConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsCallback
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, UploadDocumentType, UploadDocumentsCallback, UploadDocumentsSessionConfig, UploadedFile}
 
 import java.util.Locale
 
 trait UploadFilesMixin extends ClaimBaseController {
 
-  val uploadDocumentsConnector: UploadDocumentsConnector
-  val uploadDocumentsConfig: UploadDocumentsConfig
-  val fileUploadConfig: FileUploadConfig
-  val selectDocumentTypePageAction: Call
-  val callbackAction: Call
-  def nextPageInClaim(claim: Claim): Call
-  def documentUploadRequired(claim: Claim): Boolean = true
-
-  def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
-
-  def modifyClaim(
-    claim: Claim,
-    documentType: Option[UploadDocumentType],
-    requestNonce: Nonce,
-    uploadedFiles: Seq[UploadedFile]
-  ): Either[String, Claim]
-
   final val selfUrl: String = jcc.servicesConfig.getString("self.url")
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.answers.selectedDocumentType match {
       case None =>
@@ -94,7 +68,6 @@ trait UploadFilesMixin extends ClaimBaseController {
           }
     }
   }
-
   final val submit: Action[AnyContent] = simpleActionReadWriteClaimWhenCallback(implicit request =>
     claim =>
       request
@@ -119,7 +92,6 @@ trait UploadFilesMixin extends ClaimBaseController {
             )
       }
   )
-
   final val summary: Action[AnyContent] = actionReadClaim { claim =>
     if claim.answers.supportingEvidences.isEmpty
     then Redirect(selectDocumentTypePageAction)
@@ -160,6 +132,24 @@ trait UploadFilesMixin extends ClaimBaseController {
             }
       }
   }
+  val uploadDocumentsConnector: UploadDocumentsConnector
+  val uploadDocumentsConfig: UploadDocumentsConfig
+  val fileUploadConfig: FileUploadConfig
+  val selectDocumentTypePageAction: Call
+  val callbackAction: Call
+
+  def nextPageInClaim(claim: Claim): Call
+
+  def documentUploadRequired(claim: Claim): Boolean = true
+
+  def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable
+
+  def modifyClaim(
+    claim: Claim,
+    documentType: Option[UploadDocumentType],
+    requestNonce: Nonce,
+    uploadedFiles: Seq[UploadedFile]
+  ): Either[String, Claim]
 
   def uploadDocumentsSessionConfig(
     nonce: Nonce,

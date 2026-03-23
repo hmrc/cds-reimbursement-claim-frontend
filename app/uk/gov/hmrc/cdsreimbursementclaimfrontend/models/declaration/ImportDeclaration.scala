@@ -16,42 +16,36 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.implicits.*
 import cats.Eq
+import cats.implicits.*
 import play.api.i18n.Messages
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReasonForSecurity, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.UnsupportedTaxCode
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
 
 final case class ImportDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
 
+  lazy val getNdrcDutiesWithAmount: Option[List[(TaxCode, BigDecimal)]] =
+    getNdrcDetailsList
+      .map(_.map(ndrcDetails => (TaxCode(ndrcDetails.taxType), BigDecimal(ndrcDetails.amount))))
+
   def hasBankDetails: Boolean =
     displayResponseDetail.bankDetails.isDefined
-
-  def getConsigneeDetails: Option[ConsigneeDetails] =
-    displayResponseDetail.consigneeDetails
-
-  def getDeclarantDetails: DeclarantDetails =
-    displayResponseDetail.declarantDetails
-
-  def getConsigneeEori: Option[Eori] =
-    getConsigneeDetails.map(_.consigneeEORI).map(Eori.apply)
-
-  def getDeclarantEori: Eori =
-    Eori(getDeclarantDetails.declarantEORI)
 
   def containsXiEori: Boolean =
     getDeclarantEori.isXiEori || getConsigneeEori.exists(_.isXiEori)
 
-  def getNdrcDetailsList: Option[List[NdrcDetails]] =
-    displayResponseDetail.ndrcDetails
+  def getConsigneeEori: Option[Eori] =
+    getConsigneeDetails.map(_.consigneeEORI).map(Eori.apply)
+
+  def getConsigneeDetails: Option[ConsigneeDetails] =
+    displayResponseDetail.consigneeDetails
+
+  def getDeclarantEori: Eori =
+    Eori(getDeclarantDetails.declarantEORI)
 
   def getMethodsOfPayment: Option[Set[String]] =
     displayResponseDetail.ndrcDetails.map(_.map(_.paymentMethod).toSet)
@@ -62,15 +56,11 @@ final case class ImportDeclaration(
   def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
     getNdrcDetailsList.flatMap(_.find(_.taxType === taxType))
 
-  lazy val getNdrcDutiesWithAmount: Option[List[(TaxCode, BigDecimal)]] =
-    getNdrcDetailsList
-      .map(_.map(ndrcDetails => (TaxCode(ndrcDetails.taxType), BigDecimal(ndrcDetails.amount))))
-
   def getAvailableTaxCodes: Seq[TaxCode] =
     getNdrcDetailsList.map(_.map(d => TaxCode(d.taxType))).getOrElse(Seq.empty)
 
-  def iterateAvailableTaxCodes: Iterator[TaxCode] =
-    getNdrcDetailsList.map(_.iterator.map(d => TaxCode(d.taxType))).getOrElse(Iterator.empty)
+  def getNdrcDetailsList: Option[List[NdrcDetails]] =
+    displayResponseDetail.ndrcDetails
 
   def getMRN: MRN = MRN(displayResponseDetail.declarationId)
 
@@ -78,9 +68,6 @@ final case class ImportDeclaration(
 
   def getReasonForSecurity: Option[ReasonForSecurity] =
     displayResponseDetail.securityReason.flatMap(ReasonForSecurity.fromACC14Code)
-
-  def getSecurityDepositIds: Option[List[String]] =
-    displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
   def getSecurityDetails: Option[List[SecurityDetails]] =
     displayResponseDetail.securityDetails
@@ -91,6 +78,9 @@ final case class ImportDeclaration(
   def getNumberOfSecurityDeposits: Int = getSecurityDepositIds
     .map(_.size)
     .getOrElse(0)
+
+  def getSecurityDepositIds: Option[List[String]] =
+    displayResponseDetail.securityDetails.map(_.map(_.securityDepositId))
 
   def getSecurityDepositIdIndex(securityDepositId: String): Int =
     getSecurityDepositIds
@@ -108,16 +98,6 @@ final case class ImportDeclaration(
       )
       .getOrElse(Nil)
 
-  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
-    displayResponseDetail.securityDetails
-      .getOrElse(Nil)
-      .find(_.securityDepositId === securityDepositId)
-
-  def getAllSecurityDetailsFor(securityDepositId: String): Seq[SecurityDetails] =
-    displayResponseDetail.securityDetails
-      .getOrElse(Nil)
-      .filter(_.securityDepositId === securityDepositId)
-
   def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
     getSecurityDetailsFor(securityDepositId)
       .flatMap(_.taxDetails.find(td => td.getTaxCode === taxCode))
@@ -126,6 +106,11 @@ final case class ImportDeclaration(
     getSecurityDetailsFor(securityDepositId)
       .map(_.getTotalAmount)
       .getOrElse(BigDecimal("0.00"))
+
+  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
+    displayResponseDetail.securityDetails
+      .getOrElse(Nil)
+      .find(_.securityDepositId === securityDepositId)
 
   def getSecurityPaidValueFor(securityDepositId: String): BigDecimal =
     getSecurityDetailsFor(securityDepositId)
@@ -178,6 +163,9 @@ final case class ImportDeclaration(
       )
     )
 
+  def getDeclarantDetails: DeclarantDetails =
+    displayResponseDetail.declarantDetails
+
   def withBankDetails(bankDetails: Option[BankDetails]): ImportDeclaration =
     copy(displayResponseDetail = displayResponseDetail.copy(bankDetails = bankDetails))
 
@@ -212,6 +200,11 @@ final case class ImportDeclaration(
 
     eligible.nonEmpty && eligible.forall(identity)
   }
+
+  def getAllSecurityDetailsFor(securityDepositId: String): Seq[SecurityDetails] =
+    displayResponseDetail.securityDetails
+      .getOrElse(Nil)
+      .filter(_.securityDepositId === securityDepositId)
 
   def isAllSelectedSecuritiesEligibleForDifferentRepaymentMethods(securityDepositIds: Set[String]): Boolean =
     securityDepositIds
@@ -270,6 +263,9 @@ final case class ImportDeclaration(
       case UnsupportedTaxCode(_) => true
       case _                     => false
     }
+
+  def iterateAvailableTaxCodes: Iterator[TaxCode] =
+    getNdrcDetailsList.map(_.iterator.map(d => TaxCode(d.taxType))).getOrElse(Iterator.empty)
 
   def removeUnsupportedTaxCodes(): ImportDeclaration =
     copy(displayResponseDetail =
@@ -334,6 +330,16 @@ final case class ImportDeclaration(
       establishmentAddress(address).mkString("<br>")
     )
 
+  def establishmentAddress(establishmentAddress: EstablishmentAddress)(implicit messages: Messages): List[String] =
+    List(
+      Some(establishmentAddress.addressLine1),
+      establishmentAddress.addressLine2,
+      establishmentAddress.addressLine3,
+      establishmentAddress.postalCode,
+      Some(establishmentAddress.countryCode)
+        .map(countryCode => messages(s"country.$countryCode"))
+    ).flattenOption
+
   def declarantAddress(contactDetails: ContactDetails)(implicit messages: Messages): List[String] = {
     val lines = List(
       contactDetails.addressLine1,
@@ -346,16 +352,6 @@ final case class ImportDeclaration(
     )
     lines.collect { case Some(s) => s }
   }
-
-  def establishmentAddress(establishmentAddress: EstablishmentAddress)(implicit messages: Messages): List[String] =
-    List(
-      Some(establishmentAddress.addressLine1),
-      establishmentAddress.addressLine2,
-      establishmentAddress.addressLine3,
-      establishmentAddress.postalCode,
-      Some(establishmentAddress.countryCode)
-        .map(countryCode => messages(s"country.$countryCode"))
-    ).flattenOption
 
 }
 

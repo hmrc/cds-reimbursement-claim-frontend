@@ -17,14 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, Nonce, UploadDocumentType, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OrderedMap
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{MapFormat, OrderedMap, SimpleStringFormat}
 
 import scala.collection.immutable.SortedMap
 

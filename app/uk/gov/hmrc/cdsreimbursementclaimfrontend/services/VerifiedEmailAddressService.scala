@@ -17,11 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.implicits.toBifunctorOps
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.mvc.Http.Status.NOT_FOUND
-import play.mvc.Http.Status.OK
+import com.google.inject.{ImplementedBy, Inject, Singleton}
+import play.mvc.Http.Status.{NOT_FOUND, OK}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.VerifiedEmailAddressConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -31,8 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultVerifiedEmailAddressService])
 trait VerifiedEmailAddressService {

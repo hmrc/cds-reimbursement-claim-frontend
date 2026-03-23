@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
+import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
 import org.scalactic.source.Position
 import org.scalatest.matchers.should.Matchers
+
 import scala.jdk.CollectionConverters.*
 
 trait PageAssertions {
@@ -44,8 +44,8 @@ trait PageAssertions {
       )
       .getOrElse(false)
 
-  import cats.instances.int._
-  import cats.syntax.eq._
+  import cats.instances.int.*
+  import cats.syntax.eq.*
 
   /** Returns sequence of pairs (message, value) */
   final def radioItems(doc: Document): Seq[(String, String)] = {
@@ -65,12 +65,6 @@ trait PageAssertions {
     val labels = doc.select("div.govuk-checkboxes label").eachText()
     val hints  = doc.select("div.govuk-checkboxes div.govuk-hint").eachText()
     labels.asScala.zip(hints.asScala).toList
-  }
-
-  final def selectedRadioValue(doc: Document): Option[String] = {
-    val radioItems = doc.select("div.govuk-radios input[checked]")
-    if radioItems.size() =!= 0 then Some(radioItems.`val`())
-    else None
   }
 
   final def selectedTextArea(doc: Document): Option[String] = {
@@ -124,6 +118,12 @@ trait PageAssertions {
 
   final def assertThatRadioButtonIsSelected(expected: String): Document => Any =
     (doc: Document) => selectedRadioValue(doc).shouldBe(Some(expected))
+
+  final def selectedRadioValue(doc: Document): Option[String] = {
+    val radioItems = doc.select("div.govuk-radios input[checked]")
+    if radioItems.size() =!= 0 then Some(radioItems.`val`())
+    else None
+  }
 
   final def assertPageElementsByIdAndExpectedText(doc: Document)(idsWithExpectedContentMap: (String, String)*): Any =
     idsWithExpectedContentMap.foreach { case (elementId, expectedText) =>

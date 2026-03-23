@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.have_documents_ready
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
 
 @Singleton
 class HaveDocumentsReadyController @Inject() (
@@ -36,12 +34,6 @@ class HaveDocumentsReadyController @Inject() (
   val haveDocumentsReadyPage: have_documents_ready
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesClaimBaseController {
-
-  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
-    Some(
-      hasMRNAndImportDeclarationAndRfS &
-        declarantOrImporterEoriMatchesUserOrHasBeenVerified
-    )
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
@@ -53,4 +45,9 @@ class HaveDocumentsReadyController @Inject() (
 
       Ok(haveDocumentsReadyPage(continueUrl, claim.getReasonForSecurity.get))
     }
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
+    Some(
+      hasMRNAndImportDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
 }

@@ -23,6 +23,9 @@ trait OverpaymentsScheduledClaimRouter {
 
   private val undefined: Call = routes.EnterMovementReferenceNumberController.show
 
+  def routeForValidationErrors(errors: Seq[String]): Call =
+    errors.headOption.map(routeForValidationError).getOrElse(undefined)
+
   def routeForValidationError(error: String): Call =
     error match {
       case CLAIM_ALREADY_FINALIZED                                  => routes.CheckYourAnswersController.showConfirmation
@@ -49,8 +52,5 @@ trait OverpaymentsScheduledClaimRouter {
       case PAYEE_TYPE_MUST_BE_DEFINED                               => routes.ChoosePayeeTypeController.show
       case _                                                        => undefined
     }
-
-  def routeForValidationErrors(errors: Seq[String]): Call =
-    errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
 }

@@ -16,31 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 
-import java.net.URI
-import java.net.URL
+import java.net.{URI, URL}
+import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.UUID
 
 package object generators {
-
-  def genStringWithMaxSizeOfN(max: Int): Gen[String] =
-    Gen
-      .choose(1, max)
-      .flatMap(Gen.listOfN(_, Gen.alphaChar))
-      .map(_.mkString(""))
-
   lazy val genLocalDateTime: Gen[LocalDateTime] =
     Gen
       .chooseNum(0L, 10000L)
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
-
   lazy val genAcceptanceDate: Gen[String] =
     Gen
       .chooseNum(0L, 10000L)
@@ -49,16 +36,19 @@ package object generators {
           .ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault())
           .format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
       )
-
   lazy val genBigDecimal: Gen[BigDecimal] =
     BigDecimalGen.amountNumberGen
-
   lazy val arbitraryBigDecimal: Arbitrary[BigDecimal] =
     BigDecimalGen.amountNumberArbitrary
-
   lazy val arbitraryBoolean: Arbitrary[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
+  lazy val genUrl: Gen[URL] =
+    for
+      protocol <- Gen.oneOf("http", "https")
+      hostname <- genStringWithMaxSizeOfN(7)
+      domain   <- Gen.oneOf("com", "co.uk", "lv")
+    yield URI.create(s"$protocol://$hostname.$domain").toURL
 
   implicit lazy val arbitraryString: Arbitrary[String] = Arbitrary(
     Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
@@ -84,12 +74,11 @@ package object generators {
 
   implicit lazy val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
-  lazy val genUrl: Gen[URL] =
-    for
-      protocol <- Gen.oneOf("http", "https")
-      hostname <- genStringWithMaxSizeOfN(7)
-      domain   <- Gen.oneOf("com", "co.uk", "lv")
-    yield URI.create(s"$protocol://$hostname.$domain").toURL
+  def genStringWithMaxSizeOfN(max: Int): Gen[String] =
+    Gen
+      .choose(1, max)
+      .flatMap(Gen.listOfN(_, Gen.alphaChar))
+      .map(_.mkString(""))
 
   implicit lazy val arbitraryUrl: Arbitrary[URL] = Arbitrary(genUrl)
 }

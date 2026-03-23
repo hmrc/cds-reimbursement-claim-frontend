@@ -27,21 +27,17 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{EvidenceDocument, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import java.time.ZonedDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import java.time.Instant
-import java.time.ZoneId
-import java.net.URL
+import scala.util.{Failure, Try}
 
 class OverpaymentsMultipleClaimConnectorSpec
     extends AnyWordSpec
@@ -73,10 +69,6 @@ class OverpaymentsMultipleClaimConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-OverpaymentsMultipleClaimConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new OverpaymentsMultipleClaimConnectorImpl(
       http = mockHttp,
@@ -85,20 +77,19 @@ class OverpaymentsMultipleClaimConnectorSpec
       actorSystem = actorSystem,
       uploadDocumentsConnector = mockUploadDocumentsConnector
     )
-
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-multiple"
-
   val requestGen =
     for claim <- OverpaymentsMultipleClaimGenerators.completeClaimGen
     yield OverpaymentsMultipleClaimConnector.Request(
       claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
-
   val sampleRequest: OverpaymentsMultipleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                         = """{"caseNumber":"ABC123"}"""
-
   val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "OverpaymentsMultipleClaimConnector" must {
     "have retries defined" in {

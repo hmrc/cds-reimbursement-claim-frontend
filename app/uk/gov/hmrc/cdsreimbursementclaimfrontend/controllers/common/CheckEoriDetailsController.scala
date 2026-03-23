@@ -20,36 +20,25 @@ import com.google.inject.Inject
 import play.api.Environment
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Request
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedActionWithRetrievedData, SessionDataActionWithRetrievedData, WithAuthRetrievalsAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, YesOrNoQuestionForm, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.VerifiedEmailAddressService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, VerifiedEmailAddressService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_eori_details
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckEoriDetailsController @Inject() (
@@ -69,20 +58,6 @@ class CheckEoriDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  protected def getPage(
-    eori: Eori,
-    name: Option[String],
-    form: Form[YesNo]
-  )(implicit
-    request: Request[?],
-    messages: Messages
-  ): Appendable = checkEoriDetailsPage(
-    eori,
-    name.getOrElse("No name"),
-    form,
-    routes.CheckEoriDetailsController.submit
-  )
-
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       request.whenAuthorisedUser {
@@ -93,7 +68,6 @@ class CheckEoriDetailsController @Inject() (
           Future.successful(Ok(getPage(eori, name, whetherEoriDetailsCorrect)))
       }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
     }
-
   final val submit: Action[AnyContent] = authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
     request.whenAuthorisedUser { (eori: Eori, name: Option[String]) =>
       whetherEoriDetailsCorrect
@@ -119,6 +93,20 @@ class CheckEoriDetailsController @Inject() (
         )
     }(resultIfUnsupportedUser = Redirect(baseRoutes.StartController.start()))
   }
+
+  protected def getPage(
+    eori: Eori,
+    name: Option[String],
+    form: Form[YesNo]
+  )(implicit
+    request: Request[?],
+    messages: Messages
+  ): Appendable = checkEoriDetailsPage(
+    eori,
+    name.getOrElse("No name"),
+    form,
+    routes.CheckEoriDetailsController.submit
+  )
 }
 
 object CheckEoriDetailsController {

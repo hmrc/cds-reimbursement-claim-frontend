@@ -18,34 +18,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.AffinityGroup
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.EnrolmentIdentifier
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{OverpaymentsSingleClaim, RejectedGoodsSingleClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.CheckEoriDetailsController.checkEoriDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{CdsVerifiedEmail, ContactName}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
@@ -59,9 +47,7 @@ class CheckEoriDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
-
-  val mockVerifiedEmailAddressService = mock[VerifiedEmailAddressService]
-
+  lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
@@ -69,8 +55,7 @@ class CheckEoriDetailsControllerSpec
       bind[VerifiedEmailAddressService].toInstance(mockVerifiedEmailAddressService),
       bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
-
-  lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
+  val mockVerifiedEmailAddressService = mock[VerifiedEmailAddressService]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -86,15 +71,15 @@ class CheckEoriDetailsControllerSpec
       .returning(Future.successful(response))
       .once()
 
+  def mockC285AuthRequiredRetrievals(eori: Eori) =
+    mockAuthRequiredRetrievals(eori)
+
   def mockAuthRequiredRetrievals(eori: Eori) =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       Set(Enrolment("HMRC-CUS-ORG", Seq(EnrolmentIdentifier("EORINumber", eori.value)), "Activated", None)),
       Some(Credentials("credId", "GovernmentGateway"))
     )
-
-  def mockC285AuthRequiredRetrievals(eori: Eori) =
-    mockAuthRequiredRetrievals(eori)
 
   "Check Eori Details Controller" must {
 

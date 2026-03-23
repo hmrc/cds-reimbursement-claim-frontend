@@ -21,8 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleDecimalFormat
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import scala.util.Random
-import scala.util.Try
+import scala.util.{Random, Try}
 
 /** Random integer value container. */
 sealed trait Nonce {
@@ -40,9 +39,6 @@ sealed trait Nonce {
 @SuppressWarnings(Array("org.wartremover.warts.All"))
 object Nonce {
 
-  final def random: Nonce =
-    toNonce(Random.nextInt())
-
   final def apply(value: Int): Nonce =
     toNonce(value)
 
@@ -51,24 +47,17 @@ object Nonce {
     Try[Nonce](Nonce.byteArrayToInt(Base64.getUrlDecoder.decode(string.getBytes(StandardCharsets.UTF_8))))
       .getOrElse(Nonce.random)
 
-  object Any extends Nonce {
-    final val value: Int                               = 0
-    final override def equals(obj: scala.Any): Boolean =
-      obj.isInstanceOf[Nonce]
+  final def random: Nonce =
+    toNonce(Random.nextInt())
+
+  final def byteArrayToInt(b: Array[Byte]): Int = {
+    var value: Int = 0
+    value += (b(0) & 0x000000ff) << 24
+    value += (b(1) & 0x000000ff) << 16
+    value += (b(2) & 0x000000ff) << 8
+    value += (b(3) & 0x000000ff) << 0
+    value
   }
-
-  final class Strict(val value: Int) extends Nonce {
-    final override def equals(obj: scala.Any): Boolean =
-      if obj.isInstanceOf[Any.type] then true
-      else if obj.isInstanceOf[Nonce] then obj.asInstanceOf[Nonce].value == value
-      else false
-  }
-
-  implicit final val formats: Format[Nonce] =
-    SimpleDecimalFormat[Nonce](s => Nonce(s.toIntExact), n => BigDecimal(n.value))
-
-  implicit final def toNonce(value: Int): Nonce =
-    new Strict(value)
 
   final def intToByteArray(value: Int): Array[Byte] =
     Array[Byte](
@@ -78,13 +67,23 @@ object Nonce {
       value.toByte
     )
 
-  final def byteArrayToInt(b: Array[Byte]): Int = {
-    var value: Int = 0
-    value += (b(0) & 0x000000ff) << 24
-    value += (b(1) & 0x000000ff) << 16
-    value += (b(2) & 0x000000ff) << 8
-    value += (b(3) & 0x000000ff) << 0
-    value
+  implicit final val formats: Format[Nonce] =
+    SimpleDecimalFormat[Nonce](s => Nonce(s.toIntExact), n => BigDecimal(n.value))
+
+  implicit final def toNonce(value: Int): Nonce =
+    new Strict(value)
+
+  final class Strict(val value: Int) extends Nonce {
+    final override def equals(obj: scala.Any): Boolean =
+      if obj.isInstanceOf[Any.type] then true
+      else if obj.isInstanceOf[Nonce] then obj.asInstanceOf[Nonce].value == value
+      else false
+  }
+
+  object Any extends Nonce {
+    final val value: Int                               = 0
+    final override def equals(obj: scala.Any): Boolean =
+      obj.isInstanceOf[Nonce]
   }
 
 }

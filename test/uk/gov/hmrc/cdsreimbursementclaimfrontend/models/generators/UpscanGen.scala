@@ -16,14 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.OptionValues
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{UploadDocumentType, UploadedFile}
 
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
+import java.time.{ZoneOffset, ZonedDateTime}
 
 object UpscanGen extends OptionValues {
 

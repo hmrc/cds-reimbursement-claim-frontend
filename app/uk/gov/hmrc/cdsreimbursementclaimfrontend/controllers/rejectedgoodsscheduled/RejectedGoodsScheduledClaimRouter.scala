@@ -24,6 +24,9 @@ trait RejectedGoodsScheduledClaimRouter {
   private val undefined: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
+  def routeForValidationErrors(errors: Seq[String]): Call =
+    errors.headOption.map(routeForValidationError).getOrElse(undefined)
+
   def routeForValidationError(error: String): Call =
     error match {
       case CLAIM_ALREADY_FINALIZED                                  => routes.CheckYourAnswersController.showConfirmation
@@ -54,8 +57,5 @@ trait RejectedGoodsScheduledClaimRouter {
       case PAYEE_TYPE_MUST_BE_DEFINED                               => routes.ChoosePayeeTypeController.show
       case _                                                        => undefined
     }
-
-  def routeForValidationErrors(errors: Seq[String]): Call =
-    errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
 }

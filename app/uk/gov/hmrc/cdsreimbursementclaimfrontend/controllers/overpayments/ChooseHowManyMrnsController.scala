@@ -17,42 +17,26 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{OverpaymentsMultipleClaim, OverpaymentsScheduledClaim, OverpaymentsSingleClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{Forms, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedActionWithRetrievedData, SessionDataActionWithRetrievedData, WithAuthRetrievalsAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple.routes as overpaymentsMultipleRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled.routes as overpaymentsScheduledRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle.routes as overpaymentsSingleRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature.BasisOfClaimOther
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OverpaymentsClaimType.{Individual, Multiple, Scheduled}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, OverpaymentsClaimType, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.choose_how_many_mrns
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ChooseHowManyMrnsController @Inject() (
@@ -71,47 +55,12 @@ class ChooseHowManyMrnsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private val form: Form[OverpaymentsClaimType] = Forms.overpaymentsChooseHowManyMrnsForm
-  private val postAction: Call                  = routes.ChooseHowManyMrnsController.submit
-
-  private def overpaymentsSingleClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[OverpaymentsSingleClaim.Features] =
-    Some(
-      OverpaymentsSingleClaim
-        .Features(
-          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
-        )
-    )
-
-  private def overpaymentsMultipleClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[OverpaymentsMultipleClaim.Features] =
-    Some(
-      OverpaymentsMultipleClaim
-        .Features(
-          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
-        )
-    )
-
-  private def overpaymentsScheduledClaimFeatures(implicit
-    hc: HeaderCarrier
-  ): Option[OverpaymentsScheduledClaim.Features] =
-    Some(
-      OverpaymentsScheduledClaim
-        .Features(
-          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
-        )
-    )
-
   final val start: Action[AnyContent] =
     Action(Redirect(routes.ChooseHowManyMrnsController.show))
-
   final val show: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData { implicit request =>
       Ok(chooseHowManyMrnsPage(form, postAction))
     }
-
   final val submit: Action[AnyContent] =
     authenticatedActionWithRetrievedDataAndSessionData.async { implicit request =>
       request.authenticatedRequest.claimUserType.eoriOpt
@@ -164,5 +113,37 @@ class ChooseHowManyMrnsController @Inject() (
             )
         }
     }
+  private val form: Form[OverpaymentsClaimType] = Forms.overpaymentsChooseHowManyMrnsForm
+  private val postAction: Call                  = routes.ChooseHowManyMrnsController.submit
+
+  private def overpaymentsSingleClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsSingleClaim.Features] =
+    Some(
+      OverpaymentsSingleClaim
+        .Features(
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
+
+  private def overpaymentsMultipleClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsMultipleClaim.Features] =
+    Some(
+      OverpaymentsMultipleClaim
+        .Features(
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
+
+  private def overpaymentsScheduledClaimFeatures(implicit
+    hc: HeaderCarrier
+  ): Option[OverpaymentsScheduledClaim.Features] =
+    Some(
+      OverpaymentsScheduledClaim
+        .Features(
+          shouldAllowOtherBasisOfClaim = featureSwitchService.isEnabled(BasisOfClaimOther)
+        )
+    )
 
 }

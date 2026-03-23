@@ -17,8 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -54,21 +53,6 @@ final case class ContactAddress(
         other
     }
 
-  private def overflow(a: String, b: Option[String], maxLength: Int): (String, Option[String]) = {
-    val i       = a.take(maxLength).lastIndexOf(" ") match {
-      case i if i >= 0 => i
-      case _           => maxLength - 1
-    }
-    val a1      = a.take(i + 1)
-    val a1Check = a1.endsWith(" ")
-    val a2      = a.drop(i + 1)
-    val a2Check = a2.endsWith(".") || a2.endsWith(",") || a2.endsWith(";")
-    (
-      if a1Check then a1.dropRight(1) else a1,
-      Some(a2 + b.map(l => if a2Check then s" $l" else s", $l").getOrElse(""))
-    )
-  }
-
   def removeRedundantInformation(): ContactAddress = {
     val (l1, l2) = line2 match {
       case Some(l2) if line1.trim().endsWith(l2.trim())   => (line1, None)
@@ -94,6 +78,21 @@ final case class ContactAddress(
           this.country != that.country
       )
     )
+
+  private def overflow(a: String, b: Option[String], maxLength: Int): (String, Option[String]) = {
+    val i       = a.take(maxLength).lastIndexOf(" ") match {
+      case i if i >= 0 => i
+      case _           => maxLength - 1
+    }
+    val a1      = a.take(i + 1)
+    val a1Check = a1.endsWith(" ")
+    val a2      = a.drop(i + 1)
+    val a2Check = a2.endsWith(".") || a2.endsWith(",") || a2.endsWith(";")
+    (
+      if a1Check then a1.dropRight(1) else a1,
+      Some(a2 + b.map(l => if a2Check then s" $l" else s", $l").getOrElse(""))
+    )
+  }
 }
 
 object ContactAddress {

@@ -17,29 +17,22 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.FormError
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_declarant_eori_number
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 @Singleton
@@ -50,38 +43,17 @@ class EnterDeclarantEoriNumberController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesClaimBaseController {
 
-  val formKey: String  = "enter-declarant-eori-number"
-  val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
-
-  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
-  private val successResultSelectSecurities: Result =
-    Redirect(routes.SelectSecuritiesController.showFirst())
-
-  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
-  private val successResultBOD3: Result =
-    Redirect(routes.CheckTotalImportDischargedController.show)
-
-  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
-  private val successResultBOD4: Result =
-    Redirect(routes.CheckTotalImportDischargedController.show)
-
-  // Error: Claim has already been submitted as part of a whole or partial claim
-  private val errorResultClaimExistsAlready: Result =
-    Redirect(controllers.routes.IneligibleController.ineligible)
-
-  import SecuritiesClaim.Checks._
-
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(hasMRNAndImportDeclarationAndRfS)
-
+  val formKey: String  = "enter-declarant-eori-number"
+  val postAction: Call = routes.EnterDeclarantEoriNumberController.submit
   val show: Action[AnyContent] = actionReadClaim { claim =>
     if !claim.needsDeclarantAndConsigneeEoriSubmission then nextPage(claim)
     else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
       Redirect(routes.EnterImporterEoriNumberController.show)
     else Ok(enterDeclarantEoriNumberPage(eoriNumberForm(formKey), postAction))
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     if !claim.needsDeclarantAndConsigneeEoriSubmission then (claim, nextPage(claim))
     else if claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber).isEmpty then
@@ -128,6 +100,20 @@ class EnterDeclarantEoriNumberController @Inject() (
               )
         )
   }
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private val successResultSelectSecurities: Result =
+    Redirect(routes.SelectSecuritiesController.showFirst())
+
+  import SecuritiesClaim.Checks.*
+  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.CheckTotalImportDischargedController.show)
+  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.CheckTotalImportDischargedController.show)
+  // Error: Claim has already been submitted as part of a whole or partial claim
+  private val errorResultClaimExistsAlready: Result =
+    Redirect(controllers.routes.IneligibleController.ineligible)
 
   private def getMovementReferenceNumber(claim: SecuritiesClaim): EitherT[Future, Result, MRN] =
     EitherT.fromOption[Future](

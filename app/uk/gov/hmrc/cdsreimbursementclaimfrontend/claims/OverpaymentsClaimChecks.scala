@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 
 trait OverpaymentsClaimChecks[J <: OverpaymentsClaimProperties] extends CommonClaimChecks[OverpaymentsClaimProperties] {
 

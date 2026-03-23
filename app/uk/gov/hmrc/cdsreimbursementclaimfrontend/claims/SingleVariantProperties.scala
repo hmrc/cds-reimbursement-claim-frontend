@@ -16,14 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Reimbursement, ReimbursementMethod, TaxCode, TaxCodes, UploadDocumentType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 /** Common properties of the single claim variant. */
 trait SingleVariantProperties extends CommonClaimProperties {
@@ -38,15 +33,6 @@ trait SingleVariantProperties extends CommonClaimProperties {
 
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
-
-  def getLeadImportDeclaration: Option[ImportDeclaration] =
-    answers.importDeclaration
-
-  def getNdrcDetails: Option[List[NdrcDetails]] =
-    getLeadImportDeclaration.flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    getLeadImportDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   def getAvailableDuties: Seq[(TaxCode, Boolean)] = {
 
@@ -66,6 +52,9 @@ trait SingleVariantProperties extends CommonClaimProperties {
     filterAvailableDuties(duties)
   }
 
+  def getNdrcDetails: Option[List[NdrcDetails]] =
+    getLeadImportDeclaration.flatMap(_.getNdrcDetailsList)
+
   def getSelectedDuties: Option[Seq[TaxCode]] =
     answers.correctedAmounts.map(_.keys.toSeq)
 
@@ -81,6 +70,9 @@ trait SingleVariantProperties extends CommonClaimProperties {
       .collect { case Some(d) => d }
       .forall(_.isCmaEligible)
 
+  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
+    getLeadImportDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
+
   def getSelectedTaxCodesWithCorrectAmount: Seq[(TaxCode, BigDecimal)] =
     answers.correctedAmounts
       .map(
@@ -88,10 +80,20 @@ trait SingleVariantProperties extends CommonClaimProperties {
       )
       .getOrElse(Seq.empty)
 
-  def getAvailableTaxCodesWithPaidAmounts: Seq[(TaxCode, BigDecimal)] =
-    getLeadImportDeclaration
-      .flatMap(_.getNdrcDutiesWithAmount)
-      .getOrElse(Seq.empty)
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
+
+  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
+    getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _, _, _)) =>
+      if include(taxCode) then Some(a.getOrElse(BigDecimal("0.00")) + amount)
+      else a
+    }
 
   def getReimbursements: Seq[Reimbursement] = {
     val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
@@ -120,23 +122,16 @@ trait SingleVariantProperties extends CommonClaimProperties {
       .getOrElse(Seq.empty)
   }
 
+  def getAvailableTaxCodesWithPaidAmounts: Seq[(TaxCode, BigDecimal)] =
+    getLeadImportDeclaration
+      .flatMap(_.getNdrcDutiesWithAmount)
+      .getOrElse(Seq.empty)
+
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclaration
+
   def getDefaultReimbursementMethod: ReimbursementMethod =
     answers.reimbursementMethod.getOrElse(ReimbursementMethod.BankAccountTransfer)
-
-  def getUKDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.ukTaxCodeSet)
-
-  def getEUDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.euTaxCodeSet)
-
-  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(TaxCodes.exciseTaxCodeSet)
-
-  private def getReimbursementTotalBy(include: TaxCode => Boolean): Option[BigDecimal] =
-    getReimbursements.foldLeft[Option[BigDecimal]](None) { case (a, Reimbursement(taxCode, amount, _, _, _)) =>
-      if include(taxCode) then Some(a.getOrElse(BigDecimal("0.00")) + amount)
-      else a
-    }
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursements.map(_.amount).sum

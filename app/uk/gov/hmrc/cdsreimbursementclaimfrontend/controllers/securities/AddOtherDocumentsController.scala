@@ -16,22 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.addOtherDocumentsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.needsAddOtherDocuments
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS, needsAddOtherDocuments}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.addOtherDocumentsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.add_other_documents_page
 
 import scala.concurrent.ExecutionContext
@@ -42,19 +37,15 @@ class AddOtherDocumentsController @Inject() (
   addOtherDocumentsPage: add_other_documents_page
 )(implicit val viewConfig: ViewConfig, val ec: ExecutionContext)
     extends SecuritiesClaimBaseController {
-  private val form: Form[YesNo] = addOtherDocumentsForm
-
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndImportDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
         & needsAddOtherDocuments
     )
-
   val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(addOtherDocumentsPage(form, routes.AddOtherDocumentsController.submit))
   }
-
   val submit: Action[AnyContent] = actionReadClaim { claim =>
     form
       .bindFromRequest()
@@ -75,4 +66,5 @@ class AddOtherDocumentsController @Inject() (
       )
 
   }
+  private val form: Form[YesNo] = addOtherDocumentsForm
 }

@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
 final case class BarsSubject(
   title: Option[String], // e.g. "Mr" etc; must >= 2 character and <= 35 characters long

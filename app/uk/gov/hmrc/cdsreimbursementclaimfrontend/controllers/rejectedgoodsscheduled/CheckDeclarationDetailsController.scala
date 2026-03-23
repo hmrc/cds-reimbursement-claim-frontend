@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
@@ -37,17 +35,16 @@ class CheckDeclarationDetailsController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController
     with CheckDeclarationDetailsMixin {
 
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.submit
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit
+
   final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
     claim.getLeadImportDeclaration
 
   final override def continueRoute(claim: Claim): Call =
     routes.UploadMrnListController.show
-
-  final override val enterMovementReferenceNumberRoute: Call =
-    routes.EnterMovementReferenceNumberController.submit
-
-  private val postAction: Call =
-    routes.CheckDeclarationDetailsController.submit
 
   override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim) =>

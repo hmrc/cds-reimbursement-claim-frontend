@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
+import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.http.HeaderCarrier
-import org.scalamock.scalatest.MockFactory
+
 import scala.concurrent.Future
 
 trait WafErrorMitigationTestHelper {

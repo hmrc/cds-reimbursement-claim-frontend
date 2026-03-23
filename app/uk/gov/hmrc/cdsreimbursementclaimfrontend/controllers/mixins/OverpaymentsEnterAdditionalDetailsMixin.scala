@@ -17,24 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterAdditionalDetailsForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterAdditionalDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.enter_additional_details
 
 trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
-
-  val enterAdditionalDetailsPage: enter_additional_details
-  val postAction: Call
-  val continueRoute: Call
-
-  def modifyClaim(claim: Claim, additionalDetails: String): Claim
-
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
       val form: Form[String] =
@@ -46,7 +37,6 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
         )
       )
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       enterAdditionalDetailsForm
@@ -69,5 +59,10 @@ trait OverpaymentsEnterAdditionalDetailsMixin extends ClaimBaseController {
             )
         )
     }
+  val enterAdditionalDetailsPage: enter_additional_details
+  val postAction: Call
+  val continueRoute: Call
+
+  def modifyClaim(claim: Claim, additionalDetails: String): Claim
 
 }

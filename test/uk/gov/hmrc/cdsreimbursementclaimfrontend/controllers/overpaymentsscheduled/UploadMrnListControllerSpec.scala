@@ -20,18 +20,15 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -43,9 +40,15 @@ class UploadMrnListControllerSpec
     with SessionSupport
     with BeforeAndAfterEach {
 
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
+    )
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
-
   val expectedUploadDocumentsLocation: String = "http://foo:123/bar/upload-mrn-list"
+  val controller: UploadMrnListController = instanceOf[UploadMrnListController]
 
   def mockInitializeCall(existingFile: Option[UploadedFile] = None) =
     (mockUploadDocumentsConnector
@@ -62,15 +65,6 @@ class UploadMrnListControllerSpec
         request.existingFiles.map(_.upscanReference) == existingFile.toList.map(_.upscanReference)
       })
       .returning(Future.successful(None))
-
-  override val overrideBindings: List[GuiceableModule] =
-    List[GuiceableModule](
-      bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache),
-      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
-    )
-
-  val controller: UploadMrnListController = instanceOf[UploadMrnListController]
 
   "UploadMrnListController" when {
 

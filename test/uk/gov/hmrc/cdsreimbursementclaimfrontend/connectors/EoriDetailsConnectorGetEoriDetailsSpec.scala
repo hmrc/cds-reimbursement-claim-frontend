@@ -33,8 +33,7 @@ import java.net.URL
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 class EoriDetailsConnectorGetEoriDetailsSpec
     extends AnyWordSpec
@@ -65,17 +64,14 @@ class EoriDetailsConnectorGetEoriDetailsSpec
   )
 
   val actorSystem = ActorSystem("test-EoriDetailsConnector")
+  val connector =
+    new DefaultEoriDetailsConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+  val expectedUrl = "http://host3:123/foo-claim/eori/GB0123456789"
+  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpGetSuccess(URL(expectedUrl))(_)
 
   override protected def afterAll(): Unit =
     actorSystem.terminate()
-
-  val connector =
-    new DefaultEoriDetailsConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
-
-  val expectedUrl = "http://host3:123/foo-claim/eori/GB0123456789"
-
-  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
-    mockHttpGetSuccess(URL(expectedUrl))(_)
 
   "EoriDetailsConnector" must {
     "have retries defined" in {

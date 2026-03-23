@@ -18,17 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.nodes
 import org.scalatest.OptionValues
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 
@@ -37,15 +32,13 @@ abstract class CheckYourAnswersSummarySpec
     with OptionValues
     with SessionSupport
     with AuthSupport {
-
-  private val mockClaimService: ClaimService = mock[ClaimService]
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimService)
     )
+  private val mockClaimService: ClaimService = mock[ClaimService]
 
   implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -53,7 +46,7 @@ abstract class CheckYourAnswersSummarySpec
 }
 
 object CheckYourAnswersSummarySpec extends HtmlParseSupport {
-  import scala.jdk.CollectionConverters._
+  import scala.jdk.CollectionConverters.*
 
   implicit class DOMDocOps(private val document: nodes.Document) {
 

@@ -25,52 +25,24 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, ExistingClaim, ReasonForSecurity, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class EnterDeclarantEoriNumberControllerSpec
     extends PropertyBasedControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {
-
-  val enterDeclarantEoriNumberKey: String = "enter-declarant-eori-number"
-
-  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
-
-  override val overrideBindings: List[GuiceableModule] =
-    List[GuiceableModule](
-      bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache),
-      bind[DeclarationConnector].toInstance(mockDeclarationConnector)
-    )
-
-  val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
-
-  val declaration: ImportDeclaration =
-    buildSecuritiesImportDeclaration(
-      exampleMrnAsString,
-      ReasonForSecurity.MissingLicenseQuota.acc14Code,
-      declarantEORI = anotherExampleEori,
-      consigneeEORI = Some(yetAnotherExampleEori)
-    )
 
   lazy val initialSession: SessionData = SessionData(
     SecuritiesClaim
@@ -81,6 +53,22 @@ class EnterDeclarantEoriNumberControllerSpec
       .flatMap(_.submitConsigneeEoriNumber(yetAnotherExampleEori))
       .getOrFail
   )
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[DeclarationConnector].toInstance(mockDeclarationConnector)
+    )
+  val enterDeclarantEoriNumberKey: String = "enter-declarant-eori-number"
+  val mockDeclarationConnector: DeclarationConnector = mock[DeclarationConnector]
+  val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
+  val declaration: ImportDeclaration =
+    buildSecuritiesImportDeclaration(
+      exampleMrnAsString,
+      ReasonForSecurity.MissingLicenseQuota.acc14Code,
+      declarantEORI = anotherExampleEori,
+      consigneeEORI = Some(yetAnotherExampleEori)
+    )
 
   "Movement Reference Number Controller" when {
     "Enter Declarant EORI number page" must {

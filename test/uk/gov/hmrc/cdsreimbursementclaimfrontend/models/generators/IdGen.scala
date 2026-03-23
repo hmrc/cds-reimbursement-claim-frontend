@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori, MRN}
 
 object IdGen {
 
@@ -39,7 +36,33 @@ object IdGen {
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"GB${n.mkString}")
     yield Eori(s)
+  lazy val genNewEoriFormat: Gen[Eori] =
+    for
+      prefix <- Gen.oneOf(eoriPrefixes)
+      suffix <- genStringWithMaxSizeOfN(15)
+    yield Eori(prefix + suffix)
+  lazy val genXiEori: Gen[Eori] =
+    for
+      n <- Gen.listOfN(12, Gen.numChar)
+      s <- Gen.const(s"XI${n.mkString}")
+    yield Eori(s)
+  lazy val genMRN: Gen[MRN] = for
+    d1      <- Gen.listOfN(2, Gen.numChar)
+    letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
+    word    <- Gen.listOfN(13, Gen.numChar)
+    d2      <- Gen.listOfN(1, Gen.numChar)
+  yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
 
+  implicit lazy val arbitraryEori: Arbitrary[Eori] = Arbitrary(genEori)
+  lazy val genChiefEntryMRN: Gen[MRN] = for
+    d1        <- Gen.listOfN(3, Gen.numChar)
+    maybeDash <- Gen.option(Gen.const("-"))
+    d2        <- Gen.listOfN(6, Gen.numChar)
+  yield MRN((d1 ++ maybeDash ++ d2).mkString)
+  lazy val genName: Gen[Name] = for
+    name     <- genStringWithMaxSizeOfN(20)
+    lastName <- genStringWithMaxSizeOfN(20)
+  yield Name(Some(name), Some(lastName))
   val eoriPrefixes = Seq(
     "BG",
     "CZ",
@@ -69,38 +92,6 @@ object IdGen {
     "SE",
     "UK"
   )
-
-  lazy val genNewEoriFormat: Gen[Eori] =
-    for
-      prefix <- Gen.oneOf(eoriPrefixes)
-      suffix <- genStringWithMaxSizeOfN(15)
-    yield Eori(prefix + suffix)
-
-  lazy val genXiEori: Gen[Eori] =
-    for
-      n <- Gen.listOfN(12, Gen.numChar)
-      s <- Gen.const(s"XI${n.mkString}")
-    yield Eori(s)
-
-  implicit lazy val arbitraryEori: Arbitrary[Eori] = Arbitrary(genEori)
-
-  lazy val genMRN: Gen[MRN] = for
-    d1      <- Gen.listOfN(2, Gen.numChar)
-    letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
-    word    <- Gen.listOfN(13, Gen.numChar)
-    d2      <- Gen.listOfN(1, Gen.numChar)
-  yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
-
-  lazy val genChiefEntryMRN: Gen[MRN] = for
-    d1        <- Gen.listOfN(3, Gen.numChar)
-    maybeDash <- Gen.option(Gen.const("-"))
-    d2        <- Gen.listOfN(6, Gen.numChar)
-  yield MRN((d1 ++ maybeDash ++ d2).mkString)
-
-  lazy val genName: Gen[Name] = for
-    name     <- genStringWithMaxSizeOfN(20)
-    lastName <- genStringWithMaxSizeOfN(20)
-  yield Name(Some(name), Some(lastName))
 
   implicit lazy val arbitraryName: Arbitrary[Name] = Arbitrary(genName)
 

@@ -18,13 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
@@ -40,11 +36,6 @@ trait AddressLookupMixin extends ClaimBaseController {
   val problemWithAddressPage: Call
   val retrieveLookupAddress: Call
   val startAddressLookup: Call
-
-  def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim
-
-  def redirectToTheNextPage(claim: Claim): (Claim, Result)
-
   val redirectToALF: Action[AnyContent] =
     Action.andThen(jcc.authenticatedAction).async { implicit request =>
       implicit val messages: Messages = request.request.messages
@@ -52,6 +43,17 @@ trait AddressLookupMixin extends ClaimBaseController {
         .startLookupRedirectingBackTo(retrieveLookupAddress)
         .fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
+  val showAddressConfirmationPage: Action[AnyContent] =
+    actionReadClaim(claim =>
+      claim.answers.contactAddress.flatMap(_.addressId) match {
+        case Some(addressId) => Redirect(Call("GET", viewConfig.getAddressConfirmationUrl(addressId)))
+        case _               => Redirect(startAddressLookup)
+      }
+    )
+
+  def modifyClaim(claim: Claim, contactAddress: ContactAddress): Claim
+
+  def redirectToTheNextPage(claim: Claim): (Claim, Result)
 
   def retrieveAddressFromALF(maybeID: Option[UUID] = None): Action[AnyContent] =
     actionReadWriteClaim(
@@ -76,13 +78,5 @@ trait AddressLookupMixin extends ClaimBaseController {
               )
           ),
       fastForwardToCYAEnabled = false
-    )
-
-  val showAddressConfirmationPage: Action[AnyContent] =
-    actionReadClaim(claim =>
-      claim.answers.contactAddress.flatMap(_.addressId) match {
-        case Some(addressId) => Redirect(Call("GET", viewConfig.getAddressConfirmationUrl(addressId)))
-        case _               => Redirect(startAddressLookup)
-      }
     )
 }

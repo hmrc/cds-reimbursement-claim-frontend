@@ -22,14 +22,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{DirectFluentSyntax, Validator}
 
-import java.time.Instant
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C285 scheduled MRN claim logic. The constructor of this class MUST stay PRIVATE to protected
@@ -58,11 +54,6 @@ final class OverpaymentsScheduledClaim private (
 
   val validate: Validator.Validate[OverpaymentsScheduledClaim] =
     OverpaymentsScheduledClaim.validator
-
-  private def copy(
-    newAnswers: OverpaymentsScheduledClaim.Answers
-  ): OverpaymentsScheduledClaim =
-    new OverpaymentsScheduledClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
     Some(UploadDocumentType.overpaymentsScheduledDocumentTypes)
@@ -195,6 +186,7 @@ final class OverpaymentsScheduledClaim private (
         answers.copy(additionalDetails = Some(additionalDetails))
       )
     }
+
   def selectAndReplaceDutyTypeSetForReimbursement(
     dutyTypes: Seq[DutyType]
   ): Either[String, OverpaymentsScheduledClaim] =
@@ -315,9 +307,13 @@ final class OverpaymentsScheduledClaim private (
         isOtherEnabled = features.exists(_.shouldAllowOtherBasisOfClaim)
       )
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
-    answers.correctedAmounts
-      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+  def submitClaimAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    claimAmount: BigDecimal
+  ): Either[String, OverpaymentsScheduledClaim] =
+    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
 
   def submitCorrectAmount(
     dutyType: DutyType,
@@ -349,13 +345,14 @@ final class OverpaymentsScheduledClaim private (
       } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
-  def submitClaimAmount(
-    dutyType: DutyType,
-    taxCode: TaxCode,
-    paidAmount: BigDecimal,
-    claimAmount: BigDecimal
-  ): Either[String, OverpaymentsScheduledClaim] =
-    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
+  private def copy(
+    newAnswers: OverpaymentsScheduledClaim.Answers
+  ): OverpaymentsScheduledClaim =
+    new OverpaymentsScheduledClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
+
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
+    answers.correctedAmounts
+      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsScheduledClaim] =
     whileClaimIsAmendable {
@@ -520,134 +517,7 @@ final class OverpaymentsScheduledClaim private (
 }
 
 object OverpaymentsScheduledClaim extends ClaimCompanion[OverpaymentsScheduledClaim] {
-
-  /** A starting point to build new instance of the claim. */
-  override def empty(
-    userEoriNumber: Eori,
-    nonce: Nonce = Nonce.random,
-    features: Option[Features] = None
-  ): OverpaymentsScheduledClaim =
-    new OverpaymentsScheduledClaim(
-      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
-      startTimeSeconds = Instant.now().getEpochSecond(),
-      features = features
-    )
-
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
-
-  final case class Features(
-    shouldAllowOtherBasisOfClaim: Boolean = true
-  )
-
-  final case class Answers(
-    nonce: Nonce = Nonce.random,
-    userEoriNumber: Eori,
-    movementReferenceNumber: Option[MRN] = None,
-    scheduledDocument: Option[UploadedFile] = None,
-    importDeclaration: Option[ImportDeclaration] = None,
-    payeeType: Option[PayeeType] = None,
-    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
-    additionalDetails: Option[String] = None,
-    correctedAmounts: Option[CorrectedAmounts] = None,
-    exciseCategories: Option[Seq[ExciseCategory]] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    selectedDocumentType: Option[UploadDocumentType] = None,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    newEori: Option[Eori] = None,
-    newDan: Option[Dan] = None,
-    modes: ClaimModes = ClaimModes()
-  ) extends OverpaymentsAnswers
-      with ScheduledVariantAnswers
-
-  final case class Output(
-    movementReferenceNumber: MRN,
-    scheduledDocument: EvidenceDocument,
-    claimantType: ClaimantType,
-    payeeType: PayeeType,
-    displayPayeeType: PayeeType,
-    claimantInformation: ClaimantInformation,
-    basisOfClaim: BasisOfOverpaymentClaim,
-    additionalDetails: String,
-    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
-    reimbursementMethod: ReimbursementMethod,
-    bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument],
-    newEoriAndDan: Option[NewEoriAndDan]
-  ) extends WafErrorMitigation[Output] {
-
-    override def excludeFreeTextInputs() =
-      (
-        Seq(("additional_details", additionalDetails)),
-        this.copy(additionalDetails = additionalDetailsReplacementText)
-      )
-  }
-
-  import ClaimValidationErrors._
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
-
-  object Checks extends OverpaymentsClaimChecks[OverpaymentsScheduledClaim] {
-
-    val scheduledDocumentHasBeenDefined: Validate[OverpaymentsScheduledClaim] =
-      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
-  }
-
-  import Checks._
-
-  /** Validate if all required answers has been provided and the claim is ready to produce output. */
-  override implicit val validator: Validate[OverpaymentsScheduledClaim] =
-    all(
-      hasMRNAndImportDeclaration,
-      containsOnlySupportedTaxCodes,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      scheduledDocumentHasBeenDefined,
-      basisOfClaimHasBeenProvided,
-      additionalDetailsHasBeenProvided,
-      reimbursementClaimsHasBeenProvided,
-      paymentMethodHasBeenProvidedIfNeeded,
-      contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined,
-      newEoriAndDanProvidedIfNeeded
-    )
-
-  import ClaimFormats._
-
-  object Features {
-    implicit val format: Format[Features] =
-      Json.using[Json.WithDefaultValues].format[Features]
-  }
-
-  object Answers {
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
-
-  implicit val format: Format[OverpaymentsScheduledClaim] =
-    Format(
-      ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "startTimeSeconds").read[Long]
-        and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledClaim(_, _, _, _, _)),
-      ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "startTimeSeconds").write[Long]
-        and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
-        and (JsPath \ "features").writeNullable[Features])(claim =>
-        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
-      )
-    )
 
   /** Try to build claim from the pre-existing answers. */
   override def tryBuildFrom(
@@ -693,6 +563,18 @@ object OverpaymentsScheduledClaim extends ClaimCompanion[OverpaymentsScheduledCl
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** A starting point to build new instance of the claim. */
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): OverpaymentsScheduledClaim =
+    new OverpaymentsScheduledClaim(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
+
   /** This method MUST BE used only to test the validation correctness of the invalid answer states.. */
   def unsafeModifyAnswers(
     claim: OverpaymentsScheduledClaim,
@@ -703,5 +585,119 @@ object OverpaymentsScheduledClaim extends ClaimCompanion[OverpaymentsScheduledCl
       startTimeSeconds = claim.startTimeSeconds,
       features = claim.features
     )
+
+  final case class Features(
+    shouldAllowOtherBasisOfClaim: Boolean = true
+  )
+
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
+
+  final case class Answers(
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumber: Option[MRN] = None,
+    scheduledDocument: Option[UploadedFile] = None,
+    importDeclaration: Option[ImportDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
+    additionalDetails: Option[String] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    newEori: Option[Eori] = None,
+    newDan: Option[Dan] = None,
+    modes: ClaimModes = ClaimModes()
+  ) extends OverpaymentsAnswers
+      with ScheduledVariantAnswers
+
+  import Checks.*
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[OverpaymentsScheduledClaim] =
+    all(
+      hasMRNAndImportDeclaration,
+      containsOnlySupportedTaxCodes,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      scheduledDocumentHasBeenDefined,
+      basisOfClaimHasBeenProvided,
+      additionalDetailsHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded
+    )
+
+  import ClaimFormats.*
+
+  final case class Output(
+    movementReferenceNumber: MRN,
+    scheduledDocument: EvidenceDocument,
+    claimantType: ClaimantType,
+    payeeType: PayeeType,
+    displayPayeeType: PayeeType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfOverpaymentClaim,
+    additionalDetails: String,
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument],
+    newEoriAndDan: Option[NewEoriAndDan]
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", additionalDetails)),
+        this.copy(additionalDetails = additionalDetailsReplacementText)
+      )
+  }
+
+  object Checks extends OverpaymentsClaimChecks[OverpaymentsScheduledClaim] {
+
+    val scheduledDocumentHasBeenDefined: Validate[OverpaymentsScheduledClaim] =
+      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
+  }
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
+
+  import play.api.libs.functional.syntax.*
+
+  implicit val format: Format[OverpaymentsScheduledClaim] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsScheduledClaim(_, _, _, _, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(claim =>
+        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
+      )
+    )
+
+  object Answers {
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 
 }

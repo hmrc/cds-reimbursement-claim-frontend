@@ -16,33 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.HaveInspectionDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsClaimProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimBase, HaveInspectionDetails, RejectedGoodsClaimProperties}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.inspectionAddressTypeForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Declarant
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Importer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.Other
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.{Declarant, Importer, Other}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.choose_inspection_address_type
 
 trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with AddressLookupMixin {
 
   type Claim <: claims.Claim & ClaimBase & RejectedGoodsClaimProperties & HaveInspectionDetails
-
-  val startAddressLookup: Call
-  val postAction: Call
-
-  val inspectionAddressPage: choose_inspection_address_type
-
-  def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getPotentialInspectionAddresses match {
       case Nil =>
@@ -57,7 +42,6 @@ trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with
         )
     }
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       inspectionAddressTypeForm
@@ -89,5 +73,10 @@ trait RejectedGoodsInspectionAddressLookupMixin extends ClaimBaseController with
         ),
     fastForwardToCYAEnabled = false
   )
+  val startAddressLookup: Call
+  val postAction: Call
+  val inspectionAddressPage: choose_inspection_address_type
+
+  def modifyClaim(claim: Claim, inspectionAddress: InspectionAddress): Claim
 
 }

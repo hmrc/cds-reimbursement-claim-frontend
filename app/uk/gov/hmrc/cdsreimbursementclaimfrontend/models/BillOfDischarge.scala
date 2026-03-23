@@ -17,8 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 sealed abstract class BillOfDischarge extends Product with Serializable {
-  override def toString: String = getClass.getSimpleName.dropRight(1).toLowerCase(java.util.Locale.ENGLISH)
   val reasonForSecurity: ReasonForSecurity
+
+  override def toString: String = getClass.getSimpleName.dropRight(1).toLowerCase(java.util.Locale.ENGLISH)
 }
 case object BOD3 extends BillOfDischarge {
   override val reasonForSecurity: ReasonForSecurity = ReasonForSecurity.InwardProcessingRelief

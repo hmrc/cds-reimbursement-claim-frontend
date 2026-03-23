@@ -33,8 +33,7 @@ import java.net.URL
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 class XiEoriConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpV2Support with BeforeAndAfterAll {
 
@@ -60,19 +59,15 @@ class XiEoriConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
   )
 
   val actorSystem = ActorSystem("test-XiEoriConnector")
+  val connector =
+    new DefaultXiEoriConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
+  val expectedUrl = "http://host3:123/foo-claim/eori/xi"
+  val validResponseBody = """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789"}"""
+  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
+    mockHttpGetSuccess(URL(expectedUrl))(_)
 
   override protected def afterAll(): Unit =
     actorSystem.terminate()
-
-  val connector =
-    new DefaultXiEoriConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
-
-  val expectedUrl = "http://host3:123/foo-claim/eori/xi"
-
-  val validResponseBody = """{"eoriGB":"GB0123456789","eoriXI": "XI0123456789"}"""
-
-  val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
-    mockHttpGetSuccess(URL(expectedUrl))(_)
 
   "XiEoriConnector" must {
     "have retries defined" in {

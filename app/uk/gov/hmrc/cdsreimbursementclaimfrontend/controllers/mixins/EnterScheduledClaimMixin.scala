@@ -17,18 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.implicits.catsSyntaxEq
-import play.api.data.Form
-import play.api.data.FormError
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import play.api.data.{Form, FormError}
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterScheduledClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AmountPaidWithCorrect
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AmountPaidWithCorrect, DutyType, ExciseCategory, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_scheduled_claim
 
 object EnterScheduledClaimMixin {
@@ -45,18 +39,6 @@ object EnterScheduledClaimMixin {
 trait EnterScheduledClaimMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.ScheduledVariantProperties
-
-  val enterClaimPage: enter_scheduled_claim
-  val routesPack: EnterScheduledClaimMixin.RoutesPack
-
-  def modifyClaim(
-    claim: Claim,
-    dutyType: DutyType,
-    taxCode: TaxCode,
-    paidAmount: BigDecimal,
-    correctAmount: BigDecimal
-  ): Either[String, Claim]
-
   final val showFirst: Action[AnyContent] = actionReadClaim { claim =>
     claim.findNextDutyToSelectDuties match {
       case None =>
@@ -72,6 +54,16 @@ trait EnterScheduledClaimMixin extends ClaimBaseController {
         Redirect(routesPack.showSelectDuties(emptyDuty))
     }
   }
+  val enterClaimPage: enter_scheduled_claim
+  val routesPack: EnterScheduledClaimMixin.RoutesPack
+
+  def modifyClaim(
+    claim: Claim,
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    correctAmount: BigDecimal
+  ): Either[String, Claim]
 
   final def show(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
     actionReadClaim { claim =>

@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.Eq
 import play.api.libs.json.Format
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.chiefValidityRegex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.{chiefValidityRegex, validityRegex}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.Locale

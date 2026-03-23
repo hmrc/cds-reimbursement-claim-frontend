@@ -17,30 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, YesOrNoQuestionForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_bank_details_are_correct
 
 trait CheckBankDetailsMixin extends ClaimBaseController {
 
-  val postAction: Call
-  def continueRoute(claim: Claim): Call
-  val changeBankAccountDetailsRoute: Call
-  val enterBankAccountDetailsRoute: Call
-  val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
-  def isCMA(claim: Claim): Boolean = false
-
-  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
-  def modifyClaimRemoveBankDetails(claim: Claim): Claim
-
   final val bankDetailsAreYouSureForm: Form[YesNo] =
     YesOrNoQuestionForm("bank-details")
-
   final val showWarning: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim.answers.bankAccountDetails
@@ -74,7 +59,6 @@ trait CheckBankDetailsMixin extends ClaimBaseController {
         }
 
     }
-
   final val submitWarning: Action[AnyContent] =
     simpleActionReadWriteClaim { claim =>
       bankDetailsAreYouSureForm
@@ -104,4 +88,16 @@ trait CheckBankDetailsMixin extends ClaimBaseController {
             }
         )
     }
+  val postAction: Call
+  val changeBankAccountDetailsRoute: Call
+  val enterBankAccountDetailsRoute: Call
+  val checkBankDetailsAreCorrectPage: check_bank_details_are_correct
+
+  def continueRoute(claim: Claim): Call
+
+  def isCMA(claim: Claim): Boolean = false
+
+  def modifyClaim(claim: Claim, bankAccountDetails: BankAccountDetails): Either[String, Claim]
+
+  def modifyClaimRemoveBankDetails(claim: Claim): Claim
 }

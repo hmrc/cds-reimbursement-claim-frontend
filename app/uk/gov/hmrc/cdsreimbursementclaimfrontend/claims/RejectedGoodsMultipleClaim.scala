@@ -21,15 +21,11 @@ import cats.syntax.eq.*
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, NdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.*
 
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 multiple MRN claim logic. The constructor of this class MUST stay PRIVATE to protected
@@ -59,11 +55,6 @@ final class RejectedGoodsMultipleClaim private (
   val validate: Validator.Validate[RejectedGoodsMultipleClaim] =
     RejectedGoodsMultipleClaim.validator
 
-  private def copy(
-    newAnswers: RejectedGoodsMultipleClaim.Answers
-  ): RejectedGoodsMultipleClaim =
-    new RejectedGoodsMultipleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
-
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
     answers.correctedAmounts.exists(mrc =>
@@ -75,41 +66,14 @@ final class RejectedGoodsMultipleClaim private (
   def getMovementReferenceNumbers: Option[Seq[MRN]] =
     answers.movementReferenceNumbers
 
-  def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumbers.flatMap(_.headOption)
-
-  def getNthMovementReferenceNumber(index: Int): Option[MRN] =
-    answers.movementReferenceNumbers.flatMap { mrns =>
-      if index >= 0 && index < mrns.size then Some(mrns(index))
-      else None
-    }
-
-  def getIndexOfMovementReferenceNumber(mrn: MRN): Option[Int] =
-    answers.movementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
-
-  def countOfMovementReferenceNumbers: Int =
-    answers.movementReferenceNumbers.map(_.size).getOrElse(0)
-
   def hasCompleteMovementReferenceNumbers: Boolean =
     countOfMovementReferenceNumbers >= 2
-
-  def getLeadImportDeclaration: Option[ImportDeclaration] =
-    getLeadMovementReferenceNumber.flatMap(getImportDeclarationFor)
 
   def getNthImportDeclaration(index: Int): Option[ImportDeclaration] =
     getNthMovementReferenceNumber(index).flatMap(getImportDeclarationFor)
 
-  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
-    for
-      declarations <- answers.importDeclarations
-      declaration  <- declarations.find(_.getMRN === mrn)
-    yield declaration
-
   override def getImportDeclarations: Seq[ImportDeclaration] =
     answers.importDeclarations.getOrElse(Seq.empty)
-
-  def getCorrectAmountsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
-    answers.correctedAmounts.flatMap(_.get(mrn))
 
   def getCorrectedAmountFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     for
@@ -117,31 +81,6 @@ final class RejectedGoodsMultipleClaim private (
       thisMrn       <- all.get(mrn)
       correctAmount <- thisMrn.get(taxCode).flatten
     yield correctAmount
-
-  def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
-    getImportDeclarationFor(declarationId)
-      .flatMap(_.getNdrcDutiesWithAmount)
-      .getOrElse(Seq.empty)
-
-  def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
-    answers.correctedAmounts
-      .map(_.map { case (mrn, correctedAmountsPerMrn) =>
-        val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
-          getAvailableTaxCodesWithPaidAmountsFor(mrn).toMap
-        (
-          mrn,
-          correctedAmountsPerMrn
-            .map { case (taxCode, correctAmountOpt) =>
-              for
-                correctAmount <- correctAmountOpt
-                paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
-              yield (taxCode, paidAmount - correctAmount)
-            }
-            .collect { case Some(x) => x }
-            .toMap
-        )
-      })
-      .getOrElse(Map.empty)
 
   def getReimbursementsWithCorrectAmounts: Seq[(MRN, Int, List[ReimbursementWithCorrectAmount])] =
     getReimbursementClaims.toSeq.zipWithIndex
@@ -163,18 +102,6 @@ final class RejectedGoodsMultipleClaim private (
   def needsDeclarantAndConsigneeEoriMultipleSubmission(pageIndex: Int): Boolean =
     if pageIndex === 1 then needsDeclarantAndConsigneeEoriSubmission else false
 
-  def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
-    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
-    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
-
-  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
-    * found.
-    */
-  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
-    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
-
   /** If the user has selected the tax code for repayment then returns the amount paid for the given MRN and tax code as
     * returned by ACC14, otherwise None.
     */
@@ -184,6 +111,12 @@ final class RejectedGoodsMultipleClaim private (
         if selectedTaxCodes.contains(taxCode) then getAmountPaidFor(mrn, taxCode)
         else None
       )
+
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
+    * found.
+    */
+  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
 
   def getAvailableDuties(mrn: MRN): Seq[(TaxCode, Boolean)] =
     getNdrcDetailsFor(mrn)
@@ -199,8 +132,8 @@ final class RejectedGoodsMultipleClaim private (
       }
       .getOrElse(Seq.empty)
 
-  def getSelectedDuties(mrn: MRN): Option[Seq[TaxCode]] =
-    getCorrectAmountsFor(mrn).map(_.keys.toSeq)
+  def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
   def getAllSelectedDuties: Seq[(MRN, Seq[TaxCode])] =
     answers.movementReferenceNumbers
@@ -220,6 +153,37 @@ final class RejectedGoodsMultipleClaim private (
 
   def getTotalReimbursementAmountFor(mrn: MRN): Option[BigDecimal] =
     getReimbursementClaims.get(mrn).map(_.map(_._2).sum)
+
+  def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
+    answers.correctedAmounts
+      .map(_.map { case (mrn, correctedAmountsPerMrn) =>
+        val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
+          getAvailableTaxCodesWithPaidAmountsFor(mrn).toMap
+        (
+          mrn,
+          correctedAmountsPerMrn
+            .map { case (taxCode, correctAmountOpt) =>
+              for
+                correctAmount <- correctAmountOpt
+                paidAmount    <- taxCodesWithPaidAmounts.get(taxCode)
+              yield (taxCode, paidAmount - correctAmount)
+            }
+            .collect { case Some(x) => x }
+            .toMap
+        )
+      })
+      .getOrElse(Map.empty)
+
+  def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
+    getImportDeclarationFor(declarationId)
+      .flatMap(_.getNdrcDutiesWithAmount)
+      .getOrElse(Seq.empty)
+
+  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
+    for
+      declarations <- answers.importDeclarations
+      declaration  <- declarations.find(_.getMRN === mrn)
+    yield declaration
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.values.flatMap(_.values).sum
@@ -323,6 +287,24 @@ final class RejectedGoodsMultipleClaim private (
               )
         }
     }
+
+  def getNthMovementReferenceNumber(index: Int): Option[MRN] =
+    answers.movementReferenceNumbers.flatMap { mrns =>
+      if index >= 0 && index < mrns.size then Some(mrns(index))
+      else None
+    }
+
+  def getIndexOfMovementReferenceNumber(mrn: MRN): Option[Int] =
+    answers.movementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
+
+  def countOfMovementReferenceNumbers: Int =
+    answers.movementReferenceNumbers.map(_.size).getOrElse(0)
+
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    getLeadMovementReferenceNumber.flatMap(getImportDeclarationFor)
+
+  def getLeadMovementReferenceNumber: Option[MRN] =
+    answers.movementReferenceNumbers.flatMap(_.headOption)
 
   def removeMovementReferenceNumberAndImportDeclaration(mrn: MRN): Either[String, RejectedGoodsMultipleClaim] =
     whileClaimIsAmendable {
@@ -497,9 +479,6 @@ final class RejectedGoodsMultipleClaim private (
       }
     }
 
-  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
-
   def submitCorrectAmount(
     declarationId: MRN,
     taxCode: TaxCode,
@@ -537,6 +516,18 @@ final class RejectedGoodsMultipleClaim private (
           }
       }
     }
+
+  def getNdrcDetailsFor(mrn: MRN, taxCode: TaxCode): Option[NdrcDetails] =
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsFor(taxCode.value))
+
+  def getSelectedDuties(mrn: MRN): Option[Seq[TaxCode]] =
+    getCorrectAmountsFor(mrn).map(_.keys.toSeq)
+
+  def getCorrectAmountsFor(mrn: MRN): Option[OrderedMap[TaxCode, Option[BigDecimal]]] =
+    answers.correctedAmounts.flatMap(_.get(mrn))
+
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
   def submitClaimAmount(
     declarationId: MRN,
@@ -577,14 +568,14 @@ final class RejectedGoodsMultipleClaim private (
       }
     }
 
-  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
-
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsMultipleClaim =
     whileClaimIsAmendable {
       this.copy(
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
+
+  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsMultipleClaim =
     whileClaimIsAmendable {
@@ -655,6 +646,11 @@ final class RejectedGoodsMultipleClaim private (
         )
       } else Left("receiveUploadedFiles.invalidNonce")
     }
+
+  private def copy(
+    newAnswers: RejectedGoodsMultipleClaim.Answers
+  ): RejectedGoodsMultipleClaim =
+    new RejectedGoodsMultipleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def submitCheckYourAnswersChangeMode(enabled: Boolean): RejectedGoodsMultipleClaim =
     whileClaimIsAmendable {
@@ -733,142 +729,7 @@ final class RejectedGoodsMultipleClaim private (
 }
 
 object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleClaim] {
-
-  /** A starting point to build new instance of the claim. */
-  override def empty(
-    userEoriNumber: Eori,
-    nonce: Nonce = Nonce.random,
-    features: Option[Features] = None
-  ): RejectedGoodsMultipleClaim =
-    new RejectedGoodsMultipleClaim(
-      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
-      startTimeSeconds = Instant.now().getEpochSecond(),
-      features = features
-    )
-
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
-
-  final case class Features()
-
-  // All user answers captured during C&E1179 multiple MRNs claim
-  final case class Answers(
-    nonce: Nonce = Nonce.random,
-    userEoriNumber: Eori,
-    movementReferenceNumbers: Option[Seq[MRN]] = None,
-    importDeclarations: Option[Seq[ImportDeclaration]] = None,
-    payeeType: Option[PayeeType] = None,
-    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
-    basisOfClaimSpecialCircumstances: Option[String] = None,
-    methodOfDisposal: Option[MethodOfDisposal] = None,
-    detailsOfRejectedGoods: Option[String] = None,
-    correctedAmounts: Option[OrderedMap[MRN, CorrectedAmounts]] = None,
-    inspectionDate: Option[InspectionDate] = None,
-    inspectionAddress: Option[InspectionAddress] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    selectedDocumentType: Option[UploadDocumentType] = None,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    modes: ClaimModes = ClaimModes()
-  ) extends RejectedGoodsAnswers
-
-  // Final minimal output of the claim we want to pass to the backend.
-  final case class Output(
-    movementReferenceNumbers: Seq[MRN],
-    claimantType: ClaimantType,
-    payeeType: PayeeType,
-    displayPayeeType: PayeeType,
-    claimantInformation: ClaimantInformation,
-    basisOfClaim: BasisOfRejectedGoodsClaim,
-    basisOfClaimSpecialCircumstances: Option[String],
-    methodOfDisposal: MethodOfDisposal,
-    detailsOfRejectedGoods: String,
-    inspectionDate: InspectionDate,
-    inspectionAddress: InspectionAddress,
-    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
-    reimbursementMethod: ReimbursementMethod,
-    bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument]
-  ) extends WafErrorMitigation[Output] {
-
-    override def excludeFreeTextInputs() =
-      (
-        Seq(("additional_details", detailsOfRejectedGoods))
-          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
-        this.copy(
-          detailsOfRejectedGoods = additionalDetailsReplacementText,
-          basisOfClaimSpecialCircumstances =
-            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
-        )
-      )
-  }
-
-  import ClaimValidationErrors._
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
-
-  object Checks extends RejectedGoodsClaimChecks[RejectedGoodsMultipleClaim] {
-
-    val hasMultipleMovementReferenceNumbers: Validate[RejectedGoodsMultipleClaim] =
-      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
-  }
-
-  import Checks._
-
-  /** Validate if all required answers has been provided and the claim is ready to produce output. */
-  override implicit val validator: Validate[RejectedGoodsMultipleClaim] =
-    all(
-      hasMRNAndImportDeclaration,
-      containsOnlySupportedTaxCodes,
-      hasMultipleMovementReferenceNumbers,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      basisOfClaimHasBeenProvided,
-      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
-      detailsOfRejectedGoodsHasBeenProvided,
-      inspectionDateHasBeenProvided,
-      inspectionAddressHasBeenProvided,
-      methodOfDisposalHasBeenProvided,
-      reimbursementClaimsHasBeenProvided,
-      paymentMethodHasBeenProvidedIfNeeded,
-      contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined
-    )
-
-  import ClaimFormats._
-
-  object Features {
-    implicit val format: Format[Features] =
-      Json.using[Json.WithDefaultValues].format[Features]
-  }
-
-  object Answers {
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
-  implicit val format: Format[RejectedGoodsMultipleClaim] =
-    Format(
-      ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "startTimeSeconds").read[Long]
-        and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleClaim(_, _, _, _, _)),
-      ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "startTimeSeconds").write[Long]
-        and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
-        and (JsPath \ "features").writeNullable[Features])(claim =>
-        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
-      )
-    )
 
   override def tryBuildFrom(
     answers: Answers,
@@ -911,6 +772,18 @@ object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleCl
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** A starting point to build new instance of the claim. */
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): RejectedGoodsMultipleClaim =
+    new RejectedGoodsMultipleClaim(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
+
   /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
   def unsafeModifyAnswers(
     claim: RejectedGoodsMultipleClaim,
@@ -921,4 +794,126 @@ object RejectedGoodsMultipleClaim extends ClaimCompanion[RejectedGoodsMultipleCl
       startTimeSeconds = claim.startTimeSeconds,
       features = claim.features
     )
+
+  final case class Features()
+
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
+
+  // All user answers captured during C&E1179 multiple MRNs claim
+  final case class Answers(
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumbers: Option[Seq[MRN]] = None,
+    importDeclarations: Option[Seq[ImportDeclaration]] = None,
+    payeeType: Option[PayeeType] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
+    basisOfClaimSpecialCircumstances: Option[String] = None,
+    methodOfDisposal: Option[MethodOfDisposal] = None,
+    detailsOfRejectedGoods: Option[String] = None,
+    correctedAmounts: Option[OrderedMap[MRN, CorrectedAmounts]] = None,
+    inspectionDate: Option[InspectionDate] = None,
+    inspectionAddress: Option[InspectionAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    modes: ClaimModes = ClaimModes()
+  ) extends RejectedGoodsAnswers
+
+  import Checks.*
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[RejectedGoodsMultipleClaim] =
+    all(
+      hasMRNAndImportDeclaration,
+      containsOnlySupportedTaxCodes,
+      hasMultipleMovementReferenceNumbers,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      basisOfClaimHasBeenProvided,
+      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
+      detailsOfRejectedGoodsHasBeenProvided,
+      inspectionDateHasBeenProvided,
+      inspectionAddressHasBeenProvided,
+      methodOfDisposalHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
+    )
+
+  import ClaimFormats.*
+
+  // Final minimal output of the claim we want to pass to the backend.
+  final case class Output(
+    movementReferenceNumbers: Seq[MRN],
+    claimantType: ClaimantType,
+    payeeType: PayeeType,
+    displayPayeeType: PayeeType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfRejectedGoodsClaim,
+    basisOfClaimSpecialCircumstances: Option[String],
+    methodOfDisposal: MethodOfDisposal,
+    detailsOfRejectedGoods: String,
+    inspectionDate: InspectionDate,
+    inspectionAddress: InspectionAddress,
+    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument]
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", detailsOfRejectedGoods))
+          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
+        this.copy(
+          detailsOfRejectedGoods = additionalDetailsReplacementText,
+          basisOfClaimSpecialCircumstances =
+            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
+        )
+      )
+  }
+
+  object Checks extends RejectedGoodsClaimChecks[RejectedGoodsMultipleClaim] {
+
+    val hasMultipleMovementReferenceNumbers: Validate[RejectedGoodsMultipleClaim] =
+      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
+  }
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
+
+  import play.api.libs.functional.syntax.*
+  implicit val format: Format[RejectedGoodsMultipleClaim] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsMultipleClaim(_, _, _, _, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(claim =>
+        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
+      )
+    )
+
+  object Answers {
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 }

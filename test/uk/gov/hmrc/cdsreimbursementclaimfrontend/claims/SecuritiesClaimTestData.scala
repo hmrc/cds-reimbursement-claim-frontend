@@ -38,17 +38,6 @@ trait SecuritiesClaimTestData extends ClaimTestData {
     .flatMap(_.submitClaimDuplicateCheckStatus(false))
     .getOrFail
 
-  final def buildSecuritiesClaimReadyForSelectingSecurities(
-    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
-  ): SecuritiesClaim = testParams match {
-    case (mrn, rfs, decl) =>
-      emptyClaim
-        .submitMovementReferenceNumber(mrn)
-        .submitReasonForSecurityAndDeclaration(rfs, decl)
-        .flatMap(_.submitClaimDuplicateCheckStatus(false))
-        .getOrFail
-  }
-
   final def buildSecuritiesClaimReadyForIPR(
     testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim = testParams match {
@@ -92,17 +81,6 @@ trait SecuritiesClaimTestData extends ClaimTestData {
         .flatMap(_.submitClaimDuplicateCheckStatus(false))
         .flatMap(_.submitDocumentTypeSelection(dt))
         .getOrFail
-  }
-
-  final def buildSecuritiesClaimWithSomeSecuritiesSelected(
-    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
-  ): SecuritiesClaim = {
-    val claim      = buildSecuritiesClaimReadyForSelectingSecurities(testParams)
-    val depositIds = claim.getSecurityDepositIds
-    claim
-      .submitCheckDeclarationDetailsChangeMode(false)
-      .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
-      .getOrFail
   }
 
   final def buildSecuritiesClaimWithSomeSecuritiesSelectedAndExportedMethodOfDisposal(
@@ -161,6 +139,18 @@ trait SecuritiesClaimTestData extends ClaimTestData {
         .submitTemporaryAdmissionMethodsOfDisposal(List(mfd))
         .getOrFail
   }
+
+  final def buildSecuritiesClaimWithSomeSecuritiesSelected(
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
+  ): SecuritiesClaim = {
+    val claim      = buildSecuritiesClaimReadyForSelectingSecurities(testParams)
+    val depositIds = claim.getSecurityDepositIds
+    claim
+      .submitCheckDeclarationDetailsChangeMode(false)
+      .selectSecurityDepositIds(depositIds.secondHalfNonEmpty)
+      .getOrFail
+  }
+
   final def buildSecuritiesClaimInChangeDeclarationDetailsMode(
     testParams: (MRN, ReasonForSecurity, ImportDeclaration)
   ): SecuritiesClaim =
@@ -242,6 +232,17 @@ trait SecuritiesClaimTestData extends ClaimTestData {
                     (args2: (TaxCode, BigDecimal)) => claim.submitCorrectAmount(args._1, args2._1, args2._2)
                 )
         )
+        .getOrFail
+  }
+
+  final def buildSecuritiesClaimReadyForSelectingSecurities(
+    testParams: (MRN, ReasonForSecurity, ImportDeclaration)
+  ): SecuritiesClaim = testParams match {
+    case (mrn, rfs, decl) =>
+      emptyClaim
+        .submitMovementReferenceNumber(mrn)
+        .submitReasonForSecurityAndDeclaration(rfs, decl)
+        .flatMap(_.submitClaimDuplicateCheckStatus(false))
         .getOrFail
   }
 

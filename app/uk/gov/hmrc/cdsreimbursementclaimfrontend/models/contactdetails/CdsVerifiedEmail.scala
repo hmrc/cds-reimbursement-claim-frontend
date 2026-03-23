@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
 final case class CdsVerifiedEmail(address: String, timestamp: String) {
   def toEmail: Email = Email(address)

@@ -17,10 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -28,19 +25,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.EitherOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesImportDeclarationGuaranteeEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.securitiesImportDeclarationNotGuaranteeEligibleGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.{EitherOps, securitiesImportDeclarationGuaranteeEligibleGen, securitiesImportDeclarationNotGuaranteeEligibleGen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, PayeeType, ReasonForSecurity, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.BankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PayeeTypeGen.arbitraryPayeeType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
 
@@ -55,6 +45,12 @@ class ChoosePayeeTypeControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+  val initialClaimNonGuarantee: SecuritiesClaim = initialClaim(false)
+  val sessionNonGuarantee: SessionData          = SessionData(initialClaimNonGuarantee)
+  val initialClaimGuarantee: SecuritiesClaim = initialClaim(true)
+  val sessionGuarantee: SessionData          = SessionData(initialClaimGuarantee)
+  val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
+  val formKey: String = "choose-payee-type"
 
   private def initialClaim(
     guarantee: Boolean
@@ -75,16 +71,6 @@ class ChoosePayeeTypeControllerSpec
       .flatMap(_.selectSecurityDepositIds(importDeclaration.getSecurityDepositIds.get))
       .getOrFail
   }
-
-  val initialClaimNonGuarantee: SecuritiesClaim = initialClaim(false)
-  val sessionNonGuarantee: SessionData          = SessionData(initialClaimNonGuarantee)
-
-  val initialClaimGuarantee: SecuritiesClaim = initialClaim(true)
-  val sessionGuarantee: SessionData          = SessionData(initialClaimGuarantee)
-
-  val controller: ChoosePayeeTypeController = instanceOf[ChoosePayeeTypeController]
-
-  val formKey: String = "choose-payee-type"
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

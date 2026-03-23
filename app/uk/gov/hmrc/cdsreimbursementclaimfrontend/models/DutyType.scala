@@ -26,6 +26,14 @@ sealed abstract class DutyType(val repr: String, val ordinal: Int) {
 }
 
 object DutyType {
+  val simpleDutyTypeFormat: Format[DutyType] =
+    SimpleStringFormat[DutyType](
+      repr =>
+        DutyTypes
+          .find(repr)
+          .getOrElse(throw new Exception(s"Cannot parse duty type from the string [$repr]")),
+      _.repr
+    )
 
   def apply(value: String): DutyType =
     DutyTypes.findUnsafe(value)
@@ -48,15 +56,6 @@ object DutyType {
   case object Unknown extends DutyType("unknown-duty", 3) {
     override def taxCodes: Seq[TaxCode] = Seq.empty
   }
-
-  val simpleDutyTypeFormat: Format[DutyType] =
-    SimpleStringFormat[DutyType](
-      repr =>
-        DutyTypes
-          .find(repr)
-          .getOrElse(throw new Exception(s"Cannot parse duty type from the string [$repr]")),
-      _.repr
-    )
 
   implicit val dutyTypFormat: Format[DutyType] = simpleDutyTypeFormat
   implicit val dutyTypeEq: Eq[DutyType]        = Eq.fromUniversalEquals[DutyType]

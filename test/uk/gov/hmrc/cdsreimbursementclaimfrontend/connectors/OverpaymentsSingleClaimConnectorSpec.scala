@@ -27,21 +27,17 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{EvidenceDocument, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 class OverpaymentsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -73,10 +69,6 @@ class OverpaymentsSingleClaimConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-OverpaymentsSingleClaimConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new OverpaymentsSingleClaimConnectorImpl(
       http = mockHttp,
@@ -85,20 +77,20 @@ class OverpaymentsSingleClaimConnectorSpec
       actorSystem = actorSystem,
       uploadDocumentsConnector = mockUploadDocumentsConnector
     )
-
   val expectedUrl = "http://host3:123/foo-claim/claims/overpayments-single"
-
   val requestGen =
     for claim <- OverpaymentsSingleClaimGenerators.completeClaimGen
     yield OverpaymentsSingleClaimConnector.Request(
       claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
-
   val sampleRequest: OverpaymentsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                       = """{"caseNumber":"ABC123"}"""
 
   def givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "OverpaymentsSingleClaimConnector" must {
     "have retries defined" in {

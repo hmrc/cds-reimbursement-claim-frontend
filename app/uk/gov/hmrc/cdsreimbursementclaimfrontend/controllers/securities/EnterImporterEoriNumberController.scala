@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterImporterEoriNumberMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
 import scala.concurrent.ExecutionContext
@@ -37,23 +36,19 @@ class EnterImporterEoriNumberController @Inject() (
     extends SecuritiesClaimBaseController
     with EnterImporterEoriNumberMixin {
 
-  import SecuritiesClaim.Checks._
-
-  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
-  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
-    Some(hasMRNAndImportDeclarationAndRfS)
+  import SecuritiesClaim.Checks.*
 
   final override val postAction: Call =
     routes.EnterImporterEoriNumberController.submit
-
   final override val continueAction: Call =
     routes.EnterDeclarantEoriNumberController.show
-
   final override val changeMrnAction: Call =
     routes.EnterMovementReferenceNumberController.show
-
   final override val whenEoriInputNotRequiredAction: Call =
     routes.SelectSecuritiesController.showFirst()
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and TPI04 check has been made.
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
+    Some(hasMRNAndImportDeclarationAndRfS)
 
   final override def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim] =
     claim.submitConsigneeEoriNumber(eori)

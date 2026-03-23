@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.Await
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration.Duration
-import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[ConfiguredFeatureSwitchService])
 trait FeatureSwitchService {
@@ -82,6 +79,19 @@ class ConfiguredFeatureSwitchService @Inject() (
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
 
+  private def isEnabledInCache(feature: Feature)(implicit hc: HeaderCarrier): Option[Boolean] =
+    Await.result(
+      featuresCache
+        .get()
+        .map(
+          _.fold(
+            e => throw e.toException,
+            _.isEnabled(feature)
+          )
+        ),
+      timeout
+    )
+
   def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     Await.result(
       featuresCache
@@ -95,19 +105,6 @@ class ConfiguredFeatureSwitchService @Inject() (
       featuresCache
         .update(_.disable(feature))
         .map(_ => ()),
-      timeout
-    )
-
-  private def isEnabledInCache(feature: Feature)(implicit hc: HeaderCarrier): Option[Boolean] =
-    Await.result(
-      featuresCache
-        .get()
-        .map(
-          _.fold(
-            e => throw e.toException,
-            _.isEnabled(feature)
-          )
-        ),
       timeout
     )
 }

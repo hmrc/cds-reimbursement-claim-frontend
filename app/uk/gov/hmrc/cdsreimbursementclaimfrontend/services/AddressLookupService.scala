@@ -17,45 +17,28 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
-import cats.implicits.catsStdInstancesForFuture
-import cats.implicits.catsSyntaxEq
-import cats.implicits.catsSyntaxOptionId
-import cats.implicits.toBifunctorOps
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
+import cats.implicits.{catsStdInstancesForFuture, catsSyntaxEq, catsSyntaxOptionId, toBifunctorOps}
+import com.google.inject.{ImplementedBy, Inject}
 import play.api.http.HeaderNames.LOCATION
-import play.api.http.Status.ACCEPTED
-import play.api.http.Status.OK
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.http.Status.{ACCEPTED, OK}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{JsPath, Json, JsonValidationError, Reads}
 import play.api.libs.json.Reads.minLength
-import play.api.libs.json.JsPath
-import play.api.libs.json.Json
-import play.api.libs.json.JsonValidationError
-import play.api.libs.json.Reads
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupPageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LabelsByLocale
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.{AddressLookupPageLabels, AddressLookupRequest, LabelsByLocale}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.net.URI
-import java.net.URL
+import java.net.{URI, URL}
 import java.util.UUID
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultAddressLookupService])
 trait AddressLookupService {
@@ -86,19 +69,6 @@ class DefaultAddressLookupService @Inject() (
 
   val englishMessages: Messages = MessagesImpl(Lang("en"), messagesApi)
   val welshMessages: Messages   = MessagesImpl(Lang("cy"), messagesApi)
-
-  private def appTitle(messages: Messages): String =
-    messages("service.title")
-
-  private def fullPageTitle(titleKey: String, messages: Messages): String =
-    viewConfig
-      .pageTitleWithServiceName(
-        messages(titleKey),
-        messages("service.title")
-      )
-
-  private def pageHeading(titleKey: String, messages: Messages): String =
-    messages(titleKey)
 
   def startLookupRedirectingBackTo(
     addressUpdateUrl: Call
@@ -162,6 +132,19 @@ class DefaultAddressLookupService @Inject() (
         else Left(Error("The request was refused by ALF"))
       }
   }
+
+  private def appTitle(messages: Messages): String =
+    messages("service.title")
+
+  private def fullPageTitle(titleKey: String, messages: Messages): String =
+    viewConfig
+      .pageTitleWithServiceName(
+        messages(titleKey),
+        messages("service.title")
+      )
+
+  private def pageHeading(titleKey: String, messages: Messages): String =
+    messages(titleKey)
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
     def formatErrors(errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]): Error =

@@ -22,11 +22,6 @@ sealed trait BasisOfRejectedGoodsClaim
 
 object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsClaim] {
 
-  case object DamagedBeforeClearance extends BasisOfRejectedGoodsClaim
-  case object Defective extends BasisOfRejectedGoodsClaim
-  case object NotInAccordanceWithContract extends BasisOfRejectedGoodsClaim
-  case object SpecialCircumstances extends BasisOfRejectedGoodsClaim
-
   override val values: Set[BasisOfRejectedGoodsClaim] =
     Set(
       DamagedBeforeClearance,
@@ -34,10 +29,8 @@ object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsC
       NotInAccordanceWithContract,
       SpecialCircumstances
     )
-
   val allButSpecialCircumstances: Set[BasisOfRejectedGoodsClaim] =
     values - SpecialCircumstances
-
   private[models] val basisOfRejectedGoodsStringMap: Map[String, BasisOfRejectedGoodsClaim] =
     values.map(a => a.toString -> a).toMap
 
@@ -49,4 +42,12 @@ object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsC
 
   def findUnsafe(basisOfRejectedGoods: String): BasisOfRejectedGoodsClaim =
     basisOfRejectedGoodsStringMap(basisOfRejectedGoods)
+
+  case object DamagedBeforeClearance extends BasisOfRejectedGoodsClaim
+
+  case object Defective extends BasisOfRejectedGoodsClaim
+
+  case object NotInAccordanceWithContract extends BasisOfRejectedGoodsClaim
+
+  case object SpecialCircumstances extends BasisOfRejectedGoodsClaim
 }

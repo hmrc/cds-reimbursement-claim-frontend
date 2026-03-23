@@ -17,44 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.kernel.Eq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.MultipleDisposalMethodsWereUsed
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.{ExportedInMultipleShipments, MultipleDisposalMethodsWereUsed}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{EnumerationFormat, SeqUtils}
 
 sealed trait UploadDocumentType
 
 object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with SeqUtils {
-
-  case object AirWayBill extends UploadDocumentType
-  case object BillOfLading extends UploadDocumentType
-  case object CommercialInvoice extends UploadDocumentType
-  case object CorrespondenceTrader extends UploadDocumentType
-  case object ImportDeclaration extends UploadDocumentType
-  case object ExportDeclaration extends UploadDocumentType
-  case object ImportAndExportDeclaration extends UploadDocumentType
-  case object PackingList extends UploadDocumentType
-  case object ExportPackingList extends UploadDocumentType
-  case object ImportPackingList extends UploadDocumentType
-  case object ProofOfAuthority extends UploadDocumentType
-  case object ProofOfEligibility extends UploadDocumentType
-  case object ProofOfOrigin extends UploadDocumentType
-  case object SubstituteEntry extends UploadDocumentType
-  case object SubstituteOrDiversionEntry extends UploadDocumentType
-  case object Other extends UploadDocumentType
-  case object ScheduleOfMRNs extends UploadDocumentType
-  case object CalculationWorksheet extends UploadDocumentType
-  case object CalculationWorksheetOrFinalSalesFigures extends UploadDocumentType
-  case object DocumentaryProofFaultyOrNotWhatOrdered extends UploadDocumentType
-  case object ProofOfExportOrDestruction extends UploadDocumentType
-  case object AdditionalSupportingDocuments extends UploadDocumentType
-  case object LetterOfAuthority extends UploadDocumentType
-  case object SupportingEvidence extends UploadDocumentType
-  case object BillOfDischarge3 extends UploadDocumentType
-  case object BillOfDischarge4 extends UploadDocumentType
-  case object QuotaLicense extends UploadDocumentType
-  case object ClaimWorksheet extends UploadDocumentType
-
   override val values: Set[UploadDocumentType] =
     Set[UploadDocumentType](
       AirWayBill,
@@ -86,7 +54,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       QuotaLicense,
       ClaimWorksheet
     )
-
   val c285DocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AirWayBill,
@@ -99,7 +66,6 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       SubstituteEntry,
       Other
     )
-
   val overpaymentsSingleDocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AirWayBill,
@@ -112,13 +78,10 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       SubstituteEntry,
       Other
     )
-
   val overpaymentsMultipleDocumentTypes: Seq[UploadDocumentType] =
     overpaymentsSingleDocumentTypes
-
   val overpaymentsScheduledDocumentTypes: Seq[UploadDocumentType] =
     overpaymentsSingleDocumentTypes
-
   val rejectedGoodsSingleDocumentTypes: Seq[UploadDocumentType] =
     Seq[UploadDocumentType](
       AdditionalSupportingDocuments,
@@ -130,13 +93,10 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       LetterOfAuthority,
       ProofOfExportOrDestruction
     )
-
   val rejectedGoodsMultipleDocumentTypes: Seq[UploadDocumentType] =
     rejectedGoodsSingleDocumentTypes
-
   val rejectedGoodsScheduledDocumentTypes: Seq[UploadDocumentType] =
     rejectedGoodsSingleDocumentTypes
-
   val securitiesDocumentTypes: (ReasonForSecurity, Option[List[TemporaryAdmissionMethodOfDisposal]], Boolean) => Option[
     Seq[UploadDocumentType]
   ] = {
@@ -251,6 +211,62 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] with Seq
       || document == BillOfDischarge4
       || document == ScheduleOfMRNs
       || document == ProofOfOrigin
+
+  case object AirWayBill extends UploadDocumentType
+
+  case object BillOfLading extends UploadDocumentType
+
+  case object CommercialInvoice extends UploadDocumentType
+
+  case object CorrespondenceTrader extends UploadDocumentType
+
+  case object ImportDeclaration extends UploadDocumentType
+
+  case object ExportDeclaration extends UploadDocumentType
+
+  case object ImportAndExportDeclaration extends UploadDocumentType
+
+  case object PackingList extends UploadDocumentType
+
+  case object ExportPackingList extends UploadDocumentType
+
+  case object ImportPackingList extends UploadDocumentType
+
+  case object ProofOfAuthority extends UploadDocumentType
+
+  case object ProofOfEligibility extends UploadDocumentType
+
+  case object ProofOfOrigin extends UploadDocumentType
+
+  case object SubstituteEntry extends UploadDocumentType
+
+  case object SubstituteOrDiversionEntry extends UploadDocumentType
+
+  case object Other extends UploadDocumentType
+
+  case object ScheduleOfMRNs extends UploadDocumentType
+
+  case object CalculationWorksheet extends UploadDocumentType
+
+  case object CalculationWorksheetOrFinalSalesFigures extends UploadDocumentType
+
+  case object DocumentaryProofFaultyOrNotWhatOrdered extends UploadDocumentType
+
+  case object ProofOfExportOrDestruction extends UploadDocumentType
+
+  case object AdditionalSupportingDocuments extends UploadDocumentType
+
+  case object LetterOfAuthority extends UploadDocumentType
+
+  case object SupportingEvidence extends UploadDocumentType
+
+  case object BillOfDischarge3 extends UploadDocumentType
+
+  case object BillOfDischarge4 extends UploadDocumentType
+
+  case object QuotaLicense extends UploadDocumentType
+
+  case object ClaimWorksheet extends UploadDocumentType
 
   implicit val eq: Eq[UploadDocumentType] = Eq.fromUniversalEquals
 }

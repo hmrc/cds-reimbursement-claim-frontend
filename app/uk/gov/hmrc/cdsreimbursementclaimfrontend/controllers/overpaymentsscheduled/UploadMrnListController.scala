@@ -17,23 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsscheduled
 
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.{Action, AnyContent, Call, Request}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, UploadDocumentsConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadMrnListCallback
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, UploadDocumentType, UploadDocumentsSessionConfig, UploadMrnListCallback}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.upload_mrn_list_description
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton

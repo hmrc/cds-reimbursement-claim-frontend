@@ -28,22 +28,17 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfRejectedGoodsClaim, EvidenceDocument, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import java.time.ZonedDateTime
-import java.time.Instant
-import java.time.ZoneId
-import java.net.URL
+import scala.util.{Failure, Try}
 
 class RejectedGoodsScheduledClaimConnectorSpec
     extends AnyWordSpec
@@ -75,10 +70,6 @@ class RejectedGoodsScheduledClaimConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-RejectedGoodsScheduledClaimConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new RejectedGoodsScheduledClaimConnectorImpl(
       http = mockHttp,
@@ -87,18 +78,14 @@ class RejectedGoodsScheduledClaimConnectorSpec
       actorSystem = actorSystem,
       uploadDocumentsConnector = mockUploadDocumentsConnector
     )
-
   val expectedUrl = "http://host-2:312/foo-claim-scheduled/claims/rejected-goods-scheduled"
-
   val requestGen: Gen[RejectedGoodsScheduledClaimConnector.Request] =
     for claim <- RejectedGoodsScheduledClaimGenerators.completeClaimGen
     yield RejectedGoodsScheduledClaimConnector.Request(
       claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
-
   val sampleRequest: RejectedGoodsScheduledClaimConnector.Request = sample(requestGen)
   val validResponseBody                                           = """{"caseNumber":"ABC312"}"""
-
   val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
 
@@ -106,6 +93,9 @@ class RejectedGoodsScheduledClaimConnectorSpec
     request: RejectedGoodsScheduledClaimConnector.Request
   ): HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(request), hasHeaders = true)(_)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "RejectedGoodsScheduledClaimConnector" must {
     "have retries defined" in {

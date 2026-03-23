@@ -17,21 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import play.api.Configuration
+import play.api.mvc.{ActionRefiner, Call, MessagesRequest, Result}
 import play.api.mvc.Results.Redirect
-import play.api.mvc.ActionRefiner
-import play.api.mvc.Call
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Result
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.AuthorisedFunctions
-import uk.gov.hmrc.auth.core.NoActiveSession
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.UnauthorisedController.unauthorised
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] with Logging { self =>
 
@@ -40,6 +34,13 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   val errorHandler: ErrorHandler
   val sessionStore: SessionCache
   implicit val executionContext: ExecutionContext
+  private val authorisedFunctions: AuthorisedFunctions =
+    new AuthorisedFunctions {
+      override def authConnector: AuthConnector = self.authConnector
+    }
+  private val signInUrl: String = getString("bas-gateway.signInUrl")
+  private val origin: String = getString("gg.origin")
+  private val selfBaseUrl: String = getString("self.url")
 
   final def unauthorizedErrorPage: Call = unauthorised()
 
@@ -47,19 +48,6 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
     auth: AuthorisedFunctions,
     request: MessagesRequest[A]
   ): Future[Either[Result, P[A]]]
-
-  private val authorisedFunctions: AuthorisedFunctions =
-    new AuthorisedFunctions {
-      override def authConnector: AuthConnector = self.authConnector
-    }
-
-  private def getString(key: String): String = config.underlying.getString(key)
-
-  private val signInUrl: String = getString("bas-gateway.signInUrl")
-
-  private val origin: String = getString("gg.origin")
-
-  private val selfBaseUrl: String = getString("self.url")
 
   override protected def refine[A](
     request: MessagesRequest[A]
@@ -77,4 +65,6 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
         )
       )
     }
+
+  private def getString(key: String): String = config.underlying.getString(key)
 }

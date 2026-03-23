@@ -16,19 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterBankAccountDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.BankAccountReputationService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{BankAccountReputationService, ClaimService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_bank_account_details
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 
 @Singleton
 class EnterBankAccountDetailsController @Inject() (
@@ -40,13 +37,13 @@ class EnterBankAccountDetailsController @Inject() (
     extends RejectedGoodsMultipleClaimBaseController
     with EnterBankAccountDetailsMixin {
 
+  override val routesPack = EnterBankAccountDetailsController.routesPack
+
   final override def modifyClaim(
     claim: Claim,
     bankAccountDetails: BankAccountDetails
   ): Either[String, Claim] =
     claim.submitBankAccountDetails(bankAccountDetails)
-
-  override val routesPack = EnterBankAccountDetailsController.routesPack
 
 }
 

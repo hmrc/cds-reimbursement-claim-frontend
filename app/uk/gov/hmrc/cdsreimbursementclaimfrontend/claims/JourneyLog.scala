@@ -17,12 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import play.api.Logger
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsString
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
+import play.api.libs.json.{JsObject, JsString, Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 
 final case class JourneyLog(
   journeyType: String,
@@ -63,35 +60,6 @@ final case class JourneyLog(
 }
 
 object JourneyLog {
-
-  final case class Uploads(
-    numberOfEvidenceFilesAttached: Int,
-    documentTypesAttached: Seq[String],
-    fileTypesAttached: Seq[String],
-    fileSizes: Seq[Long],
-    scheduleFileType: Option[String] = None,
-    scheduleFileSize: Option[Long] = None
-  )
-
-  final case class Changes(
-    emailAddress: Boolean = false,
-    contactName: Boolean = false,
-    phoneNumber: Boolean = false,
-    contactAddress: Boolean = false,
-    bankAccount: Boolean = false
-  )
-
-  object Changes {
-
-    def from(analytics: ClaimAnalytics): Changes =
-      Changes(
-        emailAddress = analytics.emailAddressHasChanged,
-        contactName = analytics.contactNameHasChanged,
-        phoneNumber = analytics.phoneNumberHasChanged,
-        contactAddress = analytics.contactAddressHasChanged,
-        bankAccount = analytics.bankAccountHasChanged
-      )
-  }
 
   def apply(
     output: OverpaymentsSingleClaim.Output,
@@ -164,6 +132,18 @@ object JourneyLog {
       caseNumber = caseNumber,
       journeyDurationSeconds = analytics.claimDurationSeconds
     )
+
+  private def threshold(amount: BigDecimal): String =
+    if amount >= 1000000000 then "10"
+    else if amount >= 100000000 then "9"
+    else if amount >= 10000000 then "8"
+    else if amount >= 1000000 then "7"
+    else if amount >= 100000 then "6"
+    else if amount >= 10000 then "5"
+    else if amount >= 1000 then "4"
+    else if amount >= 100 then "3"
+    else if amount >= 10 then "2"
+    else "1"
 
   def apply(
     output: OverpaymentsScheduledClaim.Output,
@@ -347,17 +327,34 @@ object JourneyLog {
       journeyDurationSeconds = analytics.claimDurationSeconds
     )
 
-  private def threshold(amount: BigDecimal): String =
-    if amount >= 1000000000 then "10"
-    else if amount >= 100000000 then "9"
-    else if amount >= 10000000 then "8"
-    else if amount >= 1000000 then "7"
-    else if amount >= 100000 then "6"
-    else if amount >= 10000 then "5"
-    else if amount >= 1000 then "4"
-    else if amount >= 100 then "3"
-    else if amount >= 10 then "2"
-    else "1"
+  final case class Uploads(
+    numberOfEvidenceFilesAttached: Int,
+    documentTypesAttached: Seq[String],
+    fileTypesAttached: Seq[String],
+    fileSizes: Seq[Long],
+    scheduleFileType: Option[String] = None,
+    scheduleFileSize: Option[Long] = None
+  )
+
+  final case class Changes(
+    emailAddress: Boolean = false,
+    contactName: Boolean = false,
+    phoneNumber: Boolean = false,
+    contactAddress: Boolean = false,
+    bankAccount: Boolean = false
+  )
+
+  object Changes {
+
+    def from(analytics: ClaimAnalytics): Changes =
+      Changes(
+        emailAddress = analytics.emailAddressHasChanged,
+        contactName = analytics.contactNameHasChanged,
+        phoneNumber = analytics.phoneNumberHasChanged,
+        contactAddress = analytics.contactAddressHasChanged,
+        bankAccount = analytics.bankAccountHasChanged
+      )
+  }
 
   implicit val formatterUploads: OFormat[Uploads] = Json.format[Uploads]
   implicit val formatterChanges: OFormat[Changes] = Json.using[Json.WithDefaultValues].format[Changes]

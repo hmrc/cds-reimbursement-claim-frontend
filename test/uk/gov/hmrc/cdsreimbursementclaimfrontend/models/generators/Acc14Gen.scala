@@ -16,20 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, SortCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genCountry
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.{genCountry, genPostcode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 object Acc14Gen {
 
@@ -43,12 +37,6 @@ object Acc14Gen {
 
   implicit lazy val arbitraryNdrcDetails: Arbitrary[NdrcDetails] =
     Arbitrary(genNdrcDetails)
-
-  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for
-    n <- Gen.choose(min, max)
-    m <- Gen.listOfN(n, genNdrcDetails)
-  yield m
-
   lazy val genContactDetails: Gen[ContactDetails] =
     for
       contactName  <- genStringWithMaxSizeOfN(7)
@@ -71,10 +59,6 @@ object Acc14Gen {
       telephone,
       Some(emailAddress)
     )
-
-  implicit lazy val arbitraryContactDetails: Arbitrary[ContactDetails] =
-    Arbitrary(genContactDetails)
-
   lazy val genEstablishmentAddress: Gen[EstablishmentAddress] =
     for
       num          <- Gen.choose(1, 100)
@@ -91,9 +75,8 @@ object Acc14Gen {
       countryCode.code
     )
 
-  implicit lazy val arbitraryEstablishmentAddress: Arbitrary[EstablishmentAddress] =
-    Arbitrary(genEstablishmentAddress)
-
+  implicit lazy val arbitraryContactDetails: Arbitrary[ContactDetails] =
+    Arbitrary(genContactDetails)
   lazy val genDeclarantDetails: Gen[DeclarantDetails] =
     for
       eori                 <- genEori.map(_.value)
@@ -102,13 +85,14 @@ object Acc14Gen {
       contactDetails       <- Gen.option(genContactDetails)
     yield DeclarantDetails(eori, legalName, establishmentAddress, contactDetails)
 
+  implicit lazy val arbitraryEstablishmentAddress: Arbitrary[EstablishmentAddress] =
+    Arbitrary(genEstablishmentAddress)
   lazy val genConsigneeDetails: Gen[ConsigneeDetails] = for
     eori                 <- genEori.map(_.value)
     legalName            <- genStringWithMaxSizeOfN(10)
     establishmentAddress <- genEstablishmentAddress
     contactDetails       <- genContactDetails
   yield ConsigneeDetails(eori, legalName, establishmentAddress, Some(contactDetails))
-
   lazy val genBankAccountDetails: Gen[BankAccountDetails] =
     for
       accountHolderName <- genStringWithMaxSizeOfN(15)
@@ -119,10 +103,8 @@ object Acc14Gen {
       sortCode,
       accountNumber
     )
-
   lazy val genMaskedBankAccountDetails: Gen[BankAccountDetails] =
     genBankAccountDetails.map(mask)
-
   lazy val genBankDetails: Gen[BankDetails] =
     for
       consigneeBankDetails <- Gen.option(genBankAccountDetails)
@@ -131,23 +113,6 @@ object Acc14Gen {
       consigneeBankDetails = consigneeBankDetails,
       declarantBankDetails = declarantBankDetails
     )
-
-  def mask(bankAccountDetails: BankAccountDetails): BankAccountDetails = {
-    def hideAllExceptTwoLast(value: String): String =
-      s"Ends with ${value.substring(value.length - 2)}"
-
-    bankAccountDetails.copy(
-      sortCode = SortCode(hideAllExceptTwoLast(bankAccountDetails.sortCode.value)),
-      accountNumber = AccountNumber(hideAllExceptTwoLast(bankAccountDetails.accountNumber.value))
-    )
-  }
-
-  def mask(bankDetails: BankDetails): BankDetails =
-    BankDetails(
-      consigneeBankDetails = bankDetails.consigneeBankDetails.map(mask),
-      declarantBankDetails = bankDetails.declarantBankDetails.map(mask)
-    )
-
   lazy val genAccountDetails: Gen[AccountDetails] =
     for
       accountType          <- genStringWithMaxSizeOfN(10)
@@ -162,7 +127,6 @@ object Acc14Gen {
       legalName,
       contactDetailsOption
     )
-
   lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
     for
       declarationId            <- genMRN
@@ -192,9 +156,21 @@ object Acc14Gen {
       maskedBankDetails = maskedBankDetails,
       ndrcDetails = ndrcDetails
     )
-
   lazy val genImportDeclaration: Gen[ImportDeclaration] =
     genDisplayResponseDetail.map(ImportDeclaration(_))
+  lazy val arbitraryDisplayResponseDetail: Arbitrary[DisplayResponseDetail] =
+    Arbitrary(genDisplayResponseDetail)
+
+  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for
+    n <- Gen.choose(min, max)
+    m <- Gen.listOfN(n, genNdrcDetails)
+  yield m
+
+  def mask(bankDetails: BankDetails): BankDetails =
+    BankDetails(
+      consigneeBankDetails = bankDetails.consigneeBankDetails.map(mask),
+      declarantBankDetails = bankDetails.declarantBankDetails.map(mask)
+    )
 
   implicit lazy val arbitraryDeclarantDetails: Arbitrary[DeclarantDetails] =
     Arbitrary(genDeclarantDetails)
@@ -205,8 +181,15 @@ object Acc14Gen {
   implicit lazy val arbitraryBankDetails: Arbitrary[BankDetails] =
     Arbitrary(genBankDetails)
 
-  lazy val arbitraryDisplayResponseDetail: Arbitrary[DisplayResponseDetail] =
-    Arbitrary(genDisplayResponseDetail)
+  def mask(bankAccountDetails: BankAccountDetails): BankAccountDetails = {
+    def hideAllExceptTwoLast(value: String): String =
+      s"Ends with ${value.substring(value.length - 2)}"
+
+    bankAccountDetails.copy(
+      sortCode = SortCode(hideAllExceptTwoLast(bankAccountDetails.sortCode.value)),
+      accountNumber = AccountNumber(hideAllExceptTwoLast(bankAccountDetails.accountNumber.value))
+    )
+  }
 
   implicit lazy val arbitraryImportDeclaration: Arbitrary[ImportDeclaration] =
     Arbitrary(genDisplayResponseDetail.map(ImportDeclaration(_)))

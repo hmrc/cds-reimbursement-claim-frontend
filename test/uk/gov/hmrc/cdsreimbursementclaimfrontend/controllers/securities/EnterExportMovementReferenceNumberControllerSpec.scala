@@ -18,12 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
 import org.jsoup.nodes.Document
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,20 +27,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{SecuritiesClaim, SecuritiesSingleClaimGenerators}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithClaimGenerator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.EnterExportMovementReferenceNumberHelper
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,38 +52,26 @@ class EnterExportMovementReferenceNumberControllerSpec
     with SummaryMatchers
     with TestWithClaimGenerator[SecuritiesClaim]
     with Logging {
-
-  val enterExportMovementReferenceNumberSingleKey: String          = "enter-export-movement-reference-number"
-  val enterExportMovementReferenceNumberSingleKeyAndSubKey: String =
-    s"$enterExportMovementReferenceNumberSingleKey.securities"
-
-  val enterExportMovementReferenceNumberMultipleKey: String          = "enter-export-movement-reference-number.next"
-  val enterExportMovementReferenceNumberMultipleKeyAndSubKey: String =
-    s"$enterExportMovementReferenceNumberMultipleKey.securities"
-
-  val enterExportMovementReferenceNumberYesNoKey: String =
-    s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no"
-
-  val mockClaimsService: ClaimService = mock[ClaimService]
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[ClaimService].toInstance(mockClaimsService),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
+  val enterExportMovementReferenceNumberSingleKey: String          = "enter-export-movement-reference-number"
+  val enterExportMovementReferenceNumberSingleKeyAndSubKey: String =
+    s"$enterExportMovementReferenceNumberSingleKey.securities"
+  val enterExportMovementReferenceNumberMultipleKey: String          = "enter-export-movement-reference-number.next"
+  val enterExportMovementReferenceNumberMultipleKeyAndSubKey: String =
+    s"$enterExportMovementReferenceNumberMultipleKey.securities"
+  val enterExportMovementReferenceNumberYesNoKey: String =
+    s"$enterExportMovementReferenceNumberSingleKey.securities.yes-no"
+  val mockClaimsService: ClaimService = mock[ClaimService]
   val controller: EnterExportMovementReferenceNumberController =
     instanceOf[EnterExportMovementReferenceNumberController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
-    (mockClaimsService
-      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
-      .expects(expectedMrn, *)
-      .returning(EitherT.fromEither[Future](response))
 
   def validateChooseExportMethodFirstPage(doc: Document): Assertion = {
     val headerHtml     = doc.select(".govuk-label--xl").html()
@@ -131,6 +110,12 @@ class EnterExportMovementReferenceNumberControllerSpec
     radioLabels.length  should ===(2)
     radioItems.length   should ===(2)
   }
+
+  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
+    (mockClaimsService
+      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(expectedMrn, *)
+      .returning(EitherT.fromEither[Future](response))
 
   "Movement Reference Number Controller" when {
 

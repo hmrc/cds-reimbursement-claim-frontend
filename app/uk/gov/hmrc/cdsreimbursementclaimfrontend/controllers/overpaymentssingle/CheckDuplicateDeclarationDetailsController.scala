@@ -16,18 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -48,18 +46,16 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
         needsDuplicateMrnAndDeclaration &
         hasDuplicateDeclarationVerifiedIfRequired
     )
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterDuplicateMovementReferenceNumberController.submit
+  private val postAction: Call =
+    routes.CheckDuplicateDeclarationDetailsController.submit
 
   final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
     claim.answers.duplicateDeclaration.map(_.importDeclaration)
 
   final override def continueRoute(claim: Claim): Call =
     routes.EnterAdditionalDetailsController.show
-
-  final override val enterMovementReferenceNumberRoute: Call =
-    routes.EnterDuplicateMovementReferenceNumberController.submit
-
-  private val postAction: Call =
-    routes.CheckDuplicateDeclarationDetailsController.submit
 
   final override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim) =>

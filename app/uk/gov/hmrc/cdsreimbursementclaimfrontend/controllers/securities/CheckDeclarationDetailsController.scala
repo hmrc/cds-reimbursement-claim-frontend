@@ -16,17 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.{MissingPreferenceCertificate, ntas}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_declaration_details
 
 import scala.concurrent.ExecutionContext
@@ -37,17 +33,6 @@ class CheckDeclarationDetailsController @Inject() (
   val checkDeclarationDetailsPage: check_declaration_details
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesClaimBaseController {
-
-  private val postAction: Call = routes.CheckDeclarationDetailsController.submit
-
-  import SecuritiesClaim.Checks._
-
-  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
-  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
-    Some(
-      hasMRNAndImportDeclarationAndRfS &
-        declarantOrImporterEoriMatchesUserOrHasBeenVerified
-    )
 
   final val show: Action[AnyContent] =
     simpleActionReadWriteClaim { claim =>
@@ -61,6 +46,7 @@ class CheckDeclarationDetailsController @Inject() (
       )
     }
 
+  import SecuritiesClaim.Checks.*
   final val submit: Action[AnyContent] =
     simpleActionReadWriteClaim { claim =>
       val updatedClaim = claim.submitCheckDeclarationDetailsChangeMode(false)
@@ -74,4 +60,11 @@ class CheckDeclarationDetailsController @Inject() (
       else if claim.isSingleSecurity then (updatedClaim, Redirect(routes.ConfirmSingleDepositRepaymentController.show))
       else (updatedClaim, Redirect(routes.ConfirmFullRepaymentController.showFirst))
     }
+  // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
+  override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
+    Some(
+      hasMRNAndImportDeclarationAndRfS &
+        declarantOrImporterEoriMatchesUserOrHasBeenVerified
+    )
+  private val postAction: Call = routes.CheckDeclarationDetailsController.submit
 }

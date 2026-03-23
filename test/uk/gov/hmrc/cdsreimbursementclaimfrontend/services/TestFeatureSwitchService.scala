@@ -24,19 +24,19 @@ class TestFeatureSwitchService(initialFeatures: Feature*) extends FeatureSwitchS
   private val features: collection.mutable.Set[Feature] =
     collection.mutable.Set(initialFeatures*)
 
-  override def enable(feature: Feature): Unit =
-    features.add(feature)
-
-  override def disable(feature: Feature): Unit =
-    features.remove(feature)
-
   override def isEnabled(feature: Feature)(implicit hc: HeaderCarrier): Boolean =
     features.contains(feature)
 
   override def enableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     enable(feature)
 
+  override def enable(feature: Feature): Unit =
+    features.add(feature)
+
   override def disableForSession(feature: Feature)(implicit hc: HeaderCarrier): Unit =
     disable(feature)
+
+  override def disable(feature: Feature): Unit =
+    features.remove(feature)
 
 }

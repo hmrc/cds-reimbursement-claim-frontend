@@ -17,19 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutyCodesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectExciseCategoriesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_duty_codes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_categories
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_excise_duty_codes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.{selectDutyCodesForm, selectExciseCategoriesForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, ExciseCategory, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.{select_duty_codes, select_excise_categories, select_excise_duty_codes}
 
 object SelectScheduledDutiesMixin {
   final case class RoutesPack(

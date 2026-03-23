@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Json
-import play.api.libs.json.Reads
+import play.api.libs.json.{Json, Reads}
 
 final case class ExistingClaim(
   claimFound: Boolean

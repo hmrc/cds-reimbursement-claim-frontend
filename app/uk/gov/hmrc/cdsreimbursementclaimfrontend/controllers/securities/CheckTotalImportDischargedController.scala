@@ -16,27 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS, reasonForSecurityIsIPROrENU}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.checkTotalImportDischargedForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_total_import_discharged_page
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.reasonForSecurityIsIPROrENU
 
 @Singleton
 class CheckTotalImportDischargedController @Inject() (
@@ -44,27 +37,15 @@ class CheckTotalImportDischargedController @Inject() (
   checkTotalImportDischargedPage: check_total_import_discharged_page
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesClaimBaseController {
-  private val form: Form[YesNo] = checkTotalImportDischargedForm
-
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndImportDeclarationAndRfS
         & declarantOrImporterEoriMatchesUserOrHasBeenVerified
         & reasonForSecurityIsIPROrENU
     )
-
-  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
-  private val successResultBOD3: Result =
-    Redirect(routes.UploadBillOfDischarge3Controller.show)
-
-  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
-  private val successResultBOD4: Result =
-    Redirect(routes.UploadBillOfDischarge4Controller.show)
-
   val show: Action[AnyContent] = actionReadClaim { _ =>
     Ok(checkTotalImportDischargedPage(form, routes.CheckTotalImportDischargedController.submit))
   }
-
   val submit: Action[AnyContent] = actionReadClaim { claim =>
     form
       .bindFromRequest()
@@ -88,4 +69,11 @@ class CheckTotalImportDischargedController @Inject() (
       )
 
   }
+  private val form: Form[YesNo] = checkTotalImportDischargedForm
+  // Success: Declaration has been found and ReasonForSecurity is InwardProcessingRelief.
+  private val successResultBOD3: Result =
+    Redirect(routes.UploadBillOfDischarge3Controller.show)
+  // Success: Declaration has been found and ReasonForSecurity is EndUseRelief.
+  private val successResultBOD4: Result =
+    Redirect(routes.UploadBillOfDischarge4Controller.show)
 }

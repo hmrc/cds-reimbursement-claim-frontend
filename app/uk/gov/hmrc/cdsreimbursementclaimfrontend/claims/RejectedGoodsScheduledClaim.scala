@@ -22,14 +22,10 @@ import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{DirectFluentSyntax, Validator}
 
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C&E1179 scheduled MRN claim logic. The constructor of this class MUST stay PRIVATE to protected
@@ -59,11 +55,6 @@ final class RejectedGoodsScheduledClaim private (
 
   val validate: Validator.Validate[RejectedGoodsScheduledClaim] =
     RejectedGoodsScheduledClaim.validator
-
-  private def copy(
-    newAnswers: RejectedGoodsScheduledClaim.Answers
-  ): RejectedGoodsScheduledClaim =
-    new RejectedGoodsScheduledClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def withDutiesChangeMode(enabled: Boolean): RejectedGoodsScheduledClaim =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
@@ -340,9 +331,13 @@ final class RejectedGoodsScheduledClaim private (
       }
     }
 
-  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
-    answers.correctedAmounts
-      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
+  def submitClaimAmount(
+    dutyType: DutyType,
+    taxCode: TaxCode,
+    paidAmount: BigDecimal,
+    claimAmount: BigDecimal
+  ): Either[String, RejectedGoodsScheduledClaim] =
+    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
 
   def submitCorrectAmount(
     dutyType: DutyType,
@@ -374,15 +369,9 @@ final class RejectedGoodsScheduledClaim private (
       } else Left("submitAmountForReimbursement.taxCodeNotMatchingDutyType")
     }
 
-  def submitClaimAmount(
-    dutyType: DutyType,
-    taxCode: TaxCode,
-    paidAmount: BigDecimal,
-    claimAmount: BigDecimal
-  ): Either[String, RejectedGoodsScheduledClaim] =
-    submitCorrectAmount(dutyType, taxCode, paidAmount, paidAmount - claimAmount)
-
-  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
+  def isDutySelected(dutyType: DutyType, taxCode: TaxCode): Boolean =
+    answers.correctedAmounts
+      .exists(_.exists { case (dt, tca) => dt === dutyType && tca.exists(_._1 === taxCode) })
 
   def submitInspectionDate(inspectionDate: InspectionDate): RejectedGoodsScheduledClaim =
     whileClaimIsAmendable {
@@ -390,6 +379,8 @@ final class RejectedGoodsScheduledClaim private (
         answers.copy(inspectionDate = Some(inspectionDate))
       )
     }
+
+  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsScheduledClaim =
     whileClaimIsAmendable {
@@ -408,6 +399,11 @@ final class RejectedGoodsScheduledClaim private (
         )
       )
     }
+
+  private def copy(
+    newAnswers: RejectedGoodsScheduledClaim.Answers
+  ): RejectedGoodsScheduledClaim =
+    new RejectedGoodsScheduledClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def removeBankAccountDetails(): RejectedGoodsScheduledClaim =
     whileClaimIsAmendable {
@@ -542,148 +538,7 @@ final class RejectedGoodsScheduledClaim private (
 }
 
 object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduledClaim] {
-
-  /** A starting point to build new instance of the claim. */
-  override def empty(
-    userEoriNumber: Eori,
-    nonce: Nonce = Nonce.random,
-    features: Option[Features] = None
-  ): RejectedGoodsScheduledClaim =
-    new RejectedGoodsScheduledClaim(
-      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
-      startTimeSeconds = Instant.now().getEpochSecond(),
-      features = features
-    )
-
   type CorrectedAmounts = SortedMap[DutyType, SortedMap[TaxCode, Option[AmountPaidWithCorrect]]]
-
-  final case class Features()
-
-  // All user answers captured during C&E1179 scheduled MRN claim
-  final case class Answers(
-    nonce: Nonce = Nonce.random,
-    userEoriNumber: Eori,
-    movementReferenceNumber: Option[MRN] = None,
-    importDeclaration: Option[ImportDeclaration] = None,
-    payeeType: Option[PayeeType] = None,
-    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
-    basisOfClaimSpecialCircumstances: Option[String] = None,
-    methodOfDisposal: Option[MethodOfDisposal] = None,
-    detailsOfRejectedGoods: Option[String] = None,
-    correctedAmounts: Option[CorrectedAmounts] = None,
-    exciseCategories: Option[Seq[ExciseCategory]] = None,
-    inspectionDate: Option[InspectionDate] = None,
-    inspectionAddress: Option[InspectionAddress] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    selectedDocumentType: Option[UploadDocumentType] = None,
-    scheduledDocument: Option[UploadedFile] = None,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    modes: ClaimModes = ClaimModes()
-  ) extends RejectedGoodsAnswers
-      with ScheduledVariantAnswers
-
-  // Final minimal output of the claim we want to pass to the backend.
-  final case class Output(
-    movementReferenceNumber: MRN,
-    claimantType: ClaimantType,
-    payeeType: PayeeType,
-    displayPayeeType: PayeeType,
-    claimantInformation: ClaimantInformation,
-    basisOfClaim: BasisOfRejectedGoodsClaim,
-    basisOfClaimSpecialCircumstances: Option[String],
-    methodOfDisposal: MethodOfDisposal,
-    detailsOfRejectedGoods: String,
-    inspectionDate: InspectionDate,
-    inspectionAddress: InspectionAddress,
-    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
-    reimbursementMethod: ReimbursementMethod,
-    bankAccountDetails: Option[BankAccountDetails],
-    scheduledDocument: EvidenceDocument,
-    supportingEvidences: Seq[EvidenceDocument]
-  ) extends WafErrorMitigation[Output] {
-
-    override def excludeFreeTextInputs() =
-      (
-        Seq(("additional_details", detailsOfRejectedGoods))
-          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
-        this.copy(
-          detailsOfRejectedGoods = additionalDetailsReplacementText,
-          basisOfClaimSpecialCircumstances =
-            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
-        )
-      )
-  }
-
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
-  import ClaimValidationErrors._
-
-  object Checks extends RejectedGoodsClaimChecks[RejectedGoodsScheduledClaim] {
-
-    val scheduledDocumentHasBeenDefined: Validate[RejectedGoodsScheduledClaim] =
-      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
-
-  }
-
-  import Checks._
-
-  /** Validate if all required answers has been provided and the claim is ready to produce output. */
-  override implicit val validator: Validate[RejectedGoodsScheduledClaim] =
-    all(
-      hasMRNAndImportDeclaration,
-      containsOnlySupportedTaxCodes,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      scheduledDocumentHasBeenDefined,
-      basisOfClaimHasBeenProvided,
-      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
-      detailsOfRejectedGoodsHasBeenProvided,
-      inspectionDateHasBeenProvided,
-      inspectionAddressHasBeenProvided,
-      methodOfDisposalHasBeenProvided,
-      reimbursementClaimsHasBeenProvided,
-      paymentMethodHasBeenProvidedIfNeeded,
-      contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined
-    )
-
-  import ClaimFormats._
-
-  object Features {
-    implicit val format: Format[Features] =
-      Json.using[Json.WithDefaultValues].format[Features]
-  }
-
-  object Answers {
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
-
-  implicit val format: Format[RejectedGoodsScheduledClaim] =
-    Format(
-      ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "startTimeSeconds").read[Long]
-        and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledClaim(_, _, _, _, _)),
-      ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "startTimeSeconds").write[Long]
-        and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
-        and (JsPath \ "features").writeNullable[Features])(claim =>
-        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
-      )
-    )
 
   override def tryBuildFrom(
     answers: Answers,
@@ -733,6 +588,18 @@ object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduled
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** A starting point to build new instance of the claim. */
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): RejectedGoodsScheduledClaim =
+    new RejectedGoodsScheduledClaim(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
+
   /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
   def unsafeModifyAnswers(
     claim: RejectedGoodsScheduledClaim,
@@ -743,5 +610,133 @@ object RejectedGoodsScheduledClaim extends ClaimCompanion[RejectedGoodsScheduled
       startTimeSeconds = claim.startTimeSeconds,
       features = claim.features
     )
+
+  final case class Features()
+
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
+
+  // All user answers captured during C&E1179 scheduled MRN claim
+  final case class Answers(
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumber: Option[MRN] = None,
+    importDeclaration: Option[ImportDeclaration] = None,
+    payeeType: Option[PayeeType] = None,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
+    basisOfClaimSpecialCircumstances: Option[String] = None,
+    methodOfDisposal: Option[MethodOfDisposal] = None,
+    detailsOfRejectedGoods: Option[String] = None,
+    correctedAmounts: Option[CorrectedAmounts] = None,
+    exciseCategories: Option[Seq[ExciseCategory]] = None,
+    inspectionDate: Option[InspectionDate] = None,
+    inspectionAddress: Option[InspectionAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    scheduledDocument: Option[UploadedFile] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    modes: ClaimModes = ClaimModes()
+  ) extends RejectedGoodsAnswers
+      with ScheduledVariantAnswers
+
+  import Checks.*
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[RejectedGoodsScheduledClaim] =
+    all(
+      hasMRNAndImportDeclaration,
+      containsOnlySupportedTaxCodes,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      scheduledDocumentHasBeenDefined,
+      basisOfClaimHasBeenProvided,
+      basisOfClaimSpecialCircumstancesHasBeenProvidedIfNeeded,
+      detailsOfRejectedGoodsHasBeenProvided,
+      inspectionDateHasBeenProvided,
+      inspectionAddressHasBeenProvided,
+      methodOfDisposalHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined
+    )
+
+  import ClaimFormats.*
+
+  // Final minimal output of the claim we want to pass to the backend.
+  final case class Output(
+    movementReferenceNumber: MRN,
+    claimantType: ClaimantType,
+    payeeType: PayeeType,
+    displayPayeeType: PayeeType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfRejectedGoodsClaim,
+    basisOfClaimSpecialCircumstances: Option[String],
+    methodOfDisposal: MethodOfDisposal,
+    detailsOfRejectedGoods: String,
+    inspectionDate: InspectionDate,
+    inspectionAddress: InspectionAddress,
+    reimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    scheduledDocument: EvidenceDocument,
+    supportingEvidences: Seq[EvidenceDocument]
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", detailsOfRejectedGoods))
+          ++ basisOfClaimSpecialCircumstances.map(v => Seq(("special_circumstances", v))).getOrElse(Seq.empty),
+        this.copy(
+          detailsOfRejectedGoods = additionalDetailsReplacementText,
+          basisOfClaimSpecialCircumstances =
+            basisOfClaimSpecialCircumstances.map(_ => specialCircumstancesReplacementText)
+        )
+      )
+  }
+
+  object Checks extends RejectedGoodsClaimChecks[RejectedGoodsScheduledClaim] {
+
+    val scheduledDocumentHasBeenDefined: Validate[RejectedGoodsScheduledClaim] =
+      checkIsDefined(_.answers.scheduledDocument, MISSING_SCHEDULED_DOCUMENT)
+
+  }
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
+
+  import play.api.libs.functional.syntax.*
+
+  implicit val format: Format[RejectedGoodsScheduledClaim] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new RejectedGoodsScheduledClaim(_, _, _, _, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(claim =>
+        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
+      )
+    )
+
+  object Answers {
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 
 }

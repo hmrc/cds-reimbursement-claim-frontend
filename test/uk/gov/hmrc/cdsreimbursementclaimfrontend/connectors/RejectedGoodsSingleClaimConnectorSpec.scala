@@ -27,23 +27,17 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfRejectedGoodsClaim, EvidenceDocument, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import java.time.ZonedDateTime
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import java.time.Instant
-import java.time.ZoneId
-import java.net.URL
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import scala.util.{Failure, Try}
 
 class RejectedGoodsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -75,10 +69,6 @@ class RejectedGoodsSingleClaimConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-RejectedGoodsSingleClaimConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new RejectedGoodsSingleClaimConnectorImpl(
       mockHttp,
@@ -87,15 +77,12 @@ class RejectedGoodsSingleClaimConnectorSpec
       actorSystem,
       mockUploadDocumentsConnector
     )
-
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-single"
-
   val requestGen =
     for claim <- RejectedGoodsSingleClaimGenerators.completeClaimGen
     yield RejectedGoodsSingleClaimConnector.Request(
       claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
-
   val sampleRequest: RejectedGoodsSingleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                        = """{"caseNumber":"ABC123"}"""
 
@@ -106,6 +93,9 @@ class RejectedGoodsSingleClaimConnectorSpec
     request: RejectedGoodsSingleClaimConnector.Request
   ): HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(request), hasHeaders = true)(_)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "RejectedGoodsSingleClaimConnector" must {
     "have retries defined" in {

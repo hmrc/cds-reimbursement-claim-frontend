@@ -17,11 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
 import cats.implicits.catsSyntaxOptionId
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.ConfirmPageConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.SelectPageConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.{ConfirmPageConfig, SelectPageConfig, TimeoutConfig}
 
 final case class AddressLookupRequest(
   version: Int,

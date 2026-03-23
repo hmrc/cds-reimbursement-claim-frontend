@@ -16,22 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimModes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfOverpaymentClaim, ClaimModes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori}
 
 /** Common answers of the rejected-goods single, multiple and scheduled claims. */
 trait OverpaymentsAnswers extends CommonAnswers {
 
-  def basisOfClaim: Option[BasisOfOverpaymentClaim]
-  def additionalDetails: Option[String]
-  def modes: ClaimModes
-  def newEori: Option[Eori]
-  def newDan: Option[Dan]
-
   final override def checkYourAnswersChangeMode: Boolean =
     modes.checkYourAnswersChangeMode
+
+  def basisOfClaim: Option[BasisOfOverpaymentClaim]
+
+  def additionalDetails: Option[String]
+
+  def modes: ClaimModes
+
+  def newEori: Option[Eori]
+
+  def newDan: Option[Dan]
 
   final def dutiesChangeMode: Boolean =
     modes.dutiesChangeMode

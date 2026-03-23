@@ -17,28 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.syntax.eq.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import play.api.mvc.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimBase, CommonClaimProperties}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Reimbursement, ReimbursementWithCorrectAmount, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, SeqUtils}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /** Base claim controller providing common action behaviours:
   *   - feature switch check
@@ -53,29 +45,28 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
 
   implicit def ec: ExecutionContext
   implicit def viewConfig: ViewConfig
-
-  /** [Inject] Component expected to be injected by the implementing controller. */
-  val jcc: ClaimControllerComponents
-
-  final override def controllerComponents: MessagesControllerComponents =
-    jcc.controllerComponents
-
-  implicit def messages(implicit request: Request[?]): Messages =
-    jcc.controllerComponents.messagesApi.preferred(request)
-
-  /** [Config] Defines where to redirect when missing claim or missing session data after user has been authorized. */
-  val startOfTheClaim: Call
-
   final lazy val redirectToTheStartOfTheClaim: Future[Result] = {
     logger.warn(MISSING_CLAIM_DATA_LOG_MESSAGE)
     Future.successful(Redirect(startOfTheClaim))
   }
+  /** [Inject] Component expected to be injected by the implementing controller. */
+  val jcc: ClaimControllerComponents
 
+  implicit def messages(implicit request: Request[?]): Messages =
+    jcc.controllerComponents.messagesApi.preferred(request)
+  /** [Config] Defines where to redirect when missing claim or missing session data after user has been authorized. */
+  val startOfTheClaim: Call
   /** [Config] Defines where to redirect when claim is already complete, a.k.a CYA page. */
   val checkYourAnswers: Call
-
   /** [Config] Defines where to redirect when claim has been already finalized. */
   val claimSubmissionConfirmation: Call
+  /** Optional action precondition. */
+  val actionPrecondition: Option[Validate[Claim]] = None
+  private val MISSING_CLAIM_DATA_LOG_MESSAGE =
+    "Missing claim data in session, redirecting to the start page."
+
+  final override def controllerComponents: MessagesControllerComponents =
+    jcc.controllerComponents
 
   /** [Config] Provides navigation after claim validation failure. */
   def routeForValidationErrors(errors: Seq[String]): Call
@@ -85,70 +76,6 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
 
   /** Updates the state of the claim for the current user. */
   def updateClaim(sessionData: SessionData, claim: Claim): SessionData
-
-  /** Optional claim access precondition. */
-  def claimAccessPrecondition(implicit request: Request[?]): Option[Validate[Claim]] = None
-
-  /** Optional action precondition. */
-  val actionPrecondition: Option[Validate[Claim]] = None
-
-  private val MISSING_CLAIM_DATA_LOG_MESSAGE =
-    "Missing claim data in session, redirecting to the start page."
-
-  /** Check if claim access precondition met when defined, and if not then return the list of errors. */
-  private final def checkIfMaybeClaimAccessPreconditionFails(claim: Claim)(implicit
-    request: Request[?]
-  ): Option[Seq[String]] =
-    claimAccessPrecondition
-      .flatMap(
-        _.apply(claim).fold(
-          errors => {
-            logger.warn(s"Claim access preconditions not met: ${errors.messages.mkString(",")}")
-            Some(errors.messages)
-          },
-          _ => None
-        )
-      )
-
-  /** Check if action precondition met when defined, and if not then return the list of errors. */
-  final def checkIfMaybeActionPreconditionFails(claim: Claim)(implicit
-    request: Request[?]
-  ): Option[Seq[String]] =
-    checkIfMaybeClaimAccessPreconditionFails(claim)
-      .orElse(
-        actionPrecondition
-          .flatMap(
-            _.apply(claim).fold(
-              errors => {
-                logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
-                Some(errors.messages)
-              },
-              _ => None
-            )
-          )
-      )
-
-  /** Check if the CYA page should be displayed next. */
-  final def shouldForwardToCYA(claim: Claim): Boolean =
-    claim.userHasSeenCYAPage && claim.hasCompleteAnswers
-
-  private final def resultOrShortcut(
-    result: Result,
-    claim: Claim,
-    fastForwardToCYAEnabled: Boolean
-  ): Future[Result] =
-    Future.successful(
-      if result.header.status =!= 303 then result
-      else if claim.isFinalized then Redirect(claimSubmissionConfirmation)
-      else if fastForwardToCYAEnabled && shouldForwardToCYA(claim) then Redirect(checkYourAnswers)
-      else result
-    )
-
-  final def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[Error, Unit]] =
-    if modifiedSessionData === sessionData then Future.successful(Right(()))
-    else jcc.sessionCache.store(modifiedSessionData)
 
   /** Simple GET action to show page based on the current claim state. */
   final def simpleActionReadClaim(body: Claim => Result): Action[AnyContent] =
@@ -224,6 +151,64 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
           )
           .getOrElse(redirectToTheStartOfTheClaim)
       }
+
+  /** Check if action precondition met when defined, and if not then return the list of errors. */
+  final def checkIfMaybeActionPreconditionFails(claim: Claim)(implicit
+    request: Request[?]
+  ): Option[Seq[String]] =
+    checkIfMaybeClaimAccessPreconditionFails(claim)
+      .orElse(
+        actionPrecondition
+          .flatMap(
+            _.apply(claim).fold(
+              errors => {
+                logger.warn(s"Action preconditions not met: ${errors.messages.mkString(",")}")
+                Some(errors.messages)
+              },
+              _ => None
+            )
+          )
+      )
+
+  /** Check if claim access precondition met when defined, and if not then return the list of errors. */
+  private final def checkIfMaybeClaimAccessPreconditionFails(claim: Claim)(implicit
+    request: Request[?]
+  ): Option[Seq[String]] =
+    claimAccessPrecondition
+      .flatMap(
+        _.apply(claim).fold(
+          errors => {
+            logger.warn(s"Claim access preconditions not met: ${errors.messages.mkString(",")}")
+            Some(errors.messages)
+          },
+          _ => None
+        )
+      )
+
+  /** Optional claim access precondition. */
+  def claimAccessPrecondition(implicit request: Request[?]): Option[Validate[Claim]] = None
+
+  private final def resultOrShortcut(
+    result: Result,
+    claim: Claim,
+    fastForwardToCYAEnabled: Boolean
+  ): Future[Result] =
+    Future.successful(
+      if result.header.status =!= 303 then result
+      else if claim.isFinalized then Redirect(claimSubmissionConfirmation)
+      else if fastForwardToCYAEnabled && shouldForwardToCYA(claim) then Redirect(checkYourAnswers)
+      else result
+    )
+
+  /** Check if the CYA page should be displayed next. */
+  final def shouldForwardToCYA(claim: Claim): Boolean =
+    claim.userHasSeenCYAPage && claim.hasCompleteAnswers
+
+  final def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]] =
+    if modifiedSessionData === sessionData then Future.successful(Right(()))
+    else jcc.sessionCache.store(modifiedSessionData)
 
   /** Simple POST action to submit form and update the current claim state. */
   final def simpleActionReadWriteClaimWhenCallback(
@@ -319,7 +304,7 @@ trait ClaimBaseController extends FrontendBaseController with Logging with SeqUt
     description: String,
     errors: String*
   )(implicit errorHandler: ErrorHandler, request: Request[?]): Result = {
-    import errorHandler._
+    import errorHandler.*
     logger.error(s"$description${if errors.nonEmpty then errors.mkString(": ", ", ", "") else ""}")
     errorResult()
   }

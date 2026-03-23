@@ -19,16 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AppLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.ConfirmPageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.CountryPickerLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.EditPageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LanguageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.LookupPageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.PageLabels
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.SelectPageLabels
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupLabels.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.*
 
 class AddressLookupLabelsSpec extends AnyWordSpec with Matchers {
 

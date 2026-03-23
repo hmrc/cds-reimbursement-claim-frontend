@@ -17,22 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.OptionValues
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 
 import scala.concurrent.Future
@@ -43,15 +37,12 @@ class ClaimInvalidTPI04ControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with OptionValues {
-
-  val messagesKey: String = "error-claim-invalid-TPI04"
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
+  val messagesKey: String = "error-claim-invalid-TPI04"
   val controller: ClaimInvalidTPI04Controller = instanceOf[ClaimInvalidTPI04Controller]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi

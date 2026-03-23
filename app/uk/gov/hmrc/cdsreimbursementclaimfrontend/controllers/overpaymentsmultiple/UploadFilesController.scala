@@ -16,26 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultiple
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, UploadDocumentsConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.UploadFilesMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, UploadDocumentType, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.upload_files_description
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -52,14 +47,12 @@ class UploadFilesController @Inject() (
 
   final val selectDocumentTypePageAction: Call  = routes.ChooseFileTypeController.show
   final val callbackAction: Call                = routes.UploadFilesController.submit
-  final def nextPageInClaim(claim: Claim): Call = routes.EnterContactDetailsController.show
-
-  final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
-    documentType => messages => upload_files_description(documentType)(messages)
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[OverpaymentsMultipleClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+
+  final override def chooseFilesPageDescriptionTemplate: String => Messages => HtmlFormat.Appendable =
+    documentType => messages => upload_files_description(documentType)(messages)
 
   final override def modifyClaim(
     claim: Claim,
@@ -73,5 +66,7 @@ class UploadFilesController @Inject() (
         requestNonce,
         uploadedFiles
       )
+
+  final def nextPageInClaim(claim: Claim): Call = routes.EnterContactDetailsController.show
 
 }

@@ -18,30 +18,21 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, MessagesRequest, Request, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.completeClaimGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.routes as commonRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithClaimGenerator}
 
 import scala.concurrent.Future
 
@@ -52,20 +43,6 @@ class ClaimDeletedControllerSpec
     with BeforeAndAfterEach
     with SummaryMatchers
     with TestWithClaimGenerator[SecuritiesClaim] {
-
-  override val overrideBindings: List[GuiceableModule] =
-    List[GuiceableModule](
-      bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
-    )
-
-  val controller: ClaimDeletedController = instanceOf[ClaimDeletedController]
-
-  implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  val eori = Eori("AB12345678901234Z")
-
   lazy val authenticatedRequest =
     AuthenticatedRequestWithRetrievedData(
       AuthenticatedUser.GovernmentGatewayAuthenticatedUser(
@@ -76,8 +53,17 @@ class ClaimDeletedControllerSpec
       Some(UserType.Individual),
       messagesRequest
     )
-
   lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
+
+  implicit val messagesApi: MessagesApi = controller.messagesApi
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache)
+    )
+  val controller: ClaimDeletedController = instanceOf[ClaimDeletedController]
+  val eori = Eori("AB12345678901234Z")
 
   "ClaimDeletedController" when {
 

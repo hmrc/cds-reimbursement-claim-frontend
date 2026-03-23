@@ -24,18 +24,18 @@ sealed trait YesNo extends Product with Serializable {
 }
 
 object YesNo extends EnumerationFormat[YesNo] {
+  override val values: Set[YesNo] = Set(Yes, No)
 
   def of(flag: Boolean): YesNo = if flag then Yes else No
 
   case object No extends YesNo {
     override final val asBoolean: Boolean = false
   }
-  case object Yes extends YesNo {
-    override final val asBoolean: Boolean = true
-  }
 
   implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
 
-  override val values: Set[YesNo] = Set(Yes, No)
+  case object Yes extends YesNo {
+    override final val asBoolean: Boolean = true
+  }
 
 }

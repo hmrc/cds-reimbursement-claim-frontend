@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import cats.syntax.eq.*
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait Feature {
@@ -28,17 +27,18 @@ sealed trait Feature {
 
 object Feature extends EnumerationFormat[Feature] {
 
-  case object NewEoriFormat extends Feature { val name = "new-eori-format" }
-  case object BasisOfClaimOther extends Feature { val name = "basis-of-claim.other.enabled" }
-
-  def of(name: String): Option[Feature] =
-    values.find(_.name === name)
-
   override val values: Set[Feature] =
     Set(
       NewEoriFormat,
       BasisOfClaimOther
     )
+
+  def of(name: String): Option[Feature] =
+    values.find(_.name === name)
+
+  case object NewEoriFormat extends Feature { val name = "new-eori-format" }
+
+  case object BasisOfClaimOther extends Feature { val name = "basis-of-claim.other.enabled" }
 }
 
 final case class FeatureSet(

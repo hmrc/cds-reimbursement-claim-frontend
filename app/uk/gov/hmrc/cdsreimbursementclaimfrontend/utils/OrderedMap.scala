@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import scala.collection.MapFactory
 import scala.collection.immutable.Map
-import scala.collection.mutable.Builder
-import scala.collection.mutable.LinkedHashMap
+import scala.collection.mutable.{Builder, LinkedHashMap}
 
 /** A map keeping items in the order they were first appended, like mutable LinkedHashMap. */
 @SuppressWarnings(Array("org.wartremover.warts.Any", "org.wartremover.warts.AsInstanceOf"))
@@ -55,12 +54,12 @@ object OrderedMap extends MapFactory[OrderedMap] {
 
 private class OrderedMapBuilder[A, B] extends Builder[(A, B), OrderedMap[A, B]] {
 
+  val builder = LinkedHashMap.newBuilder[A, Any]
+
   override def addOne(elem: (A, B)): this.type = {
     builder.addOne(elem)
     this
   }
-
-  val builder = LinkedHashMap.newBuilder[A, Any]
 
   override def clear(): Unit =
     builder.clear()

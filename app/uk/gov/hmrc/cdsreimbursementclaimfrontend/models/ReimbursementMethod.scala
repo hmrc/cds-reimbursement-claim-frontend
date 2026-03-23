@@ -22,9 +22,10 @@ sealed trait ReimbursementMethod
 
 object ReimbursementMethod extends EnumerationFormat[ReimbursementMethod] {
 
-  case object CurrentMonthAdjustment extends ReimbursementMethod
-  case object BankAccountTransfer extends ReimbursementMethod
-
   override val values: Set[ReimbursementMethod] =
     Set(CurrentMonthAdjustment, BankAccountTransfer)
+
+  case object CurrentMonthAdjustment extends ReimbursementMethod
+
+  case object BankAccountTransfer extends ReimbursementMethod
 }

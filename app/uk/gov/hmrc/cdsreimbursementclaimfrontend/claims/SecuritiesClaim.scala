@@ -17,26 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import cats.syntax.eq.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleOrMultipleShipments
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.{ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments, ExportedInSingleShipment, containsExportedMethodsOfDisposal}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, SecurityDetails, TaxDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{DirectFluentSyntax, SeqUtils, Validator}
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.collection.immutable.SortedMap
-import java.time.Instant
 
 /** An encapsulated Securities claim logic. The constructor of this class MUST stay PRIVATE to protected integrity of
   * the claim.
@@ -64,21 +55,11 @@ final class SecuritiesClaim private (
 
   val validate: Validator.Validate[SecuritiesClaim] =
     SecuritiesClaim.validator
+  val isSingleSecurity: Boolean =
+    getSecurityDetails.size == 1
 
-  private def copy(
-    newAnswers: SecuritiesClaim.Answers
-  ): SecuritiesClaim =
-    new SecuritiesClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
-
-  import SecuritiesClaim.Answers
-  import SecuritiesClaim.Checks._
-  import SecuritiesClaim.CorrectedAmounts
-
-  override def getLeadMovementReferenceNumber: Option[MRN] =
-    answers.movementReferenceNumber
-
-  override def getLeadImportDeclaration: Option[ImportDeclaration] =
-    answers.importDeclaration
+  import SecuritiesClaim.Checks.*
+  import SecuritiesClaim.{Answers, CorrectedAmounts}
 
   def getImportDeclarationIfValidSecurityDepositId(securityDepositId: String): Option[ImportDeclaration] =
     getLeadImportDeclaration
@@ -86,6 +67,10 @@ final class SecuritiesClaim private (
 
   def getIndexOf(securityDepositId: String): Int =
     this.getSelectedDepositIds.indexOf(securityDepositId) + 1
+
+  /** Returns deposit IDs selected by the user. */
+  def getSelectedDepositIds: Seq[String] =
+    answers.correctedAmounts.map(_.keys.toSeq).getOrElse(Seq.empty)
 
   /** Returns all the security IDs available on the ACC14 declaration. */
   def getSecurityDepositIds: Seq[String] =
@@ -98,60 +83,19 @@ final class SecuritiesClaim private (
       .flatMap(_.getSecurityDetails)
       .getOrElse(Seq.empty)
 
-  /** Returns true if the security ID is available on the ACC14 declaration. */
-  def isValidSecurityDepositId(securityDepositId: String): Boolean =
-    getLeadImportDeclaration
-      .exists(_.isValidSecurityDepositId(securityDepositId))
-
-  val isSingleSecurity: Boolean =
-    getSecurityDetails.size == 1
-
-  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
-    getLeadImportDeclaration
-      .flatMap(_.getSecurityDetailsFor(securityDepositId))
-
-  def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
-    getLeadImportDeclaration
-      .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
-
-  /** For the given deposit ID returns amount atributed to the given tax type (duty). */
-  def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
-    getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
-
   /** For the given deposit ID returns total amount. */
   def getTotalSecurityDepositAmountFor(securityDepositId: String): Option[BigDecimal] =
     getSecurityDetailsFor(securityDepositId).map(_.getTotalAmount)
-
-  /** For the given deposit ID returns all declared tax types (duties). */
-  def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
-    getLeadImportDeclaration
-      .map(_.getSecurityTaxCodesFor(securityDepositId))
-      .getOrElse(Seq.empty)
 
   def getSecurityTaxCodesWithAmounts(securityDepositId: String): Seq[DutyAmount] =
     getSecurityTaxCodesFor(securityDepositId)
       .flatMap(getSecurityTaxDetailsFor(securityDepositId, _).toList)
       .map(x => DutyAmount(x.getTaxCode, x.getAmount))
 
-  /** Returns deposit IDs selected by the user. */
-  def getSelectedDepositIds: Seq[String] =
-    answers.correctedAmounts.map(_.keys.toSeq).getOrElse(Seq.empty)
-
-  /** Returns true if deposit ID has been selected by the user. */
-  def isSelectedDepositId(securityDepositId: String): Boolean =
-    answers.correctedAmounts.exists(_.contains(securityDepositId))
-
   def getSecuritySelectionStatus(securityDepositId: String): Option[YesNo] =
     if isSelectedDepositId(securityDepositId) then Some(YesNo.Yes)
     else if answers.modes.checkDeclarationDetailsChangeMode || answers.checkYourAnswersChangeMode then Some(YesNo.No)
     else None
-
-  def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(
-      _.get(securityDepositId)
-        .flatMap(_.noneIfEmpty)
-        .map(_.keys.toSeq)
-    )
 
   def getAllSelectedDuties: Seq[(String, TaxCode)] =
     answers.correctedAmounts
@@ -170,6 +114,15 @@ final class SecuritiesClaim private (
       }.sum)
       .getOrElse(ZERO)
 
+  def getSecurityDepositAmountsFor(securityDepositId: String): Map[TaxCode, BigDecimal] =
+    getSecurityDetailsFor(securityDepositId)
+      .map(_.taxDetails.map(td => (td.getTaxCode, td.getAmount)).toMap)
+      .getOrElse(Map.empty)
+
+  def getSecurityDetailsFor(securityDepositId: String): Option[SecurityDetails] =
+    getLeadImportDeclaration
+      .flatMap(_.getSecurityDetailsFor(securityDepositId))
+
   def getTotalClaimAmountFor(securityDepositId: String): Option[BigDecimal] = {
     val depositAmounts = getSecurityDepositAmountsFor(securityDepositId)
     answers.correctedAmounts
@@ -186,6 +139,10 @@ final class SecuritiesClaim private (
       .flatten
       .flatMap(amount => getSecurityDepositAmountFor(securityDepositId, taxCode).map(_ - amount))
 
+  /** For the given deposit ID returns amount atributed to the given tax type (duty). */
+  def getSecurityDepositAmountFor(securityDepositId: String, taxCode: TaxCode): Option[BigDecimal] =
+    getSecurityTaxDetailsFor(securityDepositId, taxCode).map(_.getAmount)
+
   def isFullSecurityAmountClaimed(securityDepositId: String): Boolean =
     (getTotalSecurityDepositAmountFor(securityDepositId), getTotalClaimAmountFor(securityDepositId)) match {
       case (Some(declarationAmount), Some(claimAmount)) if declarationAmount === claimAmount => true
@@ -196,11 +153,6 @@ final class SecuritiesClaim private (
     getTotalClaimAmountFor(securityDepositId)
       .map(claimAmount => getTotalSecurityDepositAmountFor(securityDepositId).contains(claimAmount))
       .map(YesNo.of)
-
-  def getSecurityDepositAmountsFor(securityDepositId: String): Map[TaxCode, BigDecimal] =
-    getSecurityDetailsFor(securityDepositId)
-      .map(_.taxDetails.map(td => (td.getTaxCode, td.getAmount)).toMap)
-      .getOrElse(Map.empty)
 
   def getSecuritiesReclaims: SortedMap[String, SortedMap[TaxCode, BigDecimal]] =
     answers.correctedAmounts
@@ -255,30 +207,11 @@ final class SecuritiesClaim private (
         else reclaims.find(_._2.isEmpty).map { case (taxCode, _) => Right((depositId, taxCode)) }
     })
 
-  def isAllSelectedDutiesAreGuaranteeEligible: Boolean = {
-    val selected = getSelectedDepositIds
-    selected.nonEmpty && selected
-      .map(getSecurityDetailsFor)
-      .collect { case Some(s) => s }
-      .forall(_.isGuaranteeEligible)
-  }
-
-  def isAllDeclaredDutiesAreGuaranteeEligible: Boolean =
-    getLeadImportDeclaration.exists(
-      _.getAllSecurityMethodsOfPayment
-        .exists(mps => mps.nonEmpty && mps.forall(mp => mp == "004" || mp == "005"))
-    )
-
   override def needsBanksAccountDetailsSubmission: Boolean =
     needsPayeeTypeSelection
       && reasonForSecurityIsIPROrENU
       || (getSelectedDepositIds.nonEmpty
         && !isAllSelectedDutiesAreGuaranteeEligible)
-
-  override def needsPayeeTypeSelection: Boolean =
-    if reasonForSecurityIsIPROrENU
-    then !isAllDeclaredDutiesAreGuaranteeEligible
-    else !isAllSelectedDutiesAreGuaranteeEligible
 
   def submitPayeeType(payeeType: PayeeType): Either[String, SecuritiesClaim] =
     whileClaimIsAmendable {
@@ -298,50 +231,42 @@ final class SecuritiesClaim private (
       else Left("submitPayeeType.unexpected")
     }
 
-  def needsMethodOfDisposalSubmission: Boolean =
-    getReasonForSecurity.exists(ReasonForSecurity.ntas)
+  override def needsPayeeTypeSelection: Boolean =
+    if reasonForSecurityIsIPROrENU
+    then !isAllDeclaredDutiesAreGuaranteeEligible
+    else !isAllSelectedDutiesAreGuaranteeEligible
 
-  def needsExportMRNSubmission: Boolean =
-    (needsMethodOfDisposalSubmission, answers.temporaryAdmissionMethodsOfDisposal) match {
-      case (true, Some(methods)) =>
-        methods.filter(method => TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(method)).nonEmpty
-      case _                     => false
-    }
+  def isAllSelectedDutiesAreGuaranteeEligible: Boolean = {
+    val selected = getSelectedDepositIds
+    selected.nonEmpty && selected
+      .map(getSecurityDetailsFor)
+      .collect { case Some(s) => s }
+      .forall(_.isGuaranteeEligible)
+  }
+
+  def isAllDeclaredDutiesAreGuaranteeEligible: Boolean =
+    getLeadImportDeclaration.exists(
+      _.getAllSecurityMethodsOfPayment
+        .exists(mps => mps.nonEmpty && mps.forall(mp => mp == "004" || mp == "005"))
+    )
 
   def getMethodOfDisposal: Option[List[TemporaryAdmissionMethodOfDisposal]] =
     answers.temporaryAdmissionMethodsOfDisposal
-
-  def needsDocumentTypeSelection: Boolean =
-    getReasonForSecurity.exists(
-      UploadDocumentType
-        .securitiesDocumentTypes(
-          _,
-          answers.temporaryAdmissionMethodsOfDisposal,
-          needsProofOfAuthorityForBankAccountDetailsChange
-        )
-        .isDefined
-    )
-
-  def getReasonForSecurity: Option[ReasonForSecurity] =
-    answers.reasonForSecurity
-
-  inline def reasonForSecurityIsIPR: Boolean =
-    answers.reasonForSecurity.contains(ReasonForSecurity.InwardProcessingRelief)
-
-  inline def reasonForSecurityIsENU: Boolean =
-    answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
-
-  inline def reasonForSecurityIsIPROrENU: Boolean =
-    reasonForSecurityIsIPR || reasonForSecurityIsENU
-
-  def reasonForSecurityIsNidac: Boolean =
-    answers.reasonForSecurity.exists(ReasonForSecurity.nidac.contains)
 
   def requiresBillOfDischargeForm: Boolean =
     reasonForSecurityIsIPROrENU
 
   def needsReimbursementAmountSubmission: Boolean =
     !reasonForSecurityIsIPROrENU
+
+  inline def reasonForSecurityIsIPROrENU: Boolean =
+    reasonForSecurityIsIPR || reasonForSecurityIsENU
+
+  inline def reasonForSecurityIsIPR: Boolean =
+    answers.reasonForSecurity.contains(ReasonForSecurity.InwardProcessingRelief)
+
+  inline def reasonForSecurityIsENU: Boolean =
+    answers.reasonForSecurity.contains(ReasonForSecurity.EndUseRelief)
 
   def needsOtherSupportingEvidence: Boolean =
     !needsAddOtherDocuments
@@ -350,15 +275,8 @@ final class SecuritiesClaim private (
     reasonForSecurityIsIPROrENU
       || reasonForSecurityIsNidac
 
-  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
-    getReasonForSecurity
-      .flatMap(rfs =>
-        UploadDocumentType.securitiesDocumentTypes(
-          rfs,
-          answers.temporaryAdmissionMethodsOfDisposal,
-          needsProofOfAuthorityForBankAccountDetailsChange
-        )
-      )
+  def reasonForSecurityIsNidac: Boolean =
+    answers.reasonForSecurity.exists(ReasonForSecurity.nidac.contains)
 
   def getSelectedDocumentTypeOrDefault: Option[UploadDocumentType] =
     getReasonForSecurity.flatMap { rfs =>
@@ -383,11 +301,19 @@ final class SecuritiesClaim private (
       }
     }
 
+  def needsDocumentTypeSelection: Boolean =
+    getReasonForSecurity.exists(
+      UploadDocumentType
+        .securitiesDocumentTypes(
+          _,
+          answers.temporaryAdmissionMethodsOfDisposal,
+          needsProofOfAuthorityForBankAccountDetailsChange
+        )
+        .isDefined
+    )
+
   def countOfExportMovementReferenceNumbers: Int =
     answers.exportMovementReferenceNumbers.map(_.size).getOrElse(0)
-
-  def getIndexOfExportMovementReferenceNumber(mrn: MRN): Option[Int] =
-    answers.exportMovementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
 
   /** Resets the claim with the new MRN or keep an existing claim if submitted the same MRN.
     */
@@ -409,6 +335,9 @@ final class SecuritiesClaim private (
           )
       }
     }
+
+  override def getLeadMovementReferenceNumber: Option[MRN] =
+    answers.movementReferenceNumber
 
   def submitReasonForSecurityAndDeclaration(
     reasonForSecurity: ReasonForSecurity,
@@ -508,6 +437,19 @@ final class SecuritiesClaim private (
       } else Left("submitExportMovementReferenceNumber.unexpected")
     }
 
+  def needsExportMRNSubmission: Boolean =
+    (needsMethodOfDisposalSubmission, answers.temporaryAdmissionMethodsOfDisposal) match {
+      case (true, Some(methods)) =>
+        methods.filter(method => TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal.contains(method)).nonEmpty
+      case _                     => false
+    }
+
+  def needsMethodOfDisposalSubmission: Boolean =
+    getReasonForSecurity.exists(ReasonForSecurity.ntas)
+
+  def getReasonForSecurity: Option[ReasonForSecurity] =
+    answers.reasonForSecurity
+
   def removeExportMovementReferenceNumber(mrn: MRN): Either[String, SecuritiesClaim] =
     whileClaimIsAmendableAnd(hasMRNAndImportDeclarationAndRfS & thereIsNoSimilarClaimInCDFPay) {
       getIndexOfExportMovementReferenceNumber(mrn) match {
@@ -524,6 +466,9 @@ final class SecuritiesClaim private (
           )
       }
     }
+
+  def getIndexOfExportMovementReferenceNumber(mrn: MRN): Option[Int] =
+    answers.exportMovementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
 
   def selectSecurityDepositIds(securityDepositIds: Seq[String]): Either[String, SecuritiesClaim] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
@@ -643,11 +588,35 @@ final class SecuritiesClaim private (
       }
     }
 
-  def isValidCorrectAmount(correctAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
-    correctAmount >= 0 && correctAmount < taxDetails.getAmount
+  private def copy(
+    newAnswers: SecuritiesClaim.Answers
+  ): SecuritiesClaim =
+    new SecuritiesClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
-  def isValidClaimAmount(claimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
-    claimAmount > 0 && claimAmount <= taxDetails.getAmount
+  /** Returns true if the security ID is available on the ACC14 declaration. */
+  def isValidSecurityDepositId(securityDepositId: String): Boolean =
+    getLeadImportDeclaration
+      .exists(_.isValidSecurityDepositId(securityDepositId))
+
+  /** For the given deposit ID returns all declared tax types (duties). */
+  def getSecurityTaxCodesFor(securityDepositId: String): Seq[TaxCode] =
+    getLeadImportDeclaration
+      .map(_.getSecurityTaxCodesFor(securityDepositId))
+      .getOrElse(Seq.empty)
+
+  override def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclaration
+
+  /** Returns true if deposit ID has been selected by the user. */
+  def isSelectedDepositId(securityDepositId: String): Boolean =
+    answers.correctedAmounts.exists(_.contains(securityDepositId))
+
+  def getSelectedDutiesFor(securityDepositId: String): Option[Seq[TaxCode]] =
+    answers.correctedAmounts.flatMap(
+      _.get(securityDepositId)
+        .flatMap(_.noneIfEmpty)
+        .map(_.keys.toSeq)
+    )
 
   def submitCorrectAmount(
     securityDepositId: String,
@@ -685,6 +654,9 @@ final class SecuritiesClaim private (
         )
       }
     }
+
+  def isValidCorrectAmount(correctAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
+    correctAmount >= 0 && correctAmount < taxDetails.getAmount
 
   def submitClaimAmount(
     securityDepositId: String,
@@ -730,6 +702,13 @@ final class SecuritiesClaim private (
         )
       }
     }
+
+  def getSecurityTaxDetailsFor(securityDepositId: String, taxCode: TaxCode): Option[TaxDetails] =
+    getLeadImportDeclaration
+      .flatMap(_.getSecurityTaxDetailsFor(securityDepositId, taxCode))
+
+  def isValidClaimAmount(claimAmount: BigDecimal, taxDetails: TaxDetails): Boolean =
+    claimAmount > 0 && claimAmount <= taxDetails.getAmount
 
   def submitFullCorrectedAmounts(securityDepositId: String): Either[String, SecuritiesClaim] =
     whileClaimIsAmendableAnd(userCanProceedWithThisClaim) {
@@ -888,6 +867,16 @@ final class SecuritiesClaim private (
         )
       else Left("submitDocumentTypeSelection.invalid")
     }
+
+  def getDocumentTypesIfRequired: Option[Seq[UploadDocumentType]] =
+    getReasonForSecurity
+      .flatMap(rfs =>
+        UploadDocumentType.securitiesDocumentTypes(
+          rfs,
+          answers.temporaryAdmissionMethodsOfDisposal,
+          needsProofOfAuthorityForBankAccountDetailsChange
+        )
+      )
 
   def receiveUploadedFiles(
     documentType: Option[UploadDocumentType],
@@ -1072,6 +1061,54 @@ final class SecuritiesClaim private (
 }
 
 object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
+  type CorrectedAmounts = SortedMap[TaxCode, Option[BigDecimal]]
+
+  override def tryBuildFrom(answers: Answers, features: Option[Features] = None): Either[String, SecuritiesClaim] =
+    empty(answers.userEoriNumber, answers.nonce, features)
+      .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
+      .flatMapWhenDefined(
+        answers.reasonForSecurity.zip(answers.importDeclaration)
+      )(j => { case (rfs: ReasonForSecurity, decl: ImportDeclaration) =>
+        j.submitReasonForSecurityAndDeclaration(rfs, decl)
+      })
+      .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
+      .flatMapWhenDefined(answers.temporaryAdmissionMethodsOfDisposal)(_.submitTemporaryAdmissionMethodsOfDisposal)
+      .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers.zipWithIndex)(j => { case (mrn: MRN, index: Int) =>
+        j.submitExportMovementReferenceNumber(index, mrn)
+      })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
+      .flatMapEachWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
+        _.selectSecurityDepositId
+      )
+      .map(_.submitCheckDeclarationDetailsChangeMode(answers.modes.checkDeclarationDetailsChangeMode))
+      .flatMapEachWhenDefined(answers.correctedAmounts)((claim: SecuritiesClaim) => {
+        case (depositId: String, reclaims: SortedMap[TaxCode, Option[BigDecimal]]) =>
+          claim
+            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, reclaims.keySet.toSeq)
+            .flatMapEachWhenMappingDefined(reclaims)((claim: SecuritiesClaim) =>
+              (taxCode: TaxCode, amount: BigDecimal) => claim.submitCorrectAmount(depositId, taxCode, amount)
+            )
+      })
+      .map(_.submitClaimFullAmountMode(answers.modes.claimFullAmountMode))
+      .map(_.submitCheckClaimDetailsChangeMode(answers.modes.checkClaimDetailsChangeMode))
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
+      )
+      .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
+      .flatMap(j => j.receiveBillOfDischargeDocuments(answers.nonce, answers.billOfDischargeDocuments))
+      .flatMap(j => j.receiveProofOfOriginDocuments(answers.nonce, answers.proofOfOriginDocuments))
+      .map(_.submitAdditionalDetailsPageVisited(answers.modes.additionalDetailsPageVisitedMode))
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
   /** A starting point to build new instance of the claim. */
   override def empty(
@@ -1085,13 +1122,18 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
       features = features
     )
 
-  type CorrectedAmounts = SortedMap[TaxCode, Option[BigDecimal]]
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    claim: SecuritiesClaim,
+    f: SecuritiesClaim.Answers => SecuritiesClaim.Answers
+  ): SecuritiesClaim =
+    SecuritiesClaim(
+      answers = f(claim.answers),
+      startTimeSeconds = claim.startTimeSeconds,
+      features = claim.features
+    )
 
   final case class Features(availableReasonsForSecurity: Set[ReasonForSecurity])
-
-  object Features {
-    implicit val format: Format[Features] = Json.format[Features]
-  }
 
   final case class Answers(
     nonce: Nonce = Nonce.random,
@@ -1122,6 +1164,9 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
       modes.checkYourAnswersChangeMode
   }
 
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
+
   final case class Output(
     movementReferenceNumber: MRN,
     payeeType: Option[PayeeType],
@@ -1148,8 +1193,39 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
         .getOrElse((Seq.empty, this))
   }
 
-  import ClaimValidationErrors._
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
+  import Checks.*
+
+  override implicit val validator: Validate[SecuritiesClaim] =
+    Validator.all(
+      hasMRNAndImportDeclarationAndRfS,
+      thereIsNoSimilarClaimInCDFPay,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      hasMethodOfDisposalIfNeeded,
+      hasExportMRNIfNeeded,
+      whenTrue[SecuritiesClaim](
+        _.needsReimbursementAmountSubmission,
+        Validator.all(
+          reclaimAmountsHasBeenDeclared,
+          paymentMethodHasBeenProvidedIfNeeded
+        )
+      ),
+      contactDetailsHasBeenProvided,
+      whenTrue[SecuritiesClaim](
+        _.needsOtherSupportingEvidence,
+        supportingEvidenceHasBeenProvided
+      ),
+      payeeTypeIsDefined,
+      hasBillOfDischargeDocumentsIfNeeded,
+      hasProofOfOriginIfNeeded,
+      paymentMethodHasBeenProvidedIfNeeded,
+      additionalDetailsPageVisited
+    )
+
+  import ClaimFormats.*
+
+  object Features {
+    implicit val format: Format[Features] = Json.format[Features]
+  }
 
   object Checks extends CommonClaimChecks[SecuritiesClaim] {
 
@@ -1278,46 +1354,7 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
       checkIsTrue(_.needsAddOtherDocuments, INVALID_REASON_FOR_SECURITY)
   }
 
-  import Checks._
-
-  override implicit val validator: Validate[SecuritiesClaim] =
-    Validator.all(
-      hasMRNAndImportDeclarationAndRfS,
-      thereIsNoSimilarClaimInCDFPay,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      hasMethodOfDisposalIfNeeded,
-      hasExportMRNIfNeeded,
-      whenTrue[SecuritiesClaim](
-        _.needsReimbursementAmountSubmission,
-        Validator.all(
-          reclaimAmountsHasBeenDeclared,
-          paymentMethodHasBeenProvidedIfNeeded
-        )
-      ),
-      contactDetailsHasBeenProvided,
-      whenTrue[SecuritiesClaim](
-        _.needsOtherSupportingEvidence,
-        supportingEvidenceHasBeenProvided
-      ),
-      payeeTypeIsDefined,
-      hasBillOfDischargeDocumentsIfNeeded,
-      hasProofOfOriginIfNeeded,
-      paymentMethodHasBeenProvidedIfNeeded,
-      additionalDetailsPageVisited
-    )
-
-  import ClaimFormats._
-
-  object Answers {
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
+  import play.api.libs.functional.syntax.*
 
   implicit val format: Format[SecuritiesClaim] =
     Format(
@@ -1335,62 +1372,13 @@ object SecuritiesClaim extends ClaimCompanion[SecuritiesClaim] {
       )
     )
 
-  override def tryBuildFrom(answers: Answers, features: Option[Features] = None): Either[String, SecuritiesClaim] =
-    empty(answers.userEoriNumber, answers.nonce, features)
-      .mapWhenDefined(answers.movementReferenceNumber)(_.submitMovementReferenceNumber)
-      .flatMapWhenDefined(
-        answers.reasonForSecurity.zip(answers.importDeclaration)
-      )(j => { case (rfs: ReasonForSecurity, decl: ImportDeclaration) =>
-        j.submitReasonForSecurityAndDeclaration(rfs, decl)
-      })
-      .flatMapWhenDefined(answers.similarClaimExistAlreadyInCDFPay)(_.submitClaimDuplicateCheckStatus)
-      .flatMapWhenDefined(answers.temporaryAdmissionMethodsOfDisposal)(_.submitTemporaryAdmissionMethodsOfDisposal)
-      .flatMapEachWhenDefined(answers.exportMovementReferenceNumbers.zipWithIndex)(j => { case (mrn: MRN, index: Int) =>
-        j.submitExportMovementReferenceNumber(index, mrn)
-      })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
-      .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
-      .flatMapEachWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
-        _.selectSecurityDepositId
-      )
-      .map(_.submitCheckDeclarationDetailsChangeMode(answers.modes.checkDeclarationDetailsChangeMode))
-      .flatMapEachWhenDefined(answers.correctedAmounts)((claim: SecuritiesClaim) => {
-        case (depositId: String, reclaims: SortedMap[TaxCode, Option[BigDecimal]]) =>
-          claim
-            .selectAndReplaceTaxCodeSetForSelectedSecurityDepositId(depositId, reclaims.keySet.toSeq)
-            .flatMapEachWhenMappingDefined(reclaims)((claim: SecuritiesClaim) =>
-              (taxCode: TaxCode, amount: BigDecimal) => claim.submitCorrectAmount(depositId, taxCode, amount)
-            )
-      })
-      .map(_.submitClaimFullAmountMode(answers.modes.claimFullAmountMode))
-      .map(_.submitCheckClaimDetailsChangeMode(answers.modes.checkClaimDetailsChangeMode))
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
-      .flatMapEach(
-        answers.supportingEvidences,
-        j =>
-          (e: UploadedFile) =>
-            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
-      )
-      .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
-      .flatMap(j => j.receiveBillOfDischargeDocuments(answers.nonce, answers.billOfDischargeDocuments))
-      .flatMap(j => j.receiveProofOfOriginDocuments(answers.nonce, answers.proofOfOriginDocuments))
-      .map(_.submitAdditionalDetailsPageVisited(answers.modes.additionalDetailsPageVisitedMode))
-      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
+  object Answers {
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
 
-  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
-  def unsafeModifyAnswers(
-    claim: SecuritiesClaim,
-    f: SecuritiesClaim.Answers => SecuritiesClaim.Answers
-  ): SecuritiesClaim =
-    SecuritiesClaim(
-      answers = f(claim.answers),
-      startTimeSeconds = claim.startTimeSeconds,
-      features = claim.features
-    )
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 
 }

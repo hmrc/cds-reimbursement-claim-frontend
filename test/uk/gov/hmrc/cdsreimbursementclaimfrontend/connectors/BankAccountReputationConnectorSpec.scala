@@ -26,12 +26,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ConnectorFailure
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.ServiceUnavailableError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.TechnicalServiceError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError.{ConnectorFailure, ServiceUnavailableError, TechnicalServiceError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.*
@@ -39,14 +36,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.http.HttpReads
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 class BankAccountReputationConnectorSpec
     extends AnyWordSpec
@@ -61,23 +56,15 @@ class BankAccountReputationConnectorSpec
   val config = Configuration(ConfigFactory.load)
 
   val actorSystem = ActorSystem("test-BankAccountReputationConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector = new BankAccountReputationConnector(mockHttp, new ServicesConfig(config), config, actorSystem)
-
   val businessRequest: BarsBusinessAssessRequest = sample[BarsBusinessAssessRequest]
   val personalRequest: BarsPersonalAssessRequest = sample[BarsPersonalAssessRequest]
-
   val businessResponseBody: BusinessCompleteResponse = sample(
     BankAccountReputationGen.arbitraryBusinessCompleteResponse.arbitrary
   )
-
   val personalResponseBody: PersonalCompleteResponse = sample(
     BankAccountReputationGen.arbitraryPersonalCompleteResponse.arbitrary
   )
-
   val businessUrl = "http://localhost:7502/verify/business"
   val personalUrl = "http://localhost:7502/verify/personal"
 
@@ -85,6 +72,9 @@ class BankAccountReputationConnectorSpec
     response: HttpResponse
   ): CallHandler2[HttpReads[HttpResponse], ExecutionContext, Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, request)(response)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "BankAccountReputationConnector" should {
     "have retries defined" in {

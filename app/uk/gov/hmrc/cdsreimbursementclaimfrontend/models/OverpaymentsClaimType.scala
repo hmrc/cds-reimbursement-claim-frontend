@@ -22,12 +22,7 @@ sealed trait OverpaymentsClaimType
 
 object OverpaymentsClaimType extends EnumerationFormat[OverpaymentsClaimType] {
 
-  case object Individual extends OverpaymentsClaimType
-  case object Multiple extends OverpaymentsClaimType
-  case object Scheduled extends OverpaymentsClaimType
-
   override val values: Set[OverpaymentsClaimType] = Set(Individual, Multiple, Scheduled)
-
   private[models] val overpaymentsClaimTypeStringMap: Map[String, OverpaymentsClaimType] =
     values.map(a => a.toString -> a).toMap
 
@@ -39,4 +34,10 @@ object OverpaymentsClaimType extends EnumerationFormat[OverpaymentsClaimType] {
 
   def findUnsafe(claimType: String): OverpaymentsClaimType =
     overpaymentsClaimTypeStringMap(claimType)
+
+  case object Individual extends OverpaymentsClaimType
+
+  case object Multiple extends OverpaymentsClaimType
+
+  case object Scheduled extends OverpaymentsClaimType
 }

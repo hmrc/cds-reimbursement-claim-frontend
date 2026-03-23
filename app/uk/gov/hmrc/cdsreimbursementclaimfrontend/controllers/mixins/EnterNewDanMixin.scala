@@ -16,29 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.newDanForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.newDanForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_dan
 
 trait EnterNewDanMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
-
-  val newDanPage: enter_new_dan
-  val postAction: Call
-  val continueAction: Call
-  val formKey: String = "enter-new-dan"
-
-  def modifyClaim(claim: Claim, dan: Dan): Claim
-
-  def getNewDanAnswer(claim: Claim): Option[Dan] =
-    claim.answers.newDan
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       newDanPage(
@@ -47,7 +34,6 @@ trait EnterNewDanMixin extends ClaimBaseController {
       )
     )
   }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       newDanForm(formKey)
@@ -70,4 +56,13 @@ trait EnterNewDanMixin extends ClaimBaseController {
             )
         )
     }
+  val newDanPage: enter_new_dan
+  val postAction: Call
+  val continueAction: Call
+  val formKey: String = "enter-new-dan"
+
+  def modifyClaim(claim: Claim, dan: Dan): Claim
+
+  def getNewDanAnswer(claim: Claim): Option[Dan] =
+    claim.answers.newDan
 }

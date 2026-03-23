@@ -18,8 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import cats.Eq
 import cats.syntax.eq.*
-import org.scalatest.matchers.MatchResult
-import org.scalatest.matchers.Matcher
+import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait SummaryMatchers {
 
@@ -74,11 +73,6 @@ trait SummaryMatchers {
     containAllPairsOf(expected)
   }
 
-  final def containOnlyDefinedPairsOf[A : Eq](sequence: Seq[(String, Option[A])]): Matcher[Seq[(String, A)]] = {
-    val expected: Seq[(String, A)] = sequence.collect { case (n, Some(x)) => (n, x) }
-    containOnlyPairsOf(expected)
-  }
-
   final def containAllPairsOf[A : Eq](expected: Seq[(String, A)]): Matcher[Seq[(String, A)]] =
     new Matcher[Seq[(String, A)]] {
       override def apply(obtained: Seq[(String, A)]): MatchResult = {
@@ -126,6 +120,11 @@ trait SummaryMatchers {
         }
       }
     }
+
+  final def containOnlyDefinedPairsOf[A : Eq](sequence: Seq[(String, Option[A])]): Matcher[Seq[(String, A)]] = {
+    val expected: Seq[(String, A)] = sequence.collect { case (n, Some(x)) => (n, x) }
+    containOnlyPairsOf(expected)
+  }
 
   final def containOnlyPairsOf[A : Eq](expected: Seq[(String, A)]): Matcher[Seq[(String, A)]] =
     new Matcher[Seq[(String, A)]] {

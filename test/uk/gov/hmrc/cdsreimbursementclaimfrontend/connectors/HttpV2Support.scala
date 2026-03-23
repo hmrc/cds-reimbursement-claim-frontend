@@ -17,22 +17,18 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import izumi.reflect.Tag
-import org.scalamock.handlers.CallHandler2
-import org.scalamock.handlers.CallHandler4
+import org.scalamock.handlers.{CallHandler2, CallHandler4}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.JsValue
-import play.api.libs.ws.BodyWritable
-import play.api.libs.ws.WSRequest
+import play.api.libs.ws.{BodyWritable, WSRequest}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.*
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.client.RequestBuilder
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
 import java.net.URL
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait HttpV2Support { this: MockFactory & Matchers =>
 
@@ -60,39 +56,6 @@ trait HttpV2Support { this: MockFactory & Matchers =>
     mockRequestBuilderExecuteWithException(exception)
   }
 
-  def mockHttpPostStringSuccess[A](url: String, requestBody: String)(response: A) = {
-    mockHttpPost(URL(url))
-    mockRequestBuilderWithString(requestBody)
-    mockRequestBuilderExecuteWithoutException(response)
-  }
-
-  def mockHttpPostStringWithException(url: String, requestBody: String, exception: Exception) = {
-    mockHttpPost(URL(url))
-    mockRequestBuilderWithString(requestBody)
-    mockRequestBuilderTransform()
-    mockRequestBuilderExecuteWithException(exception)
-  }
-
-  def mockHttpGetSuccess[A](
-    url: URL
-  )(response: A) = {
-    mockHttpGet[A](url)
-    mockRequestBuilderExecuteWithoutException[A](response)
-  }
-
-  def mockHttpGetFailure(
-    url: URL
-  )(exception: Exception) = {
-    mockHttpGet(url)
-    mockRequestBuilderExecuteWithException(exception)
-  }
-
-  private def mockHttpGet[A](url: URL) =
-    (mockHttp
-      .get(_: URL)(_: HeaderCarrier))
-      .expects(url, *)
-      .returning(mockRequestBuilder)
-
   def mockHttpPost[A](url: URL) =
     (mockHttp
       .post(_: URL)(_: HeaderCarrier))
@@ -107,22 +70,6 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .expects(body, *, *, *)
       .returning(mockRequestBuilder)
 
-  def mockRequestBuilderWithString(
-    body: String
-  ) =
-    (mockRequestBuilder
-      .withBody(_: String)(using _: BodyWritable[String], _: Tag[String], _: ExecutionContext))
-      .expects(body, *, *, *)
-      .returning(mockRequestBuilder)
-
-  def mockRequestBuilderExecuteWithoutException[A](
-    value: A
-  ): CallHandler2[HttpReads[A], ExecutionContext, Future[A]] =
-    (mockRequestBuilder
-      .execute(using _: HttpReads[A], _: ExecutionContext))
-      .expects(*, *)
-      .returning(Future successful value)
-
   def mockRequestBuilderTransform() =
     (mockRequestBuilder
       .transform(_: WSRequest => WSRequest))
@@ -136,5 +83,54 @@ trait HttpV2Support { this: MockFactory & Matchers =>
       .execute(using _: HttpReads[A], _: ExecutionContext))
       .expects(*, *)
       .returning(Future failed ex)
+
+  def mockHttpPostStringSuccess[A](url: String, requestBody: String)(response: A) = {
+    mockHttpPost(URL(url))
+    mockRequestBuilderWithString(requestBody)
+    mockRequestBuilderExecuteWithoutException(response)
+  }
+
+  def mockHttpPostStringWithException(url: String, requestBody: String, exception: Exception) = {
+    mockHttpPost(URL(url))
+    mockRequestBuilderWithString(requestBody)
+    mockRequestBuilderTransform()
+    mockRequestBuilderExecuteWithException(exception)
+  }
+
+  def mockRequestBuilderWithString(
+    body: String
+  ) =
+    (mockRequestBuilder
+      .withBody(_: String)(using _: BodyWritable[String], _: Tag[String], _: ExecutionContext))
+      .expects(body, *, *, *)
+      .returning(mockRequestBuilder)
+
+  def mockHttpGetSuccess[A](
+    url: URL
+  )(response: A) = {
+    mockHttpGet[A](url)
+    mockRequestBuilderExecuteWithoutException[A](response)
+  }
+
+  private def mockHttpGet[A](url: URL) =
+    (mockHttp
+      .get(_: URL)(_: HeaderCarrier))
+      .expects(url, *)
+      .returning(mockRequestBuilder)
+
+  def mockRequestBuilderExecuteWithoutException[A](
+    value: A
+  ): CallHandler2[HttpReads[A], ExecutionContext, Future[A]] =
+    (mockRequestBuilder
+      .execute(using _: HttpReads[A], _: ExecutionContext))
+      .expects(*, *)
+      .returning(Future successful value)
+
+  def mockHttpGetFailure(
+    url: URL
+  )(exception: Exception) = {
+    mockHttpGet(url)
+    mockRequestBuilderExecuteWithException(exception)
+  }
 
 }

@@ -24,18 +24,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.FeaturesCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestFeaturesCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ControllerSpec, TestFeaturesCache}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks with OptionValues {
 
@@ -121,6 +118,11 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     override val controllerComponents: MessagesControllerComponents
   ) extends FrontendController(controllerComponents) {
 
+    def test(): Action[AnyContent] =
+      hideIfNotEnabled(Feature.BasisOfClaimOther) async {
+        Future.successful(Ok("ok"))
+      }
+
     private def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] & ActionFilter[Request] =
       new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 
@@ -133,11 +135,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
         override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
 
         override protected def executionContext: ExecutionContext = controllerComponents.executionContext
-      }
-
-    def test(): Action[AnyContent] =
-      hideIfNotEnabled(Feature.BasisOfClaimOther) async {
-        Future.successful(Ok("ok"))
       }
   }
 

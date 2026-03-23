@@ -17,9 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{InspectionAddress, InspectionAddressType, InspectionDate}
 
 trait HaveInspectionDetails {
   self: Claim & RejectedGoodsClaimProperties =>

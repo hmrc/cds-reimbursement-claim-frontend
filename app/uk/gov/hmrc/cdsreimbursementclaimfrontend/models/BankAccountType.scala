@@ -24,8 +24,9 @@ sealed trait BankAccountType {
 
 object BankAccountType extends EnumerationFormat[BankAccountType] {
 
-  case object Business extends BankAccountType { val value: Int = 0 }
-  case object Personal extends BankAccountType { val value: Int = 1 }
-
   val values: Set[BankAccountType] = Set(Business, Personal)
+
+  case object Business extends BankAccountType { val value: Int = 0 }
+
+  case object Personal extends BankAccountType { val value: Int = 1 }
 }

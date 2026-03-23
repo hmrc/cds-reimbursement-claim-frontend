@@ -20,13 +20,13 @@ import play.api.mvc.Headers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Hash
 
-import java.util.Locale
-import java.util.UUID
+import java.util.{Locale, UUID}
 
 object CorrelationIdHeader {
 
   val headerName          = "X-Correlation-ID"
   val headerNameLowercase = headerName.toLowerCase(Locale.UK)
+  val uuidRegex = "^.*\\w{8}(-\\w{4}-\\w{4})-\\w{4}-\\w{12}.*$".r
 
   def random(): (String, String) = (headerName, UUID.randomUUID().toString)
 
@@ -64,16 +64,14 @@ object CorrelationIdHeader {
     )
   }
 
-  def from(eori: Eori, uuid: UUID): (String, String) =
-    (headerName, Hash(eori.value).take(8) + uuid.toString.drop(8).take(10) + UUID.randomUUID().toString.drop(18))
-
-  val uuidRegex = "^.*\\w{8}(-\\w{4}-\\w{4})-\\w{4}-\\w{12}.*$".r
-
   def getUuidPart(value: String): Option[String] =
     value match {
       case uuidRegex(a) => Some(a)
       case _            => None
     }
+
+  def from(eori: Eori, uuid: UUID): (String, String) =
+    (headerName, Hash(eori.value).take(8) + uuid.toString.drop(8).take(10) + UUID.randomUUID().toString.drop(18))
 
   implicit class HeaderOps(val headers: Headers) {
     def addIfMissing(newHeader: (String, String)): Headers =

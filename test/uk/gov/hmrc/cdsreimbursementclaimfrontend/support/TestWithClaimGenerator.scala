@@ -18,9 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 trait TestWithClaimGenerator[Claim] {
   self: ScalaCheckPropertyChecks =>
@@ -31,11 +31,6 @@ trait TestWithClaimGenerator[Claim] {
         (mrn, rfs, declaration.withReasonForSecurity(rfs)) ++ tup
       }
   }
-
-  case class ClaimGenerator[TestInput](
-    testParamsGenerator: Gen[TestInput],
-    claimBuilder: TestInput => Claim
-  )
 
   final def forAllWith[TestParams](
     claimGenerator: ClaimGenerator[TestParams]
@@ -50,4 +45,9 @@ trait TestWithClaimGenerator[Claim] {
     val testParams: TestParams = claimGenerator.testParamsGenerator.sample.get
     test((claimGenerator.claimBuilder(testParams), testParams))
   }
+
+  case class ClaimGenerator[TestInput](
+    testParamsGenerator: Gen[TestInput],
+    claimBuilder: TestInput => Claim
+  )
 }

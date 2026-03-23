@@ -16,27 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.confirmFullRepaymentForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirm_full_repayment
 
 import scala.concurrent.ExecutionContext
@@ -48,15 +39,12 @@ class ConfirmFullRepaymentController @Inject() (
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesClaimBaseController {
 
-  private val form: Form[YesNo] = confirmFullRepaymentForm
-
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
   val showFirst: Action[AnyContent] =
     actionReadClaim { claim =>
       claim.getSelectedDepositIds.headOption
@@ -64,13 +52,7 @@ class ConfirmFullRepaymentController @Inject() (
           Redirect(routes.CheckDeclarationDetailsController.show)
         )(id => Redirect(routes.ConfirmFullRepaymentController.show(id)))
     }
-
-  private def getPageModel(importDeclaration: ImportDeclaration, id: String): ConfirmFullRepaymentModel =
-    ConfirmFullRepaymentModel(
-      mrn = importDeclaration.getMRN.value,
-      securityId = id,
-      depositValue = importDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
-    )
+  private val form: Form[YesNo] = confirmFullRepaymentForm
 
   def show(id: String): Action[AnyContent] = actionReadWriteClaim { claim =>
     claim
@@ -90,6 +72,13 @@ class ConfirmFullRepaymentController @Inject() (
       }
 
   }
+
+  private def getPageModel(importDeclaration: ImportDeclaration, id: String): ConfirmFullRepaymentModel =
+    ConfirmFullRepaymentModel(
+      mrn = importDeclaration.getMRN.value,
+      securityId = id,
+      depositValue = importDeclaration.getSecurityTotalValueFor(id).toPoundSterlingString
+    )
 
   def submit(id: String): Action[AnyContent] = actionReadWriteClaim(
     claim =>

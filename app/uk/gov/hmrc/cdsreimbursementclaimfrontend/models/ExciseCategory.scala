@@ -26,57 +26,12 @@ sealed abstract class ExciseCategory(val repr: String, val ordinal: Int) {
 }
 
 object ExciseCategory {
-
-  val simpleExciseCategoryFormat: Format[ExciseCategory] =
-    SimpleStringFormat[ExciseCategory](
-      repr =>
-        ExciseCategory
-          .find(repr)
-          .getOrElse(throw new Exception(s"Cannot parse excise category from the string [$repr]")),
-      _.repr
-    )
+  private lazy val exciseCategorysStringMap: Map[String, ExciseCategory] =
+    all.map(exciseCategory => exciseCategory.repr -> exciseCategory).toMap
 
   implicit val format: Format[ExciseCategory]       = simpleExciseCategoryFormat
   implicit val exciseCategoryEq: Eq[ExciseCategory] = Eq.fromUniversalEquals[ExciseCategory]
   implicit val ordering: Ordering[ExciseCategory]   = Ordering.by(_.ordinal)
-
-  def apply(value: String): ExciseCategory =
-    ExciseCategory.findUnsafe(value)
-
-  def unapply(exciseCategory: ExciseCategory): Option[String] =
-    Some(exciseCategory.repr)
-
-  case object Beer extends ExciseCategory("beer", 2)
-  case object Wine extends ExciseCategory("wine", 3)
-  case object MadeWine extends ExciseCategory("made-wine", 4)
-  case object LowAlcoholBeverages extends ExciseCategory("low-alcohol-beverages", 5)
-  case object Spirits extends ExciseCategory("spirits", 6)
-  case object CiderPerry extends ExciseCategory("cider-perry", 7)
-  case object OtherFermentedProducts extends ExciseCategory("other-fermented-products", 8)
-  case object HydrocarbonOils extends ExciseCategory("hydrocarbon-oils", 9)
-  case object Biofuels extends ExciseCategory("biofuels", 10)
-  case object MiscellaneousRoadFuels extends ExciseCategory("miscellaneous-road-fuels", 11)
-  case object Tobacco extends ExciseCategory("tobacco", 12)
-  case object ClimateChangeLevy extends ExciseCategory("climate-change-levy", 13)
-
-  val all: Seq[ExciseCategory] = List(
-    Beer,
-    Wine,
-    MadeWine,
-    LowAlcoholBeverages,
-    Spirits,
-    CiderPerry,
-    OtherFermentedProducts,
-    HydrocarbonOils,
-    Biofuels,
-    MiscellaneousRoadFuels,
-    Tobacco,
-    ClimateChangeLevy
-  ).sorted
-
-  private lazy val exciseCategorysStringMap: Map[String, ExciseCategory] =
-    all.map(exciseCategory => exciseCategory.repr -> exciseCategory).toMap
-
   private lazy val taxCode2ExciseCategoryMap: Map[TaxCode, ExciseCategory] =
     val m = collection.mutable.Map.empty[TaxCode, ExciseCategory]
     all.foreach(ec =>
@@ -93,6 +48,37 @@ object ExciseCategory {
       }
     )
     m.toMap
+  val simpleExciseCategoryFormat: Format[ExciseCategory] =
+    SimpleStringFormat[ExciseCategory](
+      repr =>
+        ExciseCategory
+          .find(repr)
+          .getOrElse(throw new Exception(s"Cannot parse excise category from the string [$repr]")),
+      _.repr
+    )
+  val all: Seq[ExciseCategory] = List(
+    Beer,
+    Wine,
+    MadeWine,
+    LowAlcoholBeverages,
+    Spirits,
+    CiderPerry,
+    OtherFermentedProducts,
+    HydrocarbonOils,
+    Biofuels,
+    MiscellaneousRoadFuels,
+    Tobacco,
+    ClimateChangeLevy
+  ).sorted
+
+  def apply(value: String): ExciseCategory =
+    ExciseCategory.findUnsafe(value)
+
+  def findUnsafe(representation: String): ExciseCategory =
+    exciseCategorysStringMap(representation)
+
+  def unapply(exciseCategory: ExciseCategory): Option[String] =
+    Some(exciseCategory.repr)
 
   def categoryOf(taxCode: TaxCode): ExciseCategory =
     taxCode2ExciseCategoryMap(taxCode)
@@ -100,10 +86,31 @@ object ExciseCategory {
   def find(representation: String): Option[ExciseCategory] =
     exciseCategorysStringMap.get(representation)
 
-  def findUnsafe(representation: String): ExciseCategory =
-    exciseCategorysStringMap(representation)
-
   def has(code: String): Boolean =
     exciseCategorysStringMap.contains(code)
+
+  case object Beer extends ExciseCategory("beer", 2)
+
+  case object Wine extends ExciseCategory("wine", 3)
+
+  case object MadeWine extends ExciseCategory("made-wine", 4)
+
+  case object LowAlcoholBeverages extends ExciseCategory("low-alcohol-beverages", 5)
+
+  case object Spirits extends ExciseCategory("spirits", 6)
+
+  case object CiderPerry extends ExciseCategory("cider-perry", 7)
+
+  case object OtherFermentedProducts extends ExciseCategory("other-fermented-products", 8)
+
+  case object HydrocarbonOils extends ExciseCategory("hydrocarbon-oils", 9)
+
+  case object Biofuels extends ExciseCategory("biofuels", 10)
+
+  case object MiscellaneousRoadFuels extends ExciseCategory("miscellaneous-road-fuels", 11)
+
+  case object Tobacco extends ExciseCategory("tobacco", 12)
+
+  case object ClimateChangeLevy extends ExciseCategory("climate-change-levy", 13)
 
 }

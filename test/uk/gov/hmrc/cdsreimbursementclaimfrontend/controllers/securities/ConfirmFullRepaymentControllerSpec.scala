@@ -19,34 +19,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 import org.jsoup.nodes.Document
 import org.scalacheck.ShrinkLowPriority
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.OptionValues
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGenSingleDuty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{SecuritiesClaim, SecuritiesClaimTestData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.{partialGenSingleDuty, securityIdWithTaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReasonForSecurity, SessionData, SummaryInspectionAddress, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 
 import java.text.NumberFormat
 import java.util.Locale
@@ -66,15 +54,12 @@ class ConfirmFullRepaymentControllerSpec
     with OptionValues
     with ShrinkLowPriority
     with Logging {
-
-  val confirmFullRepaymentKey: String = "confirm-full-repayment"
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
+  val confirmFullRepaymentKey: String = "confirm-full-repayment"
   val controller: ConfirmFullRepaymentController = instanceOf[ConfirmFullRepaymentController]
   implicit val messagesApi: MessagesApi          = controller.messagesApi
   implicit val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)

@@ -17,24 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
-import cats.implicits.toBifunctorOps
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import cats.implicits.{catsSyntaxEq, toBifunctorOps}
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.http.Status.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, ReasonForSecurity}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {

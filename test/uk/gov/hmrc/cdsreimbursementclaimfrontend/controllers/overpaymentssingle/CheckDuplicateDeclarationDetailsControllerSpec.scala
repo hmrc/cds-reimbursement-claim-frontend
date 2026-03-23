@@ -15,15 +15,10 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
+import org.jsoup.nodes.{Document, Element}
 import org.scalacheck.Gen
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,16 +26,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfOverpaymentClaim, BigDecimalOps, SessionData, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.MethodOfPaymentSummary
@@ -54,36 +44,37 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {
-
-  val mockClaimService: ClaimService = mock[ClaimService]
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimService)
     )
-
+  val mockClaimService: ClaimService = mock[ClaimService]
   val controller: CheckDuplicateDeclarationDetailsController = instanceOf[CheckDuplicateDeclarationDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val messagesKey: String = "check-import-declaration-details"
-
-  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
-    doc.select(".govuk-summary-card").asScala.find { card =>
-      card.select(".govuk-summary-card__title").text() == title
-    }
-
-  def getSummaryList(card: Element): Seq[(String, String)] = {
-    val rows = card.select(".govuk-summary-list__row").asScala
-    rows.map { row =>
-      val key   = row.select(".govuk-summary-list__key").text
-      val value = row.select(".govuk-summary-list__value").text
-      key -> value
-    }.toSeq
-  }
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    for
+      j1            <- buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
+                         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+      mrn           <- genMRN
+      consigneeEori <- genEori
+      declarantEori <- genEori
+      decl           = buildImportDeclaration(
+                         id = mrn.value,
+                         declarantEORI = declarantEori,
+                         consigneeEORI = Some(consigneeEori),
+                         Seq((TaxCode.A50, 100, false), (TaxCode.B00, 50, false))
+                       )
+    yield j1
+      .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
+      .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration)
+      .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
+      .getOrFail
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
@@ -158,24 +149,19 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     )
   }
 
-  val claimGen: Gen[OverpaymentsSingleClaim] =
-    for
-      j1            <- buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
-                         .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
-      mrn           <- genMRN
-      consigneeEori <- genEori
-      declarantEori <- genEori
-      decl           = buildImportDeclaration(
-                         id = mrn.value,
-                         declarantEORI = declarantEori,
-                         consigneeEORI = Some(consigneeEori),
-                         Seq((TaxCode.A50, 100, false), (TaxCode.B00, 50, false))
-                       )
-    yield j1
-      .submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
-      .flatMapWhenDefined(decl.getConsigneeEori)(_.checkConsigneeEoriNumberWithDuplicateDeclaration)
-      .flatMap(_.checkDeclarantEoriNumberWithDuplicateDeclaration(decl.getDeclarantEori))
-      .getOrFail
+  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
+    doc.select(".govuk-summary-card").asScala.find { card =>
+      card.select(".govuk-summary-card__title").text() == title
+    }
+
+  def getSummaryList(card: Element): Seq[(String, String)] = {
+    val rows = card.select(".govuk-summary-list__row").asScala
+    rows.map { row =>
+      val key   = row.select(".govuk-summary-list__key").text
+      val value = row.select(".govuk-summary-list__value").text
+      key -> value
+    }.toSeq
+  }
 
   "Check Duplicate Declaration Details Controller" when {
     "Check Duplicate Declaration Details page" must {

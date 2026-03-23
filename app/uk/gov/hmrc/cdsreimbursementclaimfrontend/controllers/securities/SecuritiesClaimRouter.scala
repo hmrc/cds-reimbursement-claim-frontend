@@ -17,12 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as commonRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as commonRoutes
 
 trait SecuritiesClaimRouter {
 
   private val undefined: Call = routes.EnterMovementReferenceNumberController.show
+
+  final def routeForValidationErrors(errors: Seq[String]): Call =
+    errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
   def routeForValidationError(error: String): Call =
     error match {
@@ -58,8 +61,5 @@ trait SecuritiesClaimRouter {
       case _                                                                 => undefined
 
     }
-
-  final def routeForValidationErrors(errors: Seq[String]): Call =
-    errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
 }

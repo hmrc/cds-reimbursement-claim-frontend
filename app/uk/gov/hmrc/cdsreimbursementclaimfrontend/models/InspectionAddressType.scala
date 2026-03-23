@@ -22,11 +22,13 @@ sealed trait InspectionAddressType extends Product with Serializable
 
 object InspectionAddressType extends EnumerationFormat[InspectionAddressType] {
 
-  case object Importer extends InspectionAddressType
-  case object Declarant extends InspectionAddressType
-  case object Other extends InspectionAddressType
-
   override val values: Set[InspectionAddressType] =
     Set(Importer, Declarant, Other)
+
+  case object Importer extends InspectionAddressType
+
+  case object Declarant extends InspectionAddressType
+
+  case object Other extends InspectionAddressType
 
 }

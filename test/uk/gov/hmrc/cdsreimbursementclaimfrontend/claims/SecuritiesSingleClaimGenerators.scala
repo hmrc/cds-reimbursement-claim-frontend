@@ -17,19 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.PayeeType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, EoriNumbersVerification, Nonce, PayeeType, ReasonForSecurity, SecuritiesClaimModes, TaxCode, TemporaryAdmissionMethodOfDisposal, UploadDocumentType, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EoriNumbersVerification
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesClaimModes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
 
 import scala.collection.immutable.SortedMap
@@ -37,44 +28,6 @@ import scala.jdk.CollectionConverters.*
 
 /** A collection of generators supporting the tests of SecuritiesClaim with a single security deposit id. */
 object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesClaimTestData with SeqUtils {
-
-  def validSecurityReclaimsGen(decl: ImportDeclaration): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
-    Gen
-      .sequence(
-        decl.getSecurityDepositIds
-          .getOrElse(Seq.empty)
-          .halfNonEmpty
-          .flatMap(depositId =>
-            decl
-              .getSecurityDetailsFor(depositId)
-              .map(sd =>
-                sd.taxDetails.halfNonEmpty.map(td =>
-                  Gen
-                    .choose(BigDecimal.exact("0.00"), td.getAmount - BigDecimal.exact("0.01"))
-                    .map(amount => (sd.securityDepositId, td.getTaxCode, td.getAmount, amount))
-                )
-              )
-              .getOrElse(Seq.empty)
-          )
-      )
-      .map(_.asScala.toSeq)
-
-  def validSecurityReclaimsFullAmountGen(
-    decl: ImportDeclaration
-  ): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
-    Gen
-      .const(
-        decl.getSecurityDepositIds
-          .getOrElse(Seq.empty)
-          .flatMap(depositId =>
-            decl
-              .getSecurityDetailsFor(depositId)
-              .map(sd =>
-                sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount, BigDecimal("0.00")))
-              )
-              .getOrElse(Seq.empty)
-          )
-      )
 
   lazy val rfsWithImportDeclarationGen: Gen[(ReasonForSecurity, ImportDeclaration)] =
     for
@@ -84,7 +37,6 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                    .withReasonForSecurity(rfs)
                )
     yield (rfs, acc14)
-
   lazy val mrnWithRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -95,7 +47,6 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                    .withReasonForSecurity(rfs)
                )
     yield (mrn, rfs, acc14)
-
   lazy val mrnWithRfsWithImportDeclarationNotGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -106,7 +57,6 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                    .withReasonForSecurity(rfs)
                )
     yield (mrn, rfs, acc14)
-
   lazy val mrnWithRfsWithImportDeclarationGuaranteeEligibleGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -121,7 +71,6 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                    .withReasonForSecurity(rfs)
                )
     yield (mrn, rfs, acc14)
-
   lazy val mrnWithtRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     for
       mrn   <- IdGen.genMRN
@@ -132,19 +81,160 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                    .withReasonForSecurity(rfs)
                )
     yield (mrn, rfs, acc14)
-
   lazy val mrnWithtRfsWithImportDeclarationWithoutIPROrENUGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     mrnWithRfsWithImportDeclarationGen(
       ReasonForSecurity.values
         - ReasonForSecurity.InwardProcessingRelief
         - ReasonForSecurity.EndUseRelief
     )
-
   lazy val mrnWithtRfsWithImportDeclarationOnlyIPRGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     mrnWithRfsWithImportDeclarationGen(Set(ReasonForSecurity.InwardProcessingRelief))
-
   lazy val mrnWithtRfsWithImportDeclarationOnlyENUGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
     mrnWithRfsWithImportDeclarationGen(Set(ReasonForSecurity.EndUseRelief))
+  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <-
+        Gen.oneOf(
+          TemporaryAdmissionMethodOfDisposal.values.diff(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal)
+        )
+    yield (mrn, rfs, acc14, mfd)
+  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <- Gen.oneOf(
+                 List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
+               )
+    yield (mrn, rfs, acc14, mfd)
+  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithMultipleShipmentMfdGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+      mfd   <- Gen.oneOf(
+                 List(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)
+               )
+    yield (mrn, rfs, acc14, mfd)
+  lazy val mrnWithIPROrENURfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    yield (mrn, rfs, acc14)
+  lazy val mrnWithTaRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <- Gen.oneOf[ReasonForSecurity](
+                 ReasonForSecurity.TemporaryAdmission2Y,
+                 ReasonForSecurity.TemporaryAdmission6M,
+                 ReasonForSecurity.TemporaryAdmission3M,
+                 ReasonForSecurity.TemporaryAdmission2M
+               )
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    yield (mrn, rfs, acc14)
+  lazy val mrnWithIPRRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(ReasonForSecurity.InwardProcessingRelief)
+               )
+    yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
+  lazy val mrnWithENURfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(ReasonForSecurity.EndUseRelief)
+               )
+    yield (mrn, ReasonForSecurity.EndUseRelief, acc14)
+  lazy val mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
+    for
+      mrn   <- IdGen.genMRN
+      rfs   <-
+        Gen.oneOf(
+          ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, None, false).isDefined)
+        )
+      acc14 <- securitiesSingleImportDeclarationGen.map(
+                 _.withDeclarationId(mrn.value)
+                   .withDeclarantEori(exampleEori)
+                   .withReasonForSecurity(rfs)
+               )
+    yield (mrn, rfs, acc14)
+  lazy val mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, UploadDocumentType)] =
+    for
+      (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen
+      documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None, false).get)
+    yield (mrn, rfs, acc14, documentType)
+  lazy val mrnWithRfsWithImportDeclarationWithReclaimsGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
+    for
+      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    yield (mrn, rfs, decl, reclaims)
+  lazy val mrnIncludingExportRfsWithImportDeclarationWithReclaimsGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
+    for
+      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    yield (mrn, rfs, decl, reclaims)
+  lazy val mrnWithRfsWithImportDeclarationWithReclaimsNotGuaranteeEligibleGen
+    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
+    for
+      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationNotGuaranteeEligibleGen
+      reclaims         <- validSecurityReclaimsGen(decl)
+    yield (mrn, rfs, decl, reclaims)
+  lazy val exportMrnTrueGen: Gen[MRN] =
+    for mrn <- IdGen.genMRN
+    yield mrn
+  val completeClaimGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen()
+  val completeClaimWithoutIPROrENUGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
+      reasonsForSecurity = ReasonForSecurity.values
+        - ReasonForSecurity.InwardProcessingRelief
+        - ReasonForSecurity.EndUseRelief
+    )
+  val completeClaimOnlyIPRGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
+      reasonsForSecurity = Set(ReasonForSecurity.InwardProcessingRelief)
+    )
+  val completeClaimOnlyENUGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
+      reasonsForSecurity = Set(ReasonForSecurity.EndUseRelief)
+    )
+  val genReasonForSecurity: Gen[ReasonForSecurity] =
+    Gen.oneOf(ReasonForSecurity.values)
 
   def mrnWithRfsWithImportDeclarationGen(
     reasonsForSecurity: Set[ReasonForSecurity]
@@ -173,52 +263,6 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                  )
     yield (mrn, rfs, acc14)
 
-  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithMfdGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-      mfd   <-
-        Gen.oneOf(
-          TemporaryAdmissionMethodOfDisposal.values.diff(TemporaryAdmissionMethodOfDisposal.exportedMethodsOfDisposal)
-        )
-    yield (mrn, rfs, acc14, mfd)
-
-  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithSingleShipmentMfdGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-      mfd   <- Gen.oneOf(
-                 List(TemporaryAdmissionMethodOfDisposal.ExportedInSingleShipment)
-               )
-    yield (mrn, rfs, acc14, mfd)
-
-  lazy val mrnWithRfsTempAdmissionWithImportDeclarationWithMultipleShipmentMfdGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, TemporaryAdmissionMethodOfDisposal)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf(ReasonForSecurity.ntas)
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-      mfd   <- Gen.oneOf(
-                 List(TemporaryAdmissionMethodOfDisposal.ExportedInMultipleShipments)
-               )
-    yield (mrn, rfs, acc14, mfd)
-
   def mrnWithRfsExcludingWithImportDeclarationGen(
     reasonsForSecurityToExclude: Set[ReasonForSecurity]
   ): Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
@@ -232,124 +276,8 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
                )
     yield (mrn, rfs, acc14)
 
-  lazy val mrnWithIPROrENURfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf[ReasonForSecurity](ReasonForSecurity.InwardProcessingRelief, ReasonForSecurity.EndUseRelief)
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    yield (mrn, rfs, acc14)
-
-  lazy val mrnWithTaRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <- Gen.oneOf[ReasonForSecurity](
-                 ReasonForSecurity.TemporaryAdmission2Y,
-                 ReasonForSecurity.TemporaryAdmission6M,
-                 ReasonForSecurity.TemporaryAdmission3M,
-                 ReasonForSecurity.TemporaryAdmission2M
-               )
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    yield (mrn, rfs, acc14)
-
-  lazy val mrnWithIPRRfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
-    for
-      mrn   <- IdGen.genMRN
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(ReasonForSecurity.InwardProcessingRelief)
-               )
-    yield (mrn, ReasonForSecurity.InwardProcessingRelief, acc14)
-
-  lazy val mrnWithENURfsWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
-    for
-      mrn   <- IdGen.genMRN
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(ReasonForSecurity.EndUseRelief)
-               )
-    yield (mrn, ReasonForSecurity.EndUseRelief, acc14)
-
-  lazy val mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen: Gen[(MRN, ReasonForSecurity, ImportDeclaration)] =
-    for
-      mrn   <- IdGen.genMRN
-      rfs   <-
-        Gen.oneOf(
-          ReasonForSecurity.values.filter(rfs => UploadDocumentType.securitiesDocumentTypes(rfs, None, false).isDefined)
-        )
-      acc14 <- securitiesSingleImportDeclarationGen.map(
-                 _.withDeclarationId(mrn.value)
-                   .withDeclarantEori(exampleEori)
-                   .withReasonForSecurity(rfs)
-               )
-    yield (mrn, rfs, acc14)
-
-  lazy val mrnWithRfsRequiringDocumentTypeWithImportDeclarationWithDocumentTypeGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, UploadDocumentType)] =
-    for
-      (mrn, rfs, acc14) <- mrnWithRfsRequiringDocumentTypeWithImportDeclarationGen
-      documentType      <- Gen.oneOf(UploadDocumentType.securitiesDocumentTypes(rfs, None, false).get)
-    yield (mrn, rfs, acc14, documentType)
-
-  lazy val mrnWithRfsWithImportDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for
-      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    yield (mrn, rfs, decl, reclaims)
-
-  lazy val mrnIncludingExportRfsWithImportDeclarationWithReclaimsGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for
-      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    yield (mrn, rfs, decl, reclaims)
-
-  lazy val mrnWithRfsWithImportDeclarationWithReclaimsNotGuaranteeEligibleGen
-    : Gen[(MRN, ReasonForSecurity, ImportDeclaration, Seq[(String, TaxCode, BigDecimal, BigDecimal)])] =
-    for
-      (mrn, rfs, decl) <- mrnWithRfsWithImportDeclarationNotGuaranteeEligibleGen
-      reclaims         <- validSecurityReclaimsGen(decl)
-    yield (mrn, rfs, decl, reclaims)
-
-  lazy val exportMrnTrueGen: Gen[MRN] =
-    for mrn <- IdGen.genMRN
-    yield mrn
-
-  val completeClaimGen: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen()
-
   def completeClaimGenWithReasonsForSecurity(reasonsForSecurity: Set[ReasonForSecurity]): Gen[SecuritiesClaim] =
     buildCompleteClaimGen(reasonsForSecurity = reasonsForSecurity)
-
-  val completeClaimWithoutIPROrENUGen: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen(
-      reasonsForSecurity = ReasonForSecurity.values
-        - ReasonForSecurity.InwardProcessingRelief
-        - ReasonForSecurity.EndUseRelief
-    )
-
-  val completeClaimOnlyIPRGen: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen(
-      reasonsForSecurity = Set(ReasonForSecurity.InwardProcessingRelief)
-    )
-
-  val completeClaimOnlyENUGen: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen(
-      reasonsForSecurity = Set(ReasonForSecurity.EndUseRelief)
-    )
-
-  val genReasonForSecurity: Gen[ReasonForSecurity] =
-    Gen.oneOf(ReasonForSecurity.values)
 
   def buildCompleteClaimGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
@@ -523,5 +451,43 @@ object SecuritiesSingleClaimGenerators extends ClaimGenerators with SecuritiesCl
 
       SecuritiesClaim.tryBuildFrom(answers)
     }
+
+  def validSecurityReclaimsGen(decl: ImportDeclaration): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
+    Gen
+      .sequence(
+        decl.getSecurityDepositIds
+          .getOrElse(Seq.empty)
+          .halfNonEmpty
+          .flatMap(depositId =>
+            decl
+              .getSecurityDetailsFor(depositId)
+              .map(sd =>
+                sd.taxDetails.halfNonEmpty.map(td =>
+                  Gen
+                    .choose(BigDecimal.exact("0.00"), td.getAmount - BigDecimal.exact("0.01"))
+                    .map(amount => (sd.securityDepositId, td.getTaxCode, td.getAmount, amount))
+                )
+              )
+              .getOrElse(Seq.empty)
+          )
+      )
+      .map(_.asScala.toSeq)
+
+  def validSecurityReclaimsFullAmountGen(
+    decl: ImportDeclaration
+  ): Gen[Seq[(String, TaxCode, BigDecimal, BigDecimal)]] =
+    Gen
+      .const(
+        decl.getSecurityDepositIds
+          .getOrElse(Seq.empty)
+          .flatMap(depositId =>
+            decl
+              .getSecurityDetailsFor(depositId)
+              .map(sd =>
+                sd.taxDetails.map(td => (sd.securityDepositId, td.getTaxCode, td.getAmount, BigDecimal("0.00")))
+              )
+              .getOrElse(Seq.empty)
+          )
+      )
 
 }

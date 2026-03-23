@@ -18,31 +18,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import com.google.inject.AbstractModule
 import org.apache.pekko.actor.ActorSystem
+import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.Configuration
-import play.api.Logger
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.client.HttpClientV2Impl
-import uk.gov.hmrc.http.hooks.HookData.FromMap
-import uk.gov.hmrc.http.hooks.HookData.FromString
-import uk.gov.hmrc.http.hooks.Data
-import uk.gov.hmrc.http.hooks.HttpHook
-import uk.gov.hmrc.http.hooks.RequestData
-import uk.gov.hmrc.http.hooks.ResponseData
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.{HttpClientV2, HttpClientV2Impl}
+import uk.gov.hmrc.http.hooks.HookData.{FromMap, FromString}
+import uk.gov.hmrc.http.hooks.{Data, HttpHook, RequestData, ResponseData}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 
 import java.net.URL
-import javax.inject.Inject
-import javax.inject.Singleton
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.AnsiColor.*
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class Module extends AbstractModule {
 

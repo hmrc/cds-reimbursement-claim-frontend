@@ -23,22 +23,20 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.test.Helpers.await
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ExistingClaim, ReasonForSecurity}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ExistingClaimGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReasonForSecurityGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExistingClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.http.{HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.json.Json
 
 class DeclarationConnectorSpec
     extends AnyWordSpec

@@ -16,21 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclaration}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_additional_details
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -45,13 +40,6 @@ class EnterAdditionalDetailsController @Inject() (
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
 
   final val postAction: Call = routes.EnterAdditionalDetailsController.submit
-
-  final def continueRoute(claim: Claim): Call =
-    if claim.answers.contactDetails.isDefined
-      && claim.answers.contactAddress.isDefined
-    then routes.CheckYourAnswersController.show
-    else routes.EnterContactDetailsController.show
-
   final val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       val form: Form[String] =
@@ -67,7 +55,6 @@ class EnterAdditionalDetailsController @Inject() (
         )
       )
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       Forms.enterAdditionalDetailsSecuritiesForm
@@ -90,5 +77,11 @@ class EnterAdditionalDetailsController @Inject() (
             )
         )
     }
+
+  final def continueRoute(claim: Claim): Call =
+    if claim.answers.contactDetails.isDefined
+      && claim.answers.contactAddress.isDefined
+    then routes.CheckYourAnswersController.show
+    else routes.EnterContactDetailsController.show
 
 }

@@ -17,15 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import play.api.libs.json.Format
-import play.api.libs.json.Json
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.CdsVerifiedEmail
 
 final case class SessionData(
@@ -46,6 +39,7 @@ final case class SessionData(
 }
 
 object SessionData {
+  val empty: SessionData = SessionData()
 
   def apply(overpaymentsSingleClaim: OverpaymentsSingleClaim): SessionData =
     SessionData(overpaymentsSingleClaim = Some(overpaymentsSingleClaim))
@@ -65,13 +59,11 @@ object SessionData {
   def apply(rejectedGoodsScheduledClaim: RejectedGoodsScheduledClaim): SessionData =
     SessionData(rejectedGoodsScheduledClaim = Some(rejectedGoodsScheduledClaim))
 
-  def apply(securitiesClaim: SecuritiesClaim): SessionData =
-    SessionData(securitiesClaim = Some(securitiesClaim))
-
   implicit val format: Format[SessionData] = Json.format
 
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
-  val empty: SessionData = SessionData()
+  def apply(securitiesClaim: SecuritiesClaim): SessionData =
+    SessionData(securitiesClaim = Some(securitiesClaim))
 
 }

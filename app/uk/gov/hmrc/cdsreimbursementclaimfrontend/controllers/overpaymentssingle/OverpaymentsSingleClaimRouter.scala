@@ -23,6 +23,9 @@ trait OverpaymentsSingleClaimRouter {
 
   private val undefined: Call = routes.EnterMovementReferenceNumberController.show
 
+  def routeForValidationErrors(errors: Seq[String]): Call =
+    errors.headOption.map(routeForValidationError).getOrElse(undefined)
+
   def routeForValidationError(error: String): Call =
     error match {
       case CLAIM_ALREADY_FINALIZED                                  => routes.CheckYourAnswersController.showConfirmation
@@ -55,8 +58,5 @@ trait OverpaymentsSingleClaimRouter {
       case DUTIES_CHANGE_MODE_ENABLED                               => routes.CheckClaimDetailsController.show
       case _                                                        => undefined
     }
-
-  def routeForValidationErrors(errors: Seq[String]): Call =
-    errors.headOption.map(routeForValidationError).getOrElse(undefined)
 
 }

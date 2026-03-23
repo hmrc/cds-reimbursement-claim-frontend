@@ -16,38 +16,25 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.FormError
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import com.google.inject.{Inject, Singleton}
+import play.api.data.{Form, FormError}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.firstExportMovementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.nextExportMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.{firstExportMovementReferenceNumberForm, nextExportMovementReferenceNumberForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.ntas
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsExportedMethodsOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.containsMultipleExportedMethodsOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.No
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal.{containsExportedMethodsOfDisposal, containsMultipleExportedMethodsOfDisposal}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{TemporaryAdmissionMethodOfDisposal, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number_first
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.enter_export_movement_reference_number_next
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.{enter_export_movement_reference_number_first, enter_export_movement_reference_number_next}
 import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterExportMovementReferenceNumberController @Inject() (
@@ -63,15 +50,6 @@ class EnterExportMovementReferenceNumberController @Inject() (
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
-  private val enterFirstExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
-  private val enterNextExportMovementReferenceNumberKey: String  = "enter-export-movement-reference-number.next"
-
-  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
-    if claim.isSingleSecurity
-    then routes.ChoosePayeeTypeController.show
-    else routes.ConfirmFullRepaymentController.showFirst
-
   val showFirst: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmissionExported(claim) {
       val form =
@@ -112,54 +90,6 @@ class EnterExportMovementReferenceNumberController @Inject() (
       }
     }
   }
-
-  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
-    whenTemporaryAdmissionExported(claim) {
-      val form = nextExportMovementReferenceNumberForm
-        .withDefault(
-          claim.answers.exportMovementReferenceNumbers.flatMap(_.drop(pageIndex - 1).headOption.map(x => (x, None)))
-        )
-
-      claim.getMethodOfDisposal match {
-        case Some(mods) =>
-          (if containsMultipleExportedMethodsOfDisposal(mods) then {
-             if claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
-               (
-                 claim,
-                 Ok(
-                   enterNextExportMovementReferenceNumberPage(
-                     pageIndex,
-                     claim.userHasSeenCYAPage
-                       && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
-                     form,
-                     routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
-                   )
-                 )
-               )
-             else
-               // if pageIndex is outside the bounds
-               (
-                 claim,
-                 Redirect(
-                   claim.answers.exportMovementReferenceNumbers match {
-                     case None       => routes.EnterExportMovementReferenceNumberController.showFirst
-                     case Some(mrns) => routes.EnterExportMovementReferenceNumberController.showNext(mrns.size + 1)
-                   }
-                 )
-               )
-           } else {
-             logger.error(
-               "Should not reach this page as Method of disposal must be one of [ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
-             )
-             (claim, errorHandler.errorResult())
-           }).asFuture
-        case None       =>
-          logger.error("Should not reach this page as method of disposal has not been selected yet.")
-          (claim, errorHandler.errorResult()).asFuture
-      }
-    }
-  }
-
   val submitFirst: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       whenTemporaryAdmissionExported(claim) {
@@ -261,6 +191,76 @@ class EnterExportMovementReferenceNumberController @Inject() (
       },
     fastForwardToCYAEnabled = false
   )
+  private val enterFirstExportMovementReferenceNumberKey: String = "enter-export-movement-reference-number"
+  private val enterNextExportMovementReferenceNumberKey: String  = "enter-export-movement-reference-number.next"
+
+  def showNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
+    whenTemporaryAdmissionExported(claim) {
+      val form = nextExportMovementReferenceNumberForm
+        .withDefault(
+          claim.answers.exportMovementReferenceNumbers.flatMap(_.drop(pageIndex - 1).headOption.map(x => (x, None)))
+        )
+
+      claim.getMethodOfDisposal match {
+        case Some(mods) =>
+          (if containsMultipleExportedMethodsOfDisposal(mods) then {
+             if claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex <= size + 1) then
+               (
+                 claim,
+                 Ok(
+                   enterNextExportMovementReferenceNumberPage(
+                     pageIndex,
+                     claim.userHasSeenCYAPage
+                       && claim.answers.exportMovementReferenceNumbers.map(_.size).exists(size => pageIndex == size),
+                     form,
+                     routes.EnterExportMovementReferenceNumberController.submitNext(pageIndex)
+                   )
+                 )
+               )
+             else
+               // if pageIndex is outside the bounds
+               (
+                 claim,
+                 Redirect(
+                   claim.answers.exportMovementReferenceNumbers match {
+                     case None       => routes.EnterExportMovementReferenceNumberController.showFirst
+                     case Some(mrns) => routes.EnterExportMovementReferenceNumberController.showNext(mrns.size + 1)
+                   }
+                 )
+               )
+           } else {
+             logger.error(
+               "Should not reach this page as Method of disposal must be one of [ExportedInMultipleShipments, ExportedInSingleOrMultipleShipments]"
+             )
+             (claim, errorHandler.errorResult())
+           }).asFuture
+        case None       =>
+          logger.error("Should not reach this page as method of disposal has not been selected yet.")
+          (claim, errorHandler.errorResult()).asFuture
+      }
+    }
+  }
+
+  private def whenTemporaryAdmissionExported(
+    claim: SecuritiesClaim
+  )(body: => Future[(SecuritiesClaim, Result)])(implicit request: Request[?]): Future[(SecuritiesClaim, Result)] =
+    (claim.getReasonForSecurity, claim.answers.temporaryAdmissionMethodsOfDisposal) match {
+      case (None, _)                                                                                 =>
+        (claim, errorHandler.errorResult()).asFuture
+      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && containsExportedMethodsOfDisposal(mods)  =>
+        body
+      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && !containsExportedMethodsOfDisposal(mods) =>
+        (claim, Redirect(nextStepInClaim(claim))).asFuture
+      case (Some(rfs), None) if ntas.contains(rfs)                                                   =>
+        (claim, Redirect(routes.ChooseExportMethodController.show)).asFuture
+      case (Some(_), _)                                                                              =>
+        (claim, Redirect(nextStepInClaim(claim))).asFuture
+    }
+
+  def nextStepInClaim(claim: SecuritiesClaim)(using HeaderCarrier) =
+    if claim.isSingleSecurity
+    then routes.ChoosePayeeTypeController.show
+    else routes.ConfirmFullRepaymentController.showFirst
 
   def submitNext(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim(
     claim =>
@@ -370,21 +370,5 @@ class EnterExportMovementReferenceNumberController @Inject() (
       },
     fastForwardToCYAEnabled = false
   )
-
-  private def whenTemporaryAdmissionExported(
-    claim: SecuritiesClaim
-  )(body: => Future[(SecuritiesClaim, Result)])(implicit request: Request[?]): Future[(SecuritiesClaim, Result)] =
-    (claim.getReasonForSecurity, claim.answers.temporaryAdmissionMethodsOfDisposal) match {
-      case (None, _)                                                                                 =>
-        (claim, errorHandler.errorResult()).asFuture
-      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && containsExportedMethodsOfDisposal(mods)  =>
-        body
-      case (Some(rfs), Some(mods)) if ntas.contains(rfs) && !containsExportedMethodsOfDisposal(mods) =>
-        (claim, Redirect(nextStepInClaim(claim))).asFuture
-      case (Some(rfs), None) if ntas.contains(rfs)                                                   =>
-        (claim, Redirect(routes.ChooseExportMethodController.show)).asFuture
-      case (Some(_), _)                                                                              =>
-        (claim, Redirect(nextStepInClaim(claim))).asFuture
-    }
 
 }

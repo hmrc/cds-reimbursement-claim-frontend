@@ -21,16 +21,11 @@ import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DirectFluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, NdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{DirectFluentSyntax, Validator}
 
-import java.time.Instant
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 /** An encapsulated C285 single MRN claim logic. The constructor of this class MUST stay PRIVATE to protected integrity
   * of the claim.
@@ -58,11 +53,6 @@ final class OverpaymentsSingleClaim private (
 
   val validate: Validator.Validate[OverpaymentsSingleClaim] =
     OverpaymentsSingleClaim.validator
-
-  private def copy(
-    newAnswers: OverpaymentsSingleClaim.Answers
-  ): OverpaymentsSingleClaim =
-    new OverpaymentsSingleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   override def getAvailableClaimTypes: Set[BasisOfOverpaymentClaim] =
     BasisOfOverpaymentClaim
@@ -92,22 +82,6 @@ final class OverpaymentsSingleClaim private (
     answers.basisOfClaim.contains(BasisOfOverpaymentClaim.DuplicateEntry) &&
       !(userHasGBEoriMatchingDuplicateDeclaration || userHasXIEoriMatchingDuplicateDeclaration)
 
-  def getDuplicateImportDeclaration: Option[ImportDeclaration] =
-    answers.duplicateDeclaration
-      .map(_.importDeclaration)
-
-  def getDeclarantEoriFromDuplicateACC14: Option[Eori] =
-    getDuplicateImportDeclaration
-      .map(_.getDeclarantEori)
-
-  def getConsigneeEoriFromDuplicateACC14: Option[Eori] =
-    getDuplicateImportDeclaration
-      .flatMap(_.getConsigneeEori)
-
-  def userHasGBEoriMatchingDuplicateDeclaration: Boolean =
-    getDeclarantEoriFromDuplicateACC14.contains(answers.userEoriNumber) ||
-      getConsigneeEoriFromDuplicateACC14.contains(answers.userEoriNumber)
-
   def userHasXIEoriMatchingDuplicateDeclaration: Boolean =
     answers.eoriNumbersVerification.exists(x =>
       x.hasSameXiEoriAs(getDeclarantEoriFromDuplicateACC14) ||
@@ -118,6 +92,22 @@ final class OverpaymentsSingleClaim private (
     !userHasGBEoriMatchingDuplicateDeclaration &&
       getDuplicateImportDeclaration.exists(_.containsXiEori) &&
       answers.eoriNumbersVerification.flatMap(_.userXiEori).isEmpty
+
+  def getDuplicateImportDeclaration: Option[ImportDeclaration] =
+    answers.duplicateDeclaration
+      .map(_.importDeclaration)
+
+  def userHasGBEoriMatchingDuplicateDeclaration: Boolean =
+    getDeclarantEoriFromDuplicateACC14.contains(answers.userEoriNumber) ||
+      getConsigneeEoriFromDuplicateACC14.contains(answers.userEoriNumber)
+
+  def getDeclarantEoriFromDuplicateACC14: Option[Eori] =
+    getDuplicateImportDeclaration
+      .map(_.getDeclarantEori)
+
+  def getConsigneeEoriFromDuplicateACC14: Option[Eori] =
+    getDuplicateImportDeclaration
+      .flatMap(_.getConsigneeEori)
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsSingleClaim =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
@@ -406,9 +396,6 @@ final class OverpaymentsSingleClaim private (
       }
     }
 
-  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
-
   def submitCorrectAmount(
     taxCode: TaxCode,
     correctAmount: BigDecimal
@@ -461,6 +448,9 @@ final class OverpaymentsSingleClaim private (
           }
       }
     }
+
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
   def submitPayeeType(payeeType: PayeeType): Either[String, OverpaymentsSingleClaim] =
     whileClaimIsAmendable {
@@ -526,6 +516,11 @@ final class OverpaymentsSingleClaim private (
           )
         )
     }
+
+  private def copy(
+    newAnswers: OverpaymentsSingleClaim.Answers
+  ): OverpaymentsSingleClaim =
+    new OverpaymentsSingleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def resetReimbursementMethod(): OverpaymentsSingleClaim =
     whileClaimIsAmendable {
@@ -641,6 +636,58 @@ final class OverpaymentsSingleClaim private (
 }
 
 object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
+  type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
+
+  /** Try to build claim from the pre-existing answers. */
+  override def tryBuildFrom(
+    answers: Answers,
+    features: Option[Features] = None
+  ): Either[String, OverpaymentsSingleClaim] =
+    empty(answers.userEoriNumber, answers.nonce, features)
+      .flatMapWhenDefined(
+        answers.movementReferenceNumber.zip(answers.importDeclaration)
+      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
+        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
+      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
+      .map(_.submitContactDetails(answers.contactDetails))
+      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
+      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
+      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
+      .flatMapWhenDefined(
+        answers.duplicateDeclaration
+          .map(_.movementReferenceNumber)
+          .zip(answers.duplicateDeclaration.map(_.importDeclaration))
+      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
+        j.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
+      })
+      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
+        d => d.getConsigneeEori.map(e => j.checkConsigneeEoriNumberWithDuplicateDeclaration(e)).getOrElse(Right(j))
+      )
+      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
+        d => j.checkDeclarantEoriNumberWithDuplicateDeclaration(d.getDeclarantEori)
+      )
+      .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
+      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
+        _.selectAndReplaceTaxCodeSetForReimbursement
+      )
+      .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
+      .map(_.withDutiesChangeMode(answers.modes.dutiesChangeMode))
+      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
+      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
+      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
+      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
+      .mapWhenDefined(answers.newEori)(_.submitNewEori)
+      .mapWhenDefined(answers.newDan)(_.submitNewDan)
+      .flatMapEach(
+        answers.supportingEvidences,
+        j =>
+          (e: UploadedFile) =>
+            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
+      )
+      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
   /** A starting point to build new instance of the claim. */
   override def empty(
@@ -654,11 +701,23 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
       features = features
     )
 
-  type CorrectedAmounts = Map[TaxCode, Option[BigDecimal]]
+  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
+  def unsafeModifyAnswers(
+    claim: OverpaymentsSingleClaim,
+    f: OverpaymentsSingleClaim.Answers => OverpaymentsSingleClaim.Answers
+  ): OverpaymentsSingleClaim =
+    OverpaymentsSingleClaim(
+      answers = f(claim.answers),
+      startTimeSeconds = claim.startTimeSeconds,
+      features = claim.features
+    )
 
   final case class Features(
     shouldAllowOtherBasisOfClaim: Boolean
   )
+
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 
   // All user answers captured during C&E1179 single MRN claim
   final case class Answers(
@@ -685,6 +744,31 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
   ) extends OverpaymentsAnswers
       with SingleVariantAnswers
 
+  import Checks.*
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[OverpaymentsSingleClaim] =
+    all(
+      hasMRNAndImportDeclaration,
+      containsOnlySupportedTaxCodes,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      basisOfClaimHasBeenProvided,
+      hasDuplicateDeclarationVerifiedIfRequired,
+      additionalDetailsHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      changeDutiesModeDisabled,
+      reimbursementMethodHasBeenProvidedIfNeeded,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded,
+      duplicateMovementReferenceNumberHasBeenProvidedIfNeeded
+    )
+
+  import ClaimFormats.*
+
   // Final minimal output of the claim we want to pass to the backend.
   final case class Output(
     movementReferenceNumber: MRN,
@@ -708,9 +792,6 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
         this.copy(additionalDetails = additionalDetailsReplacementText)
       )
   }
-
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
-  import ClaimValidationErrors._
 
   object Checks extends OverpaymentsClaimChecks[OverpaymentsSingleClaim] {
 
@@ -784,47 +865,12 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
 
   }
 
-  import Checks._
-
-  /** Validate if all required answers has been provided and the claim is ready to produce output. */
-  override implicit val validator: Validate[OverpaymentsSingleClaim] =
-    all(
-      hasMRNAndImportDeclaration,
-      containsOnlySupportedTaxCodes,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      basisOfClaimHasBeenProvided,
-      hasDuplicateDeclarationVerifiedIfRequired,
-      additionalDetailsHasBeenProvided,
-      reimbursementClaimsHasBeenProvided,
-      changeDutiesModeDisabled,
-      reimbursementMethodHasBeenProvidedIfNeeded,
-      paymentMethodHasBeenProvidedIfNeeded,
-      contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      declarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined,
-      newEoriAndDanProvidedIfNeeded,
-      duplicateMovementReferenceNumberHasBeenProvidedIfNeeded
-    )
-
-  import ClaimFormats._
-
   object Features {
     implicit val format: Format[Features] =
       Json.using[Json.WithDefaultValues].format[Features]
   }
 
-  object Answers {
-
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
+  import play.api.libs.functional.syntax.*
 
   implicit val format: Format[OverpaymentsSingleClaim] =
     Format(
@@ -842,66 +888,14 @@ object OverpaymentsSingleClaim extends ClaimCompanion[OverpaymentsSingleClaim] {
       )
     )
 
-  /** Try to build claim from the pre-existing answers. */
-  override def tryBuildFrom(
-    answers: Answers,
-    features: Option[Features] = None
-  ): Either[String, OverpaymentsSingleClaim] =
-    empty(answers.userEoriNumber, answers.nonce, features)
-      .flatMapWhenDefined(
-        answers.movementReferenceNumber.zip(answers.importDeclaration)
-      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
-        j.submitMovementReferenceNumberAndDeclaration(mrn, decl)
-      })
-      .mapWhenDefined(answers.eoriNumbersVerification.flatMap(_.userXiEori))(_.submitUserXiEori)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber))(_.submitConsigneeEoriNumber)
-      .flatMapWhenDefined(answers.eoriNumbersVerification.flatMap(_.declarantEoriNumber))(_.submitDeclarantEoriNumber)
-      .map(_.submitContactDetails(answers.contactDetails))
-      .mapWhenDefined(answers.contactAddress)(_.submitContactAddress)
-      .map(_.withEnterContactDetailsMode(answers.modes.enterContactDetailsMode))
-      .mapWhenDefined(answers.basisOfClaim)(_.submitBasisOfClaim)
-      .flatMapWhenDefined(
-        answers.duplicateDeclaration
-          .map(_.movementReferenceNumber)
-          .zip(answers.duplicateDeclaration.map(_.importDeclaration))
-      )(j => { case (mrn: MRN, decl: ImportDeclaration) =>
-        j.submitDuplicateMovementReferenceNumberAndDeclaration(mrn, decl)
-      })
-      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
-        d => d.getConsigneeEori.map(e => j.checkConsigneeEoriNumberWithDuplicateDeclaration(e)).getOrElse(Right(j))
-      )
-      .flatMapWhenDefined(answers.duplicateDeclaration.map(_.importDeclaration))(j =>
-        d => j.checkDeclarantEoriNumberWithDuplicateDeclaration(d.getDeclarantEori)
-      )
-      .mapWhenDefined(answers.additionalDetails)(_.submitAdditionalDetails)
-      .flatMapWhenDefined(answers.correctedAmounts.map(_.keySet.toSeq))(
-        _.selectAndReplaceTaxCodeSetForReimbursement
-      )
-      .flatMapEachWhenDefinedAndMappingDefined(answers.correctedAmounts)(_.submitCorrectAmount)
-      .map(_.withDutiesChangeMode(answers.modes.dutiesChangeMode))
-      .flatMapWhenDefined(answers.reimbursementMethod)(_.submitReimbursementMethod)
-      .flatMapWhenDefined(answers.payeeType)(_.submitPayeeType)
-      .flatMapWhenDefined(answers.bankAccountDetails)(_.submitBankAccountDetails)
-      .flatMapWhenDefined(answers.bankAccountType)(_.submitBankAccountType)
-      .mapWhenDefined(answers.newEori)(_.submitNewEori)
-      .mapWhenDefined(answers.newDan)(_.submitNewDan)
-      .flatMapEach(
-        answers.supportingEvidences,
-        j =>
-          (e: UploadedFile) =>
-            j.receiveUploadedFiles(e.documentType.orElse(Some(UploadDocumentType.Other)), answers.nonce, Seq(e))
-      )
-      .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
+  object Answers {
 
-  /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
-  def unsafeModifyAnswers(
-    claim: OverpaymentsSingleClaim,
-    f: OverpaymentsSingleClaim.Answers => OverpaymentsSingleClaim.Answers
-  ): OverpaymentsSingleClaim =
-    OverpaymentsSingleClaim(
-      answers = f(claim.answers),
-      startTimeSeconds = claim.startTimeSeconds,
-      features = claim.features
-    )
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 
 }

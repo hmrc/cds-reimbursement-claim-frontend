@@ -19,25 +19,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{ClaimsTableValidator, SummaryMatchers}
 
 import scala.concurrent.Future
 
@@ -59,7 +53,33 @@ class CheckClaimDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
+  val claimGen: Gen[(OverpaymentsMultipleClaim, Seq[MRN])] =
+    incompleteClaimWithCompleteClaimsGen(5)
+  val claimWithNoClaimsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
+    )
+  val claimWithIncompleteClaimsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+  val claimWithIncompleteMrnsGen: Gen[OverpaymentsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      OverpaymentsMultipleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
+        )
+    )
   private val messagesKey: String = "check-claim.multiple"
 
   def assertPageContent(
@@ -77,37 +97,6 @@ class CheckClaimDetailsControllerSpec
       claim.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
-
-  val claimGen: Gen[(OverpaymentsMultipleClaim, Seq[MRN])] =
-    incompleteClaimWithCompleteClaimsGen(5)
-
-  val claimWithNoClaimsGen: Gen[OverpaymentsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      OverpaymentsMultipleClaim
-        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
-    )
-
-  val claimWithIncompleteClaimsGen: Gen[OverpaymentsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      OverpaymentsMultipleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
-        )
-    )
-
-  val claimWithIncompleteMrnsGen: Gen[OverpaymentsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      OverpaymentsMultipleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
-        )
-    )
 
   "CheckClaimDetailsController" when {
 

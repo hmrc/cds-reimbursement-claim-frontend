@@ -17,37 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
 import cats.data.EitherT
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{DeclarationConnector, XiEoriConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, Forms}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.{EnterMovementReferenceNumberUtil, GetXiEoriMixin}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReasonForSecurity, UserXiEori}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_reason_for_security
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ChooseReasonForSecurityController @Inject() (
@@ -64,30 +52,6 @@ class ChooseReasonForSecurityController @Inject() (
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(SecuritiesClaim.Checks.hasMovementReferenceNumber)
-
-  private val postAction: Call = routes.ChooseReasonForSecurityController.submit
-
-  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
-  private val successResultSelectSecurities: Result =
-    Redirect(routes.SelectSecuritiesController.showFirst())
-
-  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
-  private val successResultEnterImporterEori: Result =
-    Redirect(routes.EnterImporterEoriNumberController.show)
-
-  // Error: Claim has already been submitted as part of a whole or partial claim
-  private val errorResultClaimExistsAlready: Result =
-    Redirect(routes.ClaimInvalidTPI04Controller.show)
-
-  private def reasonsForSecurity(claim: SecuritiesClaim): Set[ReasonForSecurity] = claim.features match
-    case Some(features) => features.availableReasonsForSecurity
-    case None           => Set.empty
-
-  private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
-
-  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
-    claim.submitUserXiEori(userXiEori)
-
   val show: Action[AnyContent] = actionReadClaim { claim =>
 
     val reasonForSecurityForm: Form[ReasonForSecurity] =
@@ -97,7 +61,6 @@ class ChooseReasonForSecurityController @Inject() (
       chooseReasonForSecurityPage(reasonForSecurityForm, reasonsForSecurity(claim), postAction)
     )
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     form
       .bindFromRequest()
@@ -159,6 +122,24 @@ class ChooseReasonForSecurityController @Inject() (
               .merge
       )
   }
+  private val postAction: Call = routes.ChooseReasonForSecurityController.submit
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private val successResultSelectSecurities: Result =
+    Redirect(routes.SelectSecuritiesController.showFirst())
+  // Success: Declaration has been found and claim for this MRN and RfS does not exist yet.
+  private val successResultEnterImporterEori: Result =
+    Redirect(routes.EnterImporterEoriNumberController.show)
+  // Error: Claim has already been submitted as part of a whole or partial claim
+  private val errorResultClaimExistsAlready: Result =
+    Redirect(routes.ClaimInvalidTPI04Controller.show)
+  private val form: Form[ReasonForSecurity] = Forms.reasonForSecurityForm
+
+  override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
+    claim.submitUserXiEori(userXiEori)
+
+  private def reasonsForSecurity(claim: SecuritiesClaim): Set[ReasonForSecurity] = claim.features match
+    case Some(features) => features.availableReasonsForSecurity
+    case None           => Set.empty
 
   private def tryGetUserXiEoriIfNeeded(claim: SecuritiesClaim)(implicit
     hc: HeaderCarrier,

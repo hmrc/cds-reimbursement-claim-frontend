@@ -17,39 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.FormError
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_new_eori_number
 
 trait EnterNewEoriNumberMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
-
-  val eoriDetailsConnector: EoriDetailsConnector
-  val newEoriPage: enter_new_eori_number
-  val postAction: Call
-  val continueAction: Call
-  val formKey: String = "enter-new-eori-number"
-
-  def modifyClaim(claim: Claim, eori: Eori): Claim
-
-  def getNewEoriAnswer(claim: Claim): Option[Eori] =
-    claim.answers.newEori
-
-  def getImporterEori(claim: Claim) =
-    claim.getConsigneeEoriFromACC14.getOrElse(claim.answers.userEoriNumber)
-
-  private def newEoriStartWithValidCountryCode(newEori: Eori, importerEori: Eori): Option[String] = importerEori match
-    case importEori if importEori.isGBEori && !newEori.isGBEori                        => Some("mustStartWithGB")
-    case importEori if (importEori.isXiEori | importEori.isEuEori) && newEori.isGBEori => Some("mustNotStartWithGB")
-    case _                                                                             => None
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       newEoriPage(
@@ -60,7 +38,6 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
     )
 
   }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       eoriNumberForm(formKey)
@@ -111,4 +88,22 @@ trait EnterNewEoriNumberMixin extends ClaimBaseController {
             }
         )
     }
+  val eoriDetailsConnector: EoriDetailsConnector
+  val newEoriPage: enter_new_eori_number
+  val postAction: Call
+  val continueAction: Call
+  val formKey: String = "enter-new-eori-number"
+
+  def modifyClaim(claim: Claim, eori: Eori): Claim
+
+  def getNewEoriAnswer(claim: Claim): Option[Eori] =
+    claim.answers.newEori
+
+  def getImporterEori(claim: Claim) =
+    claim.getConsigneeEoriFromACC14.getOrElse(claim.answers.userEoriNumber)
+
+  private def newEoriStartWithValidCountryCode(newEori: Eori, importerEori: Eori): Option[String] = importerEori match
+    case importEori if importEori.isGBEori && !newEori.isGBEori                        => Some("mustStartWithGB")
+    case importEori if (importEori.isXiEori | importEori.isEuEori) && newEori.isGBEori => Some("mustNotStartWithGB")
+    case _                                                                             => None
 }

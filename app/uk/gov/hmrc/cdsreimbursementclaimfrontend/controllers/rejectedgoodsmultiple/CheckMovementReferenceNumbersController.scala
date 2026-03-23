@@ -17,22 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, YesOrNoQuestionForm, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_movement_reference_numbers
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -41,10 +35,6 @@ class CheckMovementReferenceNumbersController @Inject() (
   checkMovementReferenceNumbers: check_movement_reference_numbers
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends RejectedGoodsMultipleClaimBaseController {
-
-  private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"
-  private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
-  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
@@ -68,7 +58,6 @@ class CheckMovementReferenceNumbersController @Inject() (
         .getOrElse(Redirect(routes.EnterMovementReferenceNumberController.show(0)))
 
     }
-
   final val submit: Action[AnyContent] = simpleActionReadWriteClaim(
     claim =>
       claim.getMovementReferenceNumbers
@@ -107,6 +96,9 @@ class CheckMovementReferenceNumbersController @Inject() (
         .getOrElse((claim, Redirect(routes.EnterMovementReferenceNumberController.show(0)))),
     fastForwardToCYAEnabled = false
   )
+  private val checkMovementReferenceNumbersKey: String       = "check-movement-reference-numbers.rejected-goods"
+  private val checkMovementReferenceNumbersForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
+  private val postAction: Call                               = routes.CheckMovementReferenceNumbersController.submit
 
   final def delete(mrn: MRN): Action[AnyContent] =
     actionReadWriteClaim(

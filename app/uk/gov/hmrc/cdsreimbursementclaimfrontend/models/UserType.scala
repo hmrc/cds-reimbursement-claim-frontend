@@ -22,13 +22,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 sealed trait UserType extends Product with Serializable
 
 object UserType extends EnumerationFormat[UserType] {
+  override val values: Set[UserType] = Set(Individual, Organisation, NonGovernmentGatewayUser)
 
   case object Individual extends UserType
+
   case object Organisation extends UserType
-  case object NonGovernmentGatewayUser extends UserType
 
   implicit val eq: Eq[UserType] = Eq.fromUniversalEquals
 
-  override val values: Set[UserType] = Set(Individual, Organisation, NonGovernmentGatewayUser)
+  case object NonGovernmentGatewayUser extends UserType
 
 }

@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig.*
 
 final case class UploadDocumentsSessionConfig(
@@ -65,10 +64,6 @@ object UploadDocumentsSessionConfig {
     fileUploadRequiredError: Option[String] = None
   )
 
-  object Content {
-    implicit val format: Format[Content] = Json.format[Content]
-  }
-
   final case class Features(
     showUploadMultiple: Boolean,
     showLanguageSelection: Boolean,
@@ -76,6 +71,10 @@ object UploadDocumentsSessionConfig {
     showYesNoQuestionBeforeContinue: Boolean,
     enableMultipleFilesPicker: Boolean
   )
+
+  object Content {
+    implicit val format: Format[Content] = Json.format[Content]
+  }
 
   object Features {
     implicit val format: Format[Features] = Json.format[Features]

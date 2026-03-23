@@ -19,22 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 import cats.syntax.eq.*
 import play.api.data.format.Formatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.{Acc14Gen, IdGen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils
 
 import java.lang
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 
 trait ClaimTestData {
 
@@ -237,6 +230,8 @@ trait ClaimTestData {
       uploadedOn = LocalDateTime.now(),
       documentType = UploadDocumentType.ScheduleOfMRNs
     )
+  final val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
+    .bigDecimalFormat(13, 2, "actual-amount.error.invalid")
 
   final def buildImportDeclaration(
     id: String = exampleMrnAsString,
@@ -410,9 +405,6 @@ trait ClaimTestData {
     fileSize = Some(12345)
   )
 
-  final val bigDecimalFormatter: Formatter[BigDecimal] = FormUtils
-    .bigDecimalFormat(13, 2, "actual-amount.error.invalid")
-
   final def formatAmount(amount: BigDecimal): String =
     bigDecimalFormatter
       .unbind("key", amount)
@@ -424,10 +416,13 @@ trait ClaimTestData {
 
   sealed trait GenerateSubsidyPayments
   object GenerateSubsidyPayments {
-    case object None extends GenerateSubsidyPayments
-    case object Some extends GenerateSubsidyPayments
-    case object All extends GenerateSubsidyPayments
     sealed case class ForTaxCodes(taxCodes: Set[TaxCode]) extends GenerateSubsidyPayments
+
+    case object None extends GenerateSubsidyPayments
+
+    case object Some extends GenerateSubsidyPayments
+
+    case object All extends GenerateSubsidyPayments
   }
 
 }

@@ -16,24 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.bankAccountTypeForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_bank_account_type
 
 @Singleton
 trait ChooseBankAccountTypeMixin extends ClaimBaseController {
-
-  val postAction: Call
-  val enterBankAccountDetailsRoute: Call
-  val chooseBankAccountTypePage: choose_bank_account_type
-  def isCMA(claim: Claim): Boolean = false
-
-  def modifyClaim(claim: Claim, bankAccountType: BankAccountType): Either[String, Claim]
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
@@ -44,7 +34,6 @@ trait ChooseBankAccountTypeMixin extends ClaimBaseController {
       )
     )
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       bankAccountTypeForm
@@ -67,4 +56,11 @@ trait ChooseBankAccountTypeMixin extends ClaimBaseController {
         ),
     fastForwardToCYAEnabled = false
   )
+  val postAction: Call
+  val enterBankAccountDetailsRoute: Call
+  val chooseBankAccountTypePage: choose_bank_account_type
+
+  def isCMA(claim: Claim): Boolean = false
+
+  def modifyClaim(claim: Claim, bankAccountType: BankAccountType): Either[String, Claim]
 }

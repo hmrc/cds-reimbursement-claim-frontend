@@ -16,27 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.RejectedGoodsSingleClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{RejectedGoodsSingleClaimConnector, UploadDocumentsConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.confirmation_of_submission
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_your_answers_single_print_view
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.{confirmation_of_submission, submit_claim_error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.{check_your_answers_single, check_your_answers_single_print_view}
 
 import scala.concurrent.ExecutionContext
 
@@ -54,13 +47,40 @@ class CheckYourAnswersController @Inject() (
     extends RejectedGoodsSingleClaimBaseController
     with Logging {
 
-  private val postAction: Call             = routes.CheckYourAnswersController.submit
-  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsSingleClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
+  final val showPrintView: Action[AnyContent] =
+    jcc.authenticatedActionWithSessionData
+      .async { implicit request =>
+        request.sessionData
+          .flatMap(getClaim)
+          .map { claim =>
+            claim.toOutput.fold(
+              errors => {
+                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
+                Redirect(routeForValidationErrors(errors)).asFuture
+              },
+              output =>
+                (claim.caseNumber, claim.submissionDateTime) match {
+                  case (Some(caseNumber), Some(submissionDate)) =>
+                    Ok(
+                      checkYourAnswersPagePrintView(
+                        caseNumber = caseNumber,
+                        claim = output,
+                        isAllSelectedDutiesAreCMAEligible = claim.isAllSelectedDutiesAreCMAEligible,
+                        submissionDate = submissionDate
+                      )
+                    ).asFuture
+                  case _                                        =>
+                    logger.warn("Error fetching claim for print view")
+                    errorHandler.errorResult().asFuture
+                }
+            )
 
+          }
+          .getOrElse(redirectToTheStartOfTheClaim)
+      }
   val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim
@@ -87,7 +107,6 @@ class CheckYourAnswersController @Inject() (
             )
         )
     }
-
   val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim
@@ -125,7 +144,6 @@ class CheckYourAnswersController @Inject() (
               }
         )
     }
-
   val showConfirmation: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -152,36 +170,6 @@ class CheckYourAnswersController @Inject() (
           }
           .getOrElse(redirectToTheStartOfTheClaim)
       }
-
-  final val showPrintView: Action[AnyContent] =
-    jcc.authenticatedActionWithSessionData
-      .async { implicit request =>
-        request.sessionData
-          .flatMap(getClaim)
-          .map { claim =>
-            claim.toOutput.fold(
-              errors => {
-                logger.warn(s"Claim not ready to show the CYA page because of ${errors.mkString(",")}")
-                Redirect(routeForValidationErrors(errors)).asFuture
-              },
-              output =>
-                (claim.caseNumber, claim.submissionDateTime) match {
-                  case (Some(caseNumber), Some(submissionDate)) =>
-                    Ok(
-                      checkYourAnswersPagePrintView(
-                        caseNumber = caseNumber,
-                        claim = output,
-                        isAllSelectedDutiesAreCMAEligible = claim.isAllSelectedDutiesAreCMAEligible,
-                        submissionDate = submissionDate
-                      )
-                    ).asFuture
-                  case _                                        =>
-                    logger.warn("Error fetching claim for print view")
-                    errorHandler.errorResult().asFuture
-                }
-            )
-
-          }
-          .getOrElse(redirectToTheStartOfTheClaim)
-      }
+  private val postAction: Call             = routes.CheckYourAnswersController.submit
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 }

@@ -16,23 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_or_change_contact_details
 
 trait EnterContactDetailsMixin extends ClaimBaseController {
-
-  val postAction: Call
-
-  val continueRoute: Call
-
-  val enterOrChangeContactDetailsPage: enter_or_change_contact_details
-
-  def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
@@ -43,7 +32,6 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
         )
       )
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim(claim =>
       Forms.mrnContactDetailsForm
@@ -70,4 +58,9 @@ trait EnterContactDetailsMixin extends ClaimBaseController {
           }
         )
     )
+  val postAction: Call
+  val continueRoute: Call
+  val enterOrChangeContactDetailsPage: enter_or_change_contact_details
+
+  def modifyClaim(claim: Claim, contactDetails: Option[MrnContactDetails]): Claim
 }

@@ -18,14 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import cats.syntax.eq.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.collection.immutable.SortedMap
 
 /** Common properties of the scheduled claim variant. */
 trait ScheduledVariantProperties extends CommonClaimProperties {
+
+  val isDutyTypeSelected: Boolean = answers.correctedAmounts.exists(_.nonEmpty)
 
   override def answers: ScheduledVariantAnswers
 
@@ -56,11 +57,16 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
         }
       )
 
+  def allSelectedExciseCategoriesHasBeenProvided: Boolean =
+    getSelectedExciseCategories === computeProvidedExciseCategories
+
+  def computeProvidedExciseCategories: Option[Seq[ExciseCategory]] =
+    answers.correctedAmounts
+      .flatMap(_.get(DutyType.Excise))
+      .map(_.map((tc, _) => ExciseCategory.categoryOf(tc)).toSeq.distinct)
+
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumber
-
-  def getLeadImportDeclaration: Option[ImportDeclaration] =
-    answers.importDeclaration
 
   def getSelectedDocumentType: Option[UploadDocumentType] =
     answers.selectedDocumentType
@@ -71,33 +77,8 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
     getLeadImportDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
-  def getSelectedDutyTypes: Option[Seq[DutyType]] =
-    answers.correctedAmounts.map(_.keys.toSeq)
-
-  def getSelectedExciseCategories: Option[Seq[ExciseCategory]] =
-    answers.exciseCategories
-
-  def allSelectedExciseCategoriesHasBeenProvided: Boolean =
-    getSelectedExciseCategories === computeProvidedExciseCategories
-
-  def computeProvidedExciseCategories: Option[Seq[ExciseCategory]] =
-    answers.correctedAmounts
-      .flatMap(_.get(DutyType.Excise))
-      .map(_.map((tc, _) => ExciseCategory.categoryOf(tc)).toSeq.distinct)
-
-  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
-    answers.correctedAmounts
-      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
-      .getOrElse(SortedMap.empty)
-
-  def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
-
-  def getSelectedDutiesFor(exciseCategory: ExciseCategory): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(
-      _.find(_._1 === DutyType.Excise)
-        .map(_._2.keys.filter(tc => ExciseCategory.categoryOf(tc) === exciseCategory).toSeq)
-    )
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclaration
 
   def getFirstDutyToClaim: Option[(DutyType, TaxCode)] =
     getSelectedDuties.headOption
@@ -105,11 +86,10 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
         tcs.headOption.map(tc => (dt, tc))
       }
 
-  def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
-    getSelectedDutyTypes.flatMap(nextAfter(dutyType))
-
-  def findNextSelectedExciseCategoryAfter(exciseCategory: ExciseCategory): Option[ExciseCategory] =
-    getSelectedExciseCategories.flatMap(nextAfter(exciseCategory))
+  def getSelectedDuties: SortedMap[DutyType, Seq[TaxCode]] =
+    answers.correctedAmounts
+      .map(_.view.mapValues(_.keys.toSeq).to(SortedMap))
+      .getOrElse(SortedMap.empty)
 
   def findNextSelectedTaxCodeAfter(dutyType: DutyType, taxCode: TaxCode): Option[(DutyType, TaxCode | ExciseCategory)] =
     if dutyType == DutyType.Excise
@@ -140,15 +120,88 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
             )
       }
 
+  def getSelectedDutiesFor(dutyType: DutyType): Option[Seq[TaxCode]] =
+    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType).map(_._2.keys.toSeq))
+
+  def getSelectedDutiesFor(exciseCategory: ExciseCategory): Option[Seq[TaxCode]] =
+    answers.correctedAmounts.flatMap(
+      _.find(_._1 === DutyType.Excise)
+        .map(_._2.keys.filter(tc => ExciseCategory.categoryOf(tc) === exciseCategory).toSeq)
+    )
+
+  def findNextSelectedDutyAfter(dutyType: DutyType): Option[DutyType] =
+    getSelectedDutyTypes.flatMap(nextAfter(dutyType))
+
+  def getSelectedDutyTypes: Option[Seq[DutyType]] =
+    answers.correctedAmounts.map(_.keys.toSeq)
+
+  def findNextSelectedExciseCategoryAfter(exciseCategory: ExciseCategory): Option[ExciseCategory] =
+    getSelectedExciseCategories.flatMap(nextAfter(exciseCategory))
+
+  def getSelectedExciseCategories: Option[Seq[ExciseCategory]] =
+    answers.exciseCategories
+
   def findNextDutyToSelectDuties: Option[DutyType] =
     answers.correctedAmounts.flatMap(_.find(_._2.isEmpty).map(_._1))
 
-  val isDutyTypeSelected: Boolean = answers.correctedAmounts.exists(_.nonEmpty)
+  def getReimbursementFor(
+    dutyType: DutyType,
+    taxCode: TaxCode
+  ): Option[AmountPaidWithCorrect] =
+    getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
+
+  def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
+    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType)).map(_._2)
+
+  def getUKDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.UkDuty)
+
+  private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
+    val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
+      if include(dutyType) then reimbursements.map(_._2.claimAmount).sum else ZERO
+    }.sum
+    if total === ZERO then None else Some(total)
+  }
 
   def getReimbursementClaims: SortedMap[DutyType, SortedMap[TaxCode, AmountPaidWithCorrect]] =
     answers.correctedAmounts
       .map(_.view.mapValues(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) }).to(SortedMap))
       .getOrElse(SortedMap.empty)
+
+  def getEUDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(_ === DutyType.EuDuty)
+
+  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
+    getReimbursementTotalBy(dt => dt =!= DutyType.UkDuty && dt =!= DutyType.EuDuty)
+
+  def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
+    taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
+      total + claim.claimAmount
+    }
+
+  def getTotalReimbursementAmount: BigDecimal =
+    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.claimAmount)).sum
+
+  def getTotalPaidAmount: BigDecimal =
+    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
+
+  def getNonExciseDutyClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]] =
+    getReimbursements.filter { case (dutyType, _) => dutyType != DutyType.Excise }
+
+  def getSelectedExciseCategoryClaims: SortedMap[ExciseCategory, List[ReimbursementWithCorrectAmount]] =
+    SortedMap.from(
+      getExciseClaims
+        .flatMap { reimbursement =>
+          reimbursement.taxCode.exciseCategory.map(exciseCategory => (exciseCategory, reimbursement))
+        }
+        .groupBy(_._1)
+        .view
+        .mapValues(_.map(_._2))
+        .toMap
+    )
+
+  def getExciseClaims: List[ReimbursementWithCorrectAmount] =
+    getReimbursements.getOrElse(DutyType.Excise, List.empty)
 
   def getReimbursements: SortedMap[DutyType, List[ReimbursementWithCorrectAmount]] =
     answers.correctedAmounts match {
@@ -177,59 +230,5 @@ trait ScheduledVariantProperties extends CommonClaimProperties {
       }
       .collect { case Some(x) => x }
       .toList
-
-  def getReimbursementFor(
-    dutyType: DutyType,
-    taxCode: TaxCode
-  ): Option[AmountPaidWithCorrect] =
-    getReimbursementClaimsFor(dutyType).flatMap(_.find(_._1 === taxCode)).flatMap(_._2)
-
-  def getReimbursementClaimsFor(dutyType: DutyType): Option[SortedMap[TaxCode, Option[AmountPaidWithCorrect]]] =
-    answers.correctedAmounts.flatMap(_.find(_._1 === dutyType)).map(_._2)
-
-  def getUKDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(_ === DutyType.UkDuty)
-
-  def getEUDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(_ === DutyType.EuDuty)
-
-  def getExciseDutyReimbursementTotal: Option[BigDecimal] =
-    getReimbursementTotalBy(dt => dt =!= DutyType.UkDuty && dt =!= DutyType.EuDuty)
-
-  private def getReimbursementTotalBy(include: DutyType => Boolean): Option[BigDecimal] = {
-    val total = getReimbursementClaims.iterator.map { case (dutyType, reimbursements) =>
-      if include(dutyType) then reimbursements.map(_._2.claimAmount).sum else ZERO
-    }.sum
-    if total === ZERO then None else Some(total)
-  }
-
-  def getTaxCodesSubtotal(taxCodes: SortedMap[TaxCode, AmountPaidWithCorrect]): BigDecimal =
-    taxCodes.values.foldLeft(BigDecimal(0)) { (total, claim) =>
-      total + claim.claimAmount
-    }
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.claimAmount)).sum
-
-  def getTotalPaidAmount: BigDecimal =
-    getReimbursementClaims.iterator.flatMap(_._2.map(_._2.paidAmount)).sum
-
-  def getNonExciseDutyClaims: Map[DutyType, List[ReimbursementWithCorrectAmount]] =
-    getReimbursements.filter { case (dutyType, _) => dutyType != DutyType.Excise }
-
-  def getExciseClaims: List[ReimbursementWithCorrectAmount] =
-    getReimbursements.getOrElse(DutyType.Excise, List.empty)
-
-  def getSelectedExciseCategoryClaims: SortedMap[ExciseCategory, List[ReimbursementWithCorrectAmount]] =
-    SortedMap.from(
-      getExciseClaims
-        .flatMap { reimbursement =>
-          reimbursement.taxCode.exciseCategory.map(exciseCategory => (exciseCategory, reimbursement))
-        }
-        .groupBy(_._1)
-        .view
-        .mapValues(_.map(_._2))
-        .toMap
-    )
 
 }

@@ -17,29 +17,24 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.syntax.eq.*
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import org.apache.pekko.actor.ActorSystem
+import play.api.{Configuration, Logger}
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.Configuration
-import play.api.Logger
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentsSessionConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.libs.ws.JsonBodyWritables.*
 import play.api.libs.ws.writeableOf_String
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.UploadDocumentsConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{UploadDocumentsSessionConfig, UploadedFile}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.AppName
 
 import java.net.URL
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[UploadDocumentsConnectorImpl])
 trait UploadDocumentsConnector {
@@ -70,9 +65,7 @@ object UploadDocumentsConnector {
     existingFiles: Seq[UploadedFile]
   )
 
-  import play.api.libs.json.Format
-  import play.api.libs.json.JsValue
-  import play.api.libs.json.Json
+  import play.api.libs.json.{Format, JsValue, Json}
 
   case class FileToUpload(uploadId: String, name: String, contentType: String, content: Array[Byte])
 

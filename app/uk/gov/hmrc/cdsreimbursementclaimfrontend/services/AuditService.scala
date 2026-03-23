@@ -17,10 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import com.google.inject.ImplementedBy
-import play.api.libs.json.JsBoolean
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.libs.json.Writes
+import play.api.libs.json.{JsBoolean, JsObject, Json, Writes}
 import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions.*
@@ -53,12 +50,6 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
     ec: ExecutionContext
   ): Unit = sendClaimEvent(true, claim, output, summary)
 
-  final def sendFailedClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
-    hc: HeaderCarrier,
-    request: Request[?],
-    ec: ExecutionContext
-  ): Unit = sendClaimEvent(false, claim, output, summary)
-
   // audit event are sent in the fire-and-forget manner
   private def sendClaimEvent[J : Writes, O : Writes](success: Boolean, claim: J, output: O, summary: JsObject)(implicit
     hc: HeaderCarrier,
@@ -78,4 +69,10 @@ class AuditServiceImpl @Inject() (auditConnector: AuditConnector) extends AuditS
         tags = hc.toAuditTags("customs-reimbursement-claim", request.uri)
       )
     )
+
+  final def sendFailedClaimEvent[J : Writes, O : Writes](claim: J, output: O, summary: JsObject)(implicit
+    hc: HeaderCarrier,
+    request: Request[?],
+    ec: ExecutionContext
+  ): Unit = sendClaimEvent(false, claim, output, summary)
 }

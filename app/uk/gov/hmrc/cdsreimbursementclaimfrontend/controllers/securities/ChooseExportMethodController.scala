@@ -16,23 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseExportMethodForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TemporaryAdmissionMethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.chooseExportMethodForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReasonForSecurity, TemporaryAdmissionMethodOfDisposal}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.choose_export_method
 
 import scala.concurrent.ExecutionContext
@@ -44,14 +37,11 @@ class ChooseExportMethodController @Inject() (
 )(implicit val viewConfig: ViewConfig, errorHandler: ErrorHandler, val ec: ExecutionContext)
     extends SecuritiesClaimBaseController {
 
-  private val form: Form[List[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
-
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
   val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmission(claim) {
       (
@@ -65,7 +55,6 @@ class ChooseExportMethodController @Inject() (
       )
     }
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     whenTemporaryAdmission(claim) {
       form
@@ -104,6 +93,7 @@ class ChooseExportMethodController @Inject() (
         )
     }
   }
+  private val form: Form[List[TemporaryAdmissionMethodOfDisposal]] = chooseExportMethodForm
 
   def whenTemporaryAdmission(
     claim: SecuritiesClaim

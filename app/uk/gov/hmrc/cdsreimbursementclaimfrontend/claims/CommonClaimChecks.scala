@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
 
 trait CommonClaimChecks[J <: CommonClaimProperties] {
 
@@ -117,11 +117,10 @@ trait CommonClaimChecks[J <: CommonClaimProperties] {
 
   final val supportingEvidenceHasBeenProvided: Validate[J] =
     checkIsTrue(_.hasCompleteSupportingEvidences, INCOMPLETE_SUPPORTING_EVIDENCES)
+  final val declarationsHasNoSubsidyPayments: Validate[J] =
+    checkEach(_.getImportDeclarations, declarationHasNoSubsidyPayments)
 
   final def declarationHasNoSubsidyPayments: Validate[ImportDeclaration] =
     checkIsFalse(_.hasSomeSubsidyPayment, DISPLAY_DECLARATION_HAS_SUBSIDY_PAYMENT)
-
-  final val declarationsHasNoSubsidyPayments: Validate[J] =
-    checkEach(_.getImportDeclarations, declarationHasNoSubsidyPayments)
 
 }

@@ -17,12 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpaymentClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfOverpaymentClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -31,16 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.overpayments.select_
 trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.OverpaymentsClaimProperties
-
-  val basisForClaimPage: select_basis_for_claim
-  val postAction: Call
-  val featureSwitchService: FeatureSwitchService
-  def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call
-
-  def modifyClaim(claim: Claim, basisOfClaim: BasisOfOverpaymentClaim): Claim
-
-  val formKey: String = "select-basis-for-claim"
-
   final val show: Action[AnyContent] =
     actionReadClaim { claim =>
       val form: Form[BasisOfOverpaymentClaim] =
@@ -58,7 +46,6 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
         )
       )
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       basisOfOverpaymentClaimForm
@@ -87,4 +74,12 @@ trait OverpaymentsBasisForClaimMixin extends ClaimBaseController {
             )
         )
     }
+  val basisForClaimPage: select_basis_for_claim
+  val postAction: Call
+  val featureSwitchService: FeatureSwitchService
+  val formKey: String = "select-basis-for-claim"
+
+  def continueRoute(basisOfClaim: BasisOfOverpaymentClaim): Call
+
+  def modifyClaim(claim: Claim, basisOfClaim: BasisOfOverpaymentClaim): Claim
 }

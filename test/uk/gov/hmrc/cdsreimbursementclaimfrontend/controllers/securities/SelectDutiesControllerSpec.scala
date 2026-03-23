@@ -20,10 +20,7 @@ import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,35 +28,19 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.partialGenSingleDuty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithMoreChoicesThanThoseSelected
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.securityIdWithTaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.selectCheckBoxes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesSingleClaimGenerators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.SecurityDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.TaxDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SecuritiesClaimModes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SummaryInspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{SecuritiesClaim, SecuritiesClaimGenerators, SecuritiesClaimTestData, SecuritiesSingleClaimGenerators}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.SelectDutiesControllerSpec.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyAmount, ReasonForSecurity, SecuritiesClaimModes, SessionData, SummaryInspectionAddress, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{SecurityDetails, TaxDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.SelectDutiesSummary
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.collection.immutable.SortedMap
 
 class SelectDutiesControllerSpec
     extends PropertyBasedControllerSpec
@@ -71,15 +52,12 @@ class SelectDutiesControllerSpec
     with SummaryMatchers
     with TypeCheckedTripleEquals
     with Logging {
-
-  val messagesKey: String = "select-duties"
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
+  val messagesKey: String = "select-duties"
   val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
@@ -653,18 +631,33 @@ class SelectDutiesControllerSpec
   }
 }
 object SelectDutiesControllerSpec {
-  private def getFirstSecurityWithTaxCodes(securityDetails: Option[List[SecurityDetails]]): Option[String] =
-    securityDetails.fold(Option.empty[String])(a =>
-      a.find { b =>
-        b.taxDetails.nonEmpty
-      }.map(_.securityDepositId)
+  val partialGen: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesGuaranteeEligibleOpt = None,
+      hasConsigneeDetailsInACC14 = true,
+      submitConsigneeDetails = false,
+      submitContactDetails = false,
+      submitContactAddress = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
     )
-  def securityIdWithTaxCodes(claim: SecuritiesClaim): Option[String]                                       =
-    claim.getLeadImportDeclaration
-      .map { importDeclaration =>
-        importDeclaration.displayResponseDetail.securityDetails
-      }
-      .flatMap(getFirstSecurityWithTaxCodes)
+  val partialGenSingleDuty: Gen[SecuritiesClaim] =
+    buildCompleteClaimGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesGuaranteeEligibleOpt = None,
+      hasConsigneeDetailsInACC14 = true,
+      submitConsigneeDetails = false,
+      submitContactDetails = false,
+      submitContactAddress = false,
+      submitBankAccountDetails = false,
+      submitBankAccountType = false,
+      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief,
+      numberOfDutyTypes = Some(1)
+    )
 
   def securityIdWithMoreChoicesThanThoseSelected(claim: SecuritiesClaim): Option[String] = {
     val securityId = securityIdWithTaxCodes(claim)
@@ -679,33 +672,18 @@ object SelectDutiesControllerSpec {
     }
   }
 
-  val partialGen: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen(
-      acc14DeclarantMatchesUserEori = true,
-      acc14ConsigneeMatchesUserEori = false,
-      allDutiesGuaranteeEligibleOpt = None,
-      hasConsigneeDetailsInACC14 = true,
-      submitConsigneeDetails = false,
-      submitContactDetails = false,
-      submitContactAddress = false,
-      submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief
-    )
+  def securityIdWithTaxCodes(claim: SecuritiesClaim): Option[String]                                       =
+    claim.getLeadImportDeclaration
+      .map { importDeclaration =>
+        importDeclaration.displayResponseDetail.securityDetails
+      }
+      .flatMap(getFirstSecurityWithTaxCodes)
 
-  val partialGenSingleDuty: Gen[SecuritiesClaim] =
-    buildCompleteClaimGen(
-      acc14DeclarantMatchesUserEori = true,
-      acc14ConsigneeMatchesUserEori = false,
-      allDutiesGuaranteeEligibleOpt = None,
-      hasConsigneeDetailsInACC14 = true,
-      submitConsigneeDetails = false,
-      submitContactDetails = false,
-      submitContactAddress = false,
-      submitBankAccountDetails = false,
-      submitBankAccountType = false,
-      reasonsForSecurity = ReasonForSecurity.values - ReasonForSecurity.InwardProcessingRelief,
-      numberOfDutyTypes = Some(1)
+  private def getFirstSecurityWithTaxCodes(securityDetails: Option[List[SecurityDetails]]): Option[String] =
+    securityDetails.fold(Option.empty[String])(a =>
+      a.find { b =>
+        b.taxDetails.nonEmpty
+      }.map(_.securityDepositId)
     )
 
   def getSelectedIndices(

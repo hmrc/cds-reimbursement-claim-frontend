@@ -16,31 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.jsoup.nodes.{Document, Element}
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.MissingPreferenceCertificate
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.SummaryMatchers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.TestWithClaimGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, ReasonForSecurity, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.{SummaryMatchers, TestWithClaimGenerator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.DateUtils
 
 import scala.concurrent.Future
@@ -67,20 +57,6 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   val messagesKey: String = "check-import-declaration-details"
-
-  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
-    doc.select(".govuk-summary-card").asScala.find { card =>
-      card.select(".govuk-summary-card__title").text() == title
-    }
-
-  def getSummaryList(card: Element): Seq[(String, String)] = {
-    val rows = card.select(".govuk-summary-list__row").asScala
-    rows.map { row =>
-      val key   = row.select(".govuk-summary-list__key").text
-      val value = row.select(".govuk-summary-list__value").text
-      key -> value
-    }.toSeq
-  }
 
   def validateCheckDeclarationDetailsPage(
     doc: Document,
@@ -157,6 +133,20 @@ class CheckDeclarationDetailsSingleSecurityControllerSpec
         )
       )
     )
+  }
+
+  def getSummaryCardByTitle(doc: Document, title: String): Option[Element] =
+    doc.select(".govuk-summary-card").asScala.find { card =>
+      card.select(".govuk-summary-card__title").text() == title
+    }
+
+  def getSummaryList(card: Element): Seq[(String, String)] = {
+    val rows = card.select(".govuk-summary-list__row").asScala
+    rows.map { row =>
+      val key   = row.select(".govuk-summary-list__key").text
+      val value = row.select(".govuk-summary-list__value").text
+      key -> value
+    }.toSeq
   }
 
   "CheckDeclarationDetailsSingleSecurityController" when {

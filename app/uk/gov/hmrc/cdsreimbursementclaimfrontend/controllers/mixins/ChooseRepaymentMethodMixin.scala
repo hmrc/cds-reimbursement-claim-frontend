@@ -17,12 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementMethod
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_repayment_method
 
@@ -31,17 +28,6 @@ import scala.concurrent.Future
 trait ChooseRepaymentMethodMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & claims.ClaimBase & claims.SingleVariantProperties
-
-  def postAction: Call
-  def enterBankDetailsRoute: Call
-  def chooseRepaymentMethodPage: choose_repayment_method
-
-  def modifyClaim(claim: Claim, method: ReimbursementMethod): Either[String, Claim]
-  def resetReimbursementMethod(claim: Claim): Claim
-
-  val form: Form[ReimbursementMethod] =
-    Forms.reimbursementMethodForm("reimbursement-method")
-
   final val show: Action[AnyContent] =
     actionReadClaim { implicit claim =>
       if claim.isAllSelectedDutiesAreCMAEligible then {
@@ -53,7 +39,6 @@ trait ChooseRepaymentMethodMixin extends ClaimBaseController {
         )
       } else Redirect(enterBankDetailsRoute)
     }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       form
@@ -89,7 +74,6 @@ trait ChooseRepaymentMethodMixin extends ClaimBaseController {
         ),
     fastForwardToCYAEnabled = false
   )
-
   final val reset: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       val updatedClaim =
@@ -97,4 +81,16 @@ trait ChooseRepaymentMethodMixin extends ClaimBaseController {
         else claim
       (updatedClaim, Redirect(checkYourAnswers))
     }
+  val form: Form[ReimbursementMethod] =
+    Forms.reimbursementMethodForm("reimbursement-method")
+
+  def postAction: Call
+
+  def enterBankDetailsRoute: Call
+
+  def chooseRepaymentMethodPage: choose_repayment_method
+
+  def modifyClaim(claim: Claim, method: ReimbursementMethod): Either[String, Claim]
+
+  def resetReimbursementMethod(claim: Claim): Claim
 }

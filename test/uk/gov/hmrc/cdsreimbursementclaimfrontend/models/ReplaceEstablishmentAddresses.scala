@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{EstablishmentAddress, ImportDeclaration}
 
 trait ReplaceEstablishmentAddresses {
   def replaceEstablishmentAddresses(

@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import play.api.mvc.Call
-import play.api.mvc.Request
+import play.api.mvc.{Call, Request}
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.CheckDeclarationDetailsMixin
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.check_declaration_details
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -38,6 +35,11 @@ class CheckDeclarationDetailsController @Inject() (
     extends RejectedGoodsMultipleClaimBaseController
     with CheckDeclarationDetailsMixin {
 
+  final override val enterMovementReferenceNumberRoute: Call =
+    routes.EnterMovementReferenceNumberController.showFirst()
+  private val postAction: Call =
+    routes.CheckDeclarationDetailsController.submit
+
   final override def getImportDeclaration(claim: Claim): Option[ImportDeclaration] =
     claim.getLeadImportDeclaration
 
@@ -46,12 +48,6 @@ class CheckDeclarationDetailsController @Inject() (
     if numOfMRNs > 1 then routes.CheckMovementReferenceNumbersController.show
     else routes.EnterMovementReferenceNumberController.show(numOfMRNs + 1)
   }
-
-  final override val enterMovementReferenceNumberRoute: Call =
-    routes.EnterMovementReferenceNumberController.showFirst()
-
-  private val postAction: Call =
-    routes.CheckDeclarationDetailsController.submit
 
   override def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable = {
     case (decl, claim: Claim) =>

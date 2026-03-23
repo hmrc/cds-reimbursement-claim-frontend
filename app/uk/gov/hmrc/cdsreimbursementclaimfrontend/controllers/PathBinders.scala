@@ -17,10 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.PathBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, ExciseCategory, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
 
 object PathBinders {
 

@@ -18,12 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import cats.syntax.eq.*
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
 
-import scala.io.Codec
-import scala.io.Source
+import scala.io.{Codec, Source}
 
 final case class Country(
   code: CountryCode
@@ -32,11 +30,8 @@ final case class Country(
 }
 
 object Country {
-
-  val uk: Country = Country("GB")
-
   type CountryCode = String
-
+  val uk: Country = Country("GB")
   val countryCodes: List[CountryCode] = {
     val source = Source.fromInputStream(getClass.getResourceAsStream("/resources/countries.txt"))(Codec.UTF8)
     try source.getLines().toList

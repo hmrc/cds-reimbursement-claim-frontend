@@ -17,11 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
 import cats.Eq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ImplicitFluentSyntax
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SeqUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{ImplicitFluentSyntax, SeqUtils}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 
 /** The common base of the claim model companion objects.
   * @tparam Claim

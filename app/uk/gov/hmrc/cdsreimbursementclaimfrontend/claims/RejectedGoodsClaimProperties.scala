@@ -16,19 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 /** Common properties of the rejected-goods single, multiple and scheduled claims. */
 trait RejectedGoodsClaimProperties extends CommonClaimProperties {
-
-  def answers: RejectedGoodsAnswers
-
-  def hasCompleteReimbursementClaims: Boolean
-  def getTotalReimbursementAmount: BigDecimal
-
-  final def needsSpecialCircumstancesBasisOfClaim: Boolean =
-    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
   final override def validateDeclarationCandidate(declaration: ImportDeclaration): Option[String] =
     if declaration.hasOnlySubsidyPayments
@@ -36,5 +28,14 @@ trait RejectedGoodsClaimProperties extends CommonClaimProperties {
     else if declaration.hasSomeSubsidyPayment
     then Some("error.has-some-subsidy-items")
     else None
+
+  def answers: RejectedGoodsAnswers
+
+  def hasCompleteReimbursementClaims: Boolean
+
+  def getTotalReimbursementAmount: BigDecimal
+
+  final def needsSpecialCircumstancesBasisOfClaim: Boolean =
+    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
 }

@@ -36,13 +36,13 @@ object AuthenticatedUser {
     override def eoriOpt: Option[Eori] = Some(eori)
   }
 
-  object GovernmentGatewayAuthenticatedUser {
-    implicit val format: OFormat[GovernmentGatewayAuthenticatedUser] = Json.format[GovernmentGatewayAuthenticatedUser]
-  }
-
   final case class NonGovernmentGatewayAuthenticatedUser(authProvider: String) extends AuthenticatedUser {
     override val name: Option[String] = None
     override val email: Option[Email] = None
+  }
+
+  object GovernmentGatewayAuthenticatedUser {
+    implicit val format: OFormat[GovernmentGatewayAuthenticatedUser] = Json.format[GovernmentGatewayAuthenticatedUser]
   }
 
   object NonGovernmentGatewayAuthenticatedUser {

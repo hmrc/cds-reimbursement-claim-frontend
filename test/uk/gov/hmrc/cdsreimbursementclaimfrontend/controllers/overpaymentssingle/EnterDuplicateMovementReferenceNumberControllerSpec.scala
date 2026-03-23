@@ -20,10 +20,7 @@ import cats.data.EitherT
 import cats.implicits.*
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,22 +28,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarationSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfOverpaymentClaim, Error, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DeclarantDetails, DeclarationSupport, ImportDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -59,31 +49,20 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     with SessionSupport
     with DeclarationSupport
     with BeforeAndAfterEach {
-
-  val mockClaimService: ClaimService = mock[ClaimService]
-
-  val enterDuplicateMovementReferenceNumberKey: String =
-    "enter-duplicate-movement-reference-number"
-
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimService)
     )
-
+  val mockClaimService: ClaimService = mock[ClaimService]
+  val enterDuplicateMovementReferenceNumberKey: String =
+    "enter-duplicate-movement-reference-number"
   val controller: EnterDuplicateMovementReferenceNumberController =
     instanceOf[EnterDuplicateMovementReferenceNumberController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
-  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
-    (mockClaimService
-      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
-      .expects(expectedMrn, *)
-      .returning(EitherT.fromEither[Future](response))
-
   val claimGen: Gen[OverpaymentsSingleClaim] =
     buildClaimFromAnswersGen(answersUpToBasisForClaimGen())
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
@@ -91,6 +70,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
   def claimWithFeaturesGen(features: OverpaymentsSingleClaim.Features): Gen[OverpaymentsSingleClaim] =
     buildClaimFromAnswersGen(answersUpToBasisForClaimGen(), features = Some(features))
       .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.DuplicateEntry))
+
+  private def mockGetImportDeclaration(expectedMrn: MRN, response: Either[Error, Option[ImportDeclaration]]) =
+    (mockClaimService
+      .getImportDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(expectedMrn, *)
+      .returning(EitherT.fromEither[Future](response))
 
   "Duplicate Movement Reference Number Controller" when {
     "Enter MRN page" must {

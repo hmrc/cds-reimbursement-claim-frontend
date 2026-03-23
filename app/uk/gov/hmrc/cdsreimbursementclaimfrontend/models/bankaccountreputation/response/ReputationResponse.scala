@@ -24,34 +24,38 @@ sealed trait ReputationResponse extends Product with Serializable {
 }
 
 object ReputationResponse {
+  val allValues: Seq[ReputationResponse]         = Seq(Yes, No, Indeterminate, Inapplicable, Error, Partial)
+  val valuesMap: Map[String, ReputationResponse] = allValues.map(v => (v.toString, v)).toMap
 
   case object Yes extends ReputationResponse {
     override def toString(): String  = "yes"
     override def acceptable: Boolean = true
   }
+
   case object No extends ReputationResponse {
     override def toString(): String  = "no"
     override def acceptable: Boolean = false
   }
+
   case object Indeterminate extends ReputationResponse {
     override def toString(): String  = "indeterminate"
     override def acceptable: Boolean = true
   }
+
   case object Inapplicable extends ReputationResponse {
     override def toString(): String  = "inapplicable"
     override def acceptable: Boolean = false
   }
+
   case object Error extends ReputationResponse {
     override def toString(): String  = "error"
     override def acceptable: Boolean = false
   }
+
   case object Partial extends ReputationResponse {
     override def toString(): String  = "partial"
     override def acceptable: Boolean = true
   }
-
-  val allValues: Seq[ReputationResponse]         = Seq(Yes, No, Indeterminate, Inapplicable, Error, Partial)
-  val valuesMap: Map[String, ReputationResponse] = allValues.map(v => (v.toString, v)).toMap
 
   implicit val ReputationResponseEnumFormat: Format[ReputationResponse] = new Format[ReputationResponse] {
     def reads(json: JsValue): JsResult[ReputationResponse] = {

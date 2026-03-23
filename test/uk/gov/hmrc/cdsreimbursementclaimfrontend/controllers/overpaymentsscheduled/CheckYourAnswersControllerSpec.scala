@@ -18,12 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsschedu
 
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler1
-import org.scalatest.Assertion
-import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,13 +27,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.OverpaymentsScheduledClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsScheduledClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{OverpaymentsScheduledClaimConnector, UploadDocumentsConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genCaseNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersContactDetailsCardSummary
@@ -55,9 +48,16 @@ class CheckYourAnswersControllerSpec
     with SessionSupport
     with BeforeAndAfterEach
     with SummaryInspectionAddress {
-
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[OverpaymentsScheduledClaimConnector].toInstance(mockConnector),
+      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
+    )
   val mockConnector: OverpaymentsScheduledClaimConnector     = mock[OverpaymentsScheduledClaimConnector]
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
+  val controller: CheckYourAnswersController = instanceOf[CheckYourAnswersController]
 
   def mockSubmitClaim(submitClaimRequest: OverpaymentsScheduledClaimConnector.Request)(
     response: Future[OverpaymentsScheduledClaimConnector.Response]
@@ -72,16 +72,6 @@ class CheckYourAnswersControllerSpec
       .wipeOut(_: HeaderCarrier))
       .expects(*)
       .returning(Future.successful(()))
-
-  override val overrideBindings: List[GuiceableModule] =
-    List[GuiceableModule](
-      bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache),
-      bind[OverpaymentsScheduledClaimConnector].toInstance(mockConnector),
-      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
-    )
-
-  val controller: CheckYourAnswersController = instanceOf[CheckYourAnswersController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

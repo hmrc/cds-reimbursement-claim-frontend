@@ -21,14 +21,8 @@ import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, ExciseCategory, ReclaimWithAmounts, Reimbursement, ReimbursementWithCorrectAmount, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReclaimWithAmounts
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReimbursementWithCorrectAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.collection.immutable
 
@@ -60,6 +54,19 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
 
   }
 
+  def validateClaimsTablesForMultiple(
+    doc: Document,
+    reimbursements: Seq[(MRN, Int, Seq[ReimbursementWithCorrectAmount])],
+    claimAction: (Int, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ): Seq[Assertion] =
+    reimbursements.map { case (mrn, index, claims) =>
+      validateClaimsTableHeaders(doc, s"-${mrn.value}")
+      validateRowsForMultiple(doc, mrn, index, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${mrn.value}")
+    }
+
   private def validateRowsForMultiple(
     doc: Document,
     mrn: MRN,
@@ -84,18 +91,36 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
       )
     }
 
-  def validateClaimsTablesForMultiple(
+  private def validateDutyTotalRow(doc: Document, claims: Seq[ReimbursementWithCorrectAmount], suffix: String = "")(
+    implicit m: Messages
+  ) = {
+    doc.getElementById(s"total-$suffix").text()              shouldBe m("check-claim.total.header")
+    doc
+      .getElementById(s"full-amount-total-$suffix")
+      .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
+    doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
+    doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
+  }
+
+  def validateClaimsTablesForScheduled(
     doc: Document,
-    reimbursements: Seq[(MRN, Int, Seq[ReimbursementWithCorrectAmount])],
-    claimAction: (Int, TaxCode) => Call
+    reimbursements: Map[DutyType, List[ReimbursementWithCorrectAmount]],
+    exciseReimbursements: Map[ExciseCategory, List[ReimbursementWithCorrectAmount]],
+    claimAction: (DutyType, TaxCode) => Call
   )(implicit
     m: Messages
-  ): Seq[Assertion] =
-    reimbursements.map { case (mrn, index, claims) =>
-      validateClaimsTableHeaders(doc, s"-${mrn.value}")
-      validateRowsForMultiple(doc, mrn, index, claims, claimAction)
-      validateDutyTotalRow(doc, claims, s"${mrn.value}")
+  ): immutable.Iterable[Assertion] = {
+    reimbursements.map { (dutyType, claims) =>
+      validateClaimsTableHeaders(doc, s"-${dutyType.repr}")
+      validateRowsForScheduled(doc, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${dutyType.repr}")
     }
+    exciseReimbursements.map { (exciseCategory, claims) =>
+      validateClaimsTableHeaders(doc, s"-${exciseCategory.repr}")
+      validateRowsForScheduled(doc, claims, claimAction)
+      validateDutyTotalRow(doc, claims, s"${exciseCategory.repr}")
+    }
+  }
 
   private def validateRowsForScheduled(
     doc: Document,
@@ -132,25 +157,18 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
         doc.getElementById(s"claim-amount-$suffix").text() shouldBe amount.toPoundSterlingString
     }
 
-  def validateClaimsTablesForScheduled(
+  def validateClaimsTablesForSecurities(
     doc: Document,
-    reimbursements: Map[DutyType, List[ReimbursementWithCorrectAmount]],
-    exciseReimbursements: Map[ExciseCategory, List[ReimbursementWithCorrectAmount]],
-    claimAction: (DutyType, TaxCode) => Call
+    reimbursements: Map[String, List[ReclaimWithAmounts]],
+    claimAction: (String, TaxCode) => Call
   )(implicit
     m: Messages
-  ): immutable.Iterable[Assertion] = {
-    reimbursements.map { (dutyType, claims) =>
-      validateClaimsTableHeaders(doc, s"-${dutyType.repr}")
-      validateRowsForScheduled(doc, claims, claimAction)
-      validateDutyTotalRow(doc, claims, s"${dutyType.repr}")
+  ): immutable.Iterable[Assertion] =
+    reimbursements.map { case (securityDepositId, reclaimsList) =>
+      validateClaimsTableHeaders(doc, s"-$securityDepositId")
+      validateRowsForSecurities(doc, securityDepositId, reclaimsList, claimAction)
+      validateTotalRow(doc, reclaimsList, securityDepositId)
     }
-    exciseReimbursements.map { (exciseCategory, claims) =>
-      validateClaimsTableHeaders(doc, s"-${exciseCategory.repr}")
-      validateRowsForScheduled(doc, claims, claimAction)
-      validateDutyTotalRow(doc, claims, s"${exciseCategory.repr}")
-    }
-  }
 
   private def validateRowsForSecurities(
     doc: Document,
@@ -175,6 +193,38 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
       )
     }
 
+  private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit
+    m: Messages
+  ) = {
+    doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
+    doc
+      .getElementById(s"full-amount-total-$suffix")
+      .text()                                        shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
+    doc
+      .getElementById(s"claim-amount-total-$suffix")
+      .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
+    doc.getElementById(s"blank-cell-$suffix").text() shouldBe ""
+  }
+
+  private def validateClaimsTableHeaders(doc: Document, suffix: String = "")(implicit m: Messages) = {
+    doc.getElementById(s"selected-claim-header$suffix").text() shouldBe m("check-claim.table-header.selected-charges")
+    doc.getElementById(s"full-amount-header$suffix").text()    shouldBe m("check-claim.table-header.full-amount")
+    doc.getElementById(s"claim-amount-header$suffix").text()   shouldBe m("check-claim.table-header.claim-amount")
+    doc.getElementById(s"action-header$suffix").text()         shouldBe m("check-claim.table-header.action")
+  }
+
+  def validateClaimsTablesForSingleSecurities(
+    doc: Document,
+    securityDepositId: String,
+    reclaims: List[ReclaimWithAmounts],
+    claimAction: (String, TaxCode) => Call
+  )(implicit
+    m: Messages
+  ): immutable.Iterable[Assertion] = {
+    validateClaimsTableSingleSecurityHeaders(doc)
+    validateRowsForSingleSecurity(doc, securityDepositId, reclaims, claimAction)
+  }
+
   private def validateRowsForSingleSecurity(
     doc: Document,
     securityDepositId: String,
@@ -198,42 +248,11 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
       doc.getElementById(s"change-link-$suffix").attr("href") shouldBe claimAction(securityDepositId, taxCode).url
     }
 
-  private def validateTotalRow(doc: Document, claims: Seq[ReclaimWithAmounts], suffix: String)(implicit
-    m: Messages
-  ) = {
-    doc.getElementById(s"total-$suffix").text()      shouldBe m("check-claim.total.header")
-    doc
-      .getElementById(s"full-amount-total-$suffix")
-      .text()                                        shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
-    doc
-      .getElementById(s"claim-amount-total-$suffix")
-      .text()                                        shouldBe claims.map(_.claimAmount).sum.toPoundSterlingString
-    doc.getElementById(s"blank-cell-$suffix").text() shouldBe ""
-  }
-
-  def validateClaimsTablesForSecurities(
-    doc: Document,
-    reimbursements: Map[String, List[ReclaimWithAmounts]],
-    claimAction: (String, TaxCode) => Call
-  )(implicit
-    m: Messages
-  ): immutable.Iterable[Assertion] =
-    reimbursements.map { case (securityDepositId, reclaimsList) =>
-      validateClaimsTableHeaders(doc, s"-$securityDepositId")
-      validateRowsForSecurities(doc, securityDepositId, reclaimsList, claimAction)
-      validateTotalRow(doc, reclaimsList, securityDepositId)
-    }
-
-  def validateClaimsTablesForSingleSecurities(
-    doc: Document,
-    securityDepositId: String,
-    reclaims: List[ReclaimWithAmounts],
-    claimAction: (String, TaxCode) => Call
-  )(implicit
-    m: Messages
-  ): immutable.Iterable[Assertion] = {
-    validateClaimsTableSingleSecurityHeaders(doc)
-    validateRowsForSingleSecurity(doc, securityDepositId, reclaims, claimAction)
+  private def validateClaimsTableSingleSecurityHeaders(doc: Document)(implicit m: Messages) = {
+    doc.getElementById(s"selected-claim-header").text() shouldBe m("check-claim.table-header.selected-charges")
+    doc.getElementById(s"full-amount-header").text()    shouldBe m("check-claim.table-header.full-amount")
+    doc.getElementById(s"claim-amount-header").text()   shouldBe m("check-claim.table-header.claim-amount")
+    doc.getElementById(s"action-header").text()         shouldBe m("check-claim.table-header.action")
   }
 
   def toReimbursementWithCorrectAmount(
@@ -247,31 +266,6 @@ trait ClaimsTableValidator extends PageAssertions with SummaryMatchers {
         reimbursement.correctedAmount.getOrElse(BigDecimal(0))
       )
     }
-
-  private def validateClaimsTableHeaders(doc: Document, suffix: String = "")(implicit m: Messages) = {
-    doc.getElementById(s"selected-claim-header$suffix").text() shouldBe m("check-claim.table-header.selected-charges")
-    doc.getElementById(s"full-amount-header$suffix").text()    shouldBe m("check-claim.table-header.full-amount")
-    doc.getElementById(s"claim-amount-header$suffix").text()   shouldBe m("check-claim.table-header.claim-amount")
-    doc.getElementById(s"action-header$suffix").text()         shouldBe m("check-claim.table-header.action")
-  }
-
-  private def validateClaimsTableSingleSecurityHeaders(doc: Document)(implicit m: Messages) = {
-    doc.getElementById(s"selected-claim-header").text() shouldBe m("check-claim.table-header.selected-charges")
-    doc.getElementById(s"full-amount-header").text()    shouldBe m("check-claim.table-header.full-amount")
-    doc.getElementById(s"claim-amount-header").text()   shouldBe m("check-claim.table-header.claim-amount")
-    doc.getElementById(s"action-header").text()         shouldBe m("check-claim.table-header.action")
-  }
-
-  private def validateDutyTotalRow(doc: Document, claims: Seq[ReimbursementWithCorrectAmount], suffix: String = "")(
-    implicit m: Messages
-  ) = {
-    doc.getElementById(s"total-$suffix").text()              shouldBe m("check-claim.total.header")
-    doc
-      .getElementById(s"full-amount-total-$suffix")
-      .text()                                                shouldBe claims.map(_.paidAmount).sum.toPoundSterlingString
-    doc.getElementById(s"claim-amount-total-$suffix").text() shouldBe claims.map(_.amount).sum.toPoundSterlingString
-    doc.getElementById(s"blank-cell-$suffix").text()         shouldBe ""
-  }
 
   def validateCheckClaimTotal(doc: Document, expectedTotal: String)(implicit
     m: Messages

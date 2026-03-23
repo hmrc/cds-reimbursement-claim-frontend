@@ -19,20 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import cats.Monad
 import cats.data.EitherT
 import cats.instances.future
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.BankAccountReputationConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ConnectorError
+import com.google.inject.{ImplementedBy, Inject}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{BankAccountReputationConnector, ConnectorError}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.BankAccountReputation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultBankAccountReputationService])
 trait BankAccountReputationService {

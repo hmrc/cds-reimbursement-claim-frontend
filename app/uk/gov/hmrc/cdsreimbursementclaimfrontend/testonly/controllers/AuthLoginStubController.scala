@@ -21,12 +21,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.auth_login_stub_page
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.*
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.play.bootstrap.binders.UnsafePermitAll
+import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, UnsafePermitAll}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AuthLoginStubController @Inject() (
@@ -34,11 +32,6 @@ class AuthLoginStubController @Inject() (
   authLoginStubPage: auth_login_stub_page
 )(implicit viewConfig: ViewConfig)
     extends FrontendBaseController {
-
-  val defaultEoriNumber     = "GB000000000000001"
-  val postAction: Call      = Call("POST", viewConfig.authLoginStubSignInUrl)
-  val startClaimUrl: String = s"${viewConfig.selfBaseUrl}${StartController.startNewClaim()}"
-  val redirectPolicy        = UnsafePermitAll
 
   final val show: Action[AnyContent] = Action { implicit request =>
     val eoriNumber = request.getQueryString("eori").getOrElse(defaultEoriNumber)
@@ -52,5 +45,9 @@ class AuthLoginStubController @Inject() (
 
     Ok(authLoginStubPage(eoriNumber, continueUrl, postAction)).withNewSession
   }
+  val defaultEoriNumber     = "GB000000000000001"
+  val postAction: Call      = Call("POST", viewConfig.authLoginStubSignInUrl)
+  val startClaimUrl: String = s"${viewConfig.selfBaseUrl}${StartController.startNewClaim()}"
+  val redirectPolicy        = UnsafePermitAll
 
 }

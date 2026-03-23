@@ -21,15 +21,11 @@ import play.api.libs.json.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim.IncorrectEoriAndDan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Dan
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ImportDeclaration, NdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Dan, Eori, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.*
 
-import java.time.Instant
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.collection.immutable.SortedMap
 
 /** An encapsulated C285 multiple MRN claim logic. The constructor of this class MUST stay PRIVATE to protected
@@ -58,11 +54,6 @@ final class OverpaymentsMultipleClaim private (
   val validate: Validator.Validate[OverpaymentsMultipleClaim] =
     OverpaymentsMultipleClaim.validator
 
-  private def copy(
-    newAnswers: OverpaymentsMultipleClaim.Answers
-  ): OverpaymentsMultipleClaim =
-    new OverpaymentsMultipleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
-
   /** Check if all the selected duties have reimbursement amount provided. */
   def hasCompleteReimbursementClaims: Boolean =
     answers.correctedAmounts.exists(claims => claims.values.forall(rc => rc.nonEmpty && rc.forall(_._2.isDefined)))
@@ -73,32 +64,11 @@ final class OverpaymentsMultipleClaim private (
   def getLeadMovementReferenceNumber: Option[MRN] =
     answers.movementReferenceNumbers.flatMap(_.headOption)
 
-  def getLeadImportDeclaration: Option[ImportDeclaration] =
-    answers.importDeclarations.flatMap(_.headOption)
-
-  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
-    for
-      declarations <- answers.importDeclarations
-      declaration  <- declarations.find(_.getMRN === mrn)
-    yield declaration
-
   def getNthImportDeclaration(index: Int): Option[ImportDeclaration] =
     getNthMovementReferenceNumber(index).flatMap(getImportDeclarationFor)
 
   override def getImportDeclarations: Seq[ImportDeclaration] =
     answers.importDeclarations.getOrElse(Seq.empty)
-
-  def getNthMovementReferenceNumber(index: Int): Option[MRN] =
-    answers.movementReferenceNumbers.flatMap { mrns =>
-      if index >= 0 && index < mrns.size then Some(mrns(index))
-      else None
-    }
-
-  def getIndexOfMovementReferenceNumber(mrn: MRN): Option[Int] =
-    answers.movementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
-
-  def countOfMovementReferenceNumbers: Int =
-    answers.movementReferenceNumbers.map(_.size).getOrElse(0)
 
   def hasCompleteMovementReferenceNumbers: Boolean =
     countOfMovementReferenceNumbers >= 2
@@ -112,17 +82,8 @@ final class OverpaymentsMultipleClaim private (
   def getNdrcDetails: Option[List[NdrcDetails]] =
     getLeadImportDeclaration.flatMap(_.getNdrcDetailsList)
 
-  def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
-    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
-
-  def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
-    getImportDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
-
-  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
-    * found.
-    */
-  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
-    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
+  def getLeadImportDeclaration: Option[ImportDeclaration] =
+    answers.importDeclarations.flatMap(_.headOption)
 
   /** If the user has selected the tax code for repayment then returns the amount paid for the given MRN and tax code as
     * returned by ACC14, otherwise None.
@@ -134,12 +95,49 @@ final class OverpaymentsMultipleClaim private (
         else None
       )
 
+  /** Returns the amount paid for the given MRN and tax code as returned by ACC14, or None if either MRN or tax code not
+    * found.
+    */
+  def getAmountPaidFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
+    getNdrcDetailsFor(mrn, taxCode).map(_.amount).map(BigDecimal.apply)
+
   def getCorrectedAmountFor(mrn: MRN, taxCode: TaxCode): Option[BigDecimal] =
     for
       all           <- answers.correctedAmounts
       thisMrn       <- all.get(mrn)
       correctAmount <- thisMrn.get(taxCode).flatten
     yield correctAmount
+
+  def isAllSelectedDutiesAreCMAEligible: Boolean =
+    answers.correctedAmounts.toList
+      .flatMap(_.keys)
+      .exists(isAllSelectedDutiesAreCMAEligible)
+
+  def isAllSelectedDutiesAreCMAEligible(declarationId: MRN): Boolean =
+    answers.correctedAmounts
+      .flatMap(_.get(declarationId))
+      .map(_.keySet.map(getNdrcDetailsFor(declarationId, _)).collect { case Some(d) => d })
+      .exists(_.forall(_.isCmaEligible))
+
+  def getReimbursementsWithCorrectAmounts: Seq[(MRN, Int, List[ReimbursementWithCorrectAmount])] =
+    getReimbursementClaims.toSeq.zipWithIndex
+      .map { case ((mrn, _), index) => (mrn, index + 1, getReimbursementWithCorrectAmountFor(mrn)) }
+
+  def getReimbursementWithCorrectAmountFor(declarationId: MRN): List[ReimbursementWithCorrectAmount] = {
+    val taxCodesWithAmountPaidAndCorrect = getAvailableTaxCodesWithPaidAmountsFor(declarationId)
+      .flatMap { case (taxCode, paidAmount) =>
+        getCorrectedAmountFor(declarationId, taxCode) match {
+          case Some(ca) => Some((taxCode, Some(AmountPaidWithCorrect(paidAmount, ca))))
+          case _        => None
+        }
+      }
+    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
+  }
+
+  def hasAllClaimsSelectedForIndex(index: Int): Boolean =
+    getNthMovementReferenceNumber(index - 1).forall { mrn =>
+      getSelectedDuties(mrn).map(_.size).getOrElse(0) == getAvailableDuties(mrn).size
+    }
 
   def getAvailableDuties(mrn: MRN): Seq[(TaxCode, Boolean)] =
     getNdrcDetailsFor(mrn)
@@ -155,24 +153,11 @@ final class OverpaymentsMultipleClaim private (
       }
       .getOrElse(Seq.empty)
 
-  def getSelectedDuties(declarationId: MRN): Option[Seq[TaxCode]] =
-    answers.correctedAmounts.flatMap(_.get(declarationId)).map(_.keys.toSeq)
+  def getNdrcDetailsFor(mrn: MRN): Option[List[NdrcDetails]] =
+    getImportDeclarationFor(mrn).flatMap(_.getNdrcDetailsList)
 
-  def isAllSelectedDutiesAreCMAEligible(declarationId: MRN): Boolean =
-    answers.correctedAmounts
-      .flatMap(_.get(declarationId))
-      .map(_.keySet.map(getNdrcDetailsFor(declarationId, _)).collect { case Some(d) => d })
-      .exists(_.forall(_.isCmaEligible))
-
-  def isAllSelectedDutiesAreCMAEligible: Boolean =
-    answers.correctedAmounts.toList
-      .flatMap(_.keys)
-      .exists(isAllSelectedDutiesAreCMAEligible)
-
-  def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
-    getImportDeclarationFor(declarationId)
-      .flatMap(_.getNdrcDutiesWithAmount)
-      .getOrElse(Seq.empty)
+  def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
+    getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
 
   def getReimbursementClaimsFor(declarationId: MRN): OrderedMap[TaxCode, BigDecimal] = {
     val taxCodesWithPaidAmounts: Map[TaxCode, BigDecimal] =
@@ -195,6 +180,9 @@ final class OverpaymentsMultipleClaim private (
       .getOrElse(OrderedMap.empty)
   }
 
+  def getTotalReimbursementAmount: BigDecimal =
+    getReimbursementClaims.flatMap(_._2.values).sum
+
   def getReimbursementClaims: Map[MRN, Map[TaxCode, BigDecimal]] =
     answers.correctedAmounts
       .map(_.map { case (mrn, correctedAmountsPerMrn) =>
@@ -215,31 +203,10 @@ final class OverpaymentsMultipleClaim private (
       })
       .getOrElse(Map.empty)
 
-  def getReimbursementsWithCorrectAmounts: Seq[(MRN, Int, List[ReimbursementWithCorrectAmount])] =
-    getReimbursementClaims.toSeq.zipWithIndex
-      .map { case ((mrn, _), index) => (mrn, index + 1, getReimbursementWithCorrectAmountFor(mrn)) }
-
-  def getReimbursementWithCorrectAmountFor(declarationId: MRN): List[ReimbursementWithCorrectAmount] = {
-    val taxCodesWithAmountPaidAndCorrect = getAvailableTaxCodesWithPaidAmountsFor(declarationId)
-      .flatMap { case (taxCode, paidAmount) =>
-        getCorrectedAmountFor(declarationId, taxCode) match {
-          case Some(ca) => Some((taxCode, Some(AmountPaidWithCorrect(paidAmount, ca))))
-          case _        => None
-        }
-      }
-    toReimbursementWithCorrectAmount(SortedMap(taxCodesWithAmountPaidAndCorrect*))
-  }
-
-  def hasAllClaimsSelectedForIndex(index: Int): Boolean =
-    getNthMovementReferenceNumber(index - 1).forall { mrn =>
-      getSelectedDuties(mrn).map(_.size).getOrElse(0) == getAvailableDuties(mrn).size
-    }
-
-  def getReimbursementAmountForDeclaration(declarationId: MRN): BigDecimal =
-    getReimbursementClaimsFor(declarationId).toSeq.map(_._2).sum
-
-  def getTotalReimbursementAmount: BigDecimal =
-    getReimbursementClaims.flatMap(_._2.values).sum
+  def getAvailableTaxCodesWithPaidAmountsFor(declarationId: MRN): Seq[(TaxCode, BigDecimal)] =
+    getImportDeclarationFor(declarationId)
+      .flatMap(_.getNdrcDutiesWithAmount)
+      .getOrElse(Seq.empty)
 
   def withDutiesChangeMode(enabled: Boolean): OverpaymentsMultipleClaim =
     this.copy(answers.copy(modes = answers.modes.copy(dutiesChangeMode = enabled)))
@@ -263,6 +230,12 @@ final class OverpaymentsMultipleClaim private (
 
   def removeUnsupportedTaxCodes(): OverpaymentsMultipleClaim =
     this.copy(answers.copy(importDeclarations = answers.importDeclarations.map(_.map(_.removeUnsupportedTaxCodes()))))
+
+  def submitMovementReferenceNumberAndDeclaration(
+    mrn: MRN,
+    importDeclaration: ImportDeclaration
+  ): Either[String, OverpaymentsMultipleClaim] =
+    submitMovementReferenceNumberAndDeclaration(0, mrn, importDeclaration)
 
   /** Resets the claim with the new MRN or keep existing claim if submitted the same MRN and declaration as before.
     */
@@ -349,11 +322,17 @@ final class OverpaymentsMultipleClaim private (
         }
     }
 
-  def submitMovementReferenceNumberAndDeclaration(
-    mrn: MRN,
-    importDeclaration: ImportDeclaration
-  ): Either[String, OverpaymentsMultipleClaim] =
-    submitMovementReferenceNumberAndDeclaration(0, mrn, importDeclaration)
+  def getImportDeclarationFor(mrn: MRN): Option[ImportDeclaration] =
+    for
+      declarations <- answers.importDeclarations
+      declaration  <- declarations.find(_.getMRN === mrn)
+    yield declaration
+
+  def getNthMovementReferenceNumber(index: Int): Option[MRN] =
+    answers.movementReferenceNumbers.flatMap { mrns =>
+      if index >= 0 && index < mrns.size then Some(mrns(index))
+      else None
+    }
 
   def removeMovementReferenceNumberAndImportDeclaration(mrn: MRN): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
@@ -377,6 +356,12 @@ final class OverpaymentsMultipleClaim private (
           )
       }
     }
+
+  def getIndexOfMovementReferenceNumber(mrn: MRN): Option[Int] =
+    answers.movementReferenceNumbers.flatMap(_.zipWithIndex.find(_._1 === mrn).map(_._2))
+
+  def countOfMovementReferenceNumbers: Int =
+    answers.movementReferenceNumbers.map(_.size).getOrElse(0)
 
   def submitUserXiEori(userXiEori: UserXiEori): OverpaymentsMultipleClaim =
     whileClaimIsAmendable {
@@ -516,9 +501,6 @@ final class OverpaymentsMultipleClaim private (
       }
     }
 
-  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
-
   def submitCorrectAmount(
     declarationId: MRN,
     taxCode: TaxCode,
@@ -556,6 +538,15 @@ final class OverpaymentsMultipleClaim private (
           }
       }
     }
+
+  def getNdrcDetailsFor(declarationid: MRN, taxCode: TaxCode): Option[NdrcDetails] =
+    getImportDeclarationFor(declarationid).flatMap(_.getNdrcDetailsFor(taxCode.value))
+
+  def getSelectedDuties(declarationId: MRN): Option[Seq[TaxCode]] =
+    answers.correctedAmounts.flatMap(_.get(declarationId)).map(_.keys.toSeq)
+
+  def isValidCorrectAmount(correctAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctAmount >= 0 && correctAmount < BigDecimal(ndrcDetails.amount)
 
   def submitClaimAmount(
     declarationId: MRN,
@@ -609,6 +600,11 @@ final class OverpaymentsMultipleClaim private (
           )
         )
     }
+
+  private def copy(
+    newAnswers: OverpaymentsMultipleClaim.Answers
+  ): OverpaymentsMultipleClaim =
+    new OverpaymentsMultipleClaim(newAnswers, startTimeSeconds, caseNumber, submissionDateTime, features)
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, OverpaymentsMultipleClaim] =
     whileClaimIsAmendable {
@@ -743,134 +739,7 @@ final class OverpaymentsMultipleClaim private (
 }
 
 object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClaim] {
-
-  /** A starting point to build new instance of the claim. */
-  override def empty(
-    userEoriNumber: Eori,
-    nonce: Nonce = Nonce.random,
-    features: Option[Features] = None
-  ): OverpaymentsMultipleClaim =
-    new OverpaymentsMultipleClaim(
-      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
-      startTimeSeconds = Instant.now().getEpochSecond(),
-      features = features
-    )
-
   type CorrectedAmounts = OrderedMap[TaxCode, Option[BigDecimal]]
-
-  final case class Features(
-    shouldAllowOtherBasisOfClaim: Boolean = true
-  )
-
-  // All user answers captured during C&E1179 single MRN claim
-  final case class Answers(
-    nonce: Nonce = Nonce.random,
-    userEoriNumber: Eori,
-    movementReferenceNumbers: Option[Seq[MRN]] = None,
-    payeeType: Option[PayeeType] = None,
-    importDeclarations: Option[Seq[ImportDeclaration]] = None,
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
-    additionalDetails: Option[String] = None,
-    correctedAmounts: Option[OrderedMap[MRN, CorrectedAmounts]] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    selectedDocumentType: Option[UploadDocumentType] = None,
-    supportingEvidences: Seq[UploadedFile] = Seq.empty,
-    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
-    newEori: Option[Eori] = None,
-    newDan: Option[Dan] = None,
-    modes: ClaimModes = ClaimModes()
-  ) extends OverpaymentsAnswers
-
-  // Final minimal output of the claim we want to pass to the backend.
-  final case class Output(
-    movementReferenceNumbers: Seq[MRN],
-    claimantType: ClaimantType,
-    payeeType: PayeeType,
-    displayPayeeType: PayeeType,
-    claimantInformation: ClaimantInformation,
-    basisOfClaim: BasisOfOverpaymentClaim,
-    additionalDetails: String,
-    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
-    reimbursementMethod: ReimbursementMethod,
-    bankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Seq[EvidenceDocument],
-    newEoriAndDan: Option[NewEoriAndDan]
-  ) extends WafErrorMitigation[Output] {
-
-    override def excludeFreeTextInputs() =
-      (
-        Seq(("additional_details", additionalDetails)),
-        this.copy(additionalDetails = additionalDetailsReplacementText)
-      )
-  }
-
-  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator._
-  import ClaimValidationErrors._
-
-  object Checks extends OverpaymentsClaimChecks[OverpaymentsMultipleClaim] {
-
-    val hasMultipleMovementReferenceNumbers: Validate[OverpaymentsMultipleClaim] =
-      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
-
-  }
-
-  import Checks._
-
-  /** Validate if all required answers has been provided and the claim is ready to produce output. */
-  override implicit val validator: Validate[OverpaymentsMultipleClaim] =
-    all(
-      hasMRNAndImportDeclaration,
-      containsOnlySupportedTaxCodes,
-      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
-      basisOfClaimHasBeenProvided,
-      additionalDetailsHasBeenProvided,
-      reimbursementClaimsHasBeenProvided,
-      paymentMethodHasBeenProvidedIfNeeded,
-      contactDetailsHasBeenProvided,
-      supportingEvidenceHasBeenProvided,
-      hasMultipleMovementReferenceNumbers,
-      declarationsHasNoSubsidyPayments,
-      payeeTypeIsDefined,
-      newEoriAndDanProvidedIfNeeded
-    )
-
-  import ClaimFormats._
-
-  object Features {
-    implicit val format: Format[Features] =
-      Json.using[Json.WithDefaultValues].format[Features]
-  }
-
-  object Answers {
-
-    implicit val format: Format[Answers] =
-      Json.using[Json.WithDefaultValues].format[Answers]
-  }
-
-  object Output {
-    implicit val format: Format[Output] = Json.format[Output]
-  }
-
-  import play.api.libs.functional.syntax._
-
-  implicit val format: Format[OverpaymentsMultipleClaim] =
-    Format(
-      ((JsPath \ "answers").read[Answers]
-        and (JsPath \ "startTimeSeconds").read[Long]
-        and (JsPath \ "caseNumber").readNullable[String]
-        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
-        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleClaim(_, _, _, _, _)),
-      ((JsPath \ "answers").write[Answers]
-        and (JsPath \ "startTimeSeconds").write[Long]
-        and (JsPath \ "caseNumber").writeNullable[String]
-        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
-        and (JsPath \ "features").writeNullable[Features])(claim =>
-        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
-      )
-    )
 
   /** Try to build claim from the pre-existing answers. */
   override def tryBuildFrom(
@@ -910,6 +779,18 @@ object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClai
       )
       .map(_.submitCheckYourAnswersChangeMode(answers.checkYourAnswersChangeMode))
 
+  /** A starting point to build new instance of the claim. */
+  override def empty(
+    userEoriNumber: Eori,
+    nonce: Nonce = Nonce.random,
+    features: Option[Features] = None
+  ): OverpaymentsMultipleClaim =
+    new OverpaymentsMultipleClaim(
+      Answers(userEoriNumber = userEoriNumber, nonce = nonce),
+      startTimeSeconds = Instant.now().getEpochSecond(),
+      features = features
+    )
+
   /** This method MUST BE used only to test the validation correctness of the invalid answer states. */
   def unsafeModifyAnswers(
     claim: OverpaymentsMultipleClaim,
@@ -920,4 +801,118 @@ object OverpaymentsMultipleClaim extends ClaimCompanion[OverpaymentsMultipleClai
       startTimeSeconds = claim.startTimeSeconds,
       features = claim.features
     )
+
+  final case class Features(
+    shouldAllowOtherBasisOfClaim: Boolean = true
+  )
+
+  import ClaimValidationErrors.*
+  import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.*
+
+  // All user answers captured during C&E1179 single MRN claim
+  final case class Answers(
+    nonce: Nonce = Nonce.random,
+    userEoriNumber: Eori,
+    movementReferenceNumbers: Option[Seq[MRN]] = None,
+    payeeType: Option[PayeeType] = None,
+    importDeclarations: Option[Seq[ImportDeclaration]] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfOverpaymentClaim] = None,
+    additionalDetails: Option[String] = None,
+    correctedAmounts: Option[OrderedMap[MRN, CorrectedAmounts]] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    selectedDocumentType: Option[UploadDocumentType] = None,
+    supportingEvidences: Seq[UploadedFile] = Seq.empty,
+    eoriNumbersVerification: Option[EoriNumbersVerification] = None,
+    newEori: Option[Eori] = None,
+    newDan: Option[Dan] = None,
+    modes: ClaimModes = ClaimModes()
+  ) extends OverpaymentsAnswers
+
+  import Checks.*
+
+  /** Validate if all required answers has been provided and the claim is ready to produce output. */
+  override implicit val validator: Validate[OverpaymentsMultipleClaim] =
+    all(
+      hasMRNAndImportDeclaration,
+      containsOnlySupportedTaxCodes,
+      declarantOrImporterEoriMatchesUserOrHasBeenVerified,
+      basisOfClaimHasBeenProvided,
+      additionalDetailsHasBeenProvided,
+      reimbursementClaimsHasBeenProvided,
+      paymentMethodHasBeenProvidedIfNeeded,
+      contactDetailsHasBeenProvided,
+      supportingEvidenceHasBeenProvided,
+      hasMultipleMovementReferenceNumbers,
+      declarationsHasNoSubsidyPayments,
+      payeeTypeIsDefined,
+      newEoriAndDanProvidedIfNeeded
+    )
+
+  import ClaimFormats.*
+
+  // Final minimal output of the claim we want to pass to the backend.
+  final case class Output(
+    movementReferenceNumbers: Seq[MRN],
+    claimantType: ClaimantType,
+    payeeType: PayeeType,
+    displayPayeeType: PayeeType,
+    claimantInformation: ClaimantInformation,
+    basisOfClaim: BasisOfOverpaymentClaim,
+    additionalDetails: String,
+    reimbursementClaims: OrderedMap[MRN, Map[TaxCode, BigDecimal]],
+    reimbursementMethod: ReimbursementMethod,
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument],
+    newEoriAndDan: Option[NewEoriAndDan]
+  ) extends WafErrorMitigation[Output] {
+
+    override def excludeFreeTextInputs() =
+      (
+        Seq(("additional_details", additionalDetails)),
+        this.copy(additionalDetails = additionalDetailsReplacementText)
+      )
+  }
+
+  object Checks extends OverpaymentsClaimChecks[OverpaymentsMultipleClaim] {
+
+    val hasMultipleMovementReferenceNumbers: Validate[OverpaymentsMultipleClaim] =
+      checkIsTrue(_.answers.movementReferenceNumbers.exists(_.size > 1), MISSING_SECOND_MOVEMENT_REFERENCE_NUMBER)
+
+  }
+
+  object Features {
+    implicit val format: Format[Features] =
+      Json.using[Json.WithDefaultValues].format[Features]
+  }
+
+  import play.api.libs.functional.syntax.*
+
+  implicit val format: Format[OverpaymentsMultipleClaim] =
+    Format(
+      ((JsPath \ "answers").read[Answers]
+        and (JsPath \ "startTimeSeconds").read[Long]
+        and (JsPath \ "caseNumber").readNullable[String]
+        and (JsPath \ "submissionDateTime").readNullable[LocalDateTime]
+        and (JsPath \ "features").readNullable[Features])(new OverpaymentsMultipleClaim(_, _, _, _, _)),
+      ((JsPath \ "answers").write[Answers]
+        and (JsPath \ "startTimeSeconds").write[Long]
+        and (JsPath \ "caseNumber").writeNullable[String]
+        and (JsPath \ "submissionDateTime").writeNullable[LocalDateTime]
+        and (JsPath \ "features").writeNullable[Features])(claim =>
+        (claim.answers, claim.startTimeSeconds, claim.caseNumber, claim.submissionDateTime, claim.features)
+      )
+    )
+
+  object Answers {
+
+    implicit val format: Format[Answers] =
+      Json.using[Json.WithDefaultValues].format[Answers]
+  }
+
+  object Output {
+    implicit val format: Format[Output] = Json.format[Output]
+  }
 }

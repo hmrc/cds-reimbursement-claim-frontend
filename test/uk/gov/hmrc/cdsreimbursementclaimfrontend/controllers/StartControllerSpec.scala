@@ -19,10 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesRequest
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, MessagesRequest, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -37,16 +34,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import scala.concurrent.Future
 
 class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
+  lazy val controller: StartController       = instanceOf[StartController]
 
+  implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
-
-  implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
-  lazy val controller: StartController       = instanceOf[StartController]
 
   "Start controller" when {
 

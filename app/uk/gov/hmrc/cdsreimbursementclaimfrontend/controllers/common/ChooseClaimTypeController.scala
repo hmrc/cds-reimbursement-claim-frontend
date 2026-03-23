@@ -16,39 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.text
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.data.Forms.{mapping, text}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthRetrievalsAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.routes as overpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.routes as rejectGoodsRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ReasonForSecurityHelper
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.{ReasonForSecurityHelper, routes as securitiesRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -118,15 +105,8 @@ class ChooseClaimTypeController @Inject() (
 }
 
 object ChooseClaimTypeController {
-  sealed trait ClaimForm
-  case object C285 extends ClaimForm
-  case object RejectedGoods extends ClaimForm
-  case object Securities extends ClaimForm
-
   val allowedValues: Seq[String] = Seq("C285", "RejectedGoods", "Securities")
-
   val dataKey: String = "choose-claim-type"
-
   val claimFormForm: Form[ClaimForm] =
     Form(
       mapping(
@@ -142,4 +122,12 @@ object ChooseClaimTypeController {
           )
       )(identity)(Some(_))
     )
+
+  sealed trait ClaimForm
+
+  case object C285 extends ClaimForm
+
+  case object RejectedGoods extends ClaimForm
+
+  case object Securities extends ClaimForm
 }

@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.Ignore
+import org.scalatest.{BeforeAndAfterEach, Ignore}
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 
 @Ignore //remove this line to run test or once we have translated all the messages
 class WelshTranslatedMessagesSpec
@@ -34,13 +31,12 @@ class WelshTranslatedMessagesSpec
     with SessionSupport
     with BeforeAndAfterEach {
 
+  lazy val serviceMessagesApi: MessagesApi = instanceOf[MessagesApi]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  lazy val serviceMessagesApi: MessagesApi = instanceOf[MessagesApi]
 
   "WelshTranslatedMessagesSpec" when {
     "ensure all english messages" must {

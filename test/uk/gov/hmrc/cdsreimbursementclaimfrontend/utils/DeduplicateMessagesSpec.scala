@@ -21,8 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.utils.Colors
 
-import scala.io.Codec
-import scala.io.Source
+import scala.io.{Codec, Source}
 
 class DeduplicateMessagesSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

@@ -17,46 +17,30 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common
 
 import com.typesafe.config.ConfigFactory
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
+import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
 import org.scalatest.BeforeAndAfterEach
+import play.api.{Application, Configuration, Logger, MarkerContext}
 import play.api.http.Status.BAD_REQUEST
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.guice.GuiceableModule
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.Application
-import play.api.Configuration
-import play.api.Logger
-import play.api.MarkerContext
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.EoriDetailsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataActionWithRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, TestDefaultMessagesApiProvider}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedActionWithRetrievedData, SessionDataAction, SessionDataActionWithRetrievedData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.common.ChooseClaimTypeController.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpayments.routes as overpaymentsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoods.routes as rejectedGoodsRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.routes as securitiesRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TestDefaultMessagesApiProvider
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Nonce, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Nonce
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.choose_claim_type
 import uk.gov.hmrc.mongo.play.PlayMongoModule
@@ -72,18 +56,40 @@ class ChooseClaimTypeControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach {
-
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[EoriDetailsConnector].toInstance(mockEoriDetailsConnector)
     )
+  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData =
+    instanceOf[AuthenticatedActionWithRetrievedData]
+  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData     =
+    instanceOf[SessionDataActionWithRetrievedData]
+  val authenticatedAction: AuthenticatedAction                                   = instanceOf[AuthenticatedAction]
 
+  implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
+  implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
+  val sessionDataAction: SessionDataAction                                       = instanceOf[SessionDataAction]
+  val chooseClaimTypePage: choose_claim_type                                     = instanceOf[choose_claim_type]
+  val stubLogger: LoggerStub = new LoggerStub
+  val controller: ChooseClaimTypeController =
+    new ChooseClaimTypeController(
+      authenticatedActionWithRetrievedData,
+      sessionDataActionWithRetrievedData,
+      authenticatedAction,
+      sessionDataAction,
+      mockSessionCache,
+      featureSwitch,
+      chooseClaimTypePage
+    ) {
+      override val logger: Logger = stubLogger
+    }
   private val exampleEori: Eori = IdGen.genEori.sample.get
-
   private val encodedEori =
     new String(Base64.getEncoder.encode(exampleEori.value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+  private val formKey = "choose-claim-type"
 
   override def buildFakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -106,51 +112,11 @@ class ChooseClaimTypeControllerSpec
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()
 
-  lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  implicit val cc: MessagesControllerComponents = instanceOf[MessagesControllerComponents]
-  implicit val errorHandler: ErrorHandler       = instanceOf[ErrorHandler]
-
-  val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData =
-    instanceOf[AuthenticatedActionWithRetrievedData]
-  val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData     =
-    instanceOf[SessionDataActionWithRetrievedData]
-  val authenticatedAction: AuthenticatedAction                                   = instanceOf[AuthenticatedAction]
-  val sessionDataAction: SessionDataAction                                       = instanceOf[SessionDataAction]
-  val chooseClaimTypePage: choose_claim_type                                     = instanceOf[choose_claim_type]
-
-  class LoggerStub extends Logger(logger = null) {
-
-    private var loggedErrorMessages: Vector[String] = Vector.empty
-
-    def resetMessages(): Unit = loggedErrorMessages = Vector.empty
-
-    def verify(message: String): Boolean =
-      loggedErrorMessages.contains(message)
-
-    override def error(message: => String)(implicit mc: MarkerContext): Unit =
-      loggedErrorMessages = loggedErrorMessages :+ message
-  }
-
-  val stubLogger: LoggerStub = new LoggerStub
-
-  val controller: ChooseClaimTypeController =
-    new ChooseClaimTypeController(
-      authenticatedActionWithRetrievedData,
-      sessionDataActionWithRetrievedData,
-      authenticatedAction,
-      sessionDataAction,
-      mockSessionCache,
-      featureSwitch,
-      chooseClaimTypePage
-    ) {
-      override val logger: Logger = stubLogger
-    }
-
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private val formKey = "choose-claim-type"
+  private def extractErrorMessage(doc: Document): String =
+    doc.select(".govuk-error-message").text()
 
   "ChooseClaimTypeController" must {
 
@@ -269,9 +235,6 @@ class ChooseClaimTypeControllerSpec
     }
   }
 
-  private def extractErrorMessage(doc: Document): String =
-    doc.select(".govuk-error-message").text()
-
   private def radioButtons(doc: Document): Elements =
     doc.select("div.govuk-radios div.govuk-radios__item")
 
@@ -283,4 +246,17 @@ class ChooseClaimTypeControllerSpec
 
   private def extractHint(button: Element): String =
     button.select("div.govuk-hint").html()
+
+  class LoggerStub extends Logger(logger = null) {
+
+    private var loggedErrorMessages: Vector[String] = Vector.empty
+
+    def resetMessages(): Unit = loggedErrorMessages = Vector.empty
+
+    def verify(message: String): Boolean =
+      loggedErrorMessages.contains(message)
+
+    override def error(message: => String)(implicit mc: MarkerContext): Unit =
+      loggedErrorMessages = loggedErrorMessages :+ message
+  }
 }

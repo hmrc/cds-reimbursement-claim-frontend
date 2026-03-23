@@ -16,17 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_claim_details
 
 import scala.concurrent.ExecutionContext
@@ -38,14 +34,11 @@ class CheckClaimDetailsController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig)
     extends SecuritiesClaimBaseController {
 
-  private val postAction: Call = routes.CheckClaimDetailsController.submit
-
   final override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
   final val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       checkIfAllReclaimsProvided(claim) {
@@ -62,13 +55,13 @@ class CheckClaimDetailsController @Inject() (
           }
       }
     }
-
   final val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       checkIfAllReclaimsProvided(claim) {
         (claim, decideNextPage(claim))
       }
     }
+  private val postAction: Call = routes.CheckClaimDetailsController.submit
 
   private def checkIfAllReclaimsProvided(
     claim: SecuritiesClaim

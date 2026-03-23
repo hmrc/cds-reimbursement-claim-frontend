@@ -19,8 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 import cats.data.EitherT
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, UserXiEori}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -30,9 +29,6 @@ trait GetXiEoriMixin extends ClaimBaseController {
   def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim
 
   def xiEoriConnector: XiEoriConnector
-
-  def needsUserXiEoriSubmission(claim: Claim) =
-    claim.needsUserXiEoriSubmission
 
   final def getUserXiEoriIfNeeded(claim: Claim, enabled: Boolean)(implicit
     hc: HeaderCarrier
@@ -51,5 +47,8 @@ trait GetXiEoriMixin extends ClaimBaseController {
           )
       yield updatedClaim
     } else EitherT.fromEither[Future](Right(claim))
+
+  def needsUserXiEoriSubmission(claim: Claim) =
+    claim.needsUserXiEoriSubmission
 
 }

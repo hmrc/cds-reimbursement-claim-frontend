@@ -18,23 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimBase
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.{ClaimBase, CommonClaimProperties}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 
 trait CheckDeclarationDetailsMixin extends ClaimBaseController {
 
   type Claim <: claims.Claim & ClaimBase & CommonClaimProperties
-
-  def getImportDeclaration(claim: Claim): Option[ImportDeclaration]
-  def continueRoute(claim: Claim): Call
-  val enterMovementReferenceNumberRoute: Call
-
-  def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     getImportDeclaration(claim).fold(Redirect(baseRoutes.IneligibleController.ineligible))(declaration =>
       Ok(
@@ -46,8 +37,14 @@ trait CheckDeclarationDetailsMixin extends ClaimBaseController {
     )
 
   }
-
   final val submit: Action[AnyContent] = simpleActionReadClaim { claim =>
     Redirect(continueRoute(claim))
   }
+  val enterMovementReferenceNumberRoute: Call
+
+  def getImportDeclaration(claim: Claim): Option[ImportDeclaration]
+
+  def continueRoute(claim: Claim): Call
+
+  def viewTemplate: (ImportDeclaration, Claim) => Request[?] ?=> HtmlFormat.Appendable
 }

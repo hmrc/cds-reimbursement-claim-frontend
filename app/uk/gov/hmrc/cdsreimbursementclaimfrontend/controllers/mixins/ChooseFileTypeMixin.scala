@@ -17,27 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
+import play.api.mvc.{Action, AnyContent, Call, Request}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, Forms}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType
 
 trait ChooseFileTypeMixin extends ClaimBaseController {
 
   implicit val errorHandler: ErrorHandler
-
-  val uploadFilesRoute: Call
-
-  def viewTemplate
-    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] ?=> HtmlFormat.Appendable
-
-  def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim]
-
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     claim.getDocumentTypesIfRequired match {
       case None =>
@@ -56,7 +44,6 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
         )
     }
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim(
     claim =>
       claim.getDocumentTypesIfRequired match {
@@ -96,5 +83,11 @@ trait ChooseFileTypeMixin extends ClaimBaseController {
       },
     fastForwardToCYAEnabled = false
   )
+  val uploadFilesRoute: Call
+
+  def viewTemplate
+    : (Form[Option[UploadDocumentType]], Seq[UploadDocumentType], Boolean) => Request[?] ?=> HtmlFormat.Appendable
+
+  def modifyClaim(claim: Claim, documentType: UploadDocumentType): Either[String, Claim]
 
 }

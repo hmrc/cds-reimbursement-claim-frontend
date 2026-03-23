@@ -19,10 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -30,16 +27,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfOverpaymentClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfOverpaymentClaim, SessionData, TaxCode, TaxCodes}
 
 import scala.concurrent.Future
 
@@ -59,14 +50,25 @@ class SelectDutiesControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+  val claimGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
+      .flatMap(j =>
+        Gen
+          .oneOf(j.getAvailableClaimTypes)
+          .map(b => j.submitBasisOfClaim(b))
+      )
+  val claimWithNIExciseCodesGen: Gen[OverpaymentsSingleClaim] =
+    buildClaimFromAnswersGen(
+      answersUpToBasisForClaimGen(taxCodes = TaxCodes.excise, forcedTaxCodes = Seq(TaxCode.A00, TaxCode.B05))
+    )
+      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
+  private val messagesKey: String = "select-duties"
 
   def getHintText(document: Document, hintTextId: String) = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
     if hintTextElement.hasText then Some(hintTextElement.html()) else None
   }
-
-  private val messagesKey: String = "select-duties"
 
   def assertPageContent(
     doc: Document,
@@ -80,20 +82,6 @@ class SelectDutiesControllerSpec
       }
     )
   }
-
-  val claimGen: Gen[OverpaymentsSingleClaim] =
-    buildClaimFromAnswersGen(answersUpToBasisForClaimGen(forcedTaxCodes = Seq(TaxCode.NI411)))
-      .flatMap(j =>
-        Gen
-          .oneOf(j.getAvailableClaimTypes)
-          .map(b => j.submitBasisOfClaim(b))
-      )
-
-  val claimWithNIExciseCodesGen: Gen[OverpaymentsSingleClaim] =
-    buildClaimFromAnswersGen(
-      answersUpToBasisForClaimGen(taxCodes = TaxCodes.excise, forcedTaxCodes = Seq(TaxCode.A00, TaxCode.B05))
-    )
-      .map(_.submitBasisOfClaim(BasisOfOverpaymentClaim.IncorrectExciseValue))
 
   "Select Duties Controller" when {
 

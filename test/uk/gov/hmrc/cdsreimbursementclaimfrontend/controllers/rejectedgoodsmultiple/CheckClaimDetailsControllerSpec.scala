@@ -16,29 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsmultiple
 
-import org.scalacheck.Gen
 import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class CheckClaimDetailsControllerSpec
     extends PropertyBasedControllerSpec
@@ -57,7 +52,33 @@ class CheckClaimDetailsControllerSpec
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
-
+  val claimGen: Gen[(RejectedGoodsMultipleClaim, Seq[MRN])] =
+    incompleteClaimWithCompleteClaimsGen(5)
+  val claimWithNoClaimsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
+    )
+  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+  val claimWithIncompleteMrnsGen: Gen[RejectedGoodsMultipleClaim] =
+    claimGen.map((claim, _) =>
+      RejectedGoodsMultipleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
+        )
+    )
   private val messagesKey: String = "check-claim.rejected-goods"
 
   def assertPageContent(
@@ -76,37 +97,6 @@ class CheckClaimDetailsControllerSpec
       claim.getTotalReimbursementAmount.toPoundSterlingString
     )
   }
-
-  val claimGen: Gen[(RejectedGoodsMultipleClaim, Seq[MRN])] =
-    incompleteClaimWithCompleteClaimsGen(5)
-
-  val claimWithNoClaimsGen: Gen[RejectedGoodsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      RejectedGoodsMultipleClaim
-        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
-    )
-
-  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      RejectedGoodsMultipleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
-        )
-    )
-
-  val claimWithIncompleteMrnsGen: Gen[RejectedGoodsMultipleClaim] =
-    claimGen.map((claim, _) =>
-      RejectedGoodsMultipleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(movementReferenceNumbers = claim.answers.movementReferenceNumbers.map(_.take(1)))
-        )
-    )
 
   "CheckClaimDetailsController" when {
 

@@ -16,17 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
-import org.scalacheck.Gen
-import org.scalacheck.ShrinkLowPriority
+import org.scalacheck.{Gen, ShrinkLowPriority}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator
 
 class RejectedGoodsScheduledClaimSpec
     extends AnyWordSpec

@@ -21,6 +21,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.*
 
 object TaxCodes {
 
+  lazy val UK: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.UkDuty)
+  lazy val ukTaxCodeSet: Set[TaxCode] = UK.toSet
+  lazy val EU: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.EuDuty)
+  lazy val euTaxCodeSet: Set[TaxCode] = EU.toSet
+  lazy val excise: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.Excise)
+  lazy val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
+  lazy val vatTaxCodes: Seq[TaxCode] = all.filter(_.isVAT)
+  lazy val custom = TaxCodes.ukTaxCodeSet ++ TaxCodes.euTaxCodeSet
   val all: Seq[TaxCode] =
     Seq(
       A00,
@@ -148,25 +156,11 @@ object TaxCodes {
       NI379,
       NI380
     ).sorted
-
-  lazy val UK: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.UkDuty)
-  lazy val ukTaxCodeSet: Set[TaxCode] = UK.toSet
-
-  lazy val EU: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.EuDuty)
-  lazy val euTaxCodeSet: Set[TaxCode] = EU.toSet
-
-  lazy val excise: Seq[TaxCode]           = all.filter(_.dutyType === DutyType.Excise)
-  lazy val exciseTaxCodeSet: Set[TaxCode] = excise.toSet
-
-  lazy val vatTaxCodes: Seq[TaxCode] = all.filter(_.isVAT)
-
-  lazy val custom = TaxCodes.ukTaxCodeSet ++ TaxCodes.euTaxCodeSet
+  private[models] val taxCodesStringMap: Map[String, TaxCode] =
+    all.map(a => a.value -> a).toMap
 
   def allExcept(taxCodes: Set[TaxCode]): Seq[TaxCode] =
     all.filterNot(taxCodes.contains)
-
-  private[models] val taxCodesStringMap: Map[String, TaxCode] =
-    all.map(a => a.value -> a).toMap
 
   def has(code: String): Boolean =
     TaxCodes.all.exists(_.value === code)

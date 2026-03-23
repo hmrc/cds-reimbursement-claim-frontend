@@ -16,35 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import play.api.data.FormError
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimBaseController, routes as baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_importer_eori_number
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.ClaimValidationErrors
-import play.api.data.FormError
-
 trait EnterImporterEoriNumberMixin extends ClaimBaseController {
-
-  val postAction: Call
-  val continueAction: Call
-  val whenEoriInputNotRequiredAction: Call
-  val changeMrnAction: Call
-  val enterImporterEoriNumber: enter_importer_eori_number
-
-  def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim]
-
-  def needsEoriSubmission(claim: Claim): Boolean =
-    claim.needsDeclarantAndConsigneeEoriSubmission
-
-  def getEoriNumberAnswer(claim: Claim): Option[Eori] =
-    claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber)
-
-  val eoriNumberFormKey: String = "enter-importer-eori-number"
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     if !needsEoriSubmission(claim)
@@ -59,7 +39,6 @@ trait EnterImporterEoriNumberMixin extends ClaimBaseController {
         )
       )
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     if !needsEoriSubmission(claim)
     then (claim, Redirect(whenEoriInputNotRequiredAction))
@@ -111,4 +90,18 @@ trait EnterImporterEoriNumberMixin extends ClaimBaseController {
         )
     }
   }
+  val postAction: Call
+  val continueAction: Call
+  val whenEoriInputNotRequiredAction: Call
+  val changeMrnAction: Call
+  val enterImporterEoriNumber: enter_importer_eori_number
+  val eoriNumberFormKey: String = "enter-importer-eori-number"
+
+  def modifyClaim(claim: Claim, eori: Eori): Either[String, Claim]
+
+  def needsEoriSubmission(claim: Claim): Boolean =
+    claim.needsDeclarantAndConsigneeEoriSubmission
+
+  def getEoriNumberAnswer(claim: Claim): Option[Eori] =
+    claim.answers.eoriNumbersVerification.flatMap(_.consigneeEoriNumber)
 }

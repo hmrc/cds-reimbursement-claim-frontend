@@ -15,31 +15,23 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.{declarantOrImporterEoriMatchesUserOrHasBeenVerified, hasMRNAndImportDeclarationAndRfS}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.selectDutiesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes as baseRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.declarantOrImporterEoriMatchesUserOrHasBeenVerified
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim.Checks.hasMRNAndImportDeclarationAndRfS
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyAmount
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error as CdsError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ClaimControllerComponents, routes as baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyAmount, TaxCode, Error as CdsError}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.select_duties
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SelectDutiesController @Inject() (
@@ -53,18 +45,6 @@ class SelectDutiesController @Inject() (
       hasMRNAndImportDeclarationAndRfS &
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
-
-  private def processAvailableDuties[J, T](
-    securityId: String,
-    claim: SecuritiesClaim,
-    error: CdsError => Future[(J, T)],
-    f: Seq[DutyAmount] => Future[(J, T)]
-  ): Future[(J, T)] =
-    claim
-      .getSecurityTaxCodesWithAmounts(securityId)
-      .noneIfEmpty
-      .fold(error(CdsError("no tax codes available")))(f)
-
   final val showFirst: Action[AnyContent] = actionReadWriteClaim { claim =>
     claim.getSecurityDepositIds.headOption
       .map { securityId =>
@@ -183,6 +163,17 @@ class SelectDutiesController @Inject() (
       ),
     fastForwardToCYAEnabled = false
   )
+
+  private def processAvailableDuties[J, T](
+    securityId: String,
+    claim: SecuritiesClaim,
+    error: CdsError => Future[(J, T)],
+    f: Seq[DutyAmount] => Future[(J, T)]
+  ): Future[(J, T)] =
+    claim
+      .getSecurityTaxCodesWithAmounts(securityId)
+      .noneIfEmpty
+      .fold(error(CdsError("no tax codes available")))(f)
 
   private def updateAndRedirect(
     claim: SecuritiesClaim,

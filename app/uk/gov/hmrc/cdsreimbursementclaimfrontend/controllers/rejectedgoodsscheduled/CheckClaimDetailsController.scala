@@ -16,22 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsScheduledClaim.Checks.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ExciseCategory
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, ExciseCategory, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.ClaimsTableHelper.sortReimbursementsByDisplayDuty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.check_claim_details_scheduled
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -42,18 +37,9 @@ class CheckClaimDetailsController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController {
 
   implicit val subKey: Option[String] = Some("scheduled")
-
-  private val postAction: Call                                 = routes.CheckClaimDetailsController.submit
-  private val selectDutiesAction: Call                         = routes.SelectDutyTypesController.show
-  private val enterClaimAction: (DutyType, TaxCode) => Call    = routes.EnterClaimController.show
-  private val selectDutyTypesAction: Call                      = routes.SelectDutyTypesController.show
-  private val selectDutiesByTypeAction: DutyType => Call       = routes.SelectDutiesController.show
-  private val selectExciseDutiesAction: ExciseCategory => Call = routes.SelectDutiesController.showExciseDuties
-
   // Allow actions only if the MRN and ACC14 declaration are in place, and the EORI has been verified.
   final override val actionPrecondition: Option[Validate[RejectedGoodsScheduledClaim]] =
     Some(hasMRNAndImportDeclaration & declarantOrImporterEoriMatchesUserOrHasBeenVerified)
-
   val show: Action[AnyContent] = actionReadWriteClaim { claim =>
     val answers            = sortReimbursementsByDisplayDuty(claim.getReimbursements)
     val reimbursementTotal = claim.getTotalReimbursementAmount
@@ -78,12 +64,17 @@ class CheckClaimDetailsController @Inject() (
       else Redirect(selectDutiesAction)
     )
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim(claim =>
     (
       claim.withDutiesChangeMode(false),
       Redirect(routes.EnterInspectionDateController.show)
     )
   )
+  private val postAction: Call                                 = routes.CheckClaimDetailsController.submit
+  private val selectDutiesAction: Call                         = routes.SelectDutyTypesController.show
+  private val enterClaimAction: (DutyType, TaxCode) => Call    = routes.EnterClaimController.show
+  private val selectDutyTypesAction: Call                      = routes.SelectDutyTypesController.show
+  private val selectDutiesByTypeAction: DutyType => Call       = routes.SelectDutiesController.show
+  private val selectExciseDutiesAction: ExciseCategory => Call = routes.SelectDutiesController.showExciseDuties
 
 }

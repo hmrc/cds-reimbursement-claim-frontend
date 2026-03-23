@@ -16,32 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import org.scalacheck.Gen
 import org.jsoup.nodes.Document
+import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaimGenerators.*
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.ClaimsTableValidator
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContextExecutor
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 class CheckClaimDetailsControllerSpec
     extends ControllerSpec
@@ -63,6 +55,30 @@ class CheckClaimDetailsControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  val claimGen: Gen[RejectedGoodsSingleClaim] =
+    buildClaimFromAnswersGen(
+      buildAnswersGen(
+        submitBankAccountDetails = false,
+        submitBankAccountType = false,
+        reimbursementMethod = None
+      )
+    )
+  val claimWithNoClaimsGen: Gen[RejectedGoodsSingleClaim] =
+    claimGen.map(claim =>
+      RejectedGoodsSingleClaim
+        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
+    )
+  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsSingleClaim] =
+    claimGen.map(claim =>
+      RejectedGoodsSingleClaim
+        .unsafeModifyAnswers(
+          claim,
+          answers =>
+            answers
+              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
+        )
+    )
+  private val sessionWithMRN = SessionData(claimWithMrnAndDeclaration)
 
   def assertPageContent(
     doc: Document,
@@ -91,34 +107,6 @@ class CheckClaimDetailsControllerSpec
       .attr("href")                                     shouldBe routes.CheckClaimDetailsController.redirectToSelectDuties.url
     doc.getElementsByClass("govuk-button").attr("href") shouldBe routes.CheckClaimDetailsController.continue.url
   }
-
-  private val sessionWithMRN = SessionData(claimWithMrnAndDeclaration)
-
-  val claimGen: Gen[RejectedGoodsSingleClaim] =
-    buildClaimFromAnswersGen(
-      buildAnswersGen(
-        submitBankAccountDetails = false,
-        submitBankAccountType = false,
-        reimbursementMethod = None
-      )
-    )
-
-  val claimWithNoClaimsGen: Gen[RejectedGoodsSingleClaim] =
-    claimGen.map(claim =>
-      RejectedGoodsSingleClaim
-        .unsafeModifyAnswers(claim, answers => answers.copy(correctedAmounts = None))
-    )
-
-  val claimWithIncompleteClaimsGen: Gen[RejectedGoodsSingleClaim] =
-    claimGen.map(claim =>
-      RejectedGoodsSingleClaim
-        .unsafeModifyAnswers(
-          claim,
-          answers =>
-            answers
-              .copy(correctedAmounts = claim.answers.correctedAmounts.map(_.clearFirstOption))
-        )
-    )
 
   "Check Claim Details Controller" when {
     "Show Check Claim Details page" must {

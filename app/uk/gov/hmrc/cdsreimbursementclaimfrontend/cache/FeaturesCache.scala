@@ -17,21 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
 import cats.syntax.eq.*
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.Configuration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.FeatureSet
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, FeatureSet}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongo.cache.DataKey
-import uk.gov.hmrc.mongo.cache.MongoCacheRepository
-import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.TimestampSupport
+import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
+import uk.gov.hmrc.mongo.cache.{DataKey, MongoCacheRepository}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultFeaturesCache])
 trait FeaturesCache {

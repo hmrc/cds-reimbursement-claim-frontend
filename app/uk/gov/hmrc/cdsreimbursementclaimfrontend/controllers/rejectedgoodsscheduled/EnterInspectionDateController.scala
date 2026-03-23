@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsscheduled
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
+import play.api.mvc.{Action, AnyContent, Call}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.enterInspectionDateForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.rejectedgoods.enter_inspection_date
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -36,8 +33,6 @@ class EnterInspectionDateController @Inject() (
     extends RejectedGoodsScheduledClaimBaseController {
 
   val formKey: String          = "enter-inspection-date.rejected-goods"
-  private val postAction: Call = routes.EnterInspectionDateController.submit
-
   val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
       enterInspectionDatePage(
@@ -46,7 +41,6 @@ class EnterInspectionDateController @Inject() (
       )
     )
   }
-
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     enterInspectionDateForm
       .bindFromRequest()
@@ -75,4 +69,5 @@ class EnterInspectionDateController @Inject() (
       )
 
   }
+  private val postAction: Call = routes.EnterInspectionDateController.submit
 }

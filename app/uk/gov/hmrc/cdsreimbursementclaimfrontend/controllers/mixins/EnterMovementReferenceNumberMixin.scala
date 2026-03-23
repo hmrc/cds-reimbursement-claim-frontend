@@ -18,42 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins
 
 import cats.data.EitherT
 import play.api.data.Form
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc.*
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.CommonClaimProperties
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimBaseController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Feature}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEoriMixin {
-
-  def modifyClaim(claim: Claim, mrn: MRN, declaration: ImportDeclaration): Either[String, Claim]
-
-  def claimService: ClaimService
-  def featureSwitchService: FeatureSwitchService
-
-  val shouldValidateDeclaration: Boolean = true
-
-  def form(claim: Claim): Form[MRN]
-  def getMovementReferenceNumber(claim: Claim): Option[MRN]
-  def viewTemplate: Form[MRN] => Request[?] ?=> HtmlFormat.Appendable
-  def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable
-  def afterSuccessfullSubmit(claim: Claim): Result
-  val problemWithMrnCall: MRN => Call
-
-  val formKey = "enter-movement-reference-number"
 
   final val show: Action[AnyContent] = actionReadClaim { claim =>
     Ok(
@@ -62,7 +39,6 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
       )
     )
   }
-
   final val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
@@ -114,7 +90,6 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
         )
     )
   }
-
   final val submitWithoutSubsidies: Action[AnyContent] = actionReadWriteClaim { claim =>
     val filledForm = form(claim).bindFromRequest()
     filledForm.fold(
@@ -139,6 +114,25 @@ trait EnterMovementReferenceNumberMixin extends ClaimBaseController with GetXiEo
         )
     )
   }
+  val shouldValidateDeclaration: Boolean = true
+  val problemWithMrnCall: MRN => Call
+  val formKey = "enter-movement-reference-number"
+
+  def modifyClaim(claim: Claim, mrn: MRN, declaration: ImportDeclaration): Either[String, Claim]
+
+  def claimService: ClaimService
+
+  def featureSwitchService: FeatureSwitchService
+
+  def form(claim: Claim): Form[MRN]
+
+  def getMovementReferenceNumber(claim: Claim): Option[MRN]
+
+  def viewTemplate: Form[MRN] => Request[?] ?=> HtmlFormat.Appendable
+
+  def subsidyWaiverErrorPage: (MRN, Boolean) => Request[?] ?=> HtmlFormat.Appendable
+
+  def afterSuccessfullSubmit(claim: Claim): Result
 
   private def updateClaim(
     claim: Claim,

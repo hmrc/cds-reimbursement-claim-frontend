@@ -27,22 +27,17 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsMultipleClaimGenerators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfRejectedGoodsClaim, EvidenceDocument, UploadedFile}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Failure
-import scala.util.Try
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import java.net.URL
-import java.time.ZonedDateTime
-import java.time.Instant
-import java.time.ZoneId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadedFile
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import scala.util.{Failure, Try}
 
 class RejectedGoodsMultipleClaimConnectorSpec
     extends AnyWordSpec
@@ -74,10 +69,6 @@ class RejectedGoodsMultipleClaimConnectorSpec
   )
 
   val actorSystem = ActorSystem("test-RejectedGoodsMultipleClaimConnector")
-
-  override protected def afterAll(): Unit =
-    actorSystem.terminate()
-
   val connector =
     new RejectedGoodsMultipleClaimConnectorImpl(
       http = mockHttp,
@@ -86,18 +77,14 @@ class RejectedGoodsMultipleClaimConnectorSpec
       actorSystem = actorSystem,
       uploadDocumentsConnector = mockUploadDocumentsConnector
     )
-
   val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-multiple"
-
   val requestGen =
     for claim <- RejectedGoodsMultipleClaimGenerators.completeClaimGen
     yield RejectedGoodsMultipleClaimConnector.Request(
       claim.toOutput.getOrElse(fail("Could not generate claim output!"))
     )
-
   val sampleRequest: RejectedGoodsMultipleClaimConnector.Request = sample(requestGen)
   val validResponseBody                                          = """{"caseNumber":"ABC123"}"""
-
   val givenServiceReturns: HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(sampleRequest), hasHeaders = true)(_)
 
@@ -105,6 +92,9 @@ class RejectedGoodsMultipleClaimConnectorSpec
     request: RejectedGoodsMultipleClaimConnector.Request
   ): HttpResponse => CallHandler[Future[HttpResponse]] =
     mockHttpPostSuccess(expectedUrl, Json.toJson(request), hasHeaders = true)(_)
+
+  override protected def afterAll(): Unit =
+    actorSystem.terminate()
 
   "RejectedGoodsMultipleClaimConnector" must {
     "have retries defined" in {

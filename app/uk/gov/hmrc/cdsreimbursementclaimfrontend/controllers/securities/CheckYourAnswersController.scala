@@ -16,24 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SecuritiesClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Call}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{SecuritiesClaimConnector, UploadDocumentsConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.JourneyLog
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AuditService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.helpers.CheckYourAnswersPrintViewHelper.getPrintViewUrl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.submit_claim_error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.check_your_answers_print_view
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.confirmation_of_submission
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.{check_your_answers, check_your_answers_print_view, confirmation_of_submission}
 
 import scala.concurrent.ExecutionContext
 
@@ -50,9 +43,6 @@ class CheckYourAnswersController @Inject() (
 )(implicit val ec: ExecutionContext, val viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends SecuritiesClaimBaseController
     with Logging {
-
-  private val postAction: Call             = routes.CheckYourAnswersController.submit
-  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 
   val show: Action[AnyContent] =
     actionReadWriteClaim { claim =>
@@ -82,7 +72,6 @@ class CheckYourAnswersController @Inject() (
             )
         )
     }
-
   val submit: Action[AnyContent] =
     actionReadWriteClaim { claim =>
       claim
@@ -120,7 +109,6 @@ class CheckYourAnswersController @Inject() (
               }
         )
     }
-
   val showConfirmation: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -147,7 +135,6 @@ class CheckYourAnswersController @Inject() (
           }
           .getOrElse(redirectToTheStartOfTheClaim)
       }
-
   val showPrintView: Action[AnyContent] =
     jcc.authenticatedActionWithSessionData
       .async { implicit request =>
@@ -181,4 +168,6 @@ class CheckYourAnswersController @Inject() (
           )
           .getOrElse(redirectToTheStartOfTheClaim)
       }
+  private val postAction: Call             = routes.CheckYourAnswersController.submit
+  private val showConfirmationAction: Call = routes.CheckYourAnswersController.showConfirmation
 }

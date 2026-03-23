@@ -18,31 +18,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentsmultip
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
-import com.google.inject.Inject
-import com.google.inject.Singleton
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Request
-import play.api.mvc.Result
+import com.google.inject.{Inject, Singleton}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.XiEoriConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.EnterMovementReferenceNumberUtil
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.GetXiEoriMixin
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsMultipleClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.movementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.mixins.{EnterMovementReferenceNumberUtil, GetXiEoriMixin}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, UserXiEori}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserXiEori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.enter_movement_reference_number
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.subsidy_waiver_error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.common.{enter_movement_reference_number, subsidy_waiver_error}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
@@ -56,6 +47,8 @@ class EnterMovementReferenceNumberController @Inject() (
     extends OverpaymentsMultipleClaimBaseController
     with GetXiEoriMixin {
 
+  final val showFirst: Action[AnyContent] = show(1)
+
   def subsidyWaiverErrorPage: (MRN, Boolean, Int) => Request[?] ?=> HtmlFormat.Appendable =
     (mrn, isOnlySubsidies, pageIndex) =>
       subsidyWaiverPage(
@@ -67,8 +60,6 @@ class EnterMovementReferenceNumberController @Inject() (
         viewConfig.legacyC285FormUrl,
         routes.EnterMovementReferenceNumberController.show(pageIndex)
       )
-
-  final val showFirst: Action[AnyContent] = show(1)
 
   final def show(pageIndex: Int): Action[AnyContent] = actionReadClaim { claim =>
     if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
@@ -153,45 +144,6 @@ class EnterMovementReferenceNumberController @Inject() (
     }
   }
 
-  final def submitWithoutSubsidies(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
-    if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
-      (
-        claim,
-        Redirect(routes.CheckMovementReferenceNumbersController.show)
-      )
-    else {
-      val mrnIndex: Int = pageIndex - 1
-      movementReferenceNumberForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            (
-              claim,
-              BadRequest(
-                enterMovementReferenceNumberPage(
-                  formWithErrors,
-                  "multiple",
-                  Some(pageIndex),
-                  routes.EnterMovementReferenceNumberController.submit(pageIndex)
-                )
-              )
-            ),
-          mrn =>
-            {
-              for
-                maybeAcc14    <- claimService.getImportDeclaration(mrn)
-                -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
-                updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14.map(_.removeSubsidyItems))
-                updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
-              yield updatedClaim2
-            }.fold(
-              _ => (claim, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn))),
-              updatedClaim => (updatedClaim, redirectLocation(claim, updatedClaim, mrn, pageIndex))
-            )
-        )
-    }
-  }
-
   private def updateClaim(
     claim: Claim,
     mrnIndex: Int,
@@ -236,6 +188,45 @@ class EnterMovementReferenceNumberController @Inject() (
         else routes.CheckMovementReferenceNumbersController.show
       }
     )
+
+  final def submitWithoutSubsidies(pageIndex: Int): Action[AnyContent] = actionReadWriteClaim { claim =>
+    if pageIndex <= 0 || pageIndex > claim.countOfMovementReferenceNumbers + 1 then
+      (
+        claim,
+        Redirect(routes.CheckMovementReferenceNumbersController.show)
+      )
+    else {
+      val mrnIndex: Int = pageIndex - 1
+      movementReferenceNumberForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            (
+              claim,
+              BadRequest(
+                enterMovementReferenceNumberPage(
+                  formWithErrors,
+                  "multiple",
+                  Some(pageIndex),
+                  routes.EnterMovementReferenceNumberController.submit(pageIndex)
+                )
+              )
+            ),
+          mrn =>
+            {
+              for
+                maybeAcc14    <- claimService.getImportDeclaration(mrn)
+                -             <- EnterMovementReferenceNumberUtil.validateEoriFormats(claim, maybeAcc14, featureSwitchService)
+                updatedClaim  <- updateClaim(claim, mrnIndex, mrn, maybeAcc14.map(_.removeSubsidyItems))
+                updatedClaim2 <- getUserXiEoriIfNeeded(updatedClaim, mrnIndex === 0)
+              yield updatedClaim2
+            }.fold(
+              _ => (claim, Redirect(routes.ProblemWithMrnController.show(pageIndex, mrn))),
+              updatedClaim => (updatedClaim, redirectLocation(claim, updatedClaim, mrn, pageIndex))
+            )
+        )
+    }
+  }
 
   override def modifyClaim(claim: Claim, userXiEori: UserXiEori): Claim =
     claim.submitUserXiEori(userXiEori)

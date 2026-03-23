@@ -16,20 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.mvc.Results.InternalServerError
-import play.api.mvc.Request
-import play.api.mvc.RequestHeader
-import play.api.mvc.Result
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.error_template
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorHandler @Inject() (

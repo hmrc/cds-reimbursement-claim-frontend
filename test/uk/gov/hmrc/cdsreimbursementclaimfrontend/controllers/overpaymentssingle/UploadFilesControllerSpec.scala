@@ -17,25 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.overpaymentssingle
 
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Lang
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.i18n.MessagesImpl
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
-import play.api.mvc.Call
-import play.api.mvc.Result
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PropertyBasedControllerSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.OverpaymentsSingleClaimGenerators.*
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UploadDocumentsConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, PropertyBasedControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.*
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UploadDocumentType.AirWayBill
 import uk.gov.hmrc.http.HeaderCarrier
@@ -48,9 +42,15 @@ class UploadFilesControllerSpec
     with SessionSupport
     with BeforeAndAfterEach {
 
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
+    )
   val mockUploadDocumentsConnector: UploadDocumentsConnector = mock[UploadDocumentsConnector]
-
   val expectedUploadDocumentsLocation: String = "http://localhost:10123/zoo/upload-files"
+  val controller: UploadFilesController = instanceOf[UploadFilesController]
 
   def mockInitializeCall(existingFiles: Seq[UploadedFile] = Seq.empty) =
     (mockUploadDocumentsConnector
@@ -59,15 +59,6 @@ class UploadFilesControllerSpec
         request.existingFiles.map(_.upscanReference) == existingFiles.map(_.upscanReference)
       })
       .returning(Future.successful(Some(expectedUploadDocumentsLocation)))
-
-  override val overrideBindings: List[GuiceableModule] =
-    List[GuiceableModule](
-      bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache),
-      bind[UploadDocumentsConnector].toInstance(mockUploadDocumentsConnector)
-    )
-
-  val controller: UploadFilesController = instanceOf[UploadFilesController]
 
   "UploadFilesController" when {
 
