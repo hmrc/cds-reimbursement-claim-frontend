@@ -1530,7 +1530,6 @@ problem-with-address.point.1=enw neu rif eiddo (cyfeiriad  - llinell 1)
 problem-with-address.point.2=cod post go iawn
 problem-with-address.point.3=enw tref neu ddinas
 problem-with-address.title=Mae problem gyda’ch cyfeiriad cyswllt
-problem-with-mrn.help=Darparwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd).</a>.
 radio.divider=neu
 
 problem-with-declaration.continue.no=Na
@@ -1544,7 +1543,7 @@ problem-with-declaration.c285-form=<a href="{0}" class="govuk-link" rel="norefer
 problem-with-declaration.ce1179-form=<a href="{0}" class="govuk-link" rel="noreferrer noopener">ffurflen C&E1179</a>
 problem-with-declaration.title=Mae’n ddrwg gennyf, mae problem gyda’r Cyfeirnod Symud (MRN) hwn
 
-problem-with-mrn.help=Rhowch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd)</a>.
+problem-with-mrn.help=Darparwch <a class="govuk-link" rel="noreferrer noopener" href="{0}">MRN</a> arall neu gallwch gael help drwy <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">gysylltu â CThEF (yn agor tab newydd).</a>.
 problem-with-mrn.paragraph.1=Nid yw’r MRN <span id="MRN" class="govuk-!-font-weight-bold">{0}</span> yn ddilys neu nid oes unrhyw doll na TAW yn yr MRN hwn i’w hawlio.
 problem-with-mrn.title=Mae’n ddrwg gennyf, mae problem gyda’r Cyfeirnod Symud (MRN) hwn
 

@@ -18,10 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
-import play.api.mvc.Results.InternalServerError
 import play.api.mvc.Request
 import play.api.mvc.RequestHeader
 import play.api.mvc.Result
+import play.api.mvc.Results.InternalServerError
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.error_template
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
