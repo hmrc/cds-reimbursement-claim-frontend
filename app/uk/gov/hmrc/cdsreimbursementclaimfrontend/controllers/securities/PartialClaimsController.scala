@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities
 
-import com.google.inject.{Inject, Singleton}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, Call}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.partialClaimsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Validator.Validate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.securities.partial_claims
 
 import scala.concurrent.ExecutionContext
@@ -39,6 +42,10 @@ class PartialClaimsController @Inject() (
     with SecuritiesClaimRouter
     with Logging {
 
+  private val form: Form[YesNo] = partialClaimsForm
+
+  import SecuritiesClaim.Checks.*
+
   // Allow actions only if the MRN, RfS and ACC14 declaration are in place, and the EORI has been verified.
   override val actionPrecondition: Option[Validate[SecuritiesClaim]] =
     Some(
@@ -46,7 +53,6 @@ class PartialClaimsController @Inject() (
         declarantOrImporterEoriMatchesUserOrHasBeenVerified
     )
 
-  import SecuritiesClaim.Checks.*
   val show: Action[AnyContent] = actionReadClaim { claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     Ok(
@@ -57,6 +63,7 @@ class PartialClaimsController @Inject() (
       )
     )
   }
+
   val submit: Action[AnyContent] = actionReadWriteClaim { claim =>
     val postAction: Call = routes.PartialClaimsController.submit
     form
@@ -79,5 +86,4 @@ class PartialClaimsController @Inject() (
           }
       )
   }
-  private val form: Form[YesNo] = partialClaimsForm
 }
