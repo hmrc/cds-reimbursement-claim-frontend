@@ -1345,10 +1345,6 @@ notification-banner.important=Pwysig
 
 ordinal-number-mrn-first-on-page=Yr Cyfeirnod Symud (MRN)
 
-
-
-
-
 overpayments.choose-how-many-mrns.details.heading=Beth yw MRN?
 overpayments.choose-how-many-mrns.details.p1=Cyfeirnod 18 digid unigryw yw MRN sy’n cael ei gyhoeddi ar ôl datgan nwyddau i’w mewnforio.
 overpayments.choose-how-many-mrns.details.p2=Gallwch ddod o hyd iddo yn eich hysbysiad derbyn mewnforio cychwynnol, meddalwedd fasnachol neu mewn dogfennau gan gwmni cludo dros y môr, trefnydd anfon nwyddau neu asiantaeth.
