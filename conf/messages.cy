@@ -529,7 +529,7 @@ choose-export-method.help-text=Roedd y nwyddau yn rhai:
 choose-export-method.radio-or=neu
 choose-export-method.title=Rhowch wybod beth a wnaethoch gyda’r nwyddau
 
-choose-file-type.choose-file-type.error.invalid-file-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
+choose-file-type.choose-file-type.error.invalid-file-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, JPG, PNG, PDF, CSV, TXT neu Word.
 choose-file-type.error.required=Dewiswch y math o ddogfen rydych yn ei huwchlwytho
 choose-file-type.file-type.AdditionalSupportingDocuments=Dogfennau ategol ychwanegol
 choose-file-type.file-type.AdditionalSupportingDocuments.bullet=Dogfennau ategol ychwanegol:
@@ -607,14 +607,14 @@ choose-file-type.title=Ychwanegu dogfennau ategol at eich hawliad
 
 choose-files.add-another-document-question=Ychwanegu math gwahanol o dystiolaeth ategol at eich hawliad?
 choose-files.add-another-document-question.error.required=Dewiswch ''Iawn'' i ychwanegu math gwahanol o dystiolaeth ategol at eich hawliad
-choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
+choose-files.allowed-file-types=Excel, JPG, PNG, PDF, CSV, TXT neu Word
 choose-files.choose.first.label=Uwchlwytho {0}
 choose-files.choose.next.label=Uwchlwytho {0} arall
 choose-files.if-skip.inset-text=Mae’n rhaid i chi ychwanegu anfoneb fasnachol i ategu’ch hawliad.
-choose-files.if-skip.p1=Gall pob ffeil fod hyd at {0}.  Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
+choose-files.if-skip.p1=Gall pob ffeil fod hyd at {0}.  Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, JPG, PNG, PDF, CSV, TXT neu Word.
 choose-files.if-skip.p2=Gallwch ddewis y botwm ‘Dewis ffeiliau’ i uwchlwytho neu lusgo a gollwng sawl ffeil.
 choose-files.if-skip.title=Uwchlwytho dogfennau i ategu’ch hawliad
-choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
+choose-files.p1=Gall {0} fod hyd at uchafswm maint o {1} fesul ffeil. Mae’n rhaid i’r ffeil dan sylw fod ar ffurf Excel, JPG, PNG, PDF, CSV, TXT neu Word.
 choose-files.p2=Gallwch ddewis y botwm ‘Dewis ffeiliau’ i uwchlwytho neu lusgo a gollwng sawl ffeil.
 choose-files.title=Uwchlwytho {0}
 choose-files.uploaded.label=Wedi uwchlwytho
@@ -1427,14 +1427,14 @@ rejected-goods.choose-how-many-mrns.scheduled.title=Uwchlwytho ffeil gyda rhestr
 rejected-goods.choose-how-many-mrns.title=Un Cyfeirnod Symud (MRN) neu fwy nag un
 
 schedule-document.file-type.ScheduleOfMRNs=Dogfen restredig
-schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word
+schedule-document.upload.allowed-file-types=Excel, JPG, PNG, PDF, CSV, TXT neu Word
 schedule-document.upload.choose.description=Gall y ffeil a ddewisir fod hyd at 9MB ac mae’n rhaid iddi fod yn Excel neu’n CSV.
 schedule-document.upload.error.required=Mae problem gyda’r ffeil y gwnaethoch geisio ei huwchlwytho
 schedule-document.upload.help-text.para1=Bydd angen i chi greu ac uwchlwytho rhestr o’r holl Gyfeirnodau Symud (MRNs) yr ydych am eu cynnwys yn yr hawliad hwn, ynghyd â’r canlynol:
 schedule-document.upload.help-text.para2=Lawrlwythwch y <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">templed hawlio hwn (yn agor tab newydd)</a>. Gallwch ddefnyddio hwn i lenwi’r wybodaeth sydd ei hangen arnom i brosesu’ch hawliad.
 schedule-document.upload.help-text.paraN=Mae angen manylion penodol i’ch hawliad arnom hefyd. Er enghraifft, os gwnaethoch ordalu oherwydd cod nwyddau anghywir, cofiwch gynnwys y cod a ddefnyddiwyd adeg y mewnforio a’r un y dylid bod wedi’i ddefnyddio.
 schedule-document.upload.help-text.para3=Bydd eich hawliad yn cael ei ohirio os na fydd yr wybodaeth hon yn cael ei darparu.
-schedule-document.upload.help-text.para4=Gall y ddogfen hon fod hyd at 9MB a rhaid iddi fod yn Excel, Outlook, JPG, PNG, PDF, CSV, TXT neu Word.
+schedule-document.upload.help-text.para4=Gall y ddogfen hon fod hyd at 9MB a rhaid iddi fod yn Excel, JPG, PNG, PDF, CSV, TXT neu Word.
 schedule-document.upload.input-title=Dewiswch ddogfen i’w huwchlwytho
 schedule-document.upload.things-to-show.l1=y dyddiad mewnforio
 schedule-document.upload.things-to-show.l2=disgrifiad o’r nwyddau a’r maint

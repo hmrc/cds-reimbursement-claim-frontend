@@ -561,7 +561,7 @@ choose-export-method.help-text=Select all that apply
 choose-export-method.radio-or=or
 choose-export-method.title=What did you do with the goods?
 
-choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
+choose-file-type.choose-file-type.error.invalid-file-type=The selected file must be Excel, JPG, PNG, PDF, CSV, TXT or Word.
 choose-file-type.error.required=Select which type of document you are uploading
 choose-file-type.file-type.AdditionalSupportingDocuments=Additional supporting documents
 choose-file-type.file-type.AdditionalSupportingDocuments.bullet=Additional supporting documents:
@@ -640,14 +640,14 @@ choose-file-type.title=Add supporting documents to your claim
 
 choose-files.add-another-document-question=Add a different type of supporting evidence to your claim?
 choose-files.add-another-document-question.error.required=Select yes to add a different type of supporting evidence to your claim
-choose-files.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
+choose-files.allowed-file-types=Excel, JPG, PNG, PDF, CSV, TXT or Word
 choose-files.choose.first.label=Upload {0}
 choose-files.choose.next.label=Upload another {0}
 choose-files.if-skip.inset-text=You must add a commercial invoice to support your claim.
-choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
+choose-files.if-skip.p1=Each file can be up to a maximum of {0}. The selected file must be Excel, JPG, PNG, PDF, CSV, TXT or Word.
 choose-files.if-skip.p2=You can use the ''Choose files'' button to upload or ''drag and drop'' multiple files.
 choose-files.if-skip.title=Upload documents to support your claim
-choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
+choose-files.p1={0} can be up to a maximum of {1} size per file. The selected file must be Excel, JPG, PNG, PDF, CSV, TXT or Word.
 choose-files.p2=You can use the ''Choose files'' button to upload or ''drag and drop'' multiple files.
 choose-files.title=Upload {0}
 choose-files.uploaded.label=Uploaded
@@ -1507,14 +1507,14 @@ rejected-goods.choose-how-many-mrns.scheduled.title=Upload a file with a list of
 rejected-goods.choose-how-many-mrns.title=Single or multiple Movement Reference Numbers (MRNs)
 
 schedule-document.file-type.ScheduleOfMRNs=Scheduled document
-schedule-document.upload.allowed-file-types=Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word
+schedule-document.upload.allowed-file-types=Excel, JPG, PNG, PDF, CSV, TXT or Word
 schedule-document.upload.choose.description=The selected file can be up to 9MB and must be Excel or CSV.
 schedule-document.upload.error.required=There is a problem with the file you tried to upload
 schedule-document.upload.help-text.para1=You need to create and upload a list of all the Movement Reference Numbers (MRNs) you want to include in this claim, along with:
 schedule-document.upload.help-text.para2=Download this <a href="{0}" class="govuk-link" rel="noreferrer noopener" target="_blank">claim template (opens in a new tab)</a>. You can use this to fill in the information we need to process you claim.
 schedule-document.upload.help-text.paraN=We also need details specific to your claim. For example, if you overpaid because of an incorrect commodity code, include the code used at the time of import and the one that should have been used.
 schedule-document.upload.help-text.para3=Your claim will be delayed if this information is not provided.
-schedule-document.upload.help-text.para4=This document can be up to {0} and must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.
+schedule-document.upload.help-text.para4=This document can be up to {0} and must be Excel, JPG, PNG, PDF, CSV, TXT or Word.
 schedule-document.upload.input-title=Select a document to upload
 schedule-document.upload.things-to-show.l1=the import date
 schedule-document.upload.things-to-show.l2=a description of the goods and the quantity
