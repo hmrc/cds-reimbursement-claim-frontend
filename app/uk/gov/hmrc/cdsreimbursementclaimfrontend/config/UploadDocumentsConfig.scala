@@ -46,4 +46,10 @@ class UploadDocumentsConfig @Inject() (servicesConfig: ServicesConfig, configura
   lazy val uploadFileUrl: String     = s"$baseUrl/internal/upload"
 
   lazy val wipeOutUrl: String = s"$baseUrl/internal/wipe-out"
+
+  lazy val allowedContentTypes: String =
+    servicesConfig.getConfString("upload-documents-frontend.allowed-content-types", "")
+
+  lazy val allowedFileExtensions: String =
+    servicesConfig.getConfString("upload-documents-frontend.allowed-file-extensions", "")
 }
