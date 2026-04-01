@@ -234,8 +234,8 @@ class UploadFilesControllerSpec
         initialNumberOfEmptyRows = 1,
         maximumFileSizeBytes = 9000000,
         allowedContentTypes =
-          "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/vnd.ms-outlook,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
-        allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.msg,.doc,.docx,.xls,.xlsx,.ods,.odt",
+          "application/pdf,image/jpeg,image/png,text/csv,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.text,application/vnd.oasis.opendocument.spreadsheet",
+        allowedFileExtensions = ".pdf,.png,.jpg,.jpeg,.csv,.txt,.doc,.docx,.xls,.xlsx,.ods,.odt",
         prePopulateYesOrNoForm = Some(false),
         cargo = Some(AirWayBill),
         newFileDescription = Some("Air waybill"),
@@ -243,7 +243,7 @@ class UploadFilesControllerSpec
           serviceName = messages("service.title"),
           title = messages("choose-files.title", "air waybill"),
           descriptionHtml =
-            "\n<p class=\"govuk-body govuk-!-margin-bottom-2\">\n    Air waybill can be up to a maximum of 9 MB size per file. The selected file must be Excel, Outlook, JPG, PNG, PDF, CSV, TXT or Word.\n</p>\n\n\n<p class=\"govuk-body govuk-!-margin-bottom-6\">\n    You can use the 'Choose files' button to upload or 'drag and drop' multiple files.\n</p>\n",
+            "\n<p class=\"govuk-body govuk-!-margin-bottom-2\">\n    Air waybill can be up to a maximum of 9 MB size per file. The selected file must be Excel, JPG, PNG, PDF, CSV, TXT or Word.\n</p>\n\n\n<p class=\"govuk-body govuk-!-margin-bottom-6\">\n    You can use the 'Choose files' button to upload or 'drag and drop' multiple files.\n</p>\n",
           serviceUrl = viewConfig.homePageUrl,
           accessibilityStatementUrl = viewConfig.accessibilityStatementUrl,
           phaseBanner = "beta",
