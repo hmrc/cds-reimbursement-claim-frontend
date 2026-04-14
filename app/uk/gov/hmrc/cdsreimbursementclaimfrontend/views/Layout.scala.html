@@ -46,6 +46,8 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation._
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 
 @this(
         hmrcStandardPage: HmrcStandardPage,
@@ -102,21 +104,27 @@
 }
 
 @hmrcStandardPage(HmrcStandardPageParams(
+    pageTitle = Some(viewConfig.pageTitleWithServiceNameAndError(pageTitle.getOrElse(""), messages("service.title"), messages("service.title.error"), hasErrors)),
+    serviceName = Some(""),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(viewConfig.homePageUrl),
         signOutUrl = signOutUrl,
         accessibilityStatementUrl = Some(viewConfig.accessibilityStatementUrl)
+    ),
+    serviceNavigation = Some(
+        ServiceNavigation(
+            serviceName = Some(messages("service.name")),
+            serviceUrl = Some(viewConfig.homePageUrl)
+        ).withLanguageToggle()
     ),
     banners = Banners(
         phaseBanner = Some(PhaseBanner(
             tag = Some(Tag(content = HtmlContent(messages("phasebanner.phase")))),
             content = HtmlContent(messages("phasebanner.feedback.text", viewConfig.betaFeedbackUrl)),
             classes = "govuk-!-display-none-print"
-        )), 
+        )),
         userResearchBanner = Some(UserResearchBanner(url = viewConfig.researchUrl))
     ),
-    pageTitle = Some(viewConfig.pageTitleWithServiceNameAndError(pageTitle.getOrElse(""), messages("service.title"), messages("service.title.error"), hasErrors)),
-    isWelshTranslationAvailable = !suppressLanguageToggle && viewConfig.enableLanguageSwitching,
     backLink = { if(!suppressBackLink) Some(BackLink(content = Text(messages("back.text")), classes = "govuk-!-display-none")) else None },
     templateOverrides = TemplateOverrides(
         additionalScriptsBlock = Some(additionalScriptsBlock),
