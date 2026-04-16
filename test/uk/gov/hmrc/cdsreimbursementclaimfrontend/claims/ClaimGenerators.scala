@@ -195,7 +195,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
 
   final def buildSecuritiesImportDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[ImportDeclaration] =
     for
-      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
+      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values.filterNot(_ == ReasonForSecurity.InwardProcessingRelief))
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
       numberOfSecurities <- Gen.choose(2, 5)
@@ -222,7 +222,7 @@ trait ClaimGenerators extends ClaimTestData with BigDecimalGen {
 
   final def buildSingleSecurityImportDeclarationGen(allDutiesGuaranteeEligible: Boolean): Gen[ImportDeclaration] =
     for
-      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values)
+      reasonForSecurity  <- Gen.oneOf(ReasonForSecurity.values.filterNot(_ == ReasonForSecurity.InwardProcessingRelief))
       declarantEORI      <- IdGen.genEori
       consigneeEORI      <- IdGen.genEori
       numberOfSecurities <- Gen.const(1)

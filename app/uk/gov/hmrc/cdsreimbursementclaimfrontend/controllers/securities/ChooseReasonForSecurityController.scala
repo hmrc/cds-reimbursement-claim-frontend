@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ClaimControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.SecuritiesClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.EndUseRelief
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForSecurity.InwardProcessingRelief
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.GetDeclarationError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ImportDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -108,7 +109,9 @@ class ChooseReasonForSecurityController @Inject() (
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(claim), postAction))
           ),
         reasonForSecurity =>
-          if claim.getReasonForSecurity.contains(reasonForSecurity) then
+          if reasonForSecurity == InwardProcessingRelief then
+            (claim, Redirect(routes.InwardProcessingReliefUnavailableController.show))
+          else if claim.getReasonForSecurity.contains(reasonForSecurity) then
             (
               claim,
               if claim.answers.modes.checkDeclarationDetailsChangeMode

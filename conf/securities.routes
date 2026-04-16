@@ -39,6 +39,8 @@ POST         /securities/check-total-import-discharged                 @uk.gov.h
 
 GET          /securities/error/claim-invalid-not-exported-all          @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.ClaimInvalidNotExportedAllController.show
 
+GET          /securities/error/inward-processing-relief-unavailable   @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.InwardProcessingReliefUnavailableController.show
+
 GET          /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.showFirst
 POST         /securities/enter-export-movement-reference-number        @uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.securities.EnterExportMovementReferenceNumberController.submitFirst
 

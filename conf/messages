@@ -702,6 +702,11 @@ claim-invalid-not-exported-all.p2=You can:
 claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_blank" rel="nofollow noopener">start a new security deposit claim</a>
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">contact HMRC (opens in new tab)</a> to update your claim or to discuss your security deposit or guarantee
 
+inward-processing-relief-unavailable.title=Sorry, the service is unavailable
+inward-processing-relief-unavailable.p1=To submit your IPR claim by post, complete one of these forms:
+inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with full authorisation</a>
+inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with authorisation by declaration</a>
+
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
 confirm-full-repayment.mrn=Movement Reference Number (MRN)
 confirm-full-repayment.title=Claiming back security deposit ID: {0}
