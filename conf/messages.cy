@@ -666,9 +666,9 @@ claim-invalid-not-exported-all.p2.li1=<a href="{0}" class="govuk-link" target="_
 claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-imports-reliefs-unit" class="govuk-link" target="_blank" rel="nofollow noopener">cysylltu â CThEF (yn agor tab newydd)</a> i ddiweddaru’ch hawliad neu i drafod eich blaendal sicrwydd neu warant
 
 inward-processing-relief-unavailable.title=Mae’n ddrwg gennym, nid yw’r gwasanaeth ar gael
-inward-processing-relief-unavailable.p1=I gyflwyno’ch hawliad RPM drwy’r post, llenwch un o’r ffurflenni hyn:
-inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhau ar gyfer RPM gydag awdurdodiad llawn</a>
-inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhau ar gyfer RPM gydag awdurdodiad drwy ddatganiad</a>
+inward-processing-relief-unavailable.p1=I gyflwyno’ch hawliad IPR drwy’r post, llenwch un o’r ffurflenni canlynol:
+inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad llawn</a>
+inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad drwy ddatganiad</a>
 
 
 confirm-full-repayment.single-deposit-id.title=Rhowch wybod i ni beth yr ydych yn hawlio
