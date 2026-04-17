@@ -667,8 +667,8 @@ claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/org
 
 inward-processing-relief-unavailable.title=Mae’n ddrwg gennym, nid yw’r gwasanaeth ar gael
 inward-processing-relief-unavailable.p1=I gyflwyno’ch hawliad IPR drwy’r post, llenwch un o’r ffurflenni canlynol:
-inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad llawn</a>
-inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad drwy ddatganiad</a>
+inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad llawn (yn agor tab newydd)</a>
+inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bil Rhyddhad o IPR gydag awdurdodiad drwy ddatganiad (yn agor tab newydd)</a>
 
 
 confirm-full-repayment.single-deposit-id.title=Rhowch wybod i ni beth yr ydych yn hawlio

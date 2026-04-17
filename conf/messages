@@ -704,8 +704,8 @@ claim-invalid-not-exported-all.p2.li2=<a href="https://www.gov.uk/government/org
 
 inward-processing-relief-unavailable.title=Sorry, the service is unavailable
 inward-processing-relief-unavailable.p1=To submit your IPR claim by post, complete one of these forms:
-inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with full authorisation</a>
-inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with authorisation by declaration</a>
+inward-processing-relief-unavailable.p1.li1=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD1CDSA/bod1cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with full authorisation (opens in new tab)</a>
+inward-processing-relief-unavailable.p1.li2=<a href="https://www.tax.service.gov.uk/print-and-post/form/Customs_C/1.0/BOD3CDS/bod3cds.xdp" class="govuk-link" target="_blank" rel="nofollow noopener">Bill of Discharge for IPR with authorisation by declaration (opens in new tab)</a>
 
 confirm-full-repayment.error.required=Choose &apos;Yes&apos; if you would like to claim back the full amount
 confirm-full-repayment.mrn=Movement Reference Number (MRN)
