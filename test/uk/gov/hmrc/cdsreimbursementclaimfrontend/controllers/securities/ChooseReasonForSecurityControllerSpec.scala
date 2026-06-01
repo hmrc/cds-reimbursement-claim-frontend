@@ -408,30 +408,30 @@ class ChooseReasonForSecurityControllerSpec
       "retrieve the ACC14 declaration and redirect to the enter importer EORI page when user's EORI don't match those of ACC14" in {
         forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
           whenever(declaration.getReasonForSecurity.get != InwardProcessingRelief) {
-          val initialClaim =
-            SecuritiesClaim
-              .empty(exampleEori)
-              .submitMovementReferenceNumber(declaration.getMRN)
+            val initialClaim =
+              SecuritiesClaim
+                .empty(exampleEori)
+                .submitMovementReferenceNumber(declaration.getMRN)
 
-          val updatedClaim = SessionData(
-            initialClaim
-              .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
-              .getOrFail
-          )
+            val updatedClaim = SessionData(
+              initialClaim
+                .submitReasonForSecurityAndDeclaration(declaration.getReasonForSecurity.get, declaration)
+                .getOrFail
+            )
 
-          inSequence {
-            mockAuthWithDefaultRetrievals()
-            mockGetSession(SessionData(initialClaim))
-            mockGetImportDeclarationWithErrorCodes(Right(declaration))
-            mockStoreSession(updatedClaim)(Right(()))
-          }
+            inSequence {
+              mockAuthWithDefaultRetrievals()
+              mockGetSession(SessionData(initialClaim))
+              mockGetImportDeclarationWithErrorCodes(Right(declaration))
+              mockStoreSession(updatedClaim)(Right(()))
+            }
 
-          checkIsRedirect(
-            performAction(
-              Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
-            ),
-            routes.EnterImporterEoriNumberController.show
-          )
+            checkIsRedirect(
+              performAction(
+                Seq("choose-reason-for-security.securities" -> declaration.getReasonForSecurity.get.toString)
+              ),
+              routes.EnterImporterEoriNumberController.show
+            )
           }
         }
 
@@ -478,7 +478,9 @@ class ChooseReasonForSecurityControllerSpec
             .empty(declaration.getDeclarantEori)
             .submitMovementReferenceNumber(declaration.getMRN)
 
-        val rfsToSelect = ReasonForSecurity.values.filter(r => r =!= declaration.getReasonForSecurity.get && r != InwardProcessingRelief).head
+        val rfsToSelect = ReasonForSecurity.values
+          .filter(r => r =!= declaration.getReasonForSecurity.get && r != InwardProcessingRelief)
+          .head
 
         inSequence {
           mockAuthWithDefaultRetrievals()
@@ -501,7 +503,9 @@ class ChooseReasonForSecurityControllerSpec
               .empty(declaration.getDeclarantEori)
               .submitMovementReferenceNumber(declaration.getMRN)
 
-          val rfsToSelect = ReasonForSecurity.values.filter(r => r =!= declaration.getReasonForSecurity.get && r != InwardProcessingRelief).head
+          val rfsToSelect = ReasonForSecurity.values
+            .filter(r => r =!= declaration.getReasonForSecurity.get && r != InwardProcessingRelief)
+            .head
 
           inSequence {
             mockAuthWithDefaultRetrievals()
