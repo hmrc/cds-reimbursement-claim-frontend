@@ -193,6 +193,29 @@ class EnterNewEoriNumberControllerSpec
 
       }
 
+      "submit a valid Eori format, importer has EU eori but new eori starts with GB" in forAll(
+        buildClaimFromAnswersGen(answersUpToBasisForClaimGen(currentUserEoriNumber = IdGen.genEuEori)).flatMap(j =>
+          j.submitBasisOfClaim(IncorrectEoriAndDan)
+        )
+      ) { claim =>
+        val eori = Eori("GB123456123456")
+        inSequence {
+          mockAuthWithDefaultRetrievals()
+          mockGetSession(SessionData(claim))
+        }
+
+        checkPageIsDisplayed(
+          performAction(controller.formKey -> eori.value),
+          messageFromMessageKey("enter-new-eori-number.title"),
+          doc => {
+            getErrorSummary(doc) shouldBe messageFromMessageKey("enter-new-eori-number.mustNotStartWithGB")
+            doc.select("#enter-new-eori-number").`val`() shouldBe eori.value
+          },
+          expectedStatus = BAD_REQUEST
+        )
+
+      }
+
       "submit a valid Eori format but eori does not exist" in forAll(
         claimGen.flatMap(j => j.submitBasisOfClaim(IncorrectEoriAndDan))
       ) { claim =>

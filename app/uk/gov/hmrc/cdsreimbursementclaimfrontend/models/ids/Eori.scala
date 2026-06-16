@@ -37,7 +37,7 @@ object Eori {
     def isXiEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("XI")
     def isGBEori: Boolean = eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith("GB")
     def isEuEori: Boolean =
-      euEoriPrefixes.contains(prefix => eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith(prefix))
+      euEoriPrefixes.exists(prefix => eori.value.toUpperCase(java.util.Locale.ENGLISH).startsWith(prefix))
   }
 
   val euEoriPrefixes = Seq(
