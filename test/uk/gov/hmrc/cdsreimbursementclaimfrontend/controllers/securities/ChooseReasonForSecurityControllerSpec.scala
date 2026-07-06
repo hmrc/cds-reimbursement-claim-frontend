@@ -340,25 +340,43 @@ class ChooseReasonForSecurityControllerSpec
         }
       }
 
-      "redirect to the inward processing relief unavailable page when reason for security is InwardProcessingRelief" in {
-        val rfs = ReasonForSecurity.InwardProcessingRelief
+      "redirect to the Check Total Import Discharged page when reason for security is InwardProcessingRelief" in {
+        forAll(securitiesImportDeclarationGen) { (declaration: ImportDeclaration) =>
+          val rfs = ReasonForSecurity.InwardProcessingRelief
 
-        val initialClaim =
-          SecuritiesClaim
-            .empty(exampleEori)
-            .submitMovementReferenceNumber(exampleMrn)
+          val updatedDeclaration = declaration
+            .copy(displayResponseDetail =
+              declaration.displayResponseDetail
+                .copy(securityReason = Some(rfs.acc14Code))
+            )
 
-        inSequence {
-          mockAuthWithDefaultRetrievals()
-          mockGetSession(SessionData(initialClaim))
+          val initialClaim =
+            SecuritiesClaim
+              .empty(updatedDeclaration.getDeclarantEori)
+              .submitMovementReferenceNumber(updatedDeclaration.getMRN)
+
+          val updatedClaim = SessionData(
+            initialClaim
+              .submitReasonForSecurityAndDeclaration(rfs, updatedDeclaration)
+              .flatMap(_.submitClaimDuplicateCheckStatus(similarClaimExistAlreadyInCDFPay = false))
+              .getOrFail
+          )
+
+          inSequence {
+            mockAuthWithDefaultRetrievals()
+            mockGetSession(SessionData(initialClaim))
+            mockGetImportDeclarationWithErrorCodes(Right(updatedDeclaration))
+            mockGetIsDuplicateClaim(Right(ExistingClaim(claimFound = false)))
+            mockStoreSession(updatedClaim)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(
+              Seq("choose-reason-for-security.securities" -> rfs.toString)
+            ),
+            routes.SelectSecuritiesController.showFirst()
+          )
         }
-
-        checkIsRedirect(
-          performAction(
-            Seq("choose-reason-for-security.securities" -> rfs.toString)
-          ),
-          routes.InwardProcessingReliefUnavailableController.show
-        )
       }
 
       "redirect to the Check Total Import Discharged page when reason for security is EndUseRelief" in {
@@ -400,7 +418,7 @@ class ChooseReasonForSecurityControllerSpec
             performAction(
               Seq("choose-reason-for-security.securities" -> rfs.toString)
             ),
-            routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show
+            routes.SelectSecuritiesController.showFirst()
           )
         }
       }

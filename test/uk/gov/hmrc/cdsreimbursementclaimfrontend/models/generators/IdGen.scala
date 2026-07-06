@@ -81,7 +81,7 @@ object IdGen {
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"XI${n.mkString}")
     yield Eori(s)
-    
+
   lazy val genEuEori: Gen[Eori] =
     for
       n <- Gen.listOfN(12, Gen.numChar)
