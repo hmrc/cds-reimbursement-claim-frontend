@@ -419,7 +419,7 @@ object Forms {
             .verifying(Constraint[String] { (str: String) =>
               if str.isBlank then Invalid("error.required")
               else if !str.matches("""^[\w-]+$""") then Invalid("invalid.characters")
-              else if !MRN(str).isValid && !MRN(str).isValidChiefEntry then Invalid("invalid.format")
+              else if !MRN(str).isValid then Invalid("invalid.format")
               else Valid
             })
             .transform[MRN](MRN(_), _.value),
@@ -439,7 +439,7 @@ object Forms {
             .verifying(Constraint[String] { (str: String) =>
               if str.isBlank then Invalid("error.required")
               else if !str.matches("""^[\w-]+$""") then Invalid("invalid.characters")
-              else if !MRN(str).isValid && !MRN(str).isValidChiefEntry then Invalid("invalid.format")
+              else if !MRN(str).isValid then Invalid("invalid.format")
               else Valid
             })
             .transform[MRN](MRN(_), _.value),

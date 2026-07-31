@@ -105,11 +105,6 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
         errors shouldBe Nil
       }
 
-      "Accept a valid CHIEF entry" in forAll(genChiefEntryMRN) { mrn =>
-        val errors = firstExportMrnForm.bind(Map(mrnKey -> mrn.value, firstYesNoKey -> "true")).errors
-        errors shouldBe Nil
-      }
-
       "Reject empty MRN" in {
         val errors = firstExportMrnForm.bind(Map(mrnKey -> "", firstYesNoKey -> "true")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.required")
@@ -137,11 +132,6 @@ class FormsSpec extends AnyWordSpec with Matchers with ScalaCheckPropertyChecks 
       val nextYesNoKey                                  = s"$nextMrnKey.securities.yes-no"
 
       "Accept a valid MRN" in forAll(genMRN) { mrn =>
-        val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrn.value, nextYesNoKey -> "true")).errors
-        errors shouldBe Nil
-      }
-
-      "Accept a valid CHIEF entry" in forAll(genChiefEntryMRN) { mrn =>
         val errors = nextExportMrnForm.bind(Map(nextMrnKey -> mrn.value, nextYesNoKey -> "true")).errors
         errors shouldBe Nil
       }

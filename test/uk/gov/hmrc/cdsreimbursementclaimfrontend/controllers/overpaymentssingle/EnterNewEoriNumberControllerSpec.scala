@@ -208,7 +208,7 @@ class EnterNewEoriNumberControllerSpec
           performAction(controller.formKey -> eori.value),
           messageFromMessageKey("enter-new-eori-number.title"),
           doc => {
-            getErrorSummary(doc) shouldBe messageFromMessageKey("enter-new-eori-number.mustNotStartWithGB")
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey("enter-new-eori-number.mustNotStartWithGB")
             doc.select("#enter-new-eori-number").`val`() shouldBe eori.value
           },
           expectedStatus = BAD_REQUEST

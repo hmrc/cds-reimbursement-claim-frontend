@@ -81,7 +81,7 @@ object IdGen {
       n <- Gen.listOfN(12, Gen.numChar)
       s <- Gen.const(s"XI${n.mkString}")
     yield Eori(s)
-    
+
   lazy val genEuEori: Gen[Eori] =
     for
       n <- Gen.listOfN(12, Gen.numChar)
@@ -96,12 +96,6 @@ object IdGen {
     word    <- Gen.listOfN(13, Gen.numChar)
     d2      <- Gen.listOfN(1, Gen.numChar)
   yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
-
-  lazy val genChiefEntryMRN: Gen[MRN] = for
-    d1        <- Gen.listOfN(3, Gen.numChar)
-    maybeDash <- Gen.option(Gen.const("-"))
-    d2        <- Gen.listOfN(6, Gen.numChar)
-  yield MRN((d1 ++ maybeDash ++ d2).mkString)
 
   lazy val genName: Gen[Name] = for
     name     <- genStringWithMaxSizeOfN(20)
