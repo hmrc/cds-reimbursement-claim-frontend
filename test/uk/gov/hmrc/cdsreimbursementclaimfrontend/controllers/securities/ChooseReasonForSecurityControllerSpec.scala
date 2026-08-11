@@ -21,6 +21,8 @@ import cats.implicits.catsSyntaxEq
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import org.scalatest.BeforeAndAfterEach
+import org.scalacheck.Gen.Parameters.default
+import org.scalacheck.rng.Seed
 import play.api.i18n.Lang
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -525,8 +527,8 @@ class ChooseReasonForSecurityControllerSpec
 
       "submit with declaration with new eori formats" in {
         val declaration =
-          securitiesImportDeclarationWithoutIPROrEndUseReliefGen.sample
-            .getOrElse(fail("Failed to generate declaration"))
+          securitiesImportDeclarationWithoutIPROrEndUseReliefGen(default, Seed.random())
+            .getOrElse(fail("Failed to generate declaration due to ScalaCheck sample exhaustion"))
             .withDeclarantEori(exampleEoriNewFormat)
             .withConsigneeEori(exampleEoriNewFormat)
 
