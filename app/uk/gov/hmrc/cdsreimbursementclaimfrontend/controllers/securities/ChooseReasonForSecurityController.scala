@@ -109,15 +109,13 @@ class ChooseReasonForSecurityController @Inject() (
             BadRequest(chooseReasonForSecurityPage(formWithErrors, reasonsForSecurity(claim), postAction))
           ),
         reasonForSecurity =>
-          if reasonForSecurity == InwardProcessingRelief then
-            (claim, Redirect(routes.InwardProcessingReliefUnavailableController.show))
-          else if claim.getReasonForSecurity.contains(reasonForSecurity) then
+          if claim.getReasonForSecurity.contains(reasonForSecurity) then
             (
               claim,
               if claim.answers.modes.checkDeclarationDetailsChangeMode
               then Redirect(routes.CheckDeclarationDetailsController.show)
-              else if claim.reasonForSecurityIsIPROrENU
-              then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
+//              else if claim.reasonForSecurityIsIPROrENU
+//              then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
               else successResultSelectSecurities
             )
           else
@@ -246,8 +244,8 @@ class ChooseReasonForSecurityController @Inject() (
             if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-            } else if claimWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
-              Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
+//            } else if claimWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
+//              Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
             } else successResultSelectSecurities
           )
         )
