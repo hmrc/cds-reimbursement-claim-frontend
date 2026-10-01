@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 /*
-TODO: we can introduce a genuinely generic connector without changing the controllers,
+TODO: genuinely generic connector without changing the controllers,
  request/response JSON formats, claim models, or existing Guice injection points.
  */
 
@@ -39,14 +39,9 @@ object ClaimConnectorConfig {
     claimType: String
   ): ClaimConnectorConfig = {
 
-    val baseUrl =
-      servicesConfig.baseUrl(serviceKey)
+    val baseUrl = servicesConfig.baseUrl(serviceKey)
 
-    val contextPath =
-      servicesConfig.getConfString(
-        s"$serviceKey.context-path",
-        serviceKey
-      )
+    val contextPath = servicesConfig.getConfString(s"$serviceKey.context-path", serviceKey)
 
     ClaimConnectorConfig(
       baseUrl = baseUrl,

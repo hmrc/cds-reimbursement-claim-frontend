@@ -27,7 +27,6 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.client.HttpClientV2
-
 import java.net.URL
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -99,12 +98,11 @@ class ClaimConnector[Req, Res](
       }
     }
 
-  def retrySubmitWithFreeTextInputAttachedAsAFile(
+  private def retrySubmitWithFreeTextInputAttachedAsAFile(
     claimRequest: Req
   )(implicit hc: HeaderCarrier): Future[Res] = {
 
-    val (freeTexts, rebuildRequest) =
-      mitigation.prepareForRetry(claimRequest)
+    val (freeTexts, rebuildRequest) = mitigation.prepareForRetry(claimRequest)
 
     uploadFreeTextsAsSeparateFiles(freeTexts)
       .flatMap { uploadedDocuments =>

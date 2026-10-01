@@ -26,10 +26,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
-// ----------------------------------------------------
-// Overpayments - Single
-// ----------------------------------------------------
-
 @Singleton
 class OverpaymentsSingleClaimConnectorImpl @Inject() (
   http: HttpClientV2,
@@ -68,10 +64,6 @@ class OverpaymentsSingleClaimConnectorImpl @Inject() (
       OverpaymentsSingleClaimConnector.responseFormat
     )
     with OverpaymentsSingleClaimConnector
-
-// ----------------------------------------------------
-// Overpayments - Multiple
-// ----------------------------------------------------
 
 @Singleton
 class OverpaymentsMultipleClaimConnectorImpl @Inject() (
@@ -112,10 +104,6 @@ class OverpaymentsMultipleClaimConnectorImpl @Inject() (
     )
     with OverpaymentsMultipleClaimConnector
 
-// ----------------------------------------------------
-// Overpayments - Scheduled
-// ----------------------------------------------------
-
 @Singleton
 class OverpaymentsScheduledClaimConnectorImpl @Inject() (
   http: HttpClientV2,
@@ -154,10 +142,6 @@ class OverpaymentsScheduledClaimConnectorImpl @Inject() (
       OverpaymentsScheduledClaimConnector.responseFormat
     )
     with OverpaymentsScheduledClaimConnector
-
-// ----------------------------------------------------
-// Rejected Goods - Single
-// ----------------------------------------------------
 
 @Singleton
 class RejectedGoodsSingleClaimConnectorImpl @Inject() (
@@ -198,10 +182,6 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
     )
     with RejectedGoodsSingleClaimConnector
 
-// ----------------------------------------------------
-// Rejected Goods - Multiple
-// ----------------------------------------------------
-
 @Singleton
 class RejectedGoodsMultipleClaimConnectorImpl @Inject() (
   http: HttpClientV2,
@@ -241,10 +221,6 @@ class RejectedGoodsMultipleClaimConnectorImpl @Inject() (
     )
     with RejectedGoodsMultipleClaimConnector
 
-// ----------------------------------------------------
-// Rejected Goods - Scheduled
-// ----------------------------------------------------
-
 @Singleton
 class RejectedGoodsScheduledClaimConnectorImpl @Inject() (
   http: HttpClientV2,
@@ -283,10 +259,6 @@ class RejectedGoodsScheduledClaimConnectorImpl @Inject() (
       RejectedGoodsScheduledClaimConnector.responseFormat
     )
     with RejectedGoodsScheduledClaimConnector
-
-// ----------------------------------------------------
-// Securities
-// ----------------------------------------------------
 
 @Singleton
 class SecuritiesClaimConnectorImpl @Inject() (

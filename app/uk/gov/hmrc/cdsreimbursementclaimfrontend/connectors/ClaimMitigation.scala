@@ -38,8 +38,7 @@ object ClaimMitigation {
   ): ClaimMitigation[Req] =
     (request: Req) => {
 
-      val (freeTexts, sanitisedClaim) =
-        getClaim(request).excludeFreeTextInputs()
+      val (freeTexts, sanitisedClaim) = getClaim(request).excludeFreeTextInputs()
 
       val rebuildRequest: Seq[EvidenceDocument] => Req =
         uploadedDocuments =>
