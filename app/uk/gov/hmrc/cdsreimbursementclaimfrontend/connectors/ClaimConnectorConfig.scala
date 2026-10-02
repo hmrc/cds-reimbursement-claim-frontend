@@ -18,11 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-/*
-TODO: genuinely generic connector without changing the controllers,
- request/response JSON formats, claim models, or existing Guice injection points.
- */
-
 final case class ClaimConnectorConfig(
   baseUrl: String,
   path: String

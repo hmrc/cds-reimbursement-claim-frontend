@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import cats.syntax.eq.*
 import com.google.inject.ImplementedBy
 import play.api.libs.json.Format
 import play.api.libs.json.Json
