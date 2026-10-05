@@ -52,7 +52,7 @@ class ClaimConnector[Req, Res](
 
   lazy val retryIntervals: Seq[FiniteDuration] =
     Retries.getConfIntervals(
-      "cds-reimbursement-claim",
+      config.serviceKey,
       configuration
     )
 

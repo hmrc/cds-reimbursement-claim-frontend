@@ -20,7 +20,8 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 final case class ClaimConnectorConfig(
   baseUrl: String,
-  path: String
+  path: String,
+  serviceKey: String
 ) {
   def url: String = s"$baseUrl$path"
 }
@@ -40,7 +41,8 @@ object ClaimConnectorConfig {
 
     ClaimConnectorConfig(
       baseUrl = baseUrl,
-      path = s"$contextPath/claims/$claimType"
+      path = s"$contextPath/claims/$claimType",
+      serviceKey = serviceKey
     )
   }
 }
