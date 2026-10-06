@@ -18,24 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.syntax.eq.*
 import com.google.inject.ImplementedBy
-import com.google.inject.Inject
-import org.apache.pekko.actor.ActorSystem
-import play.api.Configuration
 import play.api.libs.json.Format
 import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.claims.RejectedGoodsSingleClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps.*
-import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.client.HttpClientV2
-import play.api.libs.ws.JsonBodyWritables.*
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.URL
-import javax.inject.Singleton
-import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[RejectedGoodsSingleClaimConnectorImpl])
@@ -43,63 +30,6 @@ trait RejectedGoodsSingleClaimConnector {
   def submitClaim(claimRequest: RejectedGoodsSingleClaimConnector.Request, mitigate403: Boolean)(implicit
     hc: HeaderCarrier
   ): Future[RejectedGoodsSingleClaimConnector.Response]
-}
-
-@Singleton
-class RejectedGoodsSingleClaimConnectorImpl @Inject() (
-  http: HttpClientV2,
-  servicesConfig: ServicesConfig,
-  configuration: Configuration,
-  val actorSystem: ActorSystem,
-  val uploadDocumentsConnector: UploadDocumentsConnector
-)(implicit
-  ec: ExecutionContext
-) extends RejectedGoodsSingleClaimConnector
-    with Retries
-    with WafErrorMitigationHelper {
-
-  import RejectedGoodsSingleClaimConnector._
-
-  lazy val baseUrl: String                     = servicesConfig.baseUrl("cds-reimbursement-claim")
-  lazy val contextPath: String                 =
-    servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
-  lazy val claimUrl: String                    = s"$baseUrl$contextPath/claims/rejected-goods-single"
-  lazy val retryIntervals: Seq[FiniteDuration] = Retries.getConfIntervals("cds-reimbursement-claim", configuration)
-
-  override def submitClaim(claimRequest: Request, mitigate403: Boolean)(implicit
-    hc: HeaderCarrier
-  ): Future[Response] =
-    retry(retryIntervals*)(shouldRetry, retryReason)(
-      http
-        .post(URL(claimUrl))
-        .withBody(Json.toJson(claimRequest))
-        .transform(_.addHttpHeaders(Seq("Accept-Language" -> "en")*))
-        .execute[HttpResponse]
-    ).flatMap(response =>
-      if response.status === 200 then
-        response
-          .parseJSON[Response]()
-          .fold(error => Future.failed(Exception(error)), Future.successful)
-      else if response.status == 403 && mitigate403
-      then retrySubmitWithFreeTextInputAttachedAsAFile(claimRequest)
-      else
-        Future.failed(
-          Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
-        )
-    )
-
-  def retrySubmitWithFreeTextInputAttachedAsAFile(claimRequest: Request)(implicit
-    hc: HeaderCarrier
-  ): Future[Response] = {
-    val (freeTexts, sanitizedClaim) = claimRequest.claim.excludeFreeTextInputs()
-    uploadFreeTextsAsSeparateFiles(freeTexts)
-      .flatMap(freeTextUploads =>
-        submitClaim(
-          Request(sanitizedClaim.copy(supportingEvidences = sanitizedClaim.supportingEvidences ++ freeTextUploads)),
-          mitigate403 = false
-        )
-      )
-  }
 }
 
 object RejectedGoodsSingleClaimConnector {
