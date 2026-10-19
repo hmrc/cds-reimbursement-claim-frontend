@@ -114,8 +114,6 @@ class ChooseReasonForSecurityController @Inject() (
               claim,
               if claim.answers.modes.checkDeclarationDetailsChangeMode
               then Redirect(routes.CheckDeclarationDetailsController.show)
-//              else if claim.reasonForSecurityIsIPROrENU
-//              then Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
               else successResultSelectSecurities
             )
           else
