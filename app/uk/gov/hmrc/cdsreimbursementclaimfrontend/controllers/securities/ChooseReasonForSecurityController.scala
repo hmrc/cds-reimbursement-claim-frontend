@@ -242,8 +242,6 @@ class ChooseReasonForSecurityController @Inject() (
             if similarClaimExistAlreadyInCDFPay then {
               logger.info("Claim ineligible because already exists.")
               errorResultClaimExistsAlready
-//            } else if claimWithUpdatedStatus.reasonForSecurityIsIPROrENU then {
-//              Redirect(routes.CheckDeclarationDetailsWithoutSecuritiesSelectionController.show)
             } else successResultSelectSecurities
           )
         )
