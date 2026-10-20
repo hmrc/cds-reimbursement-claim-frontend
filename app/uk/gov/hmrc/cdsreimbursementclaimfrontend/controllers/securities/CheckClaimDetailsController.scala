@@ -89,5 +89,6 @@ class CheckClaimDetailsController @Inject() (
 
   private def decideNextPage(claim: SecuritiesClaim): Result =
     if claim.userHasSeenCYAPage then Redirect(routes.CheckYourAnswersController.show)
+    else if claim.reasonForSecurityIsIPROrENU then Redirect(routes.CheckTotalImportDischargedController.show)
     else Redirect(routes.ChoosePayeeTypeController.show)
 }
